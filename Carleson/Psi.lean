@@ -350,12 +350,6 @@ lemma sum_Ks {t : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ t) (hD : 1 < (D : 
   intros
   rwa [psi_eq_zero_iff hD h]
 
--- maybe this version is also useful?
--- lemma sum_Ks' {t : Finset ℤ}
---     (hs : ∀ i : ℤ, (D ^ i * dist x y) ∈ Ioo (4 * D)⁻¹ 2⁻¹ → i ∈ t)
---     (hD : 1 < D) (h : x ≠ y) : ∑ i ∈ t, Ks i x y = K x y := by
---   sorry
-
 lemma dist_mem_Ioo_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
     dist x y ∈ Ioo ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
   simp only [Ks, zpow_neg, ne_eq, mul_eq_zero, ofReal_eq_zero] at h

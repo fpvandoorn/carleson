@@ -344,13 +344,12 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
 section lemma_6_1_5
 
 /-- The constant from lemma 6.1.5. -/
-def C6_1_5 (a : ℕ) : ℝ≥0 := 2^(255 * a^3)
+def C6_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (255 * a ^ 3)
 
 -- TODO : 4 ≤ a in blueprint
-@[nolint unusedHavesSuffices] -- nlinarith does use h255.
 lemma C6_1_5_bound (ha : 4 ≤ a) : 2 ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C6_1_5 a := by
-  have h255 : 255 * a ^ 3 = 254 * a ^ 3  + (a ^ 2 * a) := by
-    have : a ^ 2 * a = a^3 := rfl
+  have h255 : 255 * a ^ 3 = 254 * a ^ 3 + (a ^ 2 * a) := by
+    have : a ^ 2 * a = a ^ 3 := rfl
     rw [← one_mul (a ^ 2 * a), this, ← add_mul]
     rfl
   rw [C6_1_5, ← pow_add]
