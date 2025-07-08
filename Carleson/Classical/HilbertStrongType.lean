@@ -314,31 +314,60 @@ def dirichletApprox (n : ℕ) (x : ℝ) : ℂ :=
   (n : ℂ)⁻¹ * ∑ k ∈ .Ico n (2 * n), dirichletKernel k x * Complex.exp (- Complex.I * k * x)
 
 /-- Lemma 11.3.5, part 1. -/
-lemma continuous_dirichletApprox {n : ℕ} : Continuous (dirichletApprox n) := by
-  sorry
+@[fun_prop] lemma continuous_dirichletApprox {n : ℕ} : Continuous (dirichletApprox n) := by
+  change Continuous (fun x ↦ dirichletApprox n x)
+  simp only [dirichletApprox]
+  fun_prop
 
 /-- Lemma 11.3.5, part 2. -/
 lemma periodic_dirichletApprox (n : ℕ) : (dirichletApprox n).Periodic (2 * π) := by
-  sorry
+  intro x
+  simp only [dirichletApprox, neg_mul, ofReal_add, ofReal_mul, ofReal_ofNat, mul_eq_mul_left_iff,
+    inv_eq_zero, Nat.cast_eq_zero]
+  left
+  congr with i
+  congr 1
+  · apply dirichletKernel_periodic
+  · simp only [mul_add, neg_add_rev, exp_add, exp_neg, ne_eq, inv_eq_zero, exp_ne_zero,
+      not_false_eq_true, mul_eq_right₀, inv_eq_one]
+    convert Complex.exp_nat_mul_two_pi_mul_I i using 2
+    ring
 
 /-- Lemma 11.3.5, part 3.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
-lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} {n : ℕ}
-    (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
+lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f ∞ volume)
     {n : ℕ} {x : ℝ} :
     approxHilbertTransform n f x =
-    (2 * π)⁻¹ * ∫ y in (0)..2 * π, f y * dirichletApprox n (x - y) := by
-  sorry
+      (2 * π)⁻¹ * ∫ y in (0)..2 * π, f y * dirichletApprox n (x - y) := by
+  simp only [approxHilbertTransform, Finset.mul_sum, mul_inv_rev, ofReal_mul, ofReal_inv,
+    ofReal_ofNat, dirichletApprox, neg_mul, ofReal_sub]
+  rw [intervalIntegral.integral_finset_sum]; swap
+  · intro i hi
+    apply IntervalIntegrable.mul_continuousOn ?_ (by fun_prop)
+    rw [intervalIntegrable_iff_integrableOn_Ioc_of_le (by simp [Real.pi_nonneg])]
+    exact (hf.restrict _).integrable le_top
+  simp only [Finset.mul_sum]
+  congr with i
+  simp only [modulationOperator, Int.cast_neg, Int.cast_natCast, mul_neg, neg_mul]
+  rw [partialFourierSum_eq_conv_dirichletKernel]; swap
+  · apply IntervalIntegrable.mul_continuousOn ?_ (by fun_prop)
+    rw [intervalIntegrable_iff_integrableOn_Ioc_of_le (by simp [Real.pi_nonneg])]
+    exact (hf.restrict _).integrable le_top
+  simp only [one_div, mul_inv_rev, ← intervalIntegral.integral_const_mul, ←
+    intervalIntegral.integral_mul_const]
+  congr with y
+  simp only [modulationOperator, Int.cast_natCast, mul_sub, neg_sub, exp_sub, div_eq_inv_mul,
+    ← exp_neg]
+  ring
 
 /-- Lemma 11.3.5, part 4.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
-lemma dist_dirichletApprox_le {f : ℝ → ℂ} {n : ℕ}
-    (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
+lemma dist_dirichletApprox_le {n : ℕ}
     {r : ℝ} (hr : r ∈ Ioo 0 1) {n : ℕ} (hn : n = ⌈r⁻¹⌉₊) {x : ℝ} :
-    dist (dirichletApprox n x) ({y : ℂ | ‖y‖ ∈ Ioo r 1}.indicator 1 x) ≤
-    2 ^ (5 : ℝ) * niceKernel r x := by
+    dist (dirichletApprox n x) ({y : ℝ | ‖y‖ ∈ Ioo r 1}.indicator k x) ≤
+      2 ^ (5 : ℝ) * niceKernel r x := by
   sorry
 
 /- Lemma 11.1.6.

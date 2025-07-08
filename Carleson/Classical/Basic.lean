@@ -128,7 +128,7 @@ lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
 lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ}
     (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * π))
     (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * π)) :
-  S_ N (f + g) = S_ N f + S_ N g := by
+    S_ N (f + g) = S_ N f + S_ N g := by
   ext x
   simp only [partialFourierSum, fourierCoeffOn_add hf hg, fourier_apply, fourier_coe_apply',
     Complex.ofReal_mul, Complex.ofReal_ofNat, add_mul, sum_add_distrib, Pi.add_apply]
@@ -143,8 +143,8 @@ lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ}
     Complex.ofReal_mul, Complex.ofReal_ofNat, sub_mul, sum_sub_distrib, Pi.sub_apply]
 
 @[simp]
-lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}:
-  S_ N (fun x ↦ a * f x) = fun x ↦ a * S_ N f x := by
+lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ} :
+    S_ N (fun x ↦ a * f x) = fun x ↦ a * S_ N f x := by
   ext x
   simp only [partialFourierSum, fourierCoeffOn_mul, fourier_apply, fourier_coe_apply', mul_assoc,
     Complex.ofReal_mul, Complex.ofReal_ofNat, mul_sum]
