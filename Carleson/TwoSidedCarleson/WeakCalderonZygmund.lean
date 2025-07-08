@@ -1429,10 +1429,9 @@ lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {�
 
 private lemma sum_volume_restrict_le (hX : GeneralCase f (α' a α)) :
     Measure.sum (fun (j : 𝒥₂ r x hX) ↦ volume.restrict (czBall3 hX j)) ≤
-    2 ^ (6 * a) • volume.restrict (A r x hX) := by
-  refine Measure.sum_restrict_le _ (fun _ ↦ measurableSet_ball) (fun y ↦ ?_)
-  apply le_trans <| encard_subtype_le _ (fun i ↦ y ∈ ball (czCenter hX i) (3 * czRadius hX i))
-  exact encard_czBall3_le
+    2 ^ (6 * a) • volume.restrict (A r x hX) :=
+  Measure.sum_restrict_le _ (fun _ ↦ measurableSet_ball) <| fun y ↦
+    le_trans (encard_preimage_val_le_encard_right _ {i | y ∈ czBall3 hX i}) encard_czBall3_le
 
 -- Long calculation toward the end of Lemma 10.2.7
 private lemma tsum_integral_K_le (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) :
