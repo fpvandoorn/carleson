@@ -341,10 +341,7 @@ protected theorem indicator {f : X → E} (hf : BoundedCompactSupport f μ) {s :
 variable {F : X × Y → E}
 
 -- -- prove when needed
--- theorem swap (hF : BoundedCompactSupport f μ) : BoundedCompactSupport (F ∘ Prod.swap) where
---   memLp_top := sorry
---   stronglyMeasurable := sorry
---   hasCompactSupport := sorry
+-- theorem swap (hF : BoundedCompactSupport f μ) : BoundedCompactSupport (F ∘ Prod.swap)
 
 variable {F : X × Y → E}
 
@@ -356,10 +353,9 @@ variable {F : X × Y → E}
 --     apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
 --     exact hC (x, y)
 --   stronglyMeasurable := hF.stronglyMeasurable.comp_measurable measurable_prodMk_right
---   hasCompactSupport := sorry
+--   hasCompactSupport :=
 --   -- by
 --   --   apply HasCompactSupport.intro
---   --   sorry
 -- }
 
 
@@ -367,7 +363,7 @@ variable {F : X × Y → E}
 --     ∀ᵐ x, BoundedCompactSupport (fun y ↦ F (x, y)) := hF.swap.prod_left_ae
 
 -- theorem integral_prod_left (hF : BoundedCompactSupport f μ) :
---     BoundedCompactSupport (fun x ↦ ∫ y, F (x, y)) := sorry
+--     BoundedCompactSupport (fun x ↦ ∫ y, F (x, y)) :=
 -- --   have := hF.integrable.integrable_prod_left
 
 -- theorem integral_prod_right (hF : BoundedCompactSupport f μ) :

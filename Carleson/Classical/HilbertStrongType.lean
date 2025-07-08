@@ -110,28 +110,26 @@ lemma mean_zero_oscillation {n : ℤ} (hn : n ≠ 0) :
     mul_right_comm _ Complex.I]
 
 
-/-- Lemma 11.5.1
-Note: might not be used if we can use `spectral_projection_bound_lp` below.
+/-- The statement of Lemma 11.5.1
+The result `spectral_projection_bound` was similar to something already in Mathlib,
+so we do not actually formalize precisely this result, and this is unused.
 -/
-lemma partial_sum_projection {f : ℝ → ℂ} {n : ℕ}
-    (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π)) {x : ℝ} :
-    partialFourierSum n (partialFourierSum n f) x = partialFourierSum n f x := by
-  sorry
+def partial_sum_projection : Prop :=
+  ∀ {f : ℝ → ℂ} {n : ℕ}
+    (_hf : MemLp f ∞ volume) (_periodic_f : f.Periodic (2 * π)) {x : ℝ},
+    partialFourierSum n (partialFourierSum n f) x = partialFourierSum n f x
 
-/-- Lemma 11.5.2.
-Note: might not be used if we can use `spectral_projection_bound_lp` below.
+/-- The statement of Lemma 11.5.2
+The result `spectral_projection_bound` was similar to something already in Mathlib,
+so we do not actually formalize precisely this result, and this is unused.
 -/
-lemma partial_sum_selfadjoint {f g : ℝ → ℂ} {n : ℕ}
-    (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
-    (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π)) :
+def partial_sum_selfadjoint : Prop :=
+  ∀ {f g : ℝ → ℂ} {n : ℕ}
+    (_hf : MemLp f ∞ volume) (_periodic_f : f.Periodic (2 * π))
+    (_hg : MemLp g ∞ volume) (_periodic_g : g.Periodic (2 * π)),
     ∫ x in (0)..2 * π, conj (partialFourierSum n f x) * g x =
-    ∫ x in (0)..2 * π, conj (f x) * partialFourierSum n g x := by
-  sorry
+    ∫ x in (0)..2 * π, conj (f x) * partialFourierSum n g x
 
-
---lemma eLpNorm_eq_norm {f : ℝ → ℂ} {p : ENNReal} (hf : MemLp f p) :
---    ‖MemLp.toLp f hf‖ = eLpNorm f p := by
---  sorry
 
 theorem AddCircle.haarAddCircle_eq_smul_volume {T : ℝ} [hT : Fact (0 < T)] :
     (@haarAddCircle T _) = (ENNReal.ofReal T)⁻¹ • (volume : Measure (AddCircle T)) := by

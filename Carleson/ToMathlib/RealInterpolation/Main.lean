@@ -1,4 +1,3 @@
-import Carleson.ToMathlib.Lorentz
 import Carleson.ToMathlib.RealInterpolation.Minkowski
 
 /-!
@@ -1294,10 +1293,6 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : 
 def C_realInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : ℝ≥0) (t : ℝ≥0∞) : ℝ≥0 :=
     C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t |>.toNNReal
 
-/-- The constant occurring in the general real interpolation theorem (for Lorentz spaces) -/
-def C_LorentzInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : ℝ≥0) (t : ℝ≥0∞) : ℝ≥0 :=
-    sorry
-
 lemma C_realInterpolation_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0} (hA : 0 < A)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
@@ -1383,21 +1378,6 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
   rw [coe_C_realInterpolation hp₀ hp₁ hq₀q₁] <;> try assumption
   have : 0 < A := lt_of_lt_of_le (by norm_num) hA
   apply exists_hasStrongType_real_interpolation_aux₄ <;> assumption
-
-/-- General Marcinkiewicz real interpolation theorem -/
-theorem exists_hasLorentzType_real_interpolation {p₀ p₁ r₀ r₁ q₀ q₁ s₀ s₁ p q : ℝ≥0∞}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
-    (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁) (hr₀ : 1 ≤ r₀) (hr₁ : 1 ≤ r₁) (hq₀ : 1 ≤ q₀) (hq₁ : 1 ≤ q₁) (hs₀ : 1 ≤ s₀) (hs₁ : 1 ≤ s₁) -- TODO: find out which of these are actually necessary
-    (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    {C₀ C₁ t A : ℝ≥0} (hA : 0 < A) (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
-    (hmT : ∀ f, MemLorentz f p q μ → AEStronglyMeasurable (T f) ν)
-    (hT : AESubadditiveOn T (fun f ↦ MemLorentz f p₀ r₀ μ ∨ MemLorentz f p₁ r₁ μ) A ν)
-    (h₀T : HasLorentzType T p₀ r₀ q₀ s₀ μ ν C₀) (h₁T : HasLorentzType T p₁ r₁ q₁ s₁ μ ν C₁) :
-      ∀ r, 0 < r → HasLorentzType T p r q r μ ν (C_LorentzInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t) := sorry
-
-/- State and prove Remark 1.2.7 -/
 
 end MeasureTheory
 
