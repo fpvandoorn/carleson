@@ -172,16 +172,6 @@ lemma distribution_pow (ε : Type*) [SeminormedRing ε] [NormOneClass ε] [NormM
   · rw [mem_setOf_eq, enorm_pow (f x) n] at hx; simpa using lt_of_pow_lt_pow_left' n hx
   · rw [mem_setOf_eq, enorm_pow (f x) n]; exact ENNReal.pow_right_strictMono hn hx
 
-/- The lemmas below are almost already in Mathlib, see
-`MeasureTheory.lintegral_rpow_eq_lintegral_meas_lt_mul`. -/
-
--- /-- The layer-cake theorem, or Cavalieri's principle for functions into `ℝ≥0∞` -/
--- lemma lintegral_norm_pow_eq_measure_lt {f : α → ℝ≥0∞} (hf : AEMeasurable f μ)
---     {p : ℝ} (hp : 1 ≤ p) :
---     ∫⁻ x, (f x) ^ p ∂μ =
---     ∫⁻ t in Ioi (0 : ℝ), .ofReal (p * t ^ (p - 1)) * μ { x | ENNReal.ofReal t < f x } := by
---   sorry
-
 /-- The weak L^p norm of a function, for `p < ∞` -/
 def wnorm' (f : α → ε) (p : ℝ) (μ : Measure α) : ℝ≥0∞ :=
   ⨆ t : ℝ≥0, t * distribution f t μ ^ (p : ℝ)⁻¹
