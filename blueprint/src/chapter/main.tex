@@ -190,8 +190,7 @@ where again $e(r)=e^{ir}$.
 \uses{R-truncation,int-continuous}
 \leanok
 \lean{linearized_metric_carleson}
-    For all integers $a \ge 4$ and real numbers $1<q\le 2$
-    the following holds.
+    For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
     cancellative compatible collection of functions.
     Let $\tQ:X\to \Mf$ be a Borel function with finite range.
@@ -200,12 +199,11 @@ where again $e(r)=e^{ir}$.
         \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
     where $T_{\tQ}^\mfa$ is defined in \eqref{def-lin-star-op}.
-    Then for all bounded Borel sets $F$ and $G$ in $X$ and
-    all Borel functions $f:X\to \C$ with
+    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with
     $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
     \begin{equation}
         \label{linresweak}
-        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \le \frac{2^{471a^3+4}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
     \end{equation}
 \end{theorem}
 
@@ -813,18 +811,19 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
 \begin{lemma}[int continuous]
     \label{int-continuous}
     \leanok
-    \lean{continuous_carlesonOperatorIntegrand, rightContinuous_carlesonOperatorIntegrand, leftContinuous_carlesonOperatorIntegrand, measurable_carlesonOperatorIntegrand, isBounded_carlesonOperatorIntegrand}
-     Let $f$ be a measurable function with $|f| \le 1$. Then the function
+    \lean{continuous_carlesonOperatorIntegrand, rightContinuous_carlesonOperatorIntegrand, leftContinuous_carlesonOperatorIntegrand, measurable_carlesonOperatorIntegrand, enorm_carlesonOperatorIntegrand_le}
+    Let $f$ be a measurable function with $|f| \le 1$. Then the function
     \[
-        G: X \times \Theta \times (0,\infty) \times (0, \infty) \to [0, \infty)
+        G: X \times \Theta \times (0,\infty) \times (0, \infty) \to \mathbb{C}
     \]
     \[
-        G(x, \mfa, R_1, R_2) := \left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|
+        G(x, \mfa, R_1, R_2) := \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y)
     \]
-    is continuous in $\mfa$ for fixed $x, R_1, R_2$, it is right-continuous in $R_1$ for fixed $x, \vartheta, R_2$ and left-continuous in $R_2$ for fixed $x, \vartheta, R_1$. Finally, it is measurable in $x$ and bounded, for fixed $\vartheta, R_1, R_2$.
+    is continuous in $\mfa$ for fixed $x, R_1, R_2$. It is right-continuous in $R_1$ for fixed $x, \vartheta, R_2$ and left-continuous in $R_2$ for fixed $x, \vartheta, R_1$. Finally, it is measurable in $x$ and bounded for fixed $\vartheta, R_1, R_2$.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Measurability in $x$ follows from joint measurability of
     \[
         K(x,y) \mathbf{1}_{B(x,R_2) \setminus B(x,R_1)}(y)
@@ -838,25 +837,22 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
         |G(x, \mfa, R_1, R_2) - G(x, \mfa', R_1, R_2)|
     \]
     \[
-        = \left| \left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y) - \mfa(x)) \, \mathrm{d}\mu(y) \right| \right.
+        = \left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) (e(\mfa(y)) - e(\mfa'(y))) \, \mathrm{d}\mu(y) \right|
     \]
     \[
-        - \left.\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa'(y) - \mfa'(x)) \, \mathrm{d}\mu(y) \right| \right|
-    \]
-    \[
-        \le \int_{R_1 < \rho(x,y) < R_2} |K(x,y)| |f(y)| |e(\mfa(y) - \mfa'(y) - \mfa(x) + \mfa'(x)) - 1| \, \mathrm{d}\mu(y).
+        \le \int_{R_1 < \rho(x,y) < R_2} |K(x,y)| |f(y)| |e(\mfa(y) - \mfa'(y) - \mfa(o) + \mfa'(o)) - 1| \, \mathrm{d}\mu(y).
     \]
     By $1$-Lipschitz continuity of $e^{ix}$, the property \eqref{osccontrol} of the metrics $d$, the kernel upper bound \eqref{eqkernel-size} and $|f| \le 1$ this is
     \[
-        \le \mu(B(x, R_2)) \sup_{R_1 < \rho(x,y) < R_2} \frac{2^{a^3}}{V(x,y)} d_{B(x,R_2)}(\vartheta, \vartheta').
+        \le \mu(B(x, R_2)) \sup_{R_1 < \rho(x,y) < R_2} \frac{2^{a^3}}{V(x,y)} d_{B(x,\rho(o,x)+R_2)}(\vartheta, \vartheta').
     \]
     If $R_1 < \rho(x,y) < R_2$ then there exists $n$ with $B(x,R_2) \subset B(x, 2^n \rho(x,y))$ and $2^n \le 2 R_2/R_1$. Hence, by the doubling property \eqref{doublingx},
     \[
-        V(x,y) = \mu(B(x, \rho(x,y))) \ge 2^{-an} \mu(B(x, R_2)) \ge (2R_2 / R_1)^{-a}.
+        V(x,y) = \mu(B(x, \rho(x,y))) \ge 2^{-an} \mu(B(x, R_2)) \ge (2R_2 / R_1)^{-a} \mu(B(x, R_2)).
     \]
     Hence
     \[
-        |G(x, \mfa, R_1, R_2) - G(x, \mfa', R_1, R_2)| \le 2^{a^3} \Big(\frac{2R_2}{R_1}\Big)^a d_{B(x, R_2)}(\mfa, \mfa').
+        |G(x, \mfa, R_1, R_2) - G(x, \mfa', R_1, R_2)| \le 2^{a^3} \Big(\frac{2R_2}{R_1}\Big)^a d_{B(x, \rho(o,x)+R_2)}(\mfa, \mfa').
     \]
     Since the topology on $\Mf$ is the one induced by any of the metrics $d_B$, continuity follows.
 
@@ -906,6 +902,7 @@ We continue with the proof of Theorem \ref{linearised-metric-Carleson}, via a se
 Let a measurable function $Q$ with finite range be given.
 
 \begin{proof}[Proof of \Cref{linearised-metric-Carleson}]
+\leanok
 \proves{linearised-metric-Carleson}
 Let Borel sets $F$, $G$ in $X$ with finite measure be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 
@@ -4710,7 +4707,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
 
     Using $a \ge 4$, taking a supremum over all $x' \in I_{s_1}(x)$ and then a supremum over all $-S \le s_1 < s_2 \le S$, we obtain
     $$
-        T_{\mathcal{N}} f(x) \le T_*f(x) + 2^{102a^3} M_{\mathcal{B},1} f(x)\,.
+        T_{\mathcal{N}} f(x) \le 2T_{\tQ}^\mfa f(x) + 2^{102a^3} M_{\mathcal{B},1} f(x)\,.
     $$
     The lemma now follows from assumption \eqref{linnontanbound}, \Cref{Hardy-Littlewood} and $a \ge 4$.
 \end{proof}

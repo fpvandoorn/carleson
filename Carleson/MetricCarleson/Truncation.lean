@@ -503,7 +503,7 @@ lemma diff_subset_edgeScales {a : ℕ} {R₁ R₂ : ℝ} :
   simp only [edgeScales, Finset.mem_insert, Finset.mem_singleton]
   omega
 
-lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) (hR₂ : R₁ < R₂)
+lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) (hR₂ : R₁ < R₂)
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1) {x : X} :
     ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ ≤
     ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ +
@@ -586,7 +586,7 @@ lemma lintegral_globalMaximalFunction_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderCo
 def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
 
-/-- The constant used in `metric_carleson` and `R_truncation`. -/
+/-- The constant used from `R_truncation` to `metric_carleson`. -/
 def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3 + 4) / (q - 1) ^ 6
 
 lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
@@ -646,7 +646,7 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
         ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ +
         4 * C2_1_3 a * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       gcongr with x R₁ mR₁ R₂ mR₂
-      exact enorm_carlesonOperatorIntegrand_le (iRpos.trans mR₁.1) mR₂.1 mf nf
+      exact enorm_carlesonOperatorIntegrand_le_T_S (iRpos.trans mR₁.1) mR₂.1 mf nf
     _ ≤ ∫⁻ x in G, ⨆ R₁ ∈ Ioo R⁻¹ R, (⨆ R₂ ∈ Ioo R₁ R, ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ) +
         ⨆ R₂ ∈ Ioo R₁ R, 4 * C2_1_3 a *
           globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
