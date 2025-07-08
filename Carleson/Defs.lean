@@ -242,6 +242,13 @@ lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology 
   · apply measurable_measure_ball
   · fun_prop
 
+@[fun_prop]
+lemma measurable_vol₁ {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
+    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] {y : X} :
+    Measurable (vol · y) := by
+  change Measurable (uncurry vol ∘ fun x : X ↦ (x, y))
+  apply Measurable.comp <;> fun_prop
+
 lemma Real.vol_def {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] {x y : X} :
   Real.vol x y = (vol x y).toReal := rfl
 
