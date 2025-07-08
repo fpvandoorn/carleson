@@ -6915,7 +6915,7 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
     Then for all $\alpha>0$, we have
     \begin{equation}
         \label{eq-weak-1-1}
-        \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)\le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
+        \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)\le \frac{2^{a^3 + 21a}}{\alpha} \int |f(y)|\, d\mu(y).
     \end{equation}
 \end{lemma}
 Throughout \Cref{subsec-CZD} and \Cref{subsec-cotlar}, for any measurable bounded function $w: X \to \C$, let $Mw: X \to [0, \infty)$ denote the corresponding Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood}.
@@ -7144,7 +7144,7 @@ Moreover,  the measure $|F_2|$ of the set $F_2$ of all $x'\in
 B(x,\frac {R} 4)$ such that
 \begin{equation}
 \label{second-cotlar-exception}
-    |T_r(g\mathbf{1}_{B(x,\frac {R} 2)})(x')| > 2^{a^3 + 20a + 2} Mg(x)
+    |T_r(g\mathbf{1}_{B(x,\frac {R} 2)})(x')| > 2^{a^3 + 22a + 2} Mg(x)
 \end{equation}
 is less than or equal to  $\mu(B(x,\frac{R}{4}))/4$.
 \end{lemma}
@@ -7171,7 +7171,7 @@ This gives the desired bound for the measure of $F_1$.
 We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
 The set $F_2$ is then estimated with \Cref{calderon-zygmund-weak-1-1} by
 \begin{equation}
-   \frac {2^{a^3+19a}}{2^{a^3 + 20a + 2}Mg(x)}\int |g\mathbf{1}_{B(x,\frac {R}2)}|(y)\, d\mu(y)
+   \frac {2^{a^3+21a}}{2^{a^3 + 22a + 2}Mg(x)}\int |g\mathbf{1}_{B(x,\frac {R}2)}|(y)\, d\mu(y)
 \end{equation}
 \begin{equation}
    \le \frac {1}{2^{a+2} Mg(x)}\mu(B(x,\frac {R}{2})) Mg(x) \le \frac{\mu(B(x,\frac {R}{4}))}{4} \,.
@@ -7187,7 +7187,7 @@ This gives the desired bound for the measure of $F_2$.
 Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Then
 \begin{equation}\label{eq-cotlar-estimate}
-|T_Rg(x)| \le 2^{2}M(T_rg)(x)+ 2^{a^3+20a+3} Mg(x)
+|T_Rg(x)| \le 2^{2}M(T_rg)(x)+ 2^{a^3+22a+3} Mg(x)
 \, .
 \end{equation}
 \end{lemma}
@@ -7204,7 +7204,7 @@ Applying \Cref{Cotlar-control} for this $x'$ and using the triangle inequality
 estimates the left-hand side of \eqref{eq-cotlar-estimate}
 by
 \begin{equation}
-    4 M(T_rg)(x) + 2^{a^3 + 20a + 2} Mg(x) + 2^{a^3 + 4a + 1} Mg(x)\, .
+    4 M(T_rg)(x) + 2^{a^3 + 22a + 2} Mg(x) + 2^{a^3 + 4a + 1} Mg(x)\, .
 \end{equation}
 This proves the lemma.
 \end{proof}
@@ -7222,7 +7222,7 @@ Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 For every $r>0$ and every bounded measurable function $g$ supported on a set of finite measure
 the function $T_{*}^r g$ is lower-semicontinuous and we have
 \begin{equation}\label{trzerobound}
-    \|T_{*}^rg\|_2\le 2^{a^3+24a+6}\|g\|_2,
+    \|T_{*}^rg\|_2\le 2^{a^3+26a+6}\|g\|_2,
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -7241,19 +7241,19 @@ For the second part, with \Cref{estimate-x-shift} and the triangle inequality, w
 Using further \Cref{Cotlar-estimate}, we estimate
 \begin{equation}
       T_{*}^r g(x)
-     \le 2^{a^3+2a+2}Mg(x) + 2^{a^3+20a+3}Mg(x) + 2^{2}M(T_rg)(x)\, .
+     \le 2^{a^3+2a+2}Mg(x) + 2^{a^3+22a+3}Mg(x) + 2^{2}M(T_rg)(x)\, .
 \end{equation}
 Taking the $L^2$ norm and using \Cref{Hardy-Littlewood} with $a=4$  and $p_2=2$ and $p_1=1$ , we obtain
 \begin{equation}
       \|T_{*}^r g\|_2
-     \le 2^{a^3+20a+4} \|Mg\|_2 + 2^{2}\|M(T_rg)\|_2
+     \le 2^{a^3+22a+4} \|Mg\|_2 + 2^{2}\|M(T_rg)\|_2
 \end{equation}
 \begin{equation}
-     \le 2^{a^3+24a+5} \|g\|_2 + 2^{4a+3}\|T_r g\|_2\, .
+     \le 2^{a^3+26a+5} \|g\|_2 + 2^{4a+3}\|T_r g\|_2\, .
 \end{equation}
 Applying \eqref{two-sided-Hr-bound-assumption} gives
 \begin{equation}
-      \|T_{*}^r g\|_2\le 2^{a^3+24a+5}\|g\|_2 + 2^{a^3+4a+3}\|g\|_2\, .
+      \|T_{*}^r g\|_2\le 2^{a^3+26a+5}\|g\|_2 + 2^{a^3+4a+3}\|g\|_2\, .
 \end{equation}
 This shows \eqref{trzerobound} and completes the proof of the inequality.
 \end{proof}
@@ -7339,7 +7339,7 @@ Fix $g$ as in the Lemma.
 Applying \Cref{simple-nontangential-operator} with a
 sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
 \begin{equation}\label{tzerobound}
-    \|T_*^{0}g\|_2\le 2^{a^3+24a+6}\|g\|_2,
+    \|T_*^{0}g\|_2\le 2^{a^3+26a+6}\|g\|_2,
 \end{equation}
 where
 \begin{equation}\label{eq-simpler--nontangential}
@@ -7870,11 +7870,12 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     For $F$ as defined in \Cref{estimate-bad-partial}, we have
     \begin{equation}
         \label{eq-F-X-minus-Omega}
-        \mu(\{x\in X\setminus\Omega: F(x)>\alpha/8\}) \le \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
+        \mu(\{x\in X\setminus\Omega: F(x)>\alpha/8\}) \le \frac{2^{a^3+11a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
     \end{equation}
 \end{lemma}
 
 \begin{proof}
+    \leanok
     We estimate
     \begin{align}
         \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\})
@@ -7898,7 +7899,7 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     where we used \Cref{geometric-series-estimate} in the last step.
     Plugging this into \eqref{eq-F-est-1} and using \eqref{eq-bset-length-sum}, we conclude that
     \begin{equation*}
-        \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\}) \le \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
+        \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\}) \le \frac{2^{a^3+11a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
     \end{equation*}
 \end{proof}
 
@@ -7910,11 +7911,12 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     \uses{Calderon-Zygmund-decomposition,estimate-bad-partial,estimate-F-set}
     We have
     \begin{equation*}
-        \mu\left({\{x\in X: |T_r b(x)|>\alpha/2\}}\right) \le  \frac{\frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y) \,.
+        \mu\left({\{x\in X: |T_r b(x)|>\alpha/2\}}\right) \le  \frac{\frac{2^{7a}}{c} + 2^{a^3+11a+4}}{\alpha} \int |f(y)|\,d\mu(y) \,.
     \end{equation*}
 \end{lemma}
 
 \begin{proof}
+    \leanok
     We estimate
     \begin{equation*}
         \mu\left(\{x\in X: |T_r b(x)|>\alpha/2\}\right)
@@ -7927,17 +7929,18 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     \begin{equation}
         \label{eq-omega-bd}
         \mu(\Omega) \le \sum_{j} \mu (B_{6,j})
-        \le 2^{a} \sum_{j} \mu(B_{3,j}) \le \frac{2^{5a}}{c\alpha} \int |f(y)|\, d\mu(y)\,.
+        \le 2^a \sum_j \mu(B_{3,j}) \le \frac{2^{7a}}{c\alpha} \int |f(y)|\, d\mu(y)\,.
     \end{equation}
     It follows from \Cref{estimate-bad-partial} and the triangle inequality that
     \begin{equation}
         \label{eq-set-dec-3}
         \mu({\{x\in X\setminus\Omega: |T_r b(x)|>\alpha/2\}}) \le \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\})\,.
     \end{equation}
-    The claim now follows from \eqref{eq-set-dec-2}, \eqref{eq-set-dec-3} and \eqref{eq-F-X-minus-Omega}.
+    The claim now follows from \Cref{estimate-F-set}.
 \end{proof}
 
 \begin{proof}[Proof of \Cref{calderon-zygmund-weak-1-1}]
+\leanok
 \proves{calderon-zygmund-weak-1-1}
 It follows by the triangle inequality and subadditivity of $\mu$ that
 \begin{equation*}
@@ -7949,16 +7952,11 @@ It follows by the triangle inequality and subadditivity of $\mu$ that
 \end{equation*}
 Using \Cref{estimate-good}, \Cref{estimate-bad} and the definition \eqref{weak-1-1-proof-cz-const} of $c$, we get
 \begin{align*}
-    \le& \frac{2^{2a^3+3a+2}c + \frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y) \\
-    =& \frac{2^{a^3-9a-2} + 2^{a^3+17a+4} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y) \\
-    \le& \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
+    \le& \frac{2^{2a^3+3a+2}c + \frac{2^{7a}}{c} + 2^{a^3+11a+4}}{\alpha} \int |f(y)|\, d\mu(y) \\
+    =& \frac{2^{a^3-9a-2} + 2^{a^3+19a+4} + 2^{a^3+11a+4}}{\alpha} \int |f(y)|\, d\mu(y) \\
+    \le& \frac{2^{a^3 + 21a}}{\alpha} \int |f(y)|\, d\mu(y).
 \end{align*}
-%fixme: Check constants.
-This proves \eqref{eq-weak-1-1}.
 \end{proof}
-
-
-
 
 
 \chapter{Proof of The Classical Carleson Theorem}
