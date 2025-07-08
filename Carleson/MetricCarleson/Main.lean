@@ -6,7 +6,7 @@ open MeasureTheory Set ENNReal Metric
 noncomputable section
 
 variable {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ}
-variable [KernelProofData a K] {f : X → ℂ} {x : X}
+variable [KernelProofData a K] {f : X → ℂ}
 
 variable (X) in
 /-- A countable dense set of `Θ X`. -/
@@ -18,7 +18,7 @@ lemma dense_Θ' : Dense (Θ' X) := (TopologicalSpace.exists_countable_dense _).c
 /-- A countable dense subset of the range of `R₁` and `R₂`. -/
 def J102 : Set (ℚ × ℚ) := {p | 0 < p.1 ∧ p.1 < p.2}
 
-lemma carlesonOperator_eq_biSup_Θ'_J102 (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) :
+lemma carlesonOperator_eq_biSup_Θ'_J102 {x : X} (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) :
     carlesonOperator K f x =
     ⨆ θ ∈ Θ' X, ⨆ j ∈ J102, ‖carlesonOperatorIntegrand K θ j.1 j.2 f x‖ₑ := by
   unfold carlesonOperator linearizedCarlesonOperator; apply le_antisymm
@@ -74,7 +74,7 @@ def enumΘ' : ℕ → Θ' X :=
 lemma surjective_enumΘ' : Function.Surjective (enumΘ' nΘ') :=
   (countable_Θ'.exists_surjective nΘ').choose_spec
 
-lemma biSup_Θ'_eq_biSup_enumΘ' :
+lemma biSup_Θ'_eq_biSup_enumΘ' {x : X} :
     ⨆ θ ∈ Θ' X, g θ x = ⨆ n, ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x := by
   apply le_antisymm
   · refine iSup₂_le fun θ mθ ↦ ?_
@@ -97,16 +97,75 @@ def enumΘ'ArgMax : ℕ → X → Θ' X
     if g (enumΘ'ArgMax n x) x < g (enumΘ' nΘ' (n + 1)) x
     then enumΘ' nΘ' (n + 1) else enumΘ'ArgMax n x
 
+/-- `enumΘ'ArgMax` indeed gives a maximiser among the first `n + 1` functions of `enumΘ'`. -/
+lemma le_enumΘ'ArgMax {n i : ℕ} {x : X} (hi : i ≤ n) :
+    g (enumΘ' nΘ' i) x ≤ g (enumΘ'ArgMax nΘ' g n x) x := by
+  induction n with
+  | zero => rw [nonpos_iff_eq_zero] at hi; subst hi; simp [enumΘ'ArgMax]
+  | succ n ih =>
+    unfold enumΘ'ArgMax; split_ifs with h
+    · rcases hi.eq_or_lt with rfl | hi
+      · rfl
+      · exact (ih (by omega)).trans h.le
+    · rw [not_lt] at h
+      rcases hi.eq_or_lt with rfl | hi
+      · exact h
+      · exact ih (by omega)
+
+open Classical in
+lemma enumΘ'ArgMax_mem_image_range {n : ℕ} {x : X} :
+    enumΘ'ArgMax nΘ' g n x ∈ (Finset.range (n + 1)).image (enumΘ' nΘ' ·) := by
+  induction n with
+  | zero => simp [enumΘ'ArgMax]
+  | succ n ih =>
+    unfold enumΘ'ArgMax; split_ifs with h
+    · simp_rw [Finset.mem_image, Finset.mem_range]; use n + 1, by omega
+    · refine Finset.mem_of_subset (Finset.image_subset_image ?_) ih
+      rw [Finset.range_subset]; omega
+
+lemma enumΘ'ArgMax_eq_iff {n i : ℕ} {x : X} (hi : i ≤ n) :
+    enumΘ'ArgMax nΘ' g n x = enumΘ' nΘ' i ↔
+    (∀ j ≤ n, g (enumΘ' nΘ' j) x ≤ g (enumΘ' nΘ' i) x) ∧
+    ∀ j < i, g (enumΘ' nΘ' j) x < g (enumΘ' nΘ' i) x := by
+  constructor <;> intro h
+  · simp_rw [← h]
+    refine ⟨fun j ↦ le_enumΘ'ArgMax nΘ' g, ?_⟩
+    sorry
+  · sorry
+
+variable {g} (mg : ∀ θ, Measurable (g θ))
+
 /-- The simple function corresponding to the blueprint's `Q_n`. -/
 def QΘ' (n : ℕ) : SimpleFunc X (Θ X) where
   toFun x := enumΘ'ArgMax nΘ' g n x
-  measurableSet_fiber' x := by
-    sorry
+  measurableSet_fiber' θ := by
+    simp_rw [← measurable_mem, mem_preimage, mem_singleton_iff]
+    by_cases mθ : θ ∈ (Finset.range (n + 1)).image fun i ↦ (enumΘ' nΘ' i).1; swap
+    · have (x : X) : (enumΘ'ArgMax nΘ' g n x).1 ≠ θ := by
+        by_contra! con
+        have ei := enumΘ'ArgMax_mem_image_range nΘ' g (n := n) (x := x)
+        simp_rw [Finset.mem_image, ← con, Subtype.val_inj] at ei mθ
+        exact mθ ei
+      simp [this]
+    simp_rw [Finset.mem_image, Finset.mem_range] at mθ; obtain ⟨i, li, hi⟩ := mθ
+    rw [Order.lt_add_one_iff] at li; simp_rw [← hi, Subtype.val_inj, enumΘ'ArgMax_eq_iff nΘ' g li]
+    refine (Measurable.forall fun j ↦ measurable_const.imp ?_).and
+      (Measurable.forall fun j ↦ measurable_const.imp ?_) <;> rw [← measurableSet_setOf]
+    · exact measurableSet_le (mg _) (mg _)
+    · exact measurableSet_lt (mg _) (mg _)
   finite_range' := by
-    sorry
+    classical
+    have fbs : ((Finset.range (n + 1)).image fun i ↦ (enumΘ' nΘ' i).1).toSet.Finite :=
+      Finset.finite_toSet _
+    refine fbs.subset fun θ mθ ↦ ?_
+    simp only [mem_range, Finset.coe_image, Finset.coe_range, mem_image, mem_Iio] at mθ ⊢
+    obtain ⟨x, hx⟩ := mθ
+    have key := enumΘ'ArgMax_mem_image_range nΘ' g (n := n) (x := x)
+    simp only [Finset.mem_image, Finset.mem_range] at key
+    obtain ⟨i, li, hi⟩ := key; use i, li; rwa [hi]
 
-lemma biSup_enumΘ'_eq_biSup_QΘ' {n : ℕ} :
-    ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x = g (QΘ' nΘ' g n x) x := by
+lemma biSup_enumΘ'_eq_biSup_QΘ' {n : ℕ} {x : X} :
+    ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x = g (QΘ' nΘ' mg n x) x := by
   sorry
 
 end Enum
@@ -158,6 +217,9 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
   rcases (Θ' X).eq_empty_or_nonempty with eΘ' | nΘ'
   · simp_rw [eΘ', iSup_emptyset, bot_eq_zero, lintegral_zero]; exact zero_le _
   let g (θ : Θ X) (x : X) := ⨆ j ∈ J102, ‖carlesonOperatorIntegrand K θ j.1 j.2 f x‖ₑ
+  have mg (θ : Θ X) : Measurable (g θ) :=
+    Measurable.biSup _ J102.to_countable fun j mj ↦
+      (measurable_carlesonOperatorIntegrand (Q := SimpleFunc.const X θ) mf).enorm
   calc
     _ = ∫⁻ x in G, ⨆ n, ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x := by
       congr with x; exact biSup_Θ'_eq_biSup_enumΘ' nΘ' g
@@ -167,10 +229,10 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
         refine Measurable.iSup fun j ↦ Measurable.iSup fun mj ↦ Measurable.enorm ?_
         exact measurable_carlesonOperatorIntegrand (Q := SimpleFunc.const X (enumΘ' nΘ' i)) mf
       · intro x; apply biSup_mono; simp_rw [Finset.mem_range]; omega
-    _ = ⨆ n, ∫⁻ x in G, g (QΘ' nΘ' g n x) x := by
-      congr! with n x; exact biSup_enumΘ'_eq_biSup_QΘ' nΘ' g
-    _ ≤ ⨆ n, ∫⁻ x in G, linearizedCarlesonOperator (QΘ' nΘ' g n) K f x := by
-      gcongr with n x; set Q := QΘ' nΘ' g n; unfold linearizedCarlesonOperator
+    _ = ⨆ n, ∫⁻ x in G, g (QΘ' nΘ' mg n x) x := by
+      congr! with n x; exact biSup_enumΘ'_eq_biSup_QΘ' nΘ' mg
+    _ ≤ ⨆ n, ∫⁻ x in G, linearizedCarlesonOperator (QΘ' nΘ' mg n) K f x := by
+      gcongr with n x; set Q := QΘ' nΘ' mg n; unfold linearizedCarlesonOperator
       refine iSup₂_le fun ⟨q₁, q₂⟩ ⟨hq₁, hq₂⟩ ↦ ?_
       conv_rhs => enter [1, R₁]; rw [iSup_comm]
       simp_rw [← Rat.cast_lt (K := ℝ), Rat.cast_zero] at hq₁ hq₂
