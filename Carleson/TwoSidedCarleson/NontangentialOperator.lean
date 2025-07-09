@@ -761,8 +761,8 @@ irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 26 * a + 6)
 theorem eLpNorm_add_le'' {α E : Type*} {f g : α → E} {m : MeasurableSpace α}
     {μ : Measure α} [TopologicalSpace E] [ENormedAddMonoid E]
     {p : ℝ≥0∞} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
-    (hp1 : 1 ≤ p) : eLpNorm (f + g) p μ ≤ eLpNorm f p μ + eLpNorm g p μ := by
-  sorry
+    (hp1 : 1 ≤ p) : eLpNorm (f + g) p μ ≤ eLpNorm f p μ + eLpNorm g p μ :=
+  eLpNorm_add_le hf hg hp1
 
 /-- Lemma 10.1.6. The formal statement includes the measurability of the operator.
 See also `simple_nontangential_operator_le` -/
