@@ -376,10 +376,15 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
     eLpNorm (𝓜 𝔄 f) 2 ≤ (dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm (𝓜p 𝔄 p f) 2 := by
   have bf := bcs_of_measurable_of_le_indicator_f hf hfF
 
-  have pnn : 0 < p := by sorry
-  have p'nn : 0 < p' := by sorry
-  have : ENNReal.ofReal p ≠ 0 := by sorry
-  have : ENNReal.ofReal p ≠ ⊤ := by sorry
+  have p_pos : 0 < p := hpp.left_pos
+  have p'_pos : 0 < p' := hpp.right_pos
+  have inv_p_pos : 0 < p⁻¹ := by positivity
+  have inv_p'_pos : 0 < p'⁻¹ := by positivity
+  have : ENNReal.ofReal p ≠ 0 := ofReal_ne_zero_iff.mpr p_pos
+  have : ENNReal.ofReal p ≠ ⊤ := ofReal_ne_top
+  have : ENNReal.ofReal p' ≠ 0 := ofReal_ne_zero_iff.mpr p'_pos
+  have : ENNReal.ofReal p' ≠ ⊤ := ofReal_ne_top
+  have hp_coe : p.toNNReal.toReal = p := Real.coe_toNNReal _ (by positivity)
 
   conv_lhs => rw [eq_indicator_one_mul hfF]
   apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul''
@@ -393,6 +398,12 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
     set B := ball (𝔠 𝔭) (8 * ↑D ^ 𝔰 𝔭)
     set dB := volume.restrict B
     set mB := volume.restrict B univ
+    have mB_pos : 0 < mB := by
+      simp only [Measure.restrict_apply_univ B, mB]
+      apply measure_ball_pos
+      exact pos_of_mem_ball hx
+    have mB_ne_top : mB ≠ ⊤ := by
+      simpa only [Measure.restrict_apply_univ B, mB] using measure_ball_ne_top
     have hmeas : AEMeasurable (fun x ↦ ‖(F.indicator 1 x : ℂ)‖ₑ) (volume.restrict B) :=
       aemeasurable_const.indicator measurableSet_F |>.enorm
     calc
@@ -403,18 +414,42 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
           bf.enorm.aestronglyMeasurable.aemeasurable.restrict hmeas
       _ = (eLpNorm (fun x ↦ ‖(F.indicator 1 x : ℂ)‖ₑ) (ENNReal.ofReal p') dB / mB ^ (p'⁻¹))
           * (eLpNorm (fun x ↦ ‖f x‖ₑ) (ENNReal.ofReal p) dB / mB ^ (p⁻¹)) := by
-        sorry
+        rw [mul_comm, div_eq_mul_inv]
+        have := hpp.inv_add_inv_eq_one
+        have : mB⁻¹ = (mB ^ (p⁻¹))⁻¹ * (mB ^ (p'⁻¹))⁻¹ := by
+          rw [← ENNReal.mul_inv, ← ENNReal.rpow_add, hpp.inv_add_inv_eq_one, ENNReal.rpow_one]
+          · exact ne_of_gt mB_pos
+          · exact mB_ne_top
+          · exact Or.inl <| ne_of_gt <| ENNReal.rpow_pos mB_pos mB_ne_top
+          · exact Or.inr <| ne_of_gt <| ENNReal.rpow_pos mB_pos mB_ne_top
+        rw [this, div_eq_mul_inv, div_eq_mul_inv]
+        ring
       _ ≤ _ := by
         gcongr
-        · sorry
-        · rw [eLpNorm_eq_lintegral_rpow_enorm (by assumption) (by assumption)]
-          rw [toReal_ofReal <| le_of_lt pnn]
-          rw [𝓜p, maximalFunction]
-          rw [one_div]
-          sorry
-
-#check eLpNorm_nnreal_pow_eq_lintegral
-#check laverage_eq
+        · rw [eLpNorm_eq_lintegral_rpow_enorm (by assumption) (by assumption),
+            toReal_ofReal <| le_of_lt p'_pos, one_div,
+            ← div_rpow_of_nonneg _ _ (le_of_lt inv_p'_pos), dens₂]
+          gcongr
+          refine le_trans ?_ <| le_iSup₂ 𝔭 h𝔭
+          refine le_trans ?_ <| le_iSup _ (8 * (D : ℝ) ^ 𝔰 𝔭)
+          refine le_trans (le_of_eq ?_) <| le_iSup _ (by gcongr; norm_num)
+          simp_rw [enorm_enorm]
+          congr
+          · rw [← lintegral_indicator_one <| measurableSet_F.inter measurableSet_ball,
+              inter_indicator_one]
+            conv_rhs => enter [2, x]; rw [Pi.mul_apply, ← indicator_mul_right]
+            rw [lintegral_indicator measurableSet_ball]
+            refine lintegral_congr (fun x ↦ ?_)
+            rw [Pi.one_apply, mul_one, enorm_indicator_eq_indicator_enorm, indicator, indicator]
+            split_ifs <;> simp [p'_pos]
+          · exact Measure.restrict_apply_univ B
+        · rw [eLpNorm_eq_lintegral_rpow_enorm (by assumption) (by assumption),
+            toReal_ofReal <| le_of_lt p_pos, 𝓜p, maximalFunction, one_div,
+            ← div_rpow_of_nonneg _ _ (le_of_lt inv_p_pos), ← laverage_eq, hp_coe]
+          gcongr
+          refine le_trans (le_of_eq ?_) <| le_iSup₂ 𝔭 h𝔭
+          simp_rw [enorm_enorm]
+          rw [indicator_of_mem hx]
 
 /-- Tedious check that the constants work out -/
 lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p q).toNNReal 2 ≤ C6_1_3 a nnq := by
