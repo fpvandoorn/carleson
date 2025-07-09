@@ -9,16 +9,20 @@ section
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
-open ENNReal
+open ENNReal Set
 namespace ShortVariables
 -- q tilde in def. 6.1.9. TODO: Clean up bad notation
 scoped notation "nnq'" => 2*nnq/(nnq + 1)
 
 end ShortVariables
 
-lemma nnq'_inv_eq : (nnq' : ℝ)⁻¹ = 2⁻¹ + 2⁻¹ * q⁻¹ := by
+lemma inv_nnq'_eq : (nnq' : ℝ)⁻¹ = 2⁻¹ + 2⁻¹ * q⁻¹ := by
   have : 2 * q ≠ 0 := mul_ne_zero (by norm_num) (by linarith only [(q_mem_Ioc X).1])
   field_simp [show (nnq : ℝ) = q by rfl]
+
+lemma inv_nnq'_mem_Ico : (nnq' : ℝ)⁻¹ ∈ Ico (3 / 4) 1 := by
+  rw [inv_nnq'_eq]
+  exact ⟨by linarith only [inv_q_mem_Ico X |>.1], by linarith only [inv_q_mem_Ico X |>.2]⟩
 
 lemma one_lt_nnq' : 1 < nnq' := by
   rw [one_lt_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, _root_.add_lt_add_iff_left]
@@ -354,29 +358,43 @@ variable (𝔄 : Set (𝔓 X)) {f g : X → ℂ}
 /-- The maximal function used in the proof of Lemma 6.1.3 -/
 def 𝓜 := MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) (E := ℂ)
 
-/-- Exponent used for the application of H\"older's inequality in the proof -/
-def p (q : ℝ) := (3 / 2 - q⁻¹)⁻¹
+section
 
-lemma p_inv_eq (q : ℝ) : (p q)⁻¹ = 3 / 2 - q⁻¹ := by simp only [p, inv_inv]
+include a q K σ₁ σ₂ F G
+variable (X)
+set_option linter.unusedSectionVars false
 
-lemma one_lt_p {q : ℝ} (hq : q ∈ Ioc 1 2) : 1 < p q := by
-  sorry
+/-- The exponent $\tilde{q}$ in Lemma 6.1.3 -/
+def qt := (nnq' : ℝ)
 
-lemma p_pos {q : ℝ} (hq : q ∈ Ioc 1 2) : 0 < p q := lt_trans zero_lt_one <| one_lt_p hq
+lemma inv_qt_eq : (qt X)⁻¹ = 2⁻¹ + 2⁻¹ * q⁻¹ := inv_nnq'_eq
 
-lemma p_lt_two {q : ℝ} (hq : q ∈ Ioc 1 2) : p q < 2 := by
-  sorry
+/-- Exponent used for the application of H\"older's inequality in the proof of Lemma 6.1.3 -/
+def p := (3 / 2 - (qt X)⁻¹)⁻¹
+
+lemma inv_p_eq : (p X)⁻¹ = 3 / 2 - (qt X)⁻¹ := by simp only [p, inv_inv]
+
+lemma inv_p_eq' : (p X)⁻¹ = 1 - 2⁻¹ * q⁻¹ := by simp only [inv_p_eq, inv_qt_eq]; ring
+
+lemma p_pos : 0 < p X := by
+  simp only [p, inv_qt_eq, inv_pos, sub_pos]; linarith only [inv_q_mem_Ico X |>.2]
+
+lemma one_lt_p : 1 < p X := inv_one (G := ℝ) ▸ inv_lt_inv₀ (p_pos X)
+  zero_lt_one |>.mp (inv_p_eq' X ▸ by linarith only [inv_q_mem_Ico X |>.1])
+
+lemma p_lt_two : p X < 2 := inv_lt_inv₀ (by norm_num) (p_pos X)
+  |>.mp (inv_p_eq' X ▸ by linarith only [inv_q_mem_Ico X |>.2])
+
+end
 
 /-- The `p` maximal function used in the proof. -/
 def 𝓜p (p : ℝ) := maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) p.toNNReal (E := ℂ)
 
-#check hasStrongType_maximalFunction
-
 /-- Maximal function bound needed in the proof -/
 lemma eLpNorm_𝓜p_le (hf : MemLp f 2) :
-    eLpNorm (𝓜p 𝔄 (p q) f) 2 ≤ C2_0_6 (defaultA a) (p q).toNNReal 2 * eLpNorm f 2 :=
+    eLpNorm (𝓜p 𝔄 (p X) f) 2 ≤ C2_0_6 (defaultA a) (p X).toNNReal 2 * eLpNorm f 2 :=
   hasStrongType_maximalFunction 𝔄.to_countable
-    (by simp [p_pos <| q_mem_Ioc X]) (by simp [p_lt_two <| q_mem_Ioc X]) f hf |>.2
+    (by simp [p_pos X]) (by simp [p_lt_two X]) f hf |>.2
 
 /-- A maximal function bound via an application of H\"older's inequality -/
 lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
@@ -461,7 +479,7 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
           rw [indicator_of_mem hx]
 
 /-- Tedious check that the constants work out -/
-lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p q).toNNReal 2 ≤ C6_1_3 a nnq := by
+lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a nnq := by
   sorry
 
 end Lemma6_1_3
@@ -486,16 +504,14 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
   apply le_trans <| enorm_integral_le_lintegral_enorm _
   simp_rw [enorm_mul]
 
-  letI p := p q
-  letI p' := ((nnq' : ℝ)⁻¹ - 2⁻¹)⁻¹
-  have hp'_inv : p'⁻¹ = 2⁻¹ * q⁻¹ := by simp only [p', inv_inv, nnq'_inv_eq]; simp
+  letI p := p X
+  letI p' := ((qt X)⁻¹ - 2⁻¹)⁻¹
+  have hp'_inv : p'⁻¹ = 2⁻¹ * q⁻¹ := by simp only [p', inv_inv, qt, inv_nnq'_eq]; simp
   have hpp : p.HolderConjugate p' := by
-    -- Check that Holder exponents are actually conjugate
-    refine Real.holderConjugate_iff.mpr ⟨one_lt_p <| q_mem_Ioc X, ?_⟩
-    rw [hp'_inv, p_inv_eq q]
-
-
-    sorry -- Tedious but straightforward
+    refine Real.holderConjugate_iff.mpr ⟨one_lt_p X, ?_⟩
+    rw [hp'_inv, inv_p_eq X]
+    rw [div_eq_mul_inv, inv_qt_eq]
+    ring
 
   letI C2_0_6' := C2_0_6 (defaultA a) p.toNNReal 2
 
@@ -518,7 +534,7 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
     _ ≤ _ := by
       gcongr ?_ * ?_ * eLpNorm f 2 * eLpNorm g 2
       · exact_mod_cast const_check
-      · simp [p']
+      · simp only [hp'_inv, inv_nnq'_eq]; simp
 
   -- have ha : 4 ≤ a := four_le_a X
   -- have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
