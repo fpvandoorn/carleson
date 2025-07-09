@@ -11,10 +11,14 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 open ENNReal
 namespace ShortVariables
--- q tilde in def. 6.1.9.
+-- q tilde in def. 6.1.9. TODO: Clean up bad notation
 scoped notation "nnq'" => 2*nnq/(nnq + 1)
 
 end ShortVariables
+
+lemma nnq'_inv_eq : (nnq' : ℝ)⁻¹ = 2⁻¹ + 2⁻¹ * q⁻¹ := by
+  have : 2 * q ≠ 0 := mul_ne_zero (by norm_num) (by linarith only [(q_mem_Ioc X).1])
+  field_simp [show (nnq : ℝ) = q by rfl]
 
 lemma one_lt_nnq' : 1 < nnq' := by
   rw [one_lt_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, _root_.add_lt_add_iff_left]
@@ -353,6 +357,8 @@ def 𝓜 := MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) (E := ℂ)
 /-- Exponent used for the application of H\"older's inequality in the proof -/
 def p (q : ℝ) := (3 / 2 - q⁻¹)⁻¹
 
+lemma p_inv_eq (q : ℝ) : (p q)⁻¹ = 3 / 2 - q⁻¹ := by simp only [p, inv_inv]
+
 lemma one_lt_p {q : ℝ} (hq : q ∈ Ioc 1 2) : 1 < p q := by
   sorry
 
@@ -463,6 +469,8 @@ end Lemma6_1_3
 #check ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm
 #check eLpNorm_const_smul
 
+
+-- Note: `(nnq' : ℝ)⁻¹ - 2⁻¹ = 2⁻¹ * q⁻¹`.
 open Lemma6_1_3 in
 /-- Lemma 6.1.3, inequality 6.1.11. -/
 @[nolint unusedHavesSuffices]
@@ -480,10 +488,13 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
 
   letI p := p q
   letI p' := ((nnq' : ℝ)⁻¹ - 2⁻¹)⁻¹
+  have hp'_inv : p'⁻¹ = 2⁻¹ * q⁻¹ := by simp only [p', inv_inv, nnq'_inv_eq]; simp
   have hpp : p.HolderConjugate p' := by
     -- Check that Holder exponents are actually conjugate
-    -- rw [Real.holderConjugate_iff_eq_conjExponent <| one_lt_p <| q_mem_Ioc X]
-    -- simp only [p', show (nnq : ℝ) = q by rfl, Lemma6_1_3.p]
+    refine Real.holderConjugate_iff.mpr ⟨one_lt_p <| q_mem_Ioc X, ?_⟩
+    rw [hp'_inv, p_inv_eq q]
+
+
     sorry -- Tedious but straightforward
 
   letI C2_0_6' := C2_0_6 (defaultA a) p.toNNReal 2
