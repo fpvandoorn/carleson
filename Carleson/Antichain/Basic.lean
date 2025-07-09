@@ -360,18 +360,61 @@ lemma p_lt_two {q : ℝ} : p q < 2 := by
   sorry
 
 /-- The `p` maximal function used in the proof. -/
-def 𝓜p := maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) (p q).toNNReal (E := ℂ)
+def 𝓜p (p : ℝ) := maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) p.toNNReal (E := ℂ)
 
 #check hasStrongType_maximalFunction
 
 /-- Maximal function bound needed in the proof -/
 lemma eLpNorm_𝓜p_le (hf : MemLp f 2) :
-    eLpNorm (𝓜p 𝔄 f) 2 ≤ C2_0_6 (defaultA a) (p q).toNNReal 2 * eLpNorm f 2 :=
+    eLpNorm (𝓜p 𝔄 (p q) f) 2 ≤ C2_0_6 (defaultA a) (p q).toNNReal 2 * eLpNorm f 2 :=
   hasStrongType_maximalFunction 𝔄.to_countable (by simp [p_pos]) (by simp [p_lt_two]) f hf |>.2
 
-lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : MemLp f 2) {p p' : ℝ} (hpp : p.HolderConjugate p') :
-    eLpNorm (𝓜 𝔄 f) 2 ≤ (dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm (𝓜p 𝔄 f) 2 := by
-  sorry
+/-- A maximal function bound via an application of H\"older's inequality -/
+lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
+    (hfF : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    {p p' : ℝ} (hpp : p.HolderConjugate p') :
+    eLpNorm (𝓜 𝔄 f) 2 ≤ (dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm (𝓜p 𝔄 p f) 2 := by
+  have bf := bcs_of_measurable_of_le_indicator_f hf hfF
+
+  have pnn : 0 < p := by sorry
+  have p'nn : 0 < p' := by sorry
+  have : ENNReal.ofReal p ≠ 0 := by sorry
+  have : ENNReal.ofReal p ≠ ⊤ := by sorry
+
+  conv_lhs => rw [eq_indicator_one_mul hfF]
+  apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul''
+  · exact AEStronglyMeasurable.maximalFunction 𝔄.to_countable
+  · refine ae_of_all _ <| fun x ↦ ?_
+    simp only [enorm_eq_self, 𝓜, MB_def]
+    apply iSup_le_iff.mpr <| fun 𝔭 ↦ iSup_le_iff.mpr <| fun h𝔭 ↦ ?_
+    apply indicator_le <| fun x hx ↦ ?_
+    rw [laverage_eq] --, ← lintegral_indicator measurableSet_ball]
+    conv_lhs => enter [1, 2, x]; rw [Pi.mul_apply, enorm_mul, mul_comm]
+    set B := ball (𝔠 𝔭) (8 * ↑D ^ 𝔰 𝔭)
+    set dB := volume.restrict B
+    set mB := volume.restrict B univ
+    have hmeas : AEMeasurable (fun x ↦ ‖(F.indicator 1 x : ℂ)‖ₑ) (volume.restrict B) :=
+      aemeasurable_const.indicator measurableSet_F |>.enorm
+    calc
+      _ ≤  eLpNorm (fun x ↦ ‖f x‖ₑ) (ENNReal.ofReal p) dB *
+            eLpNorm (fun x ↦ ‖(F.indicator 1 x : ℂ)‖ₑ) (ENNReal.ofReal p') dB / mB := by
+        gcongr
+        exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpp.ennrealOfReal
+          bf.enorm.aestronglyMeasurable.aemeasurable.restrict hmeas
+      _ = (eLpNorm (fun x ↦ ‖(F.indicator 1 x : ℂ)‖ₑ) (ENNReal.ofReal p') dB / mB ^ (p'⁻¹))
+          * (eLpNorm (fun x ↦ ‖f x‖ₑ) (ENNReal.ofReal p) dB / mB ^ (p⁻¹)) := by
+        sorry
+      _ ≤ _ := by
+        gcongr
+        · sorry
+        · rw [eLpNorm_eq_lintegral_rpow_enorm (by assumption) (by assumption)]
+          rw [toReal_ofReal <| le_of_lt pnn]
+          rw [𝓜p, maximalFunction]
+          rw [one_div]
+          sorry
+
+#check eLpNorm_nnreal_pow_eq_lintegral
+#check laverage_eq
 
 /-- Tedious check that the constants work out -/
 lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p q).toNNReal 2 ≤ C6_1_3 a nnq := by
@@ -394,19 +437,18 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
   have bf := bcs_of_measurable_of_le_indicator_f hf hfF
   have bg := bcs_of_measurable_of_le_indicator_g hg hgG
 
-  letI 𝓜 := 𝓜 𝔄
-
   apply le_trans <| enorm_integral_le_lintegral_enorm _
   simp_rw [enorm_mul]
 
   letI p := p q
   letI p' := ((nnq' : ℝ)⁻¹ - 2⁻¹)⁻¹
   have hpp : p.HolderConjugate p' := by
+    -- Check that Holder exponents are actually conjugate
     sorry
 
   letI C2_0_6' := C2_0_6 (defaultA a) p.toNNReal 2
 
-  have := eLpNorm_𝓜_le_eLpNorm_𝓜p_mul 𝔄 (bf.memLp 2) hpp
+  have := eLpNorm_𝓜_le_eLpNorm_𝓜p_mul 𝔄 hf hfF hpp
   have := eLpNorm_𝓜p_le 𝔄 <| bf.memLp 2
 
   calc
@@ -415,11 +457,11 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
         ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
           bg.enorm.aestronglyMeasurable.aemeasurable
           bf.carlesonSum.enorm.aestronglyMeasurable.aemeasurable
-    _ ≤ eLpNorm g 2 * (C6_1_2 a * eLpNorm (𝓜 f) 2) := by
+    _ ≤ eLpNorm g 2 * (C6_1_2 a * eLpNorm (𝓜 𝔄 f) 2) := by
       gcongr
-      exact eLpNorm_le_mul_eLpNorm_of_ae_le_mul' (ae_of_all _
-        <| fun x ↦ MaximalBoundAntichain h𝔄 hf x) 2
-    _ ≤ eLpNorm g 2 * (C6_1_2 a * ((dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm (𝓜p 𝔄 f) 2)) := by gcongr
+      exact eLpNorm_le_mul_eLpNorm_of_ae_le_mul'
+        (ae_of_all _ <| fun x ↦ MaximalBoundAntichain h𝔄 hf x) 2
+    _ ≤ eLpNorm g 2 * (C6_1_2 a * ((dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm (𝓜p 𝔄 p f) 2)) := by gcongr
     _ ≤ eLpNorm g 2 * (C6_1_2 a * ((dens₂ 𝔄) ^ (p'⁻¹) * (C2_0_6' * eLpNorm f 2))) := by gcongr
     _ = (C6_1_2 a * C2_0_6') * (dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm f 2 * eLpNorm g 2 := by ring
     _ ≤ _ := by
