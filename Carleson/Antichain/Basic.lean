@@ -1,5 +1,6 @@
 import Carleson.Operators
 import Carleson.ToMathlib.HardyLittlewood
+import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 
 open scoped ShortVariables
 
@@ -278,210 +279,281 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
 /-- Constant appearing in Lemma 6.1.3. -/
 noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (111 * a ^ 3) * (q - 1)⁻¹
 
--- Inequality 6.1.16
-@[nolint unusedHavesSuffices]
-lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
-    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) :
-    eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭)
-      ((2*nnq')/(3*nnq' - 2)) f x).toReal) 2 volume ≤
-      (2 ^ (2 * a)) * (3*nnq' - 2) / (2*nnq' - 2) * eLpNorm f 2 volume := by
-  set p₁ := (2*nnq')/(3*nnq' - 2) with hp₁
-  have aux : 0 < 3 * (2 * nnq / (nnq + 1)) - 2 := lt_trans (by norm_cast)
-    (tsub_lt_tsub_right_of_le (by norm_cast)
-      ((_root_.mul_lt_mul_left zero_lt_three).mpr one_lt_nnq'))
-  have hp₁_ge : 1 ≤ p₁ := by -- Better proof?
-    have h32 : (3 : ℝ≥0) - 2 = 1 := by norm_cast
-    rw [hp₁, one_le_div aux, tsub_le_iff_tsub_le, ← tsub_mul, h32, one_mul]
-    exact nnq'_lt_two.le
-  have hp₁_lt : p₁ < 2 := by
-    have rhs : 2 * (3 * (2 * nnq / (nnq + 1))) - 2 * (2 * nnq / (nnq + 1)) =
-      4 * (2 * nnq / (nnq + 1)) := by ring_nf; rw [← mul_tsub]; norm_cast
-    rw [hp₁, div_lt_iff₀ aux, mul_tsub, lt_tsub_comm, rhs, ← mul_one (2 * 2)]
-    exact _root_.mul_lt_mul' (by norm_cast) one_lt_nnq' zero_le_one zero_lt_four
-  /- have hF1 : AEStronglyMeasurable (F.indicator (1 : X → ℝ≥0∞)) volume :=
-    AEStronglyMeasurable.indicator aestronglyMeasurable_one measurableSet_F -/
-  -- Could this be deduced from hF1?
-  have hf1 : AEStronglyMeasurable f volume := hfm.aestronglyMeasurable
-  by_cases hf_top : eLpNorm f 2 volume < ⊤
-  · --have hf2 :  MemLp f 2 volume := ⟨hf1, hf_top⟩
-    have : HasStrongType (fun (f : X → ℂ) (x : X) ↦ maximalFunction volume 𝔄 𝔠
-        (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁ f x) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
-      sorry
-      --hasStrongType_maximalFunction (X := X) hp₁_ge hp₁_lt (u := f) (r := fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) hf1
-    have hh := (this.toReal f ⟨hf1, hf_top⟩).2
-    simp only [hp₁, C2_0_6] at hh
+-- -- Inequality 6.1.16
+-- @[nolint unusedHavesSuffices]
+-- lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
+--     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) :
+--     eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭)
+--       ((2*nnq')/(3*nnq' - 2)) f x).toReal) 2 volume ≤
+--       (2 ^ (2 * a)) * (3*nnq' - 2) / (2*nnq' - 2) * eLpNorm f 2 volume := by
+--   set p₁ := (2*nnq')/(3*nnq' - 2) with hp₁
+--   have aux : 0 < 3 * (2 * nnq / (nnq + 1)) - 2 := lt_trans (by norm_cast)
+--     (tsub_lt_tsub_right_of_le (by norm_cast)
+--       ((_root_.mul_lt_mul_left zero_lt_three).mpr one_lt_nnq'))
+--   have hp₁_ge : 1 ≤ p₁ := by -- Better proof?
+--     have h32 : (3 : ℝ≥0) - 2 = 1 := by norm_cast
+--     rw [hp₁, one_le_div aux, tsub_le_iff_tsub_le, ← tsub_mul, h32, one_mul]
+--     exact nnq'_lt_two.le
+--   have hp₁_lt : p₁ < 2 := by
+--     have rhs : 2 * (3 * (2 * nnq / (nnq + 1))) - 2 * (2 * nnq / (nnq + 1)) =
+--       4 * (2 * nnq / (nnq + 1)) := by ring_nf; rw [← mul_tsub]; norm_cast
+--     rw [hp₁, div_lt_iff₀ aux, mul_tsub, lt_tsub_comm, rhs, ← mul_one (2 * 2)]
+--     exact _root_.mul_lt_mul' (by norm_cast) one_lt_nnq' zero_le_one zero_lt_four
+--   /- have hF1 : AEStronglyMeasurable (F.indicator (1 : X → ℝ≥0∞)) volume :=
+--     AEStronglyMeasurable.indicator aestronglyMeasurable_one measurableSet_F -/
+--   -- Could this be deduced from hF1?
+--   have hf1 : AEStronglyMeasurable f volume := hfm.aestronglyMeasurable
+--   by_cases hf_top : eLpNorm f 2 volume < ⊤
+--   · --have hf2 :  MemLp f 2 volume := ⟨hf1, hf_top⟩
+--     have : HasStrongType (fun (f : X → ℂ) (x : X) ↦ maximalFunction volume 𝔄 𝔠
+--         (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁ f x) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
+--       sorry
+--       --hasStrongType_maximalFunction (X := X) hp₁_ge hp₁_lt (u := f) (r := fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) hf1
+--     have hh := (this.toReal f ⟨hf1, hf_top⟩).2
+--     simp only [hp₁, C2_0_6] at hh
 
-    convert hh
-    · congr
-      norm_cast
-      rw [← NNReal.coe_ofNat]
-      rw [NNReal.toReal]
-      simp only [val_eq_coe, NNReal.coe_mul, NNReal.coe_ofNat, NNReal.coe_div, NNReal.coe_add,
-        NNReal.coe_one]
-
-
-      /- rw [NNReal.coe_sub (r₁ := 3 * (2 * nnq / (nnq + 1))) (r₂ := 2)]
-      rw [← Real.coe_sub] -/
-
-      sorry
-    · norm_cast
-      --rw [ENNReal.coe_div]
-
-      --rw [← ENNReal.div_mul]
-      sorry
-  · simp only [not_lt, top_le_iff] at hf_top
-    rw [hf_top, mul_top]
-    · exact le_top
-    simp only [ne_eq, ENNReal.div_eq_zero_iff, mul_eq_zero, pow_eq_zero_iff',
-    OfNat.ofNat_ne_zero, false_or, false_and, sub_eq_top_iff, ofNat_ne_top, not_false_eq_true,
-    and_true, not_or]
-    refine ⟨?_, mul_ne_top ofNat_ne_top (mul_ne_top (mul_ne_top ofNat_ne_top coe_ne_top)
-      (inv_ne_top.mpr (by simp)))⟩
-    rw [tsub_eq_zero_iff_le]
-    exact not_le.mpr (lt_trans (by norm_cast)
-      (ENNReal.mul_lt_mul_left' three_ne_zero ofNat_ne_top one_lt_nnq'_coe))
+--     convert hh
+--     · congr
+--       norm_cast
+--       rw [← NNReal.coe_ofNat]
+--       rw [NNReal.toReal]
+--       simp only [val_eq_coe, NNReal.coe_mul, NNReal.coe_ofNat, NNReal.coe_div, NNReal.coe_add,
+--         NNReal.coe_one]
 
 
--- lemma 6.1.3, inequality 6.1.11
+--       /- rw [NNReal.coe_sub (r₁ := 3 * (2 * nnq / (nnq + 1))) (r₂ := 2)]
+--       rw [← Real.coe_sub] -/
+
+--       sorry
+--     · norm_cast
+--       --rw [ENNReal.coe_div]
+
+--       --rw [← ENNReal.div_mul]
+--       sorry
+--   · simp only [not_lt, top_le_iff] at hf_top
+--     rw [hf_top, mul_top]
+--     · exact le_top
+--     simp only [ne_eq, ENNReal.div_eq_zero_iff, mul_eq_zero, pow_eq_zero_iff',
+--     OfNat.ofNat_ne_zero, false_or, false_and, sub_eq_top_iff, ofNat_ne_top, not_false_eq_true,
+--     and_true, not_or]
+--     refine ⟨?_, mul_ne_top ofNat_ne_top (mul_ne_top (mul_ne_top ofNat_ne_top coe_ne_top)
+--       (inv_ne_top.mpr (by simp)))⟩
+--     rw [tsub_eq_zero_iff_le]
+--     exact not_le.mpr (lt_trans (by norm_cast)
+--       (ENNReal.mul_lt_mul_left' three_ne_zero ofNat_ne_top one_lt_nnq'_coe))
+
+-- Namespace for auxiliaries used in the proof of Lemma 6.1.3
+namespace Lemma6_1_3
+
+variable (𝔄 : Set (𝔓 X)) {f g : X → ℂ}
+
+/-- The maximal function used in the proof of Lemma 6.1.3 -/
+def 𝓜 := MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) (E := ℂ)
+
+/-- Exponent used for the application of H\"older's inequality in the proof -/
+def p (q : ℝ) := (3 / 2 - q⁻¹)⁻¹
+
+lemma p_pos {q : ℝ} : 0 < p q := by
+  sorry
+
+lemma p_lt_two {q : ℝ} : p q < 2 := by
+  sorry
+
+/-- The `p` maximal function used in the proof. -/
+def 𝓜p := maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) (p q).toNNReal (E := ℂ)
+
+#check hasStrongType_maximalFunction
+
+/-- Maximal function bound needed in the proof -/
+lemma eLpNorm_𝓜p_le (hf : MemLp f 2) :
+    eLpNorm (𝓜p 𝔄 f) 2 ≤ C2_0_6 (defaultA a) (p q).toNNReal 2 * eLpNorm f 2 :=
+  hasStrongType_maximalFunction 𝔄.to_countable (by simp [p_pos]) (by simp [p_lt_two]) f hf |>.2
+
+lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : MemLp f 2) {p p' : ℝ} (hpp : p.HolderConjugate p') :
+    eLpNorm (𝓜 𝔄 f) 2 ≤ (dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm (𝓜p 𝔄 f) 2 := by
+  sorry
+
+/-- Tedious check that the constants work out -/
+lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p q).toNNReal 2 ≤ C6_1_3 a nnq := by
+  sorry
+
+end Lemma6_1_3
+
+#check ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm
+#check eLpNorm_const_smul
+
+open Lemma6_1_3 in
+/-- Lemma 6.1.3, inequality 6.1.11. -/
 @[nolint unusedHavesSuffices]
 lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
-    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
-    {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    {f : X → ℂ} (hfF : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hf : Measurable f)
+    {g : X → ℂ} (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hg : Measurable g) :
     ‖∫ x, ((starRingEnd ℂ) (g x)) * carlesonSum 𝔄 f x‖ₑ ≤
       (C6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
-        (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
-  have ha : 4 ≤ a := four_le_a X
-  have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
-  have hq0 : 0 < nnq := nnq_pos X
-  have h1q' : 1 ≤ nnq' := by -- Better proof?
-    rw [one_le_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, add_le_add_iff_left]
-    exact le_of_lt (q_mem_Ioc X).1
-  have hqq' : nnq' ≤ nnq := by -- Better proof?
-    rw [add_comm, div_le_iff₀ (add_pos (zero_lt_one) hq0), mul_comm, mul_le_mul_iff_of_pos_left hq0,
-      ← one_add_one_eq_two, add_le_add_iff_left]
-    exact (nnq_mem_Ioc X).1.le
-  have hq'_inv : (nnq' - 1)⁻¹ ≤ 3 * (nnq - 1)⁻¹ := by
-    have : (nnq' - 1)⁻¹ = (nnq + 1)/(nnq -1) := by
-      nth_rewrite 2 [← div_self (a := nnq + 1) (by simp)]
-      rw [← NNReal.sub_div, inv_div, two_mul, NNReal.sub_def, NNReal.coe_add, NNReal.coe_add,
-        add_sub_add_left_eq_sub]
-      rfl
-    rw [this, div_eq_mul_inv]
-    gcongr
-    rw [← two_add_one_eq_three, add_le_add_iff_right]
-    exact (nnq_mem_Ioc X).2
+        eLpNorm f 2 * eLpNorm g 2 := by
+  have bf := bcs_of_measurable_of_le_indicator_f hf hfF
+  have bg := bcs_of_measurable_of_le_indicator_g hg hgG
 
-  -- 6.1.14
-  -- I am not sure if this is correctly stated
-  have hMB_le : MB volume (𝔄 : Set (𝔓 X)) 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) (fun x ↦ ‖f x‖) ≤
-    ((maximalFunction volume (𝔄 : Set (𝔓 X)) 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) ((2*nnq')/(3*nnq' - 2))
-      (fun x ↦ ‖f x‖ * (dens₂ (𝔄 : Set (𝔓 X))).toReal ^ ((nnq' : ℝ)⁻¹ - 2⁻¹)))) := by
+  letI 𝓜 := 𝓜 𝔄
+
+  apply le_trans <| enorm_integral_le_lintegral_enorm _
+  simp_rw [enorm_mul]
+
+  letI p := p q
+  letI p' := ((nnq' : ℝ)⁻¹ - 2⁻¹)⁻¹
+  have hpp : p.HolderConjugate p' := by
     sorry
 
-  -- 6.1.14' : it seems what is actually used is the following:
-  have hMB_le' : (eLpNorm (fun x ↦ ((MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x).toNNReal : ℂ))
-      2 volume) ≤ (eLpNorm (fun x ↦ ((maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭)
-        ((2*nnq')/(3*nnq' - 2)) f x).toNNReal : ℂ)) 2 volume) * (dens₂ (𝔄 : Set (𝔓 X))) := by
-    sorry
+  letI C2_0_6' := C2_0_6 (defaultA a) p.toNNReal 2
 
-  -- Trivial inequality used in 6.1.16 (long proof because of coercions)
-  have h_div_le_div : (3*nnq' - 2 : ℝ≥0∞) / (2*nnq' - 2) ≤ 2^2 / (nnq' - 1) := by
-    have heq : (2^2 : ℝ≥0∞) / (nnq' - 1) = 8 / (2 * nnq' - 2) := by
-      have h8 : (8 : ℝ≥0∞) =  2 * 4 := by norm_cast
-      have h2 : ((2 : ℝ≥0∞) * nnq' - 2) = 2 * (nnq' - 1) := by
-        rw [ENNReal.mul_sub (fun _ _ ↦ ofNat_ne_top), mul_one]
-      rw [h8, h2, ENNReal.mul_div_mul_left _ _ two_ne_zero ofNat_ne_top]
-      ring_nf
-    rw [heq]
-    apply ENNReal.div_le_div_right
-    calc 3 * (2 * ↑nnq / (↑nnq + 1)) - 2
-      _ ≤ (3 * 2 : ℝ≥0∞) - 2 := by
-        apply tsub_le_tsub_right
-          ((ENNReal.mul_le_mul_left three_ne_zero ofNat_ne_top).mpr nnq'_lt_two_coe.le)
-      _ ≤ (8 : ℝ≥0∞) := by norm_cast -- could just be ≤ 4
+  have := eLpNorm_𝓜_le_eLpNorm_𝓜p_mul 𝔄 (bf.memLp 2) hpp
+  have := eLpNorm_𝓜p_le 𝔄 <| bf.memLp 2
 
-    -- 6.1.16. Note: could have 2 ^ (2*a + 1) in the RHS.
-  have hMBp₁_le : eLpNorm (fun x ↦
-      (maximalFunction volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) ((2*nnq')/(3*nnq' - 2)) f x).toReal)
-      2 volume ≤ (2 ^ (2*a + 2) / (nnq' - 1)) * eLpNorm f 2 volume := by
-    calc eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠
-        (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) ((2*nnq')/(3*nnq' - 2)) f x).toReal) 2 volume
-      _ ≤ (2 ^ (2 * a)) * (3*nnq' - 2) / (2*nnq' - 2) * eLpNorm f 2 volume :=
-        sorry --eLpNorm_maximal_function_le' h𝔄 hf hfm
-      _ ≤ (2 ^ (2*a + 2) / (nnq' - 1)) * eLpNorm f 2 volume := by
-        apply mul_le_mul_right'
-        rw [pow_add, mul_div_assoc (2 ^ (2 * a)), mul_div_assoc (2 ^ (2 * a))]
-        exact mul_le_mul_left' h_div_le_div _
-
-  calc ↑‖∫ x, ((starRingEnd ℂ) (g x)) * carlesonSum 𝔄 f x‖₊
-    _ ≤ (eLpNorm (carlesonSum 𝔄 f) 2 volume) * (eLpNorm g 2 volume) := by
-      -- 6.1.18. Use Cauchy-Schwarz
-      rw [mul_comm]
-      sorry
-    _ ≤ 2 ^ (107*a^3) * (eLpNorm (fun x ↦ ((MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x).toNNReal : ℂ))
-          2 volume) * (eLpNorm g 2 volume) := by
-      -- 6.1.19. Use Lemma 6.1.2.
+  calc
+    _ ≤ eLpNorm g 2 * eLpNorm (carlesonSum 𝔄 f) 2 := by
+      simpa [RCLike.enorm_conj, ← eLpNorm_enorm] using
+        ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
+          bg.enorm.aestronglyMeasurable.aemeasurable
+          bf.carlesonSum.enorm.aestronglyMeasurable.aemeasurable
+    _ ≤ eLpNorm g 2 * (C6_1_2 a * eLpNorm (𝓜 f) 2) := by
       gcongr
-      have h2 : (2 : ℝ≥0∞) ^ (107 * a ^ 3) = ‖(2 : ℝ) ^ (107 * a ^ 3)‖₊ := by
-        simp only [nnnorm_pow, nnnorm_two, ENNReal.coe_pow, coe_ofNat]
-      rw [h2, ← enorm_eq_nnnorm, ← eLpNorm_const_smul]
-      sorry
-      /- apply eLpNorm_mono_nnnorm
-      intro z
-      have MB_top : MB volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) f z ≠ ⊤ := by
-       -- apply ne_top_of_le_ne_top _ (MB_le_eLpNormEssSup)
-        --apply ne_of_lt
-        --apply eLpNormEssSup_lt_top_of_ae_nnnorm_bound
-        sorry
-      rw [← ENNReal.coe_le_coe, Finset.sum_apply]
-      convert (MaximalBoundAntichain h𝔄 hfm z)
-      · sorry
-      sorry/- simp only [Pi.smul_apply, real_smul, nnnorm_mul, nnnorm_eq, nnnorm_mul,
-         nnnorm_real, nnnorm_pow, nnnorm_two,
-        nnnorm_eq, coe_mul, C6_1_2, ENNReal.coe_toNNReal MB_top]
-        norm_cast -/ -/
-    _ ≤ 2 ^ (107*a^3 + 2*a + 2) * (nnq' - 1)⁻¹ * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
-        (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
-      -- 6.1.20. use 6.1.14 and 6.1.16.
-      rw [add_assoc, pow_add]
-      apply mul_le_mul_of_nonneg_right _ (zero_le _)
-      simp only [mul_assoc]
-      apply mul_le_mul_of_nonneg_left _ (by norm_num)
-      --apply le_trans hMB_le' hMBp₁_le
-      sorry
-    _ ≤ (C6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
-        (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
-      -- use 4 ≤ a, hq'_inv.
-      have h3 : 3 * ((C6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
-          (eLpNorm f 2 volume) * (eLpNorm g 2 volume)) =
-          (2 : ℝ≥0)^(111*a^3) * (3 * (nnq-1)⁻¹) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
-          (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
-        conv_lhs => simp only [C6_1_3, ENNReal.coe_mul, ← mul_assoc]
-        rw [mul_comm 3, mul_assoc _ 3]
-        norm_cast
-      rw [← ENNReal.mul_le_mul_left (Ne.symm (NeZero.ne' 3)) ofNat_ne_top, h3]
-      conv_lhs => simp only [← mul_assoc]
-      gcongr
-      · norm_cast
-        calc 3 * 2 ^ (107 * a ^ 3 + 2 * a + 2)
-          _ ≤ 4 * 2 ^ (107 * a ^ 3 + 2 * a + 2) := by gcongr; omega
-          _ = 2 ^ (107 * a ^ 3 + 2 * a + 4) := by ring
-          _ ≤ 2 ^ (107 * a ^ 3) * 2 ^ (4 * a ^ 3) := by
-            rw [add_assoc, pow_add]
-            gcongr
-            · norm_num
-            apply Nat.add_le_of_le_sub'
-            · have h4a3 : 4 * a ^ 3 = 2 * a * (2 * a^2) := by ring
-              exact h4a3 ▸ Nat.le_mul_of_pos_right _ (by positivity)
-            · apply le_trans ha
-              calc a
-                _ ≤ a * (4 * a ^ 2 - 2) := by
-                  apply Nat.le_mul_of_pos_right _
-                  rw [tsub_pos_iff_lt]
-                  exact lt_of_lt_of_le (by linarith)
-                    (Nat.mul_le_mul_left 4 (pow_le_pow_left₀ zero_le_four ha 2))
-                _ = 4 * a ^ 3 - 2 * a := by
-                  rw [Nat.mul_sub]
-                  ring_nf
-          _ = 2 ^ (111 * a ^ 3) := by ring
-      · norm_cast -- uses hq'_inv
+      exact eLpNorm_le_mul_eLpNorm_of_ae_le_mul' (ae_of_all _
+        <| fun x ↦ MaximalBoundAntichain h𝔄 hf x) 2
+    _ ≤ eLpNorm g 2 * (C6_1_2 a * ((dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm (𝓜p 𝔄 f) 2)) := by gcongr
+    _ ≤ eLpNorm g 2 * (C6_1_2 a * ((dens₂ 𝔄) ^ (p'⁻¹) * (C2_0_6' * eLpNorm f 2))) := by gcongr
+    _ = (C6_1_2 a * C2_0_6') * (dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm f 2 * eLpNorm g 2 := by ring
+    _ ≤ _ := by
+      gcongr ?_ * ?_ * eLpNorm f 2 * eLpNorm g 2
+      · exact_mod_cast const_check
+      · simp [p']
+
+  -- have ha : 4 ≤ a := four_le_a X
+  -- have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
+  -- have hq0 : 0 < nnq := nnq_pos X
+  -- -- have h1q' : 1 ≤ nnq' := le_of_lt one_lt_nnq'
+  -- -- have hqq' : nnq' ≤ nnq := le_of_lt nnq'_lt_nnq
+  -- have hq'_inv : (nnq' - 1)⁻¹ ≤ 3 * (nnq - 1)⁻¹ := by
+  --   have : (nnq' - 1)⁻¹ = (nnq + 1)/(nnq -1) := by
+  --     nth_rewrite 2 [← div_self (a := nnq + 1) (by simp)]
+  --     rw [← NNReal.sub_div, inv_div, two_mul, NNReal.sub_def, NNReal.coe_add, NNReal.coe_add,
+  --       add_sub_add_left_eq_sub]
+  --     rfl
+  --   rw [this, div_eq_mul_inv]
+  --   gcongr
+  --   rw [← two_add_one_eq_three, add_le_add_iff_right]
+  --   exact (nnq_mem_Ioc X).2
+
+  -- -- 6.1.14
+  -- -- I am not sure if this is correctly stated
+  -- have hMB_le : MB volume (𝔄 : Set (𝔓 X)) 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) (fun x ↦ ‖f x‖) ≤
+  --   ((maximalFunction volume (𝔄 : Set (𝔓 X)) 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) ((2*nnq')/(3*nnq' - 2))
+  --     (fun x ↦ ‖f x‖ * (dens₂ (𝔄 : Set (𝔓 X))).toReal ^ ((nnq' : ℝ)⁻¹ - 2⁻¹)))) := by
+  --   sorry
+
+  -- -- 6.1.14' : it seems what is actually used is the following:
+  -- have hMB_le' : (eLpNorm (fun x ↦ ((MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x).toNNReal : ℂ))
+  --     2 volume) ≤ (eLpNorm (fun x ↦ ((maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭)
+  --       ((2*nnq')/(3*nnq' - 2)) f x).toNNReal : ℂ)) 2 volume) * (dens₂ (𝔄 : Set (𝔓 X))) := by
+  --   sorry
+
+  -- -- Trivial inequality used in 6.1.16 (long proof because of coercions)
+  -- have h_div_le_div : (3*nnq' - 2 : ℝ≥0∞) / (2*nnq' - 2) ≤ 2^2 / (nnq' - 1) := by
+  --   have heq : (2^2 : ℝ≥0∞) / (nnq' - 1) = 8 / (2 * nnq' - 2) := by
+  --     have h8 : (8 : ℝ≥0∞) =  2 * 4 := by norm_cast
+  --     have h2 : ((2 : ℝ≥0∞) * nnq' - 2) = 2 * (nnq' - 1) := by
+  --       rw [ENNReal.mul_sub (fun _ _ ↦ ofNat_ne_top), mul_one]
+  --     rw [h8, h2, ENNReal.mul_div_mul_left _ _ two_ne_zero ofNat_ne_top]
+  --     ring_nf
+  --   rw [heq]
+  --   apply ENNReal.div_le_div_right
+  --   calc 3 * (2 * ↑nnq / (↑nnq + 1)) - 2
+  --     _ ≤ (3 * 2 : ℝ≥0∞) - 2 := by
+  --       apply tsub_le_tsub_right
+  --         ((ENNReal.mul_le_mul_left three_ne_zero ofNat_ne_top).mpr nnq'_lt_two_coe.le)
+  --     _ ≤ (8 : ℝ≥0∞) := by norm_cast -- could just be ≤ 4
+
+  --   -- 6.1.16. Note: could have 2 ^ (2*a + 1) in the RHS.
+  -- have hMBp₁_le : eLpNorm (fun x ↦
+  --     (maximalFunction volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) ((2*nnq')/(3*nnq' - 2)) f x).toReal)
+  --     2 volume ≤ (2 ^ (2*a + 2) / (nnq' - 1)) * eLpNorm f 2 volume := by
+  --   calc eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠
+  --       (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) ((2*nnq')/(3*nnq' - 2)) f x).toReal) 2 volume
+  --     _ ≤ (2 ^ (2 * a)) * (3*nnq' - 2) / (2*nnq' - 2) * eLpNorm f 2 volume :=
+  --       sorry --eLpNorm_maximal_function_le' h𝔄 hf hfm
+  --     _ ≤ (2 ^ (2*a + 2) / (nnq' - 1)) * eLpNorm f 2 volume := by
+  --       apply mul_le_mul_right'
+  --       rw [pow_add, mul_div_assoc (2 ^ (2 * a)), mul_div_assoc (2 ^ (2 * a))]
+  --       exact mul_le_mul_left' h_div_le_div _
+
+  -- calc ↑‖∫ x, ((starRingEnd ℂ) (g x)) * carlesonSum 𝔄 f x‖₊
+  --   _ ≤ (eLpNorm (carlesonSum 𝔄 f) 2 volume) * (eLpNorm g 2 volume) := by
+  --     -- 6.1.18. Use Cauchy-Schwarz
+  --     rw [mul_comm]
+  --     sorry
+  --   _ ≤ 2 ^ (107*a^3) * (eLpNorm (fun x ↦ ((MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x).toNNReal : ℂ))
+  --         2 volume) * (eLpNorm g 2 volume) := by
+  --     -- 6.1.19. Use Lemma 6.1.2.
+  --     gcongr
+  --     have h2 : (2 : ℝ≥0∞) ^ (107 * a ^ 3) = ‖(2 : ℝ) ^ (107 * a ^ 3)‖₊ := by
+  --       simp only [nnnorm_pow, nnnorm_two, ENNReal.coe_pow, coe_ofNat]
+  --     rw [h2, ← enorm_eq_nnnorm, ← eLpNorm_const_smul]
+  --     sorry
+  --     /- apply eLpNorm_mono_nnnorm
+  --     intro z
+  --     have MB_top : MB volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) f z ≠ ⊤ := by
+  --      -- apply ne_top_of_le_ne_top _ (MB_le_eLpNormEssSup)
+  --       --apply ne_of_lt
+  --       --apply eLpNormEssSup_lt_top_of_ae_nnnorm_bound
+  --       sorry
+  --     rw [← ENNReal.coe_le_coe, Finset.sum_apply]
+  --     convert (MaximalBoundAntichain h𝔄 hfm z)
+  --     · sorry
+  --     sorry/- simp only [Pi.smul_apply, real_smul, nnnorm_mul, nnnorm_eq, nnnorm_mul,
+  --        nnnorm_real, nnnorm_pow, nnnorm_two,
+  --       nnnorm_eq, coe_mul, C6_1_2, ENNReal.coe_toNNReal MB_top]
+  --       norm_cast -/ -/
+  --   _ ≤ 2 ^ (107*a^3 + 2*a + 2) * (nnq' - 1)⁻¹ * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
+  --       (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
+  --     -- 6.1.20. use 6.1.14 and 6.1.16.
+  --     rw [add_assoc, pow_add]
+  --     apply mul_le_mul_of_nonneg_right _ (zero_le _)
+  --     simp only [mul_assoc]
+  --     apply mul_le_mul_of_nonneg_left _ (by norm_num)
+  --     --apply le_trans hMB_le' hMBp₁_le
+  --     sorry
+  --   _ ≤ (C6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
+  --       (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
+  --     -- use 4 ≤ a, hq'_inv.
+  --     have h3 : 3 * ((C6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
+  --         (eLpNorm f 2 volume) * (eLpNorm g 2 volume)) =
+  --         (2 : ℝ≥0)^(111*a^3) * (3 * (nnq-1)⁻¹) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
+  --         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
+  --       conv_lhs => simp only [C6_1_3, ENNReal.coe_mul, ← mul_assoc]
+  --       rw [mul_comm 3, mul_assoc _ 3]
+  --       norm_cast
+  --     rw [← ENNReal.mul_le_mul_left (Ne.symm (NeZero.ne' 3)) ofNat_ne_top, h3]
+  --     conv_lhs => simp only [← mul_assoc]
+  --     gcongr
+  --     · norm_cast
+  --       calc 3 * 2 ^ (107 * a ^ 3 + 2 * a + 2)
+  --         _ ≤ 4 * 2 ^ (107 * a ^ 3 + 2 * a + 2) := by gcongr; omega
+  --         _ = 2 ^ (107 * a ^ 3 + 2 * a + 4) := by ring
+  --         _ ≤ 2 ^ (107 * a ^ 3) * 2 ^ (4 * a ^ 3) := by
+  --           rw [add_assoc, pow_add]
+  --           gcongr
+  --           · norm_num
+  --           apply Nat.add_le_of_le_sub'
+  --           · have h4a3 : 4 * a ^ 3 = 2 * a * (2 * a^2) := by ring
+  --             exact h4a3 ▸ Nat.le_mul_of_pos_right _ (by positivity)
+  --           · apply le_trans ha
+  --             calc a
+  --               _ ≤ a * (4 * a ^ 2 - 2) := by
+  --                 apply Nat.le_mul_of_pos_right _
+  --                 rw [tsub_pos_iff_lt]
+  --                 exact lt_of_lt_of_le (by linarith)
+  --                   (Nat.mul_le_mul_left 4 (pow_le_pow_left₀ zero_le_four ha 2))
+  --               _ = 4 * a ^ 3 - 2 * a := by
+  --                 rw [Nat.mul_sub]
+  --                 ring_nf
+  --         _ = 2 ^ (111 * a ^ 3) := by ring
+  --     · norm_cast -- uses hq'_inv
