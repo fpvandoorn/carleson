@@ -353,10 +353,12 @@ def 𝓜 := MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) (E := ℂ)
 /-- Exponent used for the application of H\"older's inequality in the proof -/
 def p (q : ℝ) := (3 / 2 - q⁻¹)⁻¹
 
-lemma p_pos {q : ℝ} : 0 < p q := by
+lemma one_lt_p {q : ℝ} (hq : q ∈ Ioc 1 2) : 1 < p q := by
   sorry
 
-lemma p_lt_two {q : ℝ} : p q < 2 := by
+lemma p_pos {q : ℝ} (hq : q ∈ Ioc 1 2) : 0 < p q := lt_trans zero_lt_one <| one_lt_p hq
+
+lemma p_lt_two {q : ℝ} (hq : q ∈ Ioc 1 2) : p q < 2 := by
   sorry
 
 /-- The `p` maximal function used in the proof. -/
@@ -367,7 +369,8 @@ def 𝓜p (p : ℝ) := maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ �
 /-- Maximal function bound needed in the proof -/
 lemma eLpNorm_𝓜p_le (hf : MemLp f 2) :
     eLpNorm (𝓜p 𝔄 (p q) f) 2 ≤ C2_0_6 (defaultA a) (p q).toNNReal 2 * eLpNorm f 2 :=
-  hasStrongType_maximalFunction 𝔄.to_countable (by simp [p_pos]) (by simp [p_lt_two]) f hf |>.2
+  hasStrongType_maximalFunction 𝔄.to_countable
+    (by simp [p_pos <| q_mem_Ioc X]) (by simp [p_lt_two <| q_mem_Ioc X]) f hf |>.2
 
 /-- A maximal function bound via an application of H\"older's inequality -/
 lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
@@ -479,7 +482,9 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
   letI p' := ((nnq' : ℝ)⁻¹ - 2⁻¹)⁻¹
   have hpp : p.HolderConjugate p' := by
     -- Check that Holder exponents are actually conjugate
-    sorry
+    -- rw [Real.holderConjugate_iff_eq_conjExponent <| one_lt_p <| q_mem_Ioc X]
+    -- simp only [p', show (nnq : ℝ) = q by rfl, Lemma6_1_3.p]
+    sorry -- Tedious but straightforward
 
   letI C2_0_6' := C2_0_6 (defaultA a) p.toNNReal 2
 
