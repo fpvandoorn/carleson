@@ -11,7 +11,9 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 open ENNReal Set
 namespace ShortVariables
--- q tilde in def. 6.1.9. TODO: Clean up bad notation
+
+--TODO: Clean up bad notation
+/-- q tilde in def. 6.1.9. -/
 scoped notation "nnq'" => 2*nnq/(nnq + 1)
 
 end ShortVariables
@@ -301,6 +303,7 @@ section
 include a q K σ₁ σ₂ F G
 variable (X)
 set_option linter.unusedSectionVars false
+omit [TileStructure Q D κ S o]
 
 /-- The exponent $\tilde{q}$ in Lemma 6.1.3 -/
 def qt := (nnq' : ℝ)
@@ -310,6 +313,7 @@ lemma inv_qt_eq : (qt X)⁻¹ = 2⁻¹ + 2⁻¹ * q⁻¹ := inv_nnq'_eq
 /-- Exponent used for the application of H\"older's inequality in the proof of Lemma 6.1.3 -/
 def p := (3 / 2 - (qt X)⁻¹)⁻¹
 
+--@[nolint unusedArguments]
 lemma inv_p_eq : (p X)⁻¹ = 3 / 2 - (qt X)⁻¹ := by simp only [p, inv_inv]
 
 lemma inv_p_eq' : (p X)⁻¹ = 1 - 2⁻¹ * q⁻¹ := by simp only [inv_p_eq, inv_qt_eq]; ring
