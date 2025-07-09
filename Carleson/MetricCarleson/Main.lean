@@ -141,9 +141,13 @@ def QΘ' (n : ℕ) : SimpleFunc X (Θ X) where
     have key := enumΘ'ArgMax_mem_range nΘ' g (n := n) (x := x)
     rw [Finset.mem_range] at key; exact ⟨_, key, hx⟩
 
-lemma biSup_enumΘ'_eq_biSup_QΘ' {n : ℕ} {x : X} :
-    ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x = g (QΘ' nΘ' mg n x) x := by
-  sorry
+lemma biSup_enumΘ'_le_biSup_QΘ' {n : ℕ} {x : X} :
+    ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x ≤ g (QΘ' nΘ' mg n x) x := by
+  rw [QΘ', SimpleFunc.coe_mk]; refine iSup₂_le fun i mi ↦ ?_
+  have mam := enumΘ'ArgMax_mem_range nΘ' g (n := n) (x := x)
+  rw [Finset.mem_range, Nat.lt_add_one_iff] at mi mam
+  have key := enumΘ'ArgMax_eq_iff nΘ' g mam (x := x)
+  simp only [true_iff] at key; exact key.1 _ mi
 
 end Enum
 
@@ -152,7 +156,7 @@ lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}
     ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
       2 2 volume volume (C_Ts a) := fun θ f bf ↦ by
   constructor
-  · dsimp only
+  · dsimp only; unfold linearizedNontangentialOperator
     sorry
   · refine (eLpNorm_mono_enorm fun x ↦ ?_).trans (hT f bf).2
     simp_rw [enorm_eq_self, nontangentialOperator]
@@ -206,8 +210,8 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
         refine Measurable.iSup fun j ↦ Measurable.iSup fun mj ↦ Measurable.enorm ?_
         exact measurable_carlesonOperatorIntegrand (Q := SimpleFunc.const X (enumΘ' nΘ' i)) mf
       · intro x; apply biSup_mono; simp_rw [Finset.mem_range]; omega
-    _ = ⨆ n, ∫⁻ x in G, g (QΘ' nΘ' mg n x) x := by
-      congr! with n x; exact biSup_enumΘ'_eq_biSup_QΘ' nΘ' mg
+    _ ≤ ⨆ n, ∫⁻ x in G, g (QΘ' nΘ' mg n x) x := by
+      gcongr with n x; exact biSup_enumΘ'_le_biSup_QΘ' nΘ' mg
     _ ≤ ⨆ n, ∫⁻ x in G, linearizedCarlesonOperator (QΘ' nΘ' mg n) K f x := by
       gcongr with n x; set Q := QΘ' nΘ' mg n; unfold linearizedCarlesonOperator
       refine iSup₂_le fun ⟨q₁, q₂⟩ ⟨hq₁, hq₂⟩ ↦ ?_
