@@ -77,6 +77,7 @@ import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 import Carleson.ToMathlib.MeasureTheory.Measure.Restrict
+import Carleson.ToMathlib.MeasureTheory.Measure.SumRestrict
 import Carleson.ToMathlib.MinLayer
 import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.Order.Chain
