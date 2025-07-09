@@ -143,28 +143,25 @@ We define the generalized Carleson operator $T$ by
 \end{equation}
 where $e(r)=e^{ir}$.
 
-Our main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$, which by interpolation techniques recovers $L^q$ estimates for the open range
-$1<q<2$.
+Our main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
+which by interpolation techniques recovers $L^q$ estimates for the open range $1<q<2$.
 \begin{theorem}[metric space Carleson]
 \label{metric-space-Carleson}
 \uses{linearised-metric-Carleson,int-continuous}
 \leanok
 \lean{metric_carleson}
-    For all integers $a \ge 4$ and real numbers $1<q\le 2$
-    the following holds.
-    Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
-    cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
+    Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
+    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{nontanbound}
         \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
-    where $T_{*}$ is defined in
-\eqref{def-tang-unm-op}.
-    Then for all Borel sets $F$ and $G$ in $X$ and
-    all Borel functions $f:X\to \C$ with
+    where $T_{*}$ is defined in \eqref{def-tang-unm-op}.
+    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with
     $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
     \begin{equation}
         \label{resweak}
-        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{471a^3+4}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
     \end{equation}
 \end{theorem}
 
@@ -866,7 +863,7 @@ We now prove Theorem \ref{metric-space-Carleson} using Theorem \ref{linearised-m
 
 \begin{proof}[Proof of \Cref{metric-space-Carleson}]
     \proves{metric-space-Carleson}
-    Let Borel sets $F$, $G$ in $X$ with finite measure be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
+    Let Borel sets $F$, $G$ in $X$ be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 
     Let $\Mf' \subset \Mf$ be a countable dense set. By Lemma \ref{int-continuous} we have
     \[
@@ -875,7 +872,7 @@ We now prove Theorem \ref{metric-space-Carleson} using Theorem \ref{linearised-m
     \[
         = \sup_{\mfa\in\Mf'} \sup_{0 < R_1 < R_2, R_i \in \mathbb{Q}}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|.
     \]
-    Let $\Mf_n \subset \Mf'$ be a sequence of finite sets with $\Mf_n \subset \Mf_{n+1}$ for all $n$ and $\cup_n \Mf_n = \Mf'$. Then, by the monotone convergence theorem
+    Consider an enumeration of $\Mf'$ and let $\Mf_n$ be the finite set consisting of the first $n+1$ functions in the enumeration. Then by the monotone convergence theorem
     \[
         \Big| \int_G Tf \, \mathrm{d}\mu\Big|
     \]
@@ -885,7 +882,7 @@ We now prove Theorem \ref{metric-space-Carleson} using Theorem \ref{linearised-m
     \[
         = \lim_{n \to \infty} \int_G \sup_{\mfa\in\Mf_n} \sup_{0 < R_1 < R_2, R_i \in \mathbb{Q}}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right| \, \mathrm{d}\mu(x).
     \]
-    For each $n$, let $Q_n(x) \in \Mf_n$ be a measurable function specifying the maximizer in the supremum in $\mfa$ in the previous line. It is possible to construct such a measurable function of $x$, because the function inside the supremum is measurable in $x$, being a countable supremum of measurable functions, and because $\Mf_n$ is finite. (For example one may fix some order on the finite set $\Mf_n$ and pick the smallest maximizer with respect to that order. This is a measurable choice function.) Then the previous display becomes
+    For each $n$, let $Q_n(x)$ be the measurable function specifying the maximizer in the supremum in $\mfa$ in the previous line. It is possible to construct such a measurable function of $x$, because the function inside the supremum is measurable in $x$, being a countable supremum of measurable functions, and because $\Mf_n$ is finite. (For example one may fix some order on the finite set $\Mf_n$ and pick the smallest maximizer with respect to that order. This is a measurable choice function.) Then the previous display becomes
     \[
         \le \lim_{n \to \infty} \int_G \sup_{0 < R_1 < R_2} \left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(Q_n(x)(y)) \, \mathrm{d}\mu(y) \right| \, \mathrm{d}\mu(x).
     \]
