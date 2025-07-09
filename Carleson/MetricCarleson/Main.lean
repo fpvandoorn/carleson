@@ -89,68 +89,46 @@ lemma biSup_Θ'_eq_biSup_enumΘ' {x : X} :
   · refine iSup_le fun n ↦ iSup₂_le fun i mi ↦ ?_
     obtain ⟨θ, mθ⟩ := enumΘ' nΘ' i; apply le_iSup₂ _ mθ
 
-/-- The argmax over the first `n + 1` functions of `enumΘ'` with respect to `g`,
-with ties broken in favour of the lower-indexed function. -/
-def enumΘ'ArgMax : ℕ → X → Θ' X
-  | 0, _ => enumΘ' nΘ' 0
-  | n + 1, x =>
-    if g (enumΘ'ArgMax n x) x < g (enumΘ' nΘ' (n + 1)) x
-    then enumΘ' nΘ' (n + 1) else enumΘ'ArgMax n x
+/-- The argmax of `g (enumΘ' nΘ' i) x` over `i ≤ n` with lower indices winning ties. -/
+def enumΘ'ArgMax (n : ℕ) (x : X) : ℕ :=
+  (List.range (n + 1)).findIdx fun i ↦ ∀ j ≤ n, g (enumΘ' nΘ' j) x ≤ g (enumΘ' nΘ' i) x
 
-/-- `enumΘ'ArgMax` indeed gives a maximiser among the first `n + 1` functions of `enumΘ'`. -/
-lemma le_enumΘ'ArgMax {n i : ℕ} {x : X} (hi : i ≤ n) :
-    g (enumΘ' nΘ' i) x ≤ g (enumΘ'ArgMax nΘ' g n x) x := by
-  induction n with
-  | zero => rw [nonpos_iff_eq_zero] at hi; subst hi; simp [enumΘ'ArgMax]
-  | succ n ih =>
-    unfold enumΘ'ArgMax; split_ifs with h
-    · rcases hi.eq_or_lt with rfl | hi
-      · rfl
-      · exact (ih (by omega)).trans h.le
-    · rw [not_lt] at h
-      rcases hi.eq_or_lt with rfl | hi
-      · exact h
-      · exact ih (by omega)
+lemma enumΘ'ArgMax_mem_range {n : ℕ} {x : X} : enumΘ'ArgMax nΘ' g n x ∈ Finset.range (n + 1) := by
+  rw [Finset.mem_range, ← @List.length_range (n + 1), enumΘ'ArgMax, List.findIdx_lt_length]
+  simp_rw [List.mem_range, decide_eq_true_eq]
+  obtain ⟨i₀, mi₀, li₀⟩ :=
+    (Finset.range (n + 1)).exists_max_image (fun i ↦ g (enumΘ' nΘ' i) x) (by simp)
+  simp_rw [Finset.mem_range, Nat.lt_add_one_iff] at mi₀ li₀ ⊢; use i₀
 
-open Classical in
-lemma enumΘ'ArgMax_mem_image_range {n : ℕ} {x : X} :
-    enumΘ'ArgMax nΘ' g n x ∈ (Finset.range (n + 1)).image (enumΘ' nΘ' ·) := by
-  induction n with
-  | zero => simp [enumΘ'ArgMax]
-  | succ n ih =>
-    unfold enumΘ'ArgMax; split_ifs with h
-    · simp_rw [Finset.mem_image, Finset.mem_range]; use n + 1, by omega
-    · refine Finset.mem_of_subset (Finset.image_subset_image ?_) ih
-      rw [Finset.range_subset]; omega
-
+/-- The characterising property of `enumΘ'ArgMax`. -/
 lemma enumΘ'ArgMax_eq_iff {n i : ℕ} {x : X} (hi : i ≤ n) :
-    enumΘ'ArgMax nΘ' g n x = enumΘ' nΘ' i ↔
+    enumΘ'ArgMax nΘ' g n x = i ↔
     (∀ j ≤ n, g (enumΘ' nΘ' j) x ≤ g (enumΘ' nΘ' i) x) ∧
     ∀ j < i, g (enumΘ' nΘ' j) x < g (enumΘ' nΘ' i) x := by
-  constructor <;> intro h
-  · simp_rw [← h]
-    refine ⟨fun j ↦ le_enumΘ'ArgMax nΘ' g, ?_⟩
-    sorry
-  · sorry
+  rw [enumΘ'ArgMax, List.findIdx_eq (by rw [List.length_range]; omega)]
+  simp_rw [List.getElem_range, decide_eq_true_eq, decide_eq_false_iff_not, not_forall, not_le,
+    exists_prop, and_congr_right_iff]
+  refine fun ismax ↦ forall₂_congr fun j lj ↦ ⟨fun h ↦ ?_, fun h ↦ by use i⟩
+  obtain ⟨k, lk, lk'⟩ := h; exact lk'.trans_le (ismax _ lk)
 
 variable {g} (mg : ∀ θ, Measurable (g θ))
 
 /-- The simple function corresponding to the blueprint's `Q_n`. -/
 def QΘ' (n : ℕ) : SimpleFunc X (Θ X) where
-  toFun x := enumΘ'ArgMax nΘ' g n x
+  toFun x := enumΘ' nΘ' (enumΘ'ArgMax nΘ' g n x)
   measurableSet_fiber' θ := by
     simp_rw [← measurable_mem, mem_preimage, mem_singleton_iff]
-    by_cases mθ : θ ∈ (Finset.range (n + 1)).image fun i ↦ (enumΘ' nΘ' i).1; swap
-    · have (x : X) : (enumΘ'ArgMax nΘ' g n x).1 ≠ θ := by
-        by_contra! con
-        have ei := enumΘ'ArgMax_mem_image_range nΘ' g (n := n) (x := x)
-        simp_rw [Finset.mem_image, ← con, Subtype.val_inj] at ei mθ
-        exact mθ ei
-      simp [this]
-    simp_rw [Finset.mem_image, Finset.mem_range] at mθ; obtain ⟨i, li, hi⟩ := mθ
-    rw [Order.lt_add_one_iff] at li; simp_rw [← hi, Subtype.val_inj, enumΘ'ArgMax_eq_iff nΘ' g li]
-    refine (Measurable.forall fun j ↦ measurable_const.imp ?_).and
-      (Measurable.forall fun j ↦ measurable_const.imp ?_) <;> rw [← measurableSet_setOf]
+    apply Measurable.comp (g := fun i ↦ (enumΘ' nΘ' i).1 = θ) (f := enumΘ'ArgMax nΘ' g n)
+    · exact measurable_id
+    refine measurable_to_countable' fun i ↦ ?_
+    simp_rw [← measurable_mem, mem_preimage, mem_singleton_iff]
+    rcases lt_or_ge n i with hi | hi
+    · have (x : X) : enumΘ'ArgMax nΘ' g n x ≠ i := by
+        contrapose! hi; rw [← hi, ← Nat.lt_add_one_iff, ← Finset.mem_range]
+        exact enumΘ'ArgMax_mem_range nΘ' g
+      simp_rw [this]; exact measurable_const
+    simp_rw [enumΘ'ArgMax_eq_iff nΘ' g hi]; apply Measurable.and
+    all_goals refine (Measurable.forall fun j ↦ measurable_const.imp ?_); rw [← measurableSet_setOf]
     · exact measurableSet_le (mg _) (mg _)
     · exact measurableSet_lt (mg _) (mg _)
   finite_range' := by
@@ -160,9 +138,8 @@ def QΘ' (n : ℕ) : SimpleFunc X (Θ X) where
     refine fbs.subset fun θ mθ ↦ ?_
     simp only [mem_range, Finset.coe_image, Finset.coe_range, mem_image, mem_Iio] at mθ ⊢
     obtain ⟨x, hx⟩ := mθ
-    have key := enumΘ'ArgMax_mem_image_range nΘ' g (n := n) (x := x)
-    simp only [Finset.mem_image, Finset.mem_range] at key
-    obtain ⟨i, li, hi⟩ := key; use i, li; rwa [hi]
+    have key := enumΘ'ArgMax_mem_range nΘ' g (n := n) (x := x)
+    rw [Finset.mem_range] at key; exact ⟨_, key, hx⟩
 
 lemma biSup_enumΘ'_eq_biSup_QΘ' {n : ℕ} {x : X} :
     ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x = g (QΘ' nΘ' mg n x) x := by
