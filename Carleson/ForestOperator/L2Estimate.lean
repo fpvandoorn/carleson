@@ -159,13 +159,16 @@ private lemma nontangential_integral_bound₁
   · rw [Annulus.oc_eq_empty lR₂, setIntegral_empty, enorm_zero]; exact zero_le _
   have pR₁ : 0 < R₁ := dist_nonneg.trans_lt hR₁
   have pR₂ : 0 < R₂ := pR₁.trans lR₂
+  choose R₃ hR₃ using exists_between hR₂
+  have fR₃ : R₃ ≠ ⊤ := ne_top_of_lt hR₃.2
+  have h2R₃ : R₂ < R₃.toReal := ENNReal.ofReal_lt_iff_lt_toReal pR₂.le fR₃ |>.mp hR₃.1
   calc
     _ = ‖∫ y in EAnnulus.oc x' (ENNReal.ofReal R₁) (ENNReal.ofReal R₂), K x' y * f y‖ₑ := by
       congr; unfold Annulus.oc EAnnulus.oc; ext y
       simp_rw [mem_setOf_eq, mem_Ioc, edist_dist, ENNReal.ofReal_le_ofReal_iff pR₂.le,
         ENNReal.ofReal_lt_ofReal_iff_of_nonneg pR₁.le]
-    _ = ‖(∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) (upperRadius Q θ x'), K x' y * f y) -
-        ∫ y in EAnnulus.oo x' (ENNReal.ofReal R₂) (upperRadius Q θ x'), K x' y * f y‖ₑ := by
+    _ = ‖(∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) R₃, K x' y * f y) -
+        ∫ y in EAnnulus.oo x' (ENNReal.ofReal R₂) R₃, K x' y * f y‖ₑ := by
       congr; rw [eq_sub_iff_add_eq, ← setIntegral_union]; rotate_left
       · rw [disjoint_left]; intro y my
         rw [EAnnulus.oc, mem_setOf_eq, mem_Ioc] at my
@@ -179,18 +182,20 @@ private lemma nontangential_integral_bound₁
         rw [EAnnulus.oo, mem_setOf_eq, mem_Ioo, edist_dist,
           ENNReal.ofReal_lt_ofReal_iff_of_nonneg pR₂.le] at my
         simp_rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le
-      rw [EAnnulus.oc_union_oo ((ENNReal.ofReal_le_ofReal_iff pR₂.le).mpr lR₂.le) hR₂]
-    _ ≤ ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) (upperRadius Q θ x'), K x' y * f y‖ₑ +
-        ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₂) (upperRadius Q θ x'), K x' y * f y‖ₑ :=
+      rw [EAnnulus.oc_union_oo ((ENNReal.ofReal_le_ofReal_iff pR₂.le).mpr lR₂.le) hR₃.1]
+    _ ≤ ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) R₃, K x' y * f y‖ₑ +
+        ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₂) R₃, K x' y * f y‖ₑ :=
       enorm_sub_le
     _ ≤ _ := by
       rw [two_mul]; gcongr
-      · refine le_iSup_of_le ?_ (i := R₂)
-        refine le_iSup₂_of_le ?_ (i := R₁) (j := ⟨pR₁, lR₂⟩)
+      · refine le_iSup_of_le ?_ (i := R₃.toReal)
+        refine le_iSup₂_of_le ?_ (i := R₁) (j := ⟨pR₁, lR₂.trans h2R₃⟩)
         refine le_iSup₂_of_le ?_  (i := x') (j := (mem_ball'.mpr hR₁))
-        simp [hR₂.le]
-        sorry -- not true, need to fix argument above
-      sorry -- not true, need to fix argument above
+        simp [hR₃.2.le, fR₃]
+      · refine le_iSup_of_le ?_ (i := R₃.toReal)
+        refine le_iSup₂_of_le ?_ (i := R₂) (j := ⟨pR₂, h2R₃⟩)
+        refine le_iSup₂_of_le ?_  (i := x') (j := (mem_ball'.mpr <| hR₁.trans lR₂))
+        simp [hR₃.2.le, fR₃]
 
 -- Bound for (7.2.4) and (7.2.5) in the proof of `nontangential_pointwise_bound`
 private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x x' : X}
