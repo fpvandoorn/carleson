@@ -179,7 +179,6 @@ def partial_sum_selfadjoint : Prop :=
     ∫ x in (0)..2 * π, conj (partialFourierSum n f x) * g x =
     ∫ x in (0)..2 * π, conj (f x) * partialFourierSum n g x
 
-
 theorem AddCircle.haarAddCircle_eq_smul_volume {T : ℝ} [hT : Fact (0 < T)] :
     (@haarAddCircle T _) = (ENNReal.ofReal T)⁻¹ • (volume : Measure (AddCircle T)) := by
   rw [volume_eq_smul_haarAddCircle, ← smul_assoc, smul_eq_mul,
@@ -189,6 +188,7 @@ open AddCircle in
 /-- Lemma 11.1.10.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
+-- todo: add lemma that relates `eLpNorm ((Ioc a b).indicator f)` to `∫ x in a..b, _`
 lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : Measurable f) :
     eLpNorm ((Ioc 0 (2 * π)).indicator (partialFourierSum n f)) 2 ≤
     eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 := by
