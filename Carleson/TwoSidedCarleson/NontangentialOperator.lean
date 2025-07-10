@@ -859,7 +859,7 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
     _ = 0 := by simp
 
 /-- Monotone convergence applied to eLpNorms. AEMeasurable variant.
-  Possiblys imperfect hypotheses, particularly on `p`. Note that for `p = ∞` the stronger
+  Possibly imperfect hypotheses, particularly on `p`. Note that for `p = ∞` the stronger
   statement in `eLpNormEssSup_iSup` holds. -/
 theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : ℝ≥0∞}
     {f : ℕ → α → ℝ≥0∞} (hf : ∀ n, AEMeasurable (f n) μ) (h_mono : ∀ᵐ x ∂μ, Monotone fun n => f n x) :
