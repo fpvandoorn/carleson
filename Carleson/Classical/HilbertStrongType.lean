@@ -27,7 +27,7 @@ end
 
 /-- The modulation operator `M_n g`, defined in (11.3.1) -/
 def modulationOperator (n : ℤ) (g : ℝ → ℂ) (x : ℝ) : ℂ :=
-  g x * exp (.I * n * x)
+  g x * exp (I * n * x)
 
 lemma Measurable.modulationOperator (n : ℤ) {g : ℝ → ℂ} (hg : Measurable g) :
     Measurable (modulationOperator n g) :=
@@ -37,13 +37,13 @@ lemma Measurable.modulationOperator (n : ℤ) {g : ℝ → ℂ} (hg : Measurable
 defined slightly differently. -/
 def approxHilbertTransform (n : ℕ) (g : ℝ → ℂ) (x : ℝ) : ℂ :=
   (n : ℂ)⁻¹ * ∑ k ∈ .Ico n (2 * n),
-    modulationOperator (-k) (partialFourierSum k (modulationOperator k g)) x
+    modulationOperator (k) (partialFourierSum k (modulationOperator (-k) g)) x
 
 /-- The kernel `k_r(x)` defined in (11.3.11).
 When used, we may assume that `r ∈ Ioo 0 1`.
 Todo: find better name? -/
 def niceKernel (r : ℝ) (x : ℝ) : ℝ :=
-  if exp (.I * x) = 1 then r⁻¹ else
+  if exp (I * x) = 1 then r⁻¹ else
     min r⁻¹ (1 + r / normSq (1 - exp (.I * x)))
 
 lemma niceKernel_pos {r x : ℝ} (hr : 0 < r) : 0 < niceKernel r x := by
@@ -52,6 +52,15 @@ lemma niceKernel_pos {r x : ℝ} (hr : 0 < r) : 0 < niceKernel r x := by
   · positivity
   · apply lt_min (by positivity)
     apply lt_add_of_lt_of_nonneg zero_lt_one
+    apply div_nonneg (by positivity) (normSq_nonneg _)
+
+lemma one_le_niceKernel {r x : ℝ} (hr : 0 < r) (h'r : r < 1) : 1 ≤ niceKernel r x := by
+  have A : 1 ≤ r⁻¹ := le_inv_of_le_inv₀ hr (by simpa using h'r.le)
+  unfold niceKernel
+  split
+  · exact A
+  · apply le_min A
+    simp only [le_add_iff_nonneg_right]
     apply div_nonneg (by positivity) (normSq_nonneg _)
 
 lemma niceKernel_neg {r x : ℝ} : niceKernel r (-x) = niceKernel r x := by
@@ -264,8 +273,8 @@ lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} (hmg : Measurabl
   trans ∑ i ∈ Finset.Ico n (2 * n), eLpNorm ((Ioc 0 (2 * π)).indicator g) 2 volume; swap
   · simp [← ofReal_norm_eq_enorm, Nat.sub_eq_of_eq_add (two_mul n)]
   refine Finset.sum_le_sum (fun i _ ↦ ?_)
-  rw [eLpNorm_indicator_modulationOperator, ← eLpNorm_indicator_modulationOperator g i]
-  exact spectral_projection_bound (hmg.modulationOperator i)
+  rw [eLpNorm_indicator_modulationOperator, ← eLpNorm_indicator_modulationOperator g (-i)]
+  exact spectral_projection_bound (hmg.modulationOperator (-i))
 
 /- Lemma 11.3.2 `periodic-domain-shift` is in Mathlib. -/
 
@@ -354,7 +363,7 @@ lemma integrable_bump_convolution {f g : ℝ → ℂ}
 
 /-- The function `L'`, defined in the Proof of Lemma 11.3.5. -/
 def dirichletApprox (n : ℕ) (x : ℝ) : ℂ :=
-  (n : ℂ)⁻¹ * ∑ k ∈ .Ico n (2 * n), dirichletKernel k x * exp (- I * k * x)
+  (n : ℂ)⁻¹ * ∑ k ∈ .Ico n (2 * n), dirichletKernel k x * exp (I * k * x)
 
 /-- Lemma 11.3.5, part 1. -/
 @[fun_prop] lemma continuous_dirichletApprox {n : ℕ} : Continuous (dirichletApprox n) := by
@@ -366,15 +375,14 @@ lemma norm_dirichletApprox_le {n : ℕ} {x : ℝ} :
     ‖dirichletApprox n x‖ ≤ 4 * n := calc
   ‖dirichletApprox n x‖
   _ ≤ ‖(n : ℂ)⁻¹‖ * ∑ k ∈ .Ico n (2 * n),
-      ‖dirichletKernel k x * exp (- I * k * x)‖ := by
+      ‖dirichletKernel k x * exp (I * k * x)‖ := by
     simp only [dirichletApprox, norm_mul ((n : ℂ)⁻¹)]
     gcongr
     apply norm_sum_le
   _ ≤ (n : ℝ)⁻¹ * ∑ k ∈ .Ico n (2 * n), ‖dirichletKernel k x‖ := by
-    simp only [norm_inv, norm_natCast, neg_mul, Complex.norm_mul]
+    simp only [norm_inv, norm_natCast, Complex.norm_mul]
     gcongr with i hi
-    rw [exp_neg, mul_assoc, show (i : ℂ) * x = (i * x : ℝ) by simp, norm_inv,
-      norm_exp_I_mul_ofReal]
+    rw [mul_assoc, show (i : ℂ) * x = (i * x : ℝ) by simp, norm_exp_I_mul_ofReal]
     simp
   _ ≤ (n : ℝ)⁻¹ * ∑ k ∈ .Ico n (2 * n), (4 * n : ℝ) := by
     gcongr with i hi
@@ -396,14 +404,13 @@ lemma norm_dirichletApprox_le {n : ℕ} {x : ℝ} :
 /-- Lemma 11.3.5, part 2. -/
 lemma periodic_dirichletApprox (n : ℕ) : (dirichletApprox n).Periodic (2 * π) := by
   intro x
-  simp only [dirichletApprox, neg_mul, ofReal_add, ofReal_mul, ofReal_ofNat, mul_eq_mul_left_iff,
+  simp only [dirichletApprox, ofReal_add, ofReal_mul, ofReal_ofNat, mul_eq_mul_left_iff,
     inv_eq_zero, Nat.cast_eq_zero]
   left
   congr with i
   congr 1
   · apply dirichletKernel_periodic
-  · simp only [mul_add, neg_add_rev, exp_add, exp_neg, ne_eq, inv_eq_zero, exp_ne_zero,
-      not_false_eq_true, mul_eq_right₀, inv_eq_one]
+  · simp only [mul_add, exp_add, ne_eq, exp_ne_zero, not_false_eq_true, mul_eq_left₀]
     convert exp_nat_mul_two_pi_mul_I i using 2
     ring
 
@@ -415,7 +422,7 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
     approxHilbertTransform n f x =
       (2 * π)⁻¹ * ∫ y in (0)..2 * π, f y * dirichletApprox n (x - y) := by
   simp only [approxHilbertTransform, Finset.mul_sum, mul_inv_rev, ofReal_mul, ofReal_inv,
-    ofReal_ofNat, dirichletApprox, neg_mul, ofReal_sub]
+    ofReal_ofNat, dirichletApprox, ofReal_sub]
   rw [intervalIntegral.integral_finset_sum]; swap
   · intro i hi
     apply IntervalIntegrable.mul_continuousOn ?_ (by fun_prop)
@@ -423,7 +430,7 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
     exact (hf.restrict _).integrable le_top
   simp only [Finset.mul_sum]
   congr with i
-  simp only [modulationOperator, Int.cast_neg, Int.cast_natCast, mul_neg, neg_mul]
+  simp only [modulationOperator, Int.cast_natCast]
   rw [partialFourierSum_eq_conv_dirichletKernel]; swap
   · apply IntervalIntegrable.mul_continuousOn ?_ (by fun_prop)
     rw [intervalIntegrable_iff_integrableOn_Ioc_of_le (by simp [Real.pi_nonneg])]
@@ -431,66 +438,66 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
   simp only [one_div, mul_inv_rev, ← intervalIntegral.integral_const_mul, ←
     intervalIntegral.integral_mul_const]
   congr with y
-  simp only [modulationOperator, Int.cast_natCast, mul_sub, neg_sub, exp_sub, div_eq_inv_mul,
-    ← exp_neg]
+  simp only [modulationOperator, Int.cast_neg, Int.cast_natCast, mul_neg, neg_mul, mul_sub, exp_sub,
+    div_eq_inv_mul, ← exp_neg]
   ring
 
 
 /-- The function `L''`, defined in the Proof of Lemma 11.3.5. -/
 def dirichletApproxAux (n : ℕ) (x : ℝ) : ℂ :=
-  (n : ℂ)⁻¹ * exp (- I * 2 * n * x) / (1 - exp (I * x)) * ∑ k ∈ .Ico 0 n, exp (-I * 2 * k * x)
+  (n : ℂ)⁻¹ * exp (I * 2 * n * x) / (1 - exp (-I * x)) * ∑ k ∈ .Ico 0 n, exp (I * 2 * k * x)
 
 lemma dirichletApprox_eq_add_dirichletApproxAux
     {n : ℕ} {x : ℝ} (hx : exp (I * x) ≠ 1) (hn : n ≠ 0) :
-    dirichletApprox n x = (1 - exp (-I * x)) ⁻¹ + dirichletApproxAux n x := by
+    dirichletApprox n x = (1 - exp (I * x)) ⁻¹ + dirichletApproxAux n x := by
   have : Finset.Ico n (2 * n) = Finset.Ico (0 + n) (n + n) := by simp [Nat.two_mul n]
   simp only [dirichletApprox, this, ← Finset.sum_Ico_add]
   simp_rw [dirichletKernel_eq hx]
   simp only [Nat.Ico_zero_eq_range, dirichletKernel', Nat.cast_add, mul_assoc, add_mul, neg_mul,
-    div_eq_inv_mul, ← exp_add, add_neg_cancel, exp_zero, mul_one, Finset.sum_add_distrib]
-  simp only [Finset.sum_const, Finset.card_range, nsmul_eq_mul, mul_add, ← mul_assoc]
+    div_eq_inv_mul, ← exp_add, neg_add_cancel, exp_zero, mul_one, Finset.sum_add_distrib,
+    Finset.sum_const, Finset.card_range, nsmul_eq_mul]
+  simp only [mul_add, ← mul_assoc]
   rw [inv_mul_cancel₀ (mod_cast hn)]
-  simp only [one_mul, neg_add_rev, Finset.mul_sum, dirichletApproxAux, neg_mul, div_eq_inv_mul,
-    Nat.Ico_zero_eq_range, add_right_inj, mul_assoc, ← exp_add]
+  simp only [mul_assoc, Finset.mul_sum, one_mul, dirichletApproxAux, neg_mul, div_eq_inv_mul,
+    Nat.Ico_zero_eq_range, ← exp_add, add_comm (1 - cexp (I * ↑x))⁻¹, add_left_inj]
   congr with i
   ring_nf
-
 
 lemma norm_dirichletApproxAux_le_of_re_nonneg {n : ℕ} {x r : ℝ} (hx : exp (I * x) ≠ 1)
     (h'x : 0 ≤ re (exp (I * x))) (hn : r⁻¹ ≤ n) (hr : 0 < r) :
     ‖dirichletApproxAux n x‖ ≤ 2 * (1 + r / ‖1 - exp (I * x)‖ ^ 2) := by
-  have A (k : ℕ) : exp (-(I * 2 * k * x)) = (exp (-I * (2 * x : ℝ))) ^ k := by
+  have A (k : ℕ) : exp (I * 2 * k * x) = (exp (I * (2 * x : ℝ))) ^ k := by
     rw [← exp_nat_mul]
     simp [mul_assoc]
     ring_nf
-  have B : ‖1 - exp (I * x)‖ ≤ ‖exp (-(I * (2 * x : ℝ))) - 1‖ := by
-    have : exp (-(I * (2 * x : ℝ))) - 1 =
-        (exp (-I * x) * (1 - exp (I * x))) * (exp (- I * x) + 1) := by
-      rw [mul_sub, ← exp_add, show -(I * (2 * x : ℝ)) = - I * x + (-I * x) by simp; ring, exp_add]
-      simp
+  have B : ‖1 - exp (I * x)‖ ≤ ‖exp (I * (2 * x : ℝ)) - 1‖ := by
+    have : exp (I * (2 * x : ℝ)) - 1 =
+          - ((1 - exp (I * x)) * (exp (I * x) + 1)) := by
+      rw [show I * (2 * x : ℝ) = I * x + I * x by simp; ring, exp_add]
       ring
-    rw [this, norm_mul, norm_mul, norm_exp_neg_I_mul_ofReal, one_mul]
+    rw [this, norm_neg, norm_mul]
     apply le_mul_of_one_le_right (norm_nonneg _)
     apply le_trans _ (re_le_norm _)
-    simpa [Complex.exp_re] using h'x
-  have C : exp (-(I * (2 * x : ℝ))) ≠ 1 := by
+    simpa using h'x
+  have C : exp (I * (2 * x : ℝ)) ≠ 1 := by
     intro h
     simp only [h, sub_self, norm_zero, norm_le_zero_iff, sub_eq_zero] at B
     exact hx B.symm
   calc
   ‖dirichletApproxAux n x‖
-  _ = (n : ℝ)⁻¹ * ‖1 - exp (I * x)‖⁻¹ * ‖∑ k ∈ Finset.range n, exp (-(I * (2 * x : ℝ))) ^ k‖ := by
+  _ = (n : ℝ)⁻¹ * ‖1 - exp (I * x)‖⁻¹ * ‖∑ k ∈ Finset.range n, exp (I * (2 * x : ℝ)) ^ k‖ := by
     simp only [dirichletApproxAux, neg_mul, A, Nat.Ico_zero_eq_range, Complex.norm_mul,
-      Complex.norm_div, norm_inv, norm_natCast, norm_pow, norm_exp_neg_I_mul_ofReal']
+      Complex.norm_div, norm_inv, norm_natCast, norm_pow, norm_exp_I_mul_ofReal,
+      norm_one_sub_exp_neg_I_mul_ofReal]
     simp only [one_pow, mul_one, ofReal_mul, ofReal_ofNat, div_eq_mul_inv]
   _ = (n : ℝ)⁻¹ * ‖1 - exp (I * x)‖⁻¹ *
-      ‖(exp (-(I * (2 * x : ℝ))) ^ n - 1) / (exp (-(I * (2 * x : ℝ))) - 1)‖ := by
+      ‖(exp (I * (2 * x : ℝ)) ^ n - 1) / (exp (I * (2 * x : ℝ)) - 1)‖ := by
     rw [geom_sum_eq C]
-  _ ≤ (n : ℝ)⁻¹ * ‖1 - exp (I * x)‖⁻¹ * (2 * ‖(exp (-(I * (2 * x : ℝ))) - 1)‖⁻¹) := by
+  _ ≤ (n : ℝ)⁻¹ * ‖1 - exp (I * x)‖⁻¹ * (2 * ‖(exp (I * (2 * x : ℝ)) - 1)‖⁻¹) := by
     rw [div_eq_mul_inv, norm_mul, norm_inv]
     gcongr
     apply (norm_sub_le _ _).trans_eq
-    rw [norm_pow, norm_exp_neg_I_mul_ofReal']
+    rw [norm_pow, norm_exp_I_mul_ofReal]
     simpa using by norm_num
   _ ≤ r * ‖1 - exp (I * x)‖⁻¹ * (2 * ‖1 - exp (I * x)‖⁻¹) := by
     gcongr
@@ -507,18 +514,19 @@ lemma norm_dirichletApproxAux_le_of_re_nonpos {n : ℕ} {x r : ℝ}
     (h'x : re (exp (I * x)) ≤ 0) (hr : 0 < r) :
     ‖dirichletApproxAux n x‖ ≤ 2 * (1 + r / ‖1 - exp (I * x)‖ ^ 2) := calc
   ‖dirichletApproxAux n x‖
-  _ = (n : ℝ)⁻¹ * ‖1 - exp (I * x)‖⁻¹ * ‖∑ k ∈ Finset.range n, exp (-(I * (2 * k * x : ℝ)))‖ := by
+  _ = (n : ℝ)⁻¹ * ‖1 - exp (I * x)‖⁻¹ * ‖∑ k ∈ Finset.range n, exp (I * (2 * k * x : ℝ))‖ := by
     have A (k : ℕ) : I * 2 * k * x = I * (2 * k * x : ℝ) := by
       simp; ring
     simp only [dirichletApproxAux, neg_mul, Nat.Ico_zero_eq_range, Complex.norm_mul,
-      Complex.norm_div, norm_inv, norm_natCast, A, norm_exp_neg_I_mul_ofReal']
+      Complex.norm_div, norm_inv, norm_natCast, A, norm_exp_I_mul_ofReal,
+      norm_one_sub_exp_neg_I_mul_ofReal]
     simp only [mul_one, ofReal_mul, ofReal_ofNat, div_eq_mul_inv]
-  _ ≤ (n : ℝ)⁻¹ * 1⁻¹ * ∑ k ∈ Finset.range n, ‖exp (-(I * (2 * k * x : ℝ)))‖ := by
+  _ ≤ (n : ℝ)⁻¹ * 1⁻¹ * ∑ k ∈ Finset.range n, ‖exp (I * (2 * k * x : ℝ))‖ := by
     gcongr
     · exact le_trans (by simpa using h'x) (re_le_norm _)
     · exact norm_sum_le _ _
   _ ≤ 1 * (1 + 0) := by
-    simp only [norm_exp_neg_I_mul_ofReal']
+    simp only [norm_exp_I_mul_ofReal]
     simpa using inv_mul_le_one
   _ ≤ 2 * (1 + r / ‖1 - exp (I * x)‖ ^ 2) := by
     gcongr
@@ -538,26 +546,60 @@ lemma norm_dirichletApproxAux_le {n : ℕ} {x r : ℝ} (hx : exp (I * x) ≠ 1)
   gcongr
   exact niceKernel_lowerBound' hr h'r ⟨hxr, hxpi⟩
 
-lemma glouk {n : ℕ} {x r : ℝ} (hx : exp (I * x) ≠ 1)
-    (hxr : r < ‖x‖) (hxpi : ‖x‖ ≤ π)
-    (hn : r⁻¹ < n) (hr : 0 < r) (h'r : r < 1) :
-    ‖(1 - exp (-(I * ↑x)))⁻¹ - {y | ‖y‖ ∈ Ioo r 1}.indicator k x‖ ≤ 22 * niceKernel r x := by
+lemma norm_sub_indicator_k {x r : ℝ} (hxr : r < ‖x‖) (hxpi : ‖x‖ ≤ π) (hr : 0 < r) (h'r : r < 1) :
+    ‖(1 - exp (I * x))⁻¹ - {y | ‖y‖ ∈ Ioo r 1}.indicator k x‖ ≤ 2 * niceKernel r x := by
   rcases lt_or_ge (‖x‖) 1 with h'x | h'x
   · rw [indicator_of_mem]; swap
     · exact ⟨hxr, h'x⟩
-    have : (1 - cexp (-(I * ↑x)))⁻¹ - k x = (1 - cexp (-(I * ↑x)))⁻¹ * |x| := by
-      have : max (1- |x|) 0 = 1 - |x| := by simpa using h'x.le
+    have : (1 - exp (I * x))⁻¹ - k x = (1 - exp (I * x))⁻¹ * |x| := by
+      have : max (1 - |x|) 0 = 1 - |x| := by simpa using h'x.le
       simp [k, this, div_eq_inv_mul]
-      sorry
-    sorry
-  · sorry
+      ring
+    simp only [this, Complex.norm_mul, norm_inv, norm_real, Real.norm_eq_abs, abs_abs, ge_iff_le]
+    calc
+    ‖1 - exp (I * x)‖⁻¹ * |x|
+    _ ≤ (|x| / 2) ⁻¹ * |x| := by
+      gcongr
+      · simp only [Real.norm_eq_abs] at hxr
+        linarith
+      · apply lower_secant_bound _ le_rfl
+        simp only [Real.norm_eq_abs] at hxpi
+        have := abs_le.1 hxpi
+        simp only [neg_mul, mem_Icc, neg_add_le_iff_le_add]
+        exact ⟨by linarith, by linarith⟩
+    _ = 2 * 1 := by
+      simp only [Real.norm_eq_abs] at hxr
+      have := hr.trans hxr
+      field_simp
+    _ ≤ 2 * niceKernel r x := by
+      gcongr
+      exact one_le_niceKernel hr h'r
+  · rw [indicator_of_notMem]; swap
+    · simp only [Real.norm_eq_abs] at h'x
+      simp [h'x]
+    simp only [sub_zero, norm_inv]
+    calc
+    ‖1 - exp (I * x)‖⁻¹
+    _ ≤ (|x| / 2) ⁻¹ := by
+      gcongr
+      apply lower_secant_bound _ le_rfl
+      simp only [Real.norm_eq_abs] at hxpi
+      have := abs_le.1 hxpi
+      simp only [neg_mul, mem_Icc, neg_add_le_iff_le_add]
+      exact ⟨by linarith, by linarith⟩
+    _ ≤ (1 / 2) ⁻¹ := by
+      gcongr
+      simpa using h'x
+    _ = 2 * 1 := by norm_num
+    _ ≤ 2 * niceKernel r x := by
+      gcongr
+      exact one_le_niceKernel hr h'r
 
 /-- Lemma 11.3.5, part 4.
 -/
-lemma dist_dirichletApprox_le {n : ℕ}
+lemma dist_dirichletApprox_le
     {r : ℝ} (hr : r ∈ Ioo 0 1) {n : ℕ} (hn : n = ⌈r⁻¹⌉₊) {x : ℝ} (hx : x ∈ Icc (-π) π) :
-    dist (dirichletApprox n x) ({y : ℝ | ‖y‖ ∈ Ioo r 1}.indicator k x) ≤
-      2 ^ 5 * niceKernel r x := by
+    dist (dirichletApprox n x) ({y : ℝ | ‖y‖ ∈ Ioo r 1}.indicator k x) ≤ 12 * niceKernel r x := by
   have rpos : 0 < r := hr.1
   have hn1 : n < r⁻¹ + 1 := by
     rw [hn]
@@ -585,27 +627,17 @@ lemma dist_dirichletApprox_le {n : ℕ}
     intro h
     simp only [h, eq_comm, Nat.ceil_eq_zero, inv_nonpos] at hn
     linarith
-  rw [dirichletApprox_eq_add_dirichletApproxAux hexpx hnzero]
-  simp only [neg_mul, dist_eq_norm]
-  rw [add_sub_right_comm]
+  rw [dirichletApprox_eq_add_dirichletApproxAux hexpx hnzero, dist_eq_norm, add_sub_right_comm]
   apply (norm_add_le _ _).trans
-  suffices ‖(1 - exp (-(I * ↑x)))⁻¹ - {y | ‖y‖ ∈ Ioo r 1}.indicator k x‖ ≤ 22 * niceKernel r x by
-    have : ‖dirichletApproxAux n x‖ ≤ 10 * niceKernel r x := by
-      apply norm_dirichletApproxAux_le hexpx h'x.le _ _ hr.1 hr.2
-      · simp [abs_le, hx.1, hx.2]
-      · rw [hn]
-        apply Nat.le_ceil
-    linarith
-  sorry
-
-
-
-
-
-
-
-
-
+  have A : ‖(1 - cexp (I * ↑x))⁻¹ - {y | ‖y‖ ∈ Ioo r 1}.indicator k x‖ ≤ 2 * niceKernel r x := by
+    apply norm_sub_indicator_k h'x _ rpos hr.2
+    simpa only [Real.norm_eq_abs, abs_le] using hx
+  have B : ‖dirichletApproxAux n x‖ ≤ 10 * niceKernel r x := by
+    apply norm_dirichletApproxAux_le hexpx h'x.le _ _ hr.1 hr.2
+    · simp [abs_le, hx.1, hx.2]
+    · rw [hn]
+      apply Nat.le_ceil
+  linarith
 
 /- Lemma 11.1.6.
 This verifies the assumption on the operators T_r in two-sided metric space Carleson.

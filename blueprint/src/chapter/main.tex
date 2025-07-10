@@ -8423,7 +8423,7 @@ defined by
 Define the approximate Hilbert transform by
 \begin{equation}
     L_N g=\frac 1N\sum_{n=0}^{N-1}
-       M_{-n-N} S_{N+n}M_{N+n}g\, .
+       M_{n+N} S_{N+n}M_{-N-n}g\, .
 \end{equation}
 
 
@@ -8447,17 +8447,17 @@ We have for every bounded measurable $2\pi$-periodic function $g$
      We have by the triangle inequality, the square root of the identity in \eqref{mnbound}, and \Cref{spectral-projection-bound}
     \begin{equation*}
         \|L_ng\|_{L^2[-\pi, \pi]}=\|\frac 1N\sum_{n=0}^{N-1}
-       M_{-n-N} S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
+       M_{n+N} S_{N+n}M_{-N-n}g\|_{L^2[-\pi, \pi]}
     \end{equation*}
     \begin{equation*}
         \le \frac 1N\sum_{n=0}^{N-1} \|
-       M_{-n-N} S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
+       M_{n+N} S_{N+n}M_{-N-n}g\|_{L^2[-\pi, \pi]}
          = \frac 1N\sum_{n=0}^{N-1} \|
-    S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
+    S_{N+n}M_{-N-n}g\|_{L^2[-\pi, \pi]}
     \end{equation*}
      \begin{equation}
      \le \frac 1N\sum_{n=0}^{N-1} \|
- M_{N+n}g\|_{L^2[-\pi, \pi]} = \frac 1N\sum_{n=0}^{N-1} \|
+ M_{-N-n}g\|_{L^2[-\pi, \pi]} = \frac 1N\sum_{n=0}^{N-1} \|
 g\|_{L^2[-\pi, \pi]} =\|g\|_{L^2[-\pi, \pi]}\, .
     \end{equation}
 This proves \eqref{lnbound} and completes the proof of the lemma.
@@ -8598,12 +8598,13 @@ and all $2\pi$-periodic bounded measurable functions $f$ on $\R$
 \end{equation}
 and
 \begin{equation}\label{eqdifflhil}
-    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}} \kappa(x)\right|\le 2^{5}k_r(x)\, .
+    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}} \kappa(x)\right|\le 12 k_r(x)\, .
 \end{equation}
 \end{lemma}
 
 
 \begin{proof}
+\leanok
 We have by definition and \Cref{Dirichlet-kernel}
 \begin{equation}
     L_Ng(x)=
@@ -8636,40 +8637,40 @@ in \Cref{Dirichlet-kernel} to obtain
 \begin{equation*}
     {L'}(x)= \frac 1N\sum_{n=0}^{N-1}
      \left(\frac{e^{i(N+n)x}}{1-e^{-ix}}
-      +\frac {e^{-i(N+n)x}}{1-e^{ix}}\right) e^{-i(N+n)x}
+      +\frac {e^{-i(N+n)x}}{1-e^{ix}}\right) e^{i(N+n)x}
 \end{equation*}
 \begin{equation*}
     = \frac 1N\sum_{n=0}^{N-1}
-    \left(\frac{1}{1-e^{-ix}}
-      +\frac {e^{-i2(N+n)x}}{1-e^{ix}}\right)
+    \left(\frac{e^{i2(N+n)x}}{1-e^{-ix}}
+      +\frac {1}{1-e^{ix}}\right)
 \end{equation*}
 \begin{equation}\label{eqhil3}
-    = \frac{1}{1-e^{-ix}} +
-     \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
+    = \frac{1}{1-e^{ix}} +
+     \frac 1N \frac {e^{i2Nx}}{1-e^{-ix}}
      \sum_{n=0}^{N-1}
-    {e^{-i2nx}}
+    {e^{i2nx}}
 \end{equation}
 and thus
 \begin{equation}
 \label{eq-L'L''}
-  {L'}(x) -\mathbf{1}_{\{y:\, r<|y|<1\}}\kappa(x)=L''(x)+ \frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{-ix}},
+  {L'}(x) -\mathbf{1}_{\{y:\, r<|y|<1\}}\kappa(x)=L''(x)+ \frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{ix}},
 \end{equation}
 where
-$$L''(x):=\frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
+$$L''(x):=\frac 1N \frac {e^{i2Nx}}{1-e^{-ix}}
      \sum_{n=0}^{N-1}
-    {e^{-i2nx}}.$$
+    {e^{i2nx}}.$$
 For $x\in [-\pi, r]\cup [r, \pi]$, we have using \Cref{lower-secant-bound} that
 \begin{equation*}
-   \left|\frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{-ix}} \right|=\left|\frac{\min(|x|, 1)}{1-e^{-ix}} \right|\leq \frac{8\min(|x|, 1)}{|x|}
+   \left|\frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{ix}} \right|=\left|\frac{\min(|x|, 1)}{1-e^{ix}} \right|\leq \frac{2\min(|x|, 1)}{|x|}
 \end{equation*}
 \begin{equation}
  \label{eq-diffzero2}
-    \leq 2^3\cdot 1\leq 2^{3} k_r(x).
+    \leq 2\cdot 1\leq 2 k_r(x).
 \end{equation}
 Next, we need to estimate $L''(x)$. If the real part of
 $e^{ix}$ is negative, we have
 \begin{equation}
-  1\le |1-e^{ix}|\le 2\, .
+  1\le |1-e^{-ix}|\le 2\, .
 \end{equation}
 and hence
 \begin{equation}\label{eqhil12}
@@ -8680,29 +8681,38 @@ and hence
 \end{equation}
 If the real part of $e^{ix}$ is positive and in particular while still $e^{ix}\neq \pm 1$, then we have by telescoping
 \begin{equation}
- (1-e^{-2ix})
+ (1-e^{2ix})
      \sum_{n=0}^{N-1}
-    {e^{-i2nx}}=1-e^{-i2Nx}\, .
+    {e^{i2nx}}=1-e^{i2Nx}\, .
 \end{equation}
-As $e^{-2ix}\neq 1$, we may divide by $1-e^{-2ix}$ and insert this into
+As $e^{2ix}\neq 1$, we may divide by $1-e^{2ix}$ and insert this into
 \eqref{eqhil3} to obtain
 \begin{equation}
  L''(x)=
-           \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
-     \frac{1-e^{-i2Nx}}{1-e^{-2ix}}\, .
+           \frac 1N \frac {e^{i2Nx}}{1-e^{-ix}}
+     \frac{1-e^{i2Nx}}{1-e^{2ix}}\, .
 \end{equation}
 Hence, using the nonnegativity of the real part of $e^{ix}$
 \begin{equation*}
     |L''(x)|
  \le \frac 2 N \frac {1}{|1-e^{ix}|}
-     \frac{1}{|1-e^{-2ix}|}
+     \frac{1}{|1-e^{2ix}|}
  \end{equation*}
 \begin{equation}\label{eqhil11}
     = \frac 2 N \frac {1}{|1-e^{ix}|^2}
      \frac{1}{|1+e^{ix}|}\le
  \frac {2r}{|1-e^{ix}|^2}\le 2 \left(1+\frac {r}{|1-e^{ix}|^2}\right)
 \end{equation}
-Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-diffzero2}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{eqdifflhil}. This completes the proof of the lemma.
+Moreover, for $|x| \in [r, \pi]$, one checks easily that
+\begin{equation*}
+  1+\frac {r}{|1-e^{ix}|^2} \leq 5 k_r(x).
+\end{equation*}
+Therefore,~\eqref{eqhil12} and~\eqref{eqhil11} show that, in this range of $x$,
+\begin{equation*}
+  |L''(x)| \le 10 k_r(x).
+\end{equation*}
+Together with~\eqref{eq-diffzero2}, this prove \eqref{eqdifflhil} for $|x| \in [r, \pi]$.
+As the range $|x| \in [0,r)$ is covered by~\eqref{eqdiffzero}, this completes the proof of the lemma.
 \end{proof}
 
 
