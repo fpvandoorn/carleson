@@ -480,11 +480,10 @@ lemma norm_indicator_one_le {α E}
 lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (I * (x - y))‖ = 1 := by
   rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
 
-@[simp] lemma norm_exp_neg_I_mul_ofReal (x : ℝ) : ‖exp (-I * x)‖ = 1 := by
-  rw [neg_mul, exp_neg, norm_inv, norm_exp_I_mul_ofReal, inv_one]
-
-@[simp] lemma norm_exp_neg_I_mul_ofReal' (x : ℝ) : ‖exp (-(I * x))‖ = 1 := by
+@[simp] lemma norm_exp_neg_I_mul_ofReal (x : ℝ) : ‖exp (-(I * x))‖ = 1 := by
   rw [exp_neg, norm_inv, norm_exp_I_mul_ofReal, inv_one]
+
+lemma norm_exp_neg_I_mul_ofReal' (x : ℝ) : ‖exp (-I * x)‖ = 1 := by simp
 
 lemma norm_one_sub_exp_neg_I_mul_ofReal (x : ℝ) : ‖1 - exp (-(I * x))‖ = ‖1 - exp (I * x)‖ := by
   have : 1 - exp (I * x) = - exp (I * x) * (1 - exp (I * (-x))) := by

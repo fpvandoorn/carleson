@@ -113,7 +113,7 @@ lemma exp_I_mul_eq_one_iff_of_lt_of_lt (x : ℝ) (hx : -(2 * π) < x) (h'x : x <
   rwa [Real.cos_eq_one_iff_of_lt_of_lt hx h'x] at this
 
 lemma niceKernel_upperBound_aux {r x : ℝ} (hr : 0 < r) (hx : r ≤ x ∧ x ≤ π) :
-    1 + r / ‖1 - cexp (I * x)‖ ^ 2 ≤ 1 + 4 * r / x ^ 2 := calc
+    1 + r / ‖1 - exp (I * x)‖ ^ 2 ≤ 1 + 4 * r / x ^ 2 := calc
   _ ≤ 1 + r / (x / 2) ^ 2 := by
     gcongr 1 + ?_
     have : 0 < x := by linarith
@@ -458,7 +458,7 @@ lemma dirichletApprox_eq_add_dirichletApproxAux
   simp only [mul_add, ← mul_assoc]
   rw [inv_mul_cancel₀ (mod_cast hn)]
   simp only [mul_assoc, Finset.mul_sum, one_mul, dirichletApproxAux, neg_mul, div_eq_inv_mul,
-    Nat.Ico_zero_eq_range, ← exp_add, add_comm (1 - cexp (I * ↑x))⁻¹, add_left_inj]
+    Nat.Ico_zero_eq_range, ← exp_add, add_comm (1 - exp (I * ↑x))⁻¹, add_left_inj]
   congr with i
   ring_nf
 
@@ -628,7 +628,7 @@ lemma dist_dirichletApprox_le
     linarith
   rw [dirichletApprox_eq_add_dirichletApproxAux hexpx hnzero, dist_eq_norm, add_sub_right_comm]
   apply (norm_add_le _ _).trans
-  have A : ‖(1 - cexp (I * ↑x))⁻¹ - {y | ‖y‖ ∈ Ioo r 1}.indicator k x‖ ≤ 2 * niceKernel r x := by
+  have A : ‖(1 - exp (I * x))⁻¹ - {y | ‖y‖ ∈ Ioo r 1}.indicator k x‖ ≤ 2 * niceKernel r x := by
     apply norm_sub_indicator_k h'x _ rpos hr.2
     simpa only [Real.norm_eq_abs, abs_le] using hx
   have B : ‖dirichletApproxAux n x‖ ≤ 10 * niceKernel r x := by
