@@ -67,7 +67,8 @@ end Periodic
 
 /-- Ioc version of mathlib `coe_eq_coe_iff_of_mem_Ico` -/
 lemma coe_eq_coe_iff_of_mem_Ioc {p : 𝕜} [hp : Fact (0 < p)]
-    {a : 𝕜} [Archimedean 𝕜] {x y : 𝕜} (hx : x ∈ Set.Ioc a (a + p)) (hy : y ∈ Set.Ioc a (a + p)) : (x : AddCircle p) = y ↔ x = y := by
+    {a : 𝕜} [Archimedean 𝕜] {x y : 𝕜} (hx : x ∈ Set.Ioc a (a + p)) (hy : y ∈ Set.Ioc a (a + p)) : 
+    (x : AddCircle p) = y ↔ x = y := by
   refine ⟨fun h => ?_, by tauto⟩
   suffices (⟨x, hx⟩ : Set.Ioc a (a + p)) = ⟨y, hy⟩ by exact Subtype.mk.inj this
   apply_fun equivIoc p a at h

@@ -8617,20 +8617,20 @@ the continuous function
       K_{N+n}(x) e^{-i(N+n)x}\, .
 \end{equation}
 With \eqref{eqksumexp} of \Cref{Dirichlet-kernel}
-we have $|K_N(x)|\le N$ for every $x$ and thus
+we have $|K_N(x)|\le 2N+1$ for every $x$ and thus
 \begin{equation}\label{eqhil13}
     |{L'}(x)|\le \frac 1N\sum_{n=0}^{N-1}
-      (N+n) \le 2N\le 2^2 r^{-1}\, .
+      (2N+2n+1) \le 4N\le 2^3 r^{-1}\, .
 \end{equation}
 Therefore, for $|x|\in [0, r)\cup (1, \pi]$, we have
 \begin{equation}
     \label{eqdiffzero}
-    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}}(x)\kappa(x)\right|=|L'(x)|\leq 2^{2} r^{-1}.
+    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}}(x)\kappa(x)\right|=|L'(x)|\leq 2^{3} r^{-1}.
 \end{equation}
 This proves \eqref{eqdifflhil} for $|x|\in [0, r)$ since $k_r(x)=r^{-1}$ in this case.
 
-For $e^{ix'}\neq 1$
-and may use the expression
+For $e^{ix}\neq 1$
+one may use the expression
 \eqref{eqksumhil} for $K_N$
 in \Cref{Dirichlet-kernel} to obtain
 \begin{equation*}
@@ -8691,7 +8691,7 @@ As $e^{-2ix}\neq 1$, we may divide by $1-e^{-2ix}$ and insert this into
            \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
      \frac{1-e^{-i2Nx}}{1-e^{-2ix}}\, .
 \end{equation}
-Hence, with \Cref{lower-secant-bound} and nonnegativity of the real part of $e^{ix}$
+Hence, using the nonnegativity of the real part of $e^{ix}$
 \begin{equation*}
     |L''(x)|
  \le \frac 2 N \frac {1}{|1-e^{ix}|}
@@ -8700,7 +8700,7 @@ Hence, with \Cref{lower-secant-bound} and nonnegativity of the real part of $e^{
 \begin{equation}\label{eqhil11}
     = \frac 2 N \frac {1}{|1-e^{ix}|^2}
      \frac{1}{|1+e^{ix}|}\le
- \frac {4r}{|1-e^{ix}|^2}\le 2^{2} \left(1+\frac {r}{|1-e^{ix}|^2}\right)
+ \frac {2r}{|1-e^{ix}|^2}\le 2 \left(1+\frac {r}{|1-e^{ix}|^2}\right)
 \end{equation}
 Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-diffzero2}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{eqdifflhil}. This completes the proof of the lemma.
 \end{proof}
