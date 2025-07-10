@@ -1,5 +1,6 @@
 import Carleson.ToMathlib.BoundedFiniteSupport
 import Carleson.ToMathlib.Misc
+import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 noncomputable section
@@ -170,16 +171,6 @@ lemma distribution_pow (ε : Type*) [SeminormedRing ε] [NormOneClass ε] [NormM
   refine congrArg μ <| ext fun x ↦ ⟨fun hx ↦ ?_, fun hx ↦ ?_⟩
   · rw [mem_setOf_eq, enorm_pow (f x) n] at hx; simpa using lt_of_pow_lt_pow_left' n hx
   · rw [mem_setOf_eq, enorm_pow (f x) n]; exact ENNReal.pow_right_strictMono hn hx
-
-/- The lemmas below are almost already in Mathlib, see
-`MeasureTheory.lintegral_rpow_eq_lintegral_meas_lt_mul`. -/
-
--- /-- The layer-cake theorem, or Cavalieri's principle for functions into `ℝ≥0∞` -/
--- lemma lintegral_norm_pow_eq_measure_lt {f : α → ℝ≥0∞} (hf : AEMeasurable f μ)
---     {p : ℝ} (hp : 1 ≤ p) :
---     ∫⁻ x, (f x) ^ p ∂μ =
---     ∫⁻ t in Ioi (0 : ℝ), .ofReal (p * t ^ (p - 1)) * μ { x | ENNReal.ofReal t < f x } := by
---   sorry
 
 /-- The weak L^p norm of a function, for `p < ∞` -/
 def wnorm' (f : α → ε) (p : ℝ) (μ : Measure α) : ℝ≥0∞ :=
@@ -838,7 +829,11 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
           (∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal (t ^ (p - 1))) * μ {x | ‖f x‖ₑ = ∞} := by
         convert (top_mul ae_finite.ne').symm
         convert mul_top (ENNReal.ofReal_pos.mpr hp).ne'
-        sorry -- TODO: this should be some lemma
+        rw [← not_ne_iff, lintegral_ofReal_ne_top_iff_integrable]; rotate_left
+        · exact (measurable_id.pow_const (p - 1)).aestronglyMeasurable.restrict
+        · refine ae_restrict_of_forall_mem measurableSet_Ioi fun x mx ↦ ?_
+          simp_rw [Pi.zero_apply]; rw [mem_Ioi] at mx; positivity
+        exact not_integrableOn_Ioi_rpow (p - 1)
       _ = ∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal p * ENNReal.ofReal (t ^ (p - 1))
             * μ {x | ‖f x‖ₑ = ∞} := by
         rw [lintegral_mul_const, lintegral_const_mul] <;> fun_prop

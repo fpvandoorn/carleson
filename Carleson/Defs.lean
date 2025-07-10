@@ -28,14 +28,6 @@ section localOscillation
 def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ≥0∞ :=
   ⨆ z ∈ E ×ˢ E, ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
 
--- example (E : Set X) (hE : IsBounded E) (f : C(X, ℝ)) :
---     BddAbove (range fun z : E ↦ f z) := by
---   have : IsCompact (closure E) := IsBounded.isCompact_closure hE
---   sorry
-
--- lemma bddAbove_localOscillation (E : Set X) [Fact (IsBounded E)] (f g : C(X, 𝕜)) :
---     BddAbove ((fun z : X × X ↦ ‖f z.1 - g z.1 - f z.2 + g z.2‖) '' E ×ˢ E) := sorry
-
 variable {E : Set X} {f g : C(X, 𝕜)}
 
 --old
@@ -88,11 +80,11 @@ instance [d : FunctionDistances 𝕜 X] : PseudoMetricSpace (WithFunctionDistanc
 
 end FunctionDistances
 
-notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
+notation3 "dist_{" x ", " r "}" => @dist (WithFunctionDistance x r) _
 /-- preferably use `edist` -/
-notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
-notation3 "edist_{" x " ," r "}" => @edist (WithFunctionDistance x r) _
-notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
+notation3 "nndist_{" x ", " r "}" => @nndist (WithFunctionDistance x r) _
+notation3 "edist_{" x ", " r "}" => @edist (WithFunctionDistance x r) _
+notation3 "ball_{" x ", " r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
@@ -149,11 +141,6 @@ def cancelPt [CompatibleFunctions 𝕜 X A] : X :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose
 lemma cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X) = 0 :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose_spec f
-
--- not sure if needed
--- lemma CompatibleFunctions.IsSeparable [CompatibleFunctions 𝕜 X A] :
---   IsSeparable (range (coeΘ (X := X))) :=
---   sorry
 
 /-- The inhomogeneous Lipschitz norm on a ball. -/
 def iLipENorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
@@ -241,6 +228,13 @@ lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology 
   apply Measurable.comp (f := f) (g := g)
   · apply measurable_measure_ball
   · fun_prop
+
+@[fun_prop]
+lemma measurable_vol₁ {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
+    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] {y : X} :
+    Measurable (vol · y) := by
+  change Measurable (uncurry vol ∘ fun x : X ↦ (x, y))
+  apply Measurable.comp <;> fun_prop
 
 lemma Real.vol_def {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] {x y : X} :
   Real.vol x y = (vol x y).toReal := rfl
