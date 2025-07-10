@@ -185,10 +185,12 @@ private lemma nontangential_integral_bound₁
       enorm_sub_le
     _ ≤ _ := by
       rw [two_mul]; gcongr
-      · apply (le_biSup _ (show R₁ ∈ Ioi (dist x x') by exact hR₁)).trans
-        apply le_iSup _ x'
-      · apply (le_biSup _ (show R₂ ∈ Ioi (dist x x') by exact hR₁.trans lR₂)).trans
-        apply le_iSup _ x'
+      · refine le_iSup_of_le ?_ (i := R₂)
+        refine le_iSup₂_of_le ?_ (i := R₁) (j := ⟨pR₁, lR₂⟩)
+        refine le_iSup₂_of_le ?_  (i := x') (j := (mem_ball'.mpr hR₁))
+        simp [hR₂.le]
+        sorry -- not true, need to fix argument above
+      sorry -- not true, need to fix argument above
 
 -- Bound for (7.2.4) and (7.2.5) in the proof of `nontangential_pointwise_bound`
 private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x x' : X}

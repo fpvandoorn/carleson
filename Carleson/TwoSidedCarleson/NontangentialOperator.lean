@@ -990,19 +990,16 @@ theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R
 /-- Lemma 10.1.8. -/
 theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     nontangentialOperator K f x =
-    ⨆ (R₁ : ℝ) (_: 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
+    ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
     ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ := by
-  let sup : ℝ≥0∞ := ⨆ (R₁ : ℝ) (_: 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
+  let sup : ℝ≥0∞ := ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
     ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ
   unfold nontangentialOperator
   apply le_antisymm
   all_goals (
-    rw [iSup_le_iff]; intro R₁
-    rw [iSup_le_iff]; intro hR₁
     rw [iSup_le_iff]; intro R₂
-    rw [iSup_le_iff]; intro hR₂
-    rw [iSup_le_iff]; intro x'
-    rw [iSup_le_iff]; intro hx'
+    rw [iSup₂_le_iff]; intro R₁ hR₁
+    rw [iSup₂_le_iff]; intro x' hx'
   )
   · have (R' : ℝ) (hR' : R' ∈ Ioo R₁ R₂) : ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R₁ R', K x' y * f y‖ₑ + sup := by
@@ -1011,36 +1008,34 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       rw [this, setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2)
         (by measurability)]; swap
       · simp_rw [← this]
-        apply IntegrableOn.mono_set <| czoperator_welldefined hf hR₁ x'
+        apply IntegrableOn.mono_set <| czoperator_welldefined hf hR₁.1 x'
         rw [← Annulus.ci_eq]
         exact Annulus.oo_subset_ci (by rfl)
       apply le_trans <| enorm_add_le _ _
       gcongr
       rw [Annulus.co_eq, inter_comm, ← diff_eq_compl_inter]
-      apply le_trans ?_ <| le_iSup _ (i := R')
-      apply le_trans ?_ <| le_iSup _ (i := hR₁.trans hR'.1)
-      apply le_trans ?_ <| le_iSup _ (i := R₂)
-      apply le_trans ?_ <| le_iSup _ (i := hR'.2)
-      apply le_trans ?_ <| le_iSup _ (i := x')
-      rw [iSup_pos <| hx'.trans hR'.1]
+      refine le_iSup_of_le ?_ (i := R₂)
+      refine le_iSup₂_of_le ?_ (i := R') (j := ⟨hR₁.1.trans hR'.1, hR'.2⟩)
+      refine le_iSup₂_of_le ?_  (i := x') (j := hx'.trans hR'.1)
+      rfl
     -- apply continuity
     have le_R1 : ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R₁ R₁, K x' y * f y‖ₑ + sup := by
       refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
-      · simp [closure_Ioo hR₂.ne, hR₂.le]
+      · simp [closure_Ioo hR₁.2.ne, hR₁.2.le]
       · apply continuousWithinAt_const
       · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
-        exact small_annulus_right hf hR₁ |>.enorm
+        exact small_annulus_right hf hR₁.1 |>.enorm
     simpa using le_R1
-  · have (R' : ℝ) (hR' : R' ∈ Ioo (dist x x') R₁) : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
+  · have (R' : ℝ) (hR' : R' ∈ Ioo (dist x' x) R₁) : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
-      have hR'pos : 0 < R' := by linarith [dist_nonneg (x := x) (y := x'), hR'.1]
+      have hR'pos : 0 < R' := by linarith [dist_nonneg (x := x') (y := x), hR'.1]
       have : ∫ (y : X) in Annulus.co x' R₁ R₂, K x' y * f y = (∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y) +
           (∫ (y : X) in Annulus.co x' R₁ R₂, K x' y * f y) - ∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y := by
         simp
       rw [diff_eq_compl_inter, inter_comm, ← Annulus.co_eq, this]
       have : Annulus.oo x' R' R₂ = Annulus.oo x' R' R₁ ∪ Annulus.co x' R₁ R₂ :=
-        Annulus.oo_union_co hR'.2 hR₂.le |>.symm
+        Annulus.oo_union_co hR'.2 hR₁.2.le |>.symm
       rw [← setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2) (by measurability), ← this]; swap
       · simp_rw [← this]
         apply IntegrableOn.mono_set <| czoperator_welldefined hf hR'pos x'
@@ -1049,17 +1044,15 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       apply le_trans enorm_sub_le
       rw [add_comm]
       gcongr
-      apply le_trans ?_ <| le_iSup _ (i := R')
-      apply le_trans ?_ <| le_iSup _ (i := hR'pos)
-      apply le_trans ?_ <| le_iSup _ (i := R₂)
-      apply le_trans ?_ <| le_iSup _ (i := hR'.2.trans hR₂)
-      apply le_trans ?_ <| le_iSup _ (i := x')
-      rw [iSup_pos hR'.1]
+      refine le_iSup₂_of_le ?_ (i := R₂) (j := R')
+      refine le_iSup₂_of_le ?_ (i := ⟨hR'pos, hR'.2.trans hR₁.2⟩) (j := x')
+      refine le_iSup_of_le ?_ (i := hR'.1)
+      rfl
     -- apply continuity
     have le_R1 : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R₁ R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
       refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
-      · simp [closure_Ioo hx'.ne, hx'.le]
+      · simp [closure_Ioo (mem_ball.mp hx').ne, (mem_ball.mp hx').le]
       · apply continuousWithinAt_const
       · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
         exact small_annulus_left hf (dist_nonneg) |>.enorm
@@ -1073,13 +1066,11 @@ lemma lowerSemicontinuous_nontangentialOperator {g : X → ℂ} :
   simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
     exists_prop]
   intro M
-  apply isOpen_iUnion; intro R₁
-  apply isOpen_iUnion; intro hR₁
   apply isOpen_iUnion; intro R₂
-  apply isOpen_iUnion; intro hR₂
+  apply isOpen_biUnion; intro R₁ hR₁
   apply isOpen_iUnion; intro x'
   by_cases hx' : M < ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * g y‖ₑ
-  · simp_rw [hx', and_true, ← mem_ball, setOf_mem_eq, isOpen_ball]
+  · simp_rw [hx', and_true, mem_ball_comm, setOf_mem_eq, isOpen_ball]
   · simp [hx']
 
 omit [IsTwoSidedKernel a K] in
@@ -1117,23 +1108,20 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
       rw [this, setIntegral_union_2 (disjoint_compl_left_iff_subset.mpr diff_subset) (by measurability)
         (by rw [← this]; exact czoperator_welldefined (K := K) hg hR1 x')]
       simp
-    trans ⨆ R₁, ⨆ (_ : 0 < R₁), ⨆ R₂, ⨆ (_ : R₁ < R₂), ⨆ x', ⨆ (_ : dist x x' < R₁),
+    trans ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
         ‖∫ (y : X) in (ball x' R₁)ᶜ, K x' y * g y‖ₑ + ‖∫ (y : X) in (ball x' R₂)ᶜ, K x' y * g y‖ₑ
-    · gcongr with R1 hR1 R2 hR1R2
-      exact this hR1 hR1R2
-    have {R : ℝ} (hR : 0 < R) {x' : X} (hx' : dist x x' <  R) :
+    · gcongr with R₂ R₁ hR₁
+      exact this hR₁.1 hR₁.2
+    have {R : ℝ} (hR : 0 < R) {x' : X} (hx' : dist x' x <  R) :
         ‖∫ (y : X) in (ball x' R)ᶜ, K x' y * g y‖ₑ ≤ simpleNontangentialOperator K 0 g x := by
       unfold simpleNontangentialOperator czOperator
       apply le_trans _ <| le_iSup _ R; rw [iSup_pos hR]
-      apply le_trans _ <| le_iSup _ x'; rw [← mem_ball, mem_ball_comm] at hx'; rw [iSup_pos hx']
-    rw [iSup_le_iff]; intro R₁
-    rw [iSup_le_iff]; intro hR₁
+      apply le_trans _ <| le_iSup _ x'; rw [← mem_ball] at hx'; rw [iSup_pos hx']
     rw [iSup_le_iff]; intro R₂
-    rw [iSup_le_iff]; intro hR₂
-    rw [iSup_le_iff]; intro x'
-    rw [iSup_le_iff]; intro hx'
+    rw [iSup₂_le_iff]; intro R₁ hR₁
+    rw [iSup₂_le_iff]; intro x' hx'
     norm_cast; rw [two_mul]
-    exact add_le_add (this hR₁ hx') (this (hR₁.trans hR₂) (hx'.trans hR₂))
+    exact add_le_add (this hR₁.1 hx') (this (hR₁.1.trans hR₁.2) (hx'.trans hR₁.2))
   · rw [C10_1_6, C10_0_2, ← pow_succ']; gcongr; · exact one_le_two
     calc
       _ ≤ a ^ 3 + 2 * 4 * 4 * a := by omega
