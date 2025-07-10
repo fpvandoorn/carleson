@@ -510,6 +510,13 @@ lemma enorm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ₑ ≤
   iterate 2 rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg _)]
   exact ENNReal.ofReal_le_ofReal norm_exp_I_mul_ofReal_sub_one_le
 
+open Real in
+lemma exp_I_mul_eq_one_iff_of_lt_of_lt (x : ℝ) (hx : -(2 * π) < x) (h'x : x < 2 * π) :
+    exp (I * x) = 1 ↔ x = 0 := by
+  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩
+  have : Real.cos x = 1 := by simpa [mul_comm I x] using congr(($h).re)
+  rwa [Real.cos_eq_one_iff_of_lt_of_lt hx h'x] at this
+
 end Norm
 
 section BddAbove

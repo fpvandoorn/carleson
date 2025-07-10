@@ -106,12 +106,6 @@ lemma niceKernel_eq_inv' {r x : ℝ} (hr : 0 < r ∧ r < π) (hx : ‖x‖ ≤ r
     simp only [Real.norm_of_nonpos h'x] at hx
     simp [Left.nonneg_neg_iff, h'x, hx]
 
-lemma exp_I_mul_eq_one_iff_of_lt_of_lt (x : ℝ) (hx : -(2 * π) < x) (h'x : x < 2 * π) :
-    exp (I * x) = 1 ↔ x = 0 := by
-  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩
-  have : Real.cos x = 1 := by simpa [mul_comm I x] using congr(($h).re)
-  rwa [Real.cos_eq_one_iff_of_lt_of_lt hx h'x] at this
-
 lemma niceKernel_upperBound_aux {r x : ℝ} (hr : 0 < r) (hx : r ≤ x ∧ x ≤ π) :
     1 + r / ‖1 - exp (I * x)‖ ^ 2 ≤ 1 + 4 * r / x ^ 2 := calc
   _ ≤ 1 + r / (x / 2) ^ 2 := by
@@ -159,7 +153,7 @@ lemma niceKernel_lowerBound' {r x : ℝ} (hr : 0 < r) (h'r : r < 1) (hx : r ≤ 
 
 /-- Lemma 11.1.8 -/
 lemma mean_zero_oscillation {n : ℤ} (hn : n ≠ 0) :
-    ∫ x in (0)..2 * π, exp (.I * n * x) = 0 := by
+    ∫ x in (0)..2 * π, exp (I * n * x) = 0 := by
   rw [integral_exp_mul_complex (by simp [hn])]
   simp [sub_eq_zero, exp_eq_one_iff, hn, ← mul_assoc, mul_comm I,
     mul_right_comm _ I]
