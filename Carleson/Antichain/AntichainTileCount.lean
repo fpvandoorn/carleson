@@ -291,31 +291,22 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
   · simp only [Finset.not_nonempty_iff_eq_empty] at h𝔄'
     simp only [h𝔄', defaultA, defaultD, defaultκ.eq_1, Finset.sum_empty, zero_le]
 
--- We prove inclusion 6.3.25 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
+-- We prove inclusion 6.3.24 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
 -- `(𝓘 p : Set X) ∩ (𝓘 p') ≠ ∅`.
 -- p' is 𝔭_ϑ in the blueprint
 lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Finset (𝔓 X)} (ϑ : Θ X) (N : ℕ)
-    {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N)) (hp' : ϑ ∈ Ω p') (hs : 𝔰 p' < 𝔰 p)
-    (h𝓘 : ((𝓘 p' : Set X) ∩ (𝓘 p)).Nonempty) :
+    {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N)) (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1)))
+    (hs : 𝔰 p' < 𝔰 p) (h𝓘 : ((𝓘 p' : Set X) ∩ (𝓘 p)).Nonempty) :
     E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
   have hle : 𝓘 p' ≤ 𝓘 p := ⟨Or.resolve_right (fundamental_dyadic (le_of_lt hs))
     (not_disjoint_iff_nonempty_inter.mpr h𝓘), le_of_lt hs⟩
   -- 6.3.22
-  have hϑaux : ϑ ∈ ball_(p') (𝒬 p') 1 := subset_cball hp'
-  have hϑin' : dist_(p') (𝒬 p') ϑ < ((2 : ℝ)^(N + 1)) := by
-    have h12 : (1 : ℝ) < 2 := one_lt_two
-    have h0N : 0 < N + 1 := Nat.zero_lt_succ N
-    simp only [mem_ball'] at hϑaux
-    apply lt_trans hϑaux
-    nth_rewrite 1 [← pow_zero 2]
-    gcongr -- uses h12, h0N
-  -- 6.3.23
   have hϑin : dist_(p) (𝒬 p) ϑ < ((2 : ℝ)^(N + 1)) := by
     simp only [𝔄_aux, Finset.mem_filter] at hpin
     exact (lt_one_add (dist_(p) (𝒬 p) ϑ)).trans hpin.2.2
   -- 6.3.24
   have hsmul_le : smul (2 ^ (N + 3)) p' ≤ smul (2 ^ (N + 3)) p :=
-    tile_reach (le_of_lt hϑin') (le_of_lt hϑin) hle hs
+    tile_reach (le_of_lt (mem_ball'.mpr hp')) (le_of_lt hϑin) hle hs
   -- NOTE: TileLike.toSet is not a mono.
   -- 6.3.25
   have hss : E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
@@ -334,7 +325,8 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Finset (𝔓 X)} (ϑ : Θ X) (N : �
 -- Lemma 6.3.3
 -- p' is 𝔭_ϑ in the blueprint
 lemma local_antichain_density {𝔄 : Finset (𝔓 X)}
-    (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ϑ : Θ X) (N : ℕ) {p' : 𝔓 X} (hp' : ϑ ∈ Ω p') :
+    (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ϑ : Θ X) (N : ℕ) {p' : 𝔓 X}
+    (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1))) :
     ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N) | 𝔰 p' < 𝔰 p}), volume (E p ∩ G ∩ 𝓘 p') ≤
       volume (E₂ (2 ^ (N + 3)) p') := by
   rw [← MeasureTheory.measure_biUnion_finset _
@@ -435,11 +427,40 @@ lemma union_L'_eq_union_I_p : ⋃ (L ∈ 𝓛' 𝔄 ϑ N), L = ⋃ (p ∈ 𝔄' 
   simp only [𝓛', Finset.mem_filter, Finset.mem_univ, true_and]
   exact maxM
 
+/-- The finset `{p : 𝔓 X | 𝓘 p = L}`. -/
+private def aux_t (L : Grid X) : Finset (𝔓 X) := by
+  classical
+  exact {p : 𝔓 X | 𝓘 p = L}
+
+/- -- Ineq. 6.3.30
+private lemma ineq_6_3_3 [DecidableEq (𝔓 X)] {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
+    ∑ (p ∈ (𝔄' 𝔄 ϑ N \ (aux_t L))), volume (E p ∩ G ∩ L) ≤
+      volume (E₂ (2 ^ (N + 3)) p') := by
+
+
+  sorry -/
+
 -- Ineq. 6.3.30
 lemma global_antichain_density_aux {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     ∑ (p ∈ 𝔄' 𝔄 ϑ N), volume (E p ∩ G ∩ L) ≤
       (C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
-  sorry
+  classical
+  let t : Finset (𝔓 X) := {p : 𝔓 X | 𝓘 p = L}
+  calc ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ ↑L)
+    -- Express LHS as 6.3.31 + 6.3.32.
+    _ = ∑ p ∈ (𝔄' 𝔄 ϑ N ∩ t), volume (E p ∩ G ∩ ↑L) +
+      ∑ p ∈ (𝔄' 𝔄 ϑ N \ t), volume (E p ∩ G ∩ ↑L) := by rw [Finset.sum_inter_add_sum_diff]
+    -- Apply ineq. 6.3.33 : Estimate 6.3.31 with Lemma 6.3.2.
+    _ ≤ ∑ p ∈ (𝔄' 𝔄 ϑ N ∩ t), volume (E p ∩ G ∩ ↑L) +
+      ∑ p ∈ (𝔄' 𝔄 ϑ N \ t), volume (E p ∩ G ∩ ↑L) := by sorry
+
+    _ ≤ ∑ p ∈ (𝔄' 𝔄 ϑ N ∩ t), volume (E p ∩ G ∩ ↑L) +
+      ∑ p ∈ (𝔄' 𝔄 ϑ N \ t), volume (E p ∩ G ∩ ↑L) := by sorry
+    _ ≤ ↑(C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X)  := by sorry
+
+
+
+
 
 private lemma volume_union_I_p_eq_sum :
     volume (⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 p : Set X)) = ∑ (L ∈ 𝓛' 𝔄 ϑ N), volume (L : Set X) := by
