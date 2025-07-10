@@ -1,8 +1,8 @@
-import Carleson.Discrete.Defs
-import Mathlib.Combinatorics.Enumerative.DoubleCounting
 import Carleson.Antichain.AntichainOperator
+import Carleson.Discrete.Defs
 import Carleson.Discrete.SumEstimates
-import Carleson.ToMathlib.Analysis.Normed.Group.Basic
+import Mathlib.Combinatorics.Enumerative.DoubleCounting
+import Mathlib.Data.Complex.ExponentialBounds
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -663,7 +663,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ_eq_add_sum {f : X → ℂ} {x : X} (hkn : k 
       simp only [Finset.mem_Iic, mem_iUnion, mem_inter_iff, hp, true_and, exists_prop]
       exact H
     · intro p hp
-      simp only [Finset.mem_Iic, mem_iUnion, mem_compl_iff, exists_and_left, exists_prop] at hp
+      simp only [Finset.mem_Iic, mem_iUnion, exists_prop] at hp
       rcases hp with ⟨i, hi, h'i, h''i⟩
       exact ⟨⟨h'i, ℭ₁_subset_ℭ h''i⟩, disjoint_left.1 𝔏₀_disjoint_ℭ₁.symm h''i⟩
 
@@ -700,9 +700,8 @@ lemma carlesonSum_𝔓pos_inter_ℭ₁_eq_add_sum {f : X → ℂ} {x : X} :
     intro hp
     simp [ℭ₂_subset_ℭ₁ hp]
   · ext p
-    simp only [ℭ₂, layersAbove, mem_inter_iff,
-      mem_compl_iff, mem_diff, mem_iUnion, exists_prop, not_exists, not_and, not_forall,
-      Classical.not_imp, Decidable.not_not, Finset.mem_Iic, 𝔏₁, exists_and_left]
+    simp only [ℭ₂, layersAbove, mem_inter_iff, mem_compl_iff, mem_diff, mem_iUnion, exists_prop,
+      not_exists, not_and, not_forall, Decidable.not_not, Finset.mem_Iic, 𝔏₁]
     refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
     · simpa [h.1.1] using h.2 h.1.2
     · rcases h with ⟨i, hi, h'i⟩
@@ -859,7 +858,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
     dens1_le (inter_subset_right.trans h'A)
   have : dens₂ (𝔓pos (X := X) ∩ 𝔓₁ᶜ ∩ 𝔄) ≤ 2 ^ (2 * a + 5) * volume F / volume G := by
     rw [dens₂_eq_biSup_dens₂]
-    simp only [mem_iUnion, exists_prop, iSup_exists, iSup_le_iff, and_imp]
+    simp only [iSup_le_iff]
     intro p hp
     have : ¬ (𝓘 p : Set X) ⊆ G₁ := by
       have W := hp.1.1
@@ -973,8 +972,8 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
       + (19 + 20 * ↑Z)  / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 2
       + (14 + 32 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 3
       + (24 * ↑Z) /  (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 4) := by
-    simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.factorial, Nat.cast_one, mul_one,
-      zero_add, pow_one, Nat.succ_eq_add_one, Nat.reduceAdd, Nat.reduceMul]
+    simp only [Nat.cast_ofNat, Nat.factorial, Nat.cast_one, mul_one, zero_add, pow_one,
+      Nat.succ_eq_add_one, Nat.reduceAdd, Nat.reduceMul]
     ring
   _ ≤ (2 : ℝ) ^ (1 : ℝ) *
       ( (12 + 8 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4)))
@@ -990,7 +989,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
       + (38 + 40 * ↑Z)  / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 2
       + (28 + 64 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 3
       + (48 * ↑Z) /  (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 4 := by
-    simp only [Real.rpow_one, Nat.cast_pow, Nat.cast_ofNat]
+    simp only [Real.rpow_one]
     ring
   _ = ((8 * a ^ 4) / (q - 1)) ^ 4 *
      (((q - 1) / (8 * a ^ 4)) ^ 3 * (24 * 1 + 16 * ↑Z) / Real.log 2
@@ -1030,8 +1029,6 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux2 {N : ℕ} :
   have : 0 < q - 1 := by linarith [one_lt_q X]
   have A : (2 : ℝ≥0∞) = ENNReal.ofReal (2 : ℝ) := by simp
   simp_rw [A, ENNReal.ofReal_rpow_of_pos zero_lt_two]
-  simp only [Finset.sum_const, Nat.card_Iio, nsmul_eq_mul, Nat.cast_add, Nat.cast_mul,
-    Nat.cast_ofNat, Nat.card_Iic, Nat.cast_one, ge_iff_le]
   calc
   ∑ x ≤ N, (((12 + 8 * ↑Z) + (19 + 20 * ↑Z) * x + (7 + 16 * ↑Z) * x ^ 2 + (4 * ↑Z) * x ^ 3)
       * ENNReal.ofReal (2 ^ (-((q - 1) / (8 * ↑a ^ 4) * x : ℝ))))
@@ -1132,7 +1129,7 @@ lemma forest_complement_optimized
         * 2 ^ (-((q - 1) / (8 * ↑a ^ 4) * ↑x))) := by
     simp only [← Finset.mul_sum, ← mul_add]
     simp only [Finset.sum_const, Nat.card_Iic, nsmul_eq_mul, Nat.cast_add, Nat.cast_one,
-      Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, Nat.card_Iio]
+      Nat.cast_mul, Nat.cast_ofNat, Nat.card_Iio]
     simp only [← Finset.sum_add_distrib]
     congr with x
     ring

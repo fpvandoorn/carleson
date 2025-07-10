@@ -1,10 +1,6 @@
-/- This file contains definitions and lemmas regarding the Hilbert kernel. -/
-
-import Carleson.Classical.Helper
 import Carleson.Classical.Basic
 
-import Mathlib.Tactic.FunProp
-
+/- This file contains definitions and lemmas regarding the Hilbert kernel. -/
 
 noncomputable section
 
@@ -87,7 +83,7 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x
 lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 0 ≤ y') (ypos : 0 < y) (y2ley' : y / 2 ≤ y') (hy : y ≤ 1) (hy' : y' ≤ 1) :
     ‖k (-y) - k (-y')‖ ≤ 2 ^ 6 * (1 / |y|) * (|y - y'| / |y|) := by
   rw [k_of_abs_le_one, k_of_abs_le_one]
-  · simp only [abs_neg, ofReal_neg, mul_neg, ge_iff_le]
+  · simp only [abs_neg, ofReal_neg, mul_neg]
     rw [_root_.abs_of_nonneg yy'nonneg.1, _root_.abs_of_nonneg yy'nonneg.2]
     set f : ℝ → ℂ := fun t ↦ (1 - t) / (1 - exp (-(I * t))) with hf
     set f' : ℝ → ℂ := fun t ↦ (-1 + exp (-(I * t)) + I * (t - 1) * exp (-(I * t))) / (1 - exp (-(I * t))) ^ 2 with f'def

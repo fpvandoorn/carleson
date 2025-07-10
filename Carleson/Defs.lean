@@ -1,12 +1,11 @@
+import Carleson.ToMathlib.Annulus
+import Carleson.ToMathlib.CoverByBalls
+import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
-import Carleson.ToMathlib.Data.ENNReal
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.Annulus
-import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
-import Mathlib.Topology.Algebra.Support
+import Mathlib.Topology.MetricSpace.Holder
 
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
 open scoped NNReal
@@ -28,14 +27,6 @@ section localOscillation
 /-- The local oscillation of two functions w.r.t. a set `E`. This is `d_E` in the blueprint. -/
 def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ≥0∞ :=
   ⨆ z ∈ E ×ˢ E, ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
-
--- example (E : Set X) (hE : IsBounded E) (f : C(X, ℝ)) :
---     BddAbove (range fun z : E ↦ f z) := by
---   have : IsCompact (closure E) := IsBounded.isCompact_closure hE
---   sorry
-
--- lemma bddAbove_localOscillation (E : Set X) [Fact (IsBounded E)] (f g : C(X, 𝕜)) :
---     BddAbove ((fun z : X × X ↦ ‖f z.1 - g z.1 - f z.2 + g z.2‖) '' E ×ˢ E) := sorry
 
 variable {E : Set X} {f g : C(X, 𝕜)}
 
@@ -89,11 +80,11 @@ instance [d : FunctionDistances 𝕜 X] : PseudoMetricSpace (WithFunctionDistanc
 
 end FunctionDistances
 
-notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
+notation3 "dist_{" x ", " r "}" => @dist (WithFunctionDistance x r) _
 /-- preferably use `edist` -/
-notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
-notation3 "edist_{" x " ," r "}" => @edist (WithFunctionDistance x r) _
-notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
+notation3 "nndist_{" x ", " r "}" => @nndist (WithFunctionDistance x r) _
+notation3 "edist_{" x ", " r "}" => @edist (WithFunctionDistance x r) _
+notation3 "ball_{" x ", " r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
@@ -151,11 +142,6 @@ def cancelPt [CompatibleFunctions 𝕜 X A] : X :=
 lemma cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X) = 0 :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose_spec f
 
--- not sure if needed
--- lemma CompatibleFunctions.IsSeparable [CompatibleFunctions 𝕜 X A] :
---   IsSeparable (range (coeΘ (X := X))) :=
---   sorry
-
 /-- The inhomogeneous Lipschitz norm on a ball. -/
 def iLipENorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
@@ -192,7 +178,7 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
   rcases eq_or_ne (iLipENorm ϕ x r) ∞ with h1 | h1
   · apply le_top.trans_eq
     symm
-    simp [h1, ENNReal.mul_eq_top, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
+    simp [h1, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
   exact IsCancellative.enorm_integral_exp_le' hr h1 h2
 
 /-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
@@ -243,6 +229,13 @@ lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology 
   · apply measurable_measure_ball
   · fun_prop
 
+@[fun_prop]
+lemma measurable_vol₁ {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
+    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] {y : X} :
+    Measurable (vol · y) := by
+  change Measurable (uncurry vol ∘ fun x : X ↦ (x, y))
+  apply Measurable.comp <;> fun_prop
+
 lemma Real.vol_def {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] {x y : X} :
   Real.vol x y = (vol x y).toReal := rfl
 
@@ -271,14 +264,13 @@ lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x :
     (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
   apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
-/-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
+/-- The linearized maximally truncated nontangential Calderon–Zygmund operator `T_Q^θ`. -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (x' : X) (_ : dist x x' ≤ R₁),
-  ‖∫ y in {y | ENNReal.ofReal (dist x' y) ∈ Ioo (ENNReal.ofReal R₁) (upperRadius Q θ x')},
-    K x' y * f y‖₊
+  ⨆ (x' : X) (R₁ ∈ Ioi (dist x x')),
+  ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) (upperRadius Q θ x'), K x' y * f y‖ₑ
 
-/-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
+/-- The maximally truncated nontangential Calderon–Zygmund operator `T_*`. -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R₁ : ℝ) (_ : 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
   ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
@@ -408,32 +400,32 @@ lemma enorm_K_sub_le [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measur
         apply ofReal_div_le (by positivity)
       · exact ofReal_div_le measureReal_nonneg
 
+lemma integrableOn_K_mul [IsOpenPosMeasure (volume : Measure X)]
+    [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X] [IsOneSidedKernel a K]
+    {f : X → ℂ} {s : Set X} (hf : IntegrableOn f s) (x : X) {r : ℝ} (hr : 0 < r)
+    (hs : s ⊆ (ball x r)ᶜ) : IntegrableOn (K x * f) s := by
+  use (measurable_K_right x).aemeasurable.restrict.mul hf.aemeasurable |>.aestronglyMeasurable
+  exact (hasFiniteIntegral_def _ _).mpr <| calc
+    _ = ∫⁻ y in s, ‖K x y‖ₑ * ‖f y‖ₑ := by simp
+    _ ≤ ∫⁻ y in s, C_K a / volume (ball x r) * ‖f y‖ₑ := by
+      exact setLIntegral_mono_ae (hf.aemeasurable.enorm.const_mul _) <| Filter.Eventually.of_forall
+        fun y hy ↦ mul_le_mul_right' (enorm_K_le_ball_complement (hs hy)) _
+    _ = _ * ∫⁻ y in s, ‖f y‖ₑ := by exact lintegral_const_mul'' _ hf.aemeasurable.enorm
+    _ < ∞ := ENNReal.mul_lt_top (ENNReal.div_lt_top coe_ne_top (measure_ball_pos _ x hr).ne') hf.2
+
 lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X]
     [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
     IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
-  use Measurable.aestronglyMeasurable (measurable_K_right x)
-  rw [hasFiniteIntegral_def]
-  calc ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, ‖K x y‖ₑ
-    _ ≤ ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, C_K a / volume (ball x r) := by
-      refine setLIntegral_mono measurable_const (fun y hy ↦ ?_)
-      refine (enorm_K_le_vol_inv x y).trans ?_
-      rw [vol]
-      gcongr
-      exact hy.1
-    _ < _ := by
-      rw [setLIntegral_const]
-      apply ENNReal.mul_lt_top (ENNReal.div_lt_top ENNReal.coe_ne_top _); swap
-      · simp_rw [← pos_iff_ne_zero, measure_ball_pos _ _ hr]
-      refine (Ne.lt_top fun h ↦ ?_)
-      have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by
-        intro y ⟨_, hy⟩
-        exact mem_closedBall_comm.mp hy
-      exact measure_closedBall_lt_top.ne (measure_mono_top this h)
+  rw [← mul_one (K x)]
+  refine integrableOn_K_mul ?_ x hr ?_
+  · have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by intro y; simp [dist_comm y x]
+    exact integrableOn_const ((measure_mono this).trans_lt measure_closedBall_lt_top).ne
+  · intro y hy; simp [hy.1, dist_comm y x]
 
-/-- `K` is a two-sided Calderon-Zygmund kernel
-In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
-that `K x x = 0`. -/
+/-- `K` is a two-sided Calderon-Zygmund kernel.
+In the formalization `K x y` is defined everywhere, even for `x = y`.
+The assumptions on `K` show that `K x x = 0`. -/
 class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
   enorm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
     ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
@@ -446,13 +438,13 @@ end Kernel
 
 -- to show: K is locally bounded and hence integrable outside the diagonal
 
-/- A constant used on the boundedness of `T_*`. We generally assume
-`HasBoundedStrongType (nontangentialOperator K) volume volume 2 2 (C_Ts a)`
+/-- A constant used on the boundedness of `T_Q^θ` and `T_*`. We generally assume
+`HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·) 2 2 volume volume (C_Ts a)`
 throughout this formalization. -/
-def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
+def C_Ts (a : ℕ) : ℝ≥0 := 2 ^ a ^ 3
 
 /-- Data common through most of chapters 2-7.
-These contain the minimal axioms for `kernel-summand`'s proof and `hasBoundedStrongType_Tstar`.
+These contain the minimal axioms for `kernel-summand`'s proof.
 This is used in chapter 3 when we don't have all other fields from `ProofData`. -/
 class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
     [PseudoMetricSpace X] where
@@ -460,14 +452,13 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   hcz : IsOneSidedKernel a K
-  hasBoundedStrongType_Tstar :
-    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
 
 /-- Data common through most of chapters 2-7 (except 3). -/
 class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
   (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] extends
     KernelProofData a K where
   c : IsCancellative X (defaultτ a)
+  q_mem_Ioc : q ∈ Ioc 1 2
   isBounded_F : IsBounded F
   isBounded_G : IsBounded G
   measurableSet_F : MeasurableSet F
@@ -482,12 +473,13 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
   finite_range_σ₂ : Finite (range σ₂)
   σ₁_le_σ₂ : σ₁ ≤ σ₂
   Q : SimpleFunc X (Θ X)
-  q_mem_Ioc : q ∈ Ioc 1 2
+  BST_T_Q (θ : Θ X) : HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+    2 2 volume volume (C_Ts a)
 
-export KernelProofData (four_le_a hasBoundedStrongType_Tstar)
-export ProofData (isBounded_F isBounded_G measurableSet_F measurableSet_G
-  measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
-attribute [instance] KernelProofData.d KernelProofData.cf ProofData.c KernelProofData.hcz
+export KernelProofData (four_le_a)
+export ProofData (q_mem_Ioc isBounded_F isBounded_G measurableSet_F measurableSet_G
+  measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q BST_T_Q)
+attribute [instance] KernelProofData.d KernelProofData.cf KernelProofData.hcz ProofData.c
 
 section ProofData
 
@@ -832,7 +824,7 @@ lemma four_le_Z [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 4 ≤ 
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
-def nnD : ℝ≥0 := ⟨D, by simp [D_nonneg]⟩
+def nnD : ℝ≥0 := ⟨D, by simp⟩
 
 namespace ShortVariables
 

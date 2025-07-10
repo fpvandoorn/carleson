@@ -1,7 +1,6 @@
 import Carleson.Calculations
 import Carleson.ForestOperator.AlmostOrthogonality
 import Carleson.HolderVanDerCorput
-import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 import Carleson.ToMathlib.Data.NNReal
 
 open ShortVariables TileStructure
@@ -139,7 +138,6 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
     have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
-    simp only [mem_setOf_eq] at cubeIn𝓙₀
     cases cubeIn𝓙₀ with
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
@@ -1876,7 +1874,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
     apply bigger_than_𝓙_is_not_in_𝓙₀ (sle := by linarith) (le := JleJ')
     exact mem_of_mem_inter_left hJ
   unfold 𝓙₀ at notIn𝓙₀
-  simp only [mem_setOf_eq, not_or, not_forall, Classical.not_imp, Decidable.not_not] at notIn𝓙₀
+  simp only [mem_setOf_eq, not_or, not_forall] at notIn𝓙₀
   push_neg at notIn𝓙₀
   obtain ⟨_, ⟨ p, pIn, pSubset ⟩⟩ := notIn𝓙₀
   have thus :=

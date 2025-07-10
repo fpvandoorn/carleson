@@ -99,7 +99,7 @@ theorem pairwise_disjoint_Ioc_monotone {f : ι → α} (hf : Monotone f) :
     have := this hinej.symm (hij.lt_of_ne hinej.symm)
     rwa [inter_comm]
   intro a
-  simp only [mem_empty_iff_false, mem_inter_iff, mem_Ioc, imp_false, not_and, not_lt, and_imp]
+  simp only [mem_empty_iff_false, mem_inter_iff, mem_Ioc, imp_false, not_and, and_imp]
   intro ha ha2 ha3
   have : ¬f j < a := not_lt.mpr (le_trans ha2 (hf (SuccOrder.succ_le_of_lt hij)))
   contradiction

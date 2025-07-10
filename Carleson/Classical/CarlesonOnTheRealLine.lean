@@ -1,13 +1,13 @@
+import Carleson.Classical.CarlesonOperatorReal
+import Carleson.Classical.HilbertStrongType
+import Carleson.Classical.VanDerCorput
+import Carleson.TwoSidedCarleson.MainTheorem
+
 /-
 This file contains the proof of Lemma 11.1.4 (real Carleson), from section 11.7.
 We need to verify the assumptions of the two-sided metric Carleson theorem.
 All smaller ones are done but the estimate for the truncated Hilbert transform is still missing.
 -/
-
-import Carleson.TwoSidedCarleson.MainTheorem
-import Carleson.Classical.CarlesonOperatorReal
-import Carleson.Classical.VanDerCorput
-import Carleson.Classical.HilbertStrongType
 
 noncomputable section
 
@@ -142,9 +142,6 @@ instance instFunctionDistancesReal : FunctionDistances ℝ ℝ where
         rw [← mul_add]
         gcongr
         apply abs_sub_le
-      --next field will get default in mathlib and is left out here
-      --TODO: remove when that is the case
-      edist_dist := fun _ _ ↦ rfl
   }
 
 
@@ -160,7 +157,7 @@ lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g) := by
   by_cases r_pos : r ≤ 0
   · rw [ball_eq_empty.mpr r_pos]
-    simp [localOscillation, norm_nonneg]
+    simp [localOscillation]
   push_neg at r_pos
   simp_rw [dist_integer_linear_eq]
   calc ⨆ z ∈ ball x r ×ˢ ball x r, ENNReal.ofReal ‖↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2‖
@@ -282,7 +279,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
         rw [abs_of_nonpos]
         on_goal 1 => simp only [neg_sub]
         norm_cast
-        simp only [tsub_le_iff_right, zero_add, Int.cast_le]
+        simp only [tsub_le_iff_right, zero_add]
         rwa [m₁def, Int.le_floor]
       _ = 2 * R * (m₁ - f) + 2 * R * (f - φ) := by ring
       _ < - R' + 2 * R' := by

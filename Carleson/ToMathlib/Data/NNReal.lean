@@ -1,6 +1,4 @@
-import Mathlib.Algebra.Order.BigOperators.Group.Finset
-import Mathlib.Data.NNReal.Defs
-import Mathlib.Analysis.Normed.Field.Basic
+import Mathlib.Analysis.Normed.Ring.Basic
 
 namespace NNReal
 

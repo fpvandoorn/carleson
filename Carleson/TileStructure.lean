@@ -368,12 +368,6 @@ lemma dens₂_eq_biSup_dens₂ (𝔓' : Set (𝔓 X)) :
     dens₂ (𝔓') = ⨆ (p ∈ 𝔓'), dens₂ ({p}) := by
   simp [dens₂]
 
--- -- a small characterization that might be useful
--- lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
---     IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔
---     ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
---     Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
-
 lemma ENNReal.rpow_le_rpow_of_nonpos {x y : ℝ≥0∞} {z : ℝ} (hz : z ≤ 0) (h : x ≤ y) :
     y ^ z ≤ x ^ z := by
   rw [← neg_neg z, rpow_neg y, rpow_neg x, ← inv_rpow, ← inv_rpow]

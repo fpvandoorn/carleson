@@ -1,4 +1,4 @@
-import Carleson.ToMathlib.CoverByBalls
+import Carleson.ToMathlib.Misc
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
 import Mathlib.Order.CompletePartialOrder
@@ -247,59 +247,14 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
 lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
     (h : dist x x' + r' ≤ s * r) :
     (μ (ball x' r')).toNNReal ≤ As A s * (μ (ball x r)).toNNReal := by
-  simp only [← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal measure_ball_ne_top,
-    ENNReal.coe_toNNReal measure_ball_ne_top]
+  simp only [← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal measure_ball_ne_top]
   exact measure_ball_le_of_dist_le' hs h
 
 section
 
 variable {x x' : X} {r r' s d : ℝ} (hs : 0 < s)
 
--- #check (@measure_ball_le_of_dist_le X A _ _ x' x r (2 * r) s s hs hs)
-
 end
-/-
--- def Ai (A : ℝ≥0) (s : ℝ) : ℝ≥0 := As A s -- maybe wrong
-
--- lemma measure_ball_le_of_subset {x' x : X} {r r' s : ℝ}
---     (hs : r' ≤ s * r) (hr : ball x' r ⊆ ball x r') :
---     μ.real (ball x (2 * r)) ≤ Ai A s * μ.real (ball x' r) := by sorry
-
--- def Ai2 (A : ℝ≥0) : ℝ≥0 := Ai A 2
-
--- lemma measure_ball_two_le_of_subset {x' x : X} {r : ℝ} (hr : ball x' r ⊆ ball x (2 * r)) :
---     μ.real (ball x (2 * r)) ≤ Ai2 A * μ.real (ball x' r) :=
---   measure_ball_le_of_subset le_rfl hr
-
--- def Np (A : ℝ≥0) (s : ℝ) : ℕ := ⌊As A (s * A + 2⁻¹)⌋₊ -- probably wrong
-
--- /- Proof sketch: take a ball of radius `r / (2 * A)` around each point in `s`.
--- These are disjoint, and are subsets of `ball x (r * (2 * A + 2⁻¹))`. -/
--- lemma card_le_of_le_dist (x : X) {r r' s : ℝ} (P : Set X) (hs : r' ≤ s * r) (hP : P ⊆ ball x r')
---   (h2P : ∀ x y, x ∈ P → y ∈ P → x ≠ y → r ≤ dist x y) : P.Finite ∧ Nat.card P ≤ Np A s := by sorry
-
--- /- Proof sketch: take any maximal set `s` of points that are at least distance `r` apart.
--- By the previous lemma, you only need a bounded number of points.
--- -/
--- lemma ballsCoverBalls {r r' s : ℝ} (hs : r' ≤ s * r) : BallsCoverBalls X r' r (Np A s) := by
---   sorry
-
--- /- [Stein, 1.1.3(iv)] -/
--- lemma continuous_measure_ball_inter {U : Set X} (hU : IsOpen U) {δ} (hδ : 0 < δ) :
---   Continuous fun x ↦ μ.real (ball x δ ∩ U) := sorry
-
--- /- [Stein, 1.1.4] -/
--- lemma continuous_average {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X → E}
---     (hf : LocallyIntegrable f μ) {δ : ℝ} (hδ : 0 < δ) :
---     Continuous (fun x ↦ ⨍ y in ball x δ, f y ∂μ) :=
---   sorry
-
--- /- [Stein, 1.3.1], cor -/
--- lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X → E}
---     (hf : LocallyIntegrable f μ) {x : X} :
---     Tendsto (fun δ ↦ ⨍ y in ball x δ, f y ∂μ) (𝓝[>] 0) (𝓝 (f x)) :=
---   sorry
--/
 
 end PseudoMetric
 

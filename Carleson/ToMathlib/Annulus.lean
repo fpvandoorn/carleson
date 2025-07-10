@@ -158,6 +158,18 @@ lemma cc_subset_oi {x : X} {r₁ R₁ r₂ : ℝ} (hr : r₂ < r₁) : cc x r₁
 lemma cc_subset_ci {x : X} {r₁ R₁ r₂ : ℝ} (hr : r₂ ≤ r₁) : cc x r₁ R₁ ⊆ ci x r₂ :=
   fun _ ⟨hr₁, _⟩ ↦ hr.trans hr₁
 
+lemma oo_subset_ball {x : X} {r R : ℝ} : oo x r R ⊆ ball x R :=
+  fun _ ⟨_, h₂⟩ ↦ mem_ball'.mpr h₂
+
+lemma oc_subset_closedBall {x : X} {r R : ℝ} : oc x r R ⊆ closedBall x R :=
+  fun _ ⟨_, h₂⟩ ↦ mem_closedBall'.mpr h₂
+
+lemma co_subset_ball {x : X} {r R : ℝ} : co x r R ⊆ ball x R :=
+  fun _ ⟨_, h₂⟩ ↦ mem_ball'.mpr h₂
+
+lemma cc_subset_closedBall {x : X} {r R : ℝ} : cc x r R ⊆ closedBall x R :=
+  fun _ ⟨_, h₂⟩ ↦ mem_closedBall'.mpr h₂
+
 @[simp]
 lemma oc_union_oo {x : X} {r r' R : ℝ} (h₁ : r ≤ r') (h₂ : r' < R) :
     oc x r r' ∪ oo x r' R = oo x r R := by
@@ -225,7 +237,7 @@ theorem iUnion_oc_eq_oi {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f
     ⋃ (i : Nat), oc x (f i) (f (i+1)) = oi x (f 0) := by
   unfold oc oi
   rw [iUnion_setOf, ← iUnion_Ioc_eq_Ioi hf h2f]
-  simp only [mem_Ico, mem_iUnion]
+  simp only [mem_iUnion]
 
 variable {ι : Type*} [LinearOrder ι] [SuccOrder ι]
 
