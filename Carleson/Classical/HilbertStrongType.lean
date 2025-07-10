@@ -442,7 +442,6 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
     div_eq_inv_mul, ← exp_neg]
   ring
 
-
 /-- The function `L''`, defined in the Proof of Lemma 11.3.5. -/
 def dirichletApproxAux (n : ℕ) (x : ℝ) : ℂ :=
   (n : ℂ)⁻¹ * exp (I * 2 * n * x) / (1 - exp (-I * x)) * ∑ k ∈ .Ico 0 n, exp (I * 2 * k * x)
