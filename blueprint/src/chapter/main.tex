@@ -175,8 +175,8 @@ For a Borel function $\tQ:X\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
 and define further
 \begin{equation}
     \label{def-lin-star-op}
-    T_{\tQ}^\mfa f(x):=\sup_{R_1>0} \ \sup_{\rho(x,x')<R_1}
-    \left|\int_{R_1< \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    T_{\tQ}^\mfa f(x):=\sup_{R_1<R_2} \ \sup_{\rho(x,x')<R_1}
+    \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
 \end{equation}
 Define further the linearized generalized Carleson operator $T_\tQ$ by
 \begin{equation}
@@ -894,7 +894,14 @@ We now prove Theorem \ref{metric-space-Carleson} using Theorem \ref{linearised-m
     \]
     It remains to verify the assumptions of Theorem \ref{linearised-metric-Carleson}, which when applied here completes the proof.
 
-    The assumptions of Theorem \ref{metric-space-Carleson} and Theorem \ref{linearised-metric-Carleson} are the same, with the exception of the assumption \eqref{linnontanbound}. The assumption \eqref{linnontanbound} however is weaker than the assumption \eqref{nontanbound} of Theorem \ref{metric-space-Carleson}. Indeed, setting for fixed $x, \mfa$ the outer radius $R_2 = R_Q(\mfa, x')$ shows that \eqref{def-lin-star-op} is smaller than or equal to \eqref{def-tang-unm-op}. Thus we can apply Theorem \ref{linearised-metric-Carleson}, which completes the proof.
+    The assumptions of Theorem \ref{metric-space-Carleson} and Theorem \ref{linearised-metric-Carleson} are the same,
+    with the exception of the assumption \eqref{linnontanbound}.
+    The assumption \eqref{linnontanbound} however is weaker than the assumption \eqref{nontanbound}
+    of Theorem \ref{metric-space-Carleson}.
+    Indeed, setting for fixed $x, \mfa$ the outer radius $R_2$ in \eqref{def-tang-unm-op} to
+    $\min\{R_2', R_Q(\mfa, x')\}$, where $R_2'$ is the outer radius in \eqref{def-lin-star-op},
+    shows that \eqref{def-lin-star-op} is smaller than or equal to \eqref{def-tang-unm-op}.
+    Thus we can apply Theorem \ref{linearised-metric-Carleson}, which completes the proof.
 \end{proof}
 
 We continue with the proof of Theorem \ref{linearised-metric-Carleson}, via a series of reductions to simpler lemmas.
