@@ -359,11 +359,10 @@ lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤�
     change Disjoint (_ ∩ _ ∩ _) (_ ∩ _ ∩ _)
     rw [inter_assoc, inter_assoc]; exact (hE.inter_right _).inter_left _
 
---  2 ^ (a * (N + 5))
-/-- The modified constant appearing in Lemma 6.3.4. -/
+/-- The constant appearing in Lemma 6.3.4. -/
 def C6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
 
-/-- The old constant appearing in Lemma 6.3.4. -/
+/-- Auxiliary constant for Lemma 6.3.4. -/
 def C6_3_4' (a N : ℕ) : ℝ≥0 :=
   (((2 : ℝ≥0)^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (100*a^3 + 5*a))
 
@@ -405,17 +404,6 @@ private lemma 𝔄_aux_sum_splits :
 
 /-- The set `𝓛_-S` defined in Lemma 6.3.4. -/
 def 𝓛_min : Set (Grid X) := {I : Grid X | ∃ (p : 𝔄_min 𝔄 ϑ N), I = 𝓘 (p : 𝔓 X)}
-
---def 𝔄_min : Set (𝔓 X) := {p ∈ 𝔄_aux 𝔄 ϑ N | ((𝓘 p : Set X) ∩ G) ≠ ∅ ∧ 𝔰 p = -S}
-
---private def 𝔄_min' : Set (𝔓 X) := {p ∈ 𝔄_aux 𝔄 ϑ N | ∃ (L : 𝓛_min 𝔄 ϑ N), 𝓘 p = L}
-
-/- -- Ineq 6.3.26
-open Classical in
-private lemma 𝔄_min_sum_le' :
-    ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G) ≤
-      2 ^ (a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄_min 𝔄 ϑ N, (𝓘 p : Set X)) := by
-  sorry -/
 
 -- Ineq 6.3.26
 open Classical in
@@ -597,7 +585,7 @@ private lemma s_L_le_s_p' {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : s L < 𝔰
 -- which I think is what is used later in the proof
 -- **TODO** : the hypothesis 0 < S is used implicitly in the proof in the blueprint; add remark.
 lemma exists_larger_grid {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
-    ∃ (L' : Grid X), L ≤ L' ∧ s L' = s L + 1 /- c L ∈ L' -/ := by
+    ∃ (L' : Grid X), L ≤ L' ∧ s L' = s L + 1 := by
   classical
   obtain ⟨p, hp⟩ : ∃ (p : 𝔄' 𝔄 ϑ N), L ≤ 𝓘 (p : 𝔓 X) := exists_p'_ge_L hL
   set SL : Finset (𝔓 X) := (SL 𝔄 ϑ N L).toFinset with SL_def
@@ -856,56 +844,6 @@ private lemma volume_L'_le {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
         (100 * a ^ 2 + 5)
     _ ≤ 2 ^ (100*a^3 + 5*a) * volume (L : Set X) := by gcongr; exact ball_subset_Grid
 
-/- private lemma le_C6_3_4' (ha : 4 ≤ a) :
-    (((2 : ℝ≥0∞)^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (100*a^3 + 5*a)) ≤ ↑(C6_3_4' a N) := by
-  calc ((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (100 * a ^ 3 + 5 * a)
-    _ ≤ (2^(a * N + a * 5) + 2^(a * N + a * 5)) * 2 ^ (100*a^3 + 5*a) := by
-      have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
-      have h35 : 3 ≤ 5 := by omega
-      gcongr
-      apply le_of_eq; ring
-    _ = 2 * 2^(a * N + a * 5) * 2 ^ (100*a^3 + 5*a) := by rw [two_mul]
-    _ = 2^(100*a^3 + a * N + a * 10 + 1) := by
-      nth_rewrite 1 [← pow_one 2]
-      rw [← pow_add, ← pow_add]
-      congr 1
-      ring
-    _ ≤ ↑(C6_3_4' a N) := by
-      have h101 : 101 * a ^ 3 = 100 * a ^ 3 +  a ^ 3 := by ring
-      have ha3 : a ^ 3 = a * (a^2 - 1) + a := by
-        simp only [mul_tsub, mul_one]
-        rw [tsub_add_cancel_of_le]
-        · ring
-        · nth_rewrite 1 [← mul_one a]
-          have ha' : 1 ≤ a^1 := by linarith
-          gcongr
-          apply le_trans ha' (Nat.pow_le_pow_right (by linarith) one_le_two)
-      rw [C6_3_4']
-      norm_cast
-      apply pow_le_pow (le_refl _) one_le_two
-      rw [add_assoc, add_assoc, add_comm (a * N), ← add_assoc, ← add_assoc, mul_comm N]
-      gcongr
-      rw [add_assoc, h101]
-      nth_rewrite 3 [ha3]
-      gcongr
-      · calc 10
-        _ ≤ 4^2 - 1 := by norm_num
-        _ ≤ a ^ 2 - 1 := by gcongr
-      · linarith -/
-
-/- /-- The finset `{p : 𝔓 X | 𝓘 p = L}`. -/
-private def aux_t (L : Grid X) : Finset (𝔓 X) := by
-  classical
-  exact {p : 𝔓 X | 𝓘 p = L} -/
-
-/- -- Ineq. 6.3.30
-private lemma ineq_6_3_3 [DecidableEq (𝔓 X)] {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
-    ∑ (p ∈ (𝔄' 𝔄 ϑ N \ (aux_t L))), volume (E p ∩ G ∩ L) ≤
-      volume (E₂ (2 ^ (N + 3)) p') := by
-
-
-  sorry -/
-
 -- Ineq. 6.3.30
 open Classical in
 lemma global_antichain_density_aux (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X}
@@ -950,7 +888,6 @@ lemma global_antichain_density_aux (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : G
     _ = ((2^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (100*a^3 + 5*a)) * dens₁ (𝔄 : Set (𝔓 X)) *
         volume (L : Set X) := by ring
     _ = ↑(C6_3_4' a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by rfl
-      /- grw [le_C6_3_4' (four_le_a X)] -/
 
 variable (𝔄 ϑ N)
 
@@ -1048,41 +985,8 @@ private lemma le_C6_3_4 (ha : 4 ≤ a) :
         _ ≤ 4^2 - 1 := by norm_num
         _ ≤ a ^ 2 - 1 := by gcongr
       · linarith
-  /- calc ((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (100 * a ^ 3 + 5 * a)
-    _ ≤ (2^(a * N + a * 5) + 2^(a * N + a * 5)) * 2 ^ (100*a^3 + 5*a) := by
-      have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
-      have h35 : 3 ≤ 5 := by omega
-      gcongr
-      apply le_of_eq; ring
-    _ = 2 * 2^(a * N + a * 5) * 2 ^ (100*a^3 + 5*a) := by rw [two_mul]
-    _ = 2^(100*a^3 + a * N + a * 10 + 1) := by
-      nth_rewrite 1 [← pow_one 2]
-      rw [← pow_add, ← pow_add]
-      congr 1
-      ring
-    _ ≤ ↑(C6_3_4' a N) := by
-      have h101 : 101 * a ^ 3 = 100 * a ^ 3 +  a ^ 3 := by ring
-      have ha3 : a ^ 3 = a * (a^2 - 1) + a := by
-        simp only [mul_tsub, mul_one]
-        rw [tsub_add_cancel_of_le]
-        · ring
-        · nth_rewrite 1 [← mul_one a]
-          have ha' : 1 ≤ a^1 := by linarith
-          gcongr
-          apply le_trans ha' (Nat.pow_le_pow_right (by linarith) one_le_two)
-      rw [C6_3_4']
-      norm_cast
-      apply pow_le_pow (le_refl _) one_le_two
-      rw [add_assoc, add_assoc, add_comm (a * N), ← add_assoc, ← add_assoc, mul_comm N]
-      gcongr
-      rw [add_assoc, h101]
-      nth_rewrite 3 [ha3]
-      gcongr
-      · calc 10
-        _ ≤ 4^2 - 1 := by norm_num
-        _ ≤ a ^ 2 - 1 := by gcongr
-      · linarith -/
 
+-- **TODO**: add remark 0 < S to blueprint.
 -- Lemma 6.3.4
 open Classical in
 lemma global_antichain_density {𝔄 : Set (𝔓 X)}  (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range Q) (N : ℕ) :
@@ -1109,75 +1013,6 @@ lemma global_antichain_density {𝔄 : Set (𝔓 X)}  (h𝔄 : IsAntichain (· �
       gcongr
       simp only [C6_3_4', ENNReal.coe_pow, ENNReal.coe_ofNat, C6_3_4]
       exact le_C6_3_4 N (four_le_a X)
-
-
-  -- **TODO**: add remark 0 < S to blueprint.
-/-   -- Reduce to ineq 6.3.30
-  have hle: ↑(C6_3_4' a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) ≤
-      ↑(C6_3_4' a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
-    gcongr
-    apply iUnion_subset_iUnion_const
-    simp only [𝔄', 𝔄_aux]
-    exact fun h ↦ h.1.1
-  have hle' : ↑(C6_3_4' a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) +
-      ↑(C6_3_4' a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄_min 𝔄 ϑ N, (𝓘 p : Set X)) ≤
-      ↑(C6_3_4' a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
-    rw [← mul_add, ← measure_union]
-    gcongr
-    · simp only [union_subset_iff, iUnion_subset_iff]
-      constructor <;>
-      exact fun p hp ↦ subset_iUnion_of_subset p (subset_iUnion_of_subset hp.1.1 fun ⦃a_1⦄ a ↦ a)
-    · by_contra h
-      simp only [disjoint_iUnion_right, disjoint_iUnion_left, not_forall,
-        not_disjoint_iff] at h
-      obtain ⟨p, hp, p', hp', x, hx⟩ := h
-      simp only [𝔄_min, ne_eq, sep_and, mem_inter_iff, mem_setOf_eq] at hp
-      simp only [𝔄', ne_eq, sep_and, mem_inter_iff, mem_setOf_eq] at hp'
-
-      /- by_contra h
-      simp only [𝔄', ne_eq, gt_iff_lt, sep_and,
-        mem_inter_iff, mem_setOf_eq, 𝔄_min, not_disjoint_iff] at h
-      obtain ⟨p, hp', hpmin⟩ := h
-      simp only [mem_iUnion, exists_prop] at hp' hpmin
-      obtain ⟨q, hq⟩ := hp' -/
-
-      sorry
-      --exact (ne_of_gt hp'.2.2) hpmin.2.2
-    · sorry
-
-  apply le_trans _ hle
-
-  rw [volume_union_I_p_eq_sum 𝔄 ϑ N, Finset.mul_sum, lhs]
-  -- Conclude by ineq. 6.3.30
-  calc ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset, volume (E p ∩ G ∩ ↑L) +
-          ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G)
-    _ ≤ ∑ i ∈ (𝓛' 𝔄 ϑ N).toFinset, ↑(C6_3_4' a N) * dens₁ 𝔄 * volume (i : Set X) +
-        2 ^ (a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄_min 𝔄 ϑ N, (𝓘 p : Set X)) := by
-      apply add_le_add
-      · exact Finset.sum_le_sum (fun _ hL ↦ global_antichain_density_aux h𝔄 (mem_toFinset.mp hL))
-      · exact 𝔄_min_sum_le' _ _ _
-    _ ≤ ∑ i ∈ (𝓛' 𝔄 ϑ N).toFinset, ↑(C6_3_4' a N) * dens₁ 𝔄 * volume (i : Set X) := by sorry
-  --exact Finset.sum_le_sum (fun _ hL ↦ global_antichain_density_aux h𝔄 (mem_toFinset.mp hL))
-
- -/
-/- #exit
--- Lemma 6.3.4
-open Classical in
-lemma global_antichain_density {𝔄 : Set (𝔓 X)}  (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range Q) (N : ℕ) :
-    ∑ p ∈ (𝔄_aux 𝔄 ϑ.val N).toFinset, volume (E p ∩ G) ≤
-      C6_3_4 a N * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
-  -- **TODO**: add remark 0 < S to blueprint.
-  -- Reduce to ineq 6.3.30
-  have hle: ↑(C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) ≤
-      ↑(C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
-    gcongr
-    apply iUnion_subset_iUnion_const
-    simp only [𝔄', 𝔄_aux]
-    exact fun h ↦ h.1.1
-  apply le_trans _ hle
-  rw [volume_union_I_p_eq_sum 𝔄 ϑ N, Finset.mul_sum, lhs]
-  -- Conclude by ineq. 6.3.30
-  exact Finset.sum_le_sum (fun _ hL ↦ global_antichain_density_aux h𝔄 (mem_toFinset.mp hL)) -/
 
 /-- `p` in Lemma 6.1.6. We append a subscript `₆` to keep `p` available for tiles. -/
 def p₆ (a : ℕ) : ℝ := 4 * a ^ 4
