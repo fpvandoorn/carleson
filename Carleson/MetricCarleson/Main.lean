@@ -159,29 +159,30 @@ lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}
   · dsimp only; unfold linearizedNontangentialOperator
     sorry
   · refine (eLpNorm_mono_enorm fun x ↦ ?_).trans (hT f bf).2
-    simp_rw [enorm_eq_self, nontangentialOperator]
-    refine iSup_le fun x' ↦ iSup₂_le fun R₁ mR₁ ↦ ?_
-    rw [mem_Ioi] at mR₁
-    have R₁pos : 0 < R₁ := dist_nonneg.trans_lt mR₁
-    trans ⨆ R₂, ⨆ (_ : R₁ < R₂), ⨆ x', ⨆ (_ : dist x x' < R₁),
-      ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ; swap
-    · apply le_iSup₂ _ R₁pos
-    conv_rhs => enter [1, R₂]; rw [iSup_comm]; enter [1, x']; rw [iSup_comm]
-    conv_rhs => rw [iSup_comm]; enter [1, x']; rw [iSup_comm]
-    trans ⨆ (_ : dist x x' < R₁), ⨆ R₂, ⨆ (_ : R₁ < R₂),
-      ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ; swap
-    · apply le_iSup _ x'
-    trans ⨆ R₂, ⨆ (_ : R₁ < R₂), ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ; swap
-    · apply le_iSup _ mR₁
-    rcases ne_or_eq (upperRadius Q θ x') ⊤ with hur | hur
-    · rw [← ofReal_toReal_eq_iff] at hur
-      set R₂ := (upperRadius Q θ x').toReal
-      rw [← hur, EAnnulus.oo_eq_annulus R₁pos.le]
-      rcases le_or_gt R₂ R₁ with hR₂ | hR₂
-      · rw [Annulus.oo_eq_empty hR₂, setIntegral_empty, enorm_zero]; exact zero_le _
-      · convert le_iSup₂ _ hR₂; rfl
-    rw [hur]
-    sorry
+    simp_rw [enorm_eq_self]
+    refine iSup_le fun R₂ ↦ iSup₂_le fun R₁ mR₁ ↦ iSup₂_le fun x' mx' ↦ ?_
+    rw [min_def]; split_ifs with h
+    · trans ⨆ R₁ ∈ Ioo 0 R₂, ⨆ x' ∈ ball x R₁, ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ; swap
+      · apply le_iSup _ R₂
+      trans ⨆ x' ∈ ball x R₁, ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ; swap
+      · apply le_iSup₂ _ mR₁
+      rw [EAnnulus.oo_eq_annulus mR₁.1.le]
+      apply le_iSup₂ _ mx'
+    · rcases le_or_gt (upperRadius Q θ x') (ENNReal.ofReal R₁) with hur | hur
+      · rw [EAnnulus.oo_eq_empty hur, setIntegral_empty, enorm_zero]; exact zero_le _
+      rw [not_le] at h
+      have urnt : upperRadius Q θ x' ≠ ⊤ := by
+        rw [← lt_top_iff_ne_top]; exact h.trans (by finiteness)
+      rw [← ofReal_toReal urnt] at h hur ⊢
+      rw [ofReal_lt_ofReal_iff (mR₁.1.trans mR₁.2)] at h
+      rw [ofReal_lt_ofReal_iff_of_nonneg mR₁.1.le] at hur
+      rw [EAnnulus.oo_eq_annulus mR₁.1.le]; set R := (upperRadius Q θ x').toReal
+      trans ⨆ R₁ ∈ Ioo 0 R, ⨆ x' ∈ ball x R₁, ‖∫ y in Annulus.oo x' R₁ R, K x' y * f y‖ₑ; swap
+      · convert le_iSup _ R; rfl
+      trans ⨆ x' ∈ ball x R₁, ‖∫ y in Annulus.oo x' R₁ R, K x' y * f y‖ₑ; swap
+      · have : R₁ ∈ Ioo 0 R := ⟨mR₁.1, hur⟩
+        apply le_iSup₂ _ this
+      apply le_iSup₂ _ mx'
 
 /-- Theorem 1.0.2 -/
 theorem metric_carleson [IsCancellative X (defaultτ a)]
