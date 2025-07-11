@@ -10,7 +10,7 @@ A (WIP) formalized proof of a generalized Carleson's theorem in Lean.
 
 ## Carleson's theorem
 
-The classical statement of [Carleson's theorem](https://en.wikipedia.org/wiki/Carleson%27s_theorem) is easy. One phrasing is that if you have a continuous periodic function `f : ℝ → ℝ` then the Fourier series of `f` converges pointwise to `f` almost everywhere. However, the proof is very hard! In this project we will prove this theorem, from a much more general theorem, which was recently proved by Christoph Thiele and his group (it has not been published yet at the moment). This generalization proves the boundedness of a generalized Carleson operator on [doubling metric measure spaces](https://florisvandoorn.com/carleson/docs/Carleson/DoublingMeasure.html#DoublingMeasure).
+The classical statement of [Carleson's theorem](https://en.wikipedia.org/wiki/Carleson%27s_theorem) is easy. One phrasing is that if you have a continuous periodic function `f : ℝ → ℝ` then the Fourier series of `f` converges pointwise to `f` almost everywhere. However, the proof is very hard! In this project we will prove this theorem, from a much more general theorem, which was recently proved by Christoph Thiele and his group (it has not been published yet at the moment). This generalization proves the boundedness of a generalized Carleson operator on [doubling metric measure spaces](https://florisvandoorn.com/carleson/docs/Carleson/ToMathlib/DoublingMeasure.html#MeasureTheory.DoublingMeasure).
 
 ## Contribute
 

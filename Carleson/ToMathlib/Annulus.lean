@@ -12,7 +12,7 @@ import Carleson.ToMathlib.Interval
 In this file we define an annulus in a pseudometric space `X` to be a set consisting of all `y`
 such that `dist x y` lies in an interval between `r` and `R`. An annulus is defined for each type
 of interval (`Ioo`, `Ioc`, etc.) with a parallel naming scheme, except that we do not define annuli
-for `Iio` and `Ico`, as they would be balls.
+for `Iio` and `Iic`, as they would be balls.
 
 We also define `EAnnulus` similarly using `edist` instead of `dist`.
 
@@ -28,6 +28,8 @@ variable {X : Type*} [PseudoMetricSpace X]
 namespace Set
 
 namespace Annulus
+
+/-! ### Annulus -/
 
 def oo (x : X) (r R : ℝ) := {y | dist x y ∈ Ioo r R}
 def oc (x : X) (r R : ℝ) := {y | dist x y ∈ Ioc r R}
@@ -55,19 +57,19 @@ lemma ci_eq {x : X} {r : ℝ} : ci x r = (ball x r)ᶜ := by
   ext; simp [ci, dist_comm]
 
 @[simp]
-lemma oo_eq_empty {x : X} {r R : ℝ} (h : r ≥ R) : oo x r R = ∅ := by
+lemma oo_eq_empty {x : X} {r R : ℝ} (h : R ≤ r) : oo x r R = ∅ := by
   simp [oo, Ioo_eq_empty_of_le h]
 
 @[simp]
-lemma oc_eq_empty {x : X} {r R : ℝ} (h : r ≥ R) : oc x r R = ∅ := by
+lemma oc_eq_empty {x : X} {r R : ℝ} (h : R ≤ r) : oc x r R = ∅ := by
   simp [oc, Ioc_eq_empty_of_le h]
 
 @[simp]
-lemma co_eq_empty {x : X} {r R : ℝ} (h : r ≥ R) : co x r R = ∅ := by
+lemma co_eq_empty {x : X} {r R : ℝ} (h : R ≤ r) : co x r R = ∅ := by
   simp [co, Ico_eq_empty_of_le h]
 
 @[simp]
-lemma cc_eq_empty {x : X} {r R : ℝ} (h : r > R) : cc x r R = ∅ := by
+lemma cc_eq_empty {x : X} {r R : ℝ} (h : R < r) : cc x r R = ∅ := by
   simp [cc, Icc_eq_empty_of_lt h]
 
 lemma oo_subset_oo {x : X} {r₁ R₁ r₂ R₂ : ℝ} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
@@ -287,6 +289,8 @@ end Annulus
 
 namespace EAnnulus
 
+/-! ### EAnnulus -/
+
 def oo (x : X) (r R : ℝ≥0∞) := {y | edist x y ∈ Ioo r R}
 def oc (x : X) (r R : ℝ≥0∞) := {y | edist x y ∈ Ioc r R}
 def co (x : X) (r R : ℝ≥0∞) := {y | edist x y ∈ Ico r R}
@@ -294,14 +298,14 @@ def cc (x : X) (r R : ℝ≥0∞) := {y | edist x y ∈ Icc r R}
 def oi (x : X) (r : ℝ≥0∞) := {y | edist x y ∈ Ioi r}
 def ci (x : X) (r : ℝ≥0∞) := {y | edist x y ∈ Ici r}
 
-lemma oo_eq_annulus {x : X} {r R : ℝ} (hr : r ≥ 0) :
+lemma oo_eq_annulus {x : X} {r R : ℝ} (hr : 0 ≤ r) :
     oo x (ENNReal.ofReal r) (ENNReal.ofReal R) = Annulus.oo x r R := by
   simp_rw [oo, Annulus.oo, edist_dist, mem_Ioo, ENNReal.ofReal_lt_ofReal_iff_of_nonneg hr,
     ENNReal.ofReal_lt_ofReal_iff_of_nonneg dist_nonneg]
 
-lemma oc_eq_annulus {x : X} {r R : ℝ} (hr : r ≥ 0) :
+lemma oc_eq_annulus {x : X} {r R : ℝ} (hr : 0 ≤ r) :
     oc x (ENNReal.ofReal r) (ENNReal.ofReal R) = Annulus.oc x r R := by
-  by_cases hR : R ≥ 0
+  by_cases hR : 0 ≤ R
   · simp_rw [oc, Annulus.oc, edist_dist, mem_Ioc, ENNReal.ofReal_lt_ofReal_iff_of_nonneg hr,
       ENNReal.ofReal_le_ofReal_iff hR]
   · have R_le_r := (lt_of_lt_of_le (lt_of_not_ge hR) hr).le
@@ -314,9 +318,9 @@ lemma co_eq_annulus {x : X} {r R : ℝ} :
   simp_rw [co, Annulus.co, edist_dist, mem_Ico, ENNReal.ofReal_le_ofReal_iff dist_nonneg,
     ENNReal.ofReal_lt_ofReal_iff_of_nonneg dist_nonneg]
 
-lemma cc_eq_annulus {x : X} {r R : ℝ} (h : r > 0 ∨ R ≥ 0) :
+lemma cc_eq_annulus {x : X} {r R : ℝ} (h : 0 < r ∨ 0 ≤ R) :
     cc x (ENNReal.ofReal r) (ENNReal.ofReal R) = Annulus.cc x r R := by
-  by_cases hR : R ≥ 0
+  by_cases hR : 0 ≤ R
   · simp_rw [cc, Annulus.cc, edist_dist, mem_Icc, ENNReal.ofReal_le_ofReal_iff dist_nonneg,
       ENNReal.ofReal_le_ofReal_iff hR]
   have r0 := h.resolve_right hR
@@ -325,80 +329,80 @@ lemma cc_eq_annulus {x : X} {r R : ℝ} (h : r > 0 ∨ R ≥ 0) :
   refine eq_empty_of_forall_notMem (fun y hy ↦ ?_)
   exact not_le_of_gt ((ENNReal.ofReal_lt_ofReal_iff r0).mpr R_lt_r) (hy.1.trans hy.2)
 
-lemma oi_eq_annulus {x : X} {r : ℝ} (hr : r ≥ 0) : oi x (ENNReal.ofReal r) = Annulus.oi x r := by
+lemma oi_eq_annulus {x : X} {r : ℝ} (hr : 0 ≤ r) : oi x (ENNReal.ofReal r) = Annulus.oi x r := by
   simp_rw [oi, Annulus.oi, edist_dist, mem_Ioi, ENNReal.ofReal_lt_ofReal_iff_of_nonneg hr]
 
 lemma ci_eq_annulus {x : X} {r : ℝ} : ci x (ENNReal.ofReal r) = Annulus.ci x r := by
   simp_rw [ci, Annulus.ci, edist_dist, mem_Ici, ENNReal.ofReal_le_ofReal_iff dist_nonneg]
 
-lemma oo_eq_of_lt_top {x : X} {r R : ℝ≥0∞} (hr : r < ⊤) (hR : R < ⊤) :
+lemma oo_eq_of_lt_top {x : X} {r R : ℝ≥0∞} (hr : r < ∞) (hR : R < ∞) :
     oo x r R = ball x R.toReal ∩ (closedBall x r.toReal)ᶜ := by
   ext
   simp [oo, edist_dist, dist_comm, and_comm, lt_ofReal_iff_toReal_lt hr.ne,
     ofReal_lt_iff_lt_toReal dist_nonneg hR.ne]
 
-lemma oc_eq_of_lt_top {x : X} {r R : ℝ≥0∞} (hr : r < ⊤) (hR : R < ⊤) :
+lemma oc_eq_of_lt_top {x : X} {r R : ℝ≥0∞} (hr : r < ∞) (hR : R < ∞) :
     oc x r R = closedBall x R.toReal ∩ (closedBall x r.toReal)ᶜ := by
   ext
   simp [oc, edist_dist, dist_comm, and_comm, lt_ofReal_iff_toReal_lt hr.ne,
     ofReal_le_iff_le_toReal hR.ne]
 
-lemma co_eq_of_lt_top {x : X} {r R : ℝ≥0∞} (hr : r < ⊤) (hR : R < ⊤) :
+lemma co_eq_of_lt_top {x : X} {r R : ℝ≥0∞} (hr : r < ∞) (hR : R < ∞) :
     co x r R = ball x R.toReal ∩ (ball x r.toReal)ᶜ := by
   ext
   simp [co, edist_dist, dist_comm, and_comm, le_ofReal_iff_toReal_le hr.ne dist_nonneg,
     ofReal_lt_iff_lt_toReal dist_nonneg hR.ne]
 
-lemma cc_eq_of_lt_top {x : X} {r R : ℝ≥0∞} (hr : r < ⊤) (hR : R < ⊤) :
+lemma cc_eq_of_lt_top {x : X} {r R : ℝ≥0∞} (hr : r < ∞) (hR : R < ∞) :
     cc x r R = closedBall x R.toReal ∩ (ball x r.toReal)ᶜ := by
   ext
   simp [cc, edist_dist, dist_comm, and_comm, le_ofReal_iff_toReal_le hr.ne dist_nonneg,
     ofReal_le_iff_le_toReal hR.ne]
 
-lemma oi_eq_of_lt_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) : oi x r = (closedBall x r.toReal)ᶜ := by
+lemma oi_eq_of_lt_top {x : X} {r : ℝ≥0∞} (hr : r < ∞) : oi x r = (closedBall x r.toReal)ᶜ := by
   ext; simp [oi, edist_dist, dist_comm, lt_ofReal_iff_toReal_lt hr.ne]
 
-lemma ci_eq_of_lt_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) : ci x r = (ball x r.toReal)ᶜ := by
+lemma ci_eq_of_lt_top {x : X} {r : ℝ≥0∞} (hr : r < ∞) : ci x r = (ball x r.toReal)ᶜ := by
   ext; simp [ci, edist_dist, dist_comm, le_ofReal_iff_toReal_le hr.ne dist_nonneg]
 
 @[simp]
-lemma oo_eq_empty {x : X} {r R : ℝ≥0∞} (h : r ≥ R) : oo x r R = ∅ := by
+lemma oo_eq_empty {x : X} {r R : ℝ≥0∞} (h : R ≤ r) : oo x r R = ∅ := by
   simp [oo, Ioo_eq_empty_of_le h]
 
 @[simp]
-lemma oc_eq_empty {x : X} {r R : ℝ≥0∞} (h : r ≥ R) : oc x r R = ∅ := by
+lemma oc_eq_empty {x : X} {r R : ℝ≥0∞} (h : R ≤ r) : oc x r R = ∅ := by
   simp [oc, Ioc_eq_empty_of_le h]
 
 @[simp]
-lemma co_eq_empty {x : X} {r R : ℝ≥0∞} (h : r ≥ R) : co x r R = ∅ := by
+lemma co_eq_empty {x : X} {r R : ℝ≥0∞} (h : R ≤ r) : co x r R = ∅ := by
   simp [co, Ico_eq_empty_of_le h]
 
 @[simp]
-lemma cc_eq_empty {x : X} {r R : ℝ≥0∞} (h : r > R) : cc x r R = ∅ := by
+lemma cc_eq_empty {x : X} {r R : ℝ≥0∞} (h : R < r) : cc x r R = ∅ := by
   simp [cc, Icc_eq_empty_of_lt h]
 
 @[simp]
-lemma cc_top_eq_empty {x : X} {R : ℝ≥0∞} : cc x ⊤ R = ∅ :=
+lemma cc_top_eq_empty {x : X} {R : ℝ≥0∞} : cc x ∞ R = ∅ :=
   eq_empty_of_forall_notMem (fun y hy ↦ (edist_ne_top x y) (top_le_iff.mp hy.1))
 
 @[simp]
-lemma oi_eq_empty {x : X} : oi x ⊤ = ∅ := by simp [oi, edist_dist]
+lemma oi_eq_empty {x : X} : oi x ∞ = ∅ := by simp [oi, edist_dist]
 
 @[simp]
-lemma ci_eq_empty {x : X} : ci x ⊤ = ∅ := by simp [ci, edist_dist]
+lemma ci_eq_empty {x : X} : ci x ∞ = ∅ := by simp [ci, edist_dist]
 
-lemma oo_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) :
-    oo x r ⊤ = (closedBall x r.toReal)ᶜ := by
+lemma oo_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ∞) :
+    oo x r ∞ = (closedBall x r.toReal)ᶜ := by
   ext; simpa [oo, edist_dist, dist_comm] using lt_ofReal_iff_toReal_lt hr.ne
 
-lemma oc_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) :
-    oc x r ⊤ = (closedBall x r.toReal)ᶜ := by
+lemma oc_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ∞) :
+    oc x r ∞ = (closedBall x r.toReal)ᶜ := by
   ext; simpa [oc, edist_dist, dist_comm] using lt_ofReal_iff_toReal_lt hr.ne
 
-lemma co_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) : co x r ⊤ = (ball x r.toReal)ᶜ := by
+lemma co_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ∞) : co x r ∞ = (ball x r.toReal)ᶜ := by
   ext; simpa [co, edist_dist, dist_comm] using le_ofReal_iff_toReal_le hr.ne dist_nonneg
 
-lemma cc_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) : cc x r ⊤ = (ball x r.toReal)ᶜ := by
+lemma cc_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ∞) : cc x r ∞ = (ball x r.toReal)ᶜ := by
   ext; simpa [cc, edist_dist, dist_comm] using le_ofReal_iff_toReal_le hr.ne dist_nonneg
 
 lemma oo_subset_oo {x : X} {r₁ R₁ r₂ R₂ : ℝ≥0∞} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
@@ -551,53 +555,53 @@ variable [MeasurableSpace X] [OpensMeasurableSpace X]
 
 @[measurability]
 lemma measurableSet_oo {x : X} {r R : ℝ≥0∞} : MeasurableSet (oo x r R) := by
-  by_cases hr : r = ⊤
+  by_cases hr : r = ∞
   · simp [hr]
-  replace hr : r < ⊤ := Ne.lt_top hr
-  by_cases hR : R = ⊤
+  replace hr : r < ∞ := Ne.lt_top hr
+  by_cases hR : R = ∞
   · simp [hR, oo_eq_of_top hr, measurableSet_closedBall]
   rw [oo_eq_of_lt_top hr (Ne.lt_top hR)]
   measurability
 
 @[measurability]
 lemma measurableSet_oc {x : X} {r R : ℝ≥0∞} : MeasurableSet (oc x r R) := by
-  by_cases hr : r = ⊤
+  by_cases hr : r = ∞
   · simp [hr]
-  replace hr : r < ⊤ := Ne.lt_top hr
-  by_cases hR : R = ⊤
+  replace hr : r < ∞ := Ne.lt_top hr
+  by_cases hR : R = ∞
   · simp [hR, oc_eq_of_top hr, measurableSet_closedBall]
   rw [oc_eq_of_lt_top hr (Ne.lt_top hR)]
   measurability
 
 @[measurability]
 lemma measurableSet_co {x : X} {r R : ℝ≥0∞} : MeasurableSet (co x r R) := by
-  by_cases hr : r = ⊤
+  by_cases hr : r = ∞
   · simp [hr]
-  replace hr : r < ⊤ := Ne.lt_top hr
-  by_cases hR : R = ⊤
+  replace hr : r < ∞ := Ne.lt_top hr
+  by_cases hR : R = ∞
   · simp [hR, co_eq_of_top hr, measurableSet_ball]
   rw [co_eq_of_lt_top hr (Ne.lt_top hR)]
   measurability
 
 @[measurability]
 lemma measurableSet_cc {x : X} {r R : ℝ≥0∞} : MeasurableSet (cc x r R) := by
-  by_cases hr : r = ⊤
+  by_cases hr : r = ∞
   · simp [hr]
-  replace hr : r < ⊤ := Ne.lt_top hr
-  by_cases hR : R = ⊤
+  replace hr : r < ∞ := Ne.lt_top hr
+  by_cases hR : R = ∞
   · simp [hR, cc_eq_of_top hr, measurableSet_ball]
   rw [cc_eq_of_lt_top hr (Ne.lt_top hR)]
   measurability
 
 @[measurability]
 lemma measurableSet_oi {x : X} {r : ℝ≥0∞} : MeasurableSet (oi x r) := by
-  by_cases hr : r = ⊤
+  by_cases hr : r = ∞
   · simp [hr]
   · rw [oi_eq_of_lt_top (Ne.lt_top hr)]; measurability
 
 @[measurability]
 lemma measurableSet_ci {x : X} {r : ℝ≥0∞} : MeasurableSet (ci x r) := by
-  by_cases hr : r = ⊤
+  by_cases hr : r = ∞
   · simp [hr]
   · rw [ci_eq_of_lt_top (Ne.lt_top hr)]; measurability
 
