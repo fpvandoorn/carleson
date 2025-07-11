@@ -1,4 +1,5 @@
 import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.CoveredByBalls
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
 import Mathlib.Order.CompletePartialOrder
@@ -125,6 +126,7 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
       ≤ μ (ball x (dist x x' + r')) := by gcongr; exact ball_subset_ball_of_le le_rfl
     _ ≤ As A s * μ (ball x r) := measure_ball_le_same x hs h
 
+include A in
 lemma isOpenPosMeasure_of_isDoubling [NeZero μ] : IsOpenPosMeasure μ := by
   refine ⟨fun U hU h2U h3U ↦ ?_⟩
   obtain ⟨x, hx⟩ := h2U
@@ -182,6 +184,31 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
         _ ≤ ↑(A ^ 2) * μ (closedBall x r) := mul_le_mul_of_nonneg_left
           (μ.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
         _ ≤ ↑(max 1 A ^ 2) * μ (closedBall x r) := by gcongr; exact le_max_right 1 A
+
+lemma Nat.exists_max_image {α : Type*} {s : Set α} {f : α → ℕ} {N : ℕ} (h : ∀ x ∈ s, f x ≤ N) :
+    ∃ x ∈ s, ∀ y ∈ s, f y ≤ f x := by sorry
+
+-- todo: fix constant
+lemma ballsCoverballs (R r : ℝ≥0) : BallsCoverBalls X R r ⌈As R (R / r)⌉₊ := by
+  classical
+  set N := ⌈As R (R / r)⌉₊ -- fix
+  intro x
+  let S := { s : Finset X | ↑s ⊆ ball x R ∧ ∀ x y, x ∈ s → y ∈ s → dist x y ≤ r / 2 }
+  have h1 : ∀ s ∈ S, s.card ≤ N := by
+    sorry
+  obtain ⟨s, hs, s_max⟩ := Nat.exists_max_image h1
+  have := hs; obtain ⟨h1s, h2s⟩ := this
+  use s, h1 s hs
+  intro y hy
+  by_contra h2y
+  have hys : y ∉ s := by
+    sorry
+  have h2 : insert y s ∈ S := by
+    -- simp [Set.subset_def, -Metric.mem_ball] at h1s
+    -- simp +contextual [hys, Set.subset_def, hy, h1s, -Metric.mem_ball] at s_max
+    sorry
+  specialize s_max (insert y s) h2
+  simp [hys] at s_max
 
 
 variable [ProperSpace X] [IsFiniteMeasureOnCompacts μ]
