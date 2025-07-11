@@ -9,7 +9,7 @@ variable {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K
 variable [KernelProofData a K] {f : X → ℂ}
 
 variable (X) in
-/-- A countable dense set of `Θ X`. -/
+/-- A countable dense subset of `Θ X`. -/
 def Θ' : Set (Θ X) := (TopologicalSpace.exists_countable_dense _).choose
 
 lemma countable_Θ' : (Θ' X).Countable := (TopologicalSpace.exists_countable_dense _).choose_spec.1
