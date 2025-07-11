@@ -251,11 +251,21 @@ lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
   simp only [← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal measure_ball_ne_top]
   exact measure_ball_le_of_dist_le' hs h
 
-section
+lemma isOpenPosMeasure_of_isDoubling [SecondCountableTopology X] [IsDoubling μ A] [NeZero μ] :
+    IsOpenPosMeasure μ := by
+  refine ⟨fun U hU h2U h3U ↦ ?_⟩
+  obtain ⟨x, hx⟩ := h2U
+  obtain ⟨r, hr, hx⟩ := Metric.isOpen_iff.mp hU x hx
+  replace h3U := measure_mono_null hx h3U
+  obtain ⟨x', r', h⟩ : ∃ x' r', μ (ball x' r') ≠ 0 := by
+    have hμ := NeZero.ne μ
+    rw [← measure_univ_ne_zero] at hμ
+    sorry
+  refine h (nonpos_iff_eq_zero.mp ?_)
+  calc
+    μ (ball x' r') ≤ As A ((dist x x' + r') / r) * μ (ball x r) := by sorry
+      _ = 0 := by rw [h3U, mul_zero]
 
-variable {x x' : X} {r r' s d : ℝ} (hs : 0 < s)
-
-end
 
 end PseudoMetric
 
@@ -324,7 +334,7 @@ instance InnerProductSpace.IsDoubling {E : Type*} [NormedAddCommGroup E]
 
 end Normed
 
-/- # Instances of spaces of homogeneous type -/
+/- # Doubling metric measure spaces -/
 
 /-- A metric space with a measure with some nice propreties, including a doubling condition.
 This is called a "doubling metric measure space" in the blueprint.
@@ -333,11 +343,22 @@ This is called a "doubling metric measure space" in the blueprint.
 This class is not Mathlib-ready code, and should not be used in the `ToMathlib` folder.
 -/
 class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
-  MeasureSpace X, ProperSpace X, BorelSpace X,
-  Regular (volume : Measure X), IsOpenPosMeasure (volume : Measure X),
-  IsDoubling (volume : Measure X) A
+    CompleteSpace X, LocallyCompactSpace X,
+    MeasureSpace X, BorelSpace X, Regular (volume : Measure X),
+    IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
 
 variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
+
+instance : ProperSpace X := by
+  constructor
+  intro x r
+  refine isCompact_of_totallyBounded_isClosed ?_ isClosed_closedBall
+  refine Metric.totallyBounded_iff.mpr fun ε hε ↦ ?_
+  sorry
+
+
+-- this follows from the fact that the measure is nonzero
+instance : IsOpenPosMeasure (volume : Measure X) :=
 
 -- the following classes hold
 -- #synth ProperSpace X
