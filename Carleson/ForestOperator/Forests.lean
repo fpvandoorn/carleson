@@ -361,7 +361,7 @@ irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 := (C7_3_1_1 a : ℝ≥0) * 2 ^ (
 /--
 The approximation being used here should also depend on the constant used to bound the
 dens₁ operator found in `Forest.dens₁_𝔗_le`, which is equation 2.0.35 in the blueprint.
-As is, for the purposes of 7.2.2 the approximation
+As is, for the purposes of 7.7.2 the approximation
 `dens₁ (t.𝔗 u) ≤ 2 ^ (2 * a ^ 3 - n)` is good enough, but we assume
 `dens₁ (t.𝔗 u) ≤ 2 ^ (4 * a + 1 - n)` in the definition of `Forest`
 We get to the first bound by assuming `2 ≤ a`. This is the strictest bound on naturals that works.
