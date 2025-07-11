@@ -81,6 +81,24 @@ variable [TopologicalSpace E] [ENorm E] [Zero E]
 theorem aestronglyMeasurable (hf : BoundedCompactSupport f μ) : AEStronglyMeasurable f μ :=
   hf.memLp_top.aestronglyMeasurable
 
+lemma indicator {X : Type*} [MetricSpace X] [ProperSpace X]
+    [MeasurableSpace X] [BorelSpace X] {f : X → 𝕜} (hf : BoundedCompactSupport f)
+    {s : Set X} (hs : MeasurableSet s) :
+    BoundedCompactSupport (s.indicator f) where
+  stronglyMeasurable := hf.stronglyMeasurable.indicator hs
+  isBounded := by
+    rcases isBounded_range_iff_forall_norm_le.1 hf.isBounded with ⟨C, hC⟩
+    apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
+    exact le_trans (norm_indicator_le_norm_self _ _) (hC _)
+  hasCompactSupport := by
+    apply HasCompactSupport.intro (K := tsupport f)
+    · exact hf.hasCompactSupport
+    · exact fun x hx ↦ by simp only [indicator_apply_eq_zero, image_eq_zero_of_nmem_tsupport hx,
+      implies_true]
+
+variable {f : X → 𝕜} {g : X → 𝕜} (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
+section Includehf
+
 theorem boundedFiniteSupport [IsFiniteMeasureOnCompacts μ] (hf : BoundedCompactSupport f μ) :
     BoundedFiniteSupport f μ where
   memLp_top := hf.memLp_top
