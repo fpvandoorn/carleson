@@ -356,15 +356,14 @@ lemma adjointCarlesonRowSum_adjoint
 /-- The constant used in `row_bound`.
 Has value `2 ^ (156 * a ^ 3 - n / 2)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 := 2 ^ (156 * (a : ℝ) ^ 3 - n / 2)
+irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 := (C7_3_1_1 a : ℝ≥0) * 2 ^ (a ^ 3 - n/2:ℝ)
 
 lemma C7_7_2_1_bounds (a n : ℕ) (ha : 2 ≤ a) : (C7_3_1_1 a : ℝ≥0∞) * 2 ^ ((4 * a + 1-n)/2 : ℝ) ≤ C7_7_2_1 a n := by
-  rw [C7_3_1_1_def, C7_7_2_1_def, ENNReal.coe_rpow_of_nonneg _ (by positivity),
-    ENNReal.coe_rpow_of_ne_zero (by norm_num), ENNReal.coe_ofNat,
-    ← ENNReal.rpow_add _ _ (by norm_num) (by finiteness)]
+  rw [C7_7_2_1_def,ENNReal.coe_mul]
+  gcongr
+  rw [ENNReal.coe_rpow_of_ne_zero (by norm_num),ENNReal.coe_ofNat]
   apply ENNReal.rpow_le_rpow_of_exponent_le (by norm_num)
-  rw [← le_sub_iff_add_le',sub_right_comm, ← mul_sub_right_distrib, sub_div, add_div,
-    mul_div_right_comm]
+  rw [sub_div, add_div, mul_div_right_comm]
   norm_num
   have : 2 ≤ (a:ℝ) := by
     simp only [Nat.ofNat_le_cast]
@@ -381,15 +380,14 @@ lemma C7_7_2_1_bounds (a n : ℕ) (ha : 2 ≤ a) : (C7_3_1_1 a : ℝ≥0∞) * 2
 /-- The constant used in `indicator_row_bound`.
 Has value `2 ^ (257 * a ^ 3 - n / 2)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 := 2 ^ (257 * (a : ℝ) ^ 3 - n / 2)
+irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 := (C7_3_1_2 a : ℝ≥0) * 2 ^ (a ^ 3 - n/2:ℝ)
 
 lemma C7_7_2_2_bounds (a n : ℕ) (ha : 2 ≤ a) : (C7_3_1_2 a : ℝ≥0∞) * 2 ^ ((4 * a + 1-n)/2 : ℝ) ≤ C7_7_2_2 a n := by
-  rw [C7_3_1_2_def, C7_7_2_2_def, ENNReal.coe_rpow_of_nonneg _ (by positivity),
-    ENNReal.coe_rpow_of_ne_zero (by norm_num), ENNReal.coe_ofNat,
-    ← ENNReal.rpow_add _ _ (by norm_num) (by finiteness)]
+  rw [C7_7_2_2_def,ENNReal.coe_mul]
+  gcongr
+  rw [ENNReal.coe_rpow_of_ne_zero (by norm_num),ENNReal.coe_ofNat]
   apply ENNReal.rpow_le_rpow_of_exponent_le (by norm_num)
-  rw [← le_sub_iff_add_le',sub_right_comm, ← mul_sub_right_distrib, sub_div, add_div,
-    mul_div_right_comm]
+  rw [sub_div, add_div, mul_div_right_comm]
   norm_num
   have : 2 ≤ (a:ℝ) := by
     simp only [Nat.ofNat_le_cast]

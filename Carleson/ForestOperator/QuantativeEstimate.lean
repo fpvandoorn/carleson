@@ -548,7 +548,7 @@ lemma density_tree_bound2'
   have hg_smul : BoundedCompactSupport (Cg⁻¹ • g) := hg.const_smul _
   have : ∀ x, ‖(Cg⁻¹ • g) x‖ ≤ G.indicator 1 x := smul_le_indicator h2g hCg hCgpos
   have := density_tree_bound2 hf_smul (by assumption) hg_smul (by assumption) hu
-  rw [← enorm_eq_nnnorm] at this ⊢
+  rw [← enorm_eq_nnnorm]
   simp_rw [carlesonSum_const_smul,Pi.smul_apply,starRingEnd_apply,star_smul,smul_mul_assoc,
     mul_smul_comm,star_trivial,smul_smul,integral_smul] at this
   rw [_root_.enorm_smul,eLpNorm_const_smul,eLpNorm_const_smul] at this
