@@ -286,6 +286,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
     rw [← norm_eq_zero]
     exact le_antisymm hf (norm_nonneg _)
 
+-- Note: Proof shows that `111` can be replaced by `108`
 /-- Constant appearing in Lemma 6.1.3. -/
 noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (111 * a ^ 3) * (q - 1)⁻¹
 
@@ -362,7 +363,7 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
     simp only [enorm_eq_self, 𝓜, MB_def]
     apply iSup_le_iff.mpr <| fun 𝔭 ↦ iSup_le_iff.mpr <| fun h𝔭 ↦ ?_
     apply indicator_le <| fun x hx ↦ ?_
-    rw [laverage_eq] --, ← lintegral_indicator measurableSet_ball]
+    rw [laverage_eq]
     conv_lhs => enter [1, 2, x]; rw [Pi.mul_apply, enorm_mul, mul_comm]
     set B := ball (𝔠 𝔭) (8 * ↑D ^ 𝔰 𝔭)
     set dB := volume.restrict B
@@ -420,24 +421,85 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
           simp_rw [enorm_enorm]
           rw [indicator_of_mem hx]
 
-/-- Tedious check that the constants work out -/
+omit [TileStructure Q D κ S o] in
+/-- Tedious check that the constants work out. TODO: Streamline -/
 lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a nnq := by
-  sorry
-  -- have : 1 < 2 * (p X).toNNReal⁻¹  := by sorry
-  -- have : 2 / (p X).toNNReal = (2 / p X).toNNReal := by
-  --   sorry
-  -- have hp_coe : (p X).toNNReal.toReal = p X := Real.coe_toNNReal _ <| le_of_lt <| p_pos X
-  -- have hp_pos := p_pos X
-  -- rw [C6_1_2, C2_0_6, C6_1_3, CMB_eq_of_one_lt_q (by rw [div_eq_mul_inv]; assumption)]
-  -- push_cast
-  -- simp only [hp_coe, ← pow_mul]
-  -- sorry
+  have hp_coe : (p X).toNNReal.toReal = p X := Real.coe_toNNReal _ <| le_of_lt <| p_pos X
+  have hp_pos := p_pos X
+  have : (p X)⁻¹ ≤ 1 := by rw [inv_p_eq']; linarith only [inv_q_mem_Ico X |>.1]
+  have hip1 : 1 < 2 * (p X).toNNReal⁻¹  := by
+    apply NNReal.coe_lt_coe.mp
+    rw [NNReal.coe_mul, NNReal.coe_inv, hp_coe, inv_p_eq']
+    push_cast
+    linarith only [inv_q_mem_Ico X |>.2]
+  have : 2 / (p X).toNNReal = (2 / p X).toNNReal := by
+    rw [toNNReal_div' (by positivity), Real.toNNReal_ofNat]
+  have hp_coe' : (2 * (p X).toNNReal⁻¹ - 1).toReal = 2 * (p X)⁻¹ - 1 := by
+    simpa (discharger := positivity) using NNReal.coe_sub <| le_of_lt <| hip1
+  have hq_coe : (nnq - 1).toReal = q - 1 := by
+    rw [NNReal.coe_sub <| le_of_lt <| one_lt_nnq X, NNReal.coe_one, sub_left_inj]; rfl
+  set iq := q⁻¹ with iq_eq
+  have hqiq : q = iq⁻¹ := by rw [iq_eq, inv_inv]
+  have : 0 < 1 - iq := by linarith only [inv_q_mem_Ico X |>.2]
+  have hpdiv' : 2 / (p X) / (2 / (p X).toNNReal - 1).toReal = (2 - iq) * (1 - iq)⁻¹ := by
+    simp only [div_eq_mul_inv, hp_coe', inv_p_eq', ← iq_eq]
+    field_simp [show 2 - iq - 1 = 1 - iq by ring]
+  have : 2⁻¹ ≤ iq := inv_q_mem_Ico X |>.1
+  have hiq1 : 2 ≤ (1 - iq)⁻¹ := by
+    apply (le_inv_comm₀ (by positivity) (by positivity)).mp
+    linarith only [inv_q_mem_Ico X |>.1]
+  have : 1 < 2 - iq := by linarith only [inv_q_mem_Ico X |>.2]
+  have : 0 < (q - 1)⁻¹ := inv_pos_of_pos <| by linarith only [q_mem_Ioc X |>.1]
+  have haux : 1 ≤ (2 - iq) * (1 - iq)⁻¹ * 2 ^ (2 * a) := by
+    conv_lhs => rw [← one_mul 1]; enter [1]; rw [← one_mul 1]
+    gcongr
+    · linarith only [hiq1]
+    · exact one_le_pow₀ (by norm_num)
+  have hc_le : C2_0_6 (2 ^ a) (p X).toNNReal 2 ≤ 2 ^ (2 * a + 4) * (q - 1)⁻¹ := by
+    rw [C2_0_6, CMB_eq_of_one_lt_q (by rw [div_eq_mul_inv]; assumption)]
+    push_cast
+    rw [hp_coe, hpdiv', ← pow_mul, mul_comm a 2]
+    refine le_trans (rpow_le_self_of_one_le ?_ ?_) ?_
+    · conv_lhs => rw [← one_mul 1]
+      gcongr
+      · norm_num
+      · exact Real.one_le_rpow haux (by positivity)
+    · assumption
+    · rw [pow_add, pow_succ _ 3, mul_comm (2 ^ 3), ← mul_assoc, mul_comm _ 2]
+      conv_rhs => rw [mul_assoc, mul_assoc]
+      gcongr
+      refine le_trans (rpow_le_self_of_one_le ?_ ?_) ?_
+      · exact haux
+      · simp only [inv_div]; linarith only [p_lt_two X]
+      · rw [mul_comm (2 ^ _)]
+        gcongr ?_ * 2 ^ (2 * a)
+        calc
+          _ = (2 * q - 1) * (q - 1)⁻¹ := by field_simp [hqiq]
+          _ ≤ _ := by gcongr; linarith only [q_mem_Ioc X |>.2]
+  calc
+    _ ≤ 2 ^ (107 * a ^ 3) * (2 ^ (2 * a + 4) * (q - 1)⁻¹) := by simp [C6_1_2, hc_le]
+    _ ≤ 2 ^ (108 * a ^ 3) * (q - 1)⁻¹ := by
+      rw [← mul_assoc, ← pow_add]
+      gcongr
+      · norm_num
+      · rw [show 108 = 107 + 1 by rfl, add_mul, one_mul]
+        apply add_le_add (by rfl)
+        calc
+          _ ≤ 2 * a ^ 2 + a ^ 2 := by
+            gcongr
+            · rw [pow_succ, pow_one]; conv_lhs => rw [← one_mul a]
+              gcongr; exact le_trans (by norm_num) <| four_le_a X
+            · refine le_trans (show 4 ≤ 4 ^ 2 by norm_num) (by gcongr; exact four_le_a X)
+          _ = 3 * a ^ 2 := by group
+          _ ≤ _ := by
+            rw [pow_succ _ 2, mul_comm]; gcongr
+            exact le_trans (by norm_num) <| four_le_a X
+    _ ≤ _ := by
+      simp only [C6_1_3, val_eq_coe, NNReal.coe_mul, NNReal.coe_pow, NNReal.coe_ofNat,
+        NNReal.coe_inv, hq_coe]
+      gcongr <;> norm_num
 
 end Lemma6_1_3
-
-#check ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm
-#check eLpNorm_const_smul
-
 
 -- Note: `(nnq' : ℝ)⁻¹ - 2⁻¹ = 2⁻¹ * q⁻¹`.
 open Lemma6_1_3 in
