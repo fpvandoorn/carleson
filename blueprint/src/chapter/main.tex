@@ -172,8 +172,8 @@ For a Borel function $\tQ:X\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
 and define further
 \begin{equation}
     \label{def-lin-star-op}
-    T_{\tQ}^\mfa f(x):=\sup_{R_1>0} \ \sup_{\rho(x,x')<R_1}
-    \left|\int_{R_1< \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    T_{\tQ}^\mfa f(x):=\sup_{R_1<R_2} \ \sup_{\rho(x,x')<R_1}
+    \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
 \end{equation}
 Define further the linearized generalized Carleson operator $T_\tQ$ by
 \begin{equation}
@@ -891,7 +891,14 @@ We now prove Theorem \ref{metric-space-Carleson} using Theorem \ref{linearised-m
     \]
     It remains to verify the assumptions of Theorem \ref{linearised-metric-Carleson}, which when applied here completes the proof.
 
-    The assumptions of Theorem \ref{metric-space-Carleson} and Theorem \ref{linearised-metric-Carleson} are the same, with the exception of the assumption \eqref{linnontanbound}. The assumption \eqref{linnontanbound} however is weaker than the assumption \eqref{nontanbound} of Theorem \ref{metric-space-Carleson}. Indeed, setting for fixed $x, \mfa$ the outer radius $R_2 = R_Q(\mfa, x')$ shows that \eqref{def-lin-star-op} is smaller than or equal to \eqref{def-tang-unm-op}. Thus we can apply Theorem \ref{linearised-metric-Carleson}, which completes the proof.
+    The assumptions of Theorem \ref{metric-space-Carleson} and Theorem \ref{linearised-metric-Carleson} are the same,
+    with the exception of the assumption \eqref{linnontanbound}.
+    The assumption \eqref{linnontanbound} however is weaker than the assumption \eqref{nontanbound}
+    of Theorem \ref{metric-space-Carleson}.
+    Indeed, setting for fixed $x, \mfa$ the outer radius $R_2$ in \eqref{def-tang-unm-op} to
+    $\min\{R_2', R_Q(\mfa, x')\}$, where $R_2'$ is the outer radius in \eqref{def-lin-star-op},
+    shows that \eqref{def-lin-star-op} is smaller than or equal to \eqref{def-tang-unm-op}.
+    Thus we can apply Theorem \ref{linearised-metric-Carleson}, which completes the proof.
 \end{proof}
 
 We continue with the proof of Theorem \ref{linearised-metric-Carleson}, via a series of reductions to simpler lemmas.
@@ -3988,7 +3995,7 @@ $\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
 \lean{Antichain.local_antichain_density, Antichain.Ep_inter_G_inter_Ip'_subset_E2}
 \uses{tile-disjointness,tile-reach}
 Let $\mfa\in\Mf$ and {$N$} be
-an integer. Let $\fp_{\mfa}$ be a tile with $\mfa\in \fc(\fp_{\mfa})$.
+an integer. Let $\fp_{\mfa}$ be a tile with $\mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 2^{N+1})$.
 Then we have
 \begin{equation}\label{eqanti-0.5}
     \sum_{\fp\in\mathfrak{A}_{\mfa,N}: \ps(\fp_{\mfa})<\ps(\fp)}\mu(E(\fp)\cap G \cap \scI(\fp_{\mfa}))
@@ -4008,19 +4015,11 @@ $E$, the tile contributes zero to the sum on the left-hand side of \eqref{eqanti
  $\scI(\fp)\cap \scI(\fp_{\mfa}) \neq \emptyset$, which we may assume. With $\ps(\fp_{\mfa})<\ps(\fp)$
 and the dyadic property
 \eqref{dyadicproperty} we conclude $\scI(\fp_{\mfa})\subset \scI(\fp)$.
-By the squeezing property
-\eqref{eq-freq-comp-ball},
-we conclude from
-$\mfa\in \fc(\fp_{\mfa})$
-that
-\begin{equation}
-    \mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 1)\, .
-\end{equation}
 We conclude from $\fp \in \mathfrak{A}_{\mfa,N}$ that
 \begin{equation}
     \mfa \in B_\fp(\fcc(\fp), 2^{N+1})\, .
 \end{equation}
-With \Cref{tile-reach}, we conclude
+With \Cref{tile-reach} and the assumption on $\fp_\mfa$, we conclude
 \begin{equation}
     2^{N+3}\fp_{\mfa} \lesssim 2^{N+3}\fp \, .
 \end{equation}
@@ -4036,7 +4035,7 @@ This proves the lemma.
 \leanok
 \lean{Antichain.global_antichain_density}
 \uses{stack-density,local-antichain-density}
-Let $\mfa\in\Mf$ and let $N\ge 0$ be
+Let $\mfa\in Q(X)$ and let $N\ge 0$ be
 an integer. Then we have
 \begin{equation}\label{eqanti00}
     \sum_{\fp\in\mathfrak{A}_{\mfa,N}}\mu(E(\fp)\cap G)
@@ -4049,19 +4048,43 @@ an integer. Then we have
 
 \begin{proof}
 {Fix $\mfa$ and $N$. Let
-$\mathfrak{A}'$ be the set of $\fp\in\mathfrak{A}_{\mfa,N}$ such that $\scI(\fp)\cap G$ is not empty.}
+$\mathfrak{A}'$ be the set of $\fp\in\mathfrak{A}_{\mfa,N}$ such that $\scI(\fp)\cap G$ is not empty and $s(\fp) > -S$.
+Let $\mathfrak{A}_{-S}$ be the set of $\fp\in\mathfrak{A}_{\mfa,N}$ such that $\scI(\fp)\cap G$ is not empty and $s(\fp) = -S$ }
+Then we have
+\begin{equation*}
+    \sum_{\fp\in\mathfrak{A}_{\mfa,N}}\mu(E(\fp)\cap G) =
+    \sum_{\fp\in\mathfrak{A}'}\mu(E(\fp)\cap G) + \sum_{\fp\in\mathfrak{A}_{-S}}\mu(E(\fp)\cap G)
+\end{equation*}
 
+We start by estimating the contribution of $\mathfrak{A}_{-S}$. Let $\mathcal{L}_{-S}$ be the
+collection of dyadic cubes $\scI(\fp)$ with $\fp \in \mathfrak{A}_{-S}$. They all have scale $-S$,
+by definition of $\mathcal{L}_{-S}$, and hence they are pairwise disjoint by the dyadic property
+\eqref{dyadicproperty}. We write
+\[
+    \sum_{\fp\in\mathfrak{A}_{-S}}\mu(E(\fp)\cap G)
+    = \sum_{L \in \mathcal{L}_{-S}} \sum_{\fp\in\mathfrak{A}_{-S}, \scI(\fp) = L} \mu(E(\fp)\cap G),
+\]
+and using \Cref{stack-density}, we estimate
+\begin{equation}
+    \label{eq_minus_S}
+    \le 2^{a(N+5)} \dens_1(\mathfrak{A}) \sum_{L \in \mathcal{L}_{-S}} \mu(L)
+    \le 2^{a(N+5)} \dens_1(\mathfrak{A}) \mu\left(\cup_{\fp\in\mathfrak{A}}I_{\fp}\right).
+\end{equation}
 
-   Let $\mathcal{L}$ be the collection of dyadic cubes $I\in\mathcal{D}$ such that $I\subset \scI(\fp)$ for some $\fp\in\mathfrak{A}'$ and if $\scI(\fp)\subset I$ for some $\fp\in\mathfrak{A}'$, then $\ps(\fp)=-S$. By \eqref{coverdyadic}, for each $\fp \in \mathfrak{A}'$
-   and each $x\in \scI(\fp)\cap G$, there is $I\in \mathcal{D}$ with $s(I)=-S$ and $x\in I$. By \eqref{dyadicproperty},
-   we have $I\subset \scI(\fp)$. Hence
-   \begin{equation}
-       \scI(\fp)\subset \bigcup\{I\in \mathcal{D}: s(I)=-S, I\subset \scI(\fp)\}\subset \bigcup \mathcal{L}\, .
-   \end{equation}
+We turn to $\mathfrak{A}'$.
+Let $\mathcal{L}$ be the collection of dyadic cubes $I\in\mathcal{D}$ such that $I\subset \scI(\fp)$
+for some $\fp\in\mathfrak{A}'$ and such that $\scI(\fp)\not \subset I$ for all $\fp\in\mathfrak{A}'$.
+By \eqref{coverdyadic}, for each $\fp \in \mathfrak{A}'$
+and each $x\in \scI(\fp)\cap G$, there is $I\in \mathcal{D}$ with $s(I)=-S$ and $x\in I$.
+By \eqref{dyadicproperty}, we have $I\subset \scI(\fp)$. Since for all $\fp' \in \mathfrak{A}'$ we
+have $s(\fp') > -S$, we have $I \in \mathcal{L}$. Hence
+\begin{equation}
+    \scI(\fp)\subset \bigcup\{I\in \mathcal{D}: s(I)=-S, I\subset \scI(\fp)\}\subset \bigcup \mathcal{L}\, .
+\end{equation}
 As each $I\in \mathcal{L}$ satisfies $I\subset \scI(\fp)$ for some $\fp$ in $\mathfrak{A'}$, we conclude
-     \begin{equation}
-\bigcup\mathcal{L}=\bigcup_{\fp \in \mathfrak{A}'}\scI(\fp)\, .
-   \end{equation}
+\begin{equation}
+    \bigcup\mathcal{L}=\bigcup_{\fp \in \mathfrak{A}'}\scI(\fp)\, .
+\end{equation}
 Let $\mathcal{L}^*$ be the set of maximal elements in $\mathcal{L}$ with respect to set inclusion.
 By \eqref{dyadicproperty}, the elements in $\mathcal{L}^*$ are pairwise disjoint and we have
  \begin{equation}\label{eqdecAprime}
@@ -4074,15 +4097,14 @@ Using the partition \eqref{eqdecAprime} into elements of $\mathcal{L}$ in \eqref
     2^{101a^3+aN}
     \dens_1(\mathfrak{A})\mu(L)\,.
 \end{equation}
-Fix $L\in \mathcal{L}^*$.
-By definition of $L$, there exists an element $\fp'\in \mathfrak{A}'$ such that $L\subset \scI(\fp')$. Pick such an element $\fp
-'$
-in $\mathfrak{A}$ with minimal $\ps(\fp')$. As $\scI(\fp')\not \subset L$ or $s(L) = -S$ by definition of $L$, we have
-with \eqref{dyadicproperty} that $s(L)< \ps(\fp')$ or $s(L) = -S$. In particular $s(L)<S$, thus $L \ne I_0$ and hence by \eqref{subsetmaxcube}
+Fix $L\in \mathcal{L}^*$. By definition of $L$, there exists an element $\fp'\in \mathfrak{A}'$
+such that $L\subset \scI(\fp')$. Pick such an element $\fp'$ in $\mathfrak{A}$ with
+minimal $\ps(\fp')$. As $\scI(\fp')\not \subset L$ by definition of $L$,
+we have with \eqref{dyadicproperty} that $s(L)< \ps(\fp')$.
+In particular $s(L)<S$, thus $L \ne I_0$ and hence by \eqref{subsetmaxcube}
 there exists a cube $J \in \mathcal{D}$ with $L \subsetneq J$.
-By \eqref{coverdyadic}, there is an
-$L'\in \mathcal{D}$ with $s(L')=s(L)+1$ and $c(L)\in L'$. By \eqref{dyadicproperty}, we have
-$L\subset L'$.
+By \eqref{coverdyadic}, there is an $L'\in \mathcal{D}$ with $s(L')=s(L)+1$ and $c(L)\in L'$.
+By \eqref{dyadicproperty}, we have $L\subset L'$.
 
 We split the left-hand side of \eqref{eqanti0} as
 \begin{equation}\label{eqanti1}
@@ -4112,26 +4134,31 @@ with $L'\subset \scI(\fp')$
 shows by definition of $\mathcal{L}$ that there exists $\fp''\in \mathfrak{A}'$ with
 $\scI(\fp'')\subset L'$.
 
+If $\scI(\fp'') = L'$, then we set $\fp_{\mfa} = \fp''$ and note that as $\fp'' \in \mathfrak{A}_{\mfa,N}$
+\begin{equation}
+    \mfa \in B(\fcc(\fp''), 2^{N+1})\, .
+\end{equation}
 
-
-
+If $\scI(\fp'') \ne L'$, then it follows that $s(\fp'') < s(L')$.
 By the covering property \eqref{eq-dis-freq-cover}, there exists a unique $\fp_{\mfa}$ with
 \begin{equation*}
     \scI(\fp_{\mfa})=L'
 \end{equation*}
-such that $\mfa\in \fc(\fp_{\mfa})$.
+such that $\mfa\in \fc(\fp_{\mfa})$. We take this as the definition of $\fp_\mfa$ in this case.
 Note that
 \begin{equation}
     \mfa\in B(\fcc(\fp_{\mfa}), 1)
 \end{equation}
-and as $\fp'' \in \mathfrak{A}_{\mfa,N}$ that
-\begin{equation}
-    \mfa \in B(\fcc(\fp''), 2^{N+1})\, .
-\end{equation}
-By \Cref{tile-reach}, we conclude
+so by \Cref{tile-reach}, we conclude
 \begin{equation}
     2^{N+3}\fp'' \lesssim 2^{N+3}\fp_{\mfa} \, .
 \end{equation}
+This clearly also holds in the case $\scI(\fp'') = L'$, since then $\fp'' = \fp_\mfa$. Furthermore,
+in both cases it also holds that
+\begin{equation}
+    \mfa \in \mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 2^{N+1}).
+\end{equation}
+
 As $\fp''\in \mathfrak{A}'$, we have by Definition
 \eqref{definedens1} of $\dens_1$ that
 \begin{equation}\label{pmfadens}
@@ -4166,7 +4193,7 @@ and the doubling property \eqref{doublingx} $100a^2+4$ times , we obtain
 \begin{equation}
     \mu(L')\le 2^{100a^3+4a}\mu(L)\, .
 \end{equation}
-Inserting in \eqref{eqanti3.14} and using $a\ge 4$ gives \eqref{eqanti0}.
+Inserting in \eqref{eqanti3.14}, adding the estimate \eqref{eq_minus_S} and using $a\ge 4$ gives \eqref{eqanti0}.
 This completes the proof of the lemma.
 \end{proof}
 
