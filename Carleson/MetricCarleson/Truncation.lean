@@ -587,7 +587,7 @@ def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f :
   (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
 
 /-- The constant used from `R_truncation` to `metric_carleson`. -/
-def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3 + 4) / (q - 1) ^ 6
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (472 * a ^ 3) / (q - 1) ^ 6
 
 lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   rw [C1_0_2]
@@ -623,7 +623,11 @@ lemma le_C1_0_2 (a4 : 4 ≤ a) (hq : q ∈ Ioc 1 2) :
           _ = 107 * a ^ 3 := by ring
           _ ≤ 471 * a ^ 3 := by gcongr; norm_num
           _ ≤ _ := Nat.le_add_right ..
-    _ = _ := by rw [C3_0_4, ← two_mul, ← mul_div_assoc, ← pow_succ', C1_0_2]
+    _ ≤ _ := by
+      rw [C3_0_4, ← two_mul, ← mul_div_assoc, ← pow_succ', C1_0_2]; gcongr
+      · exact one_le_two
+      · rw [add_assoc, show 472 * a ^ 3 = 471 * a ^ 3 + a ^ 3 by ring]
+        gcongr; exact a4.trans (Nat.le_pow zero_lt_three)
 
 variable [IsCancellative X (defaultτ a)]
 
