@@ -17,6 +17,7 @@ namespace MeasureTheory
 
 /-- A doubling measure is a measure on a metric space with the condition that doubling
 the radius of a ball only increases the volume by a constant factor, independent of the ball. -/
+-- should `ℝ≥0` be `ℝ≥0∞`?
 class Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMetricSpace X]
     (μ : Measure X) (A : outParam ℝ≥0) : Prop where
   measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
@@ -260,13 +261,12 @@ end PseudoMetric
 
 section Metric
 
-variable {X : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
-  {μ : Measure X} [μ.IsDoubling A] [IsFiniteMeasureOnCompacts μ] [ProperSpace X]
-  [Nonempty X] [IsOpenPosMeasure μ] -- only needed sometimes
+variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X]
+  {μ : Measure X} [μ.IsDoubling A]
 
 instance : IsUnifLocDoublingMeasure (μ : Measure X) where
   exists_measure_closedBall_le_mul'' := by
-    use A^2, Set.univ, by simp only [univ_mem]
+    use max 1 A^2, Set.univ, by simp only [univ_mem]
     simp only [mem_principal]
     use Set.univ
     simp only [Set.subset_univ, Set.inter_self, true_and]
@@ -274,8 +274,8 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
     simp only [ENNReal.coe_pow, Set.mem_setOf_eq, Set.mem_univ, iff_true]
     intro x
     letI : Nonempty X := ⟨x⟩
-    if hr : r ≤ 0 then
-      have cball_eq : closedBall x (2 * r) = closedBall x r:= by
+    by_cases hr : r ≤ 0
+    · have cball_eq : closedBall x (2 * r) = closedBall x r:= by
         if hr' : r < 0 then
           have : 2 * r < 0 := by linarith
           rw [closedBall_eq_empty.mpr hr', closedBall_eq_empty.mpr this]
@@ -283,23 +283,25 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
           push_neg at hr'
           have : r = 0 := le_antisymm hr hr'
           rw [this]
-          simp only [mul_zero, closedBall_zero]
+          simp only [mul_zero]
       rw [cball_eq]
       nth_rw 1 [← one_mul (μ (closedBall x r))]
       gcongr
-      have : 1 ≤ (A:ℝ≥0∞) := by rw [one_le_coe_iff]; exact one_le_A μ
+      have : (1 : ℝ≥0∞) ≤ (max 1 A : ℝ≥0) := by
+        simp
       rw [← one_mul 1, pow_two]
       gcongr
-    else
-    calc
-      μ (closedBall x (2 * r))
-        ≤ μ (ball x (2 * (2 * r))) := μ.mono (closedBall_subset_ball (by linarith))
-      _ ≤ A * μ (ball x (2 * r)) := measure_ball_two_le_same x (2 * r)
-      _ ≤ A * (A * μ (ball x r)) := mul_le_mul_of_nonneg_left
-        (measure_ball_two_le_same x r) (zero_le _)
-      _ = ↑(A ^ 2) * μ (ball x r) := by simp only [pow_two, coe_mul, mul_assoc]
-      _ ≤ ↑(A ^ 2) * μ (closedBall x r) := mul_le_mul_of_nonneg_left
-        (μ.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
+    · calc
+        μ (closedBall x (2 * r))
+          ≤ μ (ball x (2 * (2 * r))) := μ.mono (closedBall_subset_ball (by linarith))
+        _ ≤ A * μ (ball x (2 * r)) := measure_ball_two_le_same x (2 * r)
+        _ ≤ A * (A * μ (ball x r)) := mul_le_mul_of_nonneg_left
+          (measure_ball_two_le_same x r) (zero_le _)
+        _ = ↑(A ^ 2) * μ (ball x r) := by simp only [pow_two, coe_mul, mul_assoc]
+        _ ≤ ↑(A ^ 2) * μ (closedBall x r) := mul_le_mul_of_nonneg_left
+          (μ.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
+        _ ≤ ↑(max 1 A ^ 2) * μ (closedBall x r) := by gcongr; exact le_max_right 1 A
+
 end Metric
 
 section Normed
@@ -324,17 +326,12 @@ end Normed
 
 /- # Instances of spaces of homogeneous type -/
 
-/-- A metric space with a measure and a doubling condition.
+/-- A metric space with a measure with some nice propreties, including a doubling condition.
 This is called a "doubling metric measure space" in the blueprint.
 `A` will usually be `2 ^ a`.
 
-This class is not Mathlib-ready code, and results moved to Mathlib should be reformulated using
-a (locally) doubling measure and more minimal other classes.
-
-Note (F): we currently assume that the space is proper, which we should probably add to the
-blueprint.
-Remark: `IsUnifLocDoublingMeasure` which is a weaker notion in Mathlib. -/
-
+This class is not Mathlib-ready code, and should not be used in the `ToMathlib` folder.
+-/
 class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
   MeasureSpace X, ProperSpace X, BorelSpace X,
   Regular (volume : Measure X), IsOpenPosMeasure (volume : Measure X),
@@ -365,14 +362,12 @@ end MetricSpace
 @[reducible]
 def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
   toIsDoubling := IsDoubling.mono h
-  __ := ‹DoublingMeasure X A›
 
 open Module
-/- Preferably we prove that in this form. -/
+
 instance InnerProductSpace.DoublingMeasure
     {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
     [MeasurableSpace E] [BorelSpace E] [FiniteDimensional ℝ E] :
     DoublingMeasure E (2 ^ finrank ℝ E) where
 
-/- todo: ℝ^n with nonstandard metric: `dist x y = ∑ i, |x i - y i| ^ α i` for `α i > 0` -/
 end MeasureTheory

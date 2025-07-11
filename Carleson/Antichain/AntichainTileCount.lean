@@ -296,9 +296,12 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
   · simp only [Set.not_nonempty_iff_eq_empty] at h𝔄'
     simp only [heq, h𝔄', toFinset_empty, Finset.sum_empty, zero_le]
 
--- We prove inclusion 6.3.25 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
+-- We prove inclusion 6.3.24 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
 -- `(𝓘 p : Set X) ∩ (𝓘 p') ≠ ∅`.
 -- p' is 𝔭_ϑ in the blueprint
+lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Finset (𝔓 X)} (ϑ : Θ X) (N : ℕ)
+    {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N)) (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1)))
+    (hs : 𝔰 p' < 𝔰 p) (h𝓘 : ((𝓘 p' : Set X) ∩ (𝓘 p)).Nonempty) :
 open Classical in
 lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
     {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N).toFinset) (hp' : ϑ ∈ Ω p') (hs : 𝔰 p' < 𝔰 p)
@@ -307,22 +310,13 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
   have hle : 𝓘 p' ≤ 𝓘 p := ⟨Or.resolve_right (fundamental_dyadic (le_of_lt hs))
     (not_disjoint_iff_nonempty_inter.mpr h𝓘), le_of_lt hs⟩
   -- 6.3.22
-  have hϑaux : ϑ ∈ ball_(p') (𝒬 p') 1 := subset_cball hp'
-  have hϑin' : dist_(p') (𝒬 p') ϑ < ((2 : ℝ)^(N + 1)) := by
-    have h12 : (1 : ℝ) < 2 := one_lt_two
-    have h0N : 0 < N + 1 := Nat.zero_lt_succ N
-    simp only [mem_ball'] at hϑaux
-    apply lt_trans hϑaux
-    nth_rewrite 1 [← pow_zero 2]
-    gcongr -- uses h12, h0N
-  -- 6.3.23
   have hϑin : dist_(p) (𝒬 p) ϑ < ((2 : ℝ)^(N + 1)) := by
     simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter,
       Finset.mem_filter, Finset.mem_univ, true_and] at hpin
     exact (lt_one_add (dist_(p) (𝒬 p) ϑ)).trans hpin.2.2
   -- 6.3.24
   have hsmul_le : smul (2 ^ (N + 3)) p' ≤ smul (2 ^ (N + 3)) p :=
-    tile_reach (le_of_lt hϑin') (le_of_lt hϑin) hle hs
+    tile_reach (le_of_lt (mem_ball'.mpr hp')) (le_of_lt hϑin) hle hs
   -- NOTE: TileLike.toSet is not a mono.
   -- 6.3.25
   have hss : E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
@@ -901,6 +895,19 @@ private lemma le_C6_3_4 (ha : 4 ≤ a) :
         _ ≤ 4^2 - 1 := by norm_num
         _ ≤ a ^ 2 - 1 := by gcongr
       · linarith
+
+/-- The finset `{p : 𝔓 X | 𝓘 p = L}`. -/
+private def aux_t (L : Grid X) : Finset (𝔓 X) := by
+  classical
+  exact {p : 𝔓 X | 𝓘 p = L}
+
+/- -- Ineq. 6.3.30
+private lemma ineq_6_3_3 [DecidableEq (𝔓 X)] {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
+    ∑ (p ∈ (𝔄' 𝔄 ϑ N \ (aux_t L))), volume (E p ∩ G ∩ L) ≤
+      volume (E₂ (2 ^ (N + 3)) p') := by
+
+
+  sorry -/
 
 -- Ineq. 6.3.30
 open Classical in

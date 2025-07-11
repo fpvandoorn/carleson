@@ -267,13 +267,13 @@ lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x :
 /-- The linearized maximally truncated nontangential Calderon–Zygmund operator `T_Q^θ`. -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (x' : X) (R₁ ∈ Ioi (dist x x')),
-  ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) (upperRadius Q θ x'), K x' y * f y‖ₑ
+  ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
+  ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) (min (ENNReal.ofReal R₂) (upperRadius Q θ x')),
+    K x' y * f y‖ₑ
 
 /-- The maximally truncated nontangential Calderon–Zygmund operator `T_*`. -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (_ : 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
-  ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
+  ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁), ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
 
 /-- The integrand in the (linearized) Carleson operator.
 This is `G` in Lemma 3.0.1. -/
@@ -291,7 +291,6 @@ def linearizedCarlesonOperator [FunctionDistances ℝ X] (Q : X → Θ X) (K : X
 Use `ENNReal.toReal` to get the corresponding real number. -/
 def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
-
 
 end DoublingMeasure
 

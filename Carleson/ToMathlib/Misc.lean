@@ -471,14 +471,24 @@ lemma norm_indicator_one_le {α E}
     ‖s.indicator (1 : α → E) x‖ ≤ 1 :=
   Trans.trans (norm_indicator_le_norm_self 1 x) norm_one
 
-lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ = 1 := by
+@[simp] lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (I * x)‖ = 1 := by
   rw [mul_comm, Complex.norm_exp_ofReal_mul_I]
 
-lemma enorm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ₑ = 1 := by
+@[simp] lemma enorm_exp_I_mul_ofReal (x : ℝ) : ‖exp (I * x)‖ₑ = 1 := by
   rw [← enorm_norm, mul_comm, Complex.norm_exp_ofReal_mul_I, enorm_one]
 
-lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (.I * (x - y))‖ = 1 := by
+lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (I * (x - y))‖ = 1 := by
   rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
+
+@[simp] lemma norm_exp_neg_I_mul_ofReal (x : ℝ) : ‖exp (-(I * x))‖ = 1 := by
+  rw [exp_neg, norm_inv, norm_exp_I_mul_ofReal, inv_one]
+
+lemma norm_exp_neg_I_mul_ofReal' (x : ℝ) : ‖exp (-I * x)‖ = 1 := by simp
+
+lemma norm_one_sub_exp_neg_I_mul_ofReal (x : ℝ) : ‖1 - exp (-(I * x))‖ = ‖1 - exp (I * x)‖ := by
+  have : 1 - exp (I * x) = - exp (I * x) * (1 - exp (I * (-x))) := by
+    simp [mul_sub, ← exp_add]; ring
+  simp [this]
 
 lemma norm_exp_I_mul_ofReal_sub_one {x : ℝ} : ‖exp (I * x) - 1‖ = ‖2 * Real.sin (x / 2)‖ := by
   rw [show ‖2 * Real.sin (x / 2)‖ = ‖2 * sin (x / 2)‖ by norm_cast, two_sin]
@@ -499,6 +509,13 @@ lemma norm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ ≤ ‖
 lemma enorm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ₑ ≤ ‖x‖ₑ := by
   iterate 2 rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg _)]
   exact ENNReal.ofReal_le_ofReal norm_exp_I_mul_ofReal_sub_one_le
+
+open Real in
+lemma exp_I_mul_eq_one_iff_of_lt_of_lt (x : ℝ) (hx : -(2 * π) < x) (h'x : x < 2 * π) :
+    exp (I * x) = 1 ↔ x = 0 := by
+  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩
+  have : Real.cos x = 1 := by simpa [mul_comm I x] using congr(($h).re)
+  rwa [Real.cos_eq_one_iff_of_lt_of_lt hx h'x] at this
 
 end Norm
 
