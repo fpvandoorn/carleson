@@ -141,7 +141,7 @@ def QΘ' (n : ℕ) : SimpleFunc X (Θ X) where
     have key := enumΘ'ArgMax_mem_range nΘ' g (n := n) (x := x)
     rw [Finset.mem_range] at key; exact ⟨_, key, hx⟩
 
-lemma biSup_enumΘ'_le_biSup_QΘ' {n : ℕ} {x : X} :
+lemma biSup_enumΘ'_le_QΘ' {n : ℕ} {x : X} :
     ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x ≤ g (QΘ' nΘ' mg n x) x := by
   rw [QΘ', SimpleFunc.coe_mk]; refine iSup₂_le fun i mi ↦ ?_
   have mam := enumΘ'ArgMax_mem_range nΘ' g (n := n) (x := x)
@@ -151,13 +151,23 @@ lemma biSup_enumΘ'_le_biSup_QΘ' {n : ℕ} {x : X} :
 
 end Enum
 
+lemma lowerSemicontinuous_LNT {Q : SimpleFunc X (Θ X)} {θ : Θ X} :
+    LowerSemicontinuous (linearizedNontangentialOperator Q θ K f) := by
+  unfold linearizedNontangentialOperator
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
+    exists_prop]
+  refine fun M ↦ isOpen_iUnion fun R₂ ↦ isOpen_biUnion fun R₁ hR₁ ↦ isOpen_iUnion fun x' ↦ ?_
+  by_cases hx' : M < ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁)
+      (min (ENNReal.ofReal R₂) (upperRadius Q θ x')), K x' y * f y‖ₑ
+  · simp_rw [hx', and_true, mem_ball_comm, setOf_mem_eq, isOpen_ball]
+  · simp [hx']
+
 lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}
     (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)) :
     ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
       2 2 volume volume (C_Ts a) := fun θ f bf ↦ by
   constructor
-  · dsimp only; unfold linearizedNontangentialOperator
-    sorry
+  · exact lowerSemicontinuous_LNT.measurable.aestronglyMeasurable
   · refine (eLpNorm_mono_enorm fun x ↦ ?_).trans (hT f bf).2
     simp_rw [enorm_eq_self]
     refine iSup_le fun R₂ ↦ iSup₂_le fun R₁ mR₁ ↦ iSup₂_le fun x' mx' ↦ ?_
@@ -212,7 +222,7 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
         exact measurable_carlesonOperatorIntegrand (Q := SimpleFunc.const X (enumΘ' nΘ' i)) mf
       · intro x; apply biSup_mono; simp_rw [Finset.mem_range]; omega
     _ ≤ ⨆ n, ∫⁻ x in G, g (QΘ' nΘ' mg n x) x := by
-      gcongr with n x; exact biSup_enumΘ'_le_biSup_QΘ' nΘ' mg
+      gcongr with n x; exact biSup_enumΘ'_le_QΘ' nΘ' mg
     _ ≤ ⨆ n, ∫⁻ x in G, linearizedCarlesonOperator (QΘ' nΘ' mg n) K f x := by
       gcongr with n x; set Q := QΘ' nΘ' mg n; unfold linearizedCarlesonOperator
       refine iSup₂_le fun ⟨q₁, q₂⟩ ⟨hq₁, hq₂⟩ ↦ ?_
