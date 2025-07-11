@@ -299,12 +299,10 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
 -- We prove inclusion 6.3.24 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
 -- `(𝓘 p : Set X) ∩ (𝓘 p') ≠ ∅`.
 -- p' is 𝔭_ϑ in the blueprint
-lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Finset (𝔓 X)} (ϑ : Θ X) (N : ℕ)
-    {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N)) (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1)))
-    (hs : 𝔰 p' < 𝔰 p) (h𝓘 : ((𝓘 p' : Set X) ∩ (𝓘 p)).Nonempty) :
 open Classical in
 lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
-    {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N).toFinset) (hp' : ϑ ∈ Ω p') (hs : 𝔰 p' < 𝔰 p)
+    {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N).toFinset)
+    (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1))) (hs : 𝔰 p' < 𝔰 p)
     (h𝓘 : ((𝓘 p' : Set X) ∩ (𝓘 p)).Nonempty) :
     E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
   have hle : 𝓘 p' ≤ 𝓘 p := ⟨Or.resolve_right (fundamental_dyadic (le_of_lt hs))
@@ -336,7 +334,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
 -- p' is 𝔭_ϑ in the blueprint
 open Classical in
 lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄) (ϑ : Θ X) (N : ℕ)
-    {p' : 𝔓 X} (hp' : ϑ ∈ Ω p') :
+    {p' : 𝔓 X} (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1))) :
     ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N).toFinset | 𝔰 p' < 𝔰 p}), volume (E p ∩ G ∩ 𝓘 p') ≤
       volume (E₂ (2 ^ (N + 3)) p') := by
   rw [← MeasureTheory.measure_biUnion_finset _
