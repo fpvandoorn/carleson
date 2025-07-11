@@ -957,7 +957,7 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
         ((measure_ball_pos _ (zpow_pos zero_lt_two _) (μ := μ)).ne')
           measure_ball_ne_top, ENNReal.mul_inv_le_iff
             ((measure_ball_pos _ hr (μ := μ)).ne') measure_ball_ne_top]
-      exact (μ.mono h_subset').trans <| measure_ball_four_le_same' z r
+      exact (μ.mono h_subset').trans <| measure_ball_four_le_same z r
     _ ≤ _ := by
       rw [mul_assoc]
       gcongr

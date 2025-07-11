@@ -11,8 +11,6 @@ open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Functio
 open scoped NNReal
 noncomputable section
 
--- todo: rename and protect `Real.RCLike`
-
 /-! Miscellaneous definitions.
 These are mostly the definitions used to state the metric Carleson theorem.
 We should move them to separate files once we start proving things about them. -/
