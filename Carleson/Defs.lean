@@ -362,18 +362,16 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
 
 export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
 
-lemma isOneSidedKernel_const_smul {a : ℕ} {K : X → X → ℂ} [IsOneSidedKernel a K] {z : ℂ}
-    (hz : ‖z‖ ≤ 1) :
-    IsOneSidedKernel a (z • K) where
-  measurable_K := measurable_K.const_smul z
+lemma isOneSidedKernel_const_smul {a : ℕ} {K : X → X → ℂ} [IsOneSidedKernel a K] {r : ℝ}
+    (hr : |r| ≤ 1) :
+    IsOneSidedKernel a (r • K) where
+  measurable_K := measurable_K.const_smul r
   norm_K_le_vol_inv x y := by
-    simp only [Pi.smul_apply, smul_eq_mul]
-    rw [← one_mul (_ / _), Complex.norm_mul]
-    gcongr
-    exact norm_K_le_vol_inv x y
+    convert mul_le_mul hr (norm_K_le_vol_inv (K := K) x y) (norm_nonneg _) (zero_le_one' ℝ) using 1
+    all_goals simp
   norm_K_sub_le h := by
-    simp only [Pi.smul_apply, smul_eq_mul]
-    rw [← one_mul (_ ^ _ * _), ← mul_sub, Complex.norm_mul]
+    simp only [Pi.smul_apply, real_smul]
+    rw [← one_mul (_ ^ _ * _), ← mul_sub, Complex.norm_mul, norm_real, Real.norm_eq_abs]
     gcongr
     exact norm_K_sub_le h
 
@@ -469,17 +467,6 @@ class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSid
 export IsTwoSidedKernel (enorm_K_sub_le')
 
 -- maybe show: `K` is a 2-sided kernel iff `K` and `fun x y ↦ K y x` are one-sided kernels.
-
--- Not needed
-/- lemma isTwoSidedKernel_const_smul {a : ℕ} {K : X → X → ℂ} [IsTwoSidedKernel a K] {z : ℂ}
-    (hz : ‖z‖ ≤ 1) : IsTwoSidedKernel a (z • K) where
-  __ := isOneSidedKernel_const_smul hz
-  enorm_K_sub_le' h := by
-    simp only [Pi.smul_apply, smul_eq_mul]
-    rw [← one_mul (_ ^ _ * _), ← mul_sub, enorm_mul, ← ofReal_norm_eq_enorm z]
-    gcongr
-    · exact ofReal_le_one.mpr hz
-    · exact enorm_K_sub_le' h -/
 
 end Kernel
 

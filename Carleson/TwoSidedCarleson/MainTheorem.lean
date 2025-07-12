@@ -34,40 +34,35 @@ theorem two_sided_metric_carleson (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.
   · rw [setLIntegral_measure_zero G _ hG0]; exact zero_le _
   by_cases hF_top : volume F = ∞
   · rw [hF_top, ← NNReal.val_eq_coe q, top_rpow_of_pos (inv_pos.mpr (lt_trans one_pos hq.1))]
-    convert le_top
-    exact mul_top <| by simp [C10_0_1, C1_0_2, hG0, hqq'.sub_one_ne_zero]
-  let c := Complex.ofReal ((2 : ℝ) ^ ((-2 : ℝ) * a ^ 3))
+    apply le_of_le_of_eq le_top
+    exact mul_top (by simp [C10_0_1, C1_0_2, hG0, hqq'.sub_one_ne_zero]) |>.symm
+  let c := (2 : ℝ) ^ (-2 * (a : ℝ) ^ 3)
   have two_pow_pos {y : ℝ} : 0 < ((2 : ℝ) ^ y) := Real.rpow_pos_of_pos two_pos y
-  let K' := c • K
-  have : IsOneSidedKernel a K' := by
+  have : IsOneSidedKernel a (c • K) := by
     apply isOneSidedKernel_const_smul
     unfold c
-    rw [neg_mul, Complex.norm_real, Real.norm_eq_abs, Real.abs_rpow_of_nonneg two_pos.le, abs_two]
+    rw [neg_mul, Real.abs_rpow_of_nonneg two_pos.le, abs_two]
     exact Real.rpow_le_one_of_one_le_of_nonpos one_le_two (by norm_num)
-  let : KernelProofData a K' := by constructor <;> assumption
-  have HBST : HasBoundedStrongType (nontangentialOperator K') 2 2 volume volume (C_Ts a) := by
-    rw [nontangentialOperator_const_smul, ← ofReal_norm_eq_enorm]
+  let : KernelProofData a (c • K) := by constructor <;> assumption
+  have : nontangentialOperator (c • K) = ‖c‖ₑ • nontangentialOperator K := by
+    convert nontangentialOperator_const_smul (c : ℂ)
+    rw [← ofReal_norm_eq_enorm, ← ofReal_norm_eq_enorm, Complex.norm_real]
+  have HBST : HasBoundedStrongType (nontangentialOperator (c • K)) 2 2 volume volume (C_Ts a) := by
+    rw [this, ← ofReal_norm_eq_enorm]
     convert HasBoundedStrongType.const_smul (nontangential_from_simple ha hT) ‖c‖.toNNReal
-    unfold c
-    rw [C_Ts, C10_0_2_def, coe_pow, coe_ofNat, neg_mul, Complex.norm_real, Real.norm_eq_abs]
-    change _ = ENNReal.ofNNReal |(2 : ℝ) ^ (-(2 * (a : ℝ) ^ 3))|.toNNReal * (2 : ℝ≥0∞) ^ (3 * a ^ 3)
-    rw [ENNReal.ofNNReal_toNNReal, abs_of_pos two_pow_pos, ← ENNReal.ofReal_rpow_of_pos two_pos]
-    have : (2 : ℝ≥0∞) ^ (3 * a ^ 3) = (2 : ℝ≥0∞) ^ (3 * (a : ℝ) ^ 3) := by norm_cast
-    rw [this, ofReal_ofNat 2, ← rpow_add _ _ (NeZero.ne 2) ENNReal.ofNat_ne_top]
+    rw [C_Ts, C10_0_2_def, coe_pow, coe_ofNat, ← rpow_natCast, Nat.cast_pow, ENNReal.smul_def,
+      Real.norm_eq_abs, ofNNReal_toNNReal, abs_of_pos two_pow_pos, ← ofReal_rpow_of_pos two_pos,
+      coe_pow, coe_ofNat, ← rpow_natCast, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow,
+      ofReal_ofNat 2, smul_eq_mul, ← rpow_add _ _ (NeZero.ne 2) ENNReal.ofNat_ne_top]
     ring_nf
-    rw [← rpow_natCast, Nat.cast_pow]
-  have hc0 : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr (Complex.ofReal_ne_zero.mpr two_pow_pos.ne')
-  rw [← (ENNReal.mul_left_strictMono hc0 enorm_ne_top).le_iff_le]
-  rw [← lintegral_const_mul' _ _ enorm_ne_top, mul_assoc, ← mul_assoc, ← mul_assoc]
+  have : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr (two_pow_pos.ne')
+  rw [← ENNReal.mul_le_mul_left this enorm_ne_top, ← lintegral_const_mul' _ _ enorm_ne_top,
+    mul_assoc, ← mul_assoc, ← mul_assoc]
   convert metric_carleson hq hqq' hF hG hmf hf HBST
-  · exact congrFun (carlesonOperator_const_smul K f c) _ |>.symm
-  have : ‖c‖ₑ = ENNReal.ofReal ((2 : ℝ) ^ ((-2 : ℝ) * a ^ 3)) := by
-    simp [← ofReal_norm_eq_enorm, c, two_pow_pos.le]
-  rw [← one_mul (C1_0_2 a q : ℝ≥0∞), C10_0_1, C_K, coe_mul, ← mul_assoc, this, ← ofReal_coe_nnreal,
-    ← ofReal_mul two_pow_pos.le, neg_mul, NNReal.coe_pow, NNReal.coe_rpow, NNReal.coe_ofNat]
-  congr
-  rw [ofReal_eq_one, ← Real.rpow_mul_natCast two_pos.le, ← Real.rpow_add two_pos]
-  ring_nf
-  exact Real.rpow_zero 2
+  · convert congrFun (carlesonOperator_const_smul K f (c : ℂ)) _ |>.symm; simp
+  rw [C10_0_1, C_K, coe_mul, ← mul_assoc, ← ofReal_coe_nnreal, Real.enorm_eq_ofReal two_pow_pos.le,
+    ← ofReal_mul two_pow_pos.le, neg_mul, NNReal.coe_pow, NNReal.coe_rpow, NNReal.coe_ofNat,
+    ← Real.rpow_mul_natCast two_pos.le, ← Real.rpow_add two_pos,
+    ofReal_eq_one.mpr (by ring_nf; exact Real.rpow_zero 2), one_mul]
 
 end
