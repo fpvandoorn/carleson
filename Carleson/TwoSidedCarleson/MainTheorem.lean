@@ -31,7 +31,7 @@ theorem two_sided_metric_carleson (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.
     ∫⁻ x in G, carlesonOperator K f x ≤
     C10_0_1 a q * (volume G) ^ (q' : ℝ)⁻¹ * (volume F) ^ (q : ℝ)⁻¹ := by
   let c := (2 : ℝ) ^ (-2 * (a : ℝ) ^ 3)
-  have two_pow_pos {y : ℝ} : 0 < ((2 : ℝ) ^ y) := Real.rpow_pos_of_pos two_pos y
+  have c_pos : 0 < c := Real.rpow_pos_of_pos two_pos _
   have : IsOneSidedKernel a (c • K) := by
     apply isOneSidedKernel_const_smul
     unfold c
@@ -45,17 +45,16 @@ theorem two_sided_metric_carleson (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.
     rw [this, ← ofReal_norm_eq_enorm]
     convert HasBoundedStrongType.const_smul (nontangential_from_simple ha hT) ‖c‖.toNNReal
     rw [C_Ts, C10_0_2_def, coe_pow, coe_ofNat, ← rpow_natCast, Nat.cast_pow, ENNReal.smul_def,
-      Real.norm_eq_abs, ofNNReal_toNNReal, abs_of_pos two_pow_pos, ← ofReal_rpow_of_pos two_pos,
+      Real.norm_eq_abs, ofNNReal_toNNReal, abs_of_pos c_pos, ← ofReal_rpow_of_pos two_pos,
       coe_pow, coe_ofNat, ← rpow_natCast, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow,
       ofReal_ofNat 2, smul_eq_mul, ← rpow_add _ _ (NeZero.ne 2) ENNReal.ofNat_ne_top]
     ring_nf
-  have : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr (two_pow_pos.ne')
-  rw [← ENNReal.mul_le_mul_left this enorm_ne_top, ← lintegral_const_mul' _ _ enorm_ne_top,
-    mul_assoc, ← mul_assoc, ← mul_assoc]
+  rw [← ENNReal.mul_le_mul_left (enorm_ne_zero.mpr c_pos.ne') enorm_ne_top,
+    ← lintegral_const_mul' _ _ enorm_ne_top, mul_assoc, ← mul_assoc, ← mul_assoc]
   convert metric_carleson hq hqq' hF hG hmf hf HBST
   · convert congrFun (carlesonOperator_const_smul K f (c : ℂ)) _ |>.symm; simp
-  rw [C10_0_1, C_K, coe_mul, ← mul_assoc, ← ofReal_coe_nnreal, Real.enorm_eq_ofReal two_pow_pos.le,
-    ← ofReal_mul two_pow_pos.le, neg_mul, NNReal.coe_pow, NNReal.coe_rpow, NNReal.coe_ofNat,
+  rw [C10_0_1, C_K, coe_mul, ← mul_assoc, ← ofReal_coe_nnreal, Real.enorm_eq_ofReal c_pos.le,
+    ← ofReal_mul c_pos.le, NNReal.coe_pow, NNReal.coe_rpow, NNReal.coe_ofNat,
     ← Real.rpow_mul_natCast two_pos.le, ← Real.rpow_add two_pos,
     ofReal_eq_one.mpr (by ring_nf; exact Real.rpow_zero 2), one_mul]
 
