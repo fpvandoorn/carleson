@@ -444,7 +444,7 @@ lemma density_tree_bound1 (hf : BoundedCompactSupport f)
     rw [ENNReal.one_rpow]
   simpa using density_tree_bound_aux hf hc hg h2g hu
 
-/-- The constant used in `density_tree_bound2`.
+/-- The constant used in `density_tree_bound2` and `indicator_adjoint_tree_estimate`.
 Has value `2 ^ (303 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (303 * (a : ℝ) ^ 3)
