@@ -1173,4 +1173,11 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
       _ ≤ a ^ 3 + 2 * a * a * a := by gcongr
       _ = _ := by ring
 
+omit [IsTwoSidedKernel a K] in
+lemma nontangentialOperator_const_smul (z : ℂ) :
+    nontangentialOperator (z • K) = ‖z‖ₑ • nontangentialOperator K := by
+  unfold nontangentialOperator
+  simp_rw [Pi.smul_apply, smul_eq_mul, mul_assoc, integral_const_mul, enorm_mul, ← ENNReal.mul_iSup]
+  rfl
+
 end
