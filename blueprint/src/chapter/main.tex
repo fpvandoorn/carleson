@@ -6125,7 +6125,7 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $|g| \le \mathbf{1}_G$, we have
     \begin{equation}
         \label{eq-row-bound-1}
-        \left\| T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{156a^3} 2^{-n/2} \|g\|_2
+        \left\| T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{203a^3} 2^{-n/2} \|g\|_2
     \end{equation}
     and
     \begin{equation}
@@ -6135,10 +6135,11 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
 \end{lemma}
 
 \begin{proof}
+    \leanok
     By \Cref{densities-tree-bound} and the density assumption \eqref{forest4}, we have for each $\fu \in \fU$ and all bounded $f$ of bounded support that
     \begin{equation}
         \label{eq-explicit-tree-bound-1}
-        \left\|\mathbf{1}_G\sum_{\fp \in \fT(\fu)} T_{\fp} f \right\|_{2} \le 2^{155a^3} 2^{(4a+1-n)/2} \|f\|_2\,
+        \left\|\mathbf{1}_G\sum_{\fp \in \fT(\fu)} T_{\fp} f \right\|_{2} \le 2^{202.5a^3} 2^{(4a+1-n)/2} \|f\|_2\,
     \end{equation}
     and
     \begin{equation}
@@ -6275,7 +6276,7 @@ Now we prove \Cref{forest-operator}.
     $$
     We use \Cref{row-bound} to estimate each term in the first sum, and \Cref{row-correlation} to bound each term in the second sum:
     $$
-        \le 2^{312a^3-n} \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2^2 + 2^{939a^3+1-4n}\sum_{j=1}^{2^n}\sum_{j' = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2 \|\mathbf{1}_{E_{j'}}g\|_2\,.
+        \le 2^{406a^3-n} \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2^2 + 2^{939a^3+1-4n}\sum_{j=1}^{2^n}\sum_{j' = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2 \|\mathbf{1}_{E_{j'}}g\|_2\,.
     $$
     By Cauchy-Schwarz in the second two sums, this is at most
     $$

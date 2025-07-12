@@ -435,11 +435,9 @@ private lemma density_tree_bound_aux
       congr; push_cast; ring
 
 /-- First part of Lemma 7.3.1. -/
-lemma density_tree_bound1
-    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
-    (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hu : u ∈ t) :
-    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
+lemma density_tree_bound1 (hf : BoundedCompactSupport f)
+    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
+    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   have hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤ 1 * eLpNorm f 2 volume := by
     have : ∀ L ∈ 𝓙 (t u), volume ((L : Set X) ∩ univ) ≤ 1 * volume (L : Set X) := by intros; simp
@@ -478,6 +476,25 @@ lemma density_tree_bound2
       ring_nf
 
 section Adjoint
+
+lemma adjoint_density_tree_bound1 (hf : BoundedCompactSupport f)
+    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
+    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
+    C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
+  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound1 hf hg h2g hu
+
+lemma adjoint_refined_density_tree_bound1
+    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
+    eLpNorm (adjointCarlesonSum (t u) g) 2 volume ≤
+    C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
+  by_cases h : eLpNorm (adjointCarlesonSum (t u) g) 2 = 0
+  · rw [h]; exact zero_le _
+  have bcs : BoundedCompactSupport (adjointCarlesonSum (t u) g) := hg.adjointCarlesonSum
+  rw [← ENNReal.mul_le_mul_right h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
+    eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
+    mul_comm (eLpNorm g 2 volume), ← mul_assoc]
+  conv_lhs => enter [1, 2, x]; rw [mul_comm]
+  exact adjoint_density_tree_bound1 bcs hg h2g hu
 
 lemma adjoint_density_tree_bound2
     (hf : BoundedCompactSupport f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
