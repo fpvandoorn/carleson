@@ -259,9 +259,8 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   norm_cast
   exact pow_le_pow_right' one_le_two (le_C7_3_3_exponent (four_le_a X) 10 (by norm_num))
 
-/-- The constant used in `density_tree_bound1`.
-Has value `2 ^ (155 * a ^ 3)` in the blueprint, but that was based on an incorrect
-version of Lemma 7.2.1. -/
+/-- The constant used in `density_tree_bound1` and `adjoint_tree_estimate`.
+Has value `2 ^ (202.5 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ (202.5 * (a : ℝ) ^ 3)
 
@@ -446,8 +445,7 @@ lemma density_tree_bound1 (hf : BoundedCompactSupport f)
   simpa using density_tree_bound_aux hf hc hg h2g hu
 
 /-- The constant used in `density_tree_bound2`.
-Has value `2 ^ (256 * a ^ 3)` in the blueprint, but that was based on an incorrect
-version of Lemma 7.2.1. -/
+Has value `2 ^ (303 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (303 * (a : ℝ) ^ 3)
 
@@ -474,79 +472,5 @@ lemma density_tree_bound2
         ← ENNReal.coe_mul, ← NNReal.rpow_mul, ← NNReal.rpow_add two_pos.ne.symm,
         ENNReal.coe_rpow_of_nonneg _ (by positivity), ENNReal.coe_rpow_of_nonneg _ (by positivity)]
       ring_nf
-
-section Adjoint
-
-lemma adjoint_density_tree_bound1 (hf : BoundedCompactSupport f)
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
-    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
-    C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound1 hf hg h2g hu
-
-lemma adjoint_refined_density_tree_bound1
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
-    eLpNorm (adjointCarlesonSum (t u) g) 2 volume ≤
-    C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
-  by_cases h : eLpNorm (adjointCarlesonSum (t u) g) 2 = 0
-  · rw [h]; exact zero_le _
-  have bcs : BoundedCompactSupport (adjointCarlesonSum (t u) g) := hg.adjointCarlesonSum
-  rw [← ENNReal.mul_le_mul_right h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
-    eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
-    mul_comm (eLpNorm g 2 volume), ← mul_assoc]
-  conv_lhs => enter [1, 2, x]; rw [mul_comm]
-  exact adjoint_density_tree_bound1 bcs hg h2g hu
-
-lemma adjoint_density_tree_bound2
-    (hf : BoundedCompactSupport f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
-    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
-    C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
-    eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound2 hf h2f hg h2g hu
-
-/-- `adjoint_density_tree_bound2` generalised to uniformly bounded above functions
-(not necessarily by 1) supported on `F`. -/
-lemma adjoint_density_tree_bound2'
-    (hf : BoundedCompactSupport f) (sf : support f ⊆ F) (bf : BddAbove (range (‖f ·‖)))
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
-    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
-    C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
-    eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  obtain ⟨k, kpos, h2f⟩ := exists_scale_factor_of_bddAbove_range sf bf
-  have key : ‖∫ x, conj (adjointCarlesonSum (t u) g x) * (k • f) x‖ₑ ≤
-      C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
-      eLpNorm (k • f) 2 volume * eLpNorm g 2 volume :=
-    adjoint_density_tree_bound2 (hf.const_mul k) h2f hg h2g hu
-  have bubble_k : ‖∫ x, conj (adjointCarlesonSum (t u) g x) * (k • f) x‖ₑ =
-      ‖k‖ₑ * ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ := by
-    rw [← Complex.enorm_real k, ← enorm_mul, ← integral_const_mul]; congr! 3 with _ x
-    rw [Pi.smul_apply, mul_smul_comm, real_smul]
-  have ek_ne_zero : ‖k‖ₑ ≠ 0 := by rw [enorm_ne_zero]; exact kpos.ne'
-  rwa [bubble_k, eLpNorm_const_smul, mul_comm ‖k‖ₑ, mul_comm ‖k‖ₑ, ← mul_assoc, mul_assoc _ ‖k‖ₑ,
-    mul_comm ‖k‖ₑ, ← mul_assoc, ENNReal.mul_le_mul_right ek_ne_zero enorm_ne_top] at key
-
-lemma adjoint_refined_density_tree_bound2
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
-    eLpNorm (F.indicator (adjointCarlesonSum (t u) g)) 2 ≤
-    C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 := by
-  by_cases h : eLpNorm (F.indicator (adjointCarlesonSum (t u) g)) 2 = 0
-  · rw [h]; exact zero_le _
-  have bcs : BoundedCompactSupport (F.indicator (adjointCarlesonSum (t u) g)) :=
-    hg.adjointCarlesonSum.indicator measurableSet_F
-  rw [← ENNReal.mul_le_mul_right h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
-    eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
-    mul_comm (eLpNorm g 2 volume), ← mul_assoc]
-  calc
-    _ = ‖∫ x, conj (adjointCarlesonSum (t u) g x) *
-        F.indicator (adjointCarlesonSum (t u) g) x‖ₑ := by
-      congr 2 with x; nth_rw 2 [indicator_eq_indicator_one_mul]
-      rw [map_mul, conj_indicator, map_one, ← mul_assoc, mul_comm _ (F.indicator 1 x),
-        ← indicator_eq_indicator_one_mul, indicator_indicator, inter_self, mul_comm]
-    _ ≤ _ := by
-      refine adjoint_density_tree_bound2' bcs support_indicator_subset ?_ hg h2g hu
-      exact BddAbove.range_mono (‖adjointCarlesonSum (t u) g ·‖)
-        (fun _ ↦ norm_indicator_le_norm_self ..) hg.bddAbove_norm_adjointCarlesonSum
-
-end Adjoint
 
 end TileStructure.Forest

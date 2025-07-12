@@ -399,7 +399,7 @@ lemma row_bound (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.ind
     _ ≤ ∑ u with u ∈ t.rowDecomp j,
         (C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm ((𝓘 u : Set X).indicator g) 2) ^ 2 := by
       gcongr with u mu; simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu
-      apply adjoint_refined_density_tree_bound1 (hg.indicator coeGrid_measurable)
+      apply adjoint_tree_estimate (hg.indicator coeGrid_measurable)
       · exact fun x ↦ (norm_indicator_le_norm_self ..).trans (h2g x)
       · exact mem_forest_of_mem mu
     _ ≤ (C7_3_1_1 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹) ^ 2 *
@@ -475,7 +475,7 @@ lemma indicator_row_bound (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖
     _ ≤ ∑ u with u ∈ t.rowDecomp j, (C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ *
         dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm ((𝓘 u : Set X).indicator g) 2) ^ 2 := by
       gcongr with u mu; simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu
-      apply adjoint_refined_density_tree_bound2 (hg.indicator coeGrid_measurable)
+      apply indicator_adjoint_tree_estimate (hg.indicator coeGrid_measurable)
       · exact fun x ↦ (norm_indicator_le_norm_self ..).trans (h2g x)
       · exact mem_forest_of_mem mu
     _ ≤ (C7_3_1_2 a *
