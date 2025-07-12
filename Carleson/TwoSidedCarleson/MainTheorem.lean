@@ -30,12 +30,6 @@ theorem two_sided_metric_carleson (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.
     {f : X → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, carlesonOperator K f x ≤
     C10_0_1 a q * (volume G) ^ (q' : ℝ)⁻¹ * (volume F) ^ (q : ℝ)⁻¹ := by
-  by_cases hG0 : volume G = 0
-  · rw [setLIntegral_measure_zero G _ hG0]; exact zero_le _
-  by_cases hF_top : volume F = ∞
-  · rw [hF_top, ← NNReal.val_eq_coe q, top_rpow_of_pos (inv_pos.mpr (lt_trans one_pos hq.1))]
-    apply le_of_le_of_eq le_top
-    exact mul_top (by simp [C10_0_1, C1_0_2, hG0, hqq'.sub_one_ne_zero]) |>.symm
   let c := (2 : ℝ) ^ (-2 * (a : ℝ) ^ 3)
   have two_pow_pos {y : ℝ} : 0 < ((2 : ℝ) ^ y) := Real.rpow_pos_of_pos two_pos y
   have : IsOneSidedKernel a (c • K) := by
