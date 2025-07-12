@@ -523,6 +523,13 @@ lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 0 < p')
   fun f hf ↦
     ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
 
+lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞}
+    (h : HasBoundedStrongType T p p' μ ν c) (x : ℝ≥0) :
+    HasBoundedStrongType (x • T) p p' μ ν (x • c) := by
+  intro f hf
+  rw [Pi.smul_apply, MeasureTheory.eLpNorm_const_smul']
+  exact ⟨(h f hf).1.const_smul _, le_of_le_of_eq (mul_le_mul_left' (h f hf).2 ‖x‖ₑ) (by simp; rfl)⟩
+
 end HasBoundedStrongType
 
 section distribution

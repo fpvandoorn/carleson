@@ -292,6 +292,28 @@ Use `ENNReal.toReal` to get the corresponding real number. -/
 def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
 
+private lemma carlesonOperatorIntegrand_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ)
+    (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperatorIntegrand (z • K) θ R₁ R₂ f = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
+  unfold carlesonOperatorIntegrand
+  ext x
+  simp_rw [Pi.smul_apply, smul_eq_mul, ← integral_const_mul]
+  congr with y
+  ring
+
+private lemma linearizedCarlesonOperator_const_smul [FunctionDistances ℝ X] (Q : X → Θ X)
+    (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    linearizedCarlesonOperator Q (z • K) f = ‖z‖ₑ • linearizedCarlesonOperator Q K f := by
+  unfold linearizedCarlesonOperator
+  simp_rw [carlesonOperatorIntegrand_const_smul, Pi.smul_apply, smul_eq_mul, enorm_mul, ← mul_iSup]
+  rfl
+
+lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperator (z • K) f = ‖z‖ₑ • carlesonOperator K f := by
+  unfold carlesonOperator
+  simp_rw [linearizedCarlesonOperator_const_smul, Pi.smul_apply, ← smul_iSup]
+  rfl
+
 end DoublingMeasure
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
@@ -339,6 +361,21 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
     ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
 
 export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
+
+lemma isOneSidedKernel_const_smul {a : ℕ} {K : X → X → ℂ} [IsOneSidedKernel a K] {z : ℂ}
+    (hz : ‖z‖ ≤ 1) :
+    IsOneSidedKernel a (z • K) where
+  measurable_K := measurable_K.const_smul z
+  norm_K_le_vol_inv x y := by
+    simp only [Pi.smul_apply, smul_eq_mul]
+    rw [← one_mul (_ / _), Complex.norm_mul]
+    gcongr
+    exact norm_K_le_vol_inv x y
+  norm_K_sub_le h := by
+    simp only [Pi.smul_apply, smul_eq_mul]
+    rw [← one_mul (_ ^ _ * _), ← mul_sub, Complex.norm_mul]
+    gcongr
+    exact norm_K_sub_le h
 
 lemma MeasureTheory.stronglyMeasurable_K [IsOneSidedKernel a K] :
     StronglyMeasurable (uncurry K) :=
@@ -418,7 +455,7 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
   rw [← mul_one (K x)]
   refine integrableOn_K_mul ?_ x hr ?_
-  · have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by intro y; simp [dist_comm y x]
+  · have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := Annulus.cc_subset_closedBall
     exact integrableOn_const ((measure_mono this).trans_lt measure_closedBall_lt_top).ne
   · intro y hy; simp [hy.1, dist_comm y x]
 
@@ -432,6 +469,17 @@ class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSid
 export IsTwoSidedKernel (enorm_K_sub_le')
 
 -- maybe show: `K` is a 2-sided kernel iff `K` and `fun x y ↦ K y x` are one-sided kernels.
+
+-- Not needed
+/- lemma isTwoSidedKernel_const_smul {a : ℕ} {K : X → X → ℂ} [IsTwoSidedKernel a K] {z : ℂ}
+    (hz : ‖z‖ ≤ 1) : IsTwoSidedKernel a (z • K) where
+  __ := isOneSidedKernel_const_smul hz
+  enorm_K_sub_le' h := by
+    simp only [Pi.smul_apply, smul_eq_mul]
+    rw [← one_mul (_ ^ _ * _), ← mul_sub, enorm_mul, ← ofReal_norm_eq_enorm z]
+    gcongr
+    · exact ofReal_le_one.mpr hz
+    · exact enorm_K_sub_le' h -/
 
 end Kernel
 
