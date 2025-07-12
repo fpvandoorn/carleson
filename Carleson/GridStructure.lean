@@ -75,6 +75,9 @@ so that we don't accidentally use it. We can put it back if useful after all. -/
 @[simp] lemma Grid.mem_def {x : X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
 @[simp] lemma Grid.le_def : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
 
+lemma Grid.eq_iff : i = j ↔ (i : Set X) = (j : Set X) ∧ s i = s j :=
+  ⟨fun h ↦ by simp [h], fun h ↦ by apply le_antisymm <;> simp [Grid.le_def, h]⟩
+
 lemma Grid.mem_mono {x:X} : Monotone (x ∈ · : Grid X → Prop) := by
   intro u u' hle hu
   rw [Grid.mem_def] at hu ⊢
