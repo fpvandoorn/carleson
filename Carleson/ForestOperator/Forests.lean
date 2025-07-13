@@ -698,45 +698,6 @@ lemma support_subset_of_norm_le_indicator {g : X → ℝ} {A : Set X} (h2f : ∀
   simp only [indicator_of_notMem hx,norm_le_zero_iff] at h2f
   exact h2f
 
--- move, give better name
-omit [TileStructure Q D κ S o] in
-lemma sum_disjoint_indicator_eLpNorm_le_eLpNorm (hg : BoundedCompactSupport g) {ι : Type*}
-  (s : Finset ι) {f : ι → Set X} (hf : ∀ i ∈ s, MeasurableSet (f i))
-    (hdisjoint : (s:Set ι).PairwiseDisjoint f) : ∑ u ∈ s, (
-    eLpNorm ((f u : Set X).indicator g) 2 volume) ^ 2 ≤ (eLpNorm g 2 volume) ^ 2 :=
-  calc _
-  _ = ∑ u ∈ s,ENNReal.ofReal (∫ (x : X) in (f u : Set X), ‖g x‖ ^2) := by
-    apply Finset.sum_congr rfl
-    intro u hu
-    rw [((hg.indicator (hf u hu)).memLp 2).eLpNorm_eq_integral_rpow_norm (by norm_num)
-      (by finiteness)]
-    simp only [ENNReal.toReal_ofNat, Real.rpow_two]
-    rw [← ENNReal.rpow_two,← ENNReal.ofReal_rpow_of_nonneg (by positivity) (by positivity),
-      ← ENNReal.rpow_mul, inv_mul_cancel₀ (by norm_num),ENNReal.rpow_one]
-    rw [← integral_indicator (hf u hu)]
-    simp_rw [pow_two,norm_indicator_eq_indicator_norm,Set.indicator_mul]
-  _ = ENNReal.ofReal (∫ (x : X) in (⋃ u ∈ s, f u),
-      ‖g x‖ ^2) := by
-    rw [← ENNReal.ofReal_sum_of_nonneg (fun _ _ => by positivity)]
-    rw [integral_finset_biUnion _ hf]
-    · exact hdisjoint
-    · simp only [pow_two]
-      exact fun _ _ => (hg.norm.mul hg.norm).integrable.integrableOn
-  _ ≤ ENNReal.ofReal (∫ (x : X), ‖g x‖ ^2) := by
-    gcongr
-    simp_rw [pow_two]
-    apply setIntegral_le_integral ((hg.norm.mul hg.norm).integrable)
-    rw [Filter.EventuallyLE]
-    apply Filter.Eventually.of_forall
-    intros
-    simp only [Pi.zero_apply, Pi.mul_apply, ← pow_two]
-    positivity
-  _ = (eLpNorm g 2 volume)^2 := by
-    rw [(hg.memLp 2).eLpNorm_eq_integral_rpow_norm (by norm_num) (by finiteness)]
-    simp only [ENNReal.toReal_ofNat, Real.rpow_two]
-    rw [← ENNReal.ofReal_rpow_of_nonneg (by positivity) (by positivity),
-      ← ENNReal.rpow_two,← ENNReal.rpow_mul,inv_mul_cancel₀ (by norm_num), ENNReal.rpow_one]
-
 open Classical in
 /-- Part of Lemma 7.7.2. -/
 lemma row_bound (_ : j < 2 ^ n) (hg : BoundedCompactSupport g)
@@ -774,7 +735,7 @@ lemma row_bound (_ : j < 2 ^ n) (hg : BoundedCompactSupport g)
     rw [← ENNReal.rpow_two, ← ENNReal.rpow_mul, mul_inv_cancel₀ (by norm_num),ENNReal.rpow_one]
   _ ≤ C7_7_2_1 a n * ((eLpNorm g 2 volume) ^2) ^(2⁻¹:ℝ) := by
     gcongr
-    apply sum_disjoint_indicator_eLpNorm_le_eLpNorm hg _ (fun _ _ => coeGrid_measurable)
+    apply sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint (fun _ => coeGrid_measurable)
     simp only [mem_rowDecomp_iff_mem_rowDecomp_𝔘, Finset.coe_filter, Finset.mem_univ, true_and,
       setOf_mem_eq]
     exact rowDecomp_𝔘_pairwiseDisjoint t j
@@ -822,7 +783,7 @@ lemma indicator_row_bound (_ : j < 2 ^ n) (hg : BoundedCompactSupport g)
   _ ≤ C7_7_2_2 a n * ((⨆ u' ∈ rowDecomp t j, dens₂ (t u')) ^ (2 : ℝ)⁻¹) *
       ((eLpNorm g 2 volume) ^2) ^(2⁻¹:ℝ) := by
     gcongr
-    apply sum_disjoint_indicator_eLpNorm_le_eLpNorm hg _ (fun _ _ => coeGrid_measurable)
+    apply sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint (fun _ => coeGrid_measurable)
     simp only [mem_rowDecomp_iff_mem_rowDecomp_𝔘, Finset.coe_filter, Finset.mem_univ, true_and,
       setOf_mem_eq]
     exact rowDecomp_𝔘_pairwiseDisjoint t j
