@@ -562,27 +562,6 @@ lemma isBounded_image_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : 
     IsBounded (f '' s) ↔ BddAbove ((‖f ·‖) '' s) := by
   rw [isBounded_iff_bddAbove_norm, ← image_comp, Function.comp_def]
 
-/-- A uniformly bounded above function supported on `s` can be scaled by a positive real number
-such that the scaled function is also supported on `s` **and** has norm bounded by 1.
-This is needed to generalise `density_tree_bound2` and `indicator_row_bound` so they can be applied
-in subsequent lemmas. -/
-lemma exists_scale_factor_of_bddAbove_range {X : Type*} {f : X → ℂ} {s : Set X}
-    (sf : support f ⊆ s) (bf : BddAbove (range (‖f ·‖))) :
-    ∃ k : ℝ, k > 0 ∧ ∀ x, ‖(k • f) x‖ ≤ s.indicator 1 x := by
-  simp_rw [bddAbove_def, mem_range, forall_exists_index, forall_apply_eq_imp_iff] at bf
-  obtain ⟨C, hC⟩ := bf
-  rcases le_or_gt C 1 with lC | lC
-  · refine ⟨1, by norm_num, fun x ↦ ?_⟩
-    rw [one_smul]; refine le_indicator_apply (fun hx ↦ (hC x).trans lC) (fun hx ↦ ?_)
-    simp [notMem_support.mp (notMem_subset sf hx)]
-  · refine ⟨C⁻¹, by positivity, fun x ↦ ?_⟩
-    refine le_indicator_apply (fun hx ↦ ?_) (fun hx ↦ ?_)
-    · rw [Pi.smul_apply, norm_smul, norm_inv, Real.norm_of_nonneg (by linarith)]
-      calc
-        _ ≤ C⁻¹ * C := by gcongr; exact hC x
-        _ = _ := inv_mul_cancel₀ (by positivity)
-    · simp [notMem_support.mp (notMem_subset sf hx)]
-
 end BddAbove
 
 namespace MeasureTheory
