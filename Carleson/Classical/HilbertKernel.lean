@@ -1,4 +1,5 @@
 import Carleson.Classical.Basic
+import Mathlib.Data.Real.Pi.Bounds
 
 /- This file contains definitions and lemmas regarding the Hilbert kernel. -/
 
@@ -21,20 +22,38 @@ lemma k_of_one_le_abs {x : ℝ} (abs_le_one : 1 ≤ |x|) : k x = 0 := by
   rw [k, max_eq_right (by linarith)]
   simp
 
-@[measurability]
+lemma k_le_of_le_abs {x r : ℝ} (hr : 0 < r) (hx : r ≤ |x|) : ‖k x‖ ≤ 2 / r := by
+  rcases le_or_gt 1 (|x|) with h'x | h'x
+  · simp only [k_of_one_le_abs h'x, norm_zero]
+    positivity
+  have : r / 2 ≤ ‖1 - exp (I * x)‖ := by
+    apply lower_secant_bound ?_ hx
+    have : r < 1 := by linarith
+    simp only [abs_lt] at h'x
+    exact ⟨by linarith [Real.pi_gt_three], by linarith [Real.pi_gt_three]⟩
+  simp only [k, Complex.norm_div, norm_real, Real.norm_eq_abs, ge_iff_le]
+  rw [abs_of_nonneg (by positivity)]
+  calc (max (1 - |x|) 0) / ‖1 - cexp (I * ↑x)‖
+  _ ≤ max 1 0 / (r / 2) := by
+    gcongr
+    linarith [abs_nonneg x]
+  _ = 2 / r := by simp
+
+@[fun_prop]
 lemma k_measurable : Measurable k := by
   unfold k
   fun_prop
 
-def K (x y : ℝ) : ℂ := k (x - y)
---TODO: maybe change to
---def K : ℝ → ℝ → ℂ := fun x y ↦ k (x - y)
+def K : ℝ → ℝ → ℂ := fun x y ↦ k (x - y)
+
+lemma K_def : K = fun x y ↦ k (x - y) := rfl
 
 lemma Hilbert_kernel_conj_symm {x y : ℝ} : K y x = conj (K x y) := by
   rw [K, ← neg_sub, k_of_neg_eq_conj_k, ← K]
 
-@[measurability]
-lemma Hilbert_kernel_measurable : Measurable (Function.uncurry K) := k_measurable.comp measurable_sub
+@[fun_prop]
+lemma Hilbert_kernel_measurable : Measurable (Function.uncurry K) :=
+  k_measurable.comp measurable_sub
 
 /- Lemma 11.1.11 (Hilbert kernel bound) -/
 lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := by
@@ -80,13 +99,15 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x
 
 /-Main part of the proof of Hilbert_kernel_regularity -/
 /-TODO: This can be local, i.e. invisible to other files. -/
-lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 0 ≤ y') (ypos : 0 < y) (y2ley' : y / 2 ≤ y') (hy : y ≤ 1) (hy' : y' ≤ 1) :
+lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 0 ≤ y') (ypos : 0 < y)
+    (y2ley' : y / 2 ≤ y') (hy : y ≤ 1) (hy' : y' ≤ 1) :
     ‖k (-y) - k (-y')‖ ≤ 2 ^ 6 * (1 / |y|) * (|y - y'| / |y|) := by
   rw [k_of_abs_le_one, k_of_abs_le_one]
   · simp only [abs_neg, ofReal_neg, mul_neg]
     rw [_root_.abs_of_nonneg yy'nonneg.1, _root_.abs_of_nonneg yy'nonneg.2]
     set f : ℝ → ℂ := fun t ↦ (1 - t) / (1 - exp (-(I * t))) with hf
-    set f' : ℝ → ℂ := fun t ↦ (-1 + exp (-(I * t)) + I * (t - 1) * exp (-(I * t))) / (1 - exp (-(I * t))) ^ 2 with f'def
+    set f' : ℝ → ℂ := fun t ↦ (-1 + exp (-(I * t)) + I * (t - 1) * exp (-(I * t)))
+      / (1 - exp (-(I * t))) ^ 2 with f'def
     set c : ℝ → ℂ := fun t ↦ (1 - t) with cdef
     set c' : ℝ → ℂ := fun t ↦ -1 with c'def
     set d : ℝ → ℂ := fun t ↦ (1 - exp (-(I * t))) with ddef
@@ -235,7 +256,8 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
     have := this h_ y_y'_nonneg
     rw [y_def, y'_def] at this
     simp only [neg_neg, abs_neg, sub_neg_eq_add, neg_add_eq_sub] at this
-    rw [← RCLike.norm_conj, map_sub, ← k_of_neg_eq_conj_k, ← k_of_neg_eq_conj_k, ←abs_neg (y' - y)] at this
+    rw [← RCLike.norm_conj, map_sub, ← k_of_neg_eq_conj_k, ← k_of_neg_eq_conj_k,
+      ← abs_neg (y' - y)] at this
     simpa
   /-"Wlog" 0 < y-/
   by_cases ypos : y ≤ 0

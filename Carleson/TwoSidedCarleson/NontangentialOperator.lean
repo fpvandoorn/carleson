@@ -291,7 +291,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       exact inter_subset_right
     · exact measurableSet_ball.compl
     · rw [← dom_x]
-      apply czoperator_welldefined hg hr
+      apply czOperator_welldefined hg hr
 
   -- Integral split x'
   have integral_x_prime : czOperator K r g x' = (∫ y in (bxprc ∩ bx2r), K x' y * g y) + (∫ y in bx2rᶜ, K x' y * g y) := by
@@ -303,7 +303,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     · rw [disjoint_compl_right_iff_subset]
       exact inter_subset_right
     · rw [← dom_x_prime]
-      exact czoperator_welldefined hg hr ..
+      exact czOperator_welldefined hg hr ..
 
   rw [edist_eq_enorm_sub, integral_x, integral_x_prime]
 
@@ -318,9 +318,9 @@ theorem estimate_x_shift (ha : 4 ≤ a)
                 + (∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y)
                 - (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y) := by
           rw[← integral_sub]
-          · apply czoperator_welldefined hg (mul_pos zero_lt_two hr)
+          · apply czOperator_welldefined hg (mul_pos zero_lt_two hr)
           · apply IntegrableOn.mono_set (hst := ball2_sub_ballprime)
-            apply czoperator_welldefined hg hr
+            apply czOperator_welldefined hg hr
 
   apply enorm_sub_le.trans
   trans ‖∫ (y : X) in bxrc ∩ bx2r, K x y * g y‖ₑ + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
@@ -362,11 +362,11 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
   rw [← integral_indicator (by measurability), ← integral_indicator (by measurability), ← integral_sub]
   rotate_left
   · rw [integrable_indicator_iff (by measurability)]
-    apply czoperator_welldefined
+    apply czOperator_welldefined
     · apply BoundedFiniteSupport.indicator hg (by measurability)
     · rw [mem_Ioc] at hr; exact hr.1
   · rw [integrable_indicator_iff (by measurability)]
-    apply czoperator_welldefined _ R_pos
+    apply czOperator_welldefined _ R_pos
     apply BoundedFiniteSupport.indicator hg (by measurability)
   calc _
     _ = ‖∫ (y : X), ((ball x' R) \ (ball x' r ∪ ball x (R / 2))).indicator (fun y ↦ K x' y * g y) y‖ₑ := by
@@ -640,7 +640,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   apply (Measure.restrict_le_self _).trans
   let g1 := (ball x (R / 2)).indicator g
   have bfs_g1 : BoundedFiniteSupport g1 := hg.indicator measurableSet_ball
-  have czw11 := czoperator_weak_1_1 ha hr (hT r hr)
+  have czw11 := czOperator_weak_1_1 ha hr (hT r hr)
   unfold HasBoundedWeakType at czw11
   have := (czw11 (f := g1) bfs_g1).2
   unfold wnorm wnorm' distribution at this
@@ -715,7 +715,7 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   have hxx' := mem_ball.mp hx'.2
   rw [dist_comm] at hxx'
   apply cotlar_control ha hg hr hxx'.le |> le_trans
-  rw [indicator_compl, czoperator_sub hg (hg.indicator measurableSet_ball) hr.1, Pi.sub_apply]
+  rw [indicator_compl, czOperator_sub hg (hg.indicator measurableSet_ball) hr.1, Pi.sub_apply]
   have h1x' : ‖czOperator K r g x'‖ₑ ≤ 4 * globalMaximalFunction volume 1 (czOperator K r g) x := by
     suffices x' ∉ F1 by
       rw [notMem_setOf_iff, not_lt] at this
@@ -924,7 +924,7 @@ theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ 
   by_cases hR1R2 : R₁ < R₂
   case neg => rw [Ioo_eq_empty hR1R2, ContinuousWithinAt, nhdsWithin_empty]; exact Filter.tendsto_bot
   conv => arg 1; intro R; rw [← integral_indicator (by measurability)]
-  obtain ⟨B, hB⟩ := czoperator_bound (K := K) (r := R₁) hg hR₁ x
+  obtain ⟨B, hB⟩ := czOperator_bound (K := K) (r := R₁) hg hR₁ x
   rw [ae_restrict_iff' (by measurability), ← Annulus.ci_eq] at hB
   let bound (y : X) : ℝ := (Annulus.oo x R₁ R₂).indicator (fun y ↦ B) y
   apply continuousWithinAt_of_dominated (bound := bound)
@@ -981,7 +981,7 @@ theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R
   by_cases hR1R2 : R₁ < R₂
   case neg => rw [Ioo_eq_empty hR1R2, ContinuousWithinAt, nhdsWithin_empty]; exact Filter.tendsto_bot
   conv => arg 1; intro R; rw [← integral_indicator (by measurability)]
-  obtain ⟨B, hB⟩ := czoperator_bound (K := K) (r := R₂ / 2) hg (by linarith [hR₁.trans_lt hR1R2]) x
+  obtain ⟨B, hB⟩ := czOperator_bound (K := K) (r := R₂ / 2) hg (by linarith [hR₁.trans_lt hR1R2]) x
   rw [ae_restrict_iff' (by measurability), ← Annulus.ci_eq] at hB
   let bound (y : X) : ℝ := (Annulus.oo x (R₂ / 2) R₂).indicator (fun y ↦ B) y
   apply continuousWithinAt_of_dominated (bound := bound)
@@ -1053,7 +1053,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       rw [this, setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2)
         (by measurability)]; swap
       · simp_rw [← this]
-        apply IntegrableOn.mono_set <| czoperator_welldefined hf hR₁.1 x'
+        apply IntegrableOn.mono_set <| czOperator_welldefined hf hR₁.1 x'
         rw [← Annulus.ci_eq]
         exact Annulus.oo_subset_ci (by rfl)
       apply le_trans <| enorm_add_le _ _
@@ -1083,7 +1083,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
         Annulus.oo_union_co hR'.2 hR₁.2.le |>.symm
       rw [← setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2) (by measurability), ← this]; swap
       · simp_rw [← this]
-        apply IntegrableOn.mono_set <| czoperator_welldefined hf hR'pos x'
+        apply IntegrableOn.mono_set <| czOperator_welldefined hf hR'pos x'
         rw [← Annulus.ci_eq]
         exact Annulus.oo_subset_ci (by rfl)
       apply le_trans enorm_sub_le
@@ -1151,7 +1151,7 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
         rw [diff_eq_compl_inter, inter_eq_right, compl_subset_compl]
         exact ball_subset_ball hR1R2.le
       rw [this, setIntegral_union_2 (disjoint_compl_left_iff_subset.mpr diff_subset) (by measurability)
-        (by rw [← this]; exact czoperator_welldefined (K := K) hg hR1 x')]
+        (by rw [← this]; exact czOperator_welldefined (K := K) hg hR1 x')]
       simp
     trans ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
         ‖∫ (y : X) in (ball x' R₁)ᶜ, K x' y * g y‖ₑ + ‖∫ (y : X) in (ball x' R₂)ᶜ, K x' y * g y‖ₑ
