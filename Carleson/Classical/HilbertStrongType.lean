@@ -485,7 +485,7 @@ lemma eLpNorm_convolution_dirichletApprox {g : ℝ → ℂ} {n : ℕ} (hg : MemL
 
 /- To proceed, we will rewrite `dirichletApprox` as the sum of two terms: one is the kernel
 of the Hilbert transform, and the other one will be uniformly bounded in `L^1` (and therefore
-its action on `L^2` will be uniformly bounded). It will follow that the Hilber transform
+its action on `L^2` will be uniformly bounded). It will follow that the Hilberr transform
 is bounded on `L^2 ((0, 2π]))`, from which the boundedness on the whole real line will follow.
 
 The second term in the decomposition of `dirichletApprox` is built in terms of an auxiliary
@@ -687,9 +687,9 @@ lemma dist_dirichletApprox_le
 
 /-- As the kernel of the Hilbert transform is well approximated by `dirichletApprox`, up to an
 error controlled by `12 * niceKernel r`, we may bound `czOperator K` in terms of these. As the
-approximation only works in an interval, this statement is only true for a point `x` in `[2, 3]` and
-a function supported in `[1, 4]`, as this means all values of the approximation that will show up
-will be in `[-2, 2] ⊆ [-π, π]`. -/
+approximation only works in the interval `[-π, π]`, this statement is only true for a
+point `x` in `[2, 3]` and a function supported in `[1, 4]`, as this means all values of the
+approximation that will show up will be in `[-2, 2] ⊆ [-π, π]`. -/
 lemma norm_czOperator_le_add
     {g : ℝ → ℂ} {r x : ℝ} (hr : r ∈ Ioo 0 1) {n : ℕ} (hn : n = ⌈r⁻¹⌉₊)
     (hg : MemLp g ∞ volume)
@@ -764,7 +764,7 @@ with `dirichletApprox`, bounded as it is an average of Fourier projections, and 
 a kernel uniformly bounded in `L^1` and is therefore controlled by Young inequality.
 
 In this version, we assume that the function is supported in `[1, 4]`, but we will drop this
-assumption just after this lemma, in `eLpNorm_czOperator_restrict`.
+assumption just after this lemma, in `eLpNorm_czOperator_restrict_two_three`.
 -/
 lemma eLpNorm_czOperator_restrict_two_three_of_support_subset {g : ℝ → ℂ} {r : ℝ}
     (hr : r ∈ Ioo 0 1) (hg : MemLp g ∞ volume) (h'g : support g ⊆ Icc 1 4) :
@@ -977,6 +977,9 @@ lemma eLpNorm_czOperator {g : ℝ → ℂ} {r : ℝ} (hr : 0 < r) (hg : MemLp g 
 
 /- Lemma 11.1.6.
 This verifies the assumption on the operators T_r in two-sided metric space Carleson.
+
+Note: we might be able to simplify the proof in the blueprint by using real interpolation
+`MeasureTheory.exists_hasStrongType_real_interpolation`.
 -/
 lemma Hilbert_strong_2_2 ⦃r : ℝ⦄ (hr : 0 < r) :
     HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts 4) := by
