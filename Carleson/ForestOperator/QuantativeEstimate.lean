@@ -434,10 +434,8 @@ private lemma density_tree_bound_aux
       rw [← ENNReal.rpow_add_of_nonneg _ _ (by positivity) (by positivity)]
       congr; push_cast; ring
 
-/--
-`density_tree_bound1` with support assumptions rather than indicator assumptions.
--/
-lemma density_tree_bound1'
+/-- First part of Lemma 7.3.1. -/
+lemma density_tree_bound1
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
     (h2g : g.support ⊆ G)
     (hu : u ∈ t) :
@@ -448,21 +446,6 @@ lemma density_tree_bound1'
     apply le_of_le_of_eq <| eLpNorm_approxOnCube_two_le pairwiseDisjoint_𝓙 .univ this hf (by tauto)
     rw [ENNReal.one_rpow]
   simpa using density_tree_bound_aux hf hc hg h2g hu
-
-/-- First part of Lemma 7.3.1. -/
-lemma density_tree_bound1
-    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
-    (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hu : u ∈ t) :
-    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
-    C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  apply density_tree_bound1' hf hg _ hu
-  intro x
-  simp only [mem_support, ne_eq]
-  rw [← norm_le_zero_iff]
-  contrapose!
-  intro hx
-  simpa [hx] using h2g x
 
 
 omit [TileStructure Q D κ S o] in
@@ -494,10 +477,8 @@ version of Lemma 7.2.1. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (303 * (a : ℝ) ^ 3)
 
-/--
-`density_tree_bound2` with support assumptions rather than indicator assumptions.
--/
-lemma density_tree_bound2'
+/-- Second part of Lemma 7.3.1. -/
+lemma density_tree_bound2
     (hf : BoundedCompactSupport f)
     (h2f : f.support ⊆ F)
     (hg : BoundedCompactSupport g)
@@ -524,30 +505,5 @@ lemma density_tree_bound2'
         ← ENNReal.coe_mul, ← NNReal.rpow_mul, ← NNReal.rpow_add two_pos.ne.symm,
         ENNReal.coe_rpow_of_nonneg _ (by positivity), ENNReal.coe_rpow_of_nonneg _ (by positivity)]
       ring_nf
-
-/-- Second part of Lemma 7.3.1. -/
-lemma density_tree_bound2
-    (hf : BoundedCompactSupport f)
-    (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : BoundedCompactSupport g)
-    (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hu : u ∈ t) :
-    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
-    C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
-    eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  apply density_tree_bound2' hf _ hg _ hu
-  · intro x
-    simp only [mem_support, ne_eq]
-    rw [← norm_le_zero_iff]
-    contrapose!
-    intro hx
-    simpa [hx] using h2f x
-  · intro x
-    simp only [mem_support, ne_eq]
-    rw [← norm_le_zero_iff]
-    contrapose!
-    intro hx
-    simpa [hx] using h2g x
-
 
 end TileStructure.Forest
