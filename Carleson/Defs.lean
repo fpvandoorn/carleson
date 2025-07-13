@@ -748,6 +748,11 @@ lemma q_nonneg : 0 ≤ q := (q_pos X).le
 lemma inv_q_sub_half_nonneg : 0 ≤ q⁻¹ - 2⁻¹ := by
   simp [inv_le_inv₀ zero_lt_two (q_pos X), q_le_two X]
 
+-- Note: For exponent computations it is usually cleaner to argue in terms
+-- of `q⁻¹` rather than `q`, both on paper and in Lean.
+lemma inv_q_mem_Ico : q⁻¹ ∈ Ico 2⁻¹ 1 := ⟨by linarith only [inv_q_sub_half_nonneg X],
+  inv_one (G := ℝ) ▸ inv_lt_inv₀ (q_pos X) zero_lt_one |>.mpr <| one_lt_q X⟩
+
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
 
