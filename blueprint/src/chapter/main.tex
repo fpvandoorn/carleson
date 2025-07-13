@@ -4812,7 +4812,7 @@ The main result of this subsection is the following quantitative bound for opera
     \leanok
     \lean{TileStructure.Forest.density_tree_bound1, TileStructure.Forest.density_tree_bound2}
     \uses{tree-projection-estimate,local-dens1-tree-bound,local-dens2-tree-bound}
-    Let $\fu \in \fU$. Then for all bounded $f$ with bounded support and $g$ with $|g| \le \mathbf{1}_G$
+    Let $\fu \in \fU$. Then for all bounded $f$ with bounded support and bounded $g$ supported on $G$
     we have
     \begin{equation}
         \label{eq-cor-tree-est}
@@ -5102,7 +5102,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
     \leanok
     \lean{TileStructure.Forest.adjoint_tree_estimate, TileStructure.Forest.indicator_adjoint_tree_estimate}
     \uses{densities-tree-bound}
-    For all $g$ with $|g| \le \mathbf{1}_G$, we have that
+    For all bounded $g$ supported on $G$ we have that
     $$
         \left\| \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{202.5a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,,
     $$
@@ -5136,7 +5136,7 @@ $$
     \leanok
     \lean{TileStructure.Forest.adjoint_tree_control}
     \uses{adjoint-tree-estimate}
-    We have for all $\fu \in \fU$ and $g$ with $|g| \le \mathbf{1}_G$
+    We have for all $\fu \in \fU$ and all bounded $g$ supported on $G$
     $$
         \|S_{2, \fu} g\|_2 \le 2^{203a^3} \|g\|_2\,.
     $$
@@ -6128,7 +6128,7 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     \leanok
     \lean{TileStructure.Forest.row_bound, TileStructure.Forest.indicator_row_bound}
     \uses{adjoint-tile-support,adjoint-tree-estimate}
-    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $|g| \le \mathbf{1}_G$, we have
+    For each $1 \le j \le 2^n$ and each bounded $g$ supported on $G$ we have
     \begin{equation}
         \label{eq-row-bound-1}
         \left\| T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{203a^3} 2^{-n/2} \|g\|_2
@@ -6142,7 +6142,7 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
 
 \begin{proof}
     \leanok
-    Since for each $j$ the top cubes $\scI(\fu)$, $\fu \in \fU_j$ are disjoint, we have for all bounded $g$ of bounded support and $|g| \le \mathbf{1}_G$ by \Cref{adjoint-tile-support}
+    Since for each $j$ the top cubes $\scI(\fu)$, $\fu \in \fU_j$ are disjoint, we have for all bounded $g$ supported on $G$ by \Cref{adjoint-tile-support}
     $$
         \left\|\mathbf{1}_F \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2^2 = \left\|\mathbf{1}_F \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} \mathbf{1}_{\scI(\fu)} T_{\fp}^* \mathbf{1}_{\scI(\fu)} g\right\|_2^2
     $$
@@ -6161,14 +6161,12 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     Thus \eqref{eq-row-bound-2} follows, since $a \ge 4$. The proof of \eqref{eq-row-bound-1} is the same up to replacing $F$ by $X$.
 \end{proof}
 
-Because all involved operators are linear, \eqref{eq-row-bound-2} is also true for uniformly bounded functions $g$ supported on $G$. This generalization will be needed for \Cref{forest-operator}.
-
 \begin{lemma}[row correlation]
     \label{row-correlation}
     \leanok
     \lean{TileStructure.Forest.row_correlation}
     \uses{adjoint-tree-control,correlation-separated-trees}
-    For all $1 \le j,j' \le 2^n$ with $j\ne j'$ and for all $g_1, g_2$ with $|g_i| \le \mathbf{1}_G$, it holds that
+    For all $1 \le j,j' \le 2^n$ with $j\ne j'$ and for all bounded $g_1, g_2$ supported on $G$, it holds that
     $$
         \left| \int T_{\mathfrak{R}_j}^*g_1 \overline{T_{\mathfrak{R}_{j'}}^*g_2} \, \mathrm{d}\mu \right| \le
         2^{939a^3+1-4n}\|g_1\|_2 \|g_2\|_2\,.

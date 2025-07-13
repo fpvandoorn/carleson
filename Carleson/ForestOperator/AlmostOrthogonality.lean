@@ -119,14 +119,14 @@ lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
       gcongr; norm_num
 
 lemma adjoint_density_tree_bound1 (hf : BoundedCompactSupport f)
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
+    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
     ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound1 hf hg h2g hu
+  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound1 hf hg sg hu
 
 /-- Part 1 of Lemma 7.4.2. -/
 lemma adjoint_tree_estimate
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
+    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
     eLpNorm (adjointCarlesonSum (t u) g) 2 volume ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
   by_cases h : eLpNorm (adjointCarlesonSum (t u) g) 2 = 0
@@ -136,21 +136,21 @@ lemma adjoint_tree_estimate
     eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
     mul_comm (eLpNorm g 2 volume), ← mul_assoc]
   conv_lhs => enter [1, 2, x]; rw [mul_comm]
-  exact adjoint_density_tree_bound1 bcs hg h2g hu
+  exact adjoint_density_tree_bound1 bcs hg sg hu
 
 lemma adjoint_density_tree_bound2
     (hf : BoundedCompactSupport f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
+    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
     ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound2 hf h2f hg h2g hu
+  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound2 hf h2f hg sg hu
 
 /-- `adjoint_density_tree_bound2` generalised to uniformly bounded above functions
 (not necessarily by 1) supported on `F`. -/
 lemma adjoint_density_tree_bound2'
     (hf : BoundedCompactSupport f) (sf : support f ⊆ F) (bf : BddAbove (range (‖f ·‖)))
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
+    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
     ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
@@ -158,7 +158,7 @@ lemma adjoint_density_tree_bound2'
   have key : ‖∫ x, conj (adjointCarlesonSum (t u) g x) * (k • f) x‖ₑ ≤
       C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
       eLpNorm (k • f) 2 volume * eLpNorm g 2 volume :=
-    adjoint_density_tree_bound2 (hf.const_mul k) h2f hg h2g hu
+    adjoint_density_tree_bound2 (hf.const_mul k) h2f hg sg hu
   have bubble_k : ‖∫ x, conj (adjointCarlesonSum (t u) g x) * (k • f) x‖ₑ =
       ‖k‖ₑ * ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ := by
     rw [← Complex.enorm_real k, ← enorm_mul, ← integral_const_mul]; congr! 3 with _ x
@@ -169,7 +169,7 @@ lemma adjoint_density_tree_bound2'
 
 /-- Part 2 of Lemma 7.4.2. -/
 lemma indicator_adjoint_tree_estimate
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hu : u ∈ t) :
+    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
     eLpNorm (F.indicator (adjointCarlesonSum (t u) g)) 2 ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 := by
   by_cases h : eLpNorm (F.indicator (adjointCarlesonSum (t u) g)) 2 = 0
@@ -186,7 +186,7 @@ lemma indicator_adjoint_tree_estimate
       rw [map_mul, conj_indicator, map_one, ← mul_assoc, mul_comm _ (F.indicator 1 x),
         ← indicator_eq_indicator_one_mul, indicator_indicator, inter_self, mul_comm]
     _ ≤ _ := by
-      refine adjoint_density_tree_bound2' bcs support_indicator_subset ?_ hg h2g hu
+      refine adjoint_density_tree_bound2' bcs support_indicator_subset ?_ hg sg hu
       exact BddAbove.range_mono (‖adjointCarlesonSum (t u) g ·‖)
         (fun _ ↦ norm_indicator_le_norm_self ..) hg.bddAbove_norm_adjointCarlesonSum
 
@@ -227,25 +227,25 @@ lemma C7_4_3_le (ha : 4 ≤ a) : C7_4_3 a ≤ 2 ^ (203 * a ^ 3) := by
 
 /-- Lemma 7.4.3. -/
 lemma adjoint_tree_control
-    (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
-    eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤ C7_4_3 a * eLpNorm f 2 volume := by
-  have m₁ : AEStronglyMeasurable (‖adjointCarlesonSum (t u) f ·‖ₑ) :=
-    hf.aestronglyMeasurable.adjointCarlesonSum.enorm.aestronglyMeasurable
-  have m₂ : AEStronglyMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) := .maximalFunction 𝓑.to_countable
-  have m₃ : AEStronglyMeasurable (‖f ·‖ₑ) := hf.aestronglyMeasurable.enorm.aestronglyMeasurable
+    (hu : u ∈ t) (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) :
+    eLpNorm (adjointBoundaryOperator t u g ·) 2 volume ≤ C7_4_3 a * eLpNorm g 2 volume := by
+  have m₁ : AEStronglyMeasurable (‖adjointCarlesonSum (t u) g ·‖ₑ) :=
+    hg.aestronglyMeasurable.adjointCarlesonSum.enorm.aestronglyMeasurable
+  have m₂ : AEStronglyMeasurable (MB volume 𝓑 c𝓑 r𝓑 g ·) := .maximalFunction 𝓑.to_countable
+  have m₃ : AEStronglyMeasurable (‖g ·‖ₑ) := hg.aestronglyMeasurable.enorm.aestronglyMeasurable
   calc
-    _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) f x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume +
-        eLpNorm (‖f ·‖ₑ) 2 volume := eLpNorm_add_le (m₁.add m₂) m₃ one_le_two
-    _ ≤ eLpNorm (‖adjointCarlesonSum (t u) f ·‖ₑ) 2 volume +
-        eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume + eLpNorm (‖f ·‖ₑ) 2 volume := by
+    _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) g x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 g x) 2 volume +
+        eLpNorm (‖g ·‖ₑ) 2 volume := eLpNorm_add_le (m₁.add m₂) m₃ one_le_two
+    _ ≤ eLpNorm (‖adjointCarlesonSum (t u) g ·‖ₑ) 2 volume +
+        eLpNorm (MB volume 𝓑 c𝓑 r𝓑 g ·) 2 volume + eLpNorm (‖g ·‖ₑ) 2 volume := by
       gcongr; apply eLpNorm_add_le m₁ m₂ one_le_two
-    _ ≤ C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume +
-        CMB (defaultA a) 2 * eLpNorm f 2 volume + eLpNorm f 2 volume := by
+    _ ≤ C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume +
+        CMB (defaultA a) 2 * eLpNorm g 2 volume + eLpNorm g 2 volume := by
       gcongr
-      · exact adjoint_tree_estimate hf h2f hu
-      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two) _ (hf.memLp _) |>.2
+      · exact adjoint_tree_estimate hg h2g hu
+      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two) _ (hg.memLp _) |>.2
       · rfl
-    _ ≤ (C7_3_1_1 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
+    _ ≤ (C7_3_1_1 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm g 2 volume := by
       simp_rw [add_mul, one_mul]; gcongr; exact dens₁_le_one
     _ ≤ _ := by
       rw [C7_4_3, ENNReal.coe_add, ENNReal.coe_add, ENNReal.one_rpow, mul_one, ENNReal.coe_one]

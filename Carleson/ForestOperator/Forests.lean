@@ -370,7 +370,7 @@ lemma le_C7_7_2_1 (a4 : 4 ≤ a) :
       _ = _ := by ring
 
 /-- Part of Lemma 7.7.2. -/
-lemma row_bound (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+lemma row_bound (hg : BoundedCompactSupport g) (sg : support g ⊆ G) :
     eLpNorm (adjointCarlesonRowSum t j g) 2 volume ≤ C7_7_2_1 a n * eLpNorm g 2 volume := by
   rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (2 : ℕ) by norm_num),
     ENNReal.rpow_natCast, ENNReal.rpow_natCast]
@@ -400,7 +400,7 @@ lemma row_bound (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.ind
         (C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm ((𝓘 u : Set X).indicator g) 2) ^ 2 := by
       gcongr with u mu; simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu
       apply adjoint_tree_estimate (hg.indicator coeGrid_measurable)
-      · exact fun x ↦ (norm_indicator_le_norm_self ..).trans (h2g x)
+      · rw [support_indicator]; exact inter_subset_right.trans sg
       · exact mem_forest_of_mem mu
     _ ≤ (C7_3_1_1 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹) ^ 2 *
         ∑ u with u ∈ t.rowDecomp j, eLpNorm ((𝓘 u : Set X).indicator g) 2 ^ 2 := by
@@ -436,7 +436,7 @@ lemma le_C7_7_2_2 (a4 : 4 ≤ a) :
       _ = _ := by ring
 
 /-- Part of Lemma 7.7.2. -/
-lemma indicator_row_bound (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+lemma indicator_row_bound (hg : BoundedCompactSupport g) (sg : support g ⊆ G) :
     eLpNorm (F.indicator (adjointCarlesonRowSum t j g)) 2 volume ≤
     C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
   rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (2 : ℕ) by norm_num),
@@ -476,7 +476,7 @@ lemma indicator_row_bound (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖
         dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm ((𝓘 u : Set X).indicator g) 2) ^ 2 := by
       gcongr with u mu; simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu
       apply indicator_adjoint_tree_estimate (hg.indicator coeGrid_measurable)
-      · exact fun x ↦ (norm_indicator_le_norm_self ..).trans (h2g x)
+      · rw [support_indicator]; exact inter_subset_right.trans sg
       · exact mem_forest_of_mem mu
     _ ≤ (C7_3_1_2 a *
         (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹) ^ 2 *
@@ -496,7 +496,7 @@ lemma indicator_row_bound (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖
         simp_rw [Finset.coe_filter, Finset.mem_univ, true_and]; rfl
 
 open Classical in
-lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
+lemma row_correlation_aux (hf : BoundedCompactSupport f) (sf : support f ⊆ G) :
     (∑ u with u ∈ t.rowDecomp j, ∑ u' with u' ∈ t.rowDecomp j',
     eLpNorm ((𝓘 u ∩ 𝓘 u' : Set X).indicator
       (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f)) ·) 2 volume ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ ≤
@@ -528,9 +528,7 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : ∀ x, ‖f x‖ 
       gcongr with u mu
       simp_rw [U, Finset.mem_filter, Finset.mem_univ, true_and] at mu
       apply adjoint_tree_control (mem_forest_of_mem mu) (hf.indicator coeGrid_measurable)
-      intro x; by_cases mx : x ∈ 𝓘 u
-      · rw [indicator_of_mem mx]; exact nf x
-      · rw [indicator_of_notMem mx, norm_zero]; simp [le_indicator_apply]
+      rw [support_indicator]; exact inter_subset_right.trans sf
     _ ≤ C7_4_3 a * (eLpNorm f 2 volume ^ 2) ^ (2 : ℝ)⁻¹ := by
       simp_rw [mul_pow]
       rw [← Finset.mul_sum, ENNReal.mul_rpow_of_nonneg _ _ (by positivity), ← ENNReal.rpow_natCast,
@@ -548,8 +546,8 @@ irreducible_def C7_7_3 (a n : ℕ) : ℝ≥0 := C7_4_3 a ^ 2 * C7_4_4 a n
 
 /-- Lemma 7.7.3. -/
 lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
-    (hf₁ : BoundedCompactSupport f₁) (nf₁ : ∀ x, ‖f₁ x‖ ≤ G.indicator 1 x)
-    (hf₂ : BoundedCompactSupport f₂) (nf₂ : ∀ x, ‖f₂ x‖ ≤ G.indicator 1 x) :
+    (hf₁ : BoundedCompactSupport f₁) (sf₁ : support f₁ ⊆ G)
+    (hf₂ : BoundedCompactSupport f₂) (sf₂ : support f₂ ⊆ G) :
     ‖∫ x, adjointCarlesonRowSum t j f₁ x * conj (adjointCarlesonRowSum t j' f₂ x)‖ₑ ≤
     C7_7_3 a n * eLpNorm f₁ 2 volume * eLpNorm f₂ 2 volume := by
   classical
@@ -560,11 +558,11 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
     (adjointBoundaryOperator t w.2 ((𝓘 w.2 : Set X).indicator f₂)) ·) 2 volume
   have N₁_bound : (∑ w ∈ W, N₁ w ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ ≤ C7_4_3 a * eLpNorm f₁ 2 volume := by
     unfold W N₁; rw [Finset.sum_product]
-    exact row_correlation_aux hf₁ nf₁
+    exact row_correlation_aux hf₁ sf₁
   have N₂_bound : (∑ w ∈ W, N₂ w ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ ≤ C7_4_3 a * eLpNorm f₂ 2 volume := by
     unfold W N₂; rw [Finset.sum_product, Finset.sum_comm]; dsimp only
     conv_lhs => enter [1, 2, u', 2, u]; rw [inter_comm]
-    exact row_correlation_aux hf₂ nf₂
+    exact row_correlation_aux hf₂ sf₂
   calc
     _ = ‖∫ x, ∑ u with u ∈ rowDecomp t j, ∑ u' with u' ∈ rowDecomp t j',
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
@@ -783,15 +781,15 @@ lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.i
         ∑ j ∈ Finset.range (2 ^ n), ∑ j' ∈ Finset.range (2 ^ n) with j ≠ j',
           C7_7_3 a n * eLpNorm ((rowSupport t j).indicator g) 2 *
           eLpNorm ((rowSupport t j').indicator g) 2 := by
-      have nleg {j : ℕ} (x : X) : ‖(t.rowSupport j).indicator g x‖ ≤ G.indicator 1 x := by
-        by_cases mx : x ∈ t.rowSupport j
-        · rw [indicator_of_mem mx]; exact h2g x
-        · rw [indicator_of_notMem mx, norm_zero]; exact indicator_apply_nonneg fun _ ↦ by simp
+      have sg {j : ℕ} : support ((t.rowSupport j).indicator g) ⊆ G := by
+        rw [support_indicator]; apply inter_subset_right.trans
+        rw [support_subset_iff']; intro x nx
+        specialize h2g x; rwa [indicator_of_notMem nx, norm_le_zero_iff] at h2g
       gcongr with j mj j mj j' mj'
       · simp_rw [Finset.mem_range] at mj
-        exact row_bound (bcsrsi j) nleg
+        exact row_bound (bcsrsi j) sg
       · simp_rw [Finset.mem_filter, Finset.mem_range] at mj mj'
-        exact row_correlation mj mj'.1 mj'.2 (bcsrsi j) nleg (bcsrsi j') nleg
+        exact row_correlation mj mj'.1 mj'.2 (bcsrsi j) sg (bcsrsi j') sg
     _ ≤ C7_7_2_1 a n ^ 2 *
         ∑ j ∈ Finset.range (2 ^ n), eLpNorm ((rowSupport t j).indicator g) 2 ^ 2 +
         C7_7_3 a n * ∑ j ∈ Finset.range (2 ^ n), ∑ j' ∈ Finset.range (2 ^ n),
@@ -868,27 +866,6 @@ lemma forest_operator_f_prelude
         ((BoundedCompactSupport.finset_sum fun _ _ ↦
           bf.carlesonSum).indicator measurableSet_G).enorm.aestronglyMeasurable.aemeasurable
 
-/-- Lemma 7.7.2 generalised to uniformly bounded above functions (not necessarily by 1)
-supported on `G`. -/
-lemma indicator_row_bound' (hf : BoundedCompactSupport f)
-    (sf : support f ⊆ G) (bf : BddAbove (range (‖f ·‖))) :
-    eLpNorm (F.indicator (adjointCarlesonRowSum t j f)) 2 ≤
-    C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 := by
-  obtain ⟨k, kpos, h2f⟩ := exists_scale_factor_of_bddAbove_range sf bf
-  have key : eLpNorm (F.indicator (adjointCarlesonRowSum t j (k • f))) 2 ≤ _ :=
-    indicator_row_bound (t := t) (hf.const_mul k) h2f
-  have bubble_k : F.indicator (adjointCarlesonRowSum t j (k • f)) =
-      k • F.indicator (adjointCarlesonRowSum t j f) := by
-    ext x; rw [Pi.smul_apply, ← indicator_const_smul_apply]
-    apply indicator_eq_indicator Iff.rfl; unfold adjointCarlesonRowSum
-    rw [Finset.smul_sum]; congr! with u mu; unfold adjointCarlesonSum
-    rw [Finset.smul_sum]; congr! with p mp; unfold adjointCarleson
-    rw [← integral_smul]; congr with x
-    rw [← mul_smul_comm, Pi.smul_apply]
-  have ek_ne_zero : ‖k‖ₑ ≠ 0 := by rw [enorm_ne_zero]; exact kpos.ne'
-  rwa [bubble_k, eLpNorm_const_smul, eLpNorm_const_smul, mul_comm ‖k‖ₑ, mul_comm ‖k‖ₑ,
-    ← mul_assoc, ENNReal.mul_le_mul_right ek_ne_zero enorm_ne_top] at key
-
 /-- https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Problems.20in.20the.20forest.20operator.20proposition/near/522771057 -/
 lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     eLpNorm (G.indicator (carlesonRowSum t j f)) 2 ≤
@@ -928,11 +905,7 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
       · exact ((BoundedCompactSupport.finset_sum fun _ _ ↦ bIGTf.adjointCarlesonSum).indicator
           measurableSet_F).enorm.aestronglyMeasurable.aemeasurable
       · exact bf.enorm.aestronglyMeasurable.aemeasurable
-    _ ≤ _ := by
-      refine mul_le_mul_right' (indicator_row_bound' bIGTf support_indicator_subset ?_) _
-      apply BddAbove.range_mono (‖carlesonRowSum t j f ·‖) fun _ ↦ norm_indicator_le_norm_self ..
-      apply BddAbove.range_mono _ fun _ ↦ norm_sum_le ..
-      exact .range_finsetSum fun _ _ ↦ bf.bddAbove_norm_carlesonSum
+    _ ≤ _ := by exact mul_le_mul_right' (indicator_row_bound bIGTf support_indicator_subset) _
 
 open Classical in
 lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
