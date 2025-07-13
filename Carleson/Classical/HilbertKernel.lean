@@ -22,23 +22,6 @@ lemma k_of_one_le_abs {x : ℝ} (abs_le_one : 1 ≤ |x|) : k x = 0 := by
   rw [k, max_eq_right (by linarith)]
   simp
 
-lemma k_le_of_le_abs {x r : ℝ} (hr : 0 < r) (hx : r ≤ |x|) : ‖k x‖ ≤ 2 / r := by
-  rcases le_or_gt 1 (|x|) with h'x | h'x
-  · simp only [k_of_one_le_abs h'x, norm_zero]
-    positivity
-  have : r / 2 ≤ ‖1 - exp (I * x)‖ := by
-    apply lower_secant_bound ?_ hx
-    have : r < 1 := by linarith
-    simp only [abs_lt] at h'x
-    exact ⟨by linarith [Real.pi_gt_three], by linarith [Real.pi_gt_three]⟩
-  simp only [k, Complex.norm_div, norm_real, Real.norm_eq_abs, ge_iff_le]
-  rw [abs_of_nonneg (by positivity)]
-  calc (max (1 - |x|) 0) / ‖1 - cexp (I * ↑x)‖
-  _ ≤ max 1 0 / (r / 2) := by
-    gcongr
-    linarith [abs_nonneg x]
-  _ = 2 / r := by simp
-
 @[fun_prop]
 lemma k_measurable : Measurable k := by
   unfold k
