@@ -541,18 +541,13 @@ lemma part_1 (j : ℕ) {A:Set X}:
     = (eLpNorm (A.indicator <| ∑ u with u ∈ rowDecomp t j,
       ∑ p with p ∈ t.𝔗 u, ((𝓘 u: Set X).indicator <|
         adjointCarleson p ((𝓘 u:Set X).indicator g))) 2 volume) ^ 2 := by
-  congr
-  apply congrArg A.indicator
-  apply Finset.sum_congr rfl
-  intro u hu'
+  congr! with u hu'
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hu'
   ext x
-  rw [adjointCarlesonSum,Finset.sum_apply]
-  apply Finset.sum_congr (by ext; simp)
-  intro p hp
-  simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, mem_𝔗, Finset.mem_filter, Finset.mem_univ,
-    true_and] at hp
-  rw [adjoint_tile_support2 (mem_forest_of_mem hu') hp]
+  rw [adjoint_tile_support2_sum (mem_forest_of_mem hu'), ← Finset.indicator_sum]
+  congr
+  ext x
+  rw [adjointCarlesonSum, Finset.sum_apply]
 
 open Classical in
 lemma part_2 (hg : BoundedCompactSupport g) {A : Set X} (hA : MeasurableSet A) (j : ℕ):
