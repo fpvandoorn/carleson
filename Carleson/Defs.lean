@@ -497,10 +497,6 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
   isBounded_G : IsBounded G
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
-  /-- `volume_F_pos` can probably be removed. -/
-  volume_F_pos : 0 < volume F
-  /-- `volume_G_pos` can probably be removed. -/
-  volume_G_pos : 0 < volume G
   measurable_σ₁ : Measurable σ₁
   measurable_σ₂ : Measurable σ₂
   finite_range_σ₁ : Finite (range σ₁)
@@ -782,6 +778,11 @@ lemma q_pos : 0 < q := zero_lt_one.trans (one_lt_q X)
 lemma q_nonneg : 0 ≤ q := (q_pos X).le
 lemma inv_q_sub_half_nonneg : 0 ≤ q⁻¹ - 2⁻¹ := by
   simp [inv_le_inv₀ zero_lt_two (q_pos X), q_le_two X]
+
+-- Note: For exponent computations it is usually cleaner to argue in terms
+-- of `q⁻¹` rather than `q`, both on paper and in Lean.
+lemma inv_q_mem_Ico : q⁻¹ ∈ Ico 2⁻¹ 1 := ⟨by linarith only [inv_q_sub_half_nonneg X],
+  inv_one (G := ℝ) ▸ inv_lt_inv₀ (q_pos X) zero_lt_one |>.mpr <| one_lt_q X⟩
 
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
