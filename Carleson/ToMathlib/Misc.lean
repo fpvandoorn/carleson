@@ -12,6 +12,7 @@ import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 open Function Set
 open scoped ENNReal
 
+-- todo: rename and protect `Real.RCLike`
 
 namespace Real
 -- to Mathlib.Analysis.SpecialFunctions.Log.Base

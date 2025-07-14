@@ -117,7 +117,7 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
 lemma integral_cutoff_pos {R t : ℝ} (hR : 0 < R) (ht : 0 < t) : 0 < ∫ y, cutoff R t x y := by
   apply lt_of_lt_of_le _ (aux_8_0_6 hR ht)
   apply mul_pos (by positivity)
-  exact measure_real_ball_pos _ (by positivity)
+  exact measureReal_ball_pos _ (by positivity)
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
@@ -366,7 +366,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
         / (2⁻¹ * volume.real (ball x (2⁻¹ * t * R))) := by
     rwa [← le_div_iff₀'] at M
     apply mul_pos (by positivity)
-    apply measure_real_ball_pos
+    apply measureReal_ball_pos
     positivity
   _ ≤ (2 * C * (volume.real (ball x (2 * R)) * dist x x' / (t * R))) /
       (2⁻¹ * volume.real (ball x (2⁻¹ * t * R))) := by gcongr
@@ -374,7 +374,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
         volume.real (ball x ((4⁻¹ * t) * (2 * R)))) * dist x x' / (t * R))) /
       (2⁻¹ * volume.real (ball x (2⁻¹ * t * R))) := by
     gcongr
-    exact measure_ball_le_same'' (μ := (volume : Measure X)) (t := 4⁻¹ * t) (r := 2 * R) x
+    exact measureReal_ball_le_same' (μ := (volume : Measure X)) (t := 4⁻¹ * t) (r := 2 * R) x
       (by positivity) (by linarith)
   _ = 2⁻¹ * 16 * C * (defaultA a) * t⁻¹ * (4 ⁻¹ * t) ^ (- Real.logb 2 (defaultA a))
         * (dist x x' / (2 * R)) *
@@ -384,7 +384,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
     have : volume.real (ball x ((4⁻¹ * t) * (2 * R))) / volume.real (ball x (2⁻¹ * t * R)) = 1 := by
       rw [show (4⁻¹ * t) * (2 * R) = 2⁻¹ * t * R by ring, div_self]
       apply ne_of_gt
-      apply measure_real_ball_pos
+      apply measureReal_ball_pos
       positivity
     simp [defaultA, ← Real.rpow_natCast, this]
   _ ≤ 2⁻¹ * 2 ^ a * C * 2 ^ a * t⁻¹ * (4 ⁻¹ * t) ^ (- a : ℝ) * (dist x x' / (2 * R)) := by
