@@ -315,7 +315,7 @@ lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
 
 /-- The constant appearing in Proposition 2.0.3. -/
 -- Todo: define this recursively in terms of previous constants
-def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((CDN + 7 + CDN / 8) * a ^ 3) / (q - 1)
+def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((CDN + 8 + CDN / 8) * a ^ 3) / (q - 1)
 
 --TODO: PR to Mathlib
 theorem ENNReal.rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (hx : 1 ≤ x) (hy : y ≤ 1) :
@@ -328,23 +328,22 @@ omit [TileStructure Q D κ S o] in
 private lemma ineq_aux_2_0_3 :
     ((2 ^ ((CDN + 5 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
     (((2 ^ ((CDN + 8) * a ^ 3) : ℝ≥0) : ℝ≥0∞) * (nnq - 1)⁻¹) ^ (2 - q) ≤
-    (2 ^ ((CDN + 7 + CDN / 8 : ℕ) * a ^ 3) / (nnq - 1) : ℝ≥0) := by
+    (2 ^ ((CDN + 8 + CDN / 8 : ℕ) * a ^ 3) / (nnq - 1) : ℝ≥0) := by
   have hq1 : 0 ≤ q - 1 := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).1.le)
   have hq2 : 0 ≤ 2 - q := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2)
   have h21 : (2 : ℝ) - 1 = 1 := by norm_num
   calc
     _ = ((2 ^ ((CDN + 5 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ ((CDN + 7 + 1) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q) := by
+        (((2 ^ ((CDN + 8 + 0) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q) := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ hq2]; ring
-    _ ≤ ((2 ^ ((CDN + 7 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ ((CDN + 7 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
+    _ ≤ ((2 ^ ((CDN + 8 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+        (((2 ^ ((CDN + 8 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
       have h11 : (1 + 1 : ℝ≥0) = 2 := by norm_num
       gcongr
       · norm_num
       · norm_num
       · norm_num
-      · have : 8 ≤ CDN := by simp [CDN]
-        omega
+      · simp
       · refine ENNReal.rpow_le_self_of_one_le ?_ (by linarith)
         rw [one_le_coe_iff, one_le_inv₀ (tsub_pos_iff_lt.mpr (nnq_mem_Ioc X).1), tsub_le_iff_right,
           h11]; exact (nnq_mem_Ioc X).2

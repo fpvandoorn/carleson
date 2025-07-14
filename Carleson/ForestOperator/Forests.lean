@@ -38,7 +38,7 @@ lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
       _ ≤ _ := by simp_rw [← pow_add]; exact pow_le_pow_right' one_le_two (by linarith)
 
 lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
-    C7_4_6 a n ≤ 2 ^ ((2 * CDN + 8 + CDN/4) * a ^ 3) * 2 ^ (-(4 * n : ℝ)) := by
+    C7_4_6 a n ≤ 2 ^ ((2 * CDN + 9 + CDN/4) * a ^ 3) * 2 ^ (-(4 * n : ℝ)) := by
   simp_rw [C7_4_6, C7_2_1, C7_6_2, C2_1_3, ← mul_assoc]
   conv_lhs => enter [1, 1, 1, 2]; norm_cast
   conv_lhs => enter [1, 1, 2, 2]; norm_cast
@@ -412,7 +412,7 @@ lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : Measurab
 
 /-- The constant used in `row_bound`. -/
 irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 :=
-  2 ^ ((CDN + 6 + CDN / 2 + CDN / 4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
+  2 ^ ((CDN + 7 + CDN / 2 + CDN / 4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
 
 lemma le_C7_7_2_1 (a4 : 4 ≤ a) :
     C7_3_1_1 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ ≤ C7_7_2_1 a n := by
@@ -456,7 +456,7 @@ lemma row_bound (hg : BoundedCompactSupport g) (sg : support g ⊆ G) :
 
 /-- The constant used in `indicator_row_bound`. -/
 irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 :=
-  2 ^ ((2 * CDN + 7 + CDN/2 + CDN/4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
+  2 ^ ((2 * CDN + 8 + CDN/2 + CDN/4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
 
 lemma le_C7_7_2_2 (a4 : 4 ≤ a) :
     C7_3_1_2 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ ≤ C7_7_2_2 a n := by
@@ -710,7 +710,7 @@ lemma adjointCarlesonRowSum_rowSupport :
   simp_rw [rowSupport, mem_iUnion₂]; exact ⟨_, mu, _, mp, my⟩
 
 /-- The constant on the `g` side of Proposition 2.0.4. -/
-def G2_0_4 (a n : ℕ) : ℝ≥0 := 2 ^ ((3 * CDN + 16 + 5 * (CDN/4)) * a ^ 3) * 2 ^ (-(n / 2 : ℝ))
+def G2_0_4 (a n : ℕ) : ℝ≥0 := 2 ^ ((3 * CDN + 17 + 5 * (CDN/4)) * a ^ 3) * 2 ^ (-(n / 2 : ℝ))
 
 lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2_0_4 a n ^ 2 := by
   simp only [C7_7_2_1, mul_pow, C7_7_3, C7_4_3, C7_4_4, G2_0_4]
@@ -895,7 +895,7 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
       · exact bf.enorm.aestronglyMeasurable.aemeasurable
     _ ≤ _ := by exact mul_le_mul_right' (indicator_row_bound bIGTf support_indicator_subset) _
 
-def C2_0_4_aux (a : ℕ) : ℝ≥0 := 2 ^ ((2 * CDN + 7 + CDN/2 + CDN/4) * a ^ 3)
+def C2_0_4_aux (a : ℕ) : ℝ≥0 := 2 ^ ((2 * CDN + 8 + CDN/2 + CDN/4) * a ^ 3)
 
 open Classical in
 lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
@@ -988,7 +988,7 @@ end TileStructure.Forest
 
 /-! ## Proposition 2.0.4 -/
 
-irreducible_def C2_0_4_base (a : ℕ) : ℝ≥0 := 2 ^ ((3 * CDN + 16 + 5 * (CDN / 4)) * a ^ 3)
+irreducible_def C2_0_4_base (a : ℕ) : ℝ≥0 := 2 ^ ((3 * CDN + 17 + 5 * (CDN / 4)) * a ^ 3)
 
 /-- The constant used in `forest_operator`.
 Has value `2 ^ (470 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
@@ -1022,9 +1022,9 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     show 2⁻¹ * (2 / q - 1) = q⁻¹ - 2⁻¹ by ring] at key
   apply key.trans; gcongr
   calc
-    _ ≤ ((2 : ℝ≥0∞) ^ ((3 * CDN + 16 + 5 * (CDN / 4)) * a ^ 3)) ^ (2 - 2 / q)
+    _ ≤ ((2 : ℝ≥0∞) ^ ((3 * CDN + 17 + 5 * (CDN / 4)) * a ^ 3)) ^ (2 - 2 / q)
         * (2 ^ (-(n / 2 : ℝ))) ^ (2 - 2 / q) *
-        (2 ^ ((3 * CDN + 16 + 5 * (CDN / 4)) * a ^ 3)) ^ (2 / q - 1) := by
+        (2 ^ ((3 * CDN + 17 + 5 * (CDN / 4)) * a ^ 3)) ^ (2 / q - 1) := by
       rw [Forest.G2_0_4, ENNReal.coe_mul, ENNReal.coe_pow, ENNReal.coe_rpow_of_ne_zero two_ne_zero,
         Forest.C2_0_4_aux]
       simp only [ENNReal.coe_ofNat]

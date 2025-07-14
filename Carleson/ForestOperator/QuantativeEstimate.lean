@@ -168,7 +168,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
         · exact mx
         · rw [← mem_ball']; exact subset_cball hp'
         · exact t.dist_lt_four' hu mp''
-      _ ≤ 1 / 512 * 10 + 4 := by
+      _ ≤ 1 / 256 * 10 + 4 := by
         rw [show (9 : ℝ) + 1 = 10 by norm_num]; gcongr; exact C2_1_2_le_inv_512 X
       _ < _ := by norm_num
 
@@ -268,7 +268,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
 /-- The constant used in `density_tree_bound1` and `adjoint_tree_estimate`.
 Has value `2 ^ (202.5 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 5 + CDN/2 + CDN/4) * a ^ 3)
+irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 6 + CDN/2 + CDN/4) * a ^ 3)
 
 -- Main bound in the proof of Lemma 7.3.1
 private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
@@ -436,8 +436,8 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
       · refine eLpNorm_mono (fun x ↦ ?_)
         rw [indicator]
         split_ifs <;> simp
-    _ = C7_2_1 a * 2 ^ (((CDN / 2 : ℕ) + (1 : ℝ)) * a ^ 3) * dens₁ ((fun x ↦ t.𝔗 x) u) ^ (2 : ℝ)⁻¹ * c *
-          eLpNorm f 2 volume * eLpNorm g 2 volume := by ring
+    _ = C7_2_1 a * 2 ^ (((CDN / 2 : ℕ) + (1 : ℝ)) * a ^ 3) * dens₁ ((fun x ↦ t.𝔗 x) u) ^ (2 : ℝ)⁻¹
+          * c * eLpNorm f 2 volume * eLpNorm g 2 volume := by ring
     _ = _ := by
       rw [C7_2_1, C7_3_1_1, ENNReal.coe_pow, ← ENNReal.rpow_natCast]
       congr
@@ -462,7 +462,7 @@ lemma density_tree_bound1 (hf : BoundedCompactSupport f)
 /-- The constant used in `density_tree_bound2` and `indicator_adjoint_tree_estimate`.
 Has value `2 ^ (303 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * CDN + 6 + CDN/2 + CDN/4) * a ^ 3)
+irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * CDN + 7 + CDN/2 + CDN/4) * a ^ 3)
 
 /-- Second part of Lemma 7.3.1. -/
 lemma density_tree_bound2

@@ -10,15 +10,17 @@ All lemmas are prepended with a prefix `calculation_`.
 import Carleson.Defs
 import Mathlib.Tactic.Rify
 open ShortVariables
-open scoped NNReal
+open scoped NNReal ENNReal
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
 
-lemma add_le_pow_two {p q r s : ℕ} (hp : p ≤ r) (hq : q ≤ r) (hr : r + 1 ≤ s) :
-    (2 : ℝ≥0) ^ p + 2 ^ q ≤ 2 ^ s := by
+lemma add_le_pow_two {R : Type*} [Semiring R] [PartialOrder R] [IsOrderedRing R]
+    {p q r s : ℕ} (hp : p ≤ r) (hq : q ≤ r) (hr : r + 1 ≤ s) :
+    (2 : R) ^ p + 2 ^ q ≤ 2 ^ s := by
   grw [hp, hq, ← mul_two, ← pow_succ, hr] <;> norm_num
 
-lemma add_le_pow_two_add_cube {p q r : ℕ} (ha : 4 ≤ a) (hp : p ≤ r) (hq : q ≤ r) :
-    (2 : ℝ≥0) ^ p + 2 ^ q ≤ 2 ^ (r + a ^ 3) := by
+lemma add_le_pow_two_add_cube {R : Type*} [Semiring R] [PartialOrder R] [IsOrderedRing R]
+    {p q r : ℕ} (ha : 4 ≤ a) (hp : p ≤ r) (hq : q ≤ r) :
+    (2 : R) ^ p + 2 ^ q ≤ 2 ^ (r + a ^ 3) := by
   apply add_le_pow_two hp hq
   have : 1 ≤ a ^ 3 := one_le_pow₀ (by linarith)
   linarith

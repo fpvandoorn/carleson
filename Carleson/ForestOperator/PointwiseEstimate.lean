@@ -1066,22 +1066,26 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
 
 /-- The constant used in `pointwise_tree_estimate`.
 Has value `2 ^ ((CDN + 3 + CDN / 4) * a ^ 3)` in the blueprint. -/
-irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := max (C7_1_4 a) (C7_1_6 a) --2 ^ ((CDN + 3 + CDN / 4) * (a : ℝ) ^ 3)
+irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 4 + CDN / 4) * a ^ 3)
 
-lemma C7_1_3_eq_C7_1_6 {a : ℕ} (ha : 4 ≤ a) : C7_1_3 a = C7_1_6 a := by
-  rw [C7_1_3_def, C7_1_6_def, sup_eq_right]
-  have : C7_1_4 a ≤ 2 ^ 4 * 2 ^ ((CDN + 4) * a ^ 3) := by rw [C7_1_4_def]; gcongr; norm_num
-  apply this.trans
-  rw [← pow_add]
+lemma C7_1_6_le_C7_1_3 {a : ℕ} : C7_1_6 a ≤ C7_1_3 a := by
+  rw [C7_1_6_def, C7_1_3_def]
   gcongr
-  · exact one_le_two
-  · calc
-      _ ≤ 4 ^ 3 + (CDN + 4) * a ^ 3 := by gcongr; norm_num
-      _ ≤ a ^ 3 + (CDN + 4) * a ^ 3 := by gcongr
-      _ = (CDN + 3 + 2) * a ^ 3 := by ring
-      _ ≤ _ := by
-        gcongr
-        simp [CDN]
+  · norm_num
+  · omega
+
+lemma C7_1_4_le_C7_1_3 {a : ℕ} (ha : 4 ≤ a) : C7_1_4 a ≤ C7_1_3 a := by
+  have : (10 : ℝ≥0) ≤ 2 ^ 4 := by norm_num
+  grw [C7_1_4_def, C7_1_3_def, this, ← pow_add]
+  gcongr
+  · norm_num
+  suffices 4 ≤ (CDN / 4) * a ^ 3 by linarith
+  have : 4 ≤ a ^ 3 := calc
+    4 = 4 * 1 * 1 := by norm_num
+    _ ≤ a * a * a := by gcongr <;> linarith
+    _ = a ^ 3 := by ring
+  simp only [CDN]
+  linarith
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
@@ -1122,9 +1126,9 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
     simp_rw [← mul_comm (Ks _ x _)]
     refine add_le_add_three ?_ ?_ (second_tree_pointwise hu hL hx hx')
     · simp_rw [mul_comm (Ks _ x _), mul_comm (f _)]
-      have h : C7_1_3 a ≥ C7_1_4 a := by rw [C7_1_3_def]; exact le_max_left (C7_1_4 a) (C7_1_6 a)
+      have h : C7_1_3 a ≥ C7_1_4 a := C7_1_4_le_C7_1_3 (four_le_a X)
       exact (first_tree_pointwise hu hL hx hx' hf).trans <| mul_right_mono (by exact_mod_cast h)
-    · have h : C7_1_3 a ≥ C7_1_6 a := by rw [C7_1_3_def]; exact le_max_right (C7_1_4 a) (C7_1_6 a)
+    · have h : C7_1_3 a ≥ C7_1_6 a := C7_1_6_le_C7_1_3
       exact (third_tree_pointwise hu hL hx hx' hf).trans <| mul_right_mono (by exact_mod_cast h)
   -- In order to split the integral, we will first need some trivial integrability results
   have h1 {i : ℤ} : Integrable (fun y ↦ approxOnCube (𝓙 (t.𝔗 u)) f y * Ks i x y) := by

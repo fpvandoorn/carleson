@@ -211,32 +211,32 @@ lemma indicator_adjoint_tree_estimate
 
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (203 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 6 + CDN / 2 + CDN / 4) * a ^ 3)
+irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 7 + CDN / 2 + CDN / 4) * a ^ 3)
   -- C7_3_1_1 a + CMB (defaultA a) 2 + 1
 
 lemma C7_4_3_le (ha : 4 ≤ a) : C7_3_1_1 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a := by
   rw [C7_4_3, C7_3_1_1, CMB_defaultA_two_eq]
   calc
-    _ ≤ (2 : ℝ≥0) ^ ((CDN + 5 + CDN / 2 + CDN / 4) * a ^ 3)
+    _ ≤ (2 : ℝ≥0) ^ ((CDN + 6 + CDN / 2 + CDN / 4) * a ^ 3)
         + 2 ^ ((a : ℝ) + 3 / 2) + 2 ^ ((a : ℝ) + 3 / 2) := by
       gcongr; exact NNReal.one_le_rpow one_le_two (by linarith)
-    _ = 2 ^ ((CDN + 5 + CDN / 2 + CDN / 4) * a ^ 3)  + 2 ^ ((a : ℝ) + 5 / 2) := by
+    _ = 2 ^ ((CDN + 6 + CDN / 2 + CDN / 4) * a ^ 3)  + 2 ^ ((a : ℝ) + 5 / 2) := by
       rw [add_assoc, ← two_mul, ← NNReal.rpow_one_add' (by positivity)]; congr 2; ring
-    _ ≤ 2 ^ ((CDN + 5 + CDN / 2 + CDN / 4) * a ^ 3)
-        + 2 ^ ((CDN + 5 + CDN / 2 + CDN / 4 : ℕ) * (a : ℝ) ^ 3) := by
+    _ ≤ 2 ^ ((CDN + 6 + CDN / 2 + CDN / 4) * a ^ 3)
+        + 2 ^ ((CDN + 6 + CDN / 2 + CDN / 4 : ℕ) * (a : ℝ) ^ 3) := by
       gcongr
       · exact one_le_two
       · calc
           _ ≤ 2 * (a : ℝ) := by
             rw [two_mul]; gcongr; exact (show (5 : ℝ) / 2 ≤ 4 by norm_num).trans (mod_cast ha)
           _ = 2 * a * 1 * 1 := by ring
-          _ ≤ (CDN + 5 + CDN / 2 + CDN / 4 : ℕ) * a * a * a := by
+          _ ≤ (CDN + 6 + CDN / 2 + CDN / 4 : ℕ) * a * a * a := by
             gcongr
             · simp only [CDN]; norm_num
             · norm_cast; omega
             · norm_cast; omega
           _ = _ := by ring
-    _ ≤ 2 ^ ((CDN + 5 + CDN / 2 + CDN / 4 : ℕ) * (a : ℝ) ^ 3 + 1) := by
+    _ ≤ 2 ^ ((CDN + 6 + CDN / 2 + CDN / 4 : ℕ) * (a : ℝ) ^ 3 + 1) := by
       rw [← NNReal.rpow_natCast]
       simp only [Nat.cast_mul, Nat.cast_add, Nat.cast_ofNat, Nat.cast_pow]
       rw [← mul_two, ← NNReal.rpow_add_one' (by positivity)]

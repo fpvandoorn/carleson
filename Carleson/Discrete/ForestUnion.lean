@@ -1003,7 +1003,7 @@ lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :
 
 /-- The constant used in Lemma 5.1.2, with value `2 ^ (471 * a ^ 3) / (q - 1) ^ 4`.
 The best constant naturally given by this step is `C5_1_2_optimized` above. -/
-def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * CDN + 17 + 5 * (CDN / 4)) * a ^ 3) / (q - 1) ^ 4
+def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * CDN + 18 + 5 * (CDN / 4)) * a ^ 3) / (q - 1) ^ 4
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by

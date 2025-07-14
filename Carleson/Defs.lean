@@ -316,7 +316,7 @@ lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ
 
 end DoublingMeasure
 
-irreducible_def CDN : ℕ := 8
+irreducible_def CDN : ℕ := 7
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/

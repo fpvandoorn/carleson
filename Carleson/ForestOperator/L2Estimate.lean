@@ -760,7 +760,7 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
 /-- The constant used in `tree_projection_estimate`.
 Originally had value `2 ^ (64 * a ^ 3)` in the blueprint, but that seems to be a mistake. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 4 + CDN / 4) * a ^ 3)
+irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 5 + CDN / 4) * a ^ 3)
 
 -- Auxiliary function used in the proof of Lemma 7.2.1
 private def eI𝒬u_mul (u : 𝔓 X) (f : X → ℂ) : X → ℂ := fun y ↦ exp (.I * 𝒬 u y) * f y
@@ -789,15 +789,15 @@ private lemma aeMeasurable_cS_bound : AEMeasurable (cS_bound t u f) := by
 -- The natural constant for Lemma 7.2.1 is ≤ the simpler constant `C7_2_1` we use instead.
 private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
     C7_1_3 a * CMB (defaultA a) 2 + C7_1_3 a * C7_2_3 a + C7_2_2 a ≤ (C7_2_1 a : ℝ≥0∞) := calc
-  _ ≤ (3 : ℕ) • (2 : ℝ≥0∞) ^ ((CDN + 3 + CDN / 4) * a ^ 3 + 12 * a) := by
+  _ ≤ (3 : ℕ) • (2 : ℝ≥0∞) ^ ((CDN + 4 + CDN / 4) * a ^ 3 + 12 * a) := by
     rw [three'_nsmul]
     gcongr
-    · rw [C7_1_3_eq_C7_1_6 ha, C7_1_6_def, CMB_defaultA_two_eq, pow_add]
+    · rw [C7_1_3_def, CMB_defaultA_two_eq, pow_add]
       simp_rw [ENNReal.coe_pow, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat]
       gcongr; rw [← ENNReal.rpow_natCast, Nat.cast_mul]
       apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two ?_
       linarith [show 4 ≤ (a : ℝ) by exact_mod_cast ha]
-    · rw [C7_1_3_eq_C7_1_6 ha, C7_2_3_def, C7_1_6_def]
+    · rw [C7_1_3_def, C7_2_3_def]
       norm_cast
       exact le_of_eq (pow_add _ _ _).symm
     · rw [C7_2_2_def]
@@ -806,8 +806,8 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
       · norm_num
       simp [add_mul]
       omega
-  _ = 3 * 2 ^ (12 * a) * 2 ^ ((CDN + 3 + CDN / 4) * a ^ 3) := by rw [add_comm, pow_add]; ring
-  _ ≤ 2 ^ (a ^ 3) * 2 ^ ((CDN + 3 + CDN / 4) * a ^ 3) := by
+  _ = 3 * 2 ^ (12 * a) * 2 ^ ((CDN + 4 + CDN / 4) * a ^ 3) := by rw [add_comm, pow_add]; ring
+  _ ≤ 2 ^ (a ^ 3) * 2 ^ ((CDN + 4 + CDN / 4) * a ^ 3) := by
     apply mul_right_mono; norm_cast
     calc
       _ ≤ 2 ^ 2 * 2 ^ (12 * a) := by gcongr; norm_num

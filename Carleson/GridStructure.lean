@@ -378,21 +378,13 @@ def _root_.C2_1_2 (a : ℕ) : ℝ := 2 ^ ((-CDN + 5) * a : ℝ)
 
 include q K σ₁ σ₂ F G in
 variable (X) in
-lemma _root_.C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 512 := by
-  rw [C2_1_2, show (1 / 512 : ℝ) = 2 ^ (-9 : ℝ) by norm_num,
+lemma _root_.C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 256 := by
+  rw [C2_1_2, show (1 / 256 : ℝ) = 2 ^ (-8 : ℝ) by norm_num,
     Real.rpow_le_rpow_left_iff one_lt_two, le_neg]
-  simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le]
+  simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le, CDN]
   norm_cast
-  calc
-  5 * a + 9
-  _ ≤ 5 * a + 3 * 4 := by linarith
-  _ ≤ 5 * a + 3 * a := by
-    gcongr
-    exact four_le_a X
-  _ = 8 * a := by ring
-  _ ≤ CDN * a := by
-    gcongr
-    simp [CDN]
+  have := four_le_a X
+  linarith
 
 include q K σ₁ σ₂ F G in
 variable (X) in
