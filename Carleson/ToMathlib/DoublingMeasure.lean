@@ -127,6 +127,7 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
     _ ≤ As A s * μ (ball x r) := measure_ball_le_same x hs h
 
 include A in
+variable (μ) in
 lemma isOpenPosMeasure_of_isDoubling [NeZero μ] : IsOpenPosMeasure μ := by
   refine ⟨fun U hU h2U h3U ↦ ?_⟩
   obtain ⟨x, hx⟩ := h2U
@@ -195,49 +196,91 @@ lemma Nat.exists_max_image {α : Type*} {s : Set α} (hs : s.Nonempty)
   intro y hy
   exact le_csSup h <| Set.mem_image_of_mem f hy
 
+include A in
+lemma IsDoubling.measure_ball_lt_top [IsLocallyFiniteMeasure μ] {x : X} {r : ℝ} :
+    μ (ball x r) < ∞ := by
+  obtain hr|hr := le_or_gt r 0
+  · simp [Metric.ball_eq_empty.mpr hr]
+  obtain ⟨U, hxU, hU, h2U⟩ := exists_isOpen_measure_lt_top μ x
+  obtain ⟨ε, hε, hx⟩ := Metric.isOpen_iff.mp hU x hxU
+  have : μ (ball x ε) < ∞ := measure_mono hx |>.trans_lt h2U
+  calc
+    μ (ball x r) ≤ As A (r / ε) * μ (ball x ε) := by
+        apply measure_ball_le_same x (by positivity)
+        rw [div_mul_cancel₀ _ hε.ne']
+    _ < ∞ := mul_lt_top (by simp) this
 
 include μ in
 variable (μ) in
-lemma IsDoubling.allBallsCoverBalls [NeZero μ] : AllBallsCoverBalls X 2 ⌈As A 8⌉₊ := by
+lemma IsDoubling.allBallsCoverBalls [OpensMeasurableSpace X] [NeZero μ]
+    [IsLocallyFiniteMeasure μ] : AllBallsCoverBalls X 2 ⌈As A 9⌉₊ := by
   classical
+  have := isOpenPosMeasure_of_isDoubling μ
   have hA : A ≠ 0 := by
     rintro rfl
     exact NeZero.ne μ <| eq_zero_of_isDoubling_zero μ
   refine .mk (by norm_num) fun r hr x ↦ ?_
   set R := 2 * r
-  set R' := 3 * r
-  set N : ℕ := ⌈As A 8⌉₊ -- fix
+  set R' := R + r / 2
+  set N : ℕ := ⌈As A 9⌉₊
   let S := { s : Finset X | ↑s ⊆ ball x R ∧ ∀ x y, x ∈ s → y ∈ s → x ≠ y → r ≤ dist x y }
   have h1 : ∀ s ∈ S, s.card ≤ N := by
-  -- (h : dist x x' + r' ≤ s * r) :
-  -- μ (ball x' r') ≤ As A s * μ (ball x r)
     by_contra!
     obtain ⟨s, ⟨h1s, h2s⟩, h3s⟩ := this
     let B := ⋃ y ∈ s, ball y (r / 2)
-    have : ∀ y ∈ s, (As A 8 : ℝ≥0∞)⁻¹ * μ (ball x R) ≤ μ (ball y (r / 2)) := by
+    have : ∀ y ∈ s, (As A 9 : ℝ≥0∞)⁻¹ * μ (ball x R') ≤ μ (ball y (r / 2)) := by
       intro y hy
       rw [ENNReal.inv_mul_le_iff]
       apply measure_ball_le_of_dist_le' (by norm_num)
       · calc
-          dist y x + R ≤ R + R := by
+          dist y x + R' ≤ R + R' := by
             gcongr
             apply le_of_lt
             simpa using h1s hy
-          _ ≤ 8 * (r / 2) := by linarith
+          _ ≤ 9 * (r / 2) := by simp_rw [R', R]; linarith
       · simp [As, hA]
       · simp
-    have := calc
-      μ (ball x R) < N * (As A 8 : ℝ≥0∞)⁻¹ * μ (ball x R) := by sorry
-      _ ≤ s.card * (As A 8 : ℝ≥0∞)⁻¹ * μ (ball x R) := by sorry
-      _ ≤ ∑ y ∈ s, (As A 8 : ℝ≥0∞)⁻¹ * μ (ball x R) := by sorry
-      _ ≤ ∑ y ∈ s, μ (ball y (r / 2)) := by sorry
-      _ = μ (⋃ y ∈ s, ball y (r / 2)) := by sorry
-      _ ≤ μ (ball x R') := by sorry
-      _ = μ (ball x R) := by sorry -- replace some Rs by `R'`s
-    apply lt_irrefl (μ A)
-    -- calc μ A ≤ μ
+    have lem : (s : Set X).PairwiseDisjoint fun y ↦ ball y (r / 2) := by
+      intro i hi j hj hij
+      refine Set.disjoint_left.mpr fun z hzi hzj ↦ ?_
+      exact lt_irrefl _ <| by calc
+        r ≤ dist i j := h2s i j hi hj hij
+        _ ≤ dist i z + dist z j := dist_triangle ..
+        _ < r / 2 + r / 2 := by gcongr; exacts [mem_ball'.mp hzi, mem_ball.mp hzj]
+        _ = r := by linarith
+    exact lt_irrefl _ <| calc
+      μ (ball x R') ≤ N * (As A 9 : ℝ≥0∞)⁻¹ * μ (ball x R') := by
+          conv_lhs => rw [← one_mul (μ _)]
+          gcongr
+          rw [← div_eq_mul_inv, ENNReal.le_div_iff_mul_le, one_mul]
+          · simp [N, Nat.le_ceil]
+          · simp [As, hA]
+          · simp
+      _ < s.card * (As A 9 : ℝ≥0∞)⁻¹ * μ (ball x R') := by
+          gcongr
+          · refine isOpen_ball.measure_ne_zero μ ?_
+            have : 0 < R' := by positivity
+            simp [this]
+          · exact IsDoubling.measure_ball_lt_top.ne
+          · simp [As]
+          · simp [As, hA]
+      _ = ∑ y ∈ s, (As A 9 : ℝ≥0∞)⁻¹ * μ (ball x R') := by
+          simp_rw [Finset.sum_const, nsmul_eq_mul, mul_assoc]
+      _ ≤ ∑ y ∈ s, μ (ball y (r / 2)) := by gcongr with i hi; exact this i hi
+      _ = μ (⋃ y ∈ s, ball y (r / 2)) := by
+          rw [measure_biUnion_finset lem]
+          intros; apply measurableSet_ball
+      _ ≤ μ (ball x R') := by
+          apply measure_mono
+          simp_rw [Set.iUnion_subset_iff]
+          intro i hi z hz
+          rw [mem_ball]
+          calc
+            dist z x ≤ dist z i + dist i x := dist_triangle ..
+            _ < r / 2 + R := by simp at hz; gcongr; simpa using h1s hi
+            _ = R' := by ring
   have h1' : BddAbove ((·.card) '' S) := by
-    simp [bddAbove_def]
+    simp only [bddAbove_def, Set.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
     use N, h1
   have h2 : S.Nonempty := ⟨∅, by simp, by simp⟩
   obtain ⟨s, hs, s_max⟩ := Nat.exists_max_image h2 h1'
@@ -248,9 +291,10 @@ lemma IsDoubling.allBallsCoverBalls [NeZero μ] : AllBallsCoverBalls X 2 ⌈As A
   by_contra! h2y
   have hys : y ∉ s := by intro h3y; simpa [hr.not_ge] using h2y y h3y
   have h2 : insert y s ∈ S := by
-    simp [Set.subset_def, -Metric.mem_ball] at h1s
-    simp [S] at hs hy
-    simp [S, Set.insert_subset_iff, hs, hy]
+    suffices ∀ (x y_1 : X), x = y ∨ x ∈ s → y_1 = y ∨ y_1 ∈ s → ¬x = y_1 → r ≤ dist x y_1 by
+      simp [Set.subset_def, -Metric.mem_ball] at h1s
+      simp [S] at hs hy
+      simp [S, Set.insert_subset_iff, hs, hy, eq_true_intro this]
     rintro u v (rfl|hu) (rfl|hv) huv
     · simp at huv
     · exact h2y v hv
@@ -406,7 +450,8 @@ This class is not Mathlib-ready code, and should not be used in the `ToMathlib` 
 class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
     CompleteSpace X, LocallyCompactSpace X,
     MeasureSpace X, BorelSpace X, Regular (volume : Measure X),
-    IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
+    IsDoubling (volume : Measure X) A, NeZero (volume : Measure X),
+    SigmaFinite (volume : Measure X) where
 
 /- PseudoMetricSpace? -/
 variable {X : Type*} {A : ℝ≥0} [MetricSpace X] [DoublingMeasure X A]
@@ -421,7 +466,7 @@ instance : ProperSpace X := by
   obtain ⟨s, _, h2s⟩ := IsDoubling.allBallsCoverBalls volume |>.ballsCoverBalls (by norm_num) hε x
   use s, s.finite_toSet, by simpa using h2s
 
-instance : IsOpenPosMeasure (volume : Measure X) := isOpenPosMeasure_of_isDoubling
+instance : IsOpenPosMeasure (volume : Measure X) := isOpenPosMeasure_of_isDoubling _
 
 -- the following classes hold
 -- #synth ProperSpace X
