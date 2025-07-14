@@ -67,7 +67,7 @@ end Periodic
 
 /-- Ioc version of mathlib `coe_eq_coe_iff_of_mem_Ico` -/
 lemma coe_eq_coe_iff_of_mem_Ioc {p : 𝕜} [hp : Fact (0 < p)]
-    {a : 𝕜} [Archimedean 𝕜] {x y : 𝕜} (hx : x ∈ Set.Ioc a (a + p)) (hy : y ∈ Set.Ioc a (a + p)) : 
+    {a : 𝕜} [Archimedean 𝕜] {x y : 𝕜} (hx : x ∈ Set.Ioc a (a + p)) (hy : y ∈ Set.Ioc a (a + p)) :
     (x : AddCircle p) = y ↔ x = y := by
   refine ⟨fun h => ?_, by tauto⟩
   suffices (⟨x, hx⟩ : Set.Ioc a (a + p)) = ⟨y, hy⟩ by exact Subtype.mk.inj this
@@ -82,5 +82,14 @@ lemma eq_coe_Ioc {p : 𝕜} [hp : Fact (0 < p)] [Archimedean 𝕜]
   exact ⟨b.1, by simpa only [zero_add] using b.2,
     (QuotientAddGroup.equivIocMod hp.out 0).symm_apply_apply a⟩
 
+lemma coe_equivIoc {p : 𝕜} [hp : Fact (0 < p)] [Archimedean 𝕜] (a : 𝕜) {y : AddCircle p} :
+    (equivIoc p a y : AddCircle p) = y :=
+  (equivIoc p a).left_inv y
+
+lemma equivIoc_coe_of_mem {p : 𝕜} [hp : Fact (0 < p)] [Archimedean 𝕜] (a : 𝕜) {y : 𝕜}
+    (hy : y ∈ Set.Ioc a (a + p)) :
+    equivIoc p a y = y := by
+  have : equivIoc p a y = ⟨y, hy⟩ := (equivIoc p a).right_inv ⟨y, hy⟩
+  simp [this]
 
 end AddCircle

@@ -6925,7 +6925,7 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
 \begin{lemma}[Calderon-Zygmund Weak (1, 1)]
     \label{calderon-zygmund-weak-1-1}
     \leanok
-    \lean{czoperator_weak_1_1}
+    \lean{czOperator_weak_1_1}
     \uses{Calderon-Zygmund-decomposition,estimate-bad,estimate-good}
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that for every bounded measurable function $g:X\to\C$ supported on a set of finite measure,
     \begin{equation}
@@ -8160,15 +8160,15 @@ One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concernin
     \uses{modulated-averaged-projection,integrable-bump-convolution,Dirichlet-approximation}
     \leanok
     \lean{Hilbert_strong_2_2}
-    Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
+    Let $0<r$. Let $f$ be a bounded, measurable function on $\mathbb{R}$. Then
     \begin{equation}
         \label{eq-Hr-L2-bound}
-        \|H_rf\|_{2}\leq 2^{13} \|f\|_2,
+        \|H_rf\|_{2}\leq 2^{9} \|f\|_2,
     \end{equation}
     where
     \begin{equation}
         \label{def-H-r}
-        H_r f(x) := T_r f(x) = \int_{r\le\rho(x,y)} \kappa(x-y) f(y) \, dy
+        H_r f(x) := T_r f(x) = \int_{r\le |x-y|} \kappa(x-y) f(y) \, dy
     \end{equation}
 \end{lemma}
 
@@ -8278,7 +8278,7 @@ The following lemma will be proved in \Cref{10projection}.
 \uses{partial-sum-projection,partial-sum-selfadjoint}
     Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
    \begin{equation}\label{snbound}
-   \|S_Nf\|_{L^2[-\pi, \pi]} \le \|f\|_{L^2[-\pi, \pi]}.
+   \|S_Nf\|_{L^2[0, 2\pi]} \le \|f\|_{L^2[0, 2\pi]}.
    \end{equation}
 \end{lemma}
 
@@ -8456,31 +8456,31 @@ Define the approximate Hilbert transform by
 \uses{spectral-projection-bound}
 We have for every bounded measurable $2\pi$-periodic function $g$
 \begin{equation}\label{lnbound}
-    \|L_Ng\|_{L^2[-\pi, \pi]}\le \|g\|_{L^2[-\pi, \pi]}\,.
+    \|L_Ng\|_{L^2[0, 2\pi]}\le \|g\|_{L^2[0, 2\pi]}\,.
 \end{equation}
 \end{lemma}
 \begin{proof}
     \leanok
     We have
     \begin{equation}\label{mnbound}
-        \|M_ng\|_{L^2[-\pi, \pi]}^2=\int_{-\pi}^{\pi} |e^{inx}g(x)|^2\, dx
-        =\int_{-\pi}^{\pi} |g(x)|^2\, dx=\|g\|_{L^2[-\pi, \pi]}^2\, .
+        \|M_ng\|_{L^2[0, 2\pi]}^2=\int_{0}^{2\pi} |e^{inx}g(x)|^2\, dx
+        =\int_{0}^{2\pi} |g(x)|^2\, dx=\|g\|_{L^2[0, 2\pi]}^2\, .
     \end{equation}
      We have by the triangle inequality, the square root of the identity in \eqref{mnbound}, and \Cref{spectral-projection-bound}
     \begin{equation*}
-        \|L_ng\|_{L^2[-\pi, \pi]}=\|\frac 1N\sum_{n=0}^{N-1}
-       M_{n+N} S_{N+n}M_{-N-n}g\|_{L^2[-\pi, \pi]}
+        \|L_ng\|_{L^2[0, 2\pi]}=\|\frac 1N\sum_{n=0}^{N-1}
+       M_{n+N} S_{N+n}M_{-N-n}g\|_{L^2[0, 2\pi]}
     \end{equation*}
     \begin{equation*}
         \le \frac 1N\sum_{n=0}^{N-1} \|
-       M_{n+N} S_{N+n}M_{-N-n}g\|_{L^2[-\pi, \pi]}
+       M_{n+N} S_{N+n}M_{-N-n}g\|_{L^2[0, 2\pi]}
          = \frac 1N\sum_{n=0}^{N-1} \|
-    S_{N+n}M_{-N-n}g\|_{L^2[-\pi, \pi]}
+    S_{N+n}M_{-N-n}g\|_{L^2[0, 2\pi]}
     \end{equation*}
      \begin{equation}
      \le \frac 1N\sum_{n=0}^{N-1} \|
- M_{-N-n}g\|_{L^2[-\pi, \pi]} = \frac 1N\sum_{n=0}^{N-1} \|
-g\|_{L^2[-\pi, \pi]} =\|g\|_{L^2[-\pi, \pi]}\, .
+ M_{-N-n}g\|_{L^2[0, 2\pi]} = \frac 1N\sum_{n=0}^{N-1} \|
+g\|_{L^2[0, 2\pi]} =\|g\|_{L^2[0, 2\pi]}\, .
     \end{equation}
 This proves \eqref{lnbound} and completes the proof of the lemma.
 \end{proof}
@@ -8523,22 +8523,22 @@ This proves the first identity of the lemma. The second identity follows by subs
 \uses{periodic-domain-shift}
     Let $f$ and $g$ be two bounded non-negative measurable $2\pi$-periodic functions on $\R$. Then
     \begin{equation}\label{eqyoung}
-        \left(\int_{-\pi}^{\pi} \left(\int_{-\pi}^{\pi}
-        f(y)g(x-y)\, dy\right)^2\, dx\right)^{\frac 12}\le \|f\|_{L^2[-\pi, \pi]} \|g\|_{L^1[-\pi, \pi]}\, .
+        \left(\int_0^{2\pi} \left(\int_0^{2\pi}
+        f(y)g(x-y)\, dy\right)^2\, dx\right)^{\frac 12}\le \|f\|_{L^2[0, 2\pi]} \|g\|_{L^1[0, 2\pi]}\, .
     \end{equation}
     \end{lemma}
 \begin{proof}
 \leanok
     Using Fubini and \Cref{periodic-domain-shift}, we observe
 \begin{equation*}
-  \int_{-\pi}^{\pi}\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy
-    \, dx=\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x-y)\, dx
+  \int_0^{2\pi}\int_0^{2\pi}f(y)^2g(x-y)\, dy
+    \, dx=\int_0^{2\pi}f(y)^2\int_0^{2\pi}g(x-y)\, dx
     \, dy
 \end{equation*}
 \begin{equation}\label{eqhil4}
-=\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x) \, dx
+=\int_0^{2\pi}f(y)^2\int_0^{2\pi}g(x) \, dx
      dy
-=\|f\|_{L^2[-\pi, \pi]}^2\|g\|_{L^1[-\pi, \pi]}\, .
+=\|f\|_{L^2[0, 2\pi]}^2\|g\|_{L^1[0, 2\pi]}\, .
 \end{equation}
    Let $h$ be the nonnegative square root of $g$, then
    $h$ is bounded and $2\pi$-periodic with $h^2=g$.
@@ -8546,14 +8546,14 @@ This proves the first identity of the lemma. The second identity follows by subs
    \eqref{eqyoung} with Cauchy-Schwarz and then with
    \eqref{eqhil4} by
        \begin{equation*}
-         \int_{-\pi}^{\pi} (\int_{-\pi}^{\pi}f(y)h(x-y)h(x-y)\, dy)^2\, dx
+         \int_0^{2\pi} (\int_0^{2\pi}f(y)h(x-y)h(x-y)\, dy)^2\, dx
    \end{equation*}
 \begin{equation*}
-    \le \int_{-\pi}^{\pi}\left(\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy\right)
-    \left(\int_{-\pi}^{\pi}g(x-y)\, dy\right)\, dx
+    \le \int_0^{2\pi}\left(\int_0^{2\pi}f(y)^2g(x-y)\, dy\right)
+    \left(\int_0^{2\pi}g(x-y)\, dy\right)\, dx
 \end{equation*}
 \begin{equation*}
-    = \|f\|_{L^2[-\pi, \pi]}^2\|g\|_{L^1[-\pi, \pi]}^2\, .
+    = \|f\|_{L^2[0, 2\pi]}^2\|g\|_{L^1[0, 2\pi]}^2\, .
 \end{equation*}
 Taking square roots, this proves the lemma.
 \end{proof}
@@ -8569,17 +8569,17 @@ where the minimum is understood to be $r^{-1}$ in case $1=e^{ix}$.
 \lean{integrable_bump_convolution}
 \uses{Young-convolution}
 Let $g,f$ be bounded measurable $2\pi$-periodic functions. Let $0<r<\pi$.
-Assume we have for all $0\le x\le 2\pi$
+Assume we have for all $x$
 \begin{equation}\label{ebump1}
     |g(x)|\le k_r(x)\, .
 \end{equation}
 Let
 \begin{equation}
-   h(x)= \int_{-\pi}^{\pi} f(y)g(x-y)\, dy \, .
+   h(x)= \int_0^{2\pi} f(y)g(x-y)\, dy \, .
 \end{equation}
 Then
 \begin{equation}
-   \|h\|_{L^2[-\pi, \pi]}\le 2^{5}\|f\|_{L^2[-\pi, \pi]} \, .
+   \|h\|_{L^2[0, 2\pi]}\le 17\|f\|_{L^2[-\pi, \pi]} \, .
 \end{equation}
 
 \end{lemma}
@@ -8588,7 +8588,7 @@ Then
 \leanok
 From monotonicity of the integral and \eqref{ebump1},
 \begin{equation}
-    \|g\|_{L^1[-\pi, \pi]} \le \int_{-\pi}^{\pi}k_r(x)\, dx\,.
+    \|g\|_{L^1[0, 2\pi]} \le \int_0^{2\pi}k_r(x)\, dx\,.
 \end{equation}
 Using the symmetry
 $k_r(x)=k_r(-x)$, the assumption, and \Cref{lower-secant-bound}, the last display
@@ -8601,7 +8601,7 @@ is equal to
 \end{equation*}
 \begin{equation}
     \le 2+2\pi + 2\left(\frac {4r}r-\frac {4r}{\pi}\right)
-    \le 2^{5}\, .
+    \le 17\, .
 \end{equation}
     Together with \Cref{Young-convolution}, this proves the lemma.
 \end{proof}
@@ -8613,12 +8613,12 @@ is equal to
 Let $0<r<1$. Let $N$ be the smallest
 integer larger than $\frac 1r$.
 There is a $2\pi$-periodic continuous function
- ${L'}$ on $\R$ that satisfies for all $-\pi\le x\le \pi$
+ ${L'}$ on $\R$ that satisfies for all $0\le x\le 2\pi$
 and all $2\pi$-periodic bounded measurable functions $f$ on $\R$
 \begin{equation}\label{lthroughlprime}
-    L_Nf(x)=\frac 1{2\pi}\int_{-\pi}^{\pi}f(y) {L'}(x-y)\, dy
+    L_Nf(x)=\frac 1{2\pi}\int_{0}^{2\pi}f(y) {L'}(x-y)\, dy\,.
 \end{equation}
-and
+Moreover, for all $-\pi \le x \le \pi$,
 \begin{equation}\label{eqdifflhil}
     \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}} \kappa(x)\right|\le 12 k_r(x)\, .
 \end{equation}
@@ -8631,7 +8631,7 @@ We have by definition and \Cref{Dirichlet-kernel}
 \begin{equation}
     L_Ng(x)=
     \frac 1N\sum_{n=0}^{N-1}
-       \int_{-\pi}^{\pi} e^{-i(N+n)x} K_{N+n}(x-y) e^{i(N+n)y}g(y)
+       \int_0^{2\pi} e^{-i(N+n)x} K_{N+n}(x-y) e^{i(N+n)y}g(y)
 \, dy \, .\end{equation}
 This is of the form \eqref{lthroughlprime} with
 the continuous function
@@ -8742,34 +8742,38 @@ We now prove \Cref{Hilbert-strong-2-2}.
 
 \begin{proof}[Proof of \Cref{Hilbert-strong-2-2}]
     \proves{Hilbert-strong-2-2}
-    We first show that if $f$ is supported in $[-3/2, 3/2]$, then
+    \leanok
+    We first show that if $f$ is supported in $[1, 4]$, then
     \begin{equation}
         \label{eq-Hr-short-support}
-        \|H_r f\|_{L^2(\R)} \le 2^{16} \|f\|_{L^2(\R)}\,.
+        \|H_r f\|_{L^2[2, 3]} \le 2^{8} \|f\|_{L^2(\R)}\,.
     \end{equation}
     Let $\tilde{f}$ be the $2\pi$-periodic extension of $f$ to $\mathbb{R}$. Let $N$ be the smallest
-    integer larger than $\frac 1r$. Then, by \Cref{Dirichlet-approximation} and the triangle inequality, for $x\in [-\pi, \pi]$ we have
+    integer larger than $\frac 1r$. Then, \Cref{eqdifflhil} shows that the kernels of $H_r$ and $2\pi L_N$ differ by at
+    most $12k_r$ on $[-\pi, \pi]$. Consider $x \in [2,3]$. When computing $H_r f(x)$ and $2\pi L_N f(x)$, the kernels are
+    computed at points of the form $x-y$ with $f(y) \ne 0$, i.e., $y \in [1,4]$. As $x\in [2,3]$, the difference
+    $x-y$ is bounded in absolute value by $2$, and therefore belongs to $[-\pi, \pi]$, where the above bound holds.
+
+    It follows that, for $x \in [2,3]$,
     \begin{equation*}
-        |H_r \tilde{f}(x)|\leq 2\pi |L_N \tilde{f}(x)|+2^{5}\left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|.
+        |H_r \tilde{f}(x)|\leq 2\pi |L_N \tilde{f}(x)|+12\left|\int_{0}^{2\pi}k_r(x-y)\tilde{f}(y)\, dy\right|.
     \end{equation*}
-    Taking $L^2$ norm over the interval $[-\pi, \pi]$ and using its sub-additivity, we get
-    $$
-         \|H_r \tilde{f}\|_{L^2([-\pi, \pi])}
-    $$
+    Taking $L^2$ norm and using its sub-additivity, we get
     \begin{equation*}
-       \leq 2\pi \|L_N \tilde{f}\|_{L^2([-\pi, \pi])}\, + 2^{5}\left(\int_{-\pi}^{\pi} \left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|^2\, dx\right)^{\frac{1}{2}}.
+       \|H_r \tilde{f}\|_{L^2[2, 3]}\leq 2\pi \|L_N \tilde{f}\|_{L^2[0, 2\pi]}\, + 12\left(\int_{0}^{2\pi} \left|\int_{0}^{2\pi}k_r(x-y)\tilde{f}(y)\, dy\right|^2\, dx\right)^{\frac{1}{2}}.
     \end{equation*}
-    Since $\kappa$ is supported in $[-1,1]$, we have that $H_rf$ is supported in $[-5/2, 5/2]$ and agrees there with $H_r \tilde f(x)$.
+    Since $\kappa$ is supported in $[-1,1]$, we have that $H_r\tilde{f}$ agrees with $H_r f$ on $[2,3]$.
     Using \Cref{modulated-averaged-projection} and \Cref{integrable-bump-convolution}, we conclude
     \begin{equation}
-        \|H_r f\|_{L^2(\R)} \le \|H_r \tilde f\|_{L^2([-\pi, \pi])} \leq 2\pi \|f\|_{L^2(\R)} + 2^{10}\|f\|_{L^2(\R)}\,,
+        \|H_r f\|_{L^2[2, 3]} \le 2\pi \|f\|_{L^2[0, 2\pi]} + 12 \cdot 17 \|f\|_{L^2[0, 2\pi]}\,,
     \end{equation}
     which gives \eqref{eq-Hr-short-support}.
 
-    Suppose now that $f$ is supported in $[c, c+3]$ for some $c \in \R$. Then the function $g(x) = f(c+ \frac{3}{2} +x)$ is supported in $[-3/2,3/2]$. By a change of variables in \eqref{def-H-r}, we have $H_r g(x ) = H_r f(c+ 3/2+x)$. Thus, by \eqref{eq-Hr-short-support}
+    Suppose now that $f$ is supported in $[c, c+3]$ for some $c \in \R$. Then the function $g(x) = f(x-c+1)$ is supported in $[1, 4]$.
+    By a change of variables in \eqref{def-H-r}, we have $H_r g(x ) = H_r f(x - c + 1)$. Thus, by \eqref{eq-Hr-short-support}
     \begin{equation}
         \label{eq-Hr-short-support-2}
-        \|H_rg\|_2 = \|H_r f\|_2 \le 2^{11} \|f\|_2 = \|g\|_2\,.
+        \|H_rf\|_{L^2[c+1, c+2]} = \|H_r g\|_{L^2[2,3]} \le 2^{8} \|g\|_2 = 2^8 \|f\|_2\,.
     \end{equation}
 
     Let now $f$ be arbitrary.
@@ -8779,15 +8783,15 @@ We now prove \Cref{Hilbert-strong-2-2}.
     $$
     Thus
     $$
-        \int_{c+1}^{c+2} |H_r f(x)|^2 \, \mathrm{d}x \le \int_{\R} |H_r(f \mathbf{1}_{[c, c+3]})(x)|^2 \, \mathrm{d}x\,.
+        \int_{c+1}^{c+2} |H_r f(x)|^2 \, \mathrm{d}x = \int_{c+1}^{c+2}|H_r(f \mathbf{1}_{[c, c+3]})(x)|^2 \, \mathrm{d}x\,.
     $$
     Applying the bound \eqref{eq-Hr-short-support-2}, this is
     $$
-        \le 2^{11} \int_{c}^{c+3} |f(x)|^2 \, \mathrm{d}x\,.
+        \le 2^{16} \int_{c}^{c+3} |f(x)|^2 \, \mathrm{d}x\,.
     $$
     Summing over all $c \in \mathbb{Z}$, we obtain
     $$
-        \int_{\R} |H_rf(x)|^2 \, \mathrm{d}x \le 3 \cdot 2^{11} \int_{\R} |f(x)|^2 \, \mathrm{d}x\,.
+        \int_{\R} |H_rf(x)|^2 \, \mathrm{d}x \le 3 \cdot 2^{16} \int_{\R} |f(x)|^2 \, \mathrm{d}x\,.
     $$
     This completes the proof.
 \end{proof}
