@@ -4049,6 +4049,7 @@ an integer. Then we have
 
 
 \begin{proof}
+\leanok
 {Fix $\mfa$ and $N$. Let
 $\mathfrak{A}'$ be the set of $\fp\in\mathfrak{A}_{\mfa,N}$ such that $\scI(\fp)\cap G$ is not empty and $s(\fp) > -S$.
 Let $\mathfrak{A}_{-S}$ be the set of $\fp\in\mathfrak{A}_{\mfa,N}$ such that $\scI(\fp)\cap G$ is not empty and $s(\fp) = -S$ }
@@ -4067,14 +4068,13 @@ by definition of $\mathcal{L}_{-S}$, and hence they are pairwise disjoint by the
     = \sum_{L \in \mathcal{L}_{-S}} \sum_{\fp\in\mathfrak{A}_{-S}, \scI(\fp) = L} \mu(E(\fp)\cap G),
 \]
 and using \Cref{stack-density}, we estimate
-\begin{equation}
-    \label{eq_minus_S}
+\begin{equation}\label{eq_minus_S}
     \le 2^{a(N+5)} \dens_1(\mathfrak{A}) \sum_{L \in \mathcal{L}_{-S}} \mu(L)
     \le 2^{a(N+5)} \dens_1(\mathfrak{A}) \mu\left(\cup_{\fp\in\mathfrak{A}}I_{\fp}\right).
 \end{equation}
 
 We turn to $\mathfrak{A}'$.
-Let $\mathcal{L}$ be the collection of dyadic cubes $I\in\mathcal{D}$ such that $I\subset \scI(\fp)$
+Let $\mathcal{L}$ be the collection of dyadic cubes $I\in\mathcal{D}$ such that $I \le \scI(\fp)$
 for some $\fp\in\mathfrak{A}'$ and such that $\scI(\fp)\not \subset I$ for all $\fp\in\mathfrak{A}'$.
 By \eqref{coverdyadic}, for each $\fp \in \mathfrak{A}'$
 and each $x\in \scI(\fp)\cap G$, there is $I\in \mathcal{D}$ with $s(I)=-S$ and $x\in I$.
@@ -4099,13 +4099,13 @@ Using the partition \eqref{eqdecAprime} into elements of $\mathcal{L}$ in \eqref
     2^{101a^3+aN}
     \dens_1(\mathfrak{A})\mu(L)\,.
 \end{equation}
-Fix $L\in \mathcal{L}^*$. By definition of $L$, there exists an element $\fp'\in \mathfrak{A}'$
+Fix $L\in \mathcal{L}^*$. By definition of $\mathcal{L}^*$, there exists an element $\fp'\in \mathfrak{A}'$
 such that $L\subset \scI(\fp')$. Pick such an element $\fp'$ in $\mathfrak{A}$ with
 minimal $\ps(\fp')$. As $\scI(\fp')\not \subset L$ by definition of $L$,
 we have with \eqref{dyadicproperty} that $s(L)< \ps(\fp')$.
 In particular $s(L)<S$, thus $L \ne I_0$ and hence by \eqref{subsetmaxcube}
 there exists a cube $J \in \mathcal{D}$ with $L \subsetneq J$.
-By \eqref{coverdyadic}, there is an $L'\in \mathcal{D}$ with $s(L')=s(L)+1$ and $c(L)\in L'$.
+By \eqref{coverdyadic}, there is an $L'\in \mathcal{D}$ with $s(L')=s(L)+1$ and $L \le L'$.
 By \eqref{dyadicproperty}, we have $L\subset L'$.
 
 We split the left-hand side of \eqref{eqanti0} as
@@ -4122,8 +4122,6 @@ with \Cref{stack-density} by
 \begin{equation}\label{equanti1.5}
     \le \sum_{\fp\in\mathfrak{A}':\scI(\fp)=L'}\mu(E(\fp)\cap G\cap L')\le 2^{a(N+5)}\dens_1(\mathfrak{A})\mu(L')\, .
 \end{equation}
-
-
 
 We turn to \eqref{eqanti2}.
 Consider the element $\fp'\in \mathfrak{A}'$ as above
@@ -4158,7 +4156,7 @@ so by \Cref{tile-reach}, we conclude
 This clearly also holds in the case $\scI(\fp'') = L'$, since then $\fp'' = \fp_\mfa$. Furthermore,
 in both cases it also holds that
 \begin{equation}
-    \mfa \in \mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 2^{N+1}).
+    \mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 2^{N+1}).
 \end{equation}
 
 As $\fp''\in \mathfrak{A}'$, we have by Definition
