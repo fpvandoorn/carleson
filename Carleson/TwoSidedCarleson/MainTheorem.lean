@@ -7,9 +7,9 @@ open scoped NNReal
 noncomputable section
 
 /-- The constant used in `two_sided_metric_carleson`.
-Has value `2 ^ (452 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
+Has value `2 ^ (474 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
 -- todo: put C_K in NNReal?
-def C10_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := (C_K a) ^ 2 * C1_0_2 a q
+def C10_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := C_K a ^ 2 * C1_0_2 a q
 
 lemma C10_0_1_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C10_0_1 a q :=
   mul_pos (pow_two_pos_of_ne_zero <| by simp_rw [ne_eq, C_K_pos.ne', not_false_eq_true])
