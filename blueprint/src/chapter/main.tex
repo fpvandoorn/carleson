@@ -161,7 +161,7 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
     $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
     \begin{equation}
         \label{resweak}
-        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{471a^3+4}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{472a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
     \end{equation}
 \end{theorem}
 
@@ -200,7 +200,7 @@ where again $e(r)=e^{ir}$.
     $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
     \begin{equation}
         \label{linresweak}
-        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \le \frac{2^{471a^3+4}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \le \frac{2^{472a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
     \end{equation}
 \end{theorem}
 
@@ -417,7 +417,7 @@ Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all
 we have
 \begin{equation}
     \label{disclesssim}
-   \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{434a^3}}{(q-1)^4} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+   \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{471a^3+1}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
 \end{equation}
 \end{proposition}
 
@@ -928,11 +928,8 @@ For each $x$ and all $f$, the functions $\sup_{2^{-n} < R_1 < R_2 < 2^n} T_{R_1,
     \uses{S-truncation}
 
     Let $F$, $G$ be Borel sets in $X$. Let $f:X\to \C$ be a Borel function with $|f|\le 1_F$. Then for all $R\in 2^\N$ we have
-    $$
-        \int \mathbf{1}_G \sup_{1/R<R_1<R_2<R} |T_{R_1,R_2,R} f(x)|\, d\mu(x)
-    $$
     \begin{equation} \label{Rcut}
-        \le \frac{2^{471a^3+4}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
+        \int \mathbf{1}_G \sup_{1/R<R_1<R_2<R} |T_{R_1,R_2,R} f(x)|\, d\mu(x) \le \frac{2^{472a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
     \end{equation}
     where
     \begin{equation}\label{TRR}
@@ -3380,6 +3377,7 @@ We have that
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 We have $f=\mathbf{1}_Ff$. Using H\"older's inequality, we obtain for
 each $x\in B'$ and each $B'\in \mathcal{B}$ using $1<\tilde{q}\le 2$
 \begin{equation}
@@ -4048,6 +4046,7 @@ an integer. Then we have
 
 
 \begin{proof}
+\leanok
 {Fix $\mfa$ and $N$. Let
 $\mathfrak{A}'$ be the set of $\fp\in\mathfrak{A}_{\mfa,N}$ such that $\scI(\fp)\cap G$ is not empty and $s(\fp) > -S$.
 Let $\mathfrak{A}_{-S}$ be the set of $\fp\in\mathfrak{A}_{\mfa,N}$ such that $\scI(\fp)\cap G$ is not empty and $s(\fp) = -S$ }
@@ -4066,14 +4065,13 @@ by definition of $\mathcal{L}_{-S}$, and hence they are pairwise disjoint by the
     = \sum_{L \in \mathcal{L}_{-S}} \sum_{\fp\in\mathfrak{A}_{-S}, \scI(\fp) = L} \mu(E(\fp)\cap G),
 \]
 and using \Cref{stack-density}, we estimate
-\begin{equation}
-    \label{eq_minus_S}
+\begin{equation}\label{eq_minus_S}
     \le 2^{a(N+5)} \dens_1(\mathfrak{A}) \sum_{L \in \mathcal{L}_{-S}} \mu(L)
     \le 2^{a(N+5)} \dens_1(\mathfrak{A}) \mu\left(\cup_{\fp\in\mathfrak{A}}I_{\fp}\right).
 \end{equation}
 
 We turn to $\mathfrak{A}'$.
-Let $\mathcal{L}$ be the collection of dyadic cubes $I\in\mathcal{D}$ such that $I\subset \scI(\fp)$
+Let $\mathcal{L}$ be the collection of dyadic cubes $I\in\mathcal{D}$ such that $I \le \scI(\fp)$
 for some $\fp\in\mathfrak{A}'$ and such that $\scI(\fp)\not \subset I$ for all $\fp\in\mathfrak{A}'$.
 By \eqref{coverdyadic}, for each $\fp \in \mathfrak{A}'$
 and each $x\in \scI(\fp)\cap G$, there is $I\in \mathcal{D}$ with $s(I)=-S$ and $x\in I$.
@@ -4098,13 +4096,13 @@ Using the partition \eqref{eqdecAprime} into elements of $\mathcal{L}$ in \eqref
     2^{101a^3+aN}
     \dens_1(\mathfrak{A})\mu(L)\,.
 \end{equation}
-Fix $L\in \mathcal{L}^*$. By definition of $L$, there exists an element $\fp'\in \mathfrak{A}'$
+Fix $L\in \mathcal{L}^*$. By definition of $\mathcal{L}^*$, there exists an element $\fp'\in \mathfrak{A}'$
 such that $L\subset \scI(\fp')$. Pick such an element $\fp'$ in $\mathfrak{A}$ with
 minimal $\ps(\fp')$. As $\scI(\fp')\not \subset L$ by definition of $L$,
 we have with \eqref{dyadicproperty} that $s(L)< \ps(\fp')$.
 In particular $s(L)<S$, thus $L \ne I_0$ and hence by \eqref{subsetmaxcube}
 there exists a cube $J \in \mathcal{D}$ with $L \subsetneq J$.
-By \eqref{coverdyadic}, there is an $L'\in \mathcal{D}$ with $s(L')=s(L)+1$ and $c(L)\in L'$.
+By \eqref{coverdyadic}, there is an $L'\in \mathcal{D}$ with $s(L')=s(L)+1$ and $L \le L'$.
 By \eqref{dyadicproperty}, we have $L\subset L'$.
 
 We split the left-hand side of \eqref{eqanti0} as
@@ -4121,8 +4119,6 @@ with \Cref{stack-density} by
 \begin{equation}\label{equanti1.5}
     \le \sum_{\fp\in\mathfrak{A}':\scI(\fp)=L'}\mu(E(\fp)\cap G\cap L')\le 2^{a(N+5)}\dens_1(\mathfrak{A})\mu(L')\, .
 \end{equation}
-
-
 
 We turn to \eqref{eqanti2}.
 Consider the element $\fp'\in \mathfrak{A}'$ as above
@@ -4157,7 +4153,7 @@ so by \Cref{tile-reach}, we conclude
 This clearly also holds in the case $\scI(\fp'') = L'$, since then $\fp'' = \fp_\mfa$. Furthermore,
 in both cases it also holds that
 \begin{equation}
-    \mfa \in \mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 2^{N+1}).
+    \mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 2^{N+1}).
 \end{equation}
 
 As $\fp''\in \mathfrak{A}'$, we have by Definition
@@ -6878,7 +6874,7 @@ T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)
         $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
       \begin{equation}
         \label{two-sided-resweak}
-            \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{452a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+            \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{474a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
         \end{equation}
 \end{theorem}
 
@@ -6898,6 +6894,7 @@ The following lemma is proved in \Cref{subsec-cotlar}.
 
 \begin{proof}[Proof of \Cref{two-sided-metric-space-Carleson}]
     \proves{two-sided-metric-space-Carleson}
+    \leanok
     Let $1<q\le 2$ be a real number. Let $\Theta$ be a cancellative compatible collection of functions.
     By the assumption \eqref{two-sided-Hr-bound-assumption}, we can apply \Cref{nontangential-from-simple} to obtain for every bounded measurable $g:X\to\C$ supported on a set of finite measure,
     \begin{equation}\label{original-operator-assumption}
@@ -8006,7 +8003,7 @@ All subsections past \Cref{10classical} are mutually independent.
 Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$ and $\epsilon>0$ be given.
 Let
 \begin{equation}
-    C_{a,q} := \frac{2^{452a^3}}{(q-1)^6}
+    C_{a,q} := \frac{2^{474a^3}}{(q-1)^6}
 \end{equation}
 denote the constant from \Cref{two-sided-metric-space-Carleson}.
 Define
