@@ -106,8 +106,9 @@ theorem map_coe_addCircle_volume_eq :
   ext s hs
   simp [hs]
 
-theorem map_coe_addCircle_volume_ac :
-    (Measure.map (fun (x : ℝ) ↦ (x : AddCircle T)) volume) ≪ volume := by
+theorem quasiMeasurePreserving_coe_addCircle :
+    QuasiMeasurePreserving (fun (x : ℝ) ↦ (x : AddCircle T)) := by
+  refine ⟨by fun_prop, ?_⟩
   rw [map_coe_addCircle_volume_eq]
   exact smul_absolutelyContinuous
 
