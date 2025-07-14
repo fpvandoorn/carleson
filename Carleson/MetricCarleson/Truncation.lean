@@ -80,23 +80,8 @@ theorem finitary_carleson_step
     ∫⁻ x in G \ G', ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ ≤
     C2_0_1 a q * (volume G) ^ (q' : ℝ)⁻¹ * (volume F) ^ (q : ℝ)⁻¹ := by
   obtain ⟨Q, BST_T_Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩ := CP
-  rcases eq_zero_or_pos (volume G) with vG | vG
-  · use ∅, empty_subset _, isBounded_empty, MeasurableSet.empty
-    simp only [measure_empty, mul_zero, zero_le, diff_empty, true_and]
-    rw [setLIntegral_measure_zero _ _ vG]; exact zero_le _
-  rcases eq_zero_or_pos (volume F) with vF | vF
-  · use ∅, empty_subset _, isBounded_empty, MeasurableSet.empty
-    simp only [measure_empty, mul_zero, zero_le, diff_empty, true_and]
-    suffices ∀ x, ‖T_lin Q σ₁ σ₂ f x‖ₑ = 0 by
-      rw [lintegral_congr this, lintegral_zero]; exact zero_le _
-    intro x; rw [enorm_eq_zero, T_lin]
-    refine Finset.sum_eq_zero fun s ms ↦ integral_eq_zero_of_ae ?_
-    classical
-    convert ite_ae_eq_of_measure_zero (fun y ↦ Ks s x y * f y * exp (I * Q x y)) 0 F vF using 1
-    ext y; symm; rw [ite_eq_left_iff]; intro ny
-    specialize nf y; simp_rw [indicator_of_notMem ny, norm_le_zero_iff] at nf; simp [nf]
   let PD : ProofData a q K σ₁ σ₂ F G :=
-    ⟨‹_›, hq, bF, bG, mF, mG, vF, vG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, BST_T_Q⟩
+    ⟨‹_›, hq, bF, bG, mF, mG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, BST_T_Q⟩
   obtain ⟨G₁, mG₁, vG₁, hG₁⟩ := finitary_carleson X
   refine ⟨G ∩ G₁, inter_subset_left, bG.subset inter_subset_left, mG.inter mG₁, ?_, ?_⟩
   · refine le_trans ?_ vG₁; gcongr; exact inter_subset_right
@@ -587,7 +572,7 @@ def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f :
   (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
 
 /-- The constant used from `R_truncation` to `metric_carleson`. -/
-def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3 + 4) / (q - 1) ^ 6
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (472 * a ^ 3) / (q - 1) ^ 6
 
 lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   rw [C1_0_2]
@@ -623,7 +608,11 @@ lemma le_C1_0_2 (a4 : 4 ≤ a) (hq : q ∈ Ioc 1 2) :
           _ = 107 * a ^ 3 := by ring
           _ ≤ 471 * a ^ 3 := by gcongr; norm_num
           _ ≤ _ := Nat.le_add_right ..
-    _ = _ := by rw [C3_0_4, ← two_mul, ← mul_div_assoc, ← pow_succ', C1_0_2]
+    _ ≤ _ := by
+      rw [C3_0_4, ← two_mul, ← mul_div_assoc, ← pow_succ', C1_0_2]; gcongr
+      · exact one_le_two
+      · rw [add_assoc, show 472 * a ^ 3 = 471 * a ^ 3 + a ^ 3 by ring]
+        gcongr; exact a4.trans (Nat.le_pow zero_lt_three)
 
 variable [IsCancellative X (defaultτ a)]
 
