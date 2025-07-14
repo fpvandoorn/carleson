@@ -234,4 +234,17 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
         _ ≤ _ := by convert le_iSup₂ _ hq₁; rfl
     _ ≤ _ := iSup_le fun n ↦ linearized_metric_carleson hq hqq' mF mG mf nf (BST_LNT_of_BST_NT hT)
 
+/-- Theorem 1.0.2, with an explicit value for the constant -/
+theorem metric_carleson' [IsCancellative X (defaultτ a)]
+    (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+    (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)) :
+    ∫⁻ x in G, carlesonOperator K f x ≤
+    (2 ^ (53 * a ^ 3) / (q - 1) ^ 6) * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+  convert metric_carleson hq hqq' mF mG mf nf hT
+  simp only [C1_0_2, CDN, Nat.reduceMul, Nat.reduceAdd, Nat.reduceDiv]
+  rw [ENNReal.coe_div]
+  · rfl
+  · simpa [tsub_eq_zero_iff_le] using hq.1
+
 end

@@ -395,9 +395,12 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
     _ ≤ (C2_1_2 a)⁻¹ ^ (Z * (n + 1)) := by
       refine pow_le_pow_left₀ zero_le_two ?_ _
       nth_rw 1 [C2_1_2, ← Real.inv_rpow zero_le_two, ← Real.rpow_neg_one,
-        ← Real.rpow_mul zero_le_two, neg_one_mul, neg_mul, neg_neg, ← Real.rpow_one 2]
+        ← Real.rpow_mul zero_le_two, neg_one_mul, ← Real.rpow_one 2]
       apply Real.rpow_le_rpow_of_exponent_le one_le_two
-      norm_cast; linarith [four_le_a X]
+      simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le]
+      norm_cast
+      simp only [CDN]
+      linarith [four_le_a X]
     _ ≤ (C2_1_2 a)⁻¹ ^ d := by
       refine pow_le_pow_right₀ ?_ (by omega)
       simp_rw [one_le_inv_iff₀, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity
@@ -1000,7 +1003,7 @@ lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :
 
 /-- The constant used in Lemma 5.1.2, with value `2 ^ (471 * a ^ 3) / (q - 1) ^ 4`.
 The best constant naturally given by this step is `C5_1_2_optimized` above. -/
-def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3) / (q - 1) ^ 4
+def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * CDN + 17 + 5 * (CDN / 4)) * a ^ 3) / (q - 1) ^ 4
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by
@@ -1014,7 +1017,7 @@ lemma C5_1_2_optimized_le : C5_1_2_optimized a nnq ≤ C5_1_2 a nnq := by
   apply (C5_1_2_optimized_le' (four_le_a X)).trans_eq
   simp only [C2_0_4_base, C5_1_2]
   rw [← NNReal.rpow_natCast _ (a ^ 3), NNReal.rpow_natCast, ← pow_add, ← add_one_mul]
-  congr
+  ring_nf
 
 /-- Lemma 5.1.2 in the blueprint: the integral of the Carleson sum over the set which can
 naturally be decomposed as a union of forests can be controlled, thanks to the estimate for

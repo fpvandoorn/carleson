@@ -18,9 +18,9 @@ namespace TileStructure.Forest
 /-! ## Section 7.3 and Lemma 7.3.1 -/
 
 /-- The constant used in `local_dens1_tree_bound`.
-Has value `2 ^ (101 * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (61 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ (101 * a ^ 3)
+irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 1) * a ^ 3)
 
 /-- Part 1 of Lemma 7.3.2. -/
 lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
@@ -50,19 +50,25 @@ lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
       rw [lip]
       exact volume_E₂_le_dens₁_mul_volume (subset_lowerCubes mp) mp (by norm_num) le_rfl
     _ ≤ _ := by
-      gcongr; rw [C7_3_2]; norm_cast
+      gcongr
+      rw [C7_3_2]
+      norm_cast
       calc
         _ ≤ 2 ^ (4 * a) := by rw [pow_mul]; gcongr; norm_num
-        _ ≤ _ := by gcongr; exacts [one_le_two, by norm_num, Nat.le_self_pow three_ne_zero a]
+        _ ≤ _ := by
+          gcongr
+          · norm_num
+          · simp [CDN]
+          · apply Nat.le_pow (by norm_num)
 
 lemma volume_bound_of_Grid_lt {L L' : Grid X} (lL : L ≤ L') (sL : s L' = s L + 1) :
-    volume (L' : Set X) ≤ 2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X) := by
+    volume (L' : Set X) ≤ 2 ^ (CDN * a ^ 3 + 5 * a) * volume (L : Set X) := by
   suffices volume (ball (c L') (4 * D ^ s L')) ≤
-      2 ^ (100 * a ^ 3 + 5 * a) * volume (ball (c L) (D ^ s L / 4)) by
+      2 ^ (CDN * a ^ 3 + 5 * a) * volume (ball (c L) (D ^ s L / 4)) by
     refine (le_trans ?_ this).trans ?_
     · exact measure_mono Grid_subset_ball
     · gcongr; exact ball_subset_Grid
-  have db : dist (c L) (c L') + 4 * D ^ s L' < 2 ^ (100 * a ^ 2 + 5) * (D ^ s L / 4) := by
+  have db : dist (c L) (c L') + 4 * D ^ s L' < 2 ^ (CDN * a ^ 2 + 5) * (D ^ s L / 4) := by
     calc
       _ < (4 : ℝ) * D ^ s L' + 4 * D ^ s L' := by
         gcongr; rw [← mem_ball]
@@ -127,9 +133,9 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
       _ ≤ 9 ^ a * dens₁ (t u) * volume (L' : Set X) := by
         rw [← ip']
         exact volume_E₂_le_dens₁_mul_volume mp' mp'' (by norm_num) sp'
-      _ ≤ 2 ^ (4 * a) * 2 ^ (100 * a ^ 3 + 5 * a) * dens₁ (t u) * volume (L : Set X) := by
+      _ ≤ 2 ^ (4 * a) * 2 ^ (CDN * a ^ 3 + 5 * a) * dens₁ (t u) * volume (L : Set X) := by
         rw [show 2 ^ (4 * a) * _ * dens₁ (t u) * volume (L : Set X) =
-          2 ^ (4 * a) * dens₁ (t u) * (2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X)) by ring]
+          2 ^ (4 * a) * dens₁ (t u) * (2 ^ (CDN * a ^ 3 + 5 * a) * volume (L : Set X)) by ring]
         gcongr ?_ * _ * ?_
         · norm_cast; rw [pow_mul]; exact pow_le_pow_left' (by norm_num) a
         · exact volume_bound_of_Grid_lt lL'.le sL'
@@ -137,8 +143,8 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
         gcongr; rw [C7_3_2]; norm_cast; rw [← pow_add]; apply Nat.pow_le_pow_right zero_lt_two
         rw [← add_assoc, ← add_rotate, ← add_mul, show 4 + 5 = 9 by norm_num]
         calc
-          _ ≤ 4 * 4 * a + 100 * a ^ 3 := by gcongr; norm_num
-          _ ≤ a * a * a + 100 * a ^ 3 := by gcongr <;> exact four_le_a X
+          _ ≤ 4 * 4 * a + CDN * a ^ 3 := by gcongr; norm_num
+          _ ≤ a * a * a + CDN * a ^ 3 := by gcongr <;> exact four_le_a X
           _ = _ := by ring
   obtain lp'' | lp'' := lp''.eq_or_lt
   · use p'', subset_lowerCubes mp'', lp'', t.dist_lt_four hu mp''
@@ -167,12 +173,12 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
       _ < _ := by norm_num
 
 /-- The constant used in `local_dens2_tree_bound`.
-Has value `2 ^ (200 * a ^ 3 + 19)` in the blueprint, but that appears to be an error. -/
+Has value `2 ^ (120 * a ^ 3 + 19)` in the blueprint, but that appears to be an error. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_3_3 (a : ℕ) : ℝ≥0 := 2 ^ (201 * (a : ℝ) ^ 3)
+irreducible_def C7_3_3 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * CDN + 1) * (a : ℝ) ^ 3)
 
 private lemma le_C7_3_3_exponent (ha : 4 ≤ a) (b : ℕ) (hb : b ≤ 16) :
-    200 * a ^ 3 + b * a ≤ 201 * a ^ 3 := by
+    2 * CDN * a ^ 3 + b * a ≤ (2 * CDN + 1) * a ^ 3 := by
   nlinarith [pow_le_pow_left' ha 2]
 
 -- Auxiliary result used to prove `local_dens2_tree_bound`
@@ -191,7 +197,7 @@ private lemma local_dens2_tree_bound_aux {p : 𝔓 X} (hpu : p ∈ t u) {r : ℝ
 -- Special case of `local_dens2_tree_bound_aux` which is used twice
 private lemma local_dens2_tree_bound_aux' {p : 𝔓 X} (hpu : p ∈ t u)
     (h₁ : (J : Set X) ⊆ ball (𝔠 p) (4 * (D : ℝ) ^ (𝔰 p)))
-    (h₂ : volume (𝓘 p : Set X) ≤ 2 ^ (200 * a ^ 3 + 10 * a) * volume (J : Set X)) :
+    (h₂ : volume (𝓘 p : Set X) ≤ 2 ^ (2 * CDN * a ^ 3 + 10 * a) * volume (J : Set X)) :
     volume (F ∩ J) ≤ C7_3_3 a * dens₂ (t u) * volume (J : Set X) := by
   apply local_dens2_tree_bound_aux hpu (le_refl _) h₁
   rw [show 4 * (D : ℝ) ^ 𝔰 p = 2 ^ 4 * (D ^ 𝔰 p / 4) by ring]
@@ -219,41 +225,41 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   push_neg at this
   obtain ⟨p, hpu, hp⟩ := this.2
   have d0 := defaultD_pos a
-  have volume_le : volume (ball (c J') (204 * D ^ (s J' + 1))) ≤
-                     2 ^ (200 * a ^ 3 + 10 * a) * volume (J : Set X) := calc
-    _ ≤ volume (ball (c J) ((204 * D + 4) * D ^ (s J'))) := by
+  have volume_le : volume (ball (c J') (124 * D ^ (s J' + 1))) ≤
+                     2 ^ (2 * CDN * a ^ 3 + 10 * a) * volume (J : Set X) := calc
+    _ ≤ volume (ball (c J) ((124 * D + 4) * D ^ (s J'))) := by
       refine measure_mono <| ball_subset_ball' ?_
       rw [add_mul, mul_assoc, zpow_add₀ d0.ne.symm, mul_comm (D : ℝ), zpow_one]
       apply add_le_add_left (mem_ball'.mp <| Grid_subset_ball <| hJJ'.1 J.c_mem_Grid).le
-    _ ≤ volume (ball (c J) (2 ^ (200 * a ^ 2 + 8) * D ^ (s J))) := by
+    _ ≤ volume (ball (c J) (2 ^ (2 * CDN * a ^ 2 + 8) * D ^ (s J))) := by
       rw [hsJ', zpow_add₀ d0.ne.symm, mul_comm ((D : ℝ) ^ (s J)), ← mul_assoc, zpow_one]
       refine measure_mono (ball_subset_ball <| mul_le_mul_of_nonneg_right ?_ (zpow_pos d0 (s J)).le)
       calc
           _ ≤ 2 ^ 8 * (D : ℝ) ^ 2   := by nlinarith [one_lt_D (X := X)]
-          _ = 2 ^ (200 * a ^ 2 + 8) := by norm_cast; rw [pow_add, defaultD, ← pow_mul]; ring_nf
-    _ ≤ (defaultA a) ^ (200 * a ^ 2 + 10) * volume (ball (c J) (D ^ (s J) / 4)) := by
-        rw [show 2 ^ (200 * a^2 + 8) * (D : ℝ) ^ s J = 2 ^ (200 * a^2 + 10) * (D ^ s J / 4) by ring]
+          _ = 2 ^ (2 * CDN * a ^ 2 + 8) := by norm_cast; rw [pow_add, defaultD, ← pow_mul]; ring_nf
+    _ ≤ (defaultA a) ^ (2 * CDN * a ^ 2 + 10) * volume (ball (c J) (D ^ (s J) / 4)) := by
+        rw [show 2 ^ (2 * CDN * a^2 + 8) * (D : ℝ) ^ s J = 2 ^ (2 * CDN * a^2 + 10) * (D ^ s J / 4) by ring]
         apply measure_ball_two_le_same_iterate
-    _ ≤ 2 ^ (200 * a ^ 3 + 10 * a) * volume (J : Set X) := by
+    _ ≤ 2 ^ (2 * CDN * a ^ 3 + 10 * a) * volume (J : Set X) := by
       apply le_of_le_of_eq <| mul_le_mul_left' (measure_mono ball_subset_Grid) _
       simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat]
       rw [← pow_mul, mul_comm a, add_mul, mul_assoc, show a ^ 2 * a = a ^ 3 by rfl]
   by_cases hJB : (J : Set X) ⊆ ball (𝔠 p) (4 * D ^ (𝔰 p))
   · refine local_dens2_tree_bound_aux' hpu hJB <| (measure_mono ?_).trans volume_le
     exact hp.trans <| ball_subset_ball (by gcongr; norm_num)
-  have hcJ' : dist (c J') (𝔠 p) < 100 * (D : ℝ) ^ (s J' + 1) := by
+  have hcJ' : dist (c J') (𝔠 p) < 60 * (D : ℝ) ^ (s J' + 1) := by
     refine mem_ball'.mp <| hp <| ball_subset_Grid <| mem_ball.mpr ?_
     rw [𝔠, c, dist_self]
     positivity
-  have hJp : (J : Set X) ⊆ ball (𝔠 p) (104 * D ^ (s J' + 1)) := by
-    rw [show (104 : ℝ) = 4 + 100 by norm_num, add_mul]
+  have hJp : (J : Set X) ⊆ ball (𝔠 p) (64 * D ^ (s J' + 1)) := by
+    rw [show (64 : ℝ) = 4 + 60 by norm_num, add_mul]
     refine (hJJ'.1.trans Grid_subset_ball).trans <| ball_subset_ball' <| add_le_add ?_ hcJ'.le
     exact mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ one_le_D (Int.le.intro 1 rfl)) four_pos.le
   apply local_dens2_tree_bound_aux hpu (le_of_not_ge (hJB <| hJp.trans <| ball_subset_ball ·)) hJp
-  have B_subset : ball (𝔠 p) (104 * D ^ (s J' + 1)) ⊆ ball (c J') (204 * D ^ (s J' + 1)) := by
+  have B_subset : ball (𝔠 p) (64 * D ^ (s J' + 1)) ⊆ ball (c J') (124 * D ^ (s J' + 1)) := by
     apply ball_subset_ball'
-    rw [show (204 : ℝ) = 104 + 100 by norm_num, add_mul]
-    exact add_le_add_left (dist_comm (c J') (𝔠 p) ▸ hcJ'.le) (104 * (D : ℝ) ^ (s J' + 1))
+    rw [show (124 : ℝ) = 64 + 60 by norm_num, add_mul]
+    exact add_le_add_left (dist_comm (c J') (𝔠 p) ▸ hcJ'.le) (64 * (D : ℝ) ^ (s J' + 1))
   refine (measure_mono B_subset).trans <| volume_le.trans <| mul_le_mul_right' ?_ _
   rw [C7_3_3]
   norm_cast
@@ -262,7 +268,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
 /-- The constant used in `density_tree_bound1` and `adjoint_tree_estimate`.
 Has value `2 ^ (202.5 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ (202.5 * (a : ℝ) ^ 3)
+irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 5 + CDN/2 + CDN/4) * a ^ 3)
 
 -- Main bound in the proof of Lemma 7.3.1
 private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
@@ -398,7 +404,7 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
       exact hx ⟨E p, ⟨p, by simp [Finset.mem_filter.mp hp]⟩, hxp⟩
     _ ≤ _ := tree_projection_estimate hf hgℰ hu
     _ ≤ (C7_2_1 a) * (c * eLpNorm f 2 volume) *
-          (2 ^ (50.5 * (a : ℝ) ^ 3) * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume) := by
+          (2 ^ (((CDN / 2 : ℕ) + 1) * (a : ℝ) ^ 3) * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume) := by
       refine mul_le_mul' (mul_le_mul_left' hc (C7_2_1 a)) ?_
       have hgℰ' : ∀ x ∉ G ∩ ℰ, ℰ.indicator g x = 0 := by
         intro x hx
@@ -418,17 +424,29 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
       · rw [C7_3_2, ENNReal.rpow_ofNNReal (inv_nonneg_of_nonneg two_pos.le)]
         rw [← NNReal.rpow_natCast]
         rw [← NNReal.rpow_mul 2 _ 2⁻¹, ← ENNReal.rpow_ofNNReal (by positivity)]
-        apply le_of_eq; congr 1; push_cast; ring
+        simp only [ENNReal.coe_ofNat, Nat.cast_mul, Nat.cast_add, Nat.cast_one, Nat.cast_pow]
+        gcongr 2 ^ ?_
+        · norm_num
+        rw [show (CDN + 1 : ℝ) * a ^ 3 * 2⁻¹ = ((CDN + 1) * a ^ 3) / 2 by ring]
+        apply div_le_of_le_mul₀ (zero_le_two) (by positivity)
+        norm_cast
+        rw [mul_comm _ 2, ← mul_assoc]
+        gcongr
+        omega
       · refine eLpNorm_mono (fun x ↦ ?_)
         rw [indicator]
         split_ifs <;> simp
-    _ = C7_2_1 a * 2 ^ ((50.5 : ℝ) * a ^ 3) * dens₁ ((fun x ↦ t.𝔗 x) u) ^ (2 : ℝ)⁻¹ * c *
+    _ = C7_2_1 a * 2 ^ (((CDN / 2 : ℕ) + (1 : ℝ)) * a ^ 3) * dens₁ ((fun x ↦ t.𝔗 x) u) ^ (2 : ℝ)⁻¹ * c *
           eLpNorm f 2 volume * eLpNorm g 2 volume := by ring
     _ = _ := by
       rw [C7_2_1, C7_3_1_1, ENNReal.coe_pow, ← ENNReal.rpow_natCast]
-      repeat rw [← ENNReal.rpow_ofNNReal (by positivity), ENNReal.coe_ofNat]
+      congr
+      simp only [ENNReal.coe_ofNat, Nat.cast_mul, Nat.cast_add, Nat.cast_ofNat, Nat.cast_pow,
+        ENNReal.coe_pow, ← ENNReal.rpow_natCast]
       rw [← ENNReal.rpow_add_of_nonneg _ _ (by positivity) (by positivity)]
-      congr; push_cast; ring
+      congr 1
+      norm_cast
+      ring
 
 /-- First part of Lemma 7.3.1. -/
 lemma density_tree_bound1 (hf : BoundedCompactSupport f)
@@ -444,7 +462,7 @@ lemma density_tree_bound1 (hf : BoundedCompactSupport f)
 /-- The constant used in `density_tree_bound2` and `indicator_adjoint_tree_estimate`.
 Has value `2 ^ (303 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (303 * (a : ℝ) ^ 3)
+irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * CDN + 6 + CDN/2 + CDN/4) * a ^ 3)
 
 /-- Second part of Lemma 7.3.1. -/
 lemma density_tree_bound2
@@ -459,15 +477,25 @@ lemma density_tree_bound2
     have : ∀ J ∈ 𝓙 (t u), volume (J ∩ F) ≤ C7_3_3 a * dens₂ (t u) * volume (J : Set X) :=
       fun J hJ ↦ by rw [inter_comm]; apply local_dens2_tree_bound hu hJ
     exact eLpNorm_approxOnCube_two_le pairwiseDisjoint_𝓙 measurableSet_F this hf h2f
-  apply le_of_le_of_eq (density_tree_bound_aux hf hg sg hu hc)
+  apply (density_tree_bound_aux hf hg sg hu hc).trans
   rw [ENNReal.mul_rpow_of_nonneg _ _ (inv_pos_of_pos two_pos).le]
   calc
     _ = (C7_3_1_1 a) * (C7_3_3 a) ^ (2 : ℝ)⁻¹ * dens₁ ((fun x ↦ t.𝔗 x) u) ^ (2 : ℝ)⁻¹ *
           dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by ring
-    _ = _ := by
+    _ ≤ _ := by
       rw [C7_3_1_1, C7_3_1_2, C7_3_3, ENNReal.rpow_ofNNReal (inv_pos.mpr two_pos).le,
-        ← ENNReal.coe_mul, ← NNReal.rpow_mul, ← NNReal.rpow_add two_pos.ne.symm,
+        ← ENNReal.coe_mul, ← NNReal.rpow_mul, ← NNReal.rpow_natCast,
+        ← NNReal.rpow_add two_pos.ne.symm, ← NNReal.rpow_natCast,
         ENNReal.coe_rpow_of_nonneg _ (by positivity), ENNReal.coe_rpow_of_nonneg _ (by positivity)]
+      gcongr
+      · norm_num
+      rw [← mul_le_mul_right zero_lt_two]
+      simp only [add_mul, Nat.cast_add, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, mul_assoc,
+        one_mul]
+      simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, inv_mul_cancel₀, mul_one]
+      norm_cast
       ring_nf
+      gcongr
+      norm_num
 
 end TileStructure.Forest

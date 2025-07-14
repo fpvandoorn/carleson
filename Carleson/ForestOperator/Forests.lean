@@ -21,7 +21,7 @@ namespace TileStructure.Forest
 /-! ## Lemma 7.4.4 -/
 
 lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
-    C7_4_5 a n ≤ 2 ^ (533 * a ^ 3) * 2 ^ (-(4 * n : ℝ)) := by
+    C7_4_5 a n ≤ 2 ^ ((4 * CDN + 16 + 3 * (CDN / 4)) * a ^ 3) * 2 ^ (-(4 * n : ℝ)) := by
   simp_rw [C7_4_5, neg_div, NNReal.rpow_neg, ← div_eq_mul_inv]
   gcongr _ / 2 ^ ?_
   · norm_cast; positivity
@@ -38,20 +38,23 @@ lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
       _ ≤ _ := by simp_rw [← pow_add]; exact pow_le_pow_right' one_le_two (by linarith)
 
 lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
-    C7_4_6 a n ≤ 2 ^ (258 * a ^ 3) * 2 ^ (-(4 * n : ℝ)) := by
+    C7_4_6 a n ≤ 2 ^ ((2 * CDN + 8 + CDN/4) * a ^ 3) * 2 ^ (-(4 * n : ℝ)) := by
   simp_rw [C7_4_6, C7_2_1, C7_6_2, C2_1_3, ← mul_assoc]
   conv_lhs => enter [1, 1, 1, 2]; norm_cast
   conv_lhs => enter [1, 1, 2, 2]; norm_cast
-  rw [← pow_add, ← pow_add,
-    show 152 * a ^ 3 + 102 * a ^ 3 + (21 * a + 5) = 254 * a ^ 3 + 21 * a + 5 by ring]
+  rw [← pow_add, ← pow_add]
+    --show 152 * a ^ 3 + 62 * a ^ 3 + (21 * a + 5) = 141 * a ^ 3 + 21 * a + 5 by ring]
   simp_rw [NNReal.rpow_neg, ← div_eq_mul_inv]
   gcongr 2 ^ ?_ / 2 ^ ?_
   · norm_cast; positivity
   · exact one_le_two
-  · calc
-      _ ≤ 254 * a ^ 3 + 2 * 4 * 4 * a + 2 * 1 * 1 * 4 := by gcongr <;> norm_num
-      _ ≤ 254 * a ^ 3 + 2 * a * a * a + 2 * a * a * a := by gcongr <;> omega
-      _ = _ := by ring
+  · suffices 21 * a + 5 ≤ 2 * a ^ 3 by linarith
+    calc
+      _ ≤ 21 * a + 11 * 1 := by gcongr; norm_num
+      _ ≤ 21 * a + 11 * a := by gcongr; linarith
+      _ = 2 * 4 * 4 * a := by ring
+      _ ≤ 2 * a * a * a := by gcongr
+      _ = 2 * a ^ 3 := by ring
   · exact one_le_two
   · rw [← mul_rotate]; gcongr
     rw [← mul_assoc, ← mul_rotate, ← mul_div_assoc, le_div_iff₀ (by positivity),
@@ -59,18 +62,30 @@ lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
       ← Real.rpow_add zero_lt_two, Nat.cast_mul, Nat.cast_ofNat, ← add_mul,
       show 12 + -10 = (2 : ℝ) by norm_num]; norm_cast
     induction a, ha using Nat.le_induction with
-    | base => norm_num -- 1616 ≤ 6400
+    | base => simp [CDN]
     | succ k lk ih =>
       rw [mul_add_one, mul_add, mul_add_one, pow_add, show 2 ^ 2 = 3 + 1 by norm_num, mul_add_one,
-        add_mul, add_comm]
+        add_mul, add_comm, add_mul]
       gcongr ?_ + ?_
-      calc
-        _ ≤ 2 ^ (2 * 4) * 3 * 25 := by norm_num
-        _ ≤ _ := by gcongr; exact one_le_two
+      · calc
+          _ ≤ 4 * (4 * CDN + CDN) := by gcongr; simp [CDN]
+          _ = 20 * CDN := by ring
+          _ ≤ (2 ^ (2 * 4) * 3) * CDN := by gcongr; norm_num
+          _ ≤ _ := by gcongr; norm_num
+      · convert ih using 1
+        ring
 
 /-- The constant used in `correlation_separated_trees`. -/
 irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 :=
-  (2 ^ (533 * a ^ 3) + 2 ^ (258 * a ^ 3)) * 2 ^ (-(4 * n : ℝ))
+    2 ^ ((4 * CDN + 17 + 3 * (CDN / 4)) * a ^ 3) * 2 ^ (-(4 * n : ℝ))
+
+lemma le_C7_4_4 (ha : 4 ≤ a) : C7_4_5 a n + C7_4_6 a n ≤ C7_4_4 a n := by
+  apply (add_le_add (estimate_C7_4_5 n ha) (estimate_C7_4_6 n ha)).trans
+  simp only [← add_mul, C7_4_4]
+  gcongr
+  apply (add_le_pow_two_add_cube ha le_rfl ?_).trans_eq (by ring)
+  ring_nf
+  omega
 
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) :
@@ -104,9 +119,7 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
       · exact correlation_near_tree_parts hu₁ hu₂ hu h2u hg₁ hg₂
     _ ≤ _ := by
       rw [inter_eq_self_of_subset_left h2u.1, ← ENNReal.coe_add]; gcongr
-      calc
-        _ ≤ _ := add_le_add (estimate_C7_4_5 n (four_le_a X)) (estimate_C7_4_6 n (four_le_a X))
-        _ = _ := by rw [C7_4_4, add_mul]
+      apply le_C7_4_4 (four_le_a X)
 
 lemma cst_disjoint (hd : Disjoint (𝓘 u₁ : Set X) (𝓘 u₂)) (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (x : X) :
     adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x) = 0 := by
@@ -398,22 +411,27 @@ lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : Measurab
       simp_rw [Finset.coe_filter, Finset.mem_univ, true_and]; rfl
 
 /-- The constant used in `row_bound`. -/
-irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 := 2 ^ (203 * (a : ℝ) ^ 3 - n / 2)
+irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 :=
+  2 ^ ((CDN + 6 + CDN / 2 + CDN / 4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
 
 lemma le_C7_7_2_1 (a4 : 4 ≤ a) :
     C7_3_1_1 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ ≤ C7_7_2_1 a n := by
   rw [sub_add_eq_add_sub, sub_eq_add_neg, NNReal.rpow_add two_ne_zero, NNReal.mul_rpow]
   conv_lhs => enter [2, 2]; rw [← NNReal.rpow_mul, ← div_eq_mul_inv, neg_div]
-  conv_rhs => rw [C7_7_2_1, sub_eq_add_neg, NNReal.rpow_add two_ne_zero]
+  conv_rhs => rw [C7_7_2_1]
   rw [← mul_assoc]; gcongr
-  rw [C7_3_1_1, ← NNReal.rpow_mul, ← NNReal.rpow_add two_ne_zero,
-    show (203 : ℝ) = 202.5 + 1 / 2 by norm_num, add_mul _ (1 / 2 : ℝ), one_div_mul_eq_div,
-    ← div_eq_mul_inv]; gcongr
+  rw [C7_3_1_1, ← NNReal.rpow_mul, ← NNReal.rpow_natCast, ← NNReal.rpow_add two_ne_zero,
+    ← NNReal.rpow_natCast]
+  gcongr
   · exact one_le_two
-  · norm_cast
+  · simp only [Nat.cast_mul, Nat.cast_add, Nat.cast_ofNat, Nat.cast_pow]
+    ring_nf
+    have : (4 : ℝ) ≤ a := mod_cast a4
+    suffices 1/2 + 2 * (a : ℝ) ≤ a ^ 3 by linarith
     calc
-      _ ≤ 4 * 4 * a := by omega
-      _ ≤ a * a * a := by gcongr
+      _ ≤ 2 * (a : ℝ) + 2 * a := by linarith
+      _ = 1 * 4 * a := by ring
+      _ ≤ a * a * a := by gcongr; linarith
       _ = _ := by ring
 
 /-- Part of Lemma 7.7.2. -/
@@ -437,21 +455,26 @@ lemma row_bound (hg : BoundedCompactSupport g) (sg : support g ⊆ G) :
       exact le_C7_7_2_1 (four_le_a X)
 
 /-- The constant used in `indicator_row_bound`. -/
-irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 := 2 ^ (304 * (a : ℝ) ^ 3 - n / 2)
+irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 :=
+  2 ^ ((2 * CDN + 7 + CDN/2 + CDN/4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
 
 lemma le_C7_7_2_2 (a4 : 4 ≤ a) :
     C7_3_1_2 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ ≤ C7_7_2_2 a n := by
   rw [sub_add_eq_add_sub, sub_eq_add_neg, NNReal.rpow_add two_ne_zero, NNReal.mul_rpow]
   conv_lhs => enter [2, 2]; rw [← NNReal.rpow_mul, ← div_eq_mul_inv, neg_div]
-  conv_rhs => rw [C7_7_2_2, sub_eq_add_neg, NNReal.rpow_add two_ne_zero]
+  conv_rhs => rw [C7_7_2_2, ← NNReal.rpow_natCast]
   rw [← mul_assoc]; gcongr
-  rw [C7_3_1_2, ← NNReal.rpow_mul, ← NNReal.rpow_add two_ne_zero,
-    show (304 : ℝ) = 303 + 1 by norm_num, add_one_mul 303]; gcongr
+  rw [C7_3_1_2, ← NNReal.rpow_mul, ← NNReal.rpow_natCast, ← NNReal.rpow_add two_ne_zero]
+  gcongr
   · exact one_le_two
-  · rw [mul_inv_le_iff₀ zero_lt_two]; norm_cast
+  · simp only [Nat.cast_mul, Nat.cast_add, Nat.cast_ofNat, Nat.cast_pow]
+    ring_nf
+    have : (4 : ℝ) ≤ a := mod_cast a4
+    suffices 1/2 + 2 * (a : ℝ) ≤ a ^ 3 by linarith
     calc
-      _ ≤ 2 * 4 * 4 * a := by linarith
-      _ ≤ 2 * a * a * a := by gcongr
+      _ ≤ 2 * (a : ℝ) + 2 * a := by linarith
+      _ = 1 * 4 * a := by ring
+      _ ≤ a * a * a := by gcongr; linarith
       _ = _ := by ring
 
 /-- Part of Lemma 7.7.2. -/
@@ -687,44 +710,28 @@ lemma adjointCarlesonRowSum_rowSupport :
   simp_rw [rowSupport, mem_iUnion₂]; exact ⟨_, mu, _, mp, my⟩
 
 /-- The constant on the `g` side of Proposition 2.0.4. -/
-def G2_0_4 (a n : ℕ) : ℝ≥0 := 2 ^ (470 * a ^ 3) * 2 ^ (-(n / 2 : ℝ))
+def G2_0_4 (a n : ℕ) : ℝ≥0 := 2 ^ ((3 * CDN + 16 + 5 * (CDN/4)) * a ^ 3) * 2 ^ (-(n / 2 : ℝ))
 
-lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2_0_4 a n ^ 2 :=
-  calc
-    _ ≤ 2 ^ (406 * (a : ℝ) ^ 3 - n) + (2 ^ (203 * a ^ 3)) ^ 2 * C7_4_4 a n * 2 ^ n := by
-      rw [C7_7_2_1, ← NNReal.rpow_natCast, ← NNReal.rpow_mul, C7_7_3,
-        show (203 * (a : ℝ) ^ 3 - n / 2) * (2 : ℕ) = 406 * a ^ 3 - n by ring]
-      gcongr; exact C7_4_3_le a4
-    _ ≤ 2 ^ (406 * a ^ 3) * 2 ^ (-n : ℝ) +
-        2 ^ (406 * a ^ 3) * (2 ^ (533 * a ^ 3 + 1) * 2 ^ (-(4 * n : ℝ))) * 2 ^ n := by
-      rw [sub_eq_add_neg, NNReal.rpow_add two_ne_zero]
-      conv_lhs => enter [1, 1, 2]; norm_cast
-      rw [NNReal.rpow_natCast, ← pow_mul, show 203 * a ^ 3 * 2 = 406 * a ^ 3 by ring, C7_4_4,
-        pow_succ _ (533 * a ^ 3), mul_two]
-      gcongr <;> norm_num
-    _ = 2 ^ (406 * a ^ 3) * 2 ^ (-n : ℝ) +
-        2 ^ (939 * a ^ 3 + 1) * 2 ^ (-(2 * n : ℝ)) * 2 ^ (-n : ℝ) := by
-      rw [← mul_assoc, ← pow_add, show 406 * a ^ 3 + (533 * a ^ 3 + 1) = 939 * a ^ 3 + 1 by ring,
-        mul_assoc, mul_assoc]; congr 2
-      rw [← NNReal.rpow_natCast, ← NNReal.rpow_add two_ne_zero, ← NNReal.rpow_add two_ne_zero]
-      congr 1; ring
-    _ ≤ 2 ^ (939 * a ^ 3 + 1) * 2 ^ (-n : ℝ) + 2 ^ (939 * a ^ 3 + 1) * 1 * 2 ^ (-n : ℝ) := by
-      gcongr
-      · exact one_le_two
-      · rw [show 939 * a ^ 3 + 1 = 406 * a ^ 3 + (533 * a ^ 3 + 1) by ring]
-        exact Nat.le_add_right ..
-      · exact NNReal.rpow_le_one_of_one_le_of_nonpos one_le_two (by simp)
-    _ ≤ 2 ^ (940 * a ^ 3) * 2 ^ (-n : ℝ) := by
-      rw [mul_one, ← two_mul, ← mul_assoc, ← pow_succ']; gcongr
-      · exact one_le_two
-      · rw [show 940 = 939 + 1 by norm_num, add_one_mul, add_assoc]; gcongr
-        calc
-          _ ≤ 4 * 1 * 1 := by norm_num
-          _ ≤ a * a * a := by gcongr <;> omega
-          _ = _ := by ring
-    _ = _ := by
-      rw [G2_0_4, mul_pow, ← pow_mul, ← NNReal.rpow_natCast _ 2, ← NNReal.rpow_mul]
-      congr 2 <;> ring
+lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2_0_4 a n ^ 2 := by
+  simp only [C7_7_2_1, mul_pow, C7_7_3, C7_4_3, C7_4_4, G2_0_4]
+  have : (2 : ℝ≥0) ^ (- (4 * n : ℝ)) ≤ 2 ^ (- (2 * n : ℝ)) := by gcongr <;> norm_num
+  grw [this]
+  simp only [← pow_mul, mul_assoc, ge_iff_le]
+  have : (2 : ℝ≥0) ^ (-(2 * n : ℝ)) * 2 ^ n = (2 ^ (-(n / 2 : ℝ))) ^ 2 := by
+    rw [← NNReal.rpow_natCast, ← NNReal.rpow_add (by norm_num), ← NNReal.rpow_natCast,
+      ← NNReal.rpow_mul]
+    ring_nf
+  rw [this]
+  simp only [← mul_assoc, ← add_mul, ge_iff_le]
+  gcongr
+  rw [← pow_add]
+  apply (add_le_pow_two_add_cube a4 (by omega) le_rfl).trans ?_
+  gcongr
+  · norm_num
+  have : CDN / 2 ≤ 2 * (CDN/4) + 1 := by omega
+  grw [this]
+  ring_nf
+  omega
 
 open Classical in
 lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
@@ -888,10 +895,13 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
       · exact bf.enorm.aestronglyMeasurable.aemeasurable
     _ ≤ _ := by exact mul_le_mul_right' (indicator_row_bound bIGTf support_indicator_subset) _
 
+def C2_0_4_aux (a : ℕ) : ℝ≥0 := 2 ^ ((2 * CDN + 7 + CDN/2 + CDN/4) * a ^ 3)
+
 open Classical in
 lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     eLpNorm (fun x ↦ G.indicator (∑ u with u ∈ t, carlesonSum (t u) f ·) x) 2 volume ^ 2 ≤
-    (2 ^ (304 * a ^ 3) * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume) ^ 2 := by
+    (C2_0_4_aux a
+      * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume) ^ 2 := by
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
   let TR (j : ℕ) (x : X) := G.indicator ((rowSupport t j).indicator (carlesonRowSum t j f)) x
   have bcsTR (j : ℕ) : BoundedCompactSupport (TR j) :=
@@ -950,10 +960,11 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
         ← ENNReal.rpow_natCast, ← div_mul_cancel₀ (n : ℝ) (show ((2 : ℕ) : ℝ) ≠ 0 by norm_num),
         ENNReal.rpow_mul, ENNReal.rpow_natCast, ← mul_pow]
       congr 1; simp_rw [← mul_assoc]
-      rw [C7_7_2_2, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat,
-        ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, Nat.cast_ofNat, add_sub_cancel]
-      conv_lhs => enter [1, 1, 2]; norm_cast
-      rw [ENNReal.rpow_natCast]
+      rw [C7_7_2_2, ENNReal.coe_mul, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat,
+        mul_comm _ (2 ^ (-(n / 2 : ℝ))), ← mul_assoc,
+        ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, Nat.cast_ofNat, ← sub_eq_add_neg]
+      simp only [sub_self, ENNReal.rpow_zero, ENNReal.coe_pow, ENNReal.coe_ofNat, one_mul,
+        C2_0_4_aux]
 
 open Classical in
 /-- The `f` side of Proposition 2.0.4. -/
@@ -961,7 +972,7 @@ lemma forest_operator_f (t : Forest X n)
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
-    2 ^ (304 * a ^ 3) * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ *
+    C2_0_4_aux a * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   calc
     _ ≤ _ := forest_operator_f_prelude hf h2f hg h2g
@@ -977,7 +988,7 @@ end TileStructure.Forest
 
 /-! ## Proposition 2.0.4 -/
 
-irreducible_def C2_0_4_base (a : ℕ) : ℝ≥0 := 2 ^ (470 * a ^ 3)
+irreducible_def C2_0_4_base (a : ℕ) : ℝ≥0 := 2 ^ ((3 * CDN + 16 + 5 * (CDN / 4)) * a ^ 3)
 
 /-- The constant used in `forest_operator`.
 Has value `2 ^ (470 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
@@ -1011,15 +1022,24 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     show 2⁻¹ * (2 / q - 1) = q⁻¹ - 2⁻¹ by ring] at key
   apply key.trans; gcongr
   calc
-    _ ≤ ((2 : ℝ≥0∞) ^ (470 * a ^ 3)) ^ (2 - 2 / q) * (2 ^ (-(n / 2 : ℝ))) ^ (2 - 2 / q) *
-        (2 ^ (470 * a ^ 3)) ^ (2 / q - 1) := by
-      rw [Forest.G2_0_4, ENNReal.coe_mul, ENNReal.coe_pow, ENNReal.coe_rpow_of_ne_zero two_ne_zero]
+    _ ≤ ((2 : ℝ≥0∞) ^ ((3 * CDN + 16 + 5 * (CDN / 4)) * a ^ 3)) ^ (2 - 2 / q)
+        * (2 ^ (-(n / 2 : ℝ))) ^ (2 - 2 / q) *
+        (2 ^ ((3 * CDN + 16 + 5 * (CDN / 4)) * a ^ 3)) ^ (2 / q - 1) := by
+      rw [Forest.G2_0_4, ENNReal.coe_mul, ENNReal.coe_pow, ENNReal.coe_rpow_of_ne_zero two_ne_zero,
+        Forest.C2_0_4_aux]
       simp only [ENNReal.coe_ofNat]
-      rw [ENNReal.mul_rpow_of_nonneg _ _ egpos.le]; gcongr <;> norm_num
+      rw [ENNReal.mul_rpow_of_nonneg _ _ egpos.le]
+      simp only [ENNReal.coe_pow, ENNReal.coe_ofNat]
+      gcongr _ * (2 ^ ?_) ^ _
+      · norm_num
+      have : CDN/2 ≤ 2 * (CDN/4) + 1 := by omega
+      grw [this]
+      ring_nf
+      omega
     _ = _ := by
-      rw [← mul_rotate, ← ENNReal.rpow_add_of_nonneg _ _ efpos.le egpos.le, add_comm, esum,
-        ENNReal.rpow_one, ← ENNReal.rpow_mul, C2_0_4, C2_0_4_base, ENNReal.coe_mul, ENNReal.coe_pow,
-        ENNReal.coe_rpow_of_ne_zero two_ne_zero, neg_div,
+      rw [← mul_rotate, ← ENNReal.rpow_add_of_nonneg _ _ efpos.le egpos.le, add_comm (2/q - 1),
+        esum, ENNReal.rpow_one, ← ENNReal.rpow_mul, C2_0_4, C2_0_4_base, ENNReal.coe_mul,
+        ENNReal.coe_pow, ENNReal.coe_rpow_of_ne_zero two_ne_zero, neg_div,
         show -(n / 2) * (2 - 2 / q) = -(1 - 1 / q) * n by ring]
       congr; rw [sub_div, div_self (q_pos X).ne']
 

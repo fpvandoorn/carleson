@@ -778,12 +778,10 @@ lemma boundary_exception {u : 𝔓 X} :
           exact small_boundary_observation i hi
 
       _ ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by -- choosing the right k and D
-        have coeff_lt :  2 * (12 * D ^ (-Z * (n + 1) - 1 : ℝ)) ^ κ ≤ (D ^ (1 - κ * Z * (n + 1)) : ℝ≥0) := by
+        have coeff_lt : 2 * (12 * D ^ (-Z * (n + 1) - 1 : ℝ)) ^ κ
+            ≤ (D ^ (1 - κ * Z * (n + 1)) : ℝ≥0) := by
           have twelve_le_D : 12 ≤ D := by
-            have : 4 ≤ a := (show ProofData a q K σ₁ σ₂ F G by infer_instance).four_le_a
-            have : 2 ^ (100) ≤ 2^ (100 * a ^2) := (Nat.pow_le_pow_iff_right (by nlinarith)).mpr <| by nlinarith
-            simp only [defaultD, ge_iff_le]
-            nlinarith
+            apply le_trans (by norm_num) (hundred_lt_D X).le
           have two_time_twelve_over_D_to_the_k_le_D : 2 * (12 / D) ^ κ ≤ (D : ℝ≥0) := by
             have two_le_D : 2 ≤ D := by linarith
             have : 2 * (12 / D) ^ κ ≤ (2 : ℝ≥0) := by
@@ -813,12 +811,14 @@ lemma boundary_exception {u : 𝔓 X} :
         apply ENNReal.coe_le_coe.mpr at coeff_lt
         norm_cast
         have : 12 * (D ^ (-Z * (n + 1) - 1: ℤ ) : ℝ≥0) ≠ 0 := by
-          simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultZ, neg_mul, ne_eq, mul_eq_zero, OfNat.ofNat_ne_zero, false_or]
+          simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultZ, neg_mul, ne_eq, mul_eq_zero,
+            OfNat.ofNat_ne_zero, false_or]
           positivity
-        rw [← ENNReal.coe_rpow_of_ne_zero (by exact this)] -- why do I need this with exact_mod_cast?
+        rw [← ENNReal.coe_rpow_of_ne_zero (by exact this)]
         exact_mod_cast mul_le_mul_right' coeff_lt (volume (𝓘 u : Set X))
   · have : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) = 0 := by
-      have h1 : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ ∑' i : 𝓛 (X := X) n u, volume (i : Set X) := measure_biUnion_le _ (𝓛 n u).to_countable _
+      have h1 : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤
+        ∑' i : 𝓛 (X := X) n u, volume (i : Set X) := measure_biUnion_le _ (𝓛 n u).to_countable _
       have h2 : ∑' i : 𝓛 (X := X) n u, volume (i : Set X) = 0 := by
         have : 𝓛 (X := X) n u = ∅ := Set.not_nonempty_iff_eq_empty'.mp <| by
           rw [Set.Nonempty] at h_𝓛_n_u_non_empty
@@ -943,12 +943,25 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       gcongr
       · exact_mod_cast one_le_D
       · linarith [two_le_κZ (X := X)]
-    _ = 2 ^ (9 * a + 6 - 100 * a ^ 2 : ℤ) * volume G := by
+    _ = 2 ^ (9 * a + 6 - CDN * a ^ 2 : ℤ) * volume G := by
       rw [← mul_rotate, ← mul_assoc, ← pow_succ', defaultD, Nat.cast_pow,
         show ((2 : ℕ) : ℝ≥0∞) = 2 by rfl, ← ENNReal.rpow_natCast, ← ENNReal.rpow_natCast,
         ← ENNReal.rpow_mul, ← ENNReal.rpow_add _ _ (by simp) (by simp), ← ENNReal.rpow_intCast]
       congr 2; norm_num; ring
-    _ ≤ _ := mul_le_mul_right' (ENNReal.zpow_le_of_le one_le_two (by nlinarith [four_le_a X])) _
+    _ ≤ _ := by
+      gcongr
+      · norm_num
+      simp only [Int.reduceNeg, tsub_le_iff_right, le_neg_add_iff_add_le]
+      norm_cast
+      calc
+      4 + (9 * a + 6)
+      _ = 9 * a + 10 := by ring
+      _ ≤ 3 * 4 * a + 4 * 4 := by gcongr <;> norm_num
+      _ ≤ 3 * a * a + a * a := by gcongr <;> linarith [four_le_a X]
+      _ = 4 * a ^ 2 := by ring
+      _ ≤ CDN * a ^ 2 := by
+        gcongr
+        simp [CDN]
 
 /-- Lemma 5.1.1 -/
 lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (-1 : ℤ) * volume G :=

@@ -221,22 +221,13 @@ lemma sum_le_four_div_q_sub_one (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q
     _ ≤ _ := by rw [sq]; gcongr; exact hq.2
 
 /-- The constant used in `linearized_truncation` and `S_truncation`. -/
-def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3 + 3) / (q - 1) ^ 6
+def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 :=
+  2 ^ ((3 * CDN + 18 + 5 * (CDN / 4)) * a ^ 3 + 2) / (q - 1) ^ 6
 
-lemma le_C3_0_4 (hq : q ∈ Ioc 1 2) : C2_0_1 a q * (2 ^ 2 / (q - 1)) ≤ C3_0_4 a q :=
-  calc
-    _ = (2 ^ (471 * a ^ 3) * (q - 1) / (q - 1) ^ 5 + C5_1_3 a q) * (2 ^ 2 / (q - 1)) := by
-      rw [C2_0_1, C2_0_2]; congr; rw [C5_1_2, pow_succ _ 4, mul_div_mul_right]
-      rw [← zero_lt_iff, tsub_pos_iff_lt]; exact hq.1
-    _ ≤ (2 ^ (471 * a ^ 3) * 1 / (q - 1) ^ 5 + 2 ^ (471 * a ^ 3) / (q - 1) ^ 5) *
-        (2 ^ 2 / (q - 1)) := by
-      rw [C5_1_3]; gcongr
-      · rw [tsub_le_iff_left, one_add_one_eq_two]; exact hq.2
-      · exact one_le_two
-      · norm_num
-    _ = _ := by
-      rw [mul_one, ← two_mul, ← mul_div_assoc 2, ← pow_succ', div_mul_div_comm, ← pow_add,
-        ← pow_succ, C3_0_4]
+lemma eq_C3_0_4 : C2_0_1 a q * (2 ^ 2 / (q - 1)) = C3_0_4 a q := by
+  rw [C2_0_1, C2_0_2]
+  simp only [C3_0_4, div_mul_div_comm, ← pow_add]
+  congr
 
 /-- Lemma 3.0.4. -/
 lemma linearized_truncation
@@ -274,7 +265,7 @@ lemma linearized_truncation
     _ ≤ C2_0_1 a q * (2 ^ 2 / (q - 1) : ℝ≥0) * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
       refine iSup_le fun n ↦ slice_integral_bound_sum.trans ?_
       gcongr; exact sum_le_four_div_q_sub_one hq hqq'
-    _ ≤ _ := by rw [← ENNReal.coe_mul]; gcongr; exact le_C3_0_4 hq
+    _ = _ := by rw [← ENNReal.coe_mul, eq_C3_0_4]
 
 /-- Lemma 3.0.3. `B` is the blueprint's `S`. -/
 lemma S_truncation
@@ -587,7 +578,7 @@ def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f :
   (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
 
 /-- The constant used from `R_truncation` to `metric_carleson`. -/
-def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3 + 4) / (q - 1) ^ 6
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * CDN + 19 + 5 * (CDN / 4)) * a ^ 3) / (q - 1) ^ 6
 
 lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   rw [C1_0_2]
@@ -597,33 +588,38 @@ lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
 
 lemma le_C1_0_2 (a4 : 4 ≤ a) (hq : q ∈ Ioc 1 2) :
     C3_0_4 a q + 4 * C2_1_3 a * C2_0_6' (defaultA a) 1 q ≤ C1_0_2 a q := by
-  calc
-    _ ≤ C3_0_4 a q + 4 * C2_1_3 a * (2 ^ (4 * a + 1) * (q / (q - 1))) := by
-      gcongr; exact C2_0_6'_defaultA_one_le hq.1
-    _ = C3_0_4 a q + 2 ^ (102 * a ^ 3 + 4 * a + 3) * q * (q - 1) ^ 5 / (q - 1) ^ 6 := by
-      rw [pow_succ' _ 5, mul_div_mul_right]; swap
-      · apply pow_ne_zero; rw [← zero_lt_iff, tsub_pos_iff_lt]; exact hq.1
-      congr 1
-      rw [C2_1_3, show (4 : ℝ≥0) = 2 ^ 2 by norm_num, ← pow_add, ← mul_assoc, ← pow_add,
-        mul_div_assoc]
-      congr 2; ring
-    _ ≤ C3_0_4 a q + 2 ^ (102 * a ^ 3 + 4 * a + 3) * 2 * 1 ^ 5 / (q - 1) ^ 6 := by
-      gcongr
-      · exact hq.2
-      · rw [tsub_le_iff_left, one_add_one_eq_two]; exact hq.2
-    _ = C3_0_4 a q + 2 ^ (102 * a ^ 3 + 4 * a + 4) / (q - 1) ^ 6 := by
-      rw [one_pow, mul_one, ← pow_succ]
-    _ ≤ C3_0_4 a q + 2 ^ (471 * a ^ 3 + 3) / (q - 1) ^ 6 := by
-      gcongr _ + 2 ^ ?_ / _
-      · exact one_le_two
-      · calc
-          _ ≤ 102 * a ^ 3 + 4 * a + a := by gcongr
-          _ = 102 * a ^ 3 + 5 * a * 1 * 1 := by ring
-          _ ≤ 102 * a ^ 3 + 5 * a * a * a := by gcongr <;> omega
-          _ = 107 * a ^ 3 := by ring
-          _ ≤ 471 * a ^ 3 := by gcongr; norm_num
-          _ ≤ _ := Nat.le_add_right ..
-    _ = _ := by rw [C3_0_4, ← two_mul, ← mul_div_assoc, ← pow_succ', C1_0_2]
+  have : (1 : ℝ≥0) ≤ 2 := by norm_num
+  grw [C2_0_6'_defaultA_one_le hq.1 (a := a)]
+  have : q / (q - 1) ≤ 2 / (q - 1) ^ 6 := by
+    gcongr
+    · have : 0 < q - 1 := tsub_pos_iff_lt.2 hq.1
+      positivity
+    · exact hq.2
+    · have : q - 1 = (q - 1) ^ 1 := by simp
+      conv_rhs => rw [this]
+      apply pow_le_pow_of_le_one (by simp) ?_ (by norm_num)
+      rw [tsub_le_iff_left]
+      exact hq.2.trans_eq (by norm_num)
+  grw [this]
+  simp only [C3_0_4, C2_1_3, C1_0_2, div_eq_mul_inv, ← mul_assoc, ← add_mul]
+  gcongr
+  rw [show (4 : ℝ≥0) = 2 ^ 2 by norm_num]
+  simp only [← pow_add, ← pow_succ]
+  have : 2 + (CDN + 2) * a ^ 3 + (4 * a + 1) + 1 ≤ (3 * CDN + 18 + 5 * (CDN / 4)) * a ^ 3 + 2 := by
+    ring_nf
+    suffices 2 + 4 * a ≤ a ^ 3 by omega
+    calc
+    _ = 2 * 1 * 1 + 2 * 2 * a := by ring
+    _ ≤ 2 * a * a + 2 * a * a := by gcongr <;> linarith
+    _ = 4 * a ^ 2 := by ring
+    _ ≤ a * a ^ 2 := by gcongr
+    _ = a ^ 3 := by ring
+  grw [this]
+  rw [← mul_two, ← pow_succ]
+  gcongr 2 ^ ?_
+  suffices 3 ≤ a ^ 3 by linarith
+  apply le_trans (by norm_num) (le_trans a4 ?_)
+  apply le_self_pow (by linarith) (by norm_num)
 
 variable [IsCancellative X (defaultτ a)]
 

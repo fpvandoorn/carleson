@@ -47,7 +47,7 @@ private lemma σMax_mem_σ (u : 𝔓 X) (x : X) (hσ : (t.σ u x).Nonempty) : σ
 
 /-- The definition of `𝓙₀(𝔖), defined above Lemma 7.1.2 -/
 def 𝓙₀ (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
-  {J : Grid X | s J = -S ∨ ∀ p ∈ 𝔖, ¬(𝓘 p : Set X) ⊆ ball (c J) (100 * D ^ (s J + 1))}
+  {J : Grid X | s J = -S ∨ ∀ p ∈ 𝔖, ¬(𝓘 p : Set X) ⊆ ball (c J) (60 * D ^ (s J + 1))}
 
 /-- The definition of `𝓙(𝔖), defined above Lemma 7.1.2 -/
 def 𝓙 (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
@@ -332,9 +332,9 @@ lemma pairwiseDisjoint_𝓛 : (𝓛 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
 /-- The constant used in `first_tree_pointwise`.
-Has value `10 * 2 ^ (104 * a ^ 3)` in the blueprint. -/
+Has value `10 * 2 ^ ((CDN + 4) * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (104 * a ^ 3)
+irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ ((CDN + 4) * a ^ 3)
 
 -- Used in the proof of `exp_sub_one_le`, which is used to prove Lemma 7.1.4
 private lemma exp_Lipschitz : LipschitzWith 1 (fun (t : ℝ) ↦ exp (.I * t)) := by
@@ -410,7 +410,8 @@ private lemma L7_1_4_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) {y : X
 variable (f) in
 private lemma L7_1_4_integrand_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) (y : X) :
     ‖(exp (.I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks s x y * f y‖ ≤
-    5 * 2^(s - σMax t u x ⟨s, hs⟩) * (2^(103 * a ^ 3) / volume.real (ball x (D ^ s))) * ‖f y‖ := by
+    5 * 2^(s - σMax t u x ⟨s, hs⟩) * (2^((CDN + 3) * a ^ 3) /
+      volume.real (ball x (D ^ s))) * ‖f y‖ := by
   by_cases hKxy : Ks s x y = 0
   · rw [hKxy, mul_zero, zero_mul, norm_zero]; positivity
   · rw [norm_mul, norm_mul]
@@ -422,7 +423,9 @@ private lemma L7_1_4_integrand_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u
     rw_mod_cast [← pow_add]
     refine Nat.pow_le_pow_right two_pos <| Nat.add_le_of_le_sub ?_ ?_
     · exact Nat.mul_le_mul_right _ (by norm_num)
-    · rw [← Nat.sub_mul, (show a ^ 3 = a ^ 2 * a from rfl)]; nlinarith [four_le_a X]
+    · rw [← Nat.sub_mul, (show a ^ 3 = a ^ 2 * a from rfl)]
+      simp only [Nat.reduceSubDiff, add_tsub_cancel_left, one_mul]
+      nlinarith [four_le_a X]
 
 -- The geometric sum used to prove `L7_1_4_sum`
 private lemma sum_pow_two_le (a b : ℤ) : ∑ s ∈ Finset.Icc a b, (2 : ℝ≥0) ^ s ≤ 2 ^ (b + 1) := by
@@ -491,7 +494,7 @@ private lemma s_le_s {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p)
       gcongr 4 * ?_ + ?_
       · exact this
       · exact dist_comm (c (𝓘 p)) (c J) ▸ L7_1_4_dist_le xp hJ.2 |>.trans (by gcongr)
-    _ ≤ 100 * D ^ (s J + 1) := by
+    _ ≤ 60 * D ^ (s J + 1) := by
       rw [zpow_add' (Or.inl (defaultD_pos a).ne.symm), zpow_one]
       nlinarith [one_le_D (a := a), defaultD_pow_pos a (s J)]
 
@@ -594,7 +597,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     fun s hs ↦ by apply le_trans (norm_integral_le_integral_norm _) (by simp)
   refine (nnnorm_sum_le _ _).trans <| ((t.σ u x).sum_le_sum this).trans ?_
   suffices ∀ s ∈ t.σ u x, (∫ (y : X), ‖(cexp (I * (q y)) - 1) * Ks s x y * f y‖).toNNReal ≤
-      (5 * 2 ^ (104 * a ^ 3) * (MB volume 𝓑 c𝓑 r𝓑 g x').toNNReal) * 2 ^ (s - t.σMax u x hσ) by
+      (5 * 2 ^ ((CDN + 4) * a ^ 3) * (MB volume 𝓑 c𝓑 r𝓑 g x').toNNReal) * 2 ^ (s - t.σMax u x hσ) by
     apply le_trans ((t.σ u x).sum_le_sum this)
     rw [← Finset.mul_sum]
     apply le_trans <| mul_le_mul_left' (L7_1_4_sum hσ) _
@@ -607,7 +610,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     refine integral_congr_ae (EventuallyEq.of_eq (Set.indicator_eq_self.mpr fun y hy ↦ ?_)).symm
     exact mem_ball_comm.mp (mem_Ioo.mp (dist_mem_Ioo_of_Ks_ne_zero fun h ↦ by simp [h] at hy)).2
   have eq2 : (∫ y in ball x (D ^ s / 2), ‖(cexp (I * (q y)) - 1) * Ks s x y * f y‖).toNNReal ≤
-      5 * 2 ^ (s - σMax t u x ⟨s, hs⟩) * (2 ^ (103 * a ^ 3) / volume.real (ball x (D ^ s))) *
+      5 * 2 ^ (s - σMax t u x ⟨s, hs⟩) * (2 ^ ((CDN + 3) * a ^ 3) / volume.real (ball x (D ^ s))) *
       (∫ y in ball x (D ^ s / 2), ‖f y‖).toNNReal := by
     rw [Real.coe_toNNReal _ <| setIntegral_nonneg measurableSet_ball (fun _ _ ↦ norm_nonneg _)]
     convert le_trans (integral_mono_of_nonneg (Eventually.of_forall ?_)
@@ -615,17 +618,19 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       (Eventually.of_forall <| L7_1_4_integrand_bound f hu hs)) ?_
     · norm_cast
     · simp only [Pi.zero_apply, norm_nonneg, implies_true]
-    · rw [integral_const_mul]; gcongr; simp
+    · rw [integral_const_mul]
+      gcongr
+      simp
   apply le_of_eq_of_le (congrArg Real.toNNReal eq1) ∘ eq2.trans
   simp only [Real.coe_toNNReal', NNReal.val_eq_coe, NNReal.coe_mul, NNReal.coe_ofNat,
     NNReal.coe_pow, NNReal.coe_zpow]
   simp_rw [sup_of_le_left <| setIntegral_nonneg measurableSet_ball (fun _ _ ↦ norm_nonneg _)]
-  have : 5 * 2 ^ (s - t.σMax u x hσ) * (2 ^ (103 * a ^ 3) / volume.real (ball x (D ^ s))) *
-      (∫ y in ball x (D ^ s / 2), ‖f y‖) = 5 * (2 ^ (103 * a ^ 3) *
+  have : 5 * 2 ^ (s - t.σMax u x hσ) * (2 ^ ((CDN + 3) * a ^ 3) / volume.real (ball x (D ^ s))) *
+      (∫ y in ball x (D ^ s / 2), ‖f y‖) = 5 * (2 ^ ((CDN + 3) * a ^ 3) *
       ((∫ y in ball x (D ^ s / 2), ‖f y‖) / volume.real (ball x (D ^ s)))) *
       2 ^ (s - t.σMax u x hσ) := by ring
   rw [this, mul_le_mul_right (zpow_pos two_pos _), mul_assoc, mul_le_mul_left (by norm_num)]
-  rw [Nat.succ_mul 103, pow_add, mul_assoc, mul_le_mul_left (pow_pos two_pos _)]
+  rw [Nat.succ_mul (CDN + 3), pow_add, mul_assoc, mul_le_mul_left (pow_pos two_pos _)]
   have ⟨pₛ, pₛu, xpₛ, hpₛ⟩ := t.exists_p_of_mem_σ u x hs
   have ball_subset : ball (𝔠 pₛ) (16 * D ^ s) ⊆ ball x ((2 ^ 5) * D ^ s) :=
     ball_subset_ball' <| calc 16 * (D : ℝ) ^ s + dist (𝔠 pₛ) x
@@ -702,22 +707,31 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
       _ < _ := by rw [mul_comm]; gcongr
   have d1 : dist_{x, D ^ (s₂ - 1)} (𝒬 u) (Q x) < 1 := by
     calc
-      _ ≤ dist_{x, D ^ s₂} (𝒬 u) (Q x) * 2 ^ (-100 * a : ℤ) := by
+      _ ≤ dist_{x, D ^ s₂} (𝒬 u) (Q x) * 2 ^ (-CDN * a : ℤ) := by
         rw [neg_mul, zpow_neg, le_mul_inv_iff₀ (by positivity), mul_comm]
-        convert le_cdist_iterate _ (𝒬 u) (Q x) (100 * a) using 1
+        convert le_cdist_iterate _ (𝒬 u) (Q x) (CDN * a) using 1
         · apply dist_congr rfl
-          rw [Nat.cast_npow, ← pow_mul, show a * (100 * a) = 100 * a ^ 2 by ring, ← Nat.cast_npow]
+          rw [Nat.cast_npow, ← pow_mul, show a * (CDN * a) = CDN * a ^ 2 by ring, ← Nat.cast_npow]
           change _ = (D : ℝ) * _
           rw [← zpow_one_add₀ (defaultD_pos _).ne', add_sub_cancel]
         · unfold defaultD; positivity
-      _ < 5 * defaultA a ^ 5 * 2 ^ (-100 * a : ℤ) := by gcongr
-      _ = 5 * (2 : ℝ) ^ (-95 * a : ℤ) := by
+      _ < 5 * defaultA a ^ 5 * 2 ^ (-CDN * a : ℤ) := by gcongr
+      _ = 5 * (2 : ℝ) ^ (-(CDN - 5) * a : ℤ) := by
         rw [Nat.cast_npow, ← pow_mul, ← zpow_natCast, show (2 : ℕ) = (2 : ℝ) by rfl, mul_assoc,
-          ← zpow_add₀ two_ne_zero]; congr; omega
+          ← zpow_add₀ two_ne_zero]
+        congr
+        simp
+        ring
       _ ≤ 5 * 2 ^ (-3 : ℤ) := by
         gcongr
         · exact one_le_two
-        · linarith [four_le_a X]
+        · simp only [neg_sub, sub_mul, Int.reduceNeg, tsub_le_iff_right, le_neg_add_iff_add_le]
+          norm_cast
+          calc
+          3 + 5 * a
+          _ ≤ a + 5 * a := by gcongr; linarith [four_le_a X]
+          _ = 6 * a := by ring
+          _ ≤ CDN * a := by gcongr; simp [CDN]
       _ < _ := by norm_num
   have x'p : x' ∈ 𝓘 p := (Grid.le_def.mp Lle).1 hx'
   refine le_iSup₂_of_le (𝓘 p) x'p <| le_iSup₂_of_le x xp <|
@@ -731,9 +745,9 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
       exact ⟨Finset.min'_le _ _ mz, Finset.le_max' _ _ mz⟩
 
 /-- The constant used in `third_tree_pointwise`.
-Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
+Has value `2 ^ ((CDN + 3 + CDN / 4) * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * a ^ 3)
+irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 3 + CDN / 4) * a ^ 3)
 
 -- Used in the proof of Lemmas 7.1.3 and 7.1.6 to translate between `∑ p` into `∑ s`
 open scoped Classical in
@@ -997,18 +1011,19 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       congr 3
       ring
     _ ≤ ENNReal.ofNNReal (∑ I : Grid X, ((I : Set X).indicator 1 x') *
-          Real.toNNReal (2 ^ (151 * a ^ 3) / (volume.real (ball (c I) (16 * D ^ s I))) *
+          Real.toNNReal (2 ^ ((CDN + 3 + CDN / 4) * a ^ 3) / (volume.real (ball (c I) (16 * D ^ s I))) *
            ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
       gcongr
       apply Real.toNNReal_mono
       gcongr
       unfold D2_1_3 defaultA
       calc
-      _ = (2 : ℝ) ^ (150 * a ^ 3 + 5 * a + 3 / a : ℝ) := by
+      _ = (2 : ℝ) ^ ((CDN + 2 + (CDN / 4 : ℕ)) * a ^ 3 + 5 * a + 3 / a : ℝ) := by
         rw [Real.rpow_add two_pos, Real.rpow_add two_pos, mul_comm 5, Real.rpow_mul two_pos.le a 5]
         norm_cast
-      _ ≤ (2 : ℝ) ^ (151 * a ^ 3) := by
-        have : ((151 * a ^ 3 : ℕ) : ℝ) = (151 : ℝ) * (a : ℝ) ^ 3 := by norm_cast
+      _ ≤ (2 : ℝ) ^ ((CDN + 3 + CDN / 4) * a ^ 3) := by
+        have : (((CDN + 3 + CDN / 4) * a ^ 3 : ℕ) : ℝ)
+          = ((CDN + 3 + (CDN / 4 : ℕ)) : ℝ) * (a : ℝ) ^ 3 := by norm_cast
         rw [← Real.rpow_natCast 2, Real.rpow_le_rpow_left_iff one_lt_two, this]
         suffices 5 * (a : ℝ) + 3 / (a : ℝ) ≤ (a : ℝ) ^ 2 * (a : ℝ) by linarith
         have : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
@@ -1018,7 +1033,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
               linarith
           _ ≤ 4 ^ 2 * (a : ℝ)           := by linarith
           _ ≤ (a : ℝ) ^ 2 * (a : ℝ)     := by gcongr
-    _ = ENNReal.ofNNReal (2 ^ (151 * a ^ 3)) * ENNReal.ofNNReal (
+    _ = ENNReal.ofNNReal (2 ^ ((CDN + 3 + CDN / 4) * a ^ 3)) * ENNReal.ofNNReal (
           ∑ I : Grid X, ((I : Set X).indicator 1 x') *
           Real.toNNReal (1 / (volume.real (ball (c I) (16 * D ^ s I))) *
           ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
@@ -1050,21 +1065,23 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       · exact integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
 
 /-- The constant used in `pointwise_tree_estimate`.
-Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := max (C7_1_4 a) (C7_1_6 a) --2 ^ (151 * (a : ℝ) ^ 3)
+Has value `2 ^ ((CDN + 3 + CDN / 4) * a ^ 3)` in the blueprint. -/
+irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := max (C7_1_4 a) (C7_1_6 a) --2 ^ ((CDN + 3 + CDN / 4) * (a : ℝ) ^ 3)
 
 lemma C7_1_3_eq_C7_1_6 {a : ℕ} (ha : 4 ≤ a) : C7_1_3 a = C7_1_6 a := by
   rw [C7_1_3_def, C7_1_6_def, sup_eq_right]
-  have : C7_1_4 a ≤ 2 ^ 4 * 2 ^ (104 * a ^ 3) := by rw [C7_1_4_def]; gcongr; norm_num
+  have : C7_1_4 a ≤ 2 ^ 4 * 2 ^ ((CDN + 4) * a ^ 3) := by rw [C7_1_4_def]; gcongr; norm_num
   apply this.trans
   rw [← pow_add]
   gcongr
   · exact one_le_two
   · calc
-      _ ≤ 4 ^ 3 + 104 * a ^ 3 := by gcongr; norm_num
-      _ ≤ a ^ 3 + 104 * a ^ 3 := by gcongr
-      _ = 105 * a ^ 3 := by ring
-      _ ≤ _ := by gcongr; norm_num
+      _ ≤ 4 ^ 3 + (CDN + 4) * a ^ 3 := by gcongr; norm_num
+      _ ≤ a ^ 3 + (CDN + 4) * a ^ 3 := by gcongr
+      _ = (CDN + 3 + 2) * a ^ 3 := by ring
+      _ ≤ _ := by
+        gcongr
+        simp [CDN]
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)

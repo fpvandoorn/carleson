@@ -226,16 +226,18 @@ lemma M14_bound (hg : MemLp g 2 volume) :
   exact C2_0_6_q₆_le a4
 
 /-- Constant appearing in Lemma 6.1.4. -/
-irreducible_def C6_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (128 * a ^ 3)
+irreducible_def C6_1_4 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 5 + CDN / 8) * a ^ 3)
 
 lemma le_C6_1_4 (a4 : 4 ≤ a) :
     Tile.C6_1_5 a * 2 ^ (6 * a + 1) * Antichain.C6_1_6 a * 2 ^ (a + 2) ≤ C6_1_4 a ^ 2 := by
   simp only [Tile.C6_1_5, Antichain.C6_1_6, C6_1_4]
   simp_rw [← pow_add, ← pow_mul]; gcongr
   · exact one_le_two
-  · calc
-      _ ≤ 255 * a ^ 3 + 4 * 4 * a := by linarith
-      _ ≤ 255 * a ^ 3 + a * a * a := by gcongr
+  · have : CDN / 4 ≤ 2 * (CDN / 8) + 1 := by omega
+    calc
+      _ = (2 * CDN + 7) * a ^ 3 + (CDN / 4) * a ^ 3 + 3 * 4 * a + 3 * 1 * 1 := by ring
+      _ ≤ (2 * CDN + 7) * a ^ 3 + (2 * (CDN / 8) + 1) * a ^ 3 + a * a * a + a * a * a := by
+        gcongr <;> linarith [a4]
       _ = _ := by ring
 
 open Classical Antichain in
@@ -313,7 +315,7 @@ lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
 
 /-- The constant appearing in Proposition 2.0.3. -/
 -- Todo: define this recursively in terms of previous constants
-def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (128 * a ^ 3) / (q - 1)
+def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((CDN + 7 + CDN / 8) * a ^ 3) / (q - 1)
 
 --TODO: PR to Mathlib
 theorem ENNReal.rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (hx : 1 ≤ x) (hy : y ≤ 1) :
@@ -324,22 +326,25 @@ theorem ENNReal.rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (hx : 1 ≤ x)
 variable (X) in
 omit [TileStructure Q D κ S o] in
 private lemma ineq_aux_2_0_3 :
-    ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-    (((2 ^ (111 * a ^ 3) : ℝ≥0) : ℝ≥0∞) * (nnq - 1)⁻¹) ^ (2 - q) ≤
-    (2 ^ (128 * a ^ 3) / (nnq - 1) : ℝ≥0) := by
+    ((2 ^ ((CDN + 5 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+    (((2 ^ ((CDN + 8) * a ^ 3) : ℝ≥0) : ℝ≥0∞) * (nnq - 1)⁻¹) ^ (2 - q) ≤
+    (2 ^ ((CDN + 7 + CDN / 8 : ℕ) * a ^ 3) / (nnq - 1) : ℝ≥0) := by
   have hq1 : 0 ≤ q - 1 := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).1.le)
   have hq2 : 0 ≤ 2 - q := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2)
   have h21 : (2 : ℝ) - 1 = 1 := by norm_num
   calc
-    _ = ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ (111 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q) := by
+    _ = ((2 ^ ((CDN + 5 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+        (((2 ^ ((CDN + 7 + 1) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q) := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ hq2]; ring
-    _ ≤ ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
+    _ ≤ ((2 ^ ((CDN + 7 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+        (((2 ^ ((CDN + 7 + CDN / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
       have h11 : (1 + 1 : ℝ≥0) = 2 := by norm_num
       gcongr
       · norm_num
       · norm_num
+      · norm_num
+      · have : 8 ≤ CDN := by simp [CDN]
+        omega
       · refine ENNReal.rpow_le_self_of_one_le ?_ (by linarith)
         rw [one_le_coe_iff, one_le_inv₀ (tsub_pos_iff_lt.mpr (nnq_mem_Ioc X).1), tsub_le_iff_right,
           h11]; exact (nnq_mem_Ioc X).2
@@ -370,8 +375,10 @@ theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
   by_cases hq2 : q = 2
   · have hnnq2 : nnq = 2 := by simp only [← NNReal.coe_inj, NNReal.coe_ofNat, ← hq2]; rfl
     simp only [hq2, h21, one_div, sub_self, ENNReal.rpow_zero, mul_one]
-    convert dens1_antichain h𝔄 hf hf1 hg hg1
+    apply (dens1_antichain h𝔄 hf hf1 hg hg1).trans
+    gcongr
     simp only [C2_0_3, hnnq2, h21', div_one, C6_1_4]
+    gcongr <;> norm_num
   · have hq2' : 0 < 2 - q :=
       sub_pos.mpr (lt_of_le_of_ne (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2) hq2)
     -- Take the (2-q)-th power of 6.1.11

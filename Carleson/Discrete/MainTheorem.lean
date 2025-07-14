@@ -11,10 +11,31 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 /-- The constant used in Proposition 2.0.2,
 which has value `2 ^ (434 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/
-noncomputable def C2_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := C5_1_2 a q + C5_1_3 a q
+noncomputable def C2_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 :=
+    2 ^ ((3 * CDN + 18 + 5 * (CDN / 4)) * a ^ 3) / (q - 1) ^ 5
+
+lemma le_C2_0_2 (ha : 4 ≤ a) {q : ℝ≥0} (hq : q ∈ Ioc 1 2) :
+    C5_1_2 a q + C5_1_3 a q ≤ C2_0_2 a q := by
+  have h'q : 0 < q - 1 := tsub_pos_of_lt hq.1
+  simp only [C5_1_2, C5_1_3, C2_0_2, ge_iff_le]
+  have : (q - 1) ^ 4 ≥ (q - 1) ^ 5 := by
+    apply pow_le_pow_of_le_one h'q.le ?_ (by norm_num)
+    rw [tsub_le_iff_left]
+    convert hq.2
+    norm_num
+  grw [this]
+  simp only [← add_div, ge_iff_le]
+  gcongr
+  apply (add_le_pow_two_add_cube ha le_rfl ?_).trans_eq (by ring)
+  have : CDN/8 ≤ CDN/4 := by omega
+  grw [this]
+  ring_nf
+  omega
 
 omit [TileStructure Q D κ S o] in
-lemma C2_0_2_pos : 0 < C2_0_2 a nnq := add_pos C5_1_2_pos C5_1_3_pos
+lemma C2_0_2_pos : 0 < C2_0_2 a nnq := by
+  apply (add_pos (C5_1_2_pos (X := X)) (C5_1_3_pos (X := X))).trans_le
+  apply le_C2_0_2 (four_le_a X) (q_mem_Ioc X)
 
 variable (X) in
 theorem discrete_carleson :
@@ -37,4 +58,8 @@ theorem discrete_carleson :
     _ ≤ C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ +
         C5_1_3 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ :=
       add_le_add (forest_union hf measf) (forest_complement hf measf)
-    _ = _ := by simp_rw [mul_assoc, ← add_mul]; congr
+    _ ≤ _ := by
+      simp_rw [mul_assoc, ← add_mul]
+      gcongr
+      norm_cast
+      apply le_C2_0_2 (four_le_a X) (q_mem_Ioc X)
