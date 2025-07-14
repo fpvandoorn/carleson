@@ -375,7 +375,7 @@ theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
   · have hq2' : 0 < 2 - q :=
       sub_pos.mpr (lt_of_le_of_ne (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2) hq2)
     -- Take the (2-q)-th power of 6.1.11
-    have h2 := dens2_antichain h𝔄 hf1 hf hg1
+    have h2 := dens2_antichain h𝔄 hf1 hf hg1 hg
     rw [← ENNReal.rpow_le_rpow_iff hq2'] at h2
     simp only [mul_assoc] at h2
     rw [ENNReal.mul_rpow_of_nonneg _ _ hq2'.le, ENNReal.mul_rpow_of_nonneg _ _ hq2'.le,
