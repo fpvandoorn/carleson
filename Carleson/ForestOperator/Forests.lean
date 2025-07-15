@@ -895,6 +895,7 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
       · exact bf.enorm.aestronglyMeasurable.aemeasurable
     _ ≤ _ := by exact mul_le_mul_right' (indicator_row_bound bIGTf support_indicator_subset) _
 
+/-- The constant in the `f` side of Proposition 2.0.4. -/
 def C2_0_4_aux (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 8 + 𝕔/2 + 𝕔/4) * a ^ 3)
 
 open Classical in
