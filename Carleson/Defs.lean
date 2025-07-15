@@ -186,7 +186,7 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
     (h : ∀ {x : X} {r : ℝ} {ϕ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm ϕ x r ≠ ∞)
     (_h2 : support ϕ ⊆ ball x r) {f g : Θ X},
       ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
-      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)) :
+      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (-τ)) :
     IsCancellative X τ := by
   constructor
   intro x r ϕ hr h1 h2 f g
@@ -398,7 +398,7 @@ lemma enorm_K_le_vol_inv [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Me
 
 --TODO good name
 lemma enorm_K_le_ball_complement [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
-    [IsOneSidedKernel a K] {r : ℝ} {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    [IsOneSidedKernel a K] {r : ℝ} {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ) :
     ‖K x y‖ₑ ≤ C_K a / volume (ball x r) := by
   apply le_trans (enorm_K_le_vol_inv x y)
   apply ENNReal.div_le_div_left
@@ -409,7 +409,7 @@ lemma enorm_K_le_ball_complement [ProperSpace X] [IsFiniteMeasureOnCompacts (vol
 
 lemma enorm_K_le_ball_complement' [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
     [IsOpenPosMeasure (volume : Measure X)] [IsOneSidedKernel a K] {r : ℝ} (hr : 0 < r)
-    {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ) :
     ‖K x y‖ₑ ≤ (C_K a / volume (ball x r)).toNNReal := by
   rw [ENNReal.coe_toNNReal ?ne_top]
   case ne_top =>

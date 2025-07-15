@@ -455,7 +455,7 @@ lemma indicator_eq_indicator_one_mul {ι M : Type*} [MulZeroOneClass M]
     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by
   simp only [indicator]; split_ifs <;> simp
 
-lemma conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (s : Set α) (x : α):
+lemma conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (s : Set α) (x : α) :
     conj (s.indicator f x) = s.indicator (conj f) x := by
   simp only [indicator]; split_ifs <;> simp
 
@@ -477,7 +477,7 @@ lemma norm_indicator_one_le {α E}
 @[simp] lemma enorm_exp_I_mul_ofReal (x : ℝ) : ‖exp (I * x)‖ₑ = 1 := by
   rw [← enorm_norm, mul_comm, Complex.norm_exp_ofReal_mul_I, enorm_one]
 
-lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (I * (x - y))‖ = 1 := by
+lemma norm_exp_I_mul_sub_ofReal (x y : ℝ) : ‖exp (I * (x - y))‖ = 1 := by
   rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
 
 @[simp] lemma norm_exp_neg_I_mul_ofReal (x : ℝ) : ‖exp (-(I * x))‖ = 1 := by

@@ -124,7 +124,7 @@ irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
 
 -- unfortunate technicality
 lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
-    (hf : MemLp f 2): ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
+    (hf : MemLp f 2) : ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
   rw [show ∫ x, ofReal (normSq (f x)) = ofReal (∫ x, normSq (f x)) by exact integral_ofReal]
   rw [nnnorm_real]
   have hnn: 0 ≤ ∫ x, normSq (f x) := by-- todo: adjust `positivity` to handle this

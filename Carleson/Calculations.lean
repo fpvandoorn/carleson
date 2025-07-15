@@ -38,7 +38,7 @@ lemma calculation_2 (s : ℤ) :
   _ = (8 : ℝ)⁻¹ * D ^ s := by
     norm_num
 
-lemma calculation_10 (h: (100 : ℝ) < D) :
+lemma calculation_10 (h : (100 : ℝ) < D) :
     ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
   calc ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ)
   _ = (100 : ℝ) * D ^ (-1 : ℝ) + 4 * D ^ (-2 : ℝ) * D ^ (-1 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ) * D ^ (-1 : ℝ) := by
@@ -66,7 +66,7 @@ lemma calculation_10 (h: (100 : ℝ) < D) :
   _ < 2 := by
     norm_num
 
-lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y : ℤ} (h: x + 3 < y) :
+lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y : ℤ} (h : x + 3 < y) :
     100 * D ^ (x + 3) + ((4 * D ^ (-2 : ℝ)) * D ^ (x + 3)) + (((8 : ℝ)⁻¹ * D ^ (-3 : ℝ)) * D ^ (x + 3)) + 8 * D ^ y < 10 * D ^ y := by
   rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
   gcongr
@@ -120,7 +120,7 @@ lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G
   rw [Real.rpow_one]
   linarith [hundred_lt_realD X]
 
-lemma calculation_5 {dist_1 dist_2: ℝ}
+lemma calculation_5 {dist_1 dist_2 : ℝ}
     (h : dist_1 ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_2) :
     2 ^ ((-100 : ℝ) * a) * dist_1 ≤ 2 ^ ((-94 : ℝ) * a) * dist_2 := by
   apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (100 * (a : ℝ)) by positivity)).mp
@@ -161,7 +161,7 @@ lemma calculation_8 {dist_1 dist_2 : ℝ}
   exact h
 
 lemma calculation_9 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-    (h: 1 ≤ (2 : ℝ) ^ (-(94 : ℝ) * a)) :
+    (h : 1 ≤ (2 : ℝ) ^ (-(94 : ℝ) * a)) :
     False := by
   apply (show 94 * a ≥ 376 ∧ 94 * a < 376 → False by intros h1; linarith)
   constructor
@@ -215,13 +215,13 @@ lemma calculation_12 (s : ℝ) :
   rw_mod_cast [leftSide]
   rw_mod_cast [rightSide]
 
-lemma calculation_13 : (2 : ℝ) ^ (200 * (a^3) + 4*a) = (defaultA a) ^ (200*a^2 + 4) := by
+lemma calculation_13 : (2 : ℝ) ^ (200 * a ^ 3 + 4 * a) = defaultA a ^ (200 * a ^ 2 + 4) := by
   simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat]
   have fact := Real.rpow_mul (x := 2) (y := a) (z := 200 * a ^ 2 + 4) (by positivity)
   rw_mod_cast [← fact]
   ring
 
-lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n: ℕ) :
+lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n : ℕ) :
     (2 : ℝ) ^ ((Z : ℝ) * n / 2 - 201 * a ^ 3) ≤ 2 ^ ((Z : ℝ) * n / 2 - (200 * a ^ 3 + 4 * a)) := by
   gcongr
   · linarith
@@ -241,14 +241,14 @@ lemma calculation_15 {dist zon : ℝ}
   have := (div_le_div_iff_of_pos_right (c := 2 ^ (200 * a ^ 3 + 4 * a)) (hc := by positivity)).mpr h
   exact_mod_cast this
 
-lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s: ℤ) :
+lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s : ℤ) :
     4 * (D : ℝ) ^ s < 100 * D ^ (s + 1) := by
   gcongr
   · linarith
   · exact one_lt_D (X := X)
   · linarith
 
-lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {n : ℕ}:
+lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {n : ℕ} :
   (1:ℝ) ≤ 2 ^ (Z * (n + 1)) - 4 := by
   rw [le_sub_iff_add_le]
   trans 2 ^ 3

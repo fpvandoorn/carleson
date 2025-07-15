@@ -78,7 +78,7 @@ so that we don't accidentally use it. We can put it back if useful after all. -/
 lemma Grid.eq_iff : i = j ↔ (i : Set X) = (j : Set X) ∧ s i = s j :=
   ⟨fun h ↦ by simp [h], fun h ↦ by apply le_antisymm <;> simp [Grid.le_def, h]⟩
 
-lemma Grid.mem_mono {x:X} : Monotone (x ∈ · : Grid X → Prop) := by
+lemma Grid.mem_mono {x : X} : Monotone (x ∈ · : Grid X → Prop) := by
   intro u u' hle hu
   rw [Grid.mem_def] at hu ⊢
   rw [Grid.le_def] at hle

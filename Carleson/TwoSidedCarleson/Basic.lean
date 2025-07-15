@@ -14,7 +14,7 @@ theorem integrableOn_of_integrableOn_inter_support {f : X → ℂ} {μ : Measure
   simp
 
 -- Is this valuable? Not used right now
-lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X}:
+lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X} :
     MemLp (K x) ∞ (volume.restrict (ball x r)ᶜ) := by
   constructor
   · exact (measurable_K_right x).aestronglyMeasurable
@@ -93,7 +93,7 @@ lemma czOperator_aestronglyMeasurable_aux {g : X → ℂ} (hg : BoundedFiniteSup
     AEStronglyMeasurable (fun x ↦ czOperator K r g x) :=
   czOperator_aestronglyMeasurable hg.aestronglyMeasurable
 
-lemma czOperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
+lemma czOperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X) :
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
   let Kxg := fun y ↦ K x y * g y
   have mKxg : AEStronglyMeasurable Kxg := by
