@@ -16,8 +16,8 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 -- Lemma 6.3.1
 -- hp is eq. 6.3.1, hp' is eq. 6.3.2.
-lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) ϑ ≤ 2^N)
-    (hp' : dist_(p') (𝒬 p') ϑ ≤ 2^N) (hI : 𝓘 p ≤ 𝓘 p') (hs : 𝔰 p < 𝔰 p') :
+lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) ϑ ≤ 2 ^ N)
+    (hp' : dist_(p') (𝒬 p') ϑ ≤ 2 ^ N) (hI : 𝓘 p ≤ 𝓘 p') (hs : 𝔰 p < 𝔰 p') :
     smul (2^(N + 2)) p ≤ smul (2^(N + 2)) p' := by
   -- 6.3.4
   have hp2 : dist_(p) ϑ (𝒬 p') ≤ 2^N := by
@@ -101,7 +101,7 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
           calc 2 * a + 5 * a ^ 2
           _ ≤ a * a + 5 * a ^ 2 := by gcongr; linarith [four_le_a X]
           _ = 6 * a ^ 2 := by ring
-          _ ≤ 𝕔 * a ^ 2 := by gcongr; simp [𝕔]
+          _ ≤ 𝕔 * a ^ 2 := by gcongr; linarith [seven_le_c]
       _ = (4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a)) * (D * D ^ 𝔰 p) := by ring
       _ ≤ 4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a) * D ^ 𝔰 p' := by
         have h1D : 1 ≤ (D : ℝ) := one_le_D
@@ -260,9 +260,9 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
     have hcard : 𝔄'.toFinset.card ≤ 2^(a*(N+4)) := by
       -- We only care about the restriction of f to 𝔄'
       set f : 𝔓 X → Θ X := fun q ↦ if hq : q ∈ 𝔄' then (hex q hq).choose else ϑ with hf_def
-      refine le_trans (Finset.card_le_card_of_injOn f
-        (fun q hq ↦ by simp only [hf_def, dif_pos (mem_toFinset.mp hq),
-          (hex q (mem_toFinset.mp hq)).choose_spec.1]) ?_) hΘ'_card
+      refine (Finset.card_le_card_of_injOn f (fun q hq ↦ ?_) ?_).trans hΘ'_card
+      · simp_rw [hf_def, dif_pos (mem_toFinset.mp hq)]
+        exact (hex q (mem_toFinset.mp hq)).choose_spec.1
       intro q hq q' hq' hf
       simp only [coe_toFinset] at hq hq'
       have hfq : f q = (hex q hq).choose := by simp only [hf_def, dif_pos hq]
@@ -337,7 +337,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
 -- Lemma 6.3.3
 -- p' is 𝔭_ϑ in the blueprint
 open Classical in
-lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄) (ϑ : Θ X) (N : ℕ)
+lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : Θ X) (N : ℕ)
     {p' : 𝔓 X} (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1))) :
     ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N).toFinset | 𝔰 p' < 𝔰 p}), volume (E p ∩ G ∩ 𝓘 p') ≤
       volume (E₂ (2 ^ (N + 3)) p') := by
@@ -546,7 +546,7 @@ private def p' {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : 𝔓 X :=
   (Finset.exists_minimalFor 𝔰 (SL 𝔄 ϑ N L).toFinset (SL_nonempty hL)).choose
 
 open Classical in
-private lemma p'_mem {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N)  :
+private lemma p'_mem {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     p' hL ∈ (SL 𝔄 ϑ N L).toFinset :=
   ((Finset.exists_minimalFor 𝔰 (SL 𝔄 ϑ N L).toFinset (SL_nonempty hL)).choose_spec).1
 
@@ -945,7 +945,7 @@ private lemma le_C6_3_4 (ha : 4 ≤ a) :
 
 -- Lemma 6.3.4
 open Classical in
-lemma global_antichain_density {𝔄 : Set (𝔓 X)}  (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range Q) (N : ℕ) :
+lemma global_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range Q) (N : ℕ) :
     ∑ p ∈ (𝔄_aux 𝔄 ϑ.val N).toFinset, volume (E p ∩ G) ≤
       C6_3_4 a N * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
   rw [lhs]
@@ -1148,8 +1148,7 @@ lemma le_C6_1_6 (a4 : 4 ≤ a) :
       · exact one_le_two
       · rw [div_le_iff₀ p₆p, p₆]; norm_cast; rw [show 7 * (4 * a ^ 4) = 28 * a * a ^ 3 by ring]
         gcongr
-        simp only [𝕔, Nat.reduceAdd]
-        linarith
+        linarith [c_le_111]
       · exact_mod_cast calculation_6_1_6 a4
     _ ≤ _ := by
       rw [C6_1_6]; norm_cast; rw [← pow_add]; gcongr
@@ -1158,7 +1157,7 @@ lemma le_C6_1_6 (a4 : 4 ≤ a) :
 
 open Classical in
 /-- Lemma 6.1.6 -/
-lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range (Q (X := X)))  :
+lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range (Q (X := X))) :
     eLpNorm (fun x ↦ ∑ p with p ∈ 𝔄, (1 + edist_(p) (𝒬 p) ϑ.val) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
       (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume ≤
     C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ := by

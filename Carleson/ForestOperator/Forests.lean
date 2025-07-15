@@ -61,13 +61,13 @@ lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
       ← Real.rpow_add zero_lt_two, Nat.cast_mul, Nat.cast_ofNat, ← add_mul,
       show 12 + -10 = (2 : ℝ) by norm_num]; norm_cast
     induction a, ha using Nat.le_induction with
-    | base => simp [𝕔]
+    | base => linarith [seven_le_c]
     | succ k lk ih =>
       rw [mul_add_one, mul_add, mul_add_one, pow_add, show 2 ^ 2 = 3 + 1 by norm_num, mul_add_one,
         add_mul, add_comm, add_mul]
       gcongr ?_ + ?_
       · calc
-          _ ≤ 4 * (4 * 𝕔 + 𝕔) := by gcongr; simp [𝕔]
+          _ ≤ 4 * (4 * 𝕔 + 𝕔) := by gcongr; linarith [seven_le_c]
           _ = 20 * 𝕔 := by ring
           _ ≤ (2 ^ (2 * 4) * 3) * 𝕔 := by gcongr; norm_num
           _ ≤ _ := by gcongr; norm_num
@@ -221,13 +221,13 @@ def rowDecomp (t : Forest X n) (j : ℕ) : Row X n where
   ball_subset' hu := t.ball_subset' (rowDecomp_𝔘_subset_forest t j hu)
   pairwiseDisjoint' := rowDecomp_𝔘_pairwiseDisjoint t j
 
-lemma mem_forest_of_mem {t: Forest X n} {j : ℕ} {x : 𝔓 X} (hx : x ∈ t.rowDecomp j) : x ∈ t :=
+lemma mem_forest_of_mem {t : Forest X n} {j : ℕ} {x : 𝔓 X} (hx : x ∈ t.rowDecomp j) : x ∈ t :=
   rowDecomp_𝔘_subset_forest t j hx
 
 lemma rowDecomp_𝔘_eq (t : Forest X n) (j : ℕ) :
   (t.rowDecomp j).𝔘 = rowDecomp_𝔘 t j := rfl
 
-lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x:X)
+lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x : X)
     (this : ∃ 𝔲' ∈ (t.rowDecomp j).𝔘, x ∈ 𝓘 𝔲') :
     1 ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j: Set _) x := by
   classical
@@ -730,7 +730,7 @@ lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2
   have : 𝕔 / 2 ≤ 2 * (𝕔/4) + 1 := by omega
   grw [this]
   ring_nf
-  have : a ^ 3 ≤ (𝕔/4) * a ^ 3 := by simp [𝕔]
+  have : a ^ 3 ≤ (𝕔/4) * a ^ 3 := by linarith [seven_le_c]
   omega
 
 open Classical in

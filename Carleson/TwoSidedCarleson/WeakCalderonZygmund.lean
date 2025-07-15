@@ -1,5 +1,4 @@
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
-import Carleson.ToMathlib.Data.Set.Card
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Measure.SumRestrict
 import Carleson.TwoSidedCarleson.Basic
@@ -1285,7 +1284,7 @@ private lemma integral_g (hf : BoundedFiniteSupport f) (hα : 0 < α) (hX : Gene
   rw [integral_sub (integrableOn_g₀ hf hα hX j) (integrableOn_d hX j)]
   suffices (volume.real (czBall3 hX j) : ℂ) * ((volume.real (czBall3 hX j)) : ℂ)⁻¹ = 1 by
     simp [d, this, setAverage_eq, ← mul_assoc]
-  exact_mod_cast mul_inv_cancel₀ (measure_real_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne'
+  exact_mod_cast mul_inv_cancel₀ (measureReal_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne'
 
 private lemma lintegral_enorm_half_g (hf : BoundedFiniteSupport f) (hα : 0 < α)
     (hX : GeneralCase f (α' a α)) (j : ℕ) :

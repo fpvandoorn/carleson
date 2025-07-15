@@ -69,7 +69,7 @@ lemma calculation_2 (s : ℤ) :
   _ = (8 : ℝ)⁻¹ * D ^ s := by
     norm_num
 
-lemma calculation_10 (h: (100 : ℝ) < D) :
+lemma calculation_10 (h : (100 : ℝ) < D) :
     ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
   calc ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ)
   _ ≤ ((100 : ℝ) + 4 * 100 ^ (-2 : ℝ) + 8⁻¹ * 100 ^ (-3 : ℝ)) * 100 ^ (-1 : ℝ) := by
@@ -77,7 +77,7 @@ lemma calculation_10 (h: (100 : ℝ) < D) :
     apply Real.rpow_le_rpow_of_exponent_nonpos (by norm_num) h.le (by norm_num)
   _ < _ := by norm_num
 
-lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y : ℤ} (h: x + 3 < y) :
+lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y : ℤ} (h : x + 3 < y) :
     100 * D ^ (x + 3) + ((4 * D ^ (-2 : ℝ)) * D ^ (x + 3)) + (((8 : ℝ)⁻¹ * D ^ (-3 : ℝ)) * D ^ (x + 3)) + 8 * D ^ y < 10 * D ^ y := by
   rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
   gcongr
@@ -131,7 +131,7 @@ lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G
   rw [Real.rpow_one]
   linarith [hundred_lt_realD X]
 
-lemma calculation_5 {dist_1 dist_2: ℝ}
+lemma calculation_5 {dist_1 dist_2 : ℝ}
     (h : dist_1 ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_2) :
     2 ^ ((-𝕔 : ℝ) * a) * dist_1 ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * dist_2 := by
   apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (𝕔 * (a : ℝ)) by positivity)).mp
@@ -176,9 +176,11 @@ lemma calculation_9 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     False := by
   have : (2 : ℝ) ^ (-((𝕔 - 6) : ℝ) * a) < 1 ^ (-((𝕔 - 6) : ℝ) * a) := by
     apply Real.rpow_lt_rpow_of_neg (by norm_num) (by norm_num)
-    have : (4 : ℝ) ≤ a := mod_cast four_le_a X
-    simp only [𝕔, Nat.cast_ofNat, neg_sub, gt_iff_lt]
-    linarith
+    simp only [neg_sub, sub_mul, sub_neg]
+    norm_cast
+    gcongr
+    · linarith [four_le_a X]
+    · linarith [seven_le_c]
   simp at h this
   linarith
 
@@ -226,13 +228,13 @@ lemma calculation_12 (s : ℝ) :
   rw_mod_cast [leftSide]
   rw_mod_cast [rightSide]
 
-lemma calculation_13 : (2 : ℝ) ^ (2 * 𝕔 * (a^3) + 4*a) = (defaultA a) ^ (2 * 𝕔 *a^2 + 4) := by
+lemma calculation_13 : (2 : ℝ) ^ (2 * 𝕔 * a ^ 3 + 4 * a) = (defaultA a) ^ (2 * 𝕔 * a ^ 2 + 4) := by
   simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat]
   have fact := Real.rpow_mul (x := 2) (y := a) (z := 2 * 𝕔 * a ^ 2 + 4) (by positivity)
   rw_mod_cast [← fact]
   ring
 
-lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n: ℕ) :
+lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n : ℕ) :
     (2 : ℝ) ^ ((Z : ℝ) * n / 2 - (2 * 𝕔 + 1) * a ^ 3) ≤
       2 ^ ((Z : ℝ) * n / 2 - (2 * 𝕔 * a ^ 3 + 4 * a)) := by
   gcongr
@@ -254,14 +256,14 @@ lemma calculation_15 {dist zon : ℝ}
     (hc := by positivity)).mpr h
   exact_mod_cast this
 
-lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s: ℤ) :
+lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s : ℤ) :
     4 * (D : ℝ) ^ s < 100 * D ^ (s + 1) := by
   gcongr
   · linarith
   · exact one_lt_D (X := X)
   · linarith
 
-lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {n : ℕ}:
+lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {n : ℕ} :
   (1:ℝ) ≤ 2 ^ (Z * (n + 1)) - 4 := by
   rw [le_sub_iff_add_le]
   trans 2 ^ 3
@@ -305,7 +307,7 @@ lemma calculation_convexity_bound [PseudoMetricSpace X] [ProofData a q K σ₁ �
       unfold defaultD
       norm_cast
       apply Nat.le_pow
-      simp only [𝕔, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
+      have : 0 < 𝕔 := by linarith [seven_le_c]
       positivity
     _ ≤ ∑' k : ℕ, ((2 : ENNReal) ^ (-t)) ^ k := ENNReal.sum_le_tsum _
     _ = _ := ENNReal.tsum_geometric _
@@ -334,7 +336,9 @@ lemma calculation_150 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] :
   simp only [Nat.cast_pow, Nat.cast_mul, Nat.cast_ofNat]
   gcongr
   · calc
-      _ ≤ (2 : ℝ) ^ (8 * 4) := by simp [𝕔]; norm_num
+      _ ≤ (2 : ℝ) ^ (8 * 4) := by
+        have : (𝕔 : ℝ) * (3/2) ≤ 111 * (3/2) := by gcongr; exact_mod_cast c_le_111
+        linarith
       _ ≤ _ := by gcongr; exacts [one_le_two, four_le_a X]
   · norm_cast
     exact Nat.lt_two_pow_self.le

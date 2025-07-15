@@ -429,7 +429,7 @@ lemma DoublingMeasure.volume_real_ball_two_le_same_repeat (x : X) (r : ℝ) (n :
     volume.real (ball x (2 ^ n * r)) ≤ (defaultA a) ^ n * volume.real (ball x r) := by
   induction' n with d ih; · simp
   rw [add_comm, pow_add, pow_one, mul_assoc]
-  apply (measure_real_ball_two_le_same x _).trans
+  apply (measureReal_ball_two_le_same x _).trans
   have A_cast: (defaultA a : ℝ≥0).toReal = (defaultA a : ℝ) := rfl
   rwa [A_cast, pow_add, mul_assoc, pow_one, mul_le_mul_left (by positivity)]
 
@@ -591,7 +591,7 @@ lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx :
       _ = _ := by unfold defaultA defaultD C; field_simp
   have : volume.real (ball x (2*r₀)) ≤ C * volume.real (ball x (D^s)) := by
     have : (0:ℝ) < D := defaultD_pos _
-    refine measure_ball_le_same x (by positivity) ?_
+    refine measureReal_ball_le_same x (by positivity) ?_
     apply le_of_eq; field_simp
   calc
     _ ≤ C⁻¹ * volume.real (ball x (2*r₀)) := by
@@ -813,7 +813,7 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
   unfold C2_1_3 D2_1_3; norm_cast; rw [← pow_add, ← pow_add]; gcongr
   · exact one_le_two
   · suffices 𝕔 * a + 2 ≤ (𝕔 / 4) * a ^ 3 by linarith
-    have : 4 ≤ 𝕔 := by simp [𝕔]
+    have : 4 ≤ 𝕔 := by linarith [seven_le_c]
     have : 1 ≤ 𝕔/4 := by omega
     have := four_le_a X
     calc
@@ -939,8 +939,7 @@ lemma Ks_eq_zero_of_dist_le {s : ℤ} {x y : X} (hxy : x ≠ y)
     rw [← zpow_neg_one, zpow_add₀ (by simp)]
   exact heq ▸ h
 
-lemma Ks_eq_zero_of_le_dist {s : ℤ} {x y : X} (h : (D : ℝ)^(s)/2 ≤ dist x y) :
-    Ks s x y = 0 := by
+lemma Ks_eq_zero_of_le_dist {s : ℤ} {x y : X} (h : D ^ s / 2 ≤ dist x y) : Ks s x y = 0 := by
   have hxy : x ≠ y := by
     rw [← dist_pos]
     apply lt_of_lt_of_le _ h

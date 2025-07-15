@@ -58,7 +58,7 @@ lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
         _ ≤ _ := by
           gcongr
           · norm_num
-          · simp [𝕔]
+          · linarith [seven_le_c]
           · apply Nat.le_pow (by norm_num)
 
 lemma volume_bound_of_Grid_lt {L L' : Grid X} (lL : L ≤ L') (sL : s L' = s L + 1) :

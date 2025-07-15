@@ -13,7 +13,7 @@ local notation "S_" => partialFourierSum
 open scoped ContDiff
 
 lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
-  (periodicf : f.Periodic (2 * π)) {ε : ℝ} (εpos : ε > 0):
+  (periodicf : f.Periodic (2 * π)) {ε : ℝ} (εpos : ε > 0) :
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ∞ f₀ ∧ f₀.Periodic (2 * π) ∧
       ∀ x, ‖f x - f₀ x‖ ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos

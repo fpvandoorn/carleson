@@ -220,7 +220,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
     _ ≤ 𝕔 * a ^ 3 + 9 * a * a * a + 1 * a * a * a := by gcongr <;> omega
     _ = (𝕔 + 10) * a ^ 3 := by ring
     _ ≤ 2 ^ (7 + 3 * a) := by
-      rw [pow_add, pow_mul']; gcongr; exacts [by simp [𝕔], Nat.lt_two_pow_self.le]
+      rw [pow_add, pow_mul']; gcongr; exacts [by linarith [seven_le_c], Nat.lt_two_pow_self.le]
     _ ≤ _ := by gcongr <;> omega
 
 /-- Lemma 7.6.3 with a floor on the constant to avoid casting. -/
@@ -295,7 +295,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
     · rw [Finset.mul_sum, ← nsmul_eq_mul, ← Finset.sum_const]
       refine Finset.sum_le_sum fun I hI ↦ ?_
       simp only [mem_toFinset] at hI
-      apply le_trans _ (measure_real_ball_two_le_same_iterate (μ := volume) (c I) (D ^ s I / 4) 7)
+      apply le_trans _ (measureReal_ball_two_le_same_iterate (μ := volume) (c I) (D ^ s I / 4) 7)
       refine measureReal_mono ?_ (by finiteness)
       apply ball_subset_ball'
       refine (add_le_add le_rfl hI.1.le).trans ?_
@@ -736,7 +736,7 @@ lemma btp_constant_bound :
         · apply mul_le_mul_of_nonpos_left
           · rw [show (3 : ℝ) = 2 + 1 by norm_num, ← sub_sub, ← C7_6_3_def, sub_le_iff_le_add]
             exact (Int.lt_floor_add_one _).le
-          · rw [neg_mul, Left.neg_nonpos_iff, mul_nonneg_iff_of_pos_left (by simp [𝕔])]
+          · rw [neg_mul, Left.neg_nonpos_iff, mul_nonneg_iff_of_pos_left (by linarith [seven_le_c])]
             positivity
       · exact calculation_7_6_2 (X := X)
     _ = C2_1_3 a * 2 ^ (21 * a + 4) *

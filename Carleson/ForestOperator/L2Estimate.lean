@@ -663,7 +663,7 @@ lemma boundary_geometric_series :
       _ = 1 * 1 * k := by ring
       _ ≤ 𝕔 * a * k := by
         gcongr
-        · simp [𝕔]
+        · linarith [seven_le_c]
         · linarith [four_le_a X]
     _ ≤ 2 ^ (9 * a) * ∑' k : ℕ, 2 ^ (-k : ℤ) := mul_le_mul_left' (ENNReal.sum_le_tsum _) _
     _ ≤ 2 ^ (9 * a) * 2 := by rw [ENNReal.sum_geometric_two_pow_neg_one]

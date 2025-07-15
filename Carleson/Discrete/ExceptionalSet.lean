@@ -961,7 +961,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       _ = 4 * a ^ 2 := by ring
       _ ≤ 𝕔 * a ^ 2 := by
         gcongr
-        simp [𝕔]
+        linarith [seven_le_c]
 
 /-- Lemma 5.1.1 -/
 lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (-1 : ℤ) * volume G :=

@@ -399,8 +399,7 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
       apply Real.rpow_le_rpow_of_exponent_le one_le_two
       simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le]
       norm_cast
-      simp only [𝕔]
-      linarith [four_le_a X]
+      linarith [four_le_a X, seven_le_c]
     _ ≤ (C2_1_2 a)⁻¹ ^ d := by
       refine pow_le_pow_right₀ ?_ (by omega)
       simp_rw [one_le_inv_iff₀, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity
@@ -508,11 +507,11 @@ lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackS
   let mf' : 𝔓 X → 𝔓 X := fun u ↦ if mu : u ∈ 𝔘₃ k n j then mf k n j ⟨u, mu⟩ else default
   simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id]
   refine Finset.card_le_card_of_injOn mf' (fun u mu ↦ ?_) (fun u mu u' mu' e ↦ ?_)
-  · simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu ⊢
+  · rw [Finset.coe_filter, mem_setOf, Finset.mem_filter_univ] at mu ⊢
     simp_rw [mf', mu.1, dite_true]
     have hu : 𝓘 u ≤ 𝓘 (mf k n j ⟨u, mu.1⟩) := (exists_smul_le_of_𝔘₃ ⟨u, mu.1⟩).choose_spec.1
     exact ⟨(mf k n j ⟨u, mu.1⟩).2, hu.1 mu.2⟩
-  · simp_rw [Finset.coe_filter, mem_setOf, Finset.mem_filter, Finset.mem_univ, true_and] at mu mu'
+  · rw [Finset.coe_filter, mem_setOf, Finset.mem_filter_univ] at mu mu'
     simp_rw [mf', mu.1, mu'.1, dite_true, Subtype.val_inj] at e
     simpa using mf_injOn mu.2 mu'.2 e
 

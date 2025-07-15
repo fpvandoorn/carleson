@@ -232,7 +232,9 @@ lemma C7_4_3_le (ha : 4 ≤ a) : C7_3_1_1 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 
           _ = 2 * a * 1 * 1 := by ring
           _ ≤ (𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4 : ℕ) * a * a * a := by
             gcongr
-            · simp only [𝕔]; norm_num
+            · norm_cast
+              have := seven_le_c
+              omega
             · norm_cast; omega
             · norm_cast; omega
           _ = _ := by ring

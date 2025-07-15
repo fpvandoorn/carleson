@@ -78,7 +78,7 @@ so that we don't accidentally use it. We can put it back if useful after all. -/
 lemma Grid.eq_iff : i = j ↔ (i : Set X) = (j : Set X) ∧ s i = s j :=
   ⟨fun h ↦ by simp [h], fun h ↦ by apply le_antisymm <;> simp [Grid.le_def, h]⟩
 
-lemma Grid.mem_mono {x:X} : Monotone (x ∈ · : Grid X → Prop) := by
+lemma Grid.mem_mono {x : X} : Monotone (x ∈ · : Grid X → Prop) := by
   intro u u' hle hu
   rw [Grid.mem_def] at hu ⊢
   rw [Grid.le_def] at hle
@@ -381,9 +381,10 @@ variable (X) in
 lemma _root_.C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 256 := by
   rw [C2_1_2, show (1 / 256 : ℝ) = 2 ^ (-8 : ℝ) by norm_num,
     Real.rpow_le_rpow_left_iff one_lt_two, le_neg]
-  simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le, 𝕔]
+  simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le]
   norm_cast
   have := four_le_a X
+  have : 7 * a ≤ 𝕔 * a := by gcongr; exact seven_le_c
   linarith
 
 include q K σ₁ σ₂ F G in

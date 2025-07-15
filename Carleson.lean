@@ -51,11 +51,10 @@ import Carleson.ToMathlib.Analysis.SpecialFunctions.Pow.Deriv
 import Carleson.ToMathlib.Annulus
 import Carleson.ToMathlib.BoundedCompactSupport
 import Carleson.ToMathlib.BoundedFiniteSupport
-import Carleson.ToMathlib.CoverByBalls
+import Carleson.ToMathlib.CoveredByBalls
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.Data.NNReal
 import Carleson.ToMathlib.Data.Real.ConjExponents
-import Carleson.ToMathlib.Data.Set.Card
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.HardyLittlewood

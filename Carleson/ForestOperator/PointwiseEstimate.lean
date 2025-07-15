@@ -646,7 +646,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     · apply (div_le_iff₀' (pow_pos two_pos (5 * a))).mpr
       apply le_trans <| ENNReal.toReal_mono measure_ball_ne_top <|
         OuterMeasureClass.measure_mono volume ball_subset
-      apply le_of_le_of_eq <| measure_real_ball_two_le_same_iterate x (D ^ s) 5
+      apply le_of_le_of_eq <| measureReal_ball_two_le_same_iterate x (D ^ s) 5
       simp [mul_comm 5 a, pow_mul]
   _ ≤ 2 ^ (a ^ 3) * (MB volume 𝓑 c𝓑 r𝓑 g x').toNNReal := by
     gcongr ?_ * ?_
@@ -731,7 +731,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
           3 + 5 * a
           _ ≤ a + 5 * a := by gcongr; linarith [four_le_a X]
           _ = 6 * a := by ring
-          _ ≤ 𝕔 * a := by gcongr; simp [𝕔]
+          _ ≤ 𝕔 * a := by gcongr; linarith [seven_le_c]
       _ < _ := by norm_num
   have x'p : x' ∈ 𝓘 p := (Grid.le_def.mp Lle).1 hx'
   refine le_iSup₂_of_le (𝓘 p) x'p <| le_iSup₂_of_le x xp <|
@@ -969,7 +969,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       rw [mul_le_mul_left (by simp [indicator_of_mem xEp])]
       apply Real.toNNReal_mono
       gcongr
-      · apply div_pos (measure_real_ball_pos _ <| mul_pos (by norm_num) (defaultD_pow_pos a _))
+      · apply div_pos (measureReal_ball_pos _ <| mul_pos (by norm_num) (defaultD_pow_pos a _))
         exact A5_pos
       · rw [div_le_iff₀' A5_pos]
         calc volume.real (ball (c I) (16 * D ^ s I))
@@ -980,7 +980,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
           exact mem_ball'.mp <| (Finset.mem_filter.mp hp).2.2 ▸ Grid_subset_ball (E_subset_𝓘 xEp)
         _ ≤ (defaultA a) ^ 5 * volume.real (ball x (D ^ s I)) := by
           rw [show (32 : ℝ) = 2 ^ 5 by norm_num]
-          exact measure_real_ball_two_le_same_iterate (μ := volume) x (D ^ s I) 5
+          exact measureReal_ball_two_le_same_iterate (μ := volume) x (D ^ s I) 5
     _ ≤ ENNReal.ofNNReal (∑ I : Grid X, ((I : Set X).indicator 1 x') *
           Real.toNNReal (D2_1_3 a / (volume.real (ball (c I) (16 * D ^ s I)) / (defaultA a) ^ 5) *
           2 ^ (3 / (a : ℝ)) *
@@ -1056,7 +1056,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       refine Finset.sum_congr rfl (fun J hJ ↦ ?_)
       repeat rw [ENNReal.ofReal_mul (by positivity)]
       rw [ENNReal.ofReal_div_of_pos, ENNReal.ofReal_one, ← mul_assoc]; swap
-      · exact measure_real_ball_pos (c I) <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
+      · exact measureReal_ball_pos (c I) <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
       rw [← ENNReal.mul_div_right_comm, one_mul]
       congr
       · rw [← ENNReal.ofReal_rpow_of_pos (defaultD_pos a)]
@@ -1080,12 +1080,13 @@ lemma C7_1_4_le_C7_1_3 {a : ℕ} (ha : 4 ≤ a) : C7_1_4 a ≤ C7_1_3 a := by
   gcongr
   · norm_num
   suffices 4 ≤ (𝕔 / 4) * a ^ 3 by linarith
-  have : 4 ≤ a ^ 3 := calc
+  have : 4 ≤ (4 / 4) * a ^ 3 := calc
     4 = 4 * 1 * 1 := by norm_num
     _ ≤ a * a * a := by gcongr <;> linarith
-    _ = a ^ 3 := by ring
-  simp only [𝕔]
-  linarith
+    _ = (4 / 4) * a ^ 3 := by ring
+  apply this.trans
+  gcongr
+  linarith [seven_le_c]
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
