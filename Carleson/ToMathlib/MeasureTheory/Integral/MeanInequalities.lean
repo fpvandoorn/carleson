@@ -541,7 +541,8 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
       apply hL
     have A : AEStronglyMeasurable f'
         (Measure.map (fun (x : ℝ) ↦ (x : AddCircle T)) (volume : Measure ℝ)) :=
-      AEStronglyMeasurable.mono_ac (map_coe_addCircle_volume_ac T) (by fun_prop)
+      AEStronglyMeasurable.mono_ac (quasiMeasurePreserving_coe_addCircle T).absolutelyContinuous
+        (by fun_prop)
     exact A.comp_measurable (by fun_prop)
   convert this using 3 with x
   · rw [intervalIntegral.integral_of_le (by linarith [hT.out]),

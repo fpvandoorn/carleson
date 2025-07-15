@@ -80,23 +80,8 @@ theorem finitary_carleson_step
     ∫⁻ x in G \ G', ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ ≤
     C2_0_1 a q * (volume G) ^ (q' : ℝ)⁻¹ * (volume F) ^ (q : ℝ)⁻¹ := by
   obtain ⟨Q, BST_T_Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩ := CP
-  rcases eq_zero_or_pos (volume G) with vG | vG
-  · use ∅, empty_subset _, isBounded_empty, MeasurableSet.empty
-    simp only [measure_empty, mul_zero, zero_le, diff_empty, true_and]
-    rw [setLIntegral_measure_zero _ _ vG]; exact zero_le _
-  rcases eq_zero_or_pos (volume F) with vF | vF
-  · use ∅, empty_subset _, isBounded_empty, MeasurableSet.empty
-    simp only [measure_empty, mul_zero, zero_le, diff_empty, true_and]
-    suffices ∀ x, ‖T_lin Q σ₁ σ₂ f x‖ₑ = 0 by
-      rw [lintegral_congr this, lintegral_zero]; exact zero_le _
-    intro x; rw [enorm_eq_zero, T_lin]
-    refine Finset.sum_eq_zero fun s ms ↦ integral_eq_zero_of_ae ?_
-    classical
-    convert ite_ae_eq_of_measure_zero (fun y ↦ Ks s x y * f y * exp (I * Q x y)) 0 F vF using 1
-    ext y; symm; rw [ite_eq_left_iff]; intro ny
-    specialize nf y; simp_rw [indicator_of_notMem ny, norm_le_zero_iff] at nf; simp [nf]
   let PD : ProofData a q K σ₁ σ₂ F G :=
-    ⟨‹_›, hq, bF, bG, mF, mG, vF, vG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, BST_T_Q⟩
+    ⟨‹_›, hq, bF, bG, mF, mG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, BST_T_Q⟩
   obtain ⟨G₁, mG₁, vG₁, hG₁⟩ := finitary_carleson X
   refine ⟨G ∩ G₁, inter_subset_left, bG.subset inter_subset_left, mG.inter mG₁, ?_, ?_⟩
   · refine le_trans ?_ vG₁; gcongr; exact inter_subset_right

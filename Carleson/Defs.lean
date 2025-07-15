@@ -499,10 +499,6 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
   isBounded_G : IsBounded G
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
-  /-- `volume_F_pos` can probably be removed. -/
-  volume_F_pos : 0 < volume F
-  /-- `volume_G_pos` can probably be removed. -/
-  volume_G_pos : 0 < volume G
   measurable_σ₁ : Measurable σ₁
   measurable_σ₂ : Measurable σ₂
   finite_range_σ₁ : Finite (range σ₁)

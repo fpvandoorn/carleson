@@ -463,7 +463,6 @@ private lemma 𝔄_min_sum_le :
         rw [hpL, hpL'] at h ⊢
         exact Or.resolve_right (eq_or_disjoint hs) h.not_disjoint
 
--- TODO: change ⊆ to ≤ in the blueprint
 /-- The set `𝓛` defined in Lemma 6.3.4. -/
 def 𝓛 : Set (Grid X) := {I : Grid X | (∃ (p : 𝔄' 𝔄 ϑ N), I ≤ 𝓘 (p : 𝔓 X)) ∧
     (∀ (p : 𝔄' 𝔄 ϑ N), 𝓘 (p : 𝔓 X) ≤ I → 𝔰 (p : 𝔓 X) = - S)}
@@ -583,11 +582,6 @@ private lemma s_L_le_s_p' {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : s L < 𝔰
       exact Grid.nonempty L
     exact hp'L (Or.resolve_right (le_or_disjoint h) h')
 
--- TODO: fix "by def of L" in the blueprint (should be 𝓛)
--- TODO: fix "p ∈ 𝔄" in blueprint (should be "p ∈ 𝔄'")
--- TODO: I might need to change this back, but I have replaced `c L ∈ L'` by `L ≤ L'`,
--- which I think is what is used later in the proof
--- **TODO** : the hypothesis 0 < S is used implicitly in the proof in the blueprint; add remark.
 lemma exists_larger_grid {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     ∃ (L' : Grid X), L ≤ L' ∧ s L' = s L + 1 := by
   classical
@@ -720,7 +714,7 @@ private lemma ineq_6_3_36 {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
   by_cases heq : 𝓘 (p'' hL) = L' hL
   · have heq' : p'' hL = pΘ hL := by simp only [pΘ, if_pos heq]
     rw [heq']
-  · -- Eq. 6.3.37 **TODO**: remove duplicate in blueprint.
+  · -- Eq. 6.3.37
     have hpθ : ϑ.val ∈ ball_(pΘ hL) (𝒬 (pΘ hL)) (2 ^ (N + 1)) := eq_6_3_37 hL
     have hp'' : ϑ.val ∈ ball_(p'' hL) (𝒬 (p'' hL)) (2 ^ (N + 1)) := eq_6_3_35 hL
     simp only [mem_ball] at hpθ hp''
@@ -827,7 +821,6 @@ private lemma volume_L'_le {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     calc dist (c L) (c (L' hL)) + 4 * D ^ s (L' hL)
       _ ≤ 4 * ↑D ^ s (L' hL) + 4 * D ^ s (L' hL) := by grw [dist_c_le_of_subset (L_le_L' hL).1]
       _ ≤ 8 * ↑D ^ s (L' hL) := by linarith
-  /- **TODO**: add note about using `ball_subset_ball_of_le` and `hc` in the blueprint. -/
   calc volume (L' hL : Set X)
     _ ≤ volume (ball (c (L' hL)) (4 * D ^ s (L' hL))) := by
       gcongr; exact Grid_subset_ball
@@ -879,7 +872,6 @@ lemma global_antichain_density_aux (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : G
     _ ≤ 2^(a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L' hL : Set X) +
         volume (E₂ (2 ^ (N + 3)) (pΘ hL)) := by grw [ineq_6_3_39 h𝔄 hL]
     -- Ineq. 6.3.40, using 6.3.38
-    -- **TODO**: replace 6.3.21 by 6.3.38 in the blueprint.
     _ ≤ (2^(a * (N + 5)) + 2^(a * N + a * 3)) * dens₁ (𝔄 : Set (𝔓 X)) *
         volume (L' hL : Set X) := by
       conv_rhs => rw [mul_assoc]
@@ -989,7 +981,6 @@ private lemma le_C6_3_4 (ha : 4 ≤ a) :
         _ ≤ a ^ 2 - 1 := by gcongr
       · linarith
 
--- **TODO**: add remark 0 < S to blueprint.
 -- Lemma 6.3.4
 open Classical in
 lemma global_antichain_density {𝔄 : Set (𝔓 X)}  (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range Q) (N : ℕ) :
