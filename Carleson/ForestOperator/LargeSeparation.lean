@@ -165,11 +165,11 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
           · exact notDisjoint
         _ ⊆ ball (c cube) (4 * D ^ s cube) := by
           exact Grid_subset_ball (i := cube)
-        _ ⊆ ball (c cube) (60 * D ^ (s cube + 1)) := by
+        _ ⊆ ball (c cube) (100 * D ^ (s cube + 1)) := by
           intro y xy
           rw [ball, mem_setOf_eq] at xy ⊢
           exact gt_trans (calculation_16 (X := X) (s := s cube)) xy
-      have black : ¬↑(𝓘 p) ⊆ ball (c cube) (60 * D ^ (s cube + 1)) := by
+      have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * D ^ (s cube + 1)) := by
         have in_𝔖₀ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
         rw [subset_def] at in_𝔖₀
         exact east p (in_𝔖₀ p belongs)
@@ -205,28 +205,28 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
     (hd : ¬Disjoint (ball (c J) (8 * D ^ s J)) (ball (c J') (8 * D ^ s J'))) :
     s J - 1 ≤ s J' := by
   by_contra! hs
-  have fa : ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (60 * D ^ (s J + 1)) :=
+  have fa : ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * D ^ (s J + 1)) :=
     hJ.1.1.resolve_left (by linarith [(scale_mem_Icc (i := J')).1])
   apply absurd fa; push_neg
   obtain ⟨J'', sJ'', lJ''⟩ : ∃ J'', s J'' = s J' + 1 ∧ J' ≤ J'' := by
     refine Grid.exists_supercube (s J' + 1) ⟨by omega, ?_⟩
     rw [lt_sub_iff_add_lt] at hs; exact hs.le.trans scale_mem_Icc.2
-  obtain ⟨p, mp, sp⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (60 * D ^ (s J' + 1 + 1)) := by
+  obtain ⟨p, mp, sp⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * D ^ (s J' + 1 + 1)) := by
     have : J'' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ lJ'' (by linarith) hJ'.1
     rw [𝓙₀, mem_setOf_eq, sJ''] at this; push_neg at this; exact this.2
   use p, mp, sp.trans (ball_subset_ball' ?_)
   calc
-    _ ≤ 60 * D ^ (s J' + 1 + 1) + (dist (c J'') (c J') + dist (c J) (c J')) :=
+    _ ≤ 100 * D ^ (s J' + 1 + 1) + (dist (c J'') (c J') + dist (c J) (c J')) :=
       add_le_add_left (dist_triangle_right ..) _
-    _ ≤ 60 * D ^ (s J' + 1 + 1) + (4 * D ^ s J'' + 8 * D ^ s J + 8 * D ^ s J') := by
+    _ ≤ 100 * D ^ (s J' + 1 + 1) + (4 * D ^ s J'' + 8 * D ^ s J + 8 * D ^ s J') := by
       rw [add_assoc (4 * _)]; gcongr
       · exact (mem_ball'.mp (Grid_subset_ball (lJ''.1 Grid.c_mem_Grid))).le
       · exact (dist_lt_of_not_disjoint_ball hd).le
-    _ ≤ 60 * D ^ s J + (4 * D ^ s J + 8 * D ^ s J + 8 * D ^ s J) := by
+    _ ≤ 100 * D ^ s J + (4 * D ^ s J + 8 * D ^ s J + 8 * D ^ s J) := by
       gcongr; exacts [one_le_D, by omega, one_le_D, by omega, one_le_D, by omega]
     _ ≤ _ := by
       rw [← add_mul, ← add_mul, ← add_mul, zpow_add_one₀ (by simp), mul_comm _ (D : ℝ), ← mul_assoc]
-      gcongr; trans 60 * 4
+      gcongr; trans 100 * 4
       · norm_num
       · gcongr; exact four_le_realD X
 
@@ -916,7 +916,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
   have ⟨J', belongs, plusOne⟩ : ∃ J', J ≤ J' ∧ s J' = s J + 1 :=
     Grid.exists_scale_succ (by change s J < 𝔰 p; linarith)
   have ⟨p', ⟨_, distance⟩, hundred⟩ :
-      ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (60 * D ^ (s J + 2)) := by
+      ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * D ^ (s J + 2)) := by
     rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
     have J'Touches𝔖₀ : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ (le := belongs)
       (sle := by linarith [plusOne]) (A_in := hJ.1)
@@ -929,11 +929,11 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
   calc 2 ^ ((Z : ℝ) * (n : ℝ) / 2)
     _ ≤ dist_{𝓘 p'} (𝒬 u₁) (𝒬 u₂) := by
       exact distance
-    _ ≤ dist_{c J', 60 * D ^ (s J + 2)} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ dist_{c J', 100 * D ^ (s J + 2)} (𝒬 u₁) (𝒬 u₂) := by
       apply cdist_mono
       intros x hx
       exact hundred (ball_subset_Grid hx)
-    _ ≤ 2 ^ ((-CDN : ℝ) * a) * dist_{c J', 60 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ 2 ^ ((-CDN : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
       apply calculation_8
       rw [mul_comm, calculation_6 a (s J), calculation_7 a (s J)]
       exact_mod_cast le_cdist_iterate (k := CDN * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (hr := by positivity)
@@ -1075,7 +1075,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
       nlinarith [four_le_a X]
 
 /-- The constant used in `local_tree_control`.
-Has value `2 ^ (64 * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (104 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 4) * (a : ℝ) ^ 3)
 
@@ -1180,7 +1180,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
         rw [← add_mul, ← add_mul, zpow_add_one₀ (defaultD_pos a).ne', mul_comm _ (D : ℝ),
           ← mul_assoc]; gcongr
         calc
-          _ ≤ 60 * (1 : ℝ) := by norm_num
+          _ ≤ 100 * (1 : ℝ) := by norm_num
           _ ≤ _ := by gcongr; exact one_le_D
 
 lemma volume_cpDsp_bound {J : Grid X}
@@ -1970,7 +1970,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       _ ⊆ 𝓘 u₁ := (𝓘_le_𝓘 t hu₁ belongs).1
       _ ⊆ ball (c (𝓘 u₁)) (4 * D ^ s (𝓘 u₁)) := by
         exact Grid_subset_ball
-      _ ⊆ ball (c (𝓘 u₁)) (60 * D ^ (s (𝓘 u₁) + 1)) := by
+      _ ⊆ ball (c (𝓘 u₁)) (100 * D ^ (s (𝓘 u₁) + 1)) := by
         intro x hx
         exact gt_trans (calculation_16 (X := X) (s := s (𝓘 u₁))) hx
   rcases existsBiggerThanJ with ⟨J', JleJ', scaleSmaller⟩
@@ -1989,17 +1989,17 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       intro point pointIn
       calc dist point (c J)
       _ ≤ dist point (c J') + dist (c J') (c J) := dist_triangle ..
-      _ ≤ 60 * D ^ (s J' + 1) + dist (c J') (c J) := by
+      _ ≤ 100 * D ^ (s J' + 1) + dist (c J') (c J) := by
         rw [ball, Set.subset_def] at pSubset
         have := pSubset point (ball_subset_Grid pointIn)
         rw [mem_setOf_eq] at this
         gcongr
-      _ ≤ 60 * D ^ (s J' + 1) + 4 * D ^ (s J') := by
+      _ ≤ 100 * D ^ (s J' + 1) + 4 * D ^ (s J') := by
         have : dist (c J) (c J') < 4 * D ^ (s J') :=
           IF_subset_THEN_distance_between_centers (subset := JleJ'.1)
         rw [dist_comm] at this
         gcongr
-      _ = 60 * D ^ (s J + 2) + 4 * D ^ (s J + 1) := by
+      _ = 100 * D ^ (s J + 2) + 4 * D ^ (s J + 1) := by
         rw [scaleSmaller, add_assoc, show (1 : ℤ) + 1 = 2 by rfl]
       _ < 128 * D^(s J + 2) := by
         exact calculation_11 (s J) (X := X)

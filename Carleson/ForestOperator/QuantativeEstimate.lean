@@ -225,9 +225,9 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   push_neg at this
   obtain ⟨p, hpu, hp⟩ := this.2
   have d0 := defaultD_pos a
-  have volume_le : volume (ball (c J') (124 * D ^ (s J' + 1))) ≤
+  have volume_le : volume (ball (c J') (204 * D ^ (s J' + 1))) ≤
                      2 ^ (2 * CDN * a ^ 3 + 10 * a) * volume (J : Set X) := calc
-    _ ≤ volume (ball (c J) ((124 * D + 4) * D ^ (s J'))) := by
+    _ ≤ volume (ball (c J) ((204 * D + 4) * D ^ (s J'))) := by
       refine measure_mono <| ball_subset_ball' ?_
       rw [add_mul, mul_assoc, zpow_add₀ d0.ne.symm, mul_comm (D : ℝ), zpow_one]
       apply add_le_add_left (mem_ball'.mp <| Grid_subset_ball <| hJJ'.1 J.c_mem_Grid).le
@@ -247,19 +247,19 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   by_cases hJB : (J : Set X) ⊆ ball (𝔠 p) (4 * D ^ (𝔰 p))
   · refine local_dens2_tree_bound_aux' hpu hJB <| (measure_mono ?_).trans volume_le
     exact hp.trans <| ball_subset_ball (by gcongr; norm_num)
-  have hcJ' : dist (c J') (𝔠 p) < 60 * (D : ℝ) ^ (s J' + 1) := by
+  have hcJ' : dist (c J') (𝔠 p) < 100 * (D : ℝ) ^ (s J' + 1) := by
     refine mem_ball'.mp <| hp <| ball_subset_Grid <| mem_ball.mpr ?_
     rw [𝔠, c, dist_self]
     positivity
-  have hJp : (J : Set X) ⊆ ball (𝔠 p) (64 * D ^ (s J' + 1)) := by
-    rw [show (64 : ℝ) = 4 + 60 by norm_num, add_mul]
+  have hJp : (J : Set X) ⊆ ball (𝔠 p) (104 * D ^ (s J' + 1)) := by
+    rw [show (104 : ℝ) = 4 + 100 by norm_num, add_mul]
     refine (hJJ'.1.trans Grid_subset_ball).trans <| ball_subset_ball' <| add_le_add ?_ hcJ'.le
     exact mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ one_le_D (Int.le.intro 1 rfl)) four_pos.le
   apply local_dens2_tree_bound_aux hpu (le_of_not_ge (hJB <| hJp.trans <| ball_subset_ball ·)) hJp
-  have B_subset : ball (𝔠 p) (64 * D ^ (s J' + 1)) ⊆ ball (c J') (124 * D ^ (s J' + 1)) := by
+  have B_subset : ball (𝔠 p) (104 * D ^ (s J' + 1)) ⊆ ball (c J') (204 * D ^ (s J' + 1)) := by
     apply ball_subset_ball'
-    rw [show (124 : ℝ) = 64 + 60 by norm_num, add_mul]
-    exact add_le_add_left (dist_comm (c J') (𝔠 p) ▸ hcJ'.le) (64 * (D : ℝ) ^ (s J' + 1))
+    rw [show (204 : ℝ) = 104 + 100 by norm_num, add_mul]
+    exact add_le_add_left (dist_comm (c J') (𝔠 p) ▸ hcJ'.le) (104 * (D : ℝ) ^ (s J' + 1))
   refine (measure_mono B_subset).trans <| volume_le.trans <| mul_le_mul_right' ?_ _
   rw [C7_3_3]
   norm_cast

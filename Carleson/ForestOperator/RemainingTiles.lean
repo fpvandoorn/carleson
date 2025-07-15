@@ -66,17 +66,17 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) :
           · exact notDisjoint
         _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
           exact Grid_subset_ball (i := cube)
-        _ ⊆ ball (c cube) (60 * ↑D ^ (s cube + 1)) := by
+        _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
           unfold ball
           intro y xy
           rw [mem_setOf_eq] at xy ⊢
-          have numbers : 4 * (D : ℝ) ^ s cube < 60 * D ^ (s cube + 1) := by
+          have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
             gcongr
             linarith
             exact one_lt_D (X := X)
             linarith
           exact gt_trans numbers xy
-      have black : ¬↑(𝓘 p) ⊆ ball (c cube) (60 * ↑D ^ (s cube + 1)) := by
+      have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
         refine east p belongs
       contradiction
 
@@ -99,7 +99,7 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
     (h : s J - C7_6_3 a n < 𝔰 p) :
     dist (𝔠 p) (c J) < 16 * D ^ (𝔰 p + C7_6_3 a n + 2) ∧
     ∃ J', J < J' ∧ s J' = s J + 1 ∧
-      ∃ p ∈ t u₁, ↑(𝓘 p) ⊆ ball (c J') (60 * D ^ (s J' + 1)) := by
+      ∃ p ∈ t u₁, ↑(𝓘 p) ⊆ ball (c J') (100 * D ^ (s J' + 1)) := by
   have b1 : dist (𝔠 p) (c J) < 16 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
     calc
       _ < 8 * (D : ℝ) ^ 𝔰 p + 8 * D ^ s J := dist_lt_of_not_disjoint_ball hd
@@ -117,7 +117,7 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
     rw [𝓙₀, mem_setOf]; push_neg; rw [Grid.lt_def] at qlt
     refine ⟨(scale_mem_Icc.1.trans_lt qlt.2).ne',
       ⟨q, mq, qlt.1.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩⟩
-    change 4 * (D : ℝ) ^ (𝔰 u₁) ≤ 60 * D ^ (𝔰 u₁ + 1); gcongr
+    change 4 * (D : ℝ) ^ (𝔰 u₁) ≤ 100 * D ^ (𝔰 u₁ + 1); gcongr
     exacts [by norm_num, one_le_D, by omega]
   have Jlt : J < 𝓘 u₁ := by apply lt_of_le_of_ne hJ.2; by_contra hh; subst hh; exact u₁nm hJ
   rw [Grid.lt_def] at Jlt; obtain ⟨J', lJ', sJ'⟩ := Grid.exists_scale_succ Jlt.2
@@ -152,16 +152,16 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     _ ≤ dist_{𝔠 p, 128 * D ^ (𝔰 p + C7_6_3 a n + 2)} (𝒬 u₁) (𝒬 u₂) := by
       refine cdist_mono (ball_subset_Grid.trans sp' |>.trans (ball_subset_ball' ?_))
       calc
-        _ ≤ (60 : ℝ) * D ^ (s J' + 1) + dist (c J') (c J) + dist (𝔠 p) (c J) := by
+        _ ≤ (100 : ℝ) * D ^ (s J' + 1) + dist (c J') (c J) + dist (𝔠 p) (c J) := by
           rw [add_assoc]; gcongr; exact dist_triangle_right ..
-        _ ≤ (60 : ℝ) * D ^ (s J' + 1) + 4 * D ^ s J' + 16 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
+        _ ≤ (100 : ℝ) * D ^ (s J' + 1) + 4 * D ^ s J' + 16 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
           gcongr; · exact (mem_ball'.mp (Grid_subset_ball (lJ'.1.1 Grid.c_mem_Grid))).le
-        _ ≤ (60 : ℝ) * D ^ (𝔰 p + C7_6_3 a n + 2) + 4 * D ^ (𝔰 p + C7_6_3 a n + 2) +
+        _ ≤ (100 : ℝ) * D ^ (𝔰 p + C7_6_3 a n + 2) + 4 * D ^ (𝔰 p + C7_6_3 a n + 2) +
             16 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
           rw [← sub_eq_iff_eq_add] at sJ'
           rw [← sJ', Int.cast_sub, Int.cast_one, sub_lt_iff_lt_add, sub_lt_iff_lt_add] at h
           simp_rw [← Real.rpow_intCast, Int.cast_add, Int.cast_one]
-          gcongr 60 * (D : ℝ) ^ ?_ + 4 * D ^ ?_ + _
+          gcongr 100 * (D : ℝ) ^ ?_ + 4 * D ^ ?_ + _
           exacts [one_le_D, by linarith only [h], one_le_D, by linarith only [h]]
         _ ≤ _ := by rw [← add_mul, ← add_mul]; gcongr; norm_num
     _ ≤ dist_{𝔠 p, 2 ^ (CDN * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
@@ -556,7 +556,7 @@ lemma btp_integral_bound :
 
 open Classical in
 /-- Equation (7.6.4) of Lemma 7.6.2 (before applying Cauchy–Schwarz). -/
-lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+lemma e7104_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
@@ -620,7 +620,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
         ← mul_pow, Finset.mul_sum]
 
 /-- Equation (7.6.4) of Lemma 7.6.2 (after applying Cauchy–Schwarz and simplification). -/
-lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+lemma e7104_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C2_1_3 a * 2 ^ (11 * a + 2) *
@@ -630,7 +630,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
   classical
   calc
-    _ ≤ _ := e764_preCS hu₁ hu₂ hu h2u hf
+    _ ≤ _ := e7104_preCS hu₁ hu₂ hu h2u hf
     _ = C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
         (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y *
@@ -765,7 +765,7 @@ lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume :=
-  (e764_postCS hu₁ hu₂ hu h2u hf).trans (mul_le_mul_right' btp_constant_bound _)
+  (e7104_postCS hu₁ hu₂ hu h2u hf).trans (mul_le_mul_right' btp_constant_bound _)
 
 lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
     approxOnCube (𝓙 (t u₁))

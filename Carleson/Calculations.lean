@@ -51,25 +51,25 @@ lemma calculation_2 (s : ℤ) :
   _ = (8 : ℝ)⁻¹ * D ^ s := by
     norm_num
 
-lemma calculation_10 (h: (60 : ℝ) < D) :
-    ((60 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
-  calc ((60 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ)
-  _ ≤ ((60 : ℝ) + 4 * 60 ^ (-2 : ℝ) + 8⁻¹ * 60 ^ (-3 : ℝ)) * 60 ^ (-1 : ℝ) := by
-    gcongr (60 + 4 * ?_ + 8⁻¹ * ?_) * ?_ <;>
+lemma calculation_10 (h: (100 : ℝ) < D) :
+    ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
+  calc ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ)
+  _ ≤ ((100 : ℝ) + 4 * 100 ^ (-2 : ℝ) + 8⁻¹ * 100 ^ (-3 : ℝ)) * 100 ^ (-1 : ℝ) := by
+    gcongr (100 + 4 * ?_ + 8⁻¹ * ?_) * ?_ <;>
     apply Real.rpow_le_rpow_of_exponent_nonpos (by norm_num) h.le (by norm_num)
   _ < _ := by norm_num
 
 lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y : ℤ} (h: x + 3 < y) :
-    60 * D ^ (x + 3) + ((4 * D ^ (-2 : ℝ)) * D ^ (x + 3)) + (((8 : ℝ)⁻¹ * D ^ (-3 : ℝ)) * D ^ (x + 3)) + 8 * D ^ y < 10 * D ^ y := by
+    100 * D ^ (x + 3) + ((4 * D ^ (-2 : ℝ)) * D ^ (x + 3)) + (((8 : ℝ)⁻¹ * D ^ (-3 : ℝ)) * D ^ (x + 3)) + 8 * D ^ y < 10 * D ^ y := by
   rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
   gcongr
   rw [← distrib_three_right ..]
-  calc (60 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (x + 3)
-  _ ≤ (60 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (y - 1) := by
+  calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (x + 3)
+  _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (y - 1) := by
     have h1 : x + 3 ≤ y - 1 := by omega
     gcongr
     linarith [four_le_realD X]
-  _ = (60 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * (D ^ (y) * D ^ (- 1 : ℝ)) := by
+  _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * (D ^ (y) * D ^ (- 1 : ℝ)) := by
     congr
     exact_mod_cast Real.rpow_add (y := y) (z:= (-1)) (hx := defaultD_pos a)
   _ < 2 * D ^ y := by
@@ -81,28 +81,28 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y
 
 lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     {s_1 s_2 s_3 : ℤ} {dist_a dist_b dist_c dist_d : ℝ}
-    (lt_1 : dist_a < 60 * D ^ (s_1 + 3))
+    (lt_1 : dist_a < 100 * D ^ (s_1 + 3))
     (lt_2 : dist_b < 8 * D ^ s_3)
     (lt_3 : dist_c < 8⁻¹ * D ^ s_1)
     (lt_4 : dist_d < 4 * D ^ s_2)
     (three : s_1 + 3 < s_3) (plusOne : s_2 = s_1 + 1) :
     dist_a + dist_d + dist_c + dist_b < 10 * D ^ s_3 := by
   calc dist_a + dist_d + dist_c + dist_b
-  _ ≤ 60 * D ^ (s_1 + 3) + dist_d + dist_c + dist_b := by
-    change dist_a < 60 * D ^ (s_1 + 3) at lt_1
+  _ ≤ 100 * D ^ (s_1 + 3) + dist_d + dist_c + dist_b := by
+    change dist_a < 100 * D ^ (s_1 + 3) at lt_1
     gcongr
-  _ ≤ 60 * D ^ (s_1 + 3) + 4 * D ^ (s_1 + 1) + dist_c + dist_b := by
+  _ ≤ 100 * D ^ (s_1 + 3) + 4 * D ^ (s_1 + 1) + dist_c + dist_b := by
     gcongr
     apply le_of_lt
     rw [← plusOne]
     exact lt_4
-  _ ≤ 60 * D ^ (s_1 + 3) + 4 * D ^ (s_1 + 1) + 8⁻¹ * D ^ s_1 + dist_b := by
+  _ ≤ 100 * D ^ (s_1 + 3) + 4 * D ^ (s_1 + 1) + 8⁻¹ * D ^ s_1 + dist_b := by
     gcongr
-  _ ≤ 60 * D ^ (s_1 + 3) + 4 * D ^ (s_1 + 1) + 8⁻¹ * D ^ s_1 + 8 * D ^ s_3 := by
+  _ ≤ 100 * D ^ (s_1 + 3) + 4 * D ^ (s_1 + 1) + 8⁻¹ * D ^ s_1 + 8 * D ^ s_3 := by
     gcongr
-  _ = 60 * D ^ (s_1 + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s_1 + 3)) + 8⁻¹ * D ^ s_1 + 8 * D ^ s_3 := by
+  _ = 100 * D ^ (s_1 + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s_1 + 3)) + 8⁻¹ * D ^ s_1 + 8 * D ^ s_3 := by
     rw [calculation_1 (s := s_1)]
-  _ = 60 * D ^ (s_1 + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s_1 + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s_1 + 3)) + 8 * D ^ s_3 := by
+  _ = 100 * D ^ (s_1 + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s_1 + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s_1 + 3)) + 8 * D ^ s_3 := by
     rw [calculation_2 (s := s_1)]
   _ < 10 * D ^ s_3 := by
     exact calculation_3 (h := three) (X := X)
@@ -139,8 +139,8 @@ lemma calculation_6 (a : ℕ) (s : ℤ) :
   congr
 
 lemma calculation_7 (a : ℕ) (s : ℤ) :
-    60 * (D ^ (s + 2) * D) = (defaultA a) ^ (CDN * a) * (60 * (D : ℝ) ^ (s + 2)) := by
-  rw [← mul_assoc (a := 60), mul_comm]
+    100 * (D ^ (s + 2) * D) = (defaultA a) ^ (CDN * a) * (100 * (D : ℝ) ^ (s + 2)) := by
+  rw [← mul_assoc (a := 100), mul_comm]
   congr
   norm_cast
   rw [← pow_mul 2 a (CDN * a), mul_comm (a := a), defaultD]
@@ -165,8 +165,8 @@ lemma calculation_9 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   linarith
 
 lemma calculation_11 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s : ℤ) :
-    60 * (D : ℝ) ^ (s + 2) + 4 * D ^ (s + 1) < 128 * D^(s + 2) := by
-  rw [show (128 : ℝ) = 60 + 68 by norm_num]
+    100 * (D : ℝ) ^ (s + 2) + 4 * D ^ (s + 1) < 128 * D^(s + 2) := by
+  rw [show (128 : ℝ) = 100 + 28 by norm_num]
   rw [right_distrib]
   gcongr
   · linarith
@@ -237,7 +237,7 @@ lemma calculation_15 {dist zon : ℝ}
   exact_mod_cast this
 
 lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s: ℤ) :
-    4 * (D : ℝ) ^ s < 60 * D ^ (s + 1) := by
+    4 * (D : ℝ) ^ s < 100 * D ^ (s + 1) := by
   gcongr
   · linarith
   · exact one_lt_D (X := X)

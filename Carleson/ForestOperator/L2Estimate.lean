@@ -758,7 +758,7 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     simp [enorm_eq_nnnorm, nnnorm_real]
 
 /-- The constant used in `tree_projection_estimate`.
-Originally had value `2 ^ (64 * a ^ 3)` in the blueprint, but that seems to be a mistake. -/
+Originally had value `2 ^ (104 * a ^ 3)` in the blueprint, but that seems to be a mistake. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 5 + CDN / 4) * a ^ 3)
 

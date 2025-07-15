@@ -47,7 +47,7 @@ private lemma σMax_mem_σ (u : 𝔓 X) (x : X) (hσ : (t.σ u x).Nonempty) : σ
 
 /-- The definition of `𝓙₀(𝔖), defined above Lemma 7.1.2 -/
 def 𝓙₀ (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
-  {J : Grid X | s J = -S ∨ ∀ p ∈ 𝔖, ¬(𝓘 p : Set X) ⊆ ball (c J) (60 * D ^ (s J + 1))}
+  {J : Grid X | s J = -S ∨ ∀ p ∈ 𝔖, ¬(𝓘 p : Set X) ⊆ ball (c J) (100 * D ^ (s J + 1))}
 
 /-- The definition of `𝓙(𝔖), defined above Lemma 7.1.2 -/
 def 𝓙 (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
@@ -494,7 +494,7 @@ private lemma s_le_s {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p)
       gcongr 4 * ?_ + ?_
       · exact this
       · exact dist_comm (c (𝓘 p)) (c J) ▸ L7_1_4_dist_le xp hJ.2 |>.trans (by gcongr)
-    _ ≤ 60 * D ^ (s J + 1) := by
+    _ ≤ 100 * D ^ (s J + 1) := by
       rw [zpow_add' (Or.inl (defaultD_pos a).ne.symm), zpow_one]
       nlinarith [one_le_D (a := a), defaultD_pow_pos a (s J)]
 
