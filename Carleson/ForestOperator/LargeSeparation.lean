@@ -820,7 +820,7 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
             _ = (𝕔 + 2) * a ^ 3 + 1 * 4 * a ^ 2 := by ring
             _ ≤ (𝕔 + 2) * a ^ 3 + (𝕔/4) * a * a ^ 2 := by
               gcongr
-              · linarith [seven_le_c]
+              · have := seven_le_c; omega
               · exact four_le_a X
             _ = _ := by ring
         _ = 2 ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3 + (3 * a + 1)) := by
@@ -1311,8 +1311,7 @@ lemma gtc_sum_Icc_le_two : ∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s 
       nth_rw 1 [← ENNReal.rpow_one 2]; apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
       rw [Nat.cast_mul, Nat.cast_pow, sq, mul_assoc, mul_self_mul_inv]
       norm_cast
-      linarith [seven_le_c]
-      linarith [four_le_a X]
+      nlinarith [seven_le_c, four_le_a X]
     _ = ∑ k ∈ Finset.Icc 0 (S - s J).toNat, 2 ^ (-k : ℤ) := by
       have : s J ≤ S := scale_mem_Icc.2
       apply Finset.sum_nbij' (fun (k : ℤ) ↦ (k - s J).toNat) (· + s J) <;> intro k hk
@@ -1475,7 +1474,8 @@ lemma le_C7_5_10 (ha : 4 ≤ a) : C7_5_7 a + C7_5_9s a ≤ C7_5_10 a := by
   apply add_le_pow_two ?_ le_rfl ?_
   · suffices 1 * a ^ 3 ≤ (𝕔 / 4) * a ^ 3 by linarith
     gcongr
-    linarith [seven_le_c]
+    have := seven_le_c
+    omega
   · have : 4 * (4 * a) ≤ a ^ 3 := by rw [pow_three]; gcongr
     linarith
 
@@ -1850,7 +1850,7 @@ lemma C7_5_11_binomial_bound (a4 : 4 ≤ a) :
       gcongr 2 ^ ?_ * _
       · exact one_le_two
       · calc
-          _ ≤ 3 * 4 ^ 3 + 3 * 4 := by linarith [seven_le_c]
+          _ ≤ 3 * 4 ^ 3 + 3 * 4 := by linarith [c_le_100]
           _ ≤ _ := by gcongr
 
 /-- Lemma 7.5.11 -/

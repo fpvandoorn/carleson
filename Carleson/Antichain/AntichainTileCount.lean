@@ -1148,7 +1148,7 @@ lemma le_C6_1_6 (a4 : 4 ≤ a) :
       · exact one_le_two
       · rw [div_le_iff₀ p₆p, p₆]; norm_cast; rw [show 7 * (4 * a ^ 4) = 28 * a * a ^ 3 by ring]
         gcongr
-        linarith [c_le_111]
+        linarith [c_le_100]
       · exact_mod_cast calculation_6_1_6 a4
     _ ≤ _ := by
       rw [C6_1_6]; norm_cast; rw [← pow_add]; gcongr

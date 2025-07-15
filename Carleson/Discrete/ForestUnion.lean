@@ -399,7 +399,8 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
       apply Real.rpow_le_rpow_of_exponent_le one_le_two
       simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le]
       norm_cast
-      linarith [four_le_a X, seven_le_c]
+      have : 7 * a ≤ 𝕔 * a := by gcongr; exact seven_le_c
+      linarith [four_le_a X]
     _ ≤ (C2_1_2 a)⁻¹ ^ d := by
       refine pow_le_pow_right₀ ?_ (by omega)
       simp_rw [one_le_inv_iff₀, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity

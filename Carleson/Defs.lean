@@ -310,16 +310,20 @@ end DoublingMeasure
 It turns out that the proof is robust, and works for other values of `100`, giving better constants
 in the end. We will formalize it using a parameter `𝕔` (that we fix equal to `100` to follow
 the blueprint) and having `D = 2 ^ (𝕔 * a ^ 2)`. We register two lemmas `seven_le_c` and
-`c_le_111` and will never unfold `𝕔` from this point on. -/
---irreducible_def 𝕔 : ℕ := 7
+`c_le_100` and will never unfold `𝕔` from this point on. -/
+irreducible_def 𝕔 : ℕ := 100
 
---lemma seven_le_c : 7 ≤ 𝕔 := by simp [𝕔]
---lemma c_le_111 : 𝕔 ≤ 111 := by simp [𝕔]
+lemma seven_le_c : 7 ≤ 𝕔 := by simp [𝕔]
+lemma c_le_100 : 𝕔 ≤ 100 := by simp [𝕔]
 
-lemma exists_c : ∃ (c : ℕ), 7 ≤ c ∧ c ≤ 111 := ⟨7, le_rfl, by norm_num⟩
+/- To check that the value of `c` is irrelevant, you can take `𝕔 = 7` above, or you can comment
+the previous lines and uncomment the next ones.
+
+lemma exists_c : ∃ (c : ℕ), 7 ≤ c ∧ c ≤ 100 := ⟨7, le_rfl, by norm_num⟩
 def 𝕔 : ℕ := exists_c.choose
 lemma seven_le_c : 7 ≤ 𝕔 := exists_c.choose_spec.1
-lemma c_le_111 : 𝕔 ≤ 111 := exists_c.choose_spec.2
+lemma c_le_100 : 𝕔 ≤ 100 := exists_c.choose_spec.2
+-/
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/

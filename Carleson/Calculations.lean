@@ -337,7 +337,7 @@ lemma calculation_150 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] :
   gcongr
   · calc
       _ ≤ (2 : ℝ) ^ (8 * 4) := by
-        have : (𝕔 : ℝ) * (3/2) ≤ 111 * (3/2) := by gcongr; exact_mod_cast c_le_111
+        have : (𝕔 : ℝ) * (3/2) ≤ 100 * (3/2) := by gcongr; exact_mod_cast c_le_100
         linarith
       _ ≤ _ := by gcongr; exacts [one_le_two, four_le_a X]
   · norm_cast

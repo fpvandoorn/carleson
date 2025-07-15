@@ -61,7 +61,7 @@ lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
       ← Real.rpow_add zero_lt_two, Nat.cast_mul, Nat.cast_ofNat, ← add_mul,
       show 12 + -10 = (2 : ℝ) by norm_num]; norm_cast
     induction a, ha using Nat.le_induction with
-    | base => linarith [seven_le_c]
+    | base => ring_nf; linarith [seven_le_c]
     | succ k lk ih =>
       rw [mul_add_one, mul_add, mul_add_one, pow_add, show 2 ^ 2 = 3 + 1 by norm_num, mul_add_one,
         add_mul, add_comm, add_mul]
@@ -730,7 +730,7 @@ lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2
   have : 𝕔 / 2 ≤ 2 * (𝕔/4) + 1 := by omega
   grw [this]
   ring_nf
-  have : a ^ 3 ≤ (𝕔/4) * a ^ 3 := by linarith [seven_le_c]
+  have : (4/4) * a ^ 3 ≤ (𝕔/4) * a ^ 3 := by gcongr; linarith [seven_le_c]
   omega
 
 open Classical in
@@ -1081,11 +1081,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     apply eLpNorm_mono (fun x ↦ ?_)
     simp only [indicator, coe_algebraMap, Real.norm_eq_abs]
     split_ifs
-    · have A (x : ℝ) : x / x ≤ 1 := by
-        rcases eq_or_ne x 0 with rfl | hx
-        · simp
-        · simp [hx]
-      simpa using A _
+    · simpa using div_self_le_one _
     · simp
   _ ≤ _ := by
     rw [eLpNorm_indicator_const hA (by norm_num) (by norm_num)]

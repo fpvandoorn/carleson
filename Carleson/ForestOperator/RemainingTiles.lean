@@ -220,7 +220,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
     _ ≤ 𝕔 * a ^ 3 + 9 * a * a * a + 1 * a * a * a := by gcongr <;> omega
     _ = (𝕔 + 10) * a ^ 3 := by ring
     _ ≤ 2 ^ (7 + 3 * a) := by
-      rw [pow_add, pow_mul']; gcongr; exacts [by linarith [seven_le_c], Nat.lt_two_pow_self.le]
+      rw [pow_add, pow_mul']; gcongr; exacts [by linarith [c_le_100], Nat.lt_two_pow_self.le]
     _ ≤ _ := by gcongr <;> omega
 
 /-- Lemma 7.6.3 with a floor on the constant to avoid casting. -/
@@ -736,7 +736,8 @@ lemma btp_constant_bound :
         · apply mul_le_mul_of_nonpos_left
           · rw [show (3 : ℝ) = 2 + 1 by norm_num, ← sub_sub, ← C7_6_3_def, sub_le_iff_le_add]
             exact (Int.lt_floor_add_one _).le
-          · rw [neg_mul, Left.neg_nonpos_iff, mul_nonneg_iff_of_pos_left (by linarith [seven_le_c])]
+          · rw [neg_mul, Left.neg_nonpos_iff, mul_nonneg_iff_of_pos_left
+              (by norm_cast; linarith [seven_le_c])]
             positivity
       · exact calculation_7_6_2 (X := X)
     _ = C2_1_3 a * 2 ^ (21 * a + 4) *

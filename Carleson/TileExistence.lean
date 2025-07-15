@@ -1446,7 +1446,7 @@ lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
       ≤ 2^8 * (2^(a:ℝ))^2 * 2 ^ (4 * a:ℝ) := by
       gcongr
       · norm_cast
-        linarith [c_le_111]
+        linarith [c_le_100]
       · exact (Real.self_lt_two_rpow (a:ℝ)).le
     _ ≤ 2 ^ (4 * a:ℝ) * 2^(2*a:ℝ) * 2^(4*a:ℝ) := by
       gcongr
