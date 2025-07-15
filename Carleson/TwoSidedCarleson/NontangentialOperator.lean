@@ -239,7 +239,7 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
 
   apply mul_le_mul' ?_ le_rfl
   trans C_K ↑a / volume (ball x' r) * ((defaultA a) ^ 2 * volume (ball x' r))
-  · exact mul_le_mul' le_rfl (measure_ball_four_le_same' _ _)
+  · exact mul_le_mul' le_rfl (measure_ball_four_le_same _ _)
 
   -- Somehow simp doesn't do it
   apply le_of_eq

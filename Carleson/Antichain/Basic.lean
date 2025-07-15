@@ -96,7 +96,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
     _ = 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / (2 ^ (5 * a + 100 * a ^ 3) *
           volume.real (ball x ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)))) := by
         have hvol : volume.real (ball x (1 / ↑D / 32 * (8 * ↑D ^ 𝔰 p.1))) ≠ 0 :=
-          ne_of_gt (measure_real_ball_pos _
+          ne_of_gt (measureReal_ball_pos _
             (mul_pos (div_pos (one_div_pos.mpr (defaultD_pos _)) (by positivity))
               (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _))))
         rw [mul_div_assoc, ← div_div, div_eq_mul_inv]
@@ -105,7 +105,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           mul_inv_cancel₀ hvol, mul_one]
     _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / volume.real (ball x (8 * D ^ 𝔰 p.1)) := by
       gcongr
-      · exact (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _)))
+      · exact (measureReal_ball_pos x (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _)))
       · have heq : 2 ^ (100 * a ^ 2) * 2 ^ 5 * (1 / (↑D * 32) * (8 * (D : ℝ) ^ 𝔰 p.1)) =
             (8 * ↑D ^ 𝔰 p.1) := by
           have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
