@@ -181,27 +181,6 @@ lemma mean_zero_oscillation {n : ℤ} (hn : n ≠ 0) :
   simp [sub_eq_zero, exp_eq_one_iff, hn, ← mul_assoc, mul_comm I,
     mul_right_comm _ I]
 
-
-/-- The statement of Lemma 11.5.1
-The result `spectral_projection_bound` was similar to something already in Mathlib,
-so we do not actually formalize precisely this result, and this is unused.
--/
-def partial_sum_projection : Prop :=
-  ∀ {f : ℝ → ℂ} {n : ℕ}
-    (_hf : MemLp f ∞ volume) (_periodic_f : f.Periodic (2 * π)) {x : ℝ},
-    partialFourierSum n (partialFourierSum n f) x = partialFourierSum n f x
-
-/-- The statement of Lemma 11.5.2
-The result `spectral_projection_bound` was similar to something already in Mathlib,
-so we do not actually formalize precisely this result, and this is unused.
--/
-def partial_sum_selfadjoint : Prop :=
-  ∀ {f g : ℝ → ℂ} {n : ℕ}
-    (_hf : MemLp f ∞ volume) (_periodic_f : f.Periodic (2 * π))
-    (_hg : MemLp g ∞ volume) (_periodic_g : g.Periodic (2 * π)),
-    ∫ x in (0)..2 * π, conj (partialFourierSum n f x) * g x =
-    ∫ x in (0)..2 * π, conj (f x) * partialFourierSum n g x
-
 theorem AddCircle.haarAddCircle_eq_smul_volume {T : ℝ} [hT : Fact (0 < T)] :
     (@haarAddCircle T _) = (ENNReal.ofReal T)⁻¹ • (volume : Measure (AddCircle T)) := by
   rw [volume_eq_smul_haarAddCircle, ← smul_assoc, smul_eq_mul,

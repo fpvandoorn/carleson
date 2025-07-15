@@ -12,16 +12,16 @@ section Preorder
 
 variable [Preorder α]
 
-theorem Ico_subset_Ici (h : c ≤ a): Ico a b ⊆ Ici c :=
+theorem Ico_subset_Ici (h : c ≤ a) : Ico a b ⊆ Ici c :=
   (Ico_subset_Ico_left h).trans Ico_subset_Ici_self
 
-theorem Icc_subset_Ici (h : c ≤ a): Icc a b ⊆ Ici c :=
+theorem Icc_subset_Ici (h : c ≤ a) : Icc a b ⊆ Ici c :=
   (Icc_subset_Icc_left h).trans Icc_subset_Ici_self
 
-theorem Ioc_subset_Ioi (h : c ≤ a): Ioc a b ⊆ Ioi c :=
+theorem Ioc_subset_Ioi (h : c ≤ a) : Ioc a b ⊆ Ioi c :=
   (Ioc_subset_Ioc_left h).trans Ioc_subset_Ioi_self
 
-theorem Ioo_subset_Ioi (h : c ≤ a): Ioo a b ⊆ Ioi c :=
+theorem Ioo_subset_Ioi (h : c ≤ a) : Ioo a b ⊆ Ioi c :=
   (Ioo_subset_Ioo_left h).trans Ioo_subset_Ioi_self
 
 end Preorder

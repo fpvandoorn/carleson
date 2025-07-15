@@ -39,7 +39,7 @@ lemma nnq'_lt_nnq : nnq' < nnq := by
     mul_lt_mul_iff_of_pos_left (nnq_pos X), ← one_add_one_eq_two, _root_.add_lt_add_iff_left]
   exact (nnq_mem_Ioc X).1
 
-lemma nnq'_lt_nnq_coe: (nnq' : ℝ≥0∞) < nnq := by
+lemma nnq'_lt_nnq_coe : (nnq' : ℝ≥0∞) < nnq := by
   rw [← coe_ofNat, ← ENNReal.coe_one, ← coe_add, ← coe_mul, ← coe_div (by simp), ENNReal.coe_lt_coe]
   exact nnq'_lt_nnq
 
@@ -60,7 +60,7 @@ open scoped GridStructure ComplexConjugate
 open Set Complex MeasureTheory
 
 -- Lemma 6.1.1
-lemma E_disjoint {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
+lemma E_disjoint {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) (𝔄 : Set (𝔓 X)))
      {p p' : 𝔓 X} (hp : p ∈ 𝔄) (hp' : p' ∈ 𝔄) (hE : ¬Disjoint (E p) (E p')) : p = p' := by
   wlog h𝔰 : 𝔰 p ≤ 𝔰 p'
   · have hE' : ¬Disjoint (E p') (E p) := by rwa [disjoint_comm]
@@ -96,7 +96,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
     _ = 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / (2 ^ (5 * a + 100 * a ^ 3) *
           volume.real (ball x ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)))) := by
         have hvol : volume.real (ball x (1 / ↑D / 32 * (8 * ↑D ^ 𝔰 p.1))) ≠ 0 :=
-          ne_of_gt (measure_real_ball_pos _
+          ne_of_gt (measureReal_ball_pos _
             (mul_pos (div_pos (one_div_pos.mpr (defaultD_pos _)) (by positivity))
               (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _))))
         rw [mul_div_assoc, ← div_div, div_eq_mul_inv]
@@ -105,7 +105,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           mul_inv_cancel₀ hvol, mul_one]
     _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / volume.real (ball x (8 * D ^ 𝔰 p.1)) := by
       gcongr
-      · exact (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _)))
+      · exact (measureReal_ball_pos x (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _)))
       · have heq : 2 ^ (100 * a ^ 2) * 2 ^ 5 * (1 / (↑D * 32) * (8 * (D : ℝ) ^ 𝔰 p.1)) =
             (8 * ↑D ^ 𝔰 p.1) := by
           have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
@@ -130,7 +130,7 @@ private lemma ineq_6_1_7' (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
   exact ineq_6_1_7 x p
 
 -- Composition of inequalities 6.1.6, 6.1.7, 6.1.8.
-lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p) (hy : Ks (𝔰 p.1) x y ≠ 0)  :
+lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p) (hy : Ks (𝔰 p.1) x y ≠ 0) :
     ‖Ks (𝔰 p.1) x y‖₊ ≤
       (2 : ℝ≥0) ^ (6*a + 101*a^3) / (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal := by
   have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := defaultD_pow_pos ..
@@ -167,7 +167,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
     Nat.ceil_one, pow_one]
 
 -- lemma 6.1.2
-lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
+lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     {f : X → ℂ} (hfm : Measurable f) (x : X) :
     ‖carlesonSum 𝔄 f x‖ₑ ≤ (C6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
   classical
@@ -505,7 +505,7 @@ end Lemma6_1_3
 open Lemma6_1_3 in
 /-- Lemma 6.1.3, inequality 6.1.11. -/
 @[nolint unusedHavesSuffices]
-lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
+lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     {f : X → ℂ} (hfF : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hf : Measurable f)
     {g : X → ℂ} (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (hg : Measurable g) :
     ‖∫ x, ((starRingEnd ℂ) (g x)) * carlesonSum 𝔄 f x‖ₑ ≤

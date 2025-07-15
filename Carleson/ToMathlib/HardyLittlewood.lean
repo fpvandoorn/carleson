@@ -957,7 +957,7 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
         ((measure_ball_pos _ (zpow_pos zero_lt_two _) (μ := μ)).ne')
           measure_ball_ne_top, ENNReal.mul_inv_le_iff
             ((measure_ball_pos _ hr (μ := μ)).ne') measure_ball_ne_top]
-      exact (μ.mono h_subset').trans <| measure_ball_four_le_same' z r
+      exact (μ.mono h_subset').trans <| measure_ball_four_le_same z r
     _ ≤ _ := by
       rw [mul_assoc]
       gcongr
@@ -976,7 +976,7 @@ theorem lintegral_ball_le_volume_globalMaximalFunction [IsFiniteMeasureOnCompact
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
 
-lemma C2_0_6'_defaultA_one_two_eq {a : ℕ}: C2_0_6' (defaultA a) 1 2 = 2 ^ (3 * a + 3 / (2 : ℝ)) := by
+lemma C2_0_6'_defaultA_one_two_eq {a : ℕ} : C2_0_6' (defaultA a) 1 2 = 2 ^ (3 * a + 3 / (2 : ℝ)) := by
   simp_rw [C2_0_6', C2_0_6, div_one, CMB_defaultA_two_eq, defaultA, Nat.cast_pow, Nat.cast_ofNat,
     NNReal.coe_one, inv_one, NNReal.rpow_one, ← pow_mul, ← NNReal.rpow_natCast]
   rw [← NNReal.rpow_add (by simp)]
@@ -1047,7 +1047,7 @@ lemma lowerSemiContinuous_globalMaximalFunction :
 
 theorem globalMaximalFunction_ae_lt_top [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂)
-    {u : X → E} (hu : MemLp u p₂ μ):
+    {u : X → E} (hu : MemLp u p₂ μ) :
     ∀ᵐ x ∂μ, globalMaximalFunction μ p₁ u x < ∞ := by
   simp_rw [lt_top_iff_ne_top]
   conv => arg 1; intro x; rw [← enorm_eq_self (x := globalMaximalFunction μ p₁ u x)]

@@ -239,7 +239,7 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
 
   apply mul_le_mul' ?_ le_rfl
   trans C_K ↑a / volume (ball x' r) * ((defaultA a) ^ 2 * volume (ball x' r))
-  · exact mul_le_mul' le_rfl (measure_ball_four_le_same' _ _)
+  · exact mul_le_mul' le_rfl (measure_ball_four_le_same _ _)
 
   -- Somehow simp doesn't do it
   apply le_of_eq
@@ -976,7 +976,7 @@ theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ 
     simpa [indicator_of_notMem hr] using hs
 
 /-- Part of Lemma 10.1.7, reformulated -/
-theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R₂ : ℝ} (hR₁ : 0 ≤ R₁):
+theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R₂ : ℝ} (hR₁ : 0 ≤ R₁) :
     ContinuousWithinAt (fun R ↦ ∫ y in Annulus.oo x R R₂, K x y * g y) (Ioo R₁ R₂) R₂ := by
   by_cases hR1R2 : R₁ < R₂
   case neg => rw [Ioo_eq_empty hR1R2, ContinuousWithinAt, nhdsWithin_empty]; exact Filter.tendsto_bot

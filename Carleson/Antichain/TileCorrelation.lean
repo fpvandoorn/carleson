@@ -228,7 +228,7 @@ lemma ineq_6_2_16 {p : 𝔓 X} {x : X} (hx : x ∈ E p) : dist_(p) (Q x) (𝒬 p
 
 -- Lemma 6.2.3
 lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂)
-  (hinter : (ball (𝔠 p₁) (5 * D^𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D^𝔰 p₂)).Nonempty) {x₁ x₂ : X}
+  (hinter : (ball (𝔠 p₁) (5 * D ^ 𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D ^ 𝔰 p₂)).Nonempty) {x₁ x₂ : X}
   (hx₁ : x₁ ∈ E p₁) (hx₂ : x₂ ∈ E p₂) :
     1  + dist_(p₁) (𝒬 p₁) (𝒬 p₂) ≤ (C6_2_3 a) * (1 + dist_{x₁, D^𝔰 p₁} (Q x₁) (Q x₂)) := by
   -- Inequalities 6.2.16.
@@ -333,7 +333,7 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
 
 -- Lemma 6.2.3 (edist version)
 lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂)
-    (hinter : (ball (𝔠 p₁) (5 * D^𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D^𝔰 p₂)).Nonempty) {x₁ x₂ : X}
+    (hinter : (ball (𝔠 p₁) (5 * D ^ 𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D ^ 𝔰 p₂)).Nonempty) {x₁ x₂ : X}
     (hx₁ : x₁ ∈ E p₁) (hx₂ : x₂ ∈ E p₂) :
       1  + edist_(p₁) (𝒬 p₁) (𝒬 p₂) ≤ (C6_2_3 a) * (1 + edist_{x₁, D^𝔰 p₁} (Q x₁) (Q x₂)) := by
   have hC : (C6_2_3 a : ℝ≥0∞) = ENNReal.ofReal (C6_2_3 a : ℝ) := by rw [ENNReal.ofReal_coe_nnreal]
@@ -452,7 +452,7 @@ lemma _root_.ENNReal.rpow_le_rpow_iff_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : 
 
 /-- Inequality 6.2.29. -/ -- TODO: add ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ in blueprint's RHS
 lemma I12_le (ha : 4 ≤ a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ)
-    (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty)
+    (hinter : (ball (𝔠 p') (5 * D ^ 𝔰 p') ∩ ball (𝔠 p) (5 * D ^ 𝔰 p)).Nonempty)
     (x1 : E p') (x2 : E p) :
     I12 p p' g x1 x2 ≤
     (2^(254 * a^3 + 8 * a + 1) * ((1 + edist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹))) /
@@ -1035,7 +1035,7 @@ lemma stronglyMeasurable_I12' (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g
 
 lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
+    (hinter : (ball (𝔠 p') (5 * D ^ 𝔰 p') ∩ ball (𝔠 p) (5 * D ^ 𝔰 p)).Nonempty) :
     IntegrableOn (fun x ↦ ((I12 p p' g x.1 x.2).toNNReal : ℝ)) (E p' ×ˢ E p) volume
     /- IntegrableOn (fun x ↦ (I12 p p' g x.1 x.2).toNNReal) (E p' ×ˢ E p) volume -/ := by
   classical
@@ -1071,7 +1071,7 @@ lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p)
 /- TODO: it should be way easier to deduce this from `integrableOn_I12`, right? -/
 lemma integrableOn_I12' (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
+    (hinter : (ball (𝔠 p') (5 * D ^ 𝔰 p') ∩ ball (𝔠 p) (5 * D ^ 𝔰 p)).Nonempty) :
     IntegrableOn (fun x ↦ ((I12 p p' g x.1 x.2).toReal : ℂ)) (E p' ×ˢ E p) volume :=
   ContinuousLinearMap.integrable_comp (Complex.ofRealCLM) (integrableOn_I12 ha hle hg hg1 hinter)
 
@@ -1114,7 +1114,7 @@ lemma bound_6_2_26_aux (p p' : 𝔓 X) (g : X → ℂ) :
 -- Estimate 6.2.24 -- 6.2.25 by 6.2.26
 lemma bound_6_2_26 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
+    (hinter : (ball (𝔠 p') (5 * D ^ 𝔰 p') ∩ ball (𝔠 p) (5 * D ^ 𝔰 p)).Nonempty) :
     ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖ₑ ≤
       ‖ ∫ (z : X × X) in E p' ×ˢ E p, ((I12 p p' g z.fst z.snd).toReal : ℂ) ‖ₑ := by
   have haux : ∀ (y : X), (starRingEnd ℂ) (∫ (y1 : X) in E p, (starRingEnd ℂ) (Ks (𝔰 p) y1 y) *
@@ -1150,7 +1150,7 @@ lemma bound_6_2_26 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g 
 -- We assume 6.2.23.
 lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
+    (hinter : (ball (𝔠 p') (5 * D ^ 𝔰 p') ∩ ball (𝔠 p) (5 * D ^ 𝔰 p)).Nonempty) :
     ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
       C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
         volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
@@ -1233,7 +1233,7 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
 
 -- If 6.2.23 does not hold, then the LHS equals zero and the result follows trivially.
 lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
-    (hinter : ¬ (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
+    (hinter : ¬ (ball (𝔠 p') (5 * D ^ 𝔰 p') ∩ ball (𝔠 p) (5 * D ^ 𝔰 p)).Nonempty) :
     ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
       C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
         volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
@@ -1260,7 +1260,7 @@ lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
 lemma correlation_le {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ ≤
-    C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
+    C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) /
     volume (𝓘 p : Set X) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
   by_cases hinter : (ball (𝔠 p') (5 * D ^ 𝔰 p') ∩ ball (𝔠 p) (5 * D ^ 𝔰 p)).Nonempty
   · exact correlation_le_of_nonempty_inter (four_le_a X) hle hg hg1 hinter

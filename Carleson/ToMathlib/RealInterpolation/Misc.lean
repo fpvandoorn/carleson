@@ -259,7 +259,7 @@ lemma d_ne_top (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Io
   rw [d]
   exact d_ne_top_aux₄ hC₀ hC₁ hF
 
-lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) (hq₀' : q₀ = ⊤) (hq₀q₁ : q₀ ≠ q₁):
+lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) (hq₀' : q₀ = ⊤) (hq₀q₁ : q₀ ≠ q₁) :
     @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f =
     (↑C₀ ^ p₀.toReal * eLpNorm f p μ ^ p.toReal) ^ p₀.toReal⁻¹ := by
   unfold d
@@ -295,7 +295,7 @@ lemma d_eq_top₁ (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hp₁' : p₁ ≠ ⊤) 
   · exact (inv_toReal_pos_of_ne_top hq₀ (hq₁' ▸ hq₀q₁)).ne'
 
 lemma d_eq_top_of_eq (hC₁ : 0 < C₁) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₀' : q₀ ≠ ⊤)
-(hp₀': p₀ ≠ ⊤) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ = p₁) (hpp₀: p = p₀) (hq₁' : q₁ = ⊤) :
+(hp₀' : p₀ ≠ ⊤) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ = p₁) (hpp₀ : p = p₀) (hq₁' : q₁ = ⊤) :
     @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f = C₁ * eLpNorm f p μ := by
   rw [d_eq_top₁, ← hp₀p₁, hpp₀] <;> try assumption
   on_goal 1 => rw [ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_rpow_inv, ENNReal.rpow_rpow_inv]
@@ -346,7 +346,7 @@ namespace MeasureTheory
 
 -- TODO: change lhs and rhs?
 -- TODO: rewrite the condition in filter form?
-lemma lintegral_double_restrict_set {A B: Set α} {f : α → ℝ≥0∞} (hA : MeasurableSet A)
+lemma lintegral_double_restrict_set {A B : Set α} {f : α → ℝ≥0∞} (hA : MeasurableSet A)
   (hB : MeasurableSet B) (hf : ∀ᵐ (x : α) ∂μ, x ∈ A \ B → f x ≤ 0) :
     ∫⁻ x in A, f x ∂μ = ∫⁻ x in A ∩ B, f x ∂μ := by
   have h₀ := setLIntegral_mono_ae' (MeasurableSet.diff hA hB) hf; rw [lintegral_zero] at h₀
@@ -367,7 +367,7 @@ lemma lintegral_shift (f : ℝ → ENNReal) {a : ℝ} :
     ∫⁻ x : ℝ, (f (x + a)) = ∫⁻ x : ℝ, f x :=
   lintegral_add_right_eq_self f a
 
-lemma lintegral_shift' (f : ℝ → ENNReal) {a : ℝ} {s : Set ℝ}:
+lemma lintegral_shift' (f : ℝ → ENNReal) {a : ℝ} {s : Set ℝ} :
     ∫⁻ (x : ℝ) in (fun z : ℝ ↦ z + a)⁻¹' s, f (x + a) = ∫⁻ (x : ℝ) in s, f x := by
   rw [(measurePreserving_add_right volume a).setLIntegral_comp_preimage_emb
     (measurableEmbedding_addRight a)]
@@ -377,19 +377,19 @@ lemma lintegral_add_right_Ioi (f : ℝ → ENNReal) {a b : ℝ} :
   nth_rewrite 2 [← lintegral_shift' (a := a)]
   simp
 
-lemma lintegral_scale_constant (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0):
+lemma lintegral_scale_constant (f : ℝ → ENNReal) {a : ℝ} (h : a ≠ 0) :
     ∫⁻ x : ℝ, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x, f x := by
   rw [← smul_eq_mul, ← @lintegral_smul_measure, MeasurePreserving.lintegral_comp_emb]
   · exact measure_preserving_scaling h
   · exact measurableEmbedding_mulLeft₀ h
 
-lemma lintegral_scale_constant_preimage (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0) {s : Set ℝ} :
+lemma lintegral_scale_constant_preimage (f : ℝ → ENNReal) {a : ℝ} (h : a ≠ 0) {s : Set ℝ} :
     ∫⁻ x : ℝ in (fun z : ℝ ↦ a * z)⁻¹' s, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x : ℝ in s, f x := by
   rw [← smul_eq_mul, ← lintegral_smul_measure,
     (measure_preserving_scaling h).setLIntegral_comp_preimage_emb (measurableEmbedding_mulLeft₀ h),
     Measure.restrict_smul]
 
-lemma lintegral_scale_constant_halfspace (f: ℝ → ENNReal) {a : ℝ} (h : 0 < a) :
+lemma lintegral_scale_constant_halfspace (f : ℝ → ENNReal) {a : ℝ} (h : 0 < a) :
     ∫⁻ x : ℝ in Ioi 0, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x : ℝ in Ioi 0, f x := by
   rw [← lintegral_scale_constant_preimage f h.ne']
   have h₀ : (fun z ↦ a * z) ⁻¹' Ioi 0 = Ioi 0 := by
@@ -397,13 +397,13 @@ lemma lintegral_scale_constant_halfspace (f: ℝ → ENNReal) {a : ℝ} (h : 0 <
     simp [mul_pos_iff_of_pos_left h]
   rw [h₀]
 
-lemma lintegral_scale_constant_halfspace' {f: ℝ → ENNReal} {a : ℝ} (h : 0 < a) :
+lemma lintegral_scale_constant_halfspace' {f : ℝ → ENNReal} {a : ℝ} (h : 0 < a) :
     ENNReal.ofReal |a| * ∫⁻ x : ℝ in Ioi 0, f (a*x) = ∫⁻ x : ℝ in Ioi 0, f x := by
   rw [lintegral_scale_constant_halfspace f h, ← mul_assoc, ← ofReal_mul (abs_nonneg a),
     abs_inv, mul_inv_cancel₀ (abs_ne_zero.mpr h.ne')]
   simp
 
-lemma lintegral_scale_constant' {f: ℝ → ENNReal} {a : ℝ} (h : a ≠ 0):
+lemma lintegral_scale_constant' {f : ℝ → ENNReal} {a : ℝ} (h : a ≠ 0) :
     ENNReal.ofReal |a| * ∫⁻ x : ℝ, f (a*x) = ∫⁻ x, f x := by
   rw [lintegral_scale_constant f h, ← mul_assoc, ← ofReal_mul (abs_nonneg a), abs_inv,
       mul_inv_cancel₀ (abs_ne_zero.mpr h)]
@@ -449,7 +449,7 @@ lemma ofReal_rpow_of_pos_aux {p : ℝ} :
     with s (hs : 0 < s) using ofReal_rpow_of_pos hs
 
 lemma extract_constant_double_integral_rpow {f : ℝ → ℝ → ℝ≥0∞} {q : ℝ} (hq : q ≥ 0) {a : ℝ≥0∞}
-    (ha : a ≠ ⊤):
+    (ha : a ≠ ⊤) :
     ∫⁻ (s : ℝ) in Ioi 0, (∫⁻ (t : ℝ) in Ioi 0, a * f s t) ^ q =
     a ^ q * ∫⁻ (s : ℝ) in Ioi 0, (∫⁻ (t : ℝ) in Ioi 0, f s t) ^ q := by
   simp_rw [← lintegral_const_mul' _ _ (rpow_ne_top_of_nonneg hq ha),
@@ -531,7 +531,7 @@ lemma trnc_true : trnc true f t = trunc f t := rfl
 
 /-- A function is the complement if its truncation and the complement of the truncation. -/
 @[simp]
-lemma trunc_add_truncCompl {t : ℝ≥0∞}: trunc f t + truncCompl f t = f := by
+lemma trunc_add_truncCompl {t : ℝ≥0∞} : trunc f t + truncCompl f t = f := by
   ext x
   unfold trunc truncCompl
   simp only [Pi.add_apply]
@@ -753,7 +753,7 @@ lemma power_estimate {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a 
   gcongr
   exact (one_le_div hγ).mpr htγ
 
-lemma power_estimate' {a b t γ : ℝ} (ht : 0 < t) (htγ : t ≤ γ) (hab: a ≤ b) :
+lemma power_estimate' {a b t γ : ℝ} (ht : 0 < t) (htγ : t ≤ γ) (hab : a ≤ b) :
     (t / γ) ^ b ≤ (t / γ) ^ a := by
   have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
   exact Real.rpow_le_rpow_of_exponent_ge (div_pos ht (γ_pos)) (div_le_one_of_le₀ htγ γ_pos.le) hab
@@ -1309,7 +1309,7 @@ lemma lintegral_rpow_of_gt_abs {β γ : ℝ} (hβ : 0 < β) (hγ : γ > -1) :
   exact lintegral_rpow_of_gt hβ hγ
 
 -- TODO: treat symmetrically to Ioo case?
-lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : 0 < β) (hσ : σ < -1):
+lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : 0 < β) (hσ : σ < -1) :
     ∫⁻ s : ℝ in Ioi β, ENNReal.ofReal (s ^ σ) =
     ENNReal.ofReal (β ^ (σ + 1) / |σ + 1|) := by
   have hσ2 : σ + 1 < 0 := by linarith
@@ -1331,7 +1331,7 @@ lemma lintegral_rpow_Ioi_top {γ : ℝ} :
     exact fun _ ha ↦ enorm_of_nonneg (rpow_nonneg ha.le γ)
   _ < ⊤ := Ne.lt_top' fun a ↦ h (Eq.symm a)
 
-lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j then γ > -1 else γ < -1 ) :
+lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j then γ > -1 else γ < -1) :
   ∫⁻ s : ℝ in res j β, ENNReal.ofReal (s ^ γ) = β ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by
   · unfold res
     split at hγ <;> rename_i xor_split
@@ -1361,7 +1361,7 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j
               (by rw [abs_pos]; linarith), ← ofReal_rpow_of_pos htcinv,
               ofReal_toReal_eq_iff.mpr htop]
 
-lemma value_lintegral_res₁ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) (ht' : t ≠ ∞):
+lemma value_lintegral_res₁ {γ p' : ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) (ht' : t ≠ ∞) :
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
   have := spf.hd
@@ -1374,7 +1374,7 @@ lemma value_lintegral_res₁ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < 
   · positivity
   · exact (ENNReal.rpow_pos ht ht').ne'
 
-lemma value_lintegral_res₂ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t)
+lemma value_lintegral_res₂ {γ p' : ℝ} {spf : ScaledPowerFunction} (ht : 0 < t)
     (hσp' : 0 < spf.σ⁻¹ * (γ + 1) + p') :
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') ≤
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by

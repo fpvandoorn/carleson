@@ -33,10 +33,10 @@ lemma one_sub_one_sub_eq {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) : 1 - (1 - t) = t
 lemma one_le_toReal {a : ℝ≥0∞} (ha₁ : 1 ≤ a) (ha₂ : a < ⊤) : 1 ≤ a.toReal :=
   toReal_mono ha₂.ne_top ha₁
 
-lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : 0 ≤ q): ENNReal.ofReal a ^ q ≠ ⊤ := by finiteness
+lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : 0 ≤ q) : ENNReal.ofReal a ^ q ≠ ⊤ := by finiteness
 
 -- Note this lemma can directly be applied to elements of `ℝ≥0` as well
-lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q): ENNReal.ofReal a ^ q ≠ ⊤ := by finiteness
+lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q) : ENNReal.ofReal a ^ q ≠ ⊤ := by finiteness
 
 lemma coe_pow_pos {a : ℝ} {q : ℝ} (ha : 0 < a) : 0 < ENNReal.ofReal a ^ q :=
   ENNReal.rpow_pos (ofReal_pos.mpr ha) coe_ne_top
@@ -89,11 +89,11 @@ lemma toReal_ne_zero_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : p.toReal
   toReal_ne_zero.mpr ⟨ne_zero_of_lt hp.1, hp.2.ne_top⟩
 
 -- TODO: check which ones are actually used
-lemma eq_of_rpow_eq (a b: ℝ≥0∞) (c : ℝ) (hc : c ≠ 0) (h : a ^ c = b ^ c) : a = b := by
+lemma eq_of_rpow_eq (a b : ℝ≥0∞) (c : ℝ) (hc : c ≠ 0) (h : a ^ c = b ^ c) : a = b := by
   rw [← ENNReal.rpow_rpow_inv hc a, ← ENNReal.rpow_rpow_inv hc b]
   exact congrFun (congrArg HPow.hPow h) c⁻¹
 
-lemma le_of_rpow_le {a b: ℝ≥0∞} {c : ℝ} (hc : 0 < c) (h : a ^ c ≤ b ^ c) : a ≤ b := by
+lemma le_of_rpow_le {a b : ℝ≥0∞} {c : ℝ} (hc : 0 < c) (h : a ^ c ≤ b ^ c) : a ≤ b := by
   rw [← ENNReal.rpow_rpow_inv hc.ne' a, ← ENNReal.rpow_rpow_inv hc.ne' b]
   exact (ENNReal.rpow_le_rpow_iff (inv_pos_of_pos hc)).mpr h
 
@@ -210,7 +210,7 @@ lemma inv_of_interpolated_pos' (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
 
 -- TODO: remove, this is redundant, but for now mirror the development for reals...
 lemma interpolated_pos' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (ht : t ≠ ∞)
-    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹): 0 < p :=
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 0 < p :=
   ENNReal_preservation_positivity' hp₀ hp₁ ht hp
 
 lemma exp_toReal_pos (hp₀ : 0 < p₀) (hp₀' : p₀ ≠ ⊤) : 0 < p₀.toReal :=
@@ -573,7 +573,7 @@ lemma preservation_inequality (ht : t ∈ Ioo 0 1) (hp₀p₁ : p₀ ≠ p₁)
     p.toReal < p₀.toReal ↔ p < p₀ :=
   toReal_lt_toReal (interp_exp_ne_top hp₀p₁ ht hp) hp₀'
 
-lemma preservation_inequality' (ht : t ∈ Ioo 0 1)(hp₀p₁ : p₀ ≠ p₁)
+lemma preservation_inequality' (ht : t ∈ Ioo 0 1) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) (hp₀' : p₀ ≠ ⊤) :
     p₀.toReal < p.toReal ↔ p₀ < p :=
   toReal_lt_toReal hp₀' (interp_exp_ne_top hp₀p₁ ht hp)
@@ -586,7 +586,7 @@ lemma preservation_inequality_of_lt₀ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (
 
 lemma preservation_inequality_of_lt₁ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hq₀q₁ : q₀ < q₁)
-    (hq₁' : q₁ ≠ ⊤):
+    (hq₁' : q₁ ≠ ⊤) :
     q.toReal < q₁.toReal :=
   (toReal_lt_toReal (interp_exp_ne_top hq₀q₁.ne ht hq) hq₁').mpr
     ((exp_lt_iff₁ ht hq₀ hq₁ hq₀q₁.ne hq).mpr hq₀q₁)
