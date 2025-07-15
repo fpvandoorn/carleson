@@ -937,49 +937,11 @@ private lemma lhs : ∑ (p ∈ (𝔄_aux 𝔄 ϑ N).toFinset), volume (E p ∩ G
 
 private lemma le_C6_3_4 (ha : 4 ≤ a) :
     (((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (𝕔 * a ^ 3 + 5 * a)) +
-      2 ^ (a * (N + 5)) ≤ (C6_3_4 a N) := by
-  calc ((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (𝕔 * a ^ 3 + 5 * a) +
-      2 ^ (a * (N + 5))
-    _ ≤ (2^(a * N + a * 5) + 2^(a * N + a * 5)) * 2 ^ (𝕔*a^3 + 5*a) + 2 ^ (a * N + a* 5) * 1 := by
-      have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
-      have h35 : 3 ≤ 5 := by omega
-      gcongr <;> apply le_of_eq <;> ring
-    _ = 2^(a * N + a * 5) * (2 * 2 ^ (𝕔*a^3 + 5*a)) + 2 ^ (a * N + a* 5) * 1 := by
-      rw [← two_mul]; ring
-    _ = 2^(a * N + a * 5) * (2 * 2 ^ (𝕔*a^3 + 5*a) + 1) := by ring
-    _ ≤ 2^(a * N + a * 5) * (2^2 * 2 ^ (𝕔*a^3 + 5*a)) := by
-      gcongr
-      norm_cast
-      rw [pow_two, mul_assoc 2 2]
-      conv_rhs => rw [two_mul]
-      gcongr
-      exact NeZero.one_le
-    _ = 2^(𝕔*a^3 + a * N + a * 10 + 2) := by
-      rw [← pow_add, ← pow_add]
-      congr 1
-      ring
-    _ ≤ ↑(C6_3_4 a N) := by
-      have h101 : (𝕔 + 1) * a ^ 3 = 𝕔 * a ^ 3 +  a ^ 3 := by ring
-      have ha3 : a ^ 3 = a * (a^2 - 1) + a := by
-        simp only [mul_tsub, mul_one]
-        rw [tsub_add_cancel_of_le]
-        · ring
-        · nth_rewrite 1 [← mul_one a]
-          have ha' : 1 ≤ a^1 := by linarith
-          gcongr
-          apply le_trans ha' (Nat.pow_le_pow_right (by linarith) one_le_two)
-      rw [C6_3_4]
-      norm_cast
-      apply pow_le_pow (le_refl _) one_le_two
-      rw [add_assoc, add_assoc, add_comm (a * N), ← add_assoc, ← add_assoc, mul_comm N]
-      gcongr
-      rw [add_assoc, h101]
-      nth_rewrite 3 [ha3]
-      gcongr
-      · calc 10
-        _ ≤ 4^2 - 1 := by norm_num
-        _ ≤ a ^ 2 - 1 := by gcongr
-      · linarith
+      2 ^ (a * (N + 5)) ≤ C6_3_4 a N := by
+  simp only [add_mul, ← pow_add, C6_3_4, one_mul, ENNReal.coe_pow, ENNReal.coe_ofNat]
+  apply add_le_pow_two₃ le_rfl (by linarith) (by omega) ?_
+  ring_nf
+  linarith [sixteen_times_le_cube ha]
 
 -- Lemma 6.3.4
 open Classical in

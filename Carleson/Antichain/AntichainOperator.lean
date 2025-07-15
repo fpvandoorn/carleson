@@ -234,11 +234,10 @@ lemma le_C6_1_4 (a4 : 4 ≤ a) :
   simp_rw [← pow_add, ← pow_mul]; gcongr
   · exact one_le_two
   · have : 𝕔 / 4 ≤ 2 * (𝕔 / 8) + 1 := by omega
-    calc
-      _ = (2 * 𝕔 + 7) * a ^ 3 + (𝕔 / 4) * a ^ 3 + 3 * 4 * a + 3 * 1 * 1 := by ring
-      _ ≤ (2 * 𝕔 + 7) * a ^ 3 + (2 * (𝕔 / 8) + 1) * a ^ 3 + a * a * a + a * a * a := by
-        gcongr <;> linarith [a4]
-      _ = _ := by ring
+    have : (𝕔 / 4) * a ^ 3 ≤ 2 * (𝕔 / 8) * a ^ 3 + a ^ 3 :=
+      (mul_le_mul_of_nonneg_right this (Nat.zero_le _)).trans_eq (by ring)
+    ring_nf
+    linarith [sixteen_times_le_cube a4]
 
 open Classical Antichain in
 lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)

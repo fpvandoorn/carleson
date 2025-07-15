@@ -1,3 +1,4 @@
+import Carleson.Calculations
 import Carleson.Operators
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
@@ -482,14 +483,8 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
       rw [← mul_assoc, ← pow_add]
       gcongr
       · norm_num
-      · have := four_le_a X
-        calc
-        (𝕔 + 7) * a ^ 3 + (2 * a + 4)
-        _ = (𝕔 + 7) * a ^ 3 + (1 * 2 * a + 1 * 1 * 4) := by ring
-        _ ≤ (𝕔 + 7) * a ^ 3 + (3 * a * a + 1 * a * a) := by gcongr <;> linarith
-        _ = (𝕔 + 7) * a ^ 3 + 4 * a * a := by ring
-        _ ≤ (𝕔 + 7) * a ^ 3 + a * a * a := by gcongr
-        _ = (𝕔 + 8) * a ^ 3 := by ring
+      · ring_nf
+        linarith [sixteen_times_le_cube (four_le_a X), four_le_a X]
     _ = _ := by
       simp only [C6_1_3, val_eq_coe, NNReal.coe_mul, NNReal.coe_pow, NNReal.coe_ofNat,
         NNReal.coe_inv, hq_coe]
