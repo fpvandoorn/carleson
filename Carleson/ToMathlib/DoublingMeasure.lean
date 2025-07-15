@@ -453,7 +453,6 @@ class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] e
     IsDoubling (volume : Measure X) A, NeZero (volume : Measure X),
     SigmaFinite (volume : Measure X) where
 
-/- PseudoMetricSpace? -/
 variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 instance : ProperSpace X := by
