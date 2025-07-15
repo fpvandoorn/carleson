@@ -88,7 +88,7 @@ lemma pairwiseDisjoint_𝓙₆ : (𝓙₆ t u₁).PairwiseDisjoint (fun I ↦ (I
 /-- The constant used in `thin_scale_impact`. This is denoted `s₁` in the proof of Lemma 7.6.3.
 Has value `Z * n / (202 * a ^ 3) - 2` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_6_3 (a n : ℕ) : ℝ := Z * n / ((2 * CDN + 2) * a ^ 3) - 2
+irreducible_def C7_6_3 (a n : ℕ) : ℝ := Z * n / ((2 * 𝕔 + 2) * a ^ 3) - 2
 
 lemma nonneg_C7_6_3_add_two : 0 ≤ C7_6_3 a n + 2 := by
   simp_rw [C7_6_3, sub_add_cancel]; positivity
@@ -133,7 +133,7 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     (hd : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)))
     (h : s J - C7_6_3 a n < 𝔰 p) :
     (2 : ℝ) ^ (Z * (n + 1) - 1) <
-    2 ^ (a * (CDN * a ^ 2 * (C7_6_3 a n + 2 + 1) + 9)) * 2 ^ ((Z : ℝ) * n / 2) := by
+    2 ^ (a * (𝕔 * a ^ 2 * (C7_6_3 a n + 2 + 1) + 9)) * 2 ^ ((Z : ℝ) * n / 2) := by
   obtain ⟨b1, ⟨J', lJ', sJ', ⟨p', mp', sp'⟩⟩⟩ := thin_scale_impact_prelims hu₁ hJ hd h
   have bZn : 4 ≤ Z * (n + 1) := by
     rw [← mul_one 4]; gcongr
@@ -164,17 +164,17 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
           gcongr 100 * (D : ℝ) ^ ?_ + 4 * D ^ ?_ + _
           exacts [one_le_D, by linarith only [h], one_le_D, by linarith only [h]]
         _ ≤ _ := by rw [← add_mul, ← add_mul]; gcongr; norm_num
-    _ ≤ dist_{𝔠 p, 2 ^ (CDN * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ dist_{𝔠 p, 2 ^ (𝕔 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
       refine cdist_mono (ball_subset_ball ?_)
       rw [add_assoc, Real.rpow_add (by simp), Real.rpow_intCast,
         show (128 : ℝ) * (D ^ 𝔰 p * D ^ (C7_6_3 a n + 2)) =
           D ^ (C7_6_3 a n + 2) * 2 ^ 9 * (D ^ 𝔰 p / 4) by ring]
       refine mul_le_mul_of_nonneg_right ?_ (by positivity)
-      rw [pow_add, pow_mul _ (CDN * a ^ 2), defaultD, ← Real.rpow_natCast _ ⌈_⌉₊, Nat.cast_pow,
+      rw [pow_add, pow_mul _ (𝕔 * a ^ 2), defaultD, ← Real.rpow_natCast _ ⌈_⌉₊, Nat.cast_pow,
         Nat.cast_ofNat]; gcongr
       · exact_mod_cast Nat.one_le_two_pow
       · exact Nat.le_ceil _
-    _ ≤ (defaultA a) ^ (CDN * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * dist_(p) (𝒬 u₁) (𝒬 u₂) :=
+    _ ≤ (defaultA a) ^ (𝕔 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * dist_(p) (𝒬 u₁) (𝒬 u₂) :=
       cdist_le_iterate (by unfold defaultD; positivity) ..
     _ ≤ _ := by
       obtain ⟨hp₁, hp₂⟩ := hp
@@ -201,26 +201,26 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
     Nat.cast_one, mul_add_one] at key
   nth_rw 1 [← add_halves ((Z : ℝ) * n)] at key
   rw [add_rotate, ← sub_add_eq_add_sub, add_lt_add_iff_right, C7_6_3, sub_add_cancel] at key
-  have : (2 * CDN + 2 : ℝ) ≠ 0 := by norm_cast
+  have : (2 * 𝕔 + 2 : ℝ) ≠ 0 := by norm_cast
   have : (a : ℝ) ≠ 0 := by norm_cast; linarith [four_le_a X]
-  have rearr : (a : ℝ) * (CDN * a ^ 2 * (Z * n / ((2 * CDN + 2) * a ^ 3) + 1) + 9) =
-      Z * n / 2 * (CDN / (CDN + 1)) * a ^ 3 / a ^ 3 + CDN * a ^ 3 + 9 * a := by
+  have rearr : (a : ℝ) * (𝕔 * a ^ 2 * (Z * n / ((2 * 𝕔 + 2) * a ^ 3) + 1) + 9) =
+      Z * n / 2 * (𝕔 / (𝕔 + 1)) * a ^ 3 / a ^ 3 + 𝕔 * a ^ 3 + 9 * a := by
         field_simp; ring
   have fla := four_le_a X
   rw [rearr, mul_div_cancel_right₀ _ (by norm_cast; positivity), add_assoc,
     ← sub_lt_iff_lt_add', sub_right_comm, add_sub_right_comm, ← mul_one_sub, div_mul_comm,
-    show (1 - CDN / (CDN + 1)) / (2 : ℝ) = 1 / (2 * CDN + 2) by field_simp; ring,
+    show (1 - 𝕔 / (𝕔 + 1)) / (2 : ℝ) = 1 / (2 * 𝕔 + 2) by field_simp; ring,
     sub_lt_iff_lt_add] at key
   apply absurd key; rw [not_lt]
-  suffices CDN * a ^ 3 + 9 * a + 1 ≤ (Z : ℝ) by
+  suffices 𝕔 * a ^ 3 + 9 * a + 1 ≤ (Z : ℝ) by
     apply this.trans; nth_rw 1 [← zero_add (Z : ℝ)]; gcongr; positivity
   norm_cast; rw [defaultZ]
   calc
-    _ = CDN * a ^ 3 + 9 * a * 1 * 1 + 1 * 1 * 1 * 1 := by norm_num
-    _ ≤ CDN * a ^ 3 + 9 * a * a * a + 1 * a * a * a := by gcongr <;> omega
-    _ = (CDN + 10) * a ^ 3 := by ring
+    _ = 𝕔 * a ^ 3 + 9 * a * 1 * 1 + 1 * 1 * 1 * 1 := by norm_num
+    _ ≤ 𝕔 * a ^ 3 + 9 * a * a * a + 1 * a * a * a := by gcongr <;> omega
+    _ = (𝕔 + 10) * a ^ 3 := by ring
     _ ≤ 2 ^ (7 + 3 * a) := by
-      rw [pow_add, pow_mul']; gcongr; exacts [by simp [CDN], Nat.lt_two_pow_self.le]
+      rw [pow_add, pow_mul']; gcongr; exacts [by simp [𝕔], Nat.lt_two_pow_self.le]
     _ ≤ _ := by gcongr <;> omega
 
 /-- Lemma 7.6.3 with a floor on the constant to avoid casting. -/
@@ -693,7 +693,7 @@ lemma e7104_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂
 
 /-- The constant used in `bound_for_tree_projection`. -/
 irreducible_def C7_6_2 (a n : ℕ) : ℝ≥0 :=
-  C2_1_3 a * 2 ^ (21 * a + 5) * 2 ^ (-(CDN / ((4 * CDN + 4) * a) * Z * n * κ))
+  C2_1_3 a * 2 ^ (21 * a + 5) * 2 ^ (-(𝕔 / ((4 * 𝕔 + 4) * a) * Z * n * κ))
 
 omit [TileStructure Q D κ S o] in
 lemma btp_constant_bound :
@@ -724,7 +724,7 @@ lemma btp_constant_bound :
         rw [← ENNReal.rpow_add _ _ (by norm_cast; unfold defaultD; positivity)
           (ENNReal.natCast_ne_top D)]
         congr; ring
-    _ ≤ C2_1_3 a * 2 ^ (11 * a + 2) * 2 ^ (-CDN * a ^ 2 * (Z * n / ((2 * CDN + 2) * a ^ 3) - 3)
+    _ ≤ C2_1_3 a * 2 ^ (11 * a + 2) * 2 ^ (-𝕔 * a ^ 2 * (Z * n / ((2 * 𝕔 + 2) * a ^ 3) - 3)
          * κ / 2) * 2 ^ (10 * a + 2) := by
       gcongr with k
       · rw [defaultD, Nat.cast_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, neg_mul, neg_div,
@@ -736,11 +736,11 @@ lemma btp_constant_bound :
         · apply mul_le_mul_of_nonpos_left
           · rw [show (3 : ℝ) = 2 + 1 by norm_num, ← sub_sub, ← C7_6_3_def, sub_le_iff_le_add]
             exact (Int.lt_floor_add_one _).le
-          · rw [neg_mul, Left.neg_nonpos_iff, mul_nonneg_iff_of_pos_left (by simp [CDN])]
+          · rw [neg_mul, Left.neg_nonpos_iff, mul_nonneg_iff_of_pos_left (by simp [𝕔])]
             positivity
       · exact calculation_7_6_2 (X := X)
     _ = C2_1_3 a * 2 ^ (21 * a + 4) *
-        2 ^ ((CDN * (3 / 2)) * a ^ 2 * κ - CDN / ((4 * CDN + 4) * a) * Z * n * κ) := by
+        2 ^ ((𝕔 * (3 / 2)) * a ^ 2 * κ - 𝕔 / ((4 * 𝕔 + 4) * a) * Z * n * κ) := by
       rw [← mul_rotate]; congr 1
       · rw [← mul_assoc, ← mul_rotate, ← pow_add, mul_comm]
         congr 2; omega
@@ -749,10 +749,10 @@ lemma btp_constant_bound :
         congr
         · ring
         · have a4 := four_le_a X
-          have : 2 * CDN + (2 : ℝ) ≠ 0 := by norm_cast
+          have : 2 * 𝕔 + (2 : ℝ) ≠ 0 := by norm_cast
           field_simp
           ring
-    _ ≤ C2_1_3 a * 2 ^ (21 * a + 4) * 2 ^ (1 - CDN / ((4 * CDN + 4) * a) * Z * n * κ) := by
+    _ ≤ C2_1_3 a * 2 ^ (21 * a + 4) * 2 ^ (1 - 𝕔 / ((4 * 𝕔 + 4) * a) * Z * n * κ) := by
       gcongr; exacts [one_le_two, calculation_150 (X := X)]
     _ = _ := by
       rw [sub_eq_add_neg, ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, ENNReal.rpow_one,

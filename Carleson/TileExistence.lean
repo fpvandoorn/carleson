@@ -36,7 +36,7 @@ lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
 
 -- lemma tsum_top_eq
 
-variable (X) in def J' : ℕ := 3 + 2 * S * CDN * a ^ 2
+variable (X) in def J' : ℕ := 3 + 2 * S * 𝕔 * a ^ 2
 
 lemma twopow_J : 2 ^ J' X = 8 * D ^ (2 * S) := by
   dsimp [J']
@@ -1431,7 +1431,7 @@ lemma two_le_a : 2 ≤ a := by linarith [four_le_a X]
 variable (X) in
 lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
   have : 2 ≤ a := two_le_a X
-  have CDN_pos : 0 < CDN := by simp [CDN]
+  have 𝕔_pos : 0 < 𝕔 := by simp [𝕔]
   rw [defaultD]
   simp only [Nat.cast_pow, Nat.cast_ofNat, mul_inv_rev]
   rw [← Real.rpow_natCast,Real.logb_rpow (by norm_num) (by norm_num)]
@@ -1442,10 +1442,10 @@ lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
     ← Real.rpow_natCast 2]
   norm_num
   calc
-    (2 : ℝ) * CDN * ↑a ^ 2 * 2 ^ (4 * ↑a:ℝ)
+    (2 : ℝ) * 𝕔 * ↑a ^ 2 * 2 ^ (4 * ↑a:ℝ)
       ≤ 2^8 * (2^(a:ℝ))^2 * 2 ^ (4 * a:ℝ) := by
       gcongr
-      · simp [CDN]; norm_num
+      · simp [𝕔]; norm_num
       · exact (Real.self_lt_two_rpow (a:ℝ)).le
     _ ≤ 2 ^ (4 * a:ℝ) * 2^(2*a:ℝ) * 2^(4*a:ℝ) := by
       gcongr
@@ -1956,9 +1956,9 @@ lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
         calc
         5 * a + 2
         _ < 6 * a := by linarith [four_le_a X]
-        _ ≤ CDN * a := by
+        _ ≤ 𝕔 * a := by
           gcongr
-          simp [CDN]
+          simp [𝕔]
       _ < _ := by norm_num
 
 lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y ≠ z) :
@@ -1989,9 +1989,9 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
       calc
       5 * a + 4
       _ < 7 * a := by linarith [four_le_a X]
-      _ ≤ CDN * a := by
+      _ ≤ 𝕔 * a := by
         gcongr
-        simp [CDN]
+        simp [𝕔]
     _ ≤ _ := by norm_num
   replace u := (ball_subset_Ω₁ ⟨I, y⟩) u
   have := dj.ne_of_mem u mx₂; contradiction

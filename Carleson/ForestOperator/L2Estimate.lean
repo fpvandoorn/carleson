@@ -146,7 +146,7 @@ lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedC
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
 /-- The constant used in `nontangential_operator_bound`. -/
-irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 2) * a ^ 3)
+irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3)
 
 -- Bound for (7.2.3) in the proof of `nontangential_pointwise_bound`
 omit [TileStructure Q D κ S o] in
@@ -201,10 +201,10 @@ private lemma nontangential_integral_bound₁
 private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x x' : X}
     {I : Grid X} (hx : x ∈ I) (hx' : x' ∈ I) {R : ℝ} (h : R ≤ 8 * D ^ s I) :
     ∫⁻ y in Annulus.cc x' ((D : ℝ) ^ (s I - 1) / 4) R, ‖K x' y * f y‖ₑ ≤
-    2 ^ (7 * a + (CDN + 1) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x := by
+    2 ^ (7 * a + (𝕔 + 1) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x := by
   apply (lintegral_mono_set (Annulus.cc_subset_cc (le_refl _) h)).trans
   have ineq : ∀ y ∈ Annulus.cc x' ((D : ℝ) ^ (s I - 1) / 4) (8 * D ^ s I), ‖K x' y * f y‖ₑ ≤
-      2 ^ (7 * a + (CDN + 1) * a ^ 3) / volume (ball (c I) (16 * D ^ s I)) * ‖f y‖ₑ := by
+      2 ^ (7 * a + (𝕔 + 1) * a ^ 3) / volume (ball (c I) (16 * D ^ s I)) * ‖f y‖ₑ := by
     intro y hy; rw [Annulus.cc] at hy; rw [enorm_mul]
     refine mul_le_mul_right' ((enorm_K_le 5 hy.1).trans ?_) ‖f y‖ₑ; gcongr
     suffices dist (c I) x' < 16 * D ^ s I from ball_subset_ball' (by linarith)
@@ -247,7 +247,7 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
 private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ : Θ X) (x : X) :
     nontangentialMaximalFunction θ f x ≤
     2 * linearizedNontangentialOperator Q θ K f x +
-    2 ^ (7 * a + (CDN + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x := by
+    2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x := by
   refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ ms₂ ↦ iSup_le fun ls₂ ↦ ?_
   rw [← integral_finset_sum]; swap
   · intro i hi; simp_rw [mul_comm]
@@ -298,8 +298,8 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       · exact norm_K'_f_le _
       · exact norm_K'_f_le _
     _ ≤ 2 * linearizedNontangentialOperator Q θ K f x +
-        (2 ^ (7 * a + (CDN + 1) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x +
-        2 ^ (7 * a + (CDN + 1) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x) := by
+        (2 ^ (7 * a + (𝕔 + 1) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x +
+        2 ^ (7 * a + (𝕔 + 1) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x) := by
       gcongr
       · refine nontangential_integral_bound₁ hf ?_ ?_
         · apply lt_of_le_of_lt (dist_triangle x (c I) x')
@@ -326,12 +326,12 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
     _ = _ := by rw [← two_mul, ← mul_assoc, ← pow_succ']
 
 lemma le_C7_2_2 (a4 : 4 ≤ a) :
-    2 * C_Ts a + 2 ^ (7 * a + (CDN + 1) * a ^ 3 + 1) * CMB (defaultA a) 2 ≤ C7_2_2 a := by
+    2 * C_Ts a + 2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * CMB (defaultA a) 2 ≤ C7_2_2 a := by
   rw [C_Ts, CMB_defaultA_two_eq]
   calc
-    _ ≤ (2 : ℝ≥0) ^ (a ^ 3 + 1) + 2 ^ (7 * a + (CDN + 1) * a ^ 3 + 1) * 2 ^ (a + 2) := by
+    _ ≤ (2 : ℝ≥0) ^ (a ^ 3 + 1) + 2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * 2 ^ (a + 2) := by
       rw [← pow_succ']; gcongr; rw [← NNReal.rpow_natCast]; push_cast; gcongr <;> norm_num
-    _ ≤ 2 ^ ((CDN + 1) * a ^ 3 + 8 * a + 3) + 2 ^ ((CDN + 1) * a ^ 3 + 8 * a + 3) := by
+    _ ≤ 2 ^ ((𝕔 + 1) * a ^ 3 + 8 * a + 3) + 2 ^ ((𝕔 + 1) * a ^ 3 + 8 * a + 3) := by
       rw [← pow_add]; gcongr 2 ^ ?_ + 2 ^ ?_
       · exact one_le_two
       · rw [show a ^ 3 + 1 = 1 * a ^ 3 + 1 by ring, add_assoc]; gcongr
@@ -339,9 +339,9 @@ lemma le_C7_2_2 (a4 : 4 ≤ a) :
         · omega
       · exact one_le_two
       · ring_nf; rfl
-    _ = 2 ^ ((CDN + 1) * a ^ 3 + 8 * a + 4) := by rw [← two_mul, ← pow_succ']
+    _ = 2 ^ ((𝕔 + 1) * a ^ 3 + 8 * a + 4) := by rw [← two_mul, ← pow_succ']
     _ ≤ _ := by
-      rw [C7_2_2, add_assoc, show (CDN + 2) * a ^ 3 = (CDN + 1) * a ^ 3 + a ^ 3 by ring]
+      rw [C7_2_2, add_assoc, show (𝕔 + 2) * a ^ 3 = (𝕔 + 1) * a ^ 3 + a ^ 3 by ring]
       gcongr; · exact one_le_two
       calc
         _ ≤ 4 * 4 * a := by omega
@@ -356,25 +356,25 @@ lemma nontangential_operator_bound (hf : BoundedCompactSupport f) (θ : Θ X) :
   dsimp only at hT₁ hT₂
   calc
     _ ≤ eLpNorm (fun x ↦ 2 * linearizedNontangentialOperator Q θ K f x +
-        2 ^ (7 * a + (CDN + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume := by
+        2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume := by
       simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm']
       gcongr; simp_rw [enorm_eq_self]; exact nontangential_pointwise_bound hf θ _
     _ ≤ eLpNorm (fun x ↦ 2 * linearizedNontangentialOperator Q θ K f x) 2 volume +
-        eLpNorm (2 ^ (7 * a + (CDN + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+        eLpNorm (2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
       simpa [eLpNorm, eLpNorm'] using
         ENNReal.lintegral_Lp_add_le (hT₁.aemeasurable.const_mul _)
           (aemeas_MB.const_mul _) one_le_two
     _ = eLpNorm (fun x ↦ 2 * linearizedNontangentialOperator Q θ K f x) 2 volume +
-        2 ^ (7 * a + (CDN + 1) * a ^ 3 + 1) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+        2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
       congr
       simp only [eLpNorm, eLpNorm', OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top]
-      exact ENNReal.lintegral_Lp_smul aemeas_MB two_pos ((2 : ℝ≥0) ^ (7 * a + (CDN + 1) * a ^ 3 + 1))
+      exact ENNReal.lintegral_Lp_smul aemeas_MB two_pos ((2 : ℝ≥0) ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1))
     _ ≤ 2 * eLpNorm (linearizedNontangentialOperator Q θ K f) 2 volume +
-        2 ^ (7 * a + (CDN + 1) * a ^ 3 + 1) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+        2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
       gcongr
       refine eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' 2 hT₁ (.of_forall fun x ↦ ?_)
       rw [enorm_eq_self, enorm_eq_self]
-    _ ≤ (2 * C_Ts a + 2 ^ (7 * a + (CDN + 1) * a ^ 3 + 1) * CMB (defaultA a) 2)
+    _ ≤ (2 * C_Ts a + 2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * CMB (defaultA a) 2)
         * eLpNorm f 2 volume := by
       simp only [add_mul, one_mul, Nat.cast_pow, Nat.cast_ofNat, mul_assoc]
       gcongr
@@ -661,9 +661,9 @@ lemma boundary_geometric_series :
       norm_cast
       calc k
       _ = 1 * 1 * k := by ring
-      _ ≤ CDN * a * k := by
+      _ ≤ 𝕔 * a * k := by
         gcongr
-        · simp [CDN]
+        · simp [𝕔]
         · linarith [four_le_a X]
     _ ≤ 2 ^ (9 * a) * ∑' k : ℕ, 2 ^ (-k : ℤ) := mul_le_mul_left' (ENNReal.sum_le_tsum _) _
     _ ≤ 2 ^ (9 * a) * 2 := by rw [ENNReal.sum_geometric_two_pow_neg_one]
@@ -760,7 +760,7 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
 /-- The constant used in `tree_projection_estimate`.
 Originally had value `2 ^ (104 * a ^ 3)` in the blueprint, but that seems to be a mistake. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 5 + CDN / 4) * a ^ 3)
+irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 4) * a ^ 3)
 
 -- Auxiliary function used in the proof of Lemma 7.2.1
 private def eI𝒬u_mul (u : 𝔓 X) (f : X → ℂ) : X → ℂ := fun y ↦ exp (.I * 𝒬 u y) * f y
@@ -789,7 +789,7 @@ private lemma aeMeasurable_cS_bound : AEMeasurable (cS_bound t u f) := by
 -- The natural constant for Lemma 7.2.1 is ≤ the simpler constant `C7_2_1` we use instead.
 private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
     C7_1_3 a * CMB (defaultA a) 2 + C7_1_3 a * C7_2_3 a + C7_2_2 a ≤ (C7_2_1 a : ℝ≥0∞) := calc
-  _ ≤ (3 : ℕ) • (2 : ℝ≥0∞) ^ ((CDN + 4 + CDN / 4) * a ^ 3 + 12 * a) := by
+  _ ≤ (3 : ℕ) • (2 : ℝ≥0∞) ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3 + 12 * a) := by
     rw [three'_nsmul]
     gcongr
     · rw [C7_1_3_def, CMB_defaultA_two_eq, pow_add]
@@ -806,8 +806,8 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
       · norm_num
       simp [add_mul]
       omega
-  _ = 3 * 2 ^ (12 * a) * 2 ^ ((CDN + 4 + CDN / 4) * a ^ 3) := by rw [add_comm, pow_add]; ring
-  _ ≤ 2 ^ (a ^ 3) * 2 ^ ((CDN + 4 + CDN / 4) * a ^ 3) := by
+  _ = 3 * 2 ^ (12 * a) * 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3) := by rw [add_comm, pow_add]; ring
+  _ ≤ 2 ^ (a ^ 3) * 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3) := by
     apply mul_right_mono; norm_cast
     calc
       _ ≤ 2 ^ 2 * 2 ^ (12 * a) := by gcongr; norm_num

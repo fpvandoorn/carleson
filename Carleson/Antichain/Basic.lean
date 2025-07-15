@@ -80,7 +80,7 @@ open MeasureTheory Metric
 open ENNReal NNReal Real
 
 /-- Constant appearing in Lemma 6.1.2. -/
-noncomputable def C6_1_2 (a : ℕ) : ℕ := 2 ^ ((CDN + 7) * a ^ 3)
+noncomputable def C6_1_2 (a : ℕ) : ℕ := 2 ^ ((𝕔 + 7) * a ^ 3)
 
 lemma C6_1_2_ne_zero (a : ℕ) : (C6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C6_1_2]; positivity
 
@@ -88,12 +88,12 @@ open MeasureTheory Metric Bornology Set
 
 private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
     (2 : ℝ≥0) ^ a ^ 3 / volume.real (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
-      2 ^ (5 * a + (CDN + 1) * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) := by
+      2 ^ (5 * a + (𝕔 + 1) * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) := by
   calc (2 : ℝ≥0) ^ a ^ 3 / volume.real (ball x ((D : ℝ) ^ 𝔰 p.1 / (↑D * 4)))
     _ = 2 ^ a ^ 3 / volume.real (ball x ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1))) := by
       congr
       ring_nf
-    _ = 2 ^ a ^ 3 * 2 ^ (5 * a + CDN * a ^ 3) / (2 ^ (5 * a + CDN * a ^ 3) *
+    _ = 2 ^ a ^ 3 * 2 ^ (5 * a + 𝕔 * a ^ 3) / (2 ^ (5 * a + 𝕔 * a ^ 3) *
           volume.real (ball x ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)))) := by
         have hvol : volume.real (ball x (1 / ↑D / 32 * (8 * ↑D ^ 𝔰 p.1))) ≠ 0 :=
           ne_of_gt (measure_real_ball_pos _
@@ -103,28 +103,28 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
         congr
         rw [eq_div_iff_mul_eq (by positivity), mul_comm, mul_assoc,
           mul_inv_cancel₀ hvol, mul_one]
-    _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + CDN * a ^ 3) / volume.real (ball x (8 * D ^ 𝔰 p.1)) := by
+    _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 𝕔 * a ^ 3) / volume.real (ball x (8 * D ^ 𝔰 p.1)) := by
       gcongr
       · exact (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _)))
-      · have heq : 2 ^ (CDN * a ^ 2) * 2 ^ 5 * (1 / (↑D * 32) * (8 * (D : ℝ) ^ 𝔰 p.1)) =
+      · have heq : 2 ^ (𝕔 * a ^ 2) * 2 ^ 5 * (1 / (↑D * 32) * (8 * (D : ℝ) ^ 𝔰 p.1)) =
             (8 * ↑D ^ 𝔰 p.1) := by
-          have hD : (D : ℝ) = 2 ^ (CDN * a^2) := by simp
+          have hD : (D : ℝ) = 2 ^ (𝕔 * a^2) := by simp
           rw [← hD]
           ring_nf
           rw [mul_inv_cancel₀ (defaultD_pos _).ne', one_mul]
         convert (DoublingMeasure.volume_real_ball_two_le_same_repeat x
-          ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)) (CDN*a^2 + 5)) using 1
+          ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)) (𝕔*a^2 + 5)) using 1
         · conv_lhs => rw [← heq, ← pow_add]
         · congr 1
           simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat]
           ring
-    _ = 2 ^ (5 * a + (CDN + 1) * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) := by ring_nf
+    _ = 2 ^ (5 * a + (𝕔 + 1) * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) := by ring_nf
 
 private lemma ineq_6_1_7' (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
     (2 : ℝ≥0) ^ a ^ 3 / (volume (ball x (↑D ^ 𝔰 p.1 / (↑D * 4)))).toNNReal ≤
-      2 ^ (5 * a + (CDN + 1) * a ^ 3) / (volume (ball x (8 * ↑D ^ 𝔰 p.1))).toNNReal := by
+      2 ^ (5 * a + (𝕔 + 1) * a ^ 3) / (volume (ball x (8 * ↑D ^ 𝔰 p.1))).toNNReal := by
   suffices (2 : ℝ≥0) ^ a ^ 3 / volume.real (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
-      2 ^ (5 * a + (CDN + 1) * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) by
+      2 ^ (5 * a + (𝕔 + 1) * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) by
     simp only [← NNReal.coe_le_coe, ← NNReal.val_eq_coe]
     exact this
   exact ineq_6_1_7 x p
@@ -132,7 +132,7 @@ private lemma ineq_6_1_7' (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
 -- Composition of inequalities 6.1.6, 6.1.7, 6.1.8.
 lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p) (hy : Ks (𝔰 p.1) x y ≠ 0)  :
     ‖Ks (𝔰 p.1) x y‖₊ ≤
-      (2 : ℝ≥0) ^ (6*a + (CDN + 1)*a^3) / (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal := by
+      (2 : ℝ≥0) ^ (6*a + (𝕔 + 1)*a^3) / (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal := by
   have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := defaultD_pow_pos ..
   have h8Dpow_pos : 0 < 8 * (D : ℝ) ^ 𝔰 p.1 := mul_defaultD_pow_pos _ (by linarith) _
   have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
@@ -146,9 +146,9 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
   apply le_trans h
   rw [zpow_sub₀ (by simp), zpow_one, div_div]
   apply le_trans (ineq_6_1_7' x p)
-  have ha : 6 * a + (CDN + 1) * a ^ 3 = (5 * a + (CDN + 1) * a ^ 3) + a := by omega
+  have ha : 6 * a + (𝕔 + 1) * a ^ 3 = (5 * a + (𝕔 + 1) * a ^ 3) + a := by omega
   simp only [div_eq_mul_inv, ge_iff_le]
-  rw [ha, pow_add _ (5 * a + (CDN + 1) * a ^ 3) a, mul_assoc]
+  rw [ha, pow_add _ (5 * a + (𝕔 + 1) * a ^ 3) a, mul_assoc]
   apply mul_le_mul_of_nonneg_left _ (zero_le _)
   suffices (volume (ball (𝔠 p.1) (8 * ↑D ^ 𝔰 p.1))).toNNReal ≤
       2 ^ a * (volume (ball x (8 * ↑D ^ 𝔰 p.1))).toNNReal by
@@ -199,7 +199,7 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
         exact mul_lt_mul_of_pos_right (by norm_num) (defaultD_pow_pos ..)
     -- 6.1.6, 6.1.7, 6.1.8
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
-        (2 : ℝ≥0) ^ (6*a + (CDN + 1)*a^3) / (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal :=
+        (2 : ℝ≥0) ^ (6*a + (𝕔 + 1)*a^3) / (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal :=
       fun y hy ↦ norm_Ks_le' _ hxE hy
     calc (‖carlesonSum 𝔄 f x‖₊ : ℝ≥0∞)
       = ↑‖carlesonOn p f x‖₊:= by
@@ -229,7 +229,7 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
         rw [mem_ball, dist_comm]
         exact hdist_cpy y hy.1
     _ ≤ ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1),
-        (((2 : ℝ≥0) ^ (6*a + (CDN + 1)*a^3) /
+        (((2 : ℝ≥0) ^ (6*a + (𝕔 + 1)*a^3) /
           (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal) * ‖f y‖₊ : ℝ≥0) := by
       refine lintegral_mono_nnreal fun y ↦ ?_
       rw [nnnorm_mul]
@@ -237,7 +237,7 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
       by_cases hy : Ks (𝔰 p.1) x y = 0
       · simp [hy]
       · exact hKs y hy
-    _ = (2 : ℝ≥0)^(5*a + (CDN + 1)*a^3 + a) *
+    _ = (2 : ℝ≥0)^(5*a + (𝕔 + 1)*a^3 + a) *
         ⨍⁻ y, ‖f y‖ₑ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       rw [laverage_eq, Measure.restrict_apply MeasurableSet.univ, univ_inter]
       simp_rw [div_eq_mul_inv, coe_mul, enorm_eq_nnnorm]
@@ -253,12 +253,12 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
         rw [C6_1_2, add_comm (5*a), add_assoc]; norm_cast
         apply pow_le_pow_right₀ one_le_two
         calc
-        _ ≤ (CDN + 1) * a ^ 3  + 6 * a ^ 3:= by
+        _ ≤ (𝕔 + 1) * a ^ 3  + 6 * a ^ 3:= by
           rw [add_le_add_iff_left]
           ring_nf
           gcongr
           exact le_self_pow₀ (by linarith [four_le_a X]) (by omega)
-        _ = (CDN + 7) * a ^ 3 := by ring
+        _ = (𝕔 + 7) * a ^ 3 := by ring
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith) hDpow_pos)
     _ ≤ (C6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
@@ -288,7 +288,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
 
 -- Note: Proof shows that `111` can be replaced by `108`
 /-- Constant appearing in Lemma 6.1.3. -/
-noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((CDN + 8) * a ^ 3) * (q - 1)⁻¹
+noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 8) * a ^ 3) * (q - 1)⁻¹
 
 -- Namespace for auxiliaries used in the proof of Lemma 6.1.3
 namespace Lemma6_1_3
@@ -477,19 +477,19 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
           _ = (2 * q - 1) * (q - 1)⁻¹ := by field_simp [hqiq]
           _ ≤ _ := by gcongr; linarith only [q_mem_Ioc X |>.2]
   calc
-    _ ≤ 2 ^ ((CDN + 7) * a ^ 3) * (2 ^ (2 * a + 4) * (q - 1)⁻¹) := by simp [C6_1_2, hc_le]
-    _ ≤ 2 ^ ((CDN + 8) * a ^ 3) * (q - 1)⁻¹ := by
+    _ ≤ 2 ^ ((𝕔 + 7) * a ^ 3) * (2 ^ (2 * a + 4) * (q - 1)⁻¹) := by simp [C6_1_2, hc_le]
+    _ ≤ 2 ^ ((𝕔 + 8) * a ^ 3) * (q - 1)⁻¹ := by
       rw [← mul_assoc, ← pow_add]
       gcongr
       · norm_num
       · have := four_le_a X
         calc
-        (CDN + 7) * a ^ 3 + (2 * a + 4)
-        _ = (CDN + 7) * a ^ 3 + (1 * 2 * a + 1 * 1 * 4) := by ring
-        _ ≤ (CDN + 7) * a ^ 3 + (3 * a * a + 1 * a * a) := by gcongr <;> linarith
-        _ = (CDN + 7) * a ^ 3 + 4 * a * a := by ring
-        _ ≤ (CDN + 7) * a ^ 3 + a * a * a := by gcongr
-        _ = (CDN + 8) * a ^ 3 := by ring
+        (𝕔 + 7) * a ^ 3 + (2 * a + 4)
+        _ = (𝕔 + 7) * a ^ 3 + (1 * 2 * a + 1 * 1 * 4) := by ring
+        _ ≤ (𝕔 + 7) * a ^ 3 + (3 * a * a + 1 * a * a) := by gcongr <;> linarith
+        _ = (𝕔 + 7) * a ^ 3 + 4 * a * a := by ring
+        _ ≤ (𝕔 + 7) * a ^ 3 + a * a * a := by gcongr
+        _ = (𝕔 + 8) * a ^ 3 := by ring
     _ = _ := by
       simp only [C6_1_3, val_eq_coe, NNReal.coe_mul, NNReal.coe_pow, NNReal.coe_ofNat,
         NNReal.coe_inv, hq_coe]

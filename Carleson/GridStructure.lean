@@ -374,14 +374,14 @@ lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
 end GridManipulation
 
 /-- The constant appearing in Lemma 2.1.2, `2 ^ {-95a}`. -/
-def _root_.C2_1_2 (a : ℕ) : ℝ := 2 ^ ((-CDN + 5) * a : ℝ)
+def _root_.C2_1_2 (a : ℕ) : ℝ := 2 ^ ((-𝕔 + 5) * a : ℝ)
 
 include q K σ₁ σ₂ F G in
 variable (X) in
 lemma _root_.C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 256 := by
   rw [C2_1_2, show (1 / 256 : ℝ) = 2 ^ (-8 : ℝ) by norm_num,
     Real.rpow_le_rpow_left_iff one_lt_two, le_neg]
-  simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le, CDN]
+  simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le, 𝕔]
   norm_cast
   have := four_le_a X
   linarith
@@ -404,27 +404,27 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
   calc
     _ ≤ dist_{c I, 4 * D ^ s I} f g :=
       cdist_mono (ball_subset_ball (by simp_rw [div_eq_inv_mul, defaultD]; gcongr; norm_num))
-    _ ≤ 2 ^ (-CDN * (a : ℝ)) * dist_{c I, 4 * D ^ (s I + 1)} f g := by
+    _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c I, 4 * D ^ (s I + 1)} f g := by
       rw [← div_le_iff₀' (by positivity), neg_mul, Real.rpow_neg zero_le_two, div_inv_eq_mul, mul_comm]
-      convert le_cdist_iterate (x := c I) (r := 4 * D ^ s I) (by positivity) f g (CDN * a) using 1
+      convert le_cdist_iterate (x := c I) (r := 4 * D ^ s I) (by positivity) f g (𝕔 * a) using 1
       · norm_cast
       · apply dist_congr rfl
-        have : (defaultA a : ℝ) ^ (CDN * a) = D := by
+        have : (defaultA a : ℝ) ^ (𝕔 * a) = D := by
           simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat]
           rw [← pow_mul]; congr 1; ring
         rw [this, zpow_add_one₀ (defaultD_pos a).ne']; ring
-    _ ≤ 2 ^ (-CDN * (a : ℝ)) * dist_{c I, 4 * D ^ s J} f g := by
+    _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c I, 4 * D ^ s J} f g := by
       gcongr
       have : s I < s J := (Grid.lt_def.mp hpq).2
       exact cdist_mono (ball_subset_ball (mul_le_mul_of_nonneg_left
         (zpow_le_zpow_right₀ one_le_D (by omega)) zero_le_four))
-    _ ≤ 2 ^ (-CDN * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
+    _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
       gcongr
       have : c I ∈ ball (c J) (4 * D ^ s J) :=
         mem_of_mem_of_subset c_mem_Grid ((Grid.lt_def.mp hpq).1.trans Grid_subset_ball)
       rw [mem_ball] at this
       exact cdist_mono (ball_subset_ball' (by linarith))
-    _ ≤ 2 ^ (-CDN * (a : ℝ) + 5 * a) * dist_{J} f g := by
+    _ ≤ 2 ^ (-𝕔 * (a : ℝ) + 5 * a) * dist_{J} f g := by
       rw [Real.rpow_add zero_lt_two, mul_assoc]
       refine mul_le_mul_of_nonneg_left ?_ (by positivity)
       rw [show (2 : ℝ) ^ (5 * (a : ℝ)) = (defaultA a) ^ 5 by norm_cast; ring]

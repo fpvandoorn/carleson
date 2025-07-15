@@ -133,13 +133,13 @@ lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G
 
 lemma calculation_5 {dist_1 dist_2: ℝ}
     (h : dist_1 ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_2) :
-    2 ^ ((-CDN : ℝ) * a) * dist_1 ≤ 2 ^ ((-(CDN - 6) : ℝ) * a) * dist_2 := by
-  apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (CDN * (a : ℝ)) by positivity)).mp
+    2 ^ ((-𝕔 : ℝ) * a) * dist_1 ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * dist_2 := by
+  apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (𝕔 * (a : ℝ)) by positivity)).mp
   rw [
     ← mul_assoc,
     neg_mul,
     Real.rpow_neg (by positivity),
-    mul_inv_cancel₀ (a := (2 : ℝ) ^ (CDN * (a : ℝ))) (by positivity),
+    mul_inv_cancel₀ (a := (2 : ℝ) ^ (𝕔 * (a : ℝ))) (by positivity),
     ← mul_assoc,
     ← Real.rpow_add (by positivity)
   ]
@@ -157,27 +157,27 @@ lemma calculation_6 (a : ℕ) (s : ℤ) :
   congr
 
 lemma calculation_7 (a : ℕ) (s : ℤ) :
-    100 * (D ^ (s + 2) * D) = (defaultA a) ^ (CDN * a) * (100 * (D : ℝ) ^ (s + 2)) := by
+    100 * (D ^ (s + 2) * D) = (defaultA a) ^ (𝕔 * a) * (100 * (D : ℝ) ^ (s + 2)) := by
   rw [← mul_assoc (a := 100), mul_comm]
   congr
   norm_cast
-  rw [← pow_mul 2 a (CDN * a), mul_comm (a := a), defaultD]
+  rw [← pow_mul 2 a (𝕔 * a), mul_comm (a := a), defaultD]
   ring
 
 lemma calculation_8 {dist_1 dist_2 : ℝ}
-    (h : dist_1 * 2 ^ ((CDN : ℝ) * a) ≤ dist_2) :
-    dist_1 ≤ 2 ^ ((-CDN : ℝ) * a) * dist_2 := by
-  rw [neg_mul, Real.rpow_neg (by positivity), mul_comm (a := (2 ^ (CDN * (a : ℝ)))⁻¹)]
+    (h : dist_1 * 2 ^ ((𝕔 : ℝ) * a) ≤ dist_2) :
+    dist_1 ≤ 2 ^ ((-𝕔 : ℝ) * a) * dist_2 := by
+  rw [neg_mul, Real.rpow_neg (by positivity), mul_comm (a := (2 ^ (𝕔 * (a : ℝ)))⁻¹)]
   apply (le_mul_inv_iff₀ (by positivity)).mpr
   exact h
 
 lemma calculation_9 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-    (h : 1 ≤ (2 : ℝ) ^ (-((CDN - 6) : ℝ) * a)) :
+    (h : 1 ≤ (2 : ℝ) ^ (-((𝕔 - 6) : ℝ) * a)) :
     False := by
-  have : (2 : ℝ) ^ (-((CDN - 6) : ℝ) * a) < 1 ^ (-((CDN - 6) : ℝ) * a) := by
+  have : (2 : ℝ) ^ (-((𝕔 - 6) : ℝ) * a) < 1 ^ (-((𝕔 - 6) : ℝ) * a) := by
     apply Real.rpow_lt_rpow_of_neg (by norm_num) (by norm_num)
     have : (4 : ℝ) ≤ a := mod_cast four_le_a X
-    simp only [CDN, Nat.cast_ofNat, neg_sub, gt_iff_lt]
+    simp only [𝕔, Nat.cast_ofNat, neg_sub, gt_iff_lt]
     linarith
   simp at h this
   linarith
@@ -192,52 +192,52 @@ lemma calculation_11 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s 
   · linarith
 
 lemma calculation_12 (s : ℝ) :
-    128 * (D : ℝ)^(s + 2) = 2^(2 * CDN * a ^ 2 + 4) * (8 * D ^ s) := by
+    128 * (D : ℝ)^(s + 2) = 2^(2 * 𝕔 * a ^ 2 + 4) * (8 * D ^ s) := by
   simp only [defaultD]
-  have leftSide := calc 128 * ((2 : ℝ) ^ (CDN * a ^ 2)) ^ (s + 2)
-    _ = 128 * 2^(CDN * a^2 * (s + 2)) := by
+  have leftSide := calc 128 * ((2 : ℝ) ^ (𝕔 * a ^ 2)) ^ (s + 2)
+    _ = 128 * 2^(𝕔 * a^2 * (s + 2)) := by
       congrm 128 * ?_
-      have fact := Real.rpow_mul (x := 2) (y := CDN * a ^ 2) (z := s + 2) (by positivity)
+      have fact := Real.rpow_mul (x := 2) (y := 𝕔 * a ^ 2) (z := s + 2) (by positivity)
       rw_mod_cast [fact]
-    _ = 128 * 2^((CDN * a^2 * s) + (CDN * a^2 * 2)) := by
+    _ = 128 * 2^((𝕔 * a^2 * s) + (𝕔 * a^2 * 2)) := by
       congrm 128 * (2 ^ ?_)
       ring
-    _ = (2 ^ 7) * 2^((CDN * a^2 * s) + (CDN * a^2 * 2)) := by
+    _ = (2 ^ 7) * 2^((𝕔 * a^2 * s) + (𝕔 * a^2 * 2)) := by
       norm_num
-    _ = 2 ^ (7 + ((CDN * a^2 * s) + (CDN * a^2 * 2))) := by
-      have fact := Real.rpow_add (x := 2) (y := 7) (z := CDN * a^2 * s + CDN * a^2 * 2) (by positivity)
+    _ = 2 ^ (7 + ((𝕔 * a^2 * s) + (𝕔 * a^2 * 2))) := by
+      have fact := Real.rpow_add (x := 2) (y := 7) (z := 𝕔 * a^2 * s + 𝕔 * a^2 * 2) (by positivity)
       rw_mod_cast [fact]
-  have rightSide := calc 2 ^ (2 * CDN * a ^ 2 + 4) * (8 * ((2 : ℝ) ^ (CDN * a ^ 2)) ^ s)
-    _ = 2 ^ (2 * CDN *a^2 + 4) * ((2^3)*((2 ^ (CDN * a ^ 2)) ^ s)) := by
+  have rightSide := calc 2 ^ (2 * 𝕔 * a ^ 2 + 4) * (8 * ((2 : ℝ) ^ (𝕔 * a ^ 2)) ^ s)
+    _ = 2 ^ (2 * 𝕔 *a^2 + 4) * ((2^3)*((2 ^ (𝕔 * a ^ 2)) ^ s)) := by
       norm_num
-    _ = 2 ^ (2 * CDN *a^2 + 4) * (  2^3 * 2 ^ (CDN * a ^ 2 * s)  ) := by
+    _ = 2 ^ (2 * 𝕔 *a^2 + 4) * (  2^3 * 2 ^ (𝕔 * a ^ 2 * s)  ) := by
       rw [Real.rpow_mul (x:=2) (by positivity)]
       norm_cast
-    _ = 2 ^ (2 * CDN * a^2 + 4) * 2 ^ (3 + CDN * a ^ 2 * s) := by
-      have fact := Real.rpow_add (x:=2) (y:= 3) (z:= CDN * a ^ 2 * s) (by positivity)
+    _ = 2 ^ (2 * 𝕔 * a^2 + 4) * 2 ^ (3 + 𝕔 * a ^ 2 * s) := by
+      have fact := Real.rpow_add (x:=2) (y:= 3) (z:= 𝕔 * a ^ 2 * s) (by positivity)
       rw_mod_cast [fact]
-    _ = 2 ^ (2 * CDN * a^2 + 4  + (3 + CDN * a ^ 2 * s)) := by
+    _ = 2 ^ (2 * 𝕔 * a^2 + 4  + (3 + 𝕔 * a ^ 2 * s)) := by
       nth_rw 2 [Real.rpow_add]
       norm_cast
       positivity
-    _ = 2 ^ (7 + ((CDN * a^2 * s) + (CDN * a^2 * 2))) := by
+    _ = 2 ^ (7 + ((𝕔 * a^2 * s) + (𝕔 * a^2 * 2))) := by
       congrm 2 ^ ?_
       linarith
   rw_mod_cast [leftSide]
   rw_mod_cast [rightSide]
 
-lemma calculation_13 : (2 : ℝ) ^ (2 * CDN * (a^3) + 4*a) = (defaultA a) ^ (2 * CDN *a^2 + 4) := by
+lemma calculation_13 : (2 : ℝ) ^ (2 * 𝕔 * (a^3) + 4*a) = (defaultA a) ^ (2 * 𝕔 *a^2 + 4) := by
   simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat]
-  have fact := Real.rpow_mul (x := 2) (y := a) (z := 2 * CDN * a ^ 2 + 4) (by positivity)
+  have fact := Real.rpow_mul (x := 2) (y := a) (z := 2 * 𝕔 * a ^ 2 + 4) (by positivity)
   rw_mod_cast [← fact]
   ring
 
 lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n: ℕ) :
-    (2 : ℝ) ^ ((Z : ℝ) * n / 2 - (2 * CDN + 1) * a ^ 3) ≤
-      2 ^ ((Z : ℝ) * n / 2 - (2 * CDN * a ^ 3 + 4 * a)) := by
+    (2 : ℝ) ^ ((Z : ℝ) * n / 2 - (2 * 𝕔 + 1) * a ^ 3) ≤
+      2 ^ ((Z : ℝ) * n / 2 - (2 * 𝕔 * a ^ 3 + 4 * a)) := by
   gcongr
   · linarith
-  rw [show (2 * CDN + 1) * (a : ℝ) ^ 3 = 2 * CDN * (a : ℝ) ^ 3 + a ^ 3 by ring]
+  rw [show (2 * 𝕔 + 1) * (a : ℝ) ^ 3 = 2 * 𝕔 * (a : ℝ) ^ 3 + a ^ 3 by ring]
   gcongr _ + ?_
   rw [show (a : ℝ) ^ 3 = a ^ 2 * a by ring]
   gcongr
@@ -246,11 +246,11 @@ lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n:
   exact_mod_cast four_le_a X
 
 lemma calculation_15 {dist zon : ℝ}
-    (h : 2 ^ zon ≤ 2 ^ (2 * CDN * a ^ 3 + 4 * a) * dist) :
-    2 ^ (zon - (2 * CDN * a^3 + 4*a)) ≤ dist := by
+    (h : 2 ^ zon ≤ 2 ^ (2 * 𝕔 * a ^ 3 + 4 * a) * dist) :
+    2 ^ (zon - (2 * 𝕔 * a^3 + 4*a)) ≤ dist := by
   rw [Real.rpow_sub (hx := by linarith)]
-  rw [show dist = 2 ^ (2 * CDN * a ^ 3 + 4 * a) * dist / 2 ^ (2 * CDN * a ^ 3 + 4 * a) by simp]
-  have := (div_le_div_iff_of_pos_right (c := 2 ^ (2 * CDN * a ^ 3 + 4 * a))
+  rw [show dist = 2 ^ (2 * 𝕔 * a ^ 3 + 4 * a) * dist / 2 ^ (2 * 𝕔 * a ^ 3 + 4 * a) by simp]
+  have := (div_le_div_iff_of_pos_right (c := 2 ^ (2 * 𝕔 * a ^ 3 + 4 * a))
     (hc := by positivity)).mpr h
   exact_mod_cast this
 
@@ -305,7 +305,7 @@ lemma calculation_convexity_bound [PseudoMetricSpace X] [ProofData a q K σ₁ �
       unfold defaultD
       norm_cast
       apply Nat.le_pow
-      simp only [CDN, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
+      simp only [𝕔, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
       positivity
     _ ≤ ∑' k : ℕ, ((2 : ENNReal) ^ (-t)) ^ k := ENNReal.sum_le_tsum _
     _ = _ := ENNReal.tsum_geometric _
@@ -327,14 +327,14 @@ lemma calculation_7_6_2 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] 
         ENNReal.ofReal_ofNat, ← pow_add]
 
 lemma calculation_150 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] :
-    CDN * (3/2) * a ^ 2 * κ ≤ 1 := by
+    𝕔 * (3/2) * a ^ 2 * κ ≤ 1 := by
   rw [defaultκ, neg_mul, Real.rpow_neg zero_le_two]
   refine mul_inv_le_one_of_le₀ ?_ (by positivity); norm_cast
   rw [show 2 ^ (10 * a) = 2 ^ (8 * a) * (2 ^ a) ^ 2 by ring]
   simp only [Nat.cast_pow, Nat.cast_mul, Nat.cast_ofNat]
   gcongr
   · calc
-      _ ≤ (2 : ℝ) ^ (8 * 4) := by simp [CDN]; norm_num
+      _ ≤ (2 : ℝ) ^ (8 * 4) := by simp [𝕔]; norm_num
       _ ≤ _ := by gcongr; exacts [one_le_two, four_le_a X]
   · norm_cast
     exact Nat.lt_two_pow_self.le

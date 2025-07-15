@@ -943,7 +943,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       gcongr
       · exact_mod_cast one_le_D
       · linarith [two_le_κZ (X := X)]
-    _ = 2 ^ (9 * a + 6 - CDN * a ^ 2 : ℤ) * volume G := by
+    _ = 2 ^ (9 * a + 6 - 𝕔 * a ^ 2 : ℤ) * volume G := by
       rw [← mul_rotate, ← mul_assoc, ← pow_succ', defaultD, Nat.cast_pow,
         show ((2 : ℕ) : ℝ≥0∞) = 2 by rfl, ← ENNReal.rpow_natCast, ← ENNReal.rpow_natCast,
         ← ENNReal.rpow_mul, ← ENNReal.rpow_add _ _ (by simp) (by simp), ← ENNReal.rpow_intCast]
@@ -959,9 +959,9 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       _ ≤ 3 * 4 * a + 4 * 4 := by gcongr <;> norm_num
       _ ≤ 3 * a * a + a * a := by gcongr <;> linarith [four_le_a X]
       _ = 4 * a ^ 2 := by ring
-      _ ≤ CDN * a ^ 2 := by
+      _ ≤ 𝕔 * a ^ 2 := by
         gcongr
-        simp [CDN]
+        simp [𝕔]
 
 /-- Lemma 5.1.1 -/
 lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (-1 : ℤ) * volume G :=

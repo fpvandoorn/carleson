@@ -316,12 +316,12 @@ lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ
 
 end DoublingMeasure
 
-irreducible_def CDN : ℕ := 7
+irreducible_def 𝕔 : ℕ := 7
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/
 @[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
-@[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (CDN * a ^ 2)
+@[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (𝕔 * a ^ 2)
 @[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
 @[simp] def defaultZ (a : ℕ) : ℕ := 2 ^ (12 * a)
 @[simp] def defaultτ (a : ℕ) : ℝ := a⁻¹
@@ -579,7 +579,7 @@ lemma hundred_lt_D [KernelProofData a K] : 100 < defaultD a := by
   have : 100 < 2 ^ 7 := by norm_num
   apply this.trans_le
   have : 16 ≤ a ^ 2 := by nlinarith [four_le_a X]
-  simp only [defaultD, CDN]
+  simp only [defaultD, 𝕔]
   gcongr
   · norm_num
   · linarith
@@ -846,7 +846,7 @@ lemma DκZ_le_two_rpow_100 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F 
     ← Real.rpow_add zero_lt_two, show (-10 * a + 12 * a : ℝ) = 2 * a by ring,
     neg_le_neg_iff]
   norm_cast
-  have : 1 ≤ CDN := by simp [CDN]
+  have : 1 ≤ 𝕔 := by simp [𝕔]
   have := four_le_a X
   calc
     _ ≤ 1 * 4 ^ 2 * 2 ^ (2 * 4) := by norm_num

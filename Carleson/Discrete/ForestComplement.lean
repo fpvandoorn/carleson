@@ -1063,7 +1063,7 @@ def C5_1_3_optimized (a : ℕ) (q : ℝ≥0) := C2_0_3 a q * 2 ^ (29 * a + 23) /
 
 /-- The constant used in Lemma 5.1.3 in the blueprint,
 with value `2 ^ (131 * a ^ 3) / (q - 1) ^ 5` -/
-def C5_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((CDN + 11 + CDN / 8) * a ^ 3) / (q - 1) ^ 5
+def C5_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 11 + 𝕔 / 8) * a ^ 3) / (q - 1) ^ 5
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_3_pos : 0 < C5_1_3 a nnq := by
@@ -1075,14 +1075,14 @@ omit [TileStructure Q D κ S o] in
 lemma C5_1_3_optimized_le_C5_1_3 : C5_1_3_optimized a nnq ≤ C5_1_3 a nnq := by
   simp only [C5_1_3_optimized, C5_1_3, C2_0_3]
   calc
-    _ ≤ 2 ^ ((CDN + 8 + CDN / 8) * a ^ 3) / (nnq - 1) * 2 ^ (3 * a ^ 3) / (nnq - 1) ^ 4 := by
+    _ ≤ 2 ^ ((𝕔 + 8 + 𝕔 / 8) * a ^ 3) / (nnq - 1) * 2 ^ (3 * a ^ 3) / (nnq - 1) ^ 4 := by
       have := four_le_a X
       gcongr; · exact one_le_two
       calc
         _ ≤ 3 * 4 * 4 * a := by omega
         _ ≤ 3 * a * a * a := by gcongr
         _ = _ := by ring
-    _ = 2 ^ ((CDN + 8 + CDN / 8) * a ^ 3 + 3 * a ^ 3) / (nnq - 1) ^ (4 + 1) := by
+    _ = 2 ^ ((𝕔 + 8 + 𝕔 / 8) * a ^ 3 + 3 * a ^ 3) / (nnq - 1) ^ (4 + 1) := by
       rw [pow_add, pow_add, div_mul_eq_div_div]
       simp only [div_eq_inv_mul, pow_one]
       ring
