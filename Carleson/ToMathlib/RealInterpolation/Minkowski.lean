@@ -23,7 +23,7 @@ variable {α α' ε E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measu
 /-! ## Minkowski's integral inequality -/
 namespace MeasureTheory
 
-lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : 0 < c) (hd : 0 < d):
+lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : 0 < c) (hd : 0 < d) :
     a ^ (c + d) = a ^ c * a ^ d := by
   have hcd : 0 < c + d := by linarith
   rcases (eq_or_ne a 0) with a_eq_zero | a_ne_zero
@@ -32,7 +32,7 @@ lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : 0 < c) (hd : 0 < d):
     · rw [a_eq_top, top_rpow_of_pos hcd, top_rpow_of_pos hc, top_rpow_of_pos hd, top_mul_top]
     · rw [ENNReal.rpow_add c d a_ne_zero a_ne_top]
 
-lemma eq_of_le_of_le (a b : ℝ≥0∞) (hab : a ≤ b) (hab': b ≤ a) : a = b := by
+lemma eq_of_le_of_le (a b : ℝ≥0∞) (hab : a ≤ b) (hab' : b ≤ a) : a = b := by
   rcases (eq_or_ne a b) with a_eq_b | a_ne_b
   · exact a_eq_b
   · rcases lt_or_gt_of_ne a_ne_b with a_lt_b | b_lt_a
@@ -469,7 +469,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpa
         · fun_prop
       · fun_prop
 
-lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
+lemma lintegral_congr_support {f : α → E₁} {g h : α → ENNReal}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hf : AEStronglyMeasurable f μ) (hgh : ∀ x ∈ f.support, g x = h x) :
     ∫⁻ x : α in f.support, g x ∂μ = ∫⁻ x : α in f.support, h x ∂μ := by
@@ -628,7 +628,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁]
     [BorelSpace E₁] [TopologicalSpace.PseudoMetrizableSpace E₁] (ht : t ∈ Ioo 0 1)
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hpq : sel j p₀ p₁ ≤ sel j q₀ q₁)
-    (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤)  (hp₀p₁ : p₀ < p₁)
+    (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤) (hp₀p₁ : p₀ < p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
     (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict f.support))
@@ -840,7 +840,7 @@ lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)
 -- try to generalize to ENorm-classes after Mathlib refactor
 variable {T : (α → E₁) → (α' → E₂)}
 
-lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α → E₁}
+lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀ : ℝ≥0∞} {f : α → E₁}
     (hp₀ : 0 < p₀) {q₀ : ℝ≥0∞} (hp : p ≠ ⊤) (hq₀ : 0 < q₀) (hq₀' : q₀ < ⊤)
     (hp₀p : p₀ ≤ p) (hf : MemLp f p μ)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (ht : 0 < t) {a : ℝ≥0∞} (ha : 0 < a) :
@@ -850,7 +850,7 @@ lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α
   exact truncCompl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ ha hf
 
 -- TODO: can we remove the hypothesis on a?
-lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α → E₁}
+lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁ : ℝ≥0∞} {f : α → E₁}
     (hp : 0 < p) (hq₁ : 0 < q₁) (hq₁' : q₁ < ⊤) (hp₁p : p ≤ p₁) (hf : MemLp f p μ)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) {a : ℝ≥0∞} (ha : a ≠ ⊤) :
     distribution (T (trunc f a)) t ν ≤ C₁ ^ q₁.toReal *

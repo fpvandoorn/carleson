@@ -209,13 +209,13 @@ def rowDecomp (t : Forest X n) (j : ℕ) : Row X n where
   ball_subset' hu := t.ball_subset' (rowDecomp_𝔘_subset_forest t j hu)
   pairwiseDisjoint' := rowDecomp_𝔘_pairwiseDisjoint t j
 
-lemma mem_forest_of_mem {t: Forest X n} {j : ℕ} {x : 𝔓 X} (hx : x ∈ t.rowDecomp j) : x ∈ t :=
+lemma mem_forest_of_mem {t : Forest X n} {j : ℕ} {x : 𝔓 X} (hx : x ∈ t.rowDecomp j) : x ∈ t :=
   rowDecomp_𝔘_subset_forest t j hx
 
 lemma rowDecomp_𝔘_eq (t : Forest X n) (j : ℕ) :
   (t.rowDecomp j).𝔘 = rowDecomp_𝔘 t j := rfl
 
-lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x:X)
+lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x : X)
     (this : ∃ 𝔲' ∈ (t.rowDecomp j).𝔘, x ∈ 𝓘 𝔲') :
     1 ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j: Set _) x := by
   classical

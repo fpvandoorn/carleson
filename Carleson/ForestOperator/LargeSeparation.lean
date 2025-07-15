@@ -87,7 +87,7 @@ lemma IF_subset_THEN_distance_between_centers (subset : (J : Set X) ⊆ J') :
     dist (c J) (c J') < 4 * D ^ s J' :=
   Grid_subset_ball (subset Grid.c_mem_Grid)
 
-lemma IF_subset_THEN_not_disjoint {A : Grid X} {B: Grid X} (h : (A : Set X) ⊆ B) :
+lemma IF_subset_THEN_not_disjoint {A B : Grid X} (h : (A : Set X) ⊆ B) :
     ¬ Disjoint (B : Set X) (A : Set X) := by
   rw [disjoint_comm]
   intro disjoint
