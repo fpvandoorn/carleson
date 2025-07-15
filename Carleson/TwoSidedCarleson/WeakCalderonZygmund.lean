@@ -1,5 +1,4 @@
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
-import Carleson.ToMathlib.Data.Set.Card
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Measure.SumRestrict
 import Carleson.TwoSidedCarleson.Basic

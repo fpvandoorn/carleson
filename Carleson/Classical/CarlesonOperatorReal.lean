@@ -14,7 +14,7 @@ def carlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) :
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
 
 
-lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.Ioo r R} = Set.Ioo (x - R) (x - r) ∪ Set.Ioo (x + r) (x + R) := by
+lemma annulus_real_eq {x r R : ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.Ioo r R} = Set.Ioo (x - R) (x - r) ∪ Set.Ioo (x + r) (x + R) := by
   ext y
   simp only [Real.dist_eq, Set.mem_Ioo, lt_abs, neg_sub, abs_lt, neg_lt_sub_iff_lt_add,
     Set.mem_setOf_eq, Set.mem_union]
@@ -36,7 +36,7 @@ lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) :
 
 lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (measurable_const.dist measurable_id) measurableSet_Ioo
 
-lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Set ℝ) (hS : IsOpen S) (hD: Dense D) (hf : ContinuousOn f S) :
+lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Set ℝ) (hS : IsOpen S) (hD : Dense D) (hf : ContinuousOn f S) :
     ⨆ r ∈ S, f r = ⨆ r ∈ (S ∩ D), f r := by
   -- Show two inequalities, one is trivial
   refine le_antisymm (le_of_forall_lt_imp_le_of_dense fun c hc ↦ ?_) (biSup_mono Set.inter_subset_left)

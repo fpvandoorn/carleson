@@ -12,8 +12,8 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 lemma realD_nonneg : 0 ≤ (D:ℝ) := (defaultD_pos a).le
 
 lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
-  (hY : Y ⊆ ball o (4*D^(S:ℤ)-D^k:ℝ)) (y : X) (hy : y ∈ Y) :
-    ball o (4 * D ^ (S:ℤ):ℝ) ⊆ ball y (8 * D^(2 * S:ℤ) * D^k:ℝ) := by
+    (hY : Y ⊆ ball o (4 * D ^ (S : ℤ) - D ^ k)) (y : X) (hy : y ∈ Y) :
+    ball o (4 * D ^ (S : ℤ)) ⊆ ball y (8 * D ^ (2 * S : ℤ) * D ^ k) := by
   calc
     ball o (4 * D ^ (S:ℤ))
       ⊆ ball y (2 * (4 * D ^ (S:ℤ)):ℝ) := by
@@ -53,8 +53,8 @@ variable (X) in
 def C4_1_1 := As (2 ^ a) (2 ^ J' X)
 
 lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
-    (hY : Y ⊆ ball o (4*D^S-D^k))
-    (hYdisjoint: Y.PairwiseDisjoint (fun y ↦ ball y (D^k:ℝ))) :
+    (hY : Y ⊆ ball o (4 * D ^ S - D ^ k))
+    (hYdisjoint : Y.PairwiseDisjoint (ball · (D ^ k))) :
     (Set.encard Y).toENNReal ≤ C4_1_1 X := by
   suffices (Set.encard Y).toENNReal * volume (ball o (4 * D^S)) ≤ (As (2 ^ a) (2 ^ J' X)) * volume (ball o (4 * D^S)) by
     have volume_pos : 0 < volume (ball o (4 * D^S)) := by
@@ -103,7 +103,7 @@ def property_set (k : ℤ) : Set (Set X) :=
   {s| s ⊆ ball o (4 * D^S - D^k:ℝ) ∧ s.PairwiseDisjoint (fun y => ball y (D^k:ℝ)) ∧ (k = S → o ∈ s)}
 
 variable (X) in
-lemma property_set_nonempty (k:ℤ): (if k = S then ({o}:Set X) else ∅) ∈ property_set X k := by
+lemma property_set_nonempty (k : ℤ) : (if k = S then {o} else ∅) ∈ property_set X k := by
   dsimp only [property_set]
   split
   · simp only [mem_setOf_eq, singleton_subset_iff, mem_ball, dist_self, sub_pos,
@@ -116,7 +116,7 @@ lemma property_set_nonempty (k:ℤ): (if k = S then ({o}:Set X) else ∅) ∈ pr
   assumption
 
 variable (X) in
-lemma chain_property_set_has_bound (k : ℤ):
+lemma chain_property_set_has_bound (k : ℤ) :
     ∀ c ⊆ property_set X k, IsChain (· ⊆ ·) c → ∃ ub ∈ property_set X k,
     ∀ s ∈ c, s ⊆ ub := by
   intro c hc hchain
@@ -180,30 +180,30 @@ lemma chain_property_set_has_bound (k : ℤ):
   · exact fun s a ↦ subset_iUnion₂_of_subset s a fun ⦃a⦄ a ↦ a
 
 variable (X) in
-lemma zorn_apply_maximal_set (k : ℤ):
+lemma zorn_apply_maximal_set (k : ℤ) :
     ∃ s ∈ property_set X k, ∀ s' ∈ property_set X k, s ⊆ s' → s' = s := by
   have := zorn_subset (property_set X k) (chain_property_set_has_bound X k)
   simp_rw [maximal_iff] at this; convert this using 6; exact eq_comm
 
 variable (X) in
-def Yk (k : ℤ): Set X := (zorn_apply_maximal_set X k).choose
+def Yk (k : ℤ) : Set X := (zorn_apply_maximal_set X k).choose
 
-lemma Yk_pairwise (k:ℤ) : (Yk X k).PairwiseDisjoint (fun (y:X) ↦ ball y (D^k:ℝ)) :=
+lemma Yk_pairwise (k : ℤ) : (Yk X k).PairwiseDisjoint (ball · (D ^ k)) :=
   (zorn_apply_maximal_set X k).choose_spec.left.right.left
 
-lemma Yk_subset (k:ℤ) : Yk X k ⊆ ball o (4 * D^S - D^k:ℝ) :=
+lemma Yk_subset (k : ℤ) : Yk X k ⊆ ball o (4 * D ^ S - D ^ k) :=
   (zorn_apply_maximal_set X k).choose_spec.left.left
 
-lemma Yk_maximal (k : ℤ) {s :Set X} (hs_sub : s ⊆ ball o (4 * D^S - D^k : ℝ))
-    (hs_pairwise : s.PairwiseDisjoint (fun y ↦ ball y (D^k:ℝ))) (hmax_sub : Yk X k ⊆ s)
-    (hk_s : k = S → o ∈ s): s = Yk X k :=
+lemma Yk_maximal (k : ℤ) {s : Set X} (hs_sub : s ⊆ ball o (4 * D ^ S - D ^ k))
+    (hs_pairwise : s.PairwiseDisjoint (ball · (D ^ k))) (hmax_sub : Yk X k ⊆ s)
+    (hk_s : k = S → o ∈ s) : s = Yk X k :=
   (zorn_apply_maximal_set X k).choose_spec.right _
     (And.intro hs_sub (And.intro hs_pairwise hk_s)) hmax_sub
 
 lemma o_mem_Yk_S : o ∈ Yk X S :=
   (zorn_apply_maximal_set X S).choose_spec.left.right.right rfl
 
-lemma cover_big_ball (k : ℤ) : ball o (4 * D^S - D^k:ℝ) ⊆ ⋃ y ∈ Yk X k, ball y (2 * D^k:ℝ) := by
+lemma cover_big_ball (k : ℤ) : ball o (4 * D ^ S - D ^ k) ⊆ ⋃ y ∈ Yk X k, ball y (2 * D ^ k) := by
   intro y hy
   have : ∃ z ∈ Yk X k, ¬Disjoint (ball y (D^k:ℝ)) (ball z (D^k:ℝ)) := by
     by_contra hcon
@@ -242,7 +242,7 @@ lemma cover_big_ball (k : ℤ) : ball o (4 * D^S - D^k:ℝ) ⊆ ⋃ y ∈ Yk X k
   exact (dist_triangle y x z).trans_lt (add_lt_add hx hx')
 
 variable (X) in
-lemma Yk_nonempty {k : ℤ} (hmin : (0:ℝ) < 4 * D^S - D^k) : (Yk X k).Nonempty := by
+lemma Yk_nonempty {k : ℤ} (hmin : (0 : ℝ) < 4 * D ^ S - D ^ k) : (Yk X k).Nonempty := by
   have : o ∈ ball o (4 * D^S - D^k) := mem_ball_self hmin
   have h1 : {o} ⊆ ball o (4 * D^S - D^k) := singleton_subset_iff.mpr this
   have h2 : ({o} : Set X).PairwiseDisjoint (fun y ↦ ball y (D^k)) :=
@@ -257,7 +257,7 @@ lemma Yk_nonempty {k : ℤ} (hmin : (0:ℝ) < 4 * D^S - D^k) : (Yk X k).Nonempty
   trivial
 
 -- not sure if we actually need this; just countability seems quite good enough
-lemma Yk_finite {k:ℤ} (hk_lower : -S ≤ k): (Yk X k).Finite := by
+lemma Yk_finite {k : ℤ} (hk_lower : -S ≤ k) : (Yk X k).Finite := by
   rw [← Set.encard_ne_top_iff]
   apply LT.lt.ne
   rw [← ENat.toENNReal_lt,ENat.toENNReal_top]
@@ -267,7 +267,7 @@ lemma Yk_finite {k:ℤ} (hk_lower : -S ≤ k): (Yk X k).Finite := by
     _ < ⊤ := by finiteness
 
 variable (X) in
-lemma Yk_countable (k:ℤ) : (Yk X k).Countable := by
+lemma Yk_countable (k : ℤ) : (Yk X k).Countable := by
   apply (Yk_pairwise k).countable_of_isOpen (fun y _ => isOpen_ball)
   simp only [nonempty_ball]
   exact fun y _ ↦ zpow_pos (defaultD_pos a) k
@@ -278,8 +278,8 @@ def Yk_encodable (k : ℤ) : Encodable (Yk X k) := (Yk_countable X k).toEncodabl
 def Encodable.linearOrder {α : Type*} (i : Encodable α) : LinearOrder α :=
   LinearOrder.lift' (i.encode) (i.encode_injective)
 
-instance {k : ℤ}: LinearOrder (Yk X k) := (Yk_encodable X k).linearOrder
-instance {k : ℤ}: WellFoundedLT (Yk X k) where
+instance {k : ℤ} : LinearOrder (Yk X k) := (Yk_encodable X k).linearOrder
+instance {k : ℤ} : WellFoundedLT (Yk X k) where
   wf := by
     apply (@OrderEmbedding.wellFounded (Yk X k) ℕ)
     · use ⟨(Yk_encodable X k).encode,(Yk_encodable X k).encode_injective⟩
@@ -290,7 +290,7 @@ instance {k : ℤ}: WellFoundedLT (Yk X k) where
 local instance {k : ℤ} : SizeOf (Yk X k) where
   sizeOf := (Yk_encodable X k).encode
 
-lemma I_induction_proof {k:ℤ} (hk:-S ≤ k) (hneq : ¬ k = -S) : -S ≤ k - 1 := by
+lemma I_induction_proof {k : ℤ} (hk : -S ≤ k) (hneq : ¬k = -S) : -S ≤ k - 1 := by
   linarith [lt_of_le_of_ne hk fun a_1 ↦ hneq (id a_1.symm)]
 
 -- Auxiliary lemma used in subsequent mutual blocks.
@@ -326,11 +326,11 @@ mutual
   termination_by (3 * (S+k).toNat + 2, sizeOf y)
 end
 
-lemma I3_apply {k:ℤ} (hk : -S ≤ k) (y : Yk X k) :
+lemma I3_apply {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     I3 hk y = I1 hk y ∪ (I2 hk y \ (Xk hk ∪ ⋃ (y' < y), I3 hk y')) := by
   rw [I3]
 
-lemma I1_subset_I3 {k : ℤ} (hk : -S ≤ k) (y:Yk X k) :
+lemma I1_subset_I3 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     I1 hk y ⊆ I3 hk y := by
   intro i hi
   rw [I3]
@@ -356,7 +356,7 @@ lemma I1_subset_I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     gcongr
     norm_num
 
-lemma I3_subset_I2 {k:ℤ} (hk : -S ≤ k) (y:Yk X k):
+lemma I3_subset_I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     I3 hk y ⊆ I2 hk y := by
   intro x hx
   rw [I3] at hx
@@ -367,7 +367,7 @@ lemma I3_subset_I2 {k:ℤ} (hk : -S ≤ k) (y:Yk X k):
   · exact r.left
 
 mutual
-  lemma I1_measurableSet {k:ℤ} (hk:-S ≤ k) (y: Yk X k) : MeasurableSet (I1 hk y) := by
+  lemma I1_measurableSet {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : MeasurableSet (I1 hk y) := by
     if hk_s : k = -S then
       rw [I1, dif_pos hk_s]
       exact measurableSet_ball
@@ -381,7 +381,7 @@ mutual
       exact fun b _ ↦ I3_measurableSet (I_induction_proof hk hk_s) b
   termination_by (3 * (S+k).toNat, sizeOf y)
 
-  lemma I2_measurableSet {k : ℤ} (hk : -S ≤ k) (y: Yk X k) : MeasurableSet (I2 hk y) := by
+  lemma I2_measurableSet {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : MeasurableSet (I2 hk y) := by
     if hk_s : k = -S then
       rw [I2, dif_pos hk_s]
       exact measurableSet_ball
@@ -394,13 +394,13 @@ mutual
         exact fun b _ ↦ I3_measurableSet (I_induction_proof hk hk_s) b
   termination_by (3 * (S+k).toNat, sizeOf y)
 
-  lemma Xk_measurableSet {k:ℤ} (hk : -S ≤ k) : MeasurableSet (Xk hk) := by
+  lemma Xk_measurableSet {k : ℤ} (hk : -S ≤ k) : MeasurableSet (Xk hk) := by
     rw [Xk]
     letI := (Yk_countable X k).to_subtype
     apply MeasurableSet.iUnion fun b ↦ I1_measurableSet hk b
   termination_by (3 * (S+k).toNat + 1, 0)
 
-  lemma I3_measurableSet {k:ℤ} (hk:-S ≤ k) (y:Yk X k) : MeasurableSet (I3 hk y) := by
+  lemma I3_measurableSet {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : MeasurableSet (I3 hk y) := by
     rw [I3]
     refine MeasurableSet.union (I1_measurableSet hk y) ?_
     refine (MeasurableSet.diff (I2_measurableSet hk y))
@@ -413,7 +413,7 @@ end
 section basic_grid_structure
 
 mutual
-  lemma I1_prop_1 {k:ℤ} (hk : -S ≤ k) {x : X} {y1 y2 : Yk X k} :
+  lemma I1_prop_1 {k : ℤ} (hk : -S ≤ k) {x : X} {y1 y2 : Yk X k} :
       x ∈ I1 hk y1 ∩ I1 hk y2 → y1 = y2 := by
     rw [I1,I1]
     if hk_s : k = -S then
@@ -465,7 +465,7 @@ mutual
   termination_by (2 * (S + k)).toNat + 1
 end
 
-lemma I3_prop_3_2 {k:ℤ} (hk : -S ≤ k) (y : Yk X k):
+lemma I3_prop_3_2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     I3 hk y ⊆ ball (y : X) (4*D^k) := by
   intro x hx
   have : x ∈ I2 hk y := I3_subset_I2 hk y hx
@@ -498,7 +498,7 @@ lemma I3_prop_3_2 {k:ℤ} (hk : -S ≤ k) (y : Yk X k):
 termination_by (S + k).toNat
 
 mutual
-  lemma I2_prop_2 {k:ℤ} (hk : -S ≤ k) :
+  lemma I2_prop_2 {k : ℤ} (hk : -S ≤ k) :
       ball o (4 * D^S - 2 * D^k) ⊆ ⋃ (y:Yk X k), I2 hk y := by
     simp only [I2, mem_preimage, iUnion_coe_set]
     if hk_s : k = -S then
@@ -558,7 +558,7 @@ mutual
       use y2, y2.property, y', hy2', y'.property
   termination_by (2 * (S + k)).toNat
 
-  lemma I3_prop_2 {k:ℤ} (hk : -S ≤ k) :
+  lemma I3_prop_2 {k : ℤ} (hk : -S ≤ k) :
       ball o (4 * D^S - 2 * D^k) ⊆ ⋃ (y:Yk X k), I3 hk y := by
     intro x hx
     if hx_mem_Xk : x ∈ Xk hk then
@@ -667,7 +667,7 @@ lemma I3_prop_3_1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
 
 end basic_grid_structure
 
-lemma I3_nonempty {k:ℤ} (hk : -S ≤ k) (y:Yk X k) :
+lemma I3_nonempty {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
   (I3 hk y).Nonempty := by
   refine ⟨y, I3_prop_3_1 hk y ?_⟩
   rw [mem_ball,dist_self]
@@ -675,7 +675,7 @@ lemma I3_nonempty {k:ℤ} (hk : -S ≤ k) (y:Yk X k) :
   exact zpow_pos (defaultD_pos a) k
 
 -- the additional argument `hk` to get decent equality theorems
-lemma cover_by_cubes {l : ℤ} (hl :-S ≤ l):
+lemma cover_by_cubes {l : ℤ} (hl : -S ≤ l) :
     ∀ {k:ℤ}, l ≤ k → (hk : -S ≤ k) → ∀ y, I3 hk y ⊆ ⋃ (yl : Yk X l), I3 hl yl := by
   apply Int.le_induction
   · intro _ y x hx
@@ -692,7 +692,7 @@ lemma cover_by_cubes {l : ℤ} (hl :-S ≤ l):
   specialize hind (I_induction_proof hk1 h.ne.symm) z hz'
   exact hind
 
-lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
+lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
     (hk : -S ≤ k) → ∀ (y:Yk X k), ∀ (y':Yk X l),
     ¬ Disjoint (I3 hl y') (I3 hk y) → I3 hl y' ⊆ I3 hk y := by
   simp_rw [not_disjoint_iff]
@@ -842,7 +842,7 @@ local macro "clProp(" hkl:term ", " y1:term " | " hkr:term ", " y2:term ")" : te
 
 lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) (hk3 : -S ≤ k3)
   (hk1_2 : k1 < k2) (hk2_3 : k2 ≤ k3) (y1 : Yk X k1) (y2 : Yk X k2) (y3 : Yk X k3)
-    (x:X) (hx : x ∈ I3 hk1 y1 ∩ I3 hk2 y2 ∩ I3 hk3 y3) :
+    (x : X) (hx : x ∈ I3 hk1 y1 ∩ I3 hk2 y2 ∩ I3 hk3 y3) :
     clProp(hk1,y1|hk3,y3) → (clProp(hk1,y1|hk2,y2) ∧ clProp(hk2,y2|hk3,y3)) := by
   rintro ⟨_,hx'⟩
   -- simp only [mem_inter_iff, mem_compl_iff] at hx
@@ -920,7 +920,7 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
 
 lemma transitive_boundary {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) (hk3 : -S ≤ k3)
   (hk1_2 : k1 ≤ k2) (hk2_3 : k2 ≤ k3) (y1 : Yk X k1) (y2 : Yk X k2) (y3 : Yk X k3)
-    (x:X) (hx : x ∈ I3 hk1 y1 ∩ I3 hk2 y2 ∩ I3 hk3 y3) :
+    (x : X) (hx : x ∈ I3 hk1 y1 ∩ I3 hk2 y2 ∩ I3 hk3 y3) :
     clProp(hk1,y1|hk3,y3) → (clProp(hk1,y1|hk2,y2) ∧ clProp(hk2,y2|hk3,y3)) := by
   if hk1_eq_2 : k1 = k2 then
     subst hk1_eq_2
@@ -951,7 +951,7 @@ lemma K_pos : 0 < (K':ℝ) := by
   simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.ofNat_pos, pow_pos]
 
 variable (X) in
-def C4_1_7 [ProofData a q K σ₁ σ₂ F G]: ℝ≥0 := As (defaultA a) (2^4)
+def C4_1_7 [ProofData a q K σ₁ σ₂ F G] : ℝ≥0 := As (defaultA a) (2^4)
 
 variable (X) in
 lemma C4_1_7_eq : C4_1_7 X = 2 ^ (4 * a) := by
@@ -960,7 +960,7 @@ lemma C4_1_7_eq : C4_1_7 X = 2 ^ (4 * a) := by
   simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.ceil_ofNat]
   group
 
-lemma volume_tile_le_volume_ball (k:ℤ) (hk:-S ≤ k) (y:Yk X k):
+lemma volume_tile_le_volume_ball (k : ℤ) (hk : -S ≤ k) (y : Yk X k) :
     volume (I3 hk y) ≤ C4_1_7 X * volume (ball (y:X) (4⁻¹ * D^k)) := by
   calc
     volume (I3 hk y)
@@ -975,7 +975,7 @@ lemma volume_tile_le_volume_ball (k:ℤ) (hk:-S ≤ k) (y:Yk X k):
 lemma le_s {k : ℤ} (hk_mK : -S ≤ k - K') (k' : Ioc (k - K') k) : (-S : ℤ) ≤ k' := by
   linarith [k'.property.left]
 
-lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
+lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk X k) :
     ∑' (z:Yk X (k-K')), volume (⋃ (_ : clProp(hk_mK,z|hk,y)), (I3 hk_mK z))
       ≤ 2⁻¹ * volume (I3 hk y) := by
   -- have hioc_fin' : (Set.Ioc (k-K') k).Finite := by exact finite_Ioc (k - ↑K') k
@@ -1200,7 +1200,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
       gcongr
       norm_num
 
-lemma small_boundary (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
+lemma small_boundary (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk X k) :
     ∑' (z:Yk X (k-K')), ∑ᶠ(_ : clProp(hk_mK,z|hk,y)), volume (I3 hk_mK z)
       ≤ 2⁻¹ * volume (I3 hk y) := by
   calc
@@ -1222,14 +1222,14 @@ lemma le_s_1' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n + 1 : ℕ) * K') : (-
   simp only [Nat.cast_add, Nat.cast_one] at hk_mn1K
   linarith
 
-lemma le_s_2' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n+1:ℕ) * K') : (-S ≤ k - K') := by
+lemma le_s_2' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n + 1 : ℕ) * K') : (-S ≤ k - K') := by
   simp only [Nat.cast_add, Nat.cast_one] at hk_mn1K
   rw [right_distrib] at hk_mn1K
   apply hk_mn1K.trans
   simp only [one_mul, tsub_le_iff_right, sub_add_add_cancel, le_add_iff_nonneg_right]
   positivity
 
-lemma boundary_sum_eq {k:ℤ} (hk:-S ≤ k) {k':ℤ} (hk':-S ≤ k')(y:Yk X k) :
+lemma boundary_sum_eq {k : ℤ} (hk : -S ≤ k) {k' : ℤ} (hk' : -S ≤ k') (y : Yk X k) :
     ∑'(y':Yk X k'),∑ᶠ(_:clProp(hk',y'|hk,y)),volume (I3 hk' y') =
       volume (⋃ (y':Yk X k'),⋃(_:clProp(hk',y'|hk,y)),I3 hk' y') := by
   letI := (Yk_countable X k').to_subtype
@@ -1365,7 +1365,7 @@ section ProofData
 include q K σ₁ σ₂ F G
 
 variable (a) in
-def const_n {t : ℝ} (_ht : t ∈ Ioo 0 1): ℕ := ⌊-Real.logb D t / K'⌋₊
+def const_n {t : ℝ} (_ht : t ∈ Ioo 0 1) : ℕ := ⌊-Real.logb D t / K'⌋₊
 
 variable {t : ℝ}
 
@@ -1387,7 +1387,7 @@ lemma const_n_prop_1 (ht : t ∈ Ioo 0 1) : D^(const_n a ht * K') ≤ t⁻¹ := 
   exact Nat.floor_le (prefloor_nonneg X ht)
 
 variable (X) in
-lemma const_n_prop_2 (ht : t ∈ Ioo 0 1) (k:ℤ) : t * D^k ≤ D^(k-const_n a ht *K') := by
+lemma const_n_prop_2 (ht : t ∈ Ioo 0 1) (k : ℤ) : t * D ^ k ≤ D ^ (k - const_n a ht * K') := by
   let _ : MulPosReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   rw [sub_eq_neg_add, zpow_add₀ (defaultD_pos a).ne.symm]
   rw [mul_le_mul_right (zpow_pos (defaultD_pos a) _)]
@@ -1395,7 +1395,7 @@ lemma const_n_prop_2 (ht : t ∈ Ioo 0 1) (k:ℤ) : t * D^k ≤ D^(k-const_n a h
   exact (@const_n_prop_1 X) ht
 
 variable (X) in
-lemma const_n_is_max (ht : t ∈ Ioo 0 1) (n:ℕ) : D^(n * K') ≤ t⁻¹ → n ≤ const_n a ht := by
+lemma const_n_is_max (ht : t ∈ Ioo 0 1) (n : ℕ) : D ^ (n * K') ≤ t⁻¹ → n ≤ const_n a ht := by
   simp only [mem_Ioo] at ht
   rw [← Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (inv_pos.mpr ht.left)]
   rw [← Real.rpow_natCast,Real.rpow_le_rpow_left_iff (one_lt_realD X)]
@@ -1463,7 +1463,7 @@ lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
 end ProofData
 
 lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht : t ∈ Set.Ioo 0 1)
-    (htD : (D^(-S:ℤ):ℝ) ≤ t * D^k):
+    (htD : (D ^ (-S : ℤ) : ℝ) ≤ t * D ^ k) :
     volume ({x|x ∈ I3 hk y ∧ EMetric.infEdist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)}) ≤ 2 * t^κ * volume (I3 hk y) := by
   have hconst_n : -S ≤ k-const_n a ht * K' := by
     suffices (D^ (-S:ℤ) : ℝ) ≤ D ^ (k-const_n a ht * K' : ℤ) by

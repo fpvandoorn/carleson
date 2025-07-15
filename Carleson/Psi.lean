@@ -925,8 +925,7 @@ lemma Ks_eq_zero_of_dist_le {s : ℤ} {x y : X} (hxy : x ≠ y)
     rw [← zpow_neg_one, zpow_add₀ (by simp)]
   exact heq ▸ h
 
-lemma Ks_eq_zero_of_le_dist {s : ℤ} {x y : X} (h : (D : ℝ)^(s)/2 ≤ dist x y) :
-    Ks s x y = 0 := by
+lemma Ks_eq_zero_of_le_dist {s : ℤ} {x y : X} (h : D ^ s / 2 ≤ dist x y) : Ks s x y = 0 := by
   have hxy : x ≠ y := by
     rw [← dist_pos]
     apply lt_of_lt_of_le _ h

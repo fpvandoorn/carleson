@@ -17,7 +17,7 @@ lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, 
     localOscillation ∅ f g = 0 := by simp [localOscillation]
 
 lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f g : C(X, ℝ)}
-    {R : ℝ} (R_nonpos : R ≤ 0): localOscillation (Metric.ball x R) f g = 0 := by
+    {R : ℝ} (R_nonpos : R ≤ 0) : localOscillation (Metric.ball x R) f g = 0 := by
   rw [Metric.ball_eq_empty.mpr R_nonpos, localOscillation_on_emptyset]
 
 
@@ -217,7 +217,7 @@ theorem frequency_ball_growth {x₁ x₂ r : ℝ} {f g : Θ ℝ} :
     · simp
     all_goals linarith [r_nonneg]
 
-lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
+lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
     CoveredByBalls (ball f (2 * R')) 3 R' := by
   unfold WithFunctionDistance at f
   rw [coveredByBalls_iff]
