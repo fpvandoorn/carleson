@@ -959,7 +959,7 @@ private lemma le_C6_3_4 (ha : 4 ≤ a) :
       congr 1
       ring
     _ ≤ ↑(C6_3_4 a N) := by
-      have h61 : (CDN + 1) * a ^ 3 = CDN * a ^ 3 +  a ^ 3 := by ring
+      have h101 : (CDN + 1) * a ^ 3 = CDN * a ^ 3 +  a ^ 3 := by ring
       have ha3 : a ^ 3 = a * (a^2 - 1) + a := by
         simp only [mul_tsub, mul_one]
         rw [tsub_add_cancel_of_le]
@@ -973,7 +973,7 @@ private lemma le_C6_3_4 (ha : 4 ≤ a) :
       apply pow_le_pow (le_refl _) one_le_two
       rw [add_assoc, add_assoc, add_comm (a * N), ← add_assoc, ← add_assoc, mul_comm N]
       gcongr
-      rw [add_assoc, h61]
+      rw [add_assoc, h101]
       nth_rewrite 3 [ha3]
       gcongr
       · calc 10

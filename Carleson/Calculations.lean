@@ -13,10 +13,28 @@ open ShortVariables
 open scoped NNReal ENNReal
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
 
+lemma sixteen_times_le_cube (ha : 4 ≤ a) : 16 * a ≤ a ^ 3 := calc
+  16 * a
+  _ = 4 * 4 * a := by ring
+  _ ≤ a * a * a := by gcongr
+  _ = a ^ 3 := by ring
+
+lemma four_times_sq_le_cube (ha : 4 ≤ a) : 4 * a ^ 2 ≤ a ^ 3 := calc
+  4 * a ^ 2
+  _ ≤ a * a ^ 2 := by gcongr
+  _ = a ^ 3 := by ring
+
 lemma add_le_pow_two {R : Type*} [Semiring R] [PartialOrder R] [IsOrderedRing R]
     {p q r s : ℕ} (hp : p ≤ r) (hq : q ≤ r) (hr : r + 1 ≤ s) :
     (2 : R) ^ p + 2 ^ q ≤ 2 ^ s := by
   grw [hp, hq, ← mul_two, ← pow_succ, hr] <;> norm_num
+
+lemma add_le_pow_two₃ {R : Type*} [Semiring R] [PartialOrder R] [IsOrderedRing R]
+    {p q r s t : ℕ} (hp : p ≤ s) (hq : q ≤ s) (hr : r ≤ s) (ht : s + 2 ≤ t) :
+    (2 : R) ^ p + 2 ^ q + 2 ^ r ≤ 2 ^ t := calc
+  (2 : R) ^ p + 2 ^ q + 2 ^ r ≤ 2 ^ (s + 1) + 2 ^ r := by
+    gcongr; apply add_le_pow_two hp hq le_rfl
+  _ ≤ 2 ^ t := add_le_pow_two le_rfl (by linarith) ht
 
 lemma add_le_pow_two_add_cube {R : Type*} [Semiring R] [PartialOrder R] [IsOrderedRing R]
     {p q r : ℕ} (ha : 4 ≤ a) (hp : p ≤ r) (hq : q ≤ r) :
@@ -77,7 +95,7 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y
     rw [← mul_assoc ..]
     have D_pos : (0 : ℝ) < D := defaultD_pos a
     gcongr
-    exact calculation_10 (by linarith [hundred_lt_realD X])
+    exact calculation_10 (hundred_lt_realD X)
 
 lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     {s_1 s_2 s_3 : ℤ} {dist_a dist_b dist_c dist_d : ℝ}

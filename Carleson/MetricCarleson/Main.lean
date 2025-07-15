@@ -240,7 +240,7 @@ theorem metric_carleson' [IsCancellative X (defaultτ a)]
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
     (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)) :
     ∫⁻ x in G, carlesonOperator K f x ≤
-    (2 ^ (46 * a ^ 3) / (q - 1) ^ 6) * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+    (2 ^ (45 * a ^ 3) / (q - 1) ^ 6) * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   convert metric_carleson hq hqq' mF mG mf nf hT
   simp only [C1_0_2, CDN, Nat.reduceMul, Nat.reduceAdd, Nat.reduceDiv]
   rw [ENNReal.coe_div]

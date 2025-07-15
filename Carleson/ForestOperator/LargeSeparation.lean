@@ -1077,7 +1077,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
 /-- The constant used in `local_tree_control`.
 Has value `2 ^ (104 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 4) * (a : ℝ) ^ 3)
+irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 4) * a ^ 3)
 
 /-- Lemma 7.5.7. -/
 lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1470,49 +1470,20 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
 /-- The constant used in `global_tree_control2`. -/
 irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ ((CDN + 4 + CDN/4) * a ^ 3)
 
-omit [ProofData a q K σ₁ σ₂ F G] in
-lemma le_C7_5_10 [ProofData a q K σ₁ σ₂ F G] : C7_5_7 a + C7_5_9s a ≤ C7_5_10 a := by
-  have A : (2 : ℝ≥0) ≠ 0 := NeZero.ne 2
-  have B := four_le_a X
-  simp only [C7_5_7, C7_5_9s, C7_5_5, ← NNReal.rpow_natCast, Nat.cast_add, Nat.cast_mul,
-    Nat.cast_ofNat, ← NNReal.rpow_add A, C7_5_10, Nat.cast_pow, ge_iff_le]
-  calc
-  _ ≤ (2 : ℝ≥0) ^ ((CDN + 3 + (CDN/4 : ℕ)) * ↑a ^ 3 + (4 * ↑a + 3) : ℝ)
-       + 2 ^ ((CDN + 3 + (CDN/4 : ℕ)) * ↑a ^ 3 + (4 * ↑a + 3) : ℝ) := by
+lemma le_C7_5_10 (ha : 4 ≤ a) : C7_5_7 a + C7_5_9s a ≤ C7_5_10 a := by
+  simp only [C7_5_7, C7_5_9s, C7_5_5, ← pow_add, C7_5_10]
+  apply add_le_pow_two ?_ le_rfl ?_
+  · suffices 1 * a ^ 3 ≤ (CDN / 4) * a ^ 3 by linarith
     gcongr
-    · norm_num
-    norm_cast
-    calc
-    (CDN + 4) * a ^ 3
-    _ = (CDN + 3 + 1) * a ^ 3 + 0 := by ring
-    _ ≤ _ := by
-      gcongr
-      · simp [CDN]
-      · simp
-  _ = 2 * 2 ^ ((CDN + 3 + (CDN/4 : ℕ)) * ↑a ^ 3 + (4 * ↑a + 3) : ℝ) := by ring
-  _ = 2 ^ (1 + ((CDN + 3 + (CDN/4 : ℕ)) * ↑a ^ 3 + (4 * ↑a + 3) : ℝ)) := by
-    simp [NNReal.rpow_add A]
-  _ ≤ 2 ^ ((CDN + 4 + (CDN/4 : ℕ)) * a ^ 3 : ℝ) := by
-    gcongr
-    · norm_num
-    norm_cast
-    calc
-    1 + ((CDN + 3 + CDN/4) * a ^ 3 + 4 * a + 3)
-    _ = (CDN + 3 + CDN/4) * a ^ 3 + 4 * a + 4 := by ring
-    _ ≤ (CDN + 3 + CDN/4) * a ^ 3 + 15 * a + a := by
-      gcongr
-      · norm_num
-    _ = (CDN + 3 + CDN/4) * a ^ 3 + 4 * 4 * a := by ring
-    _ ≤ (CDN + 3 + CDN/4) * a ^ 3 + a * a * a := by gcongr
-    _ = (CDN + 4 + CDN/4) * a ^ 3 := by ring
+    simp [CDN]
+  · have : 4 * (4 * a) ≤ a ^ 3 := by rw [pow_three]; gcongr
+    linarith
 
-omit [ProofData a q K σ₁ σ₂ F G] in
-lemma C7_5_9s_le_C7_5_10 [ProofData a q K σ₁ σ₂ F G] : C7_5_9s a ≤ C7_5_10 a :=
-  le_trans le_add_self (le_C7_5_10 (X := X))
+lemma C7_5_9s_le_C7_5_10 (ha : 4 ≤ a) : C7_5_9s a ≤ C7_5_10 a :=
+  le_trans le_add_self (le_C7_5_10 ha)
 
-omit [ProofData a q K σ₁ σ₂ F G] in
-lemma one_le_C7_5_10 [ProofData a q K σ₁ σ₂ F G] : 1 ≤ C7_5_10 a := by
-  apply one_le_C7_5_9s.trans (C7_5_9s_le_C7_5_10 (X := X))
+lemma one_le_C7_5_10 (ha : 4 ≤ a) : 1 ≤ C7_5_10 a :=
+  one_le_C7_5_9s.trans (C7_5_9s_le_C7_5_10 ha)
 
 /-- Lemma 7.5.10 -/
 lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1538,7 +1509,7 @@ lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     _ ≤ _ := by
       gcongr
       norm_cast
-      apply le_C7_5_10 (X := X)
+      apply le_C7_5_10 (four_le_a X)
 
 /-- The product on the right-hand side of Lemma 7.5.4. -/
 def P7_5_4 (t : Forest X n) (u₁ u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J : Grid X) : ℝ≥0∞ :=
@@ -1596,7 +1567,7 @@ lemma enorm_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       conv_rhs => rw [mul_add, mul_add]
       gcongr <;> (nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff])
       · exact one_le_C7_5_9s
-      · exact one_le_C7_5_10 (X := X)
+      · exact one_le_C7_5_10 (four_le_a X)
 
 lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
@@ -1632,7 +1603,7 @@ lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       conv_rhs => rw [mul_add, mul_add]
       gcongr <;> (nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff])
       · exact one_le_C7_5_9s
-      · exact one_le_C7_5_10 (X := X)
+      · exact one_le_C7_5_10 (four_le_a X)
     _ = _ := by
       rw [mul_div_assoc, ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_coe_nnreal,
         ENNReal.ofReal_div_of_pos (by unfold defaultD; positivity), ← edist_dist x x',
@@ -1668,7 +1639,7 @@ lemma holder_correlation_tree_2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       gcongr
       · exact le_add_self
       · nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff]
-        exact one_le_C7_5_10 (X := X)
+        exact one_le_C7_5_10 (four_le_a X)
     _ = _ := by rw [← mul_add, ← mul_add, mul_mul_mul_comm, P7_5_4]
 
 lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -1706,46 +1677,18 @@ lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
 /-- An intermediate constant in Lemma 7.5.4. -/
 def I7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * CDN + 10 + 3 * (CDN/4)) * a ^ 3)
 
-omit [ProofData a q K σ₁ σ₂ F G] in
-lemma le_I7_5_4 [ProofData a q K σ₁ σ₂ F G] :
+lemma le_I7_5_4 (ha : 4 ≤ a) :
     32 * C7_5_2 a * C7_5_9s a * C7_5_10 a + C7_5_9d a * C7_5_10 a + C7_5_9s a * C7_5_9d a
     ≤ I7_5_4 a := by
-  have B := four_le_a X
   have C : (32 : ℝ≥0) = 2 ^ 5 := by norm_num
-  have I1 : 32 * C7_5_2 a * C7_5_9s a * C7_5_10 a ≤
-      2 ^ (12 * a + (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3) := by
-    simp only [C, C7_5_2, C7_5_9s, C7_5_5, C7_5_10, ← pow_add]
-    gcongr 2 ^ ?_
-    · exact one_le_two
-    linarith
-  have I2 : C7_5_9d a * C7_5_10 a ≤ 2 ^ (12 * a + (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3) := by
-    simp only [C7_5_9d, C7_5_10, C7_5_5, ← pow_add]
-    gcongr 2 ^ ?_
-    · exact one_le_two
-    ring_nf
+  simp only [C7_5_2, C7_5_9s, C7_5_10, C7_5_9d, C7_5_5, C, ← pow_add, I7_5_4]
+  apply add_le_pow_two₃ (s := 12 * a + (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3) ?_ ?_ ?_ ?_
+  · linarith
+  · ring_nf
     omega
-  have I3 : C7_5_9s a * C7_5_9d a ≤ 2 ^ (12 * a + (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3) := by
-    simp only [C7_5_9d, C7_5_9s, C7_5_5, ← pow_add]
-    gcongr 2 ^ ?_
-    · exact one_le_two
-    ring_nf
+  · ring_nf
     omega
-  grw [I1, I2, I3]
-  calc
-  _ = 3 * (2 : ℝ≥0) ^ (12 * a + (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3) := by ring
-  _ ≤ 2 ^ 2 * 2 ^ (12 * a + (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3) := by gcongr; norm_num
-  _ = 2 ^ (2 + (12 * a + (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3)) := by conv_rhs => rw [pow_add]
-  _ ≤ 2 ^ ((4 * CDN + 10 + 3 * (CDN/4)) * a ^ 3) := by
-    gcongr
-    · exact one_le_two
-    calc 2 + (12 * a + (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3)
-    _ ≤ a + (15 * a + (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3) := by
-      gcongr
-      · linarith
-      · norm_num
-    _ = (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3 + 4 * 4 * a := by ring
-    _ ≤ (4 * CDN + 9 + 3 * (CDN/4)) * a ^ 3 + a * a * a := by gcongr
-    _ = (4 * CDN + 10 + 3 * (CDN/4)) * a ^ 3 := by ring
+  · linarith [sixteen_times_le_cube ha]
 
 lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
@@ -1802,17 +1745,15 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
     _ ≤ _ := by
       gcongr
       norm_cast
-      apply le_I7_5_4 (X := X)
+      apply le_I7_5_4 (four_le_a X)
 
 /-- The constant used in `holder_correlation_tree`.
 Has value `2 ^ (529 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * CDN + 12 + 3 * (CDN/4)) * a ^ 3)
+irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * CDN + 11 + 3 * (CDN/4)) * a ^ 3)
 
-omit [ProofData a q K σ₁ σ₂ F G] in
-lemma le_C7_5_4 [ProofData a q K σ₁ σ₂ F G] :
+lemma le_C7_5_4 (ha : 4 ≤ a) :
     C7_5_9s a * C7_5_10 a + 16 ^ τ * I7_5_4 a ≤ C7_5_4 a := by
-  have := four_le_a X
   have : (16 : ℝ≥0) ^ τ ≤ 2 ^ 1 := by
     rw [defaultτ, show (16 : ℝ≥0) = 2 ^ (4 : ℝ) by norm_num, ← NNReal.rpow_mul, ← div_eq_mul_inv,
       pow_one]
@@ -1822,30 +1763,13 @@ lemma le_C7_5_4 [ProofData a q K σ₁ σ₂ F G] :
     norm_cast
     omega
   grw [this]
-  simp only [C7_5_9s, C7_5_5, C7_5_10, I7_5_4]
-  simp only [← pow_add]
-  have : (2 : ℝ≥0) ^ ((CDN + 3 + CDN / 4) * a ^ 3 + (4 * a + 3) + (CDN + 4 + CDN / 4) * a ^ 3)
-      ≤ 2 ^ (1 + (4 * CDN + 10 + 3 * (CDN / 4)) * a ^ 3) := by
-    gcongr 2 ^ ?_
-    · exact one_le_two
-    ring_nf
+  simp only [C7_5_9s, C7_5_5, C7_5_10, I7_5_4, C7_5_4, ← pow_add]
+  apply add_le_pow_two ?_ le_rfl ?_
+  · ring_nf
     suffices 2 + a * 4 ≤ a ^ 3 by omega
-    calc 2 + a * 4
-    _ = 2 * 1 + a * 4 * 1 := by ring
-    _ ≤ a * a + a * a * 3 := by gcongr <;> linarith
-    _ = 4 * a ^ 2 := by ring
-    _ ≤ a * a ^ 2 := by gcongr
-    _ = a ^ 3 := by ring
-  grw [this]
-  calc
-  _ = (2 : ℝ≥0) ^ 1 * 2 ^ (1 + (4 * CDN + 10 + 3 * (CDN / 4)) * a ^ 3) := by simp [two_mul]
-  _ = 2 ^ (1 + (1 + (4 * CDN + 10 + 3 * (CDN / 4)) * a ^ 3)) := by rw [← pow_add]
-  _ ≤ C7_5_4 a := by
-    simp only [C7_5_4]
-    gcongr
-    · exact one_le_two
-    suffices 1 ≤ a ^ 3 by linarith
-    apply one_le_pow_of_one_le' (by linarith)
+    linarith [sixteen_times_le_cube ha]
+  · ring_nf
+    linarith [sixteen_times_le_cube ha]
 
 /-- Lemma 7.5.4. -/
 lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -1890,7 +1814,7 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       gcongr
       rw [show (16 : ℝ≥0∞) = (16 : ℝ≥0) by rfl, ← ENNReal.coe_rpow_of_nonneg _ (τ_nonneg X),
         ← ENNReal.coe_mul, ← ENNReal.coe_mul, ← ENNReal.coe_add, ENNReal.coe_le_coe]
-      exact le_C7_5_4 (X := X)
+      exact le_C7_5_4 (four_le_a X)
 
 /-! ### Subsection 7.5.3 and Lemma 7.4.5 -/
 
@@ -2061,7 +1985,7 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
 
 /-- The constant used in `correlation_distant_tree_parts`. -/
 irreducible_def C7_4_5 (a n : ℕ) : ℝ≥0 :=
-  2 ^ ( (4 * CDN + 16 + 3 * (CDN / 4)) * a ^ 3) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))
+  2 ^ ((4 * CDN + 15 + 3 * (CDN / 4)) * a ^ 3) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))
 
 lemma le_C7_4_5 (a4 : 4 ≤ a) :
     C2_0_5 a * C7_5_4 a * 2 ^ (3 * a ^ 3 + 9 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) ≤
@@ -2071,11 +1995,7 @@ lemma le_C7_4_5 (a4 : 4 ≤ a) :
   conv_lhs => enter [1, 1, 2, 2]; norm_cast
   simp_rw [NNReal.rpow_natCast, ← pow_add]; gcongr
   · exact one_le_two
-  · suffices 16 * a ≤ a ^ 3 by linarith
-    calc
-      _ = 4 * 4 * a := by ring
-      _ ≤ a * a * a := by gcongr
-      _ = a ^ 3 := by ring
+  · linarith [sixteen_times_le_cube a4]
 
 /-- Lemma 7.4.5 -/
 lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)

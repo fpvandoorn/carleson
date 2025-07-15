@@ -207,7 +207,7 @@ lemma sum_le_four_div_q_sub_one (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q
 
 /-- The constant used in `linearized_truncation` and `S_truncation`. -/
 def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 :=
-  2 ^ ((3 * CDN + 19 + 5 * (CDN / 4)) * a ^ 3 + 2) / (q - 1) ^ 6
+  2 ^ ((3 * CDN + 18 + 5 * (CDN / 4)) * a ^ 3 + 2) / (q - 1) ^ 6
 
 lemma eq_C3_0_4 : C2_0_1 a q * (2 ^ 2 / (q - 1)) = C3_0_4 a q := by
   rw [C2_0_1, C2_0_2]
@@ -563,7 +563,7 @@ def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f :
   (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
 
 /-- The constant used from `R_truncation` to `metric_carleson`. -/
-def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * CDN + 20 + 5 * (CDN / 4)) * a ^ 3) / (q - 1) ^ 6
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * CDN + 19 + 5 * (CDN / 4)) * a ^ 3) / (q - 1) ^ 6
 
 lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   rw [C1_0_2]
@@ -590,21 +590,11 @@ lemma le_C1_0_2 (a4 : 4 ≤ a) (hq : q ∈ Ioc 1 2) :
   gcongr
   rw [show (4 : ℝ≥0) = 2 ^ 2 by norm_num]
   simp only [← pow_add, ← pow_succ]
-  have : 2 + (CDN + 2) * a ^ 3 + (4 * a + 1) + 1 ≤ (3 * CDN + 19 + 5 * (CDN / 4)) * a ^ 3 + 2 := by
-    ring_nf
+  apply add_le_pow_two le_rfl ?_ ?_
+  · ring_nf
     suffices 2 + 4 * a ≤ a ^ 3 by omega
-    calc
-    _ = 2 * 1 * 1 + 2 * 2 * a := by ring
-    _ ≤ 2 * a * a + 2 * a * a := by gcongr <;> linarith
-    _ = 4 * a ^ 2 := by ring
-    _ ≤ a * a ^ 2 := by gcongr
-    _ = a ^ 3 := by ring
-  grw [this]
-  rw [← mul_two, ← pow_succ]
-  gcongr 2 ^ ?_
-  suffices 3 ≤ a ^ 3 by linarith
-  apply le_trans (by norm_num) (le_trans a4 ?_)
-  apply le_self_pow (by linarith) (by norm_num)
+    linarith [sixteen_times_le_cube a4]
+  · linarith [sixteen_times_le_cube a4]
 
 variable [IsCancellative X (defaultτ a)]
 
