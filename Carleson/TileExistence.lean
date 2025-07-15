@@ -75,7 +75,7 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
       apply ENNReal.summable.tsum_le_tsum _ ENNReal.summable
       intro y hy
       rw_mod_cast [← twopow_J]
-      apply measure_ball_le_same' _ (by positivity) (le_refl _)
+      apply measure_ball_le_same _ (by positivity) (le_refl _)
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * ∑' (y : Y), volume (ball (y : X) (D^k)):= by
       rw [ENNReal.tsum_mul_left]
     _ = (As (2 ^ a) (2 ^ J' X)) * volume (⋃ y ∈ Y, ball y (D^k)) := by
@@ -970,7 +970,7 @@ lemma volume_tile_le_volume_ball (k : ℤ) (hk : -S ≤ k) (y : Yk X k) :
         ring
     _ ≤ C4_1_7 X * volume (ball (y:X) (4⁻¹ * D^k:ℝ)):= by
       rw [C4_1_7]
-      exact measure_ball_le_same' (y:X) (by linarith) (le_refl _)
+      exact measure_ball_le_same (y:X) (by linarith) (le_refl _)
 
 lemma le_s {k : ℤ} (hk_mK : -S ≤ k - K') (k' : Ioc (k - K') k) : (-S : ℤ) ≤ k' := by
   linarith [k'.property.left]

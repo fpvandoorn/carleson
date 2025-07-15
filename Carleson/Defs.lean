@@ -1,5 +1,5 @@
 import Carleson.ToMathlib.Annulus
-import Carleson.ToMathlib.CoverByBalls
+import Carleson.ToMathlib.CoveredByBalls
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
@@ -10,8 +10,6 @@ import Mathlib.Topology.MetricSpace.Holder
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
 open scoped NNReal
 noncomputable section
-
--- todo: rename and protect `Real.RCLike`
 
 /-! Miscellaneous definitions.
 These are mostly the definitions used to state the metric Carleson theorem.
@@ -27,14 +25,6 @@ section localOscillation
 /-- The local oscillation of two functions w.r.t. a set `E`. This is `d_E` in the blueprint. -/
 def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ≥0∞ :=
   ⨆ z ∈ E ×ˢ E, ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
-
-variable {E : Set X} {f g : C(X, 𝕜)}
-
---old
-/-- A ball w.r.t. the distance `localOscillation` -/
-def localOscillationBall (E : Set X) (f : C(X, 𝕜)) (r : ℝ) :
-    Set C(X, 𝕜) :=
-  { g : C(X, 𝕜) | localOscillation E f g < ENNReal.ofReal r }
 
 end localOscillation
 
