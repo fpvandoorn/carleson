@@ -18,74 +18,77 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 -- hp is eq. 6.3.1, hp' is eq. 6.3.2.
 lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) ϑ ≤ 2 ^ N)
     (hp' : dist_(p') (𝒬 p') ϑ ≤ 2 ^ N) (hI : 𝓘 p ≤ 𝓘 p') (hs : 𝔰 p < 𝔰 p') :
-    smul (2 ^ (N + 2)) p ≤ smul (2 ^ (N + 2)) p' := by
+    smul (2^(N + 2)) p ≤ smul (2^(N + 2)) p' := by
   -- 6.3.4
-  have hp2 : dist_(p) ϑ (𝒬 p') ≤ 2 ^ N := by
-    rw [dist_comm]; exact (Grid.dist_mono hI).trans hp'
+  have hp2 : dist_(p) ϑ (𝒬 p') ≤ 2^N := by
+    rw [dist_comm]
+    exact le_trans (Grid.dist_mono hI) hp'
   -- 6.3.5
-  have hp'2 : dist_(p) (𝒬 p) (𝒬 p') ≤ 2 ^ (N + 1) :=
-    calc
+  have hp'2 : dist_(p) (𝒬 p) (𝒬 p') ≤ 2^(N + 1) :=
+    calc dist_(p) (𝒬 p) (𝒬 p')
       _ ≤ dist_(p) (𝒬 p) ϑ + dist_(p) ϑ (𝒬 p') := dist_triangle _ _ _
-      _ ≤ 2 ^ N + 2 ^ N := add_le_add hp hp2
-      _ = _ := by ring
+      _ ≤ 2^N + 2^N := add_le_add hp hp2
+      _ = 2^(N + 1) := by ring
   -- Start proof of 6.3.3.
   simp only [TileLike.le_def, smul_fst, smul_snd]
   refine ⟨hI, fun o' ho' ↦ ?_⟩ -- o' is ϑ' in blueprint, ho' is 6.3.6.
   -- 6.3.7
-  have hlt : dist_{𝔠 p', 8 * D ^ 𝔰 p'} (𝒬 p') o' < 2 ^ (5 * a + N + 2) := by
-    have hle : dist_{𝔠 p', 8 * D ^ 𝔰 p'} (𝒬 p') o' ≤ defaultA a ^ 5 * dist_(p') (𝒬 p') o' := by
-      have hpos : (0 : ℝ) < D ^ 𝔰 p' / 4 := by
+  have hlt : dist_{𝔠 p', 8 * D^𝔰 p'} (𝒬 p') o' < 2^(5*a + N + 2) := by
+    have hle : dist_{𝔠 p', 8 * D^𝔰 p'} (𝒬 p') o' ≤ (defaultA a) ^ 5 * dist_(p') (𝒬 p') o' := by
+      have hpos : (0 : ℝ) < D^𝔰 p'/4 := by
         rw [div_eq_mul_one_div, mul_comm]
         apply mul_defaultD_pow_pos _ (by linarith)
-      have h8 : (8 : ℝ) * D ^ 𝔰 p' = 2 ^ 5 * (D ^ 𝔰 p' / 4) := by ring
+      have h8 : (8 : ℝ) * D^𝔰 p' = 2^5 * (D^𝔰 p'/4) := by ring
       rw [h8]
       exact cdist_le_iterate hpos (𝒬 p') o' 5
-    apply hle.trans_lt
+    apply lt_of_le_of_lt hle
     simp only [defaultA, add_assoc]
     rw [pow_add, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul, mul_comm a, dist_comm]
     gcongr
     exact ho'
   -- 6.3.8
-  have hin : 𝔠 p ∈ ball (𝔠 p') (4 * D ^ 𝔰 p') := Grid_subset_ball (hI.1 Grid.c_mem_Grid)
+  have hin : 𝔠 p ∈ ball (𝔠 p') (4 * D^𝔰 p') := Grid_subset_ball (hI.1 Grid.c_mem_Grid)
   -- 6.3.9
-  have hball_le : ball (𝔠 p) (4 * D ^ 𝔰 p') ⊆ ball (𝔠 p') (8 * D ^ 𝔰 p') := by
+  have hball_le : ball (𝔠 p) (4 * D^𝔰 p') ⊆ ball (𝔠 p') (8 * D^𝔰 p') := by
     intro x hx
     rw [mem_ball] at hx hin ⊢
     calc dist x (𝔠 p')
       _ ≤ dist x (𝔠 p)  + dist (𝔠 p) (𝔠 p') := dist_triangle _ _ _
-      _ < 4 * D ^ 𝔰 p' + 4 * D ^ 𝔰 p' := add_lt_add hx hin
-      _ = 8 * D ^ 𝔰 p' := by ring
+      _ < 4 * ↑D ^ 𝔰 p' + 4 * ↑D ^ 𝔰 p' := add_lt_add hx hin
+      _ = 8 * ↑D ^ 𝔰 p' := by ring
   -- 6.3.10
-  have hlt2 : dist_{𝔠 p, 4 * D ^ 𝔰 p'} (𝒬 p') o' < 2 ^ (5 * a + N + 2) :=
-    (cdist_mono hball_le).trans_lt hlt
+  have hlt2 : dist_{𝔠 p, 4 * D^𝔰 p'} (𝒬 p') o' < 2^(5*a + N + 2) :=
+    lt_of_le_of_lt (cdist_mono hball_le) hlt
   -- 6.3.11
-  have hlt3 : dist_{𝔠 p, 2 ^ (2 - 5 * a ^ 2 - 2 * a : ℤ) * D ^ 𝔰 p'} (𝒬 p') o' < 2 ^ N := by
-    have hle :
-        2 ^ (5 * a + 2 : ℤ) * dist_{𝔠 p, 2 ^ (2 - 5 * a ^ 2 - 2 * a : ℤ) * D ^ 𝔰 p'} (𝒬 p') o' ≤
-        dist_{𝔠 p, 4 * D ^ 𝔰 p'} (𝒬 p') o' := by
-      have heq : defaultA a ^ (5 * a + 2 : ℤ) * 2 ^ (2 - 5 * a ^ 2 - 2 * a : ℤ) = (4 : ℝ) := by
+  have hlt3 : dist_{𝔠 p, 2^((2 : ℤ) - 5*a^2 - 2*a) * D^𝔰 p'} (𝒬 p') o' < 2^N := by
+    have hle : 2 ^ ((5 : ℤ)*a + 2) * dist_{𝔠 p, 2^((2 : ℤ) - 5*a^2 - 2*a) * D^𝔰 p'} (𝒬 p') o' ≤
+        dist_{𝔠 p, 4 * D^𝔰 p'} (𝒬 p') o' := by
+      have heq : (defaultA a : ℝ) ^ ((5 : ℤ)*a + 2) * 2^((2 : ℤ) - 5*a^2 - 2*a) = 4 := by
         simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← zpow_natCast, ← zpow_mul]
         rw [← zpow_add₀ two_ne_zero]
         ring_nf
         norm_num
       rw [← heq, mul_assoc]
-      exact le_cdist_iterate (by positivity) (𝒬 p') o' (5 * a + 2)
+      exact le_cdist_iterate (by positivity) (𝒬 p') o' (5*a + 2)
     rw [← le_div_iff₀' (by positivity), div_eq_mul_inv, ← zpow_neg, neg_add, ← neg_mul,
       ← sub_eq_add_neg, mul_comm _ ((2 : ℝ) ^ _)] at hle
-    calc
-      _ ≤ 2 ^ (-5 * a - 2 : ℤ) * dist_{𝔠 p, 4 * D ^ 𝔰 p'} (𝒬 p') o' := hle
-      _ < 2 ^ (-5 * a - 2 : ℤ) * 2 ^ (5 * a + N + 2) := (mul_lt_mul_left (by positivity)).mpr hlt2
-      _ = _ := by rw [← zpow_natCast, ← zpow_natCast, ← zpow_add₀ two_ne_zero]; congr 1; omega
+    calc dist_{𝔠 p, 2^((2 : ℤ) - 5*a^2 - 2*a) * D^𝔰 p'} (𝒬 p') o'
+      _ ≤ 2^(-(5 : ℤ)*a - 2) * dist_{𝔠 p, 4 * D^𝔰 p'} (𝒬 p') o' := hle
+      _ < 2^(-(5 : ℤ)*a - 2) * 2^(5*a + N + 2) := (mul_lt_mul_left (by positivity)).mpr hlt2
+      _ = 2^N := by
+        rw [← zpow_natCast, ← zpow_add₀ two_ne_zero]
+        simp only [Int.reduceNeg, neg_mul, Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat,
+          sub_add_add_cancel, neg_add_cancel_left, zpow_natCast]
   -- 6.3.12
-  have hp'3 : dist_(p) (𝒬 p') o' < 2 ^ N := by
-    refine (cdist_mono ?_).trans_lt hlt3
+  have hp'3 : dist_(p) (𝒬 p') o' < 2^N := by
+    apply lt_of_le_of_lt (cdist_mono _) hlt3
     gcongr
     rw [div_le_iff₀ (by positivity)]
     rw [mul_comm, ← mul_assoc]
-    calc
+    calc (D : ℝ) ^ 𝔰 p
       _ = 1 * (D : ℝ) ^ 𝔰 p := by rw [one_mul]
-      _ ≤ 4 * 2 ^ (2 - 5 * a ^ 2 - 2 * a : ℤ) * D * D ^ 𝔰 p := by
-        have h4 : (4 : ℝ) = 2 ^ (2 : ℤ) := by ring
+      _ ≤ 4 * 2 ^ (2 - 5 * (a : ℤ) ^ 2 - 2 * ↑a) * D * D ^ 𝔰 p := by
+        have h4 : (4 : ℝ) = 2^(2 : ℤ) := by ring
         apply mul_le_mul _ (le_refl _) (by positivity) (by positivity)
         · have h12 : (1 : ℝ) ≤ 2 := one_le_two
           simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat]
@@ -95,21 +98,22 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
           gcongr --uses h12
           ring_nf
           nlinarith only
-      _ = 4 * 2 ^ (2 - 5 * (a : ℤ) ^ 2 - 2 * a) * (D * D ^ 𝔰 p) := by ring
-      _ ≤ _ := by
+      _ = (4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a)) * (D * D ^ 𝔰 p) := by ring
+      _ ≤ 4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a) * D ^ 𝔰 p' := by
         have h1D : 1 ≤ (D : ℝ) := one_le_D
-        nth_rw 1 [mul_le_mul_left (by positivity), ← zpow_one (D : ℝ),
-          ← zpow_add₀ (defaultD_pos _).ne']
+        nth_rewrite 1 [mul_le_mul_left (by positivity), ← zpow_one (D : ℝ),
+          ← zpow_add₀ (ne_of_gt (defaultD_pos _))]
         gcongr
         rw [add_comm]
         exact hs
   -- 6.3.13 (and 6.3.3.)
   have h34 : (3 : ℝ) < 4 := by linarith
-  calc
+  calc dist_(p) o' (𝒬 p)
     _ = dist_(p) (𝒬 p) o' := by rw [dist_comm]
     _ ≤ dist_(p) (𝒬 p) (𝒬 p') + dist_(p) (𝒬 p') o' := dist_triangle _ _ _
-    _ < 2 ^ (N + 1) + 2 ^ N := add_lt_add_of_le_of_lt hp'2 hp'3
-    _ < _ := by ring_nf; gcongr -- uses h34
+    _ < 2^(N + 1) + 2^N := add_lt_add_of_le_of_lt hp'2 hp'3
+    _ < 2^(N + 2) := by ring_nf; gcongr -- uses h34
+  -- 6.3.14 -- Not needed
 
 /-- Def 6.3.15. -/
 def 𝔄_aux (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) : Set (𝔓 X) :=
@@ -136,7 +140,7 @@ lemma biUnion_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
   obtain ⟨p₀, mp₀, hp₀⟩ := 𝔄.toFinset.exists_max_image f h𝔄'
   use f p₀ + 1; ext p
   simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_biUnion,
-    Finset.mem_range, Finset.mem_inter, Finset.mem_filter_univ, mem_toFinset]
+    Finset.mem_range, Finset.mem_inter, Finset.mem_filter, Finset.mem_univ, true_and, mem_toFinset]
   refine ⟨fun hp ↦ hp.choose_spec.2.1.1, fun hp ↦ ?_⟩
   simp only [hp, true_and]
   use f p, Nat.lt_add_one_iff.mpr (hp₀ p (mem_toFinset.mpr hp))
@@ -153,30 +157,31 @@ open scoped Classical in
 -- Lemma 6.3.2
 lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
     ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝓘 p = L, volume (E p ∩ G) ≤
-    2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (L : Set X) := by
+      2^(a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
   -- 6.3.17
   set 𝔄' : Set (𝔓 X) := {p ∈ (𝔄_aux 𝔄 ϑ N) | 𝓘 p = L} with 𝔄'_def
   have hI : ∀ {q q' : 𝔓 X} (hq : q ∈ 𝔄') (hq' : q' ∈ 𝔄'), 𝓘 q = 𝓘 q' := fun hq hq' ↦ by
-    simp only [𝔄'_def, 𝔄_aux] at hq hq'
-    rw [hq.2, hq'.2]
-  have heq : ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝓘 p = L, volume (E p ∩ G) =
-      ∑ p ∈ 𝔄', volume (E p ∩ G) := by congr; aesop
+      simp only [𝔄'_def, 𝔄_aux] at hq hq'
+      rw [hq.2, hq'.2]
+  have heq : ∑ p ∈ (𝔄_aux 𝔄 ϑ N).toFinset with 𝓘 p = L, volume (E p ∩ G) =
+      ∑ p ∈ 𝔄'.toFinset, volume (E p ∩ G) := by congr; aesop
   by_cases h𝔄' : 𝔄'.Nonempty
   · -- 6.3.18
-    have h_aux (p : 𝔓 X) (hp : p ∈ 𝔄'.toFinset) :
-        volume (E p ∩ G) ≤ 2 ^ a * dens₁ 𝔄' * volume (L : Set X) := by
+    have h_aux : ∀ (p : 𝔓 X) (hp : p ∈ 𝔄'.toFinset), volume (E p ∩ G) ≤
+        2^a * dens₁ (𝔄' : Set (𝔓 X)) * volume (L : Set X) := by
+      intro p hp
       rw [mem_toFinset] at hp
-      calc
+      calc volume (E p ∩ G)
         _ ≤ volume (E₂ 2 p) := by
           apply measure_mono
           intro x hx
           have hQ : Q x ∈ ball_(p) (𝒬 p) 1 := subset_cball hx.1.2.1
           simp only [E₂, TileLike.toSet, smul_fst, smul_snd, mem_inter_iff, mem_preimage, mem_ball]
           exact ⟨⟨hx.1.1, hx.2⟩, lt_trans hQ one_lt_two⟩
-        _ ≤ 2 ^ a * dens₁ 𝔄' * volume (L : Set X) := by
+        _ ≤ 2^a * dens₁ (𝔄' : Set (𝔓 X)) * volume (L : Set X) := by
           -- Wow this is messy.
           have hIL : 𝓘 p = L := by simp_rw [← hp.2]
-          have h2a : ((2 : ℝ≥0∞) ^ a)⁻¹ = 2 ^ (-(a : ℤ)) := by
+          have h2a : ((2 : ℝ≥0∞) ^ a)⁻¹ = 2^(-(a : ℤ)) := by
             rw [← zpow_natCast, ENNReal.zpow_neg two_ne_zero ENNReal.ofNat_ne_top]
           rw [← ENNReal.div_le_iff, ← ENNReal.div_le_iff' (Ne.symm (NeZero.ne' (2 ^ a))),
             ENNReal.div_eq_inv_mul, h2a, dens₁]
@@ -205,21 +210,21 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
           · exact Ne.symm (ne_of_beq_false rfl)
           · have hD_pos : 0 < D := by rw [defaultD]; positivity
             rw [← hIL]
-            apply (volume_coeGrid_pos hD_pos).ne'
+            apply ne_of_gt (volume_coeGrid_pos hD_pos)
           · rw [← hIL, ← lt_top_iff_ne_top]
             exact volume_coeGrid_lt_top
     let p : 𝔓 X := h𝔄'.choose
     have hp : p ∈ 𝔄' := h𝔄'.choose_spec
     -- 6.3.19
-    have hth : ∃ (Θ' : Finset (Θ X)), Θ'.card ≤ 2 ^ (a * (N + 4)) ∧
-        ball_(p) ϑ (2 ^ (N + 1)) ⊆ ⋃ ϑ' ∈ Θ', ball_(p) ϑ' 0.2 := by
-      have hs : ball_(p) ϑ (2 ^ (N + 1)) ⊆ ball_(p) ϑ (2 ^ (N + 4) * 0.2) := by
+    have hth : ∃ (Θ' : Finset (Θ X)), Θ'.card ≤ 2^(a*(N+4)) ∧
+        ball_(p) ϑ (2^(N+1)) ⊆ ⋃ ϑ' ∈ Θ', ball_(p) ϑ' 0.2 := by
+      have hs : ball_(p) ϑ (2^(N+1)) ⊆ ball_(p) ϑ (2^(N+4)*0.2) := by
         have hN4 : (2 : ℝ) ^ (N + 4) = 2 ^ (N + 1) * 2 ^ 3 := by ring
         refine ball_subset_ball ?_
-        rw [← mul_one ((2 : ℝ) ^ (N + 1)), hN4, mul_assoc,
+        rw [← mul_one ((2 : ℝ)^ (N + 1) ), hN4, mul_assoc,
           mul_le_mul_iff_of_pos_left (by positivity)]
         norm_num
-      have hballs : BallsCoverBalls (WithFunctionDistance (𝔠 p) (D ^ 𝔰 p / 4)) (2 ^ (N + 4) * 0.2)
+      have hballs : BallsCoverBalls (WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)) (2 ^ (N + 4) * 0.2)
         0.2 (defaultA a ^ (N + 4)) := ballsCoverBalls_iterate_nat
       simp only [BallsCoverBalls, coveredByBalls_iff, defaultA, ← pow_mul] at hballs
       obtain ⟨Θ', hΘ'_card, hΘ'_cover⟩ := hballs ϑ
@@ -236,7 +241,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
       exact hp'_in'
     --6.3.20
     have hcap : ∀ (q q' : 𝔓 X) (hq : q ∈ 𝔄') (hq' : q' ∈ 𝔄') (hqq' : q ≠ q') (ϑ' : Θ X)
-        (hϑ' : ϑ' ∈ Θ'), ϑ' ∉ ball_(p) (𝒬 q) 0.2 ∩ ball_(p) (𝒬 q') 0.2 := by
+        (hϑ' : ϑ' ∈ Θ'), ϑ' ∉ ball_(p) (𝒬 q) (0.2 : ℝ) ∩ ball_(p) (𝒬 q') (0.2 : ℝ) := by
       intro q q' hq hq' hqq' ϑ' hϑ'
       have hdis := disjoint_Ω hqq' (hI hq hq')
       simp only [disjoint_iff, inf_eq_inter, bot_eq_empty] at hdis
@@ -244,11 +249,11 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
       have h5 : (0.2 : ℝ) = 5⁻¹ := by norm_num
       rw [h5] at hint
       have hsub : ϑ' ∈ (Ω q) ∩ (Ω q') :=
-        (inter_subset_inter (ball_eq_of_grid_eq (hI hp hq) ▸ cball_subset)
+        mem_of_subset_of_mem (inter_subset_inter (ball_eq_of_grid_eq (hI hp hq) ▸ cball_subset)
           (ball_eq_of_grid_eq (hI hp hq') ▸ cball_subset)) hint
       rw [hdis] at hsub
       exact hsub
-    have hcard : 𝔄'.toFinset.card ≤ 2 ^ (a * (N + 4)) := by
+    have hcard : 𝔄'.toFinset.card ≤ 2^(a*(N+4)) := by
       -- We only care about the restriction of f to 𝔄'
       set f : 𝔓 X → Θ X := fun q ↦ if hq : q ∈ 𝔄' then (hex q hq).choose else ϑ with hf_def
       refine (Finset.card_le_card_of_injOn f (fun q hq ↦ ?_) ?_).trans hΘ'_card
@@ -262,25 +267,26 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
       contrapose! hcap
       refine ⟨hcap, ⟨(hex q hq).choose, ⟨(hex q hq).choose_spec.1, ?_⟩⟩⟩
       simp only [mem_ball, mem_inter_iff]
-      rw [dist_comm (α := WithFunctionDistance (𝔠 p) (D ^ 𝔰 p / 4)) _ (𝒬 q),
-        dist_comm (α := WithFunctionDistance (𝔠 p) (D ^ 𝔰 p / 4)) _ (𝒬 q')]
+      rw [dist_comm (α := WithFunctionDistance (𝔠 p) ((D : ℝ) ^ 𝔰 p / 4)) _ (𝒬 q),
+        dist_comm (α := WithFunctionDistance (𝔠 p) ((D : ℝ) ^ 𝔰 p / 4)) _ (𝒬 q')]
       use (hex q hq).choose_spec.2
       rw [← hfq, hf, hfq']
       exact (hex q' hq').choose_spec.2
-    -- 6.3.16
-    calc
-      _ = _ := heq
-      _ ≤ ∑ p ∈ 𝔄', 2 ^ a * dens₁ 𝔄' * volume (L : Set X) := Finset.sum_le_sum h_aux
-      _ = 𝔄'.toFinset.card * (2 ^ a * dens₁ 𝔄' * volume (L : Set X)) := by
-        rw [Finset.sum_const, nsmul_eq_mul]
-      _ ≤ 2 ^ (a * (N + 5)) * dens₁ 𝔄' * volume (L : Set X) := by
+    --6.3.16
+    calc ∑ p ∈ (𝔄_aux 𝔄 ϑ N).toFinset with 𝓘 p = L, volume (E p ∩ G)
+      _ = ∑ p ∈ 𝔄'.toFinset, volume (E p ∩ G) := heq
+      _ ≤ ∑ p ∈ 𝔄'.toFinset, 2^a * dens₁ (𝔄' : Set (𝔓 X)) * volume (L : Set X) :=
+        Finset.sum_le_sum h_aux
+      _ = 𝔄'.toFinset.card * (2^a * dens₁ (𝔄' : Set (𝔓 X)) * volume (L : Set X)) := by
+          rw [Finset.sum_const, nsmul_eq_mul]
+      _ ≤ 2 ^ (a * (N + 5)) * dens₁  (𝔄' : Set (𝔓 X)) * volume (L : Set X) := by
         simp only [← mul_assoc]
         gcongr
         norm_cast
         calc 𝔄'.toFinset.card * 2 ^ a
           _ ≤ 2 ^ (a * (N + 4)) * 2 ^ a := mul_le_mul_right' hcard _
           _ = 2 ^ (a * (N + 5)) := by ring
-      _ ≤ 2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (L : Set X) := by
+      _ ≤ 2 ^ (a * (N + 5)) * dens₁  (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
         have hss : 𝔄' ⊆ 𝔄 := by
           calc 𝔄'
             _ ⊆ 𝔄_aux 𝔄 ϑ N := sep_subset _ _
@@ -297,21 +303,21 @@ open Classical in
 lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
     {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N).toFinset)
     (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1))) (hs : 𝔰 p' < 𝔰 p)
-    (h𝓘 : ((𝓘 p' : Set X) ∩ 𝓘 p).Nonempty) :
-    E p ∩ G ∩ 𝓘 p' ⊆ E₂ (2 ^ (N + 3)) p' := by
-  have hle : 𝓘 p' ≤ 𝓘 p := ⟨(fundamental_dyadic hs.le).resolve_right
-    (not_disjoint_iff_nonempty_inter.mpr h𝓘), hs.le⟩
+    (h𝓘 : ((𝓘 p' : Set X) ∩ (𝓘 p)).Nonempty) :
+    E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
+  have hle : 𝓘 p' ≤ 𝓘 p := ⟨Or.resolve_right (fundamental_dyadic (le_of_lt hs))
+    (not_disjoint_iff_nonempty_inter.mpr h𝓘), le_of_lt hs⟩
   -- 6.3.22
-  have hϑin : dist_(p) (𝒬 p) ϑ < 2 ^ (N + 1) := by
+  have hϑin : dist_(p) (𝒬 p) ϑ < ((2 : ℝ)^(N + 1)) := by
     simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter,
-      Finset.mem_filter_univ] at hpin
+      Finset.mem_filter, Finset.mem_univ, true_and] at hpin
     exact (lt_one_add (dist_(p) (𝒬 p) ϑ)).trans hpin.2.2
   -- 6.3.24
   have hsmul_le : smul (2 ^ (N + 3)) p' ≤ smul (2 ^ (N + 3)) p :=
-    tile_reach (mem_ball'.mpr hp').le hϑin.le hle hs
+    tile_reach (le_of_lt (mem_ball'.mpr hp')) (le_of_lt hϑin) hle hs
   -- NOTE: TileLike.toSet is not a mono.
   -- 6.3.25
-  have hss : E p ∩ G ∩ 𝓘 p' ⊆ E₂ (2 ^ (N + 3)) p' := by
+  have hss : E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
     simp only [TileLike.le_def, smul_snd] at hsmul_le
     simp only [E, E₂, TileLike.toSet, smul_fst, smul_snd, subset_inter_iff, inter_subset_right,
       true_and]
@@ -320,7 +326,8 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
       exact inter_subset_left
     · have h1N : (1 : ℝ) ≤ 2 ^ (N + 3) := by exact_mod_cast Nat.one_le_two_pow
       intro x hx
-      exact ((subset_cball.trans (ball_subset_ball h1N)).trans hsmul_le.2) hx.1.1.2.1
+      apply mem_of_subset_of_mem (le_trans (le_trans subset_cball (ball_subset_ball h1N))
+        hsmul_le.2) hx.1.1.2.1
   exact hss
 
 -- Lemma 6.3.3
@@ -329,33 +336,35 @@ open Classical in
 lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : Θ X) (N : ℕ)
     {p' : 𝔓 X} (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1))) :
     ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝔰 p' < 𝔰 p, volume (E p ∩ G ∩ 𝓘 p') ≤
-    volume (E₂ (2 ^ (N + 3)) p') := by
+      volume (E₂ (2 ^ (N + 3)) p') := by
   rw [← MeasureTheory.measure_biUnion_finset _
     (fun _ _ ↦  MeasurableSet.inter (measurableSet_E.inter measurableSet_G) coeGrid_measurable)]
   · apply measure_mono
     simp only [ Finset.mem_filter, iUnion_subset_iff, and_imp]
     intro p hp hs
-    by_cases h𝓘 : ((𝓘 p' : Set X) ∩ 𝓘 p).Nonempty
+    by_cases h𝓘 : ((𝓘 p' : Set X) ∩ ↑(𝓘 p)).Nonempty
     · exact Ep_inter_G_inter_Ip'_subset_E2 ϑ N hp hp' hs h𝓘
     · rw [not_nonempty_iff_eq_empty] at h𝓘
       have hemp : (𝓘 p' : Set X) ∩ E p = ∅ :=
         eq_empty_of_subset_empty (h𝓘 ▸ inter_subset_inter_right _
-          (sep_subset (𝓘 p) fun x ↦ Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x)))
+          (sep_subset ↑(𝓘 p) fun x ↦ Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x)))
       rw [inter_comm, ← inter_assoc, hemp, empty_inter]
       exact empty_subset _
-  · rw [Finset.coe_filter]
+  · simp only [Finset.coe_filter]
     intro q hq q' hq' hqq'
-    rw [𝔄_aux, mem_setOf, toFinset_setOf, Finset.mem_filter_univ] at hq hq'
-    have hE : Disjoint (E q) (E q') := by simpa using (E_disjoint h𝔄 hq.1.1 hq'.1.1).mt hqq'
+    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter,
+      toFinset_setOf, Finset.mem_inter, Finset.mem_filter, Finset.mem_univ, true_and,
+      mem_setOf_eq] at hq hq'
+    have hE : Disjoint (E q) (E q') := by simpa using (E_disjoint h𝔄 hq.1.1.1 hq'.1.1.1).mt hqq'
     change Disjoint (_ ∩ _ ∩ _) (_ ∩ _ ∩ _)
     rw [inter_assoc, inter_assoc]; exact (hE.inter_right _).inter_left _
 
 /-- The constant appearing in Lemma 6.3.4. -/
-def C6_3_4 (a N : ℕ) : ℝ≥0 := 2 ^ (101 * a ^ 3 + N * a)
+def C6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
 
 /-- Auxiliary constant for Lemma 6.3.4. -/
 def C6_3_4' (a N : ℕ) : ℝ≥0 :=
-  (2 ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (100 * a ^ 3 + 5 * a)
+  (((2 : ℝ≥0)^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (100*a^3 + 5*a))
 
 variable (𝔄 : Set (𝔓 X)) (ϑ : range (Q (X := X))) (N : ℕ)
 
@@ -367,8 +376,9 @@ def 𝔄_min : Set (𝔓 X) := {p ∈ 𝔄_aux 𝔄 ϑ N | ((𝓘 p : Set X) ∩
 
 open Classical in
 private lemma 𝔄_aux_sum_splits :
-    ∑ p ∈ 𝔄_aux 𝔄 ϑ N, volume (E p ∩ G) =
-    ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G) + ∑ p ∈ 𝔄_min 𝔄 ϑ N, volume (E p ∩ G) := by
+    ∑ p ∈ (𝔄_aux 𝔄 ϑ N).toFinset, volume (E p ∩ G) =
+      ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset, volume (E p ∩ G) +
+      ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G) := by
   rw [← Finset.sum_union]
   · have hss : (𝔄' 𝔄 ϑ N).toFinset ∪ (𝔄_min 𝔄 ϑ N).toFinset ⊆ (𝔄_aux 𝔄 ϑ N).toFinset := by
       simp only [subset_toFinset, Finset.coe_union, coe_toFinset, union_subset_iff]
@@ -383,14 +393,14 @@ private lemma 𝔄_aux_sum_splits :
           simp only [𝔄_min, mem_setOf_eq]; use mem_toFinset.mp hp
         exact hp'.2 h'
       · have h' : p ∈ 𝔄' 𝔄 ϑ N := ⟨mem_toFinset.mp hp, h,
-          (range_s_subset (X := X) (mem_range_self (𝓘 p))).1.lt_of_ne (Ne.symm hs)⟩
+          lt_of_le_of_ne (range_s_subset (X := X) (mem_range_self (𝓘 p))).1 (Ne.symm hs)⟩
         exact hp'.1 h'
     have : E p ∩ G  = ∅ := by rw [← subset_empty_iff, ← hem]; gcongr; exact fun _ hx ↦ hx.1
     exact this ▸ OuterMeasureClass.measure_empty volume
   · by_contra h
     simp only [disjoint_toFinset, not_disjoint_iff, 𝔄', 𝔄_min] at h
     obtain ⟨p, hp', hpmin⟩ := h
-    exact hp'.2.2.ne' hpmin.2.2
+    exact (ne_of_gt hp'.2.2) hpmin.2.2
 
 /-- The set `𝓛_-S` defined in Lemma 6.3.4. -/
 def 𝓛_min : Set (Grid X) := {I : Grid X | ∃ (p : 𝔄_min 𝔄 ϑ N), I = 𝓘 (p : 𝔓 X)}
@@ -398,10 +408,11 @@ def 𝓛_min : Set (Grid X) := {I : Grid X | ∃ (p : 𝔄_min 𝔄 ϑ N), I = �
 -- Ineq 6.3.26
 open Classical in
 private lemma 𝔄_min_sum_le :
-    ∑ p ∈ 𝔄_min 𝔄 ϑ N, volume (E p ∩ G) ≤
-    2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
-  calc ∑ p ∈ 𝔄_min 𝔄 ϑ N, volume (E p ∩ G)
-    _ = ∑ L ∈ 𝓛_min 𝔄 ϑ N, ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝓘 p = L, volume (E p ∩ G) := by
+    ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G) ≤
+      2 ^ (a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
+  calc ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G)
+    _ = ∑ L ∈ (𝓛_min 𝔄 ϑ N).toFinset,
+          ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝓘 p = L, volume (E p ∩ G) := by
       rw [Finset.sum_comm' (t' := (𝔄_min 𝔄 ϑ N).toFinset)
         (s' := fun p ↦ {L ∈ (𝓛_min 𝔄 ϑ N).toFinset | 𝓘 p = L})]
       · apply Finset.sum_congr rfl
@@ -424,9 +435,9 @@ private lemma 𝔄_min_sum_le :
           exact hp'.2
         · simp only [𝔄_min, mem_setOf_eq, mem_toFinset,Finset.mem_filter] at hL hp ⊢
           use hL.1, hp.1, hL.2
-    _ ≤ ∑ L ∈ 𝓛_min 𝔄 ϑ N, 2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (L : Set X) := by
+    _ ≤ ∑ L ∈ (𝓛_min 𝔄 ϑ N).toFinset, 2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (L : Set X) := by
       gcongr; apply stack_density
-    _ = 2 ^ (a * (N + 5)) * dens₁ 𝔄 * ∑ L ∈ 𝓛_min 𝔄 ϑ N, volume (L : Set X) := by
+    _ = 2 ^ (a * (N + 5)) * dens₁ 𝔄 * ∑ L ∈ (𝓛_min 𝔄 ϑ N).toFinset, volume (L : Set X) := by
       rw [Finset.mul_sum]
     _ ≤ 2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
       gcongr
@@ -453,9 +464,10 @@ def 𝓛 : Set (Grid X) := {I : Grid X | (∃ (p : 𝔄' 𝔄 ϑ N), I ≤ 𝓘 
     (∀ (p : 𝔄' 𝔄 ϑ N), 𝓘 (p : 𝔓 X) ≤ I → 𝔰 (p : 𝔓 X) = - S)}
 
 -- Ineq 6.3.27
-lemma I_p_subset_union_L (p : 𝔄' 𝔄 ϑ N) : (𝓘 (p : 𝔓 X) : Set X) ⊆ ⋃ L ∈ 𝓛 𝔄 ϑ N, L := by
-  calc
-    _ ⊆ ⋃ I ∈ {I | s I = -S ∧ I ≤ 𝓘 (p : 𝔓 X)}, I := fun x hx ↦ by
+lemma I_p_subset_union_L (p : 𝔄' 𝔄 ϑ N) : (𝓘 (p : 𝔓 X) : Set X) ⊆ ⋃ (L ∈ 𝓛 𝔄 ϑ N), L := by
+  calc (𝓘 (p : 𝔓 X) : Set X)
+    _ ⊆ ⋃ (I ∈ {I : Grid X | s I = -S ∧ I ≤ 𝓘 (p : 𝔓 X)}), I := by
+      intro x hx
       -- Apply 2.0.7
       obtain ⟨I, hI, hxI⟩ := Grid.exists_containing_subcube (i := 𝓘 (p : 𝔓 X)) (-S)
         (by simp [mem_Icc, le_refl, scale_mem_Icc.1]) hx
@@ -463,14 +475,15 @@ lemma I_p_subset_union_L (p : 𝔄' 𝔄 ϑ N) : (𝓘 (p : 𝔓 X) : Set X) ⊆
       simp only [Grid.le_def, mem_setOf_eq, mem_iUnion, exists_prop]
       exact ⟨I, ⟨hI, Or.resolve_right (GridStructure.fundamental_dyadic' hsI)
         (not_disjoint_iff.mpr ⟨x, hxI, hx⟩), hsI⟩, hxI⟩
-    _ ⊆ _ := fun x hx ↦ by
+    _ ⊆ ⋃ (L ∈ 𝓛 𝔄 ϑ N), L := by
+      intro x hx
       simp only [mem_iUnion] at hx ⊢
       obtain ⟨I, ⟨hsI, hI⟩, hxI⟩ := hx
       simp only [𝓛, Subtype.exists, exists_prop, Subtype.forall]
       exact ⟨I, ⟨⟨p, p.2, hI⟩, fun _ _ hqI ↦ le_antisymm (hsI ▸ hqI.2) scale_mem_Icc.1⟩, hxI⟩
 
 -- Ineq 6.3.28
-lemma union_L_eq_union_I_p : ⋃ L ∈ 𝓛 𝔄 ϑ N, L = ⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 (p : 𝔓 X) : Set X) := by
+lemma union_L_eq_union_I_p : ⋃ (L ∈ 𝓛 𝔄 ϑ N), L = ⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 (p : 𝔓 X) : Set X) := by
   apply le_antisymm
   · intro _ hx
     simp only [mem_iUnion, exists_prop] at hx ⊢
@@ -495,7 +508,7 @@ lemma pairwiseDisjoint_𝓛' :
       (this (mem_toFinset.mp mJ) (mem_toFinset.mp mI) hn.symm)
 
 -- Equality 6.3.29
-lemma union_L'_eq_union_I_p : ⋃ L ∈ 𝓛' 𝔄 ϑ N, L = ⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 (p : 𝔓 X) : Set X) := by
+lemma union_L'_eq_union_I_p : ⋃ (L ∈ 𝓛' 𝔄 ϑ N), L = ⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 (p : 𝔓 X) : Set X) := by
   classical
   rw [← union_L_eq_union_I_p]
   apply le_antisymm
@@ -539,7 +552,7 @@ private lemma L_le_I_p' {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
   simp only [SL, mem_setOf_eq, mem_toFinset] at hp'
   exact hp'.2
 
-private lemma not_I_p'_le_L {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : ¬𝓘 (p' hL) ≤ L := by
+private lemma not_I_p'_le_L {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : ¬ 𝓘 (p' hL) ≤ L := by
   classical
   have hL' : L ∈ 𝓛 𝔄 ϑ N  := hL.1
   simp only [𝓛] at hL'
@@ -550,7 +563,7 @@ private lemma not_I_p'_le_L {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : ¬𝓘 (
     Finset.mem_univ, true_and] at hp'
   by_cases hIqL : 𝓘 (p' hL) ≤ L
   · simp only [Subtype.forall, mem_setOf_eq] at hL'
-    exact absurd (hL'.2 (p' hL) hp'.1.1 hIqL) hp'.1.1.2.2.ne'
+    exact absurd (hL'.2 (p' hL) hp'.1.1 hIqL) (ne_of_gt (hp'.1.1.2.2))
   · exact hIqL
 
 private lemma s_L_le_s_p' {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : s L < 𝔰 (p' hL) := by
@@ -560,7 +573,7 @@ private lemma s_L_le_s_p' {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : s L < 𝔰
       mem_toFinset, mem_inter_iff] at hp'
     have := hp'.1.2
     by_contra! h
-    have h' : ¬Disjoint (𝓘 (p' hL) : Set X) L := by
+    have h' : ¬ Disjoint (𝓘 (p' hL) : Set X) ↑L := by
       rw [Set.not_disjoint_iff_nonempty_inter, inter_eq_right.mpr hp'.1.2]
       exact Grid.nonempty L
     exact hp'L (Or.resolve_right (le_or_disjoint h) h')
@@ -574,12 +587,12 @@ lemma exists_larger_grid {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
   set q := p' hL
   have hq' : q ∈ SL := ((Finset.exists_minimalFor 𝔰 SL (SL_nonempty hL)).choose_spec).1
   simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, Grid.le_def, Antichain.SL, SL] at hq'
-  have hqL : ¬𝓘 q ≤ L := not_I_p'_le_L hL
+  have hqL : ¬ 𝓘 q ≤ L := not_I_p'_le_L hL
   simp only [Grid.le_def, not_and_or, not_le] at hqL
   have : s L < 𝔰 q  := s_L_le_s_p' hL
   have hS : s L < s topCube (X := X) := by
     conv_rhs => simp only [s, s_topCube]
-    exact this.trans_le scale_mem_Icc.2
+    exact lt_of_lt_of_le this scale_mem_Icc.2
   exact Grid.exists_scale_succ (X := X) hS
 
 /-- The `L'` introduced in the proof of Lemma 6.3.4. -/
@@ -594,7 +607,7 @@ lemma s_L'_eq {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : s (L' hL) = s L + 1 :=
 lemma c_L_mem {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : c L ∈ L' hL :=
     (L_le_L' hL).1 Grid.c_mem_Grid
 
-private lemma L'_not_mem {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : L' hL ∉ 𝓛 𝔄 ϑ N := by
+private lemma L'_not_mem {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : ¬ L' hL ∈ 𝓛 𝔄 ϑ N := by
   have hL2 := hL
   by_contra h
   have := hL2.2 h (L_le_L' hL)
@@ -618,7 +631,7 @@ private lemma exists_p''_le_L' {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
   have hp'_mem := p'_mem hL
   simp only [SL, mem_setOf_eq, mem_toFinset] at hp'_mem
   have hex : ∃ p' ∈ 𝔄' 𝔄 ϑ N, L' hL ≤ 𝓘 p' := ⟨p', hp'_mem.1, L'_le_I_p' hL⟩
-  have hL' : L' hL ∉ 𝓛 𝔄 ϑ N := L'_not_mem hL
+  have hL' : ¬ L' hL ∈ 𝓛 𝔄 ϑ N := L'_not_mem hL
   simp only [𝓛, Subtype.exists, exists_prop, Subtype.forall, mem_setOf_eq, not_and_or] at hL'
   have := Or.neg_resolve_left hL' hex
   simp only [not_forall] at this
@@ -661,12 +674,12 @@ lemma I_pΘ_eq_L' {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) : 𝓘 (pΘ hL) = L'
   · exact h
   · exact (exists_pΘ_eq_L' hL).choose_spec.1.1
 
-lemma theta_mem_Omega_pΘ {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) (h : 𝓘 (p'' hL) ≠ L' hL) :
+lemma theta_mem_Omega_pΘ {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) (h : ¬ 𝓘 (p'' hL) = L' hL) :
     ϑ.val ∈ Ω (pΘ hL)  := by
   simp only [pΘ, if_neg h]
   exact (exists_pΘ_eq_L' hL).choose_spec.1.2
 
-lemma pΘ_unique {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) (h : 𝓘 (p'' hL) ≠ L' hL) :
+lemma pΘ_unique {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) (h : ¬ 𝓘 (p'' hL) = L' hL) :
     ∀ (y : 𝔓 X), (fun p ↦ 𝓘 p = L' hL ∧ ↑ϑ ∈ Ω p) y → y = (pΘ hL) := by
   simp only [pΘ, if_neg h]
   exact (exists_pΘ_eq_L' hL).choose_spec.2
@@ -693,7 +706,7 @@ private lemma eq_6_3_37 {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
 
 -- Ineq. 6.3.36
 private lemma ineq_6_3_36 {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
-    smul (2 ^ (N + 3)) (p'' hL) ≤ smul (2 ^ (N + 3)) (pΘ hL) := by
+    smul (2^(N + 3)) (p'' hL) ≤ smul (2^(N + 3)) (pΘ hL) := by
   by_cases heq : 𝓘 (p'' hL) = L' hL
   · have heq' : p'' hL = pΘ hL := by simp only [pΘ, if_pos heq]
     rw [heq']
@@ -702,15 +715,15 @@ private lemma ineq_6_3_36 {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     have hp'' : ϑ.val ∈ ball_(p'' hL) (𝒬 (p'' hL)) (2 ^ (N + 1)) := eq_6_3_35 hL
     simp only [mem_ball] at hpθ hp''
     rw [dist_comm (α := WithFunctionDistance _ _)] at hpθ hp''
-    apply tile_reach hp''.le hpθ.le
+    apply tile_reach (le_of_lt hp'') (le_of_lt hpθ)
     · rw [I_pΘ_eq_L']; exact I_p''_le_L' hL
     · simp only [𝔰, I_pΘ_eq_L']
-      exact (Grid.lt_def.mp ((I_p''_le_L' hL).lt_of_ne heq)).2
+      exact (Grid.lt_def.mp (lt_of_le_of_ne (I_p''_le_L' hL) heq)).2
 
 -- Ineq. 6.3.38
 private lemma ineq_6_3_38 {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     volume (E₂ (2 ^ (N + 3)) (pΘ hL)) ≤
-    2 ^ (a * N + a * 3) * (dens₁ 𝔄 * volume (L' hL : Set X)) := by
+      2 ^ (a * N + a * 3) * (dens₁ (𝔄 : Set (𝔓 X)) * volume (L' hL : Set X)) := by
   have h2 : (2 : ℝ≥0∞) ^ (a * N + a * 3) = (2 ^ (N + 3) : ℝ≥0) ^ a := by
     norm_cast; rw [← pow_mul]; ring
   rw [← I_pΘ_eq_L', h2, ← mul_assoc]
@@ -726,19 +739,19 @@ private lemma ineq_6_3_38 {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
 
 -- Ineq. 6.3.39
 open Classical in
-private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
-    ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝓘 p ≠ L' hL, volume (E p ∩ G ∩ L) ≤
-    volume (E₂ (2 ^ (N + 3)) (pΘ hL)) := by
+private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X}
+    (hL : L ∈ 𝓛' 𝔄 ϑ N) : ∑ p ∈ 𝔄' 𝔄 ϑ N with ¬𝓘 p = L' hL, volume (E p ∩ G ∩ L) ≤
+      volume (E₂ (2 ^ (N + 3)) (pΘ hL)) := by
   apply le_trans _ (local_antichain_density h𝔄 ϑ N (eq_6_3_37 hL))
-  calc
-    _ ≤ ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝔰 (pΘ hL) < 𝔰 p, volume (E p ∩ G ∩ 𝓘 (pΘ hL)) := by
+  calc ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset with ¬𝓘 p = L' hL, volume (E p ∩ G ∩ ↑L)
+    _ ≤ ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset with 𝔰 (pΘ hL) < 𝔰 p, volume (E p ∩ G ∩ ↑(𝓘 (pΘ hL))) := by
       simp only [Finset.sum_filter, ite_not]
       gcongr
       rename_i p hp
-      by_cases hpL : (L : Set X) ∩ 𝓘 p = ∅ -- Nonempty when p contributes to the sum.
+      by_cases hpL : (L : Set X) ∩ (𝓘 p) = ∅ -- Nonempty when p contributes to the sum.
       · have : E p ∩ G ∩ L = ∅ := by
           refine subset_empty_iff.mp ?_
-          simp only [← hpL, inter_comm L (𝓘 p : Set X), E]
+          simp only [← hpL, inter_comm ↑L (𝓘 p : Set X), E]
           gcongr
           exact fun _ hx ↦ hx.1.1
         simp only [this, measure_empty, ite_self, zero_le]
@@ -757,12 +770,12 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X} (h
               rcases le_or_ge_or_disjoint (i := L) (j := 𝓘 p) with (hle | (hge | hdisj))
               · exact hle
               · exact absurd (hL2.1.2 p (mem_toFinset.mp hp) hge.1 hge.2)
-                  (mem_toFinset.mp hp).2.2.ne'
+                  (ne_of_gt (mem_toFinset.mp hp).2.2)
               · exact absurd (disjoint_iff_inter_eq_empty.mp hdisj) hpL
             have hne : L ≠ 𝓘 p := by
               by_contra h
               have := hL2.1.2 p (mem_toFinset.mp hp) (h ▸ le_refl _) (h ▸ le_refl _)
-              exact (mem_toFinset.mp hp).2.2.ne'
+              exact (ne_of_gt (mem_toFinset.mp hp).2.2)
                 (hL2.1.2 p (mem_toFinset.mp hp) (h ▸ le_refl _) (h ▸ le_refl _))
             have hlt : s L < 𝔰 p := by
               by_contra! h
@@ -776,7 +789,7 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X} (h
               simp only [disjoint_iff] at this
               exact (Or.resolve_right this hpL').1
             simp only [𝔰, I_pΘ_eq_L' hL]
-            apply hle.lt_of_ne
+            apply lt_of_le_of_ne hle
             by_contra hs
             have heq : L' hL = 𝓘 p := by
               have := eq_or_disjoint hs
@@ -786,7 +799,7 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X} (h
           rw [if_neg hp', if_pos hs]
           gcongr
           exact I_pΘ_eq_L' hL ▸ (L_le_L' hL).1
-    _ ≤ _ := by
+    _ ≤ ∑ p ∈ (𝔄_aux 𝔄 ϑ N).toFinset with 𝔰 (pΘ hL) < 𝔰 p, volume (E p ∩ G ∩ ↑(𝓘 (pΘ hL))) := by
       gcongr; simp only [𝔄']
       exact sep_subset _ _
 
@@ -799,12 +812,12 @@ private lemma dist_c_le_of_subset {J J' : Grid X} (subset : (J : Set X) ⊆ J') 
 
 -- Ineq. 6.3.41
 private lemma volume_L'_le {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
-    volume (L' hL : Set X) ≤ 2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X) := by
+    volume (L' hL : Set X) ≤ 2 ^ (100*a^3 + 5*a) * volume (L : Set X) := by
   have hc : dist (c L) (c (L' hL)) + 4 * D ^ s (L' hL) ≤ 8 * D ^ s (L' hL) := by
     calc dist (c L) (c (L' hL)) + 4 * D ^ s (L' hL)
-      _ ≤ 4 * D ^ s (L' hL) + 4 * D ^ s (L' hL) := by grw [dist_c_le_of_subset (L_le_L' hL).1]
-      _ ≤ _ := by linarith
-  calc
+      _ ≤ 4 * ↑D ^ s (L' hL) + 4 * D ^ s (L' hL) := by grw [dist_c_le_of_subset (L_le_L' hL).1]
+      _ ≤ 8 * ↑D ^ s (L' hL) := by linarith
+  calc volume (L' hL : Set X)
     _ ≤ volume (ball (c (L' hL)) (4 * D ^ s (L' hL))) := by
       gcongr; exact Grid_subset_ball
     _ ≤ volume (ball (c L) (8 * D ^ s (L' hL))) := by
@@ -812,32 +825,36 @@ private lemma volume_L'_le {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     _ = volume (ball (c L) ((32 * D) * (D ^ (s L))/4)) := by
       rw [s_L'_eq hL, zpow_add₀ (by simp), zpow_one]
       ring_nf
-    _ = volume (ball (c L) (2 ^ (100 * a ^ 2 + 5) * (D ^ s L / 4))) := by
-      have h32 : (32 : ℝ) = (2 ^ 5 : ℕ) := by norm_num
+    _ = volume (ball (c L) ((2^(100*a^2 + 5)) * ((D ^ (s L))/4))) := by
+      have h32 : (32 : ℝ) = (2^5 : ℕ) := by norm_num
       congr; simp only [defaultD, h32]; norm_cast; ring_nf
-    _ ≤ 2 ^ (100 * a ^ 3 + 5 * a) * volume (ball (c L) (D ^ s L / 4)) := by
-      have : (2 : ℝ≥0∞) ^ (100 * a ^ 3 + 5 * a) = defaultA a ^ (100 * a ^ 2 + 5) := by
+    _ ≤ 2 ^ (100*a^3 + 5*a) * volume (ball (c L) ((D ^ (s L))/4)) := by
+      have : (2 : ℝ≥0∞) ^ (100*a^3 + 5*a) = (defaultA a)^(100*a^2 + 5) := by
         simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul]
         ring
       rw [this]
-      exact DoublingMeasure.volume_ball_two_le_same_repeat _ _ _
-    _ ≤ _ := by gcongr; exact ball_subset_Grid
+      exact DoublingMeasure.volume_ball_two_le_same_repeat (c L) ((D ^ (s L))/4)
+        (100 * a ^ 2 + 5)
+    _ ≤ 2 ^ (100*a^3 + 5*a) * volume (L : Set X) := by gcongr; exact ball_subset_Grid
 
 -- Ineq. 6.3.30
 open Classical in
-lemma global_antichain_density_aux (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
-    ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ L) ≤ C6_3_4' a N * dens₁ 𝔄 * volume (L : Set X) := by
+lemma global_antichain_density_aux (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X}
+    (hL : L ∈ 𝓛' 𝔄 ϑ N) :
+    ∑ (p ∈ 𝔄' 𝔄 ϑ N), volume (E p ∩ G ∩ L) ≤
+      (C6_3_4' a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
   classical
-  calc
+  calc ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ ↑L)
     -- Express LHS as 6.3.31 + 6.3.32.
-    _ = ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝓘 p = L' hL, volume (E p ∩ G ∩ L) +
-        ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝓘 p ≠ L' hL, volume (E p ∩ G ∩ L) := by
-      rw [← Finset.sum_filter_add_sum_filter_not _ (𝓘 · = L' hL)]
+    _ = ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝓘 p = L' hL, volume (E p ∩ G ∩ ↑L) +
+        ∑ p ∈ 𝔄' 𝔄 ϑ N with ¬𝓘 p = L' hL, volume (E p ∩ G ∩ ↑L) := by
+      rw [← (Finset.sum_filter_add_sum_filter_not (𝔄' 𝔄 ϑ N).toFinset (fun x ↦ 𝓘 x = L' hL) fun x ↦
+        volume (E x ∩ G ∩ ↑L))]
     -- Apply ineq. 6.3.33 : Estimate 6.3.31 with Lemma 6.3.2.
-    _ ≤ 2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (L' hL : Set X) +
-        ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝓘 p ≠ L' hL, volume (E p ∩ G ∩ L) := by
+    _ ≤ 2^(a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L' hL : Set X) +
+        ∑ p ∈ 𝔄' 𝔄 ϑ N with ¬𝓘 p = L' hL, volume (E p ∩ G ∩ ↑L) := by
       gcongr
-      calc
+      calc ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝓘 p = L' hL, volume (E p ∩ G ∩ ↑L)
         _ ≤ ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝓘 p = L' hL, volume (E p ∩ G) :=
           Finset.sum_le_sum (fun _ _ ↦ OuterMeasureClass.measure_mono volume inter_subset_left)
         _ ≤ ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝓘 p = L' hL, volume (E p ∩ G) := by
@@ -845,29 +862,30 @@ lemma global_antichain_density_aux (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : G
           intro _ hp
           simp only [𝔄', ne_eq] at hp
           exact hp.1
-        _ ≤ _ := stack_density 𝔄 ϑ N (L' hL)
+        _ ≤ 2 ^ (a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L' hL : Set X) :=
+          stack_density 𝔄 ϑ N (L' hL)
     -- Apply ineq. 6.3.39: estimate 6.3.32.
-    _ ≤ 2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (L' hL : Set X) +
+    _ ≤ 2^(a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L' hL : Set X) +
         volume (E₂ (2 ^ (N + 3)) (pΘ hL)) := by grw [ineq_6_3_39 h𝔄 hL]
     -- Ineq. 6.3.40, using 6.3.38
-    _ ≤ (2 ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * dens₁ 𝔄 *
+    _ ≤ (2^(a * (N + 5)) + 2^(a * N + a * 3)) * dens₁ (𝔄 : Set (𝔓 X)) *
         volume (L' hL : Set X) := by
       conv_rhs => rw [mul_assoc]
       rw [add_mul, ← mul_assoc]
       gcongr
       exact ineq_6_3_38 hL
-    _ ≤ (2 ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * dens₁ 𝔄 *
-        2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X) := by
-      grw [mul_assoc _ (2 ^ (100 * a ^ 3 + 5 * a))  _, volume_L'_le hL]
-    _ = ((2 ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (100 * a ^ 3 + 5 * a)) * dens₁ 𝔄 *
+    _ ≤ (2^(a * (N + 5)) + 2^(a * N + a * 3)) * dens₁ (𝔄 : Set (𝔓 X)) *
+        2 ^ (100*a^3 + 5*a) * volume (L : Set X) := by
+      grw [mul_assoc _ (2 ^ (100*a^3 + 5*a))  _, volume_L'_le hL]
+    _ = ((2^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (100*a^3 + 5*a)) * dens₁ (𝔄 : Set (𝔓 X)) *
         volume (L : Set X) := by ring
-    _ = _ := by rfl
+    _ = ↑(C6_3_4' a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by rfl
 
 variable (𝔄 ϑ N)
 
 open Classical in
 private lemma volume_union_I_p_eq_sum :
-    volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) = ∑ L ∈ 𝓛' 𝔄 ϑ N, volume (L : Set X) := by
+    volume (⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 p : Set X)) = ∑ (L ∈ 𝓛' 𝔄 ϑ N), volume (L : Set X) := by
   rw [← union_L'_eq_union_I_p 𝔄 ϑ N]
   convert MeasureTheory.measure_biUnion_finset (pairwiseDisjoint_𝓛' 𝔄 ϑ N)
     (fun _ _ ↦ coeGrid_measurable)
@@ -875,10 +893,10 @@ private lemma volume_union_I_p_eq_sum :
   rw [mem_toFinset]
 
 open Classical in
-private lemma lhs' : ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G) =
-    ∑ L ∈ 𝓛' 𝔄 ϑ N, ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ L) := by
-  calc
-    _ = ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ ⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) := by
+private lemma lhs' : ∑ (p ∈ (𝔄' 𝔄 ϑ N).toFinset), volume (E p ∩ G) =
+    (∑ (L ∈ (𝓛' 𝔄 ϑ N).toFinset), ∑ (p ∈ (𝔄' 𝔄 ϑ N).toFinset), volume (E p ∩ G ∩ L)) := by
+  calc ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G)
+    _ = ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ (⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 (p : 𝔓 X) : Set X))) := by
       apply Finset.sum_congr rfl
       intro p hp
       congr 1
@@ -886,10 +904,10 @@ private lemma lhs' : ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G) =
       intro _ hx
       simp only [mem_iUnion]
       use p, mem_toFinset.mp hp, hx.1.1
-    _ = ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ ⋃ L ∈ 𝓛' 𝔄 ϑ N, L) := by rw [union_L'_eq_union_I_p]
-    _ = ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (⋃ L ∈ (𝓛' 𝔄 ϑ N).toFinset, E p ∩ G ∩ L):= by
+    _ = ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ (⋃ (L ∈ 𝓛' 𝔄 ϑ N), L)) := by rw [union_L'_eq_union_I_p]
+    _ = ∑ p ∈ (𝔄' 𝔄 ϑ N), volume (⋃ (L ∈ (𝓛' 𝔄 ϑ N).toFinset), E p ∩ G ∩ L):= by
         congr; ext p; simp_rw [inter_iUnion₂, mem_toFinset]
-    _ = ∑ p ∈ 𝔄' 𝔄 ϑ N, ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, volume (E p ∩ G ∩ L) := by
+    _ = ∑ p ∈ (𝔄' 𝔄 ϑ N), ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, volume (E p ∩ G ∩ ↑L) := by
       congr
       ext p
       -- Note that both measurability and fun_prop fail here.
@@ -902,48 +920,49 @@ private lemma lhs' : ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G) =
       simp only [Set.Nonempty, mem_inter_iff] at hLM ⊢
       obtain ⟨x, hxL, hxM⟩ := hLM
       exact ⟨x, hxL.2, hxM.2⟩
-    _ = _ := Finset.sum_comm
+    _ = ∑ L ∈ 𝓛' 𝔄 ϑ N, ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ ↑L) := Finset.sum_comm
 
 open Classical in
-private lemma lhs : ∑ p ∈ 𝔄_aux 𝔄 ϑ N, volume (E p ∩ G) =
-    ∑ L ∈ 𝓛' 𝔄 ϑ N, ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ L) +
-    ∑ p ∈ 𝔄_min 𝔄 ϑ N, volume (E p ∩ G) := by
-  calc
-    _ = ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G) +
-        ∑ p ∈ 𝔄_min 𝔄 ϑ N, volume (E p ∩ G) := by rw [𝔄_aux_sum_splits]
-    _ = _ := by rw [lhs']
+private lemma lhs : ∑ (p ∈ (𝔄_aux 𝔄 ϑ N).toFinset), volume (E p ∩ G) =
+    (∑ (L ∈ (𝓛' 𝔄 ϑ N).toFinset), ∑ (p ∈ (𝔄' 𝔄 ϑ N).toFinset), volume (E p ∩ G ∩ L)) +
+    ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G) := by
+  calc ∑ p ∈ (𝔄_aux 𝔄 (↑ϑ) N).toFinset, volume (E p ∩ G)
+    _ = ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset, volume (E p ∩ G) +
+          ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G) := by rw [𝔄_aux_sum_splits]
+    _ = ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset, volume (E p ∩ G ∩ ↑L) +
+          ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G) := by rw [lhs']
 
 private lemma le_C6_3_4 (ha : 4 ≤ a) :
     (((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (100 * a ^ 3 + 5 * a)) +
-      2 ^ (a * (N + 5)) ≤ C6_3_4 a N := by
-  calc
-    _ ≤ ((2 : ℝ≥0∞) ^ (a * N + a * 5) +
-        2 ^ (a * N + a * 5)) * 2 ^ (100 * a ^ 3 + 5 * a) + 2 ^ (a * N + a * 5) * 1 := by
+      2 ^ (a * (N + 5)) ≤ (C6_3_4 a N) := by
+  calc ((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (100 * a ^ 3 + 5 * a) +
+      2 ^ (a * (N + 5))
+    _ ≤ (2^(a * N + a * 5) + 2^(a * N + a * 5)) * 2 ^ (100*a^3 + 5*a) + 2 ^ (a * N + a* 5) * 1 := by
       have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
       have h35 : 3 ≤ 5 := by omega
       gcongr <;> apply le_of_eq <;> ring
-    _ = 2 ^ (a * N + a * 5) * (2 * 2 ^ (100 * a ^ 3 + 5 * a)) + 2 ^ (a * N + a * 5) * 1 := by
+    _ = 2^(a * N + a * 5) * (2 * 2 ^ (100*a^3 + 5*a)) + 2 ^ (a * N + a* 5) * 1 := by
       rw [← two_mul]; ring
-    _ = 2 ^ (a * N + a * 5) * (2 * 2 ^ (100 * a ^ 3 + 5 * a) + 1) := by ring
-    _ ≤ 2 ^ (a * N + a * 5) * (2 ^ 2 * 2 ^ (100 * a ^ 3 + 5 * a)) := by
+    _ = 2^(a * N + a * 5) * (2 * 2 ^ (100*a^3 + 5*a) + 1) := by ring
+    _ ≤ 2^(a * N + a * 5) * (2^2 * 2 ^ (100*a^3 + 5*a)) := by
       gcongr
       norm_cast
       rw [pow_two, mul_assoc 2 2]
       conv_rhs => rw [two_mul]
       gcongr
       exact NeZero.one_le
-    _ = 2 ^ (100 * a ^ 3 + a * N + a * 10 + 2) := by
+    _ = 2^(100*a^3 + a * N + a * 10 + 2) := by
       rw [← pow_add, ← pow_add]
       congr 1
       ring
-    _ ≤ _ := by
-      have h101 : 101 * a ^ 3 = 100 * a ^ 3 + a ^ 3 := by ring
-      have ha3 : a ^ 3 = a * (a ^ 2 - 1) + a := by
+    _ ≤ ↑(C6_3_4 a N) := by
+      have h101 : 101 * a ^ 3 = 100 * a ^ 3 +  a ^ 3 := by ring
+      have ha3 : a ^ 3 = a * (a^2 - 1) + a := by
         simp only [mul_tsub, mul_one]
         rw [tsub_add_cancel_of_le]
         · ring
         · nth_rewrite 1 [← mul_one a]
-          have ha' : 1 ≤ a ^ 1 := by linarith
+          have ha' : 1 ≤ a^1 := by linarith
           gcongr
           apply le_trans ha' (Nat.pow_le_pow_right (by linarith) one_le_two)
       rw [C6_3_4]
@@ -954,32 +973,33 @@ private lemma le_C6_3_4 (ha : 4 ≤ a) :
       rw [add_assoc, h101]
       nth_rewrite 3 [ha3]
       gcongr
-      · calc
-          _ ≤ 4 ^ 2 - 1 := by norm_num
-          _ ≤ _ := by gcongr
+      · calc 10
+        _ ≤ 4^2 - 1 := by norm_num
+        _ ≤ a ^ 2 - 1 := by gcongr
       · linarith
 
 -- Lemma 6.3.4
 open Classical in
 lemma global_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range Q) (N : ℕ) :
-    ∑ p ∈ 𝔄_aux 𝔄 ϑ.val N, volume (E p ∩ G) ≤
-    C6_3_4 a N * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
+    ∑ p ∈ (𝔄_aux 𝔄 ϑ.val N).toFinset, volume (E p ∩ G) ≤
+      C6_3_4 a N * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
   rw [lhs]
-  calc
-    _ ≤ ∑ L ∈ 𝓛' 𝔄 ϑ N, C6_3_4' a N * dens₁ 𝔄 * volume (L : Set X) +
+  calc ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset, volume (E p ∩ G ∩ ↑L) +
+          ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G)
+    _ ≤ ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, ↑(C6_3_4' a N) * dens₁ 𝔄 * volume (L : Set X) +
         2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) :=
         add_le_add (Finset.sum_le_sum (fun L (hL : L ∈ (𝓛' 𝔄 ϑ N).toFinset) ↦
           global_antichain_density_aux h𝔄 (mem_toFinset.mp hL))) (𝔄_min_sum_le _ _ _)
-    _ = C6_3_4' a N * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) +
+    _ = ↑(C6_3_4'  a N) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) +
         2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
       rw [volume_union_I_p_eq_sum 𝔄 ϑ N, Finset.mul_sum]
-    _ ≤ C6_3_4' a N * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) +
+    _ ≤ ↑(C6_3_4'  a N) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) +
         2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
       gcongr
       apply iUnion_subset_iUnion_const
       simp only [𝔄', 𝔄_aux]
       exact fun h ↦ h.1.1
-    _ ≤ _ := by
+    _ ≤ ↑(C6_3_4 a N) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
       simp only [mul_assoc, ← add_mul]
       gcongr
       simp only [C6_3_4', ENNReal.coe_pow, ENNReal.coe_ofNat, C6_3_4]
@@ -1076,7 +1096,7 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
     volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ := by
   have a4 := four_le_a X
   have p₆p := p₆_pos a4
-  have p₆c : ENNReal.ofReal (p₆ a) = (p₆ a).toNNReal := by norm_cast
+  have p₆c : ENNReal.ofReal (p₆ a) = ↑(p₆ a).toNNReal := by norm_cast
   rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (p₆ a).toNNReal by simpa), p₆c,
     eLpNorm_nnreal_pow_eq_lintegral (by simpa), Real.coe_toNNReal _ p₆p.le,
     ENNReal.mul_rpow_of_nonneg _ _ p₆p.le, ENNReal.mul_rpow_of_nonneg _ _ p₆p.le]
@@ -1094,8 +1114,9 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
       · intro i mi j mj hn
         rw [mul_assoc (2 ^ _), ← inter_indicator_mul, mul_assoc _ _ (G.indicator 1 x),
           ← inter_indicator_mul, mul_mul_mul_comm, ← inter_indicator_mul, inter_inter_inter_comm]
-        rw [𝔄_aux, toFinset_setOf, Finset.mem_filter_univ] at mi mj
-        have key := (E_disjoint h𝔄 mi.1 mj.1).mt hn
+        simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter,
+          Finset.mem_filter, Finset.mem_univ, true_and] at mi mj
+        have key := (E_disjoint h𝔄 mi.1.1 mj.1.1).mt hn
         rw [not_not, disjoint_iff_inter_eq_empty] at key; simp [key]
       rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
       · refine fun p mp ↦ pow_nonneg (mul_nonneg ?_ (indicator_nonneg (by simp) _)) _
