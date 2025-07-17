@@ -14,7 +14,7 @@ from typing import Any
 
 # To customize
 MODULE = "Carleson"
-REPOSITORY = f"fpvandoorn/carleson"
+REPOSITORY = "fpvandoorn/carleson"
 BRANCH = "master"
 FOLDER_PATH = "./docs/_includes"
 
