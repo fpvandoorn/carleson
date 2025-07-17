@@ -72,23 +72,45 @@ open AddCircle
 
 variable {E : Type*} (T a : ℝ) [hT : Fact (0 < T)] {f : ℝ → E}
 
-protected theorem AEStronglyMeasurable.liftIoc [TopologicalSpace E]
+@[fun_prop] protected theorem AEStronglyMeasurable.liftIoc [TopologicalSpace E]
     (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (liftIoc T a f) :=
   (map_subtypeVal_map_equivIoc_volume T a ▸ hf.restrict).comp_measurable
     measurable_subtype_coe |>.comp_measurable (measurable_equivIoc T a)
 
-protected theorem AEStronglyMeasurable.liftIco [TopologicalSpace E]
+@[fun_prop] protected theorem AEStronglyMeasurable.liftIco [TopologicalSpace E]
     (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (liftIco T a f) :=
   (hf.liftIoc T a).congr (liftIoc_ae_eq_liftIco f)
 
-protected theorem AEMeasurable.liftIoc [MeasurableSpace E] (hf : AEMeasurable f) :
+@[fun_prop] protected theorem AEMeasurable.liftIoc [MeasurableSpace E] (hf : AEMeasurable f) :
     AEMeasurable (liftIoc T a f) :=
   (map_subtypeVal_map_equivIoc_volume T a ▸ hf.restrict).comp_measurable
     measurable_subtype_coe |>.comp_measurable (measurable_equivIoc T a)
 
-protected theorem AEMeasurable.liftIco [MeasurableSpace E] (hf : AEMeasurable f) :
+@[fun_prop] protected theorem AEMeasurable.liftIco [MeasurableSpace E] (hf : AEMeasurable f) :
     AEMeasurable (liftIco T a f) :=
   (hf.liftIoc T a).congr (liftIoc_ae_eq_liftIco f)
+
+theorem map_coe_addCircle_volume_eq :
+    Measure.map (fun (x : ℝ) ↦ (x : AddCircle T)) volume =
+      (⊤ : ℝ≥0∞) • (volume : Measure (AddCircle T)) := by
+  have : (volume : Measure ℝ) =
+      Measure.sum (fun (n : ℤ) ↦ volume.restrict (Ioc (n • T) ((n + 1) • T))) := by
+    rw [← restrict_iUnion (Set.pairwise_disjoint_Ioc_zsmul T) (fun n ↦ measurableSet_Ioc),
+      iUnion_Ioc_zsmul hT.out, restrict_univ]
+  rw [this, Measure.map_sum (by fun_prop)]
+  have A (n : ℤ) : Measure.map (fun (x : ℝ) ↦ (x : AddCircle T))
+      (volume.restrict (Ioc (n • T) ((n + 1) • T)) ) = volume := by
+    simp only [zsmul_eq_mul, Int.cast_add, Int.cast_one, add_mul, one_mul]
+    exact (AddCircle.measurePreserving_mk T (n * T)).map_eq
+  simp only [A]
+  ext s hs
+  simp [hs]
+
+theorem quasiMeasurePreserving_coe_addCircle :
+    QuasiMeasurePreserving (fun (x : ℝ) ↦ (x : AddCircle T)) := by
+  refine ⟨by fun_prop, ?_⟩
+  rw [map_coe_addCircle_volume_eq]
+  exact smul_absolutelyContinuous
 
 end MeasureTheory
 
@@ -142,11 +164,21 @@ theorem eLpNorm_liftIoc (p : ℝ≥0∞) :
   exact (eLpNorm_comp_measurePreserving (hf.liftIoc T a) (AddCircle.measurePreserving_mk T a)).symm
 
 /-- The norm of the lift of a function `f` is equal to the norm of `f` on that period. -/
+theorem eLpNorm_liftIoc' (p : ℝ≥0∞) :
+    eLpNorm (AddCircle.liftIoc T a f) p = eLpNorm f p (volume.restrict ((Set.Ioc a (a + T)))) := by
+  rw [eLpNorm_liftIoc _ _ hf, eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc]
+
+/-- The norm of the lift of a function `f` is equal to the norm of `f` on that period. -/
 theorem eLpNorm_liftIco (p : ℝ≥0∞) :
     eLpNorm (AddCircle.liftIco T a f) p = eLpNorm ((Set.Ico a (a + T)).indicator f) p := by
   rw [eLpNorm_congr_ae (liftIoc_ae_eq_liftIco f).symm, eLpNorm_liftIoc T a hf,
     eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ico,
     eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc, restrict_Ico_eq_restrict_Ioc]
+
+/-- The norm of the lift of a function `f` is equal to the norm of `f` on that period. -/
+theorem eLpNorm_liftIco' (p : ℝ≥0∞) :
+    eLpNorm (AddCircle.liftIco T a f) p = eLpNorm f p (volume.restrict (Set.Ico a (a + T))) := by
+  rw [eLpNorm_liftIco _ _ hf, eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ico]
 
 /-- The norm of the lift of a periodic function `f` is equal to the norm of `f` on any period. -/
 theorem eLpNorm_liftIoc_of_periodic (hfT : Periodic f T) (p : ℝ≥0∞) :
@@ -154,9 +186,21 @@ theorem eLpNorm_liftIoc_of_periodic (hfT : Periodic f T) (p : ℝ≥0∞) :
   rw [liftIoc_eq_liftIoc a a' hfT, eLpNorm_liftIoc T a' hf p]
 
 /-- The norm of the lift of a periodic function `f` is equal to the norm of `f` on any period. -/
+theorem eLpNorm_liftIoc_of_periodic' (hfT : Periodic f T) (p : ℝ≥0∞) :
+    eLpNorm (AddCircle.liftIoc T a f) p = eLpNorm f p (volume.restrict (Set.Ioc a' (a' + T))) := by
+  rw [eLpNorm_liftIoc_of_periodic T a a' hf hfT,
+    eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc]
+
+/-- The norm of the lift of a periodic function `f` is equal to the norm of `f` on any period. -/
 theorem eLpNorm_liftIco_of_periodic (hfT : Periodic f T) (p : ℝ≥0∞) :
     eLpNorm (AddCircle.liftIco T a f) p = eLpNorm ((Set.Ico a' (a' + T)).indicator f) p := by
   rw [liftIco_eq_liftIco a a' hfT, eLpNorm_liftIco T a' hf p]
+
+/-- The norm of the lift of a periodic function `f` is equal to the norm of `f` on any period. -/
+theorem eLpNorm_liftIco_of_periodic' (hfT : Periodic f T) (p : ℝ≥0∞) :
+    eLpNorm (AddCircle.liftIco T a f) p = eLpNorm f p (volume.restrict (Set.Ico a' (a' + T))) := by
+  rw [eLpNorm_liftIco_of_periodic T a a' hf hfT,
+    eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ico]
 
 end eLpNorm
 

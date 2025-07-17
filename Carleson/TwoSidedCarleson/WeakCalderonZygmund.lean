@@ -1,5 +1,4 @@
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
-import Carleson.ToMathlib.Data.Set.Card
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Measure.SumRestrict
 import Carleson.TwoSidedCarleson.Basic
@@ -1080,7 +1079,7 @@ lemma estimate_good (hf : BoundedFiniteSupport f)
       apply distribution_le
       · exact ENNReal.pow_ne_zero (ENNReal.div_ne_zero.mpr ⟨ne_zero_of_lt hα, ofNat_ne_top⟩) 2
       · change AEMeasurable (czOperator K r (czApproximation f (α' a α)) · ^ 2) volume
-        refine czOperator_aestronglyMeasurable' ?_ |>.aemeasurable.pow_const 2
+        refine czOperator_aestronglyMeasurable ?_ |>.aemeasurable.pow_const 2
         exact aemeasurable_czApproximation (hf := hf.aemeasurable) |>.aestronglyMeasurable
     _ = 2 ^ 2 / α ^ 2 * ∫⁻ y, ‖czOperator K r (czApproximation f (c10_0_3 a * α)) y‖ₑ ^ 2 := by
       congr
@@ -1285,7 +1284,7 @@ private lemma integral_g (hf : BoundedFiniteSupport f) (hα : 0 < α) (hX : Gene
   rw [integral_sub (integrableOn_g₀ hf hα hX j) (integrableOn_d hX j)]
   suffices (volume.real (czBall3 hX j) : ℂ) * ((volume.real (czBall3 hX j)) : ℂ)⁻¹ = 1 by
     simp [d, this, setAverage_eq, ← mul_assoc]
-  exact_mod_cast mul_inv_cancel₀ (measure_real_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne'
+  exact_mod_cast mul_inv_cancel₀ (measureReal_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne'
 
 private lemma lintegral_enorm_half_g (hf : BoundedFiniteSupport f) (hα : 0 < α)
     (hX : GeneralCase f (α' a α)) (j : ℕ) :
@@ -1660,11 +1659,11 @@ lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
 
 /- ### Lemmas 10.0.3 -/
 
-/-- The constant used in `czoperator_weak_1_1`. -/
+/-- The constant used in `czOperator_weak_1_1`. -/
 irreducible_def C10_0_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 21 * a)
 
 /-- Lemma 10.0.3, blueprint form. -/
-lemma estimate_czoperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport f)
+lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport f)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     distribution (czOperator K r f) α volume ≤ C10_0_3 a / α * eLpNorm f 1 volume := by
   rcases le_or_gt α (⨍⁻ x, ‖f x‖ₑ / c10_0_3 a) with hα | hα
@@ -1700,7 +1699,7 @@ lemma estimate_czoperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
         _ = ‖czOperator K r (czApproximation f (α' a α)) x +
             czOperator K r (czRemainder f (α' a α)) x‖ₑ := by
           congr 1; rw [← sub_eq_iff_eq_add']
-          have key := congrFun (czoperator_sub (K := K) hf (hf.czApproximation α'pos) hr) x
+          have key := congrFun (czOperator_sub (K := K) hf (hf.czApproximation α'pos) hr) x
           rw [Pi.sub_apply] at key; exact key.symm
         _ ≤ _ := enorm_add_le _ _
         _ ≤ _ := add_le_add mx.1 mx.2
@@ -1732,12 +1731,12 @@ lemma estimate_czoperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
 
 /-- Lemma 10.0.3, formulated differently. The blueprint version is basically this after
 unfolding `HasBoundedWeakType`, `wnorm` and `wnorm'`. -/
-theorem czoperator_weak_1_1 (ha : 4 ≤ a) (hr : 0 < r)
+theorem czOperator_weak_1_1 (ha : 4 ≤ a) (hr : 0 < r)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasBoundedWeakType (czOperator K r) 1 1 volume volume (C10_0_3 a) := fun f hf ↦ by
-  refine ⟨czOperator_aestronglyMeasurable hf, ?_⟩
+  refine ⟨czOperator_aestronglyMeasurable hf.aestronglyMeasurable, ?_⟩
   simp_rw [wnorm, one_ne_top, ite_false, wnorm', toReal_one, inv_one, rpow_one, iSup_le_iff]
   intro α; apply mul_le_of_le_div'; rw [ENNReal.mul_div_right_comm]
-  exact estimate_czoperator ha hr hf hT
+  exact estimate_czOperator ha hr hf hT
 
 end
