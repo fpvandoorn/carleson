@@ -617,8 +617,7 @@ lemma support_subset_of_norm_le_indicator {g : X → ℝ} {A : Set X} (h2f : ∀
 
 open Classical in
 /-- Part of Lemma 7.7.2. -/
-lemma row_bound (_ : j < 2 ^ n) (hg : BoundedCompactSupport g)
-    (h2g : g.support ⊆ G) :
+lemma row_bound (hg : BoundedCompactSupport g) (h2g : g.support ⊆ G) :
     eLpNorm (adjointCarlesonRowSum t j g) 2 volume ≤ C7_7_2_1 a n * eLpNorm g 2 volume := by
   eta_expand
   simp_rw [adjointCarlesonRowSum, ← Finset.sum_apply]
@@ -660,8 +659,7 @@ lemma row_bound (_ : j < 2 ^ n) (hg : BoundedCompactSupport g)
 
 open Classical in
 /-- Part of Lemma 7.7.2. -/
-lemma indicator_row_bound (_ : j < 2 ^ n) (hg : BoundedCompactSupport g)
-    (h2g : g.support ⊆ G) :
+lemma indicator_row_bound (hg : BoundedCompactSupport g) (h2g : g.support ⊆ G) :
     eLpNorm (F.indicator (adjointCarlesonRowSum t j g)) 2 volume ≤
     C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
   calc eLpNorm (F.indicator (adjointCarlesonRowSum t j g)) 2 volume
@@ -1007,7 +1005,7 @@ lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.i
         · rw [indicator_of_notMem mx, norm_zero]; exact indicator_apply_nonneg fun _ ↦ by simp
       gcongr with j mj j mj j' mj'
       · simp_rw [Finset.mem_range] at mj
-        exact row_bound mj (bcsrsi j) (support_subset_of_norm_le_indicator nleg)
+        exact row_bound (bcsrsi j) (support_subset_of_norm_le_indicator nleg)
       · simp_rw [Finset.mem_filter, Finset.mem_range] at mj mj'
         exact row_correlation mj mj'.1 mj'.2 (bcsrsi j) (support_subset_of_norm_le_indicator nleg)
           (bcsrsi j') (support_subset_of_norm_le_indicator nleg)
@@ -1128,7 +1126,7 @@ lemma forest_operator_f_inner
           measurableSet_F).enorm.aestronglyMeasurable.aemeasurable
       · exact bf.enorm.aestronglyMeasurable.aemeasurable
     _ ≤ _ := by
-      exact mul_le_mul_right' (indicator_row_bound hj bIGTf support_indicator_subset) _
+      exact mul_le_mul_right' (indicator_row_bound bIGTf support_indicator_subset) _
 
 open Classical in
 lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
