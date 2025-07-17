@@ -1086,8 +1086,7 @@ lemma forest_operator_f_prelude
           bf.carlesonSum).indicator measurableSet_G).enorm.aestronglyMeasurable.aemeasurable
 
 /-- https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Problems.20in.20the.20forest.20operator.20proposition/near/522771057 -/
-lemma forest_operator_f_inner
-    (hj : j < 2 ^ n) (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     eLpNorm (G.indicator (carlesonRowSum t j f)) 2 ≤
     C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 := by
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
@@ -1183,8 +1182,8 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
       · simp [indicator_of_notMem hx]
     _ ≤ ∑ j ∈ Finset.range (2 ^ n),
         (C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2) ^ 2 := by
-      gcongr with j mj; rw [Finset.mem_range] at mj
-      exact forest_operator_f_inner mj hf h2f
+      gcongr with j
+      exact forest_operator_f_inner hf h2f
     _ = _ := by
       rw [Finset.sum_const, Finset.card_range, nsmul_eq_mul, Nat.cast_pow, Nat.cast_ofNat,
         ← ENNReal.rpow_natCast, ← div_mul_cancel₀ (n : ℝ) (show ((2 : ℕ) : ℝ) ≠ 0 by norm_num),
