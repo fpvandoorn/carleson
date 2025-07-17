@@ -120,29 +120,9 @@ lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
 Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
 
--- unfortunate technicality
-lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
-    (hf : MemLp f 2) : ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
-  rw [show ∫ x, ofReal (normSq (f x)) = ofReal (∫ x, normSq (f x)) by exact integral_ofReal]
-  rw [nnnorm_real]
-  have hnn: 0 ≤ ∫ x, normSq (f x) := by-- todo: adjust `positivity` to handle this
-    refine integral_nonneg ?_
-    refine Pi.le_def.mpr ?_
-    exact fun _ ↦ normSq_nonneg _
-  rw [← enorm_eq_nnnorm, Real.enorm_eq_ofReal hnn]
-  rw [hf.eLpNorm_eq_integral_rpow_norm (NeZero.ne 2) ENNReal.ofNat_ne_top]
-  rw [← ENNReal.rpow_natCast, ENNReal.ofReal_rpow_of_nonneg (by positivity) (by simp)]
-  rw [ENNReal.toReal_ofNat, Nat.cast_ofNat]
-  suffices ∫ x, normSq (f x) = ((∫ x, ‖f x‖ ^ 2) ^ ((2:ℝ)⁻¹)) ^ (2:ℝ) by
-    simp_rw [← Real.rpow_two] at this; rw [this]
-  have h : ∫ x, normSq (f x) = ∫ x, ‖f x‖ ^ 2 := by congr!; exact normSq_eq_norm_sq _
-  rw [← Real.rpow_mul ?_, IsUnit.inv_mul_cancel (by simp), Real.rpow_one]
-  · exact h
-  · rw [← h]; exact hnn
-
 /-- Lemma 7.4.2. -/
 lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
-  (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
+    (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
@@ -150,9 +130,8 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
   have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
   have h := density_tree_bound1 hg hf h2f hu
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
-  have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
-      (eLpNorm g 2 volume)^2 := by
-    simp_rw [mul_comm, g, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memLp 2
+  have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖ₑ = eLpNorm g 2 volume ^ 2 := by
+    simp_rw [eLpNorm_two_eq_enorm_integral_mul_conj (hg.memLp 2), mul_comm, g]
   rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
   by_cases hgz : eLpNorm g 2 volume = 0
   · simp [hgz]
