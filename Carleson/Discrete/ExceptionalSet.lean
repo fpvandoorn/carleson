@@ -145,9 +145,9 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     _ ≤ 2 ^ (k + 1) * ∑ j ∈ M', volume (G ∩ j) := by
       rw [Finset.mul_sum]; refine Finset.sum_le_sum fun i hi ↦ ?_
       replace hi : i ∈ M := Finset.mem_of_subset (Finset.filter_subset _ M) hi
-      simp_rw [M, Finset.mem_filter, Finset.mem_univ, true_and] at hi
-      rw [← ENNReal.rpow_intCast, show (-(k + 1 : ℕ) : ℤ) = (-(k + 1) : ℝ) by simp,
-        mul_comm, ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
+      rw [Finset.mem_filter_univ, ← ENNReal.rpow_intCast,
+        show (-(k + 1 : ℕ) : ℤ) = (-(k + 1) : ℝ) by simp, mul_comm,
+        ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
         ← ENNReal.rpow_neg, neg_neg] at hi
       exact_mod_cast hi.le
     _ = 2 ^ (k + 1) * volume (⋃ j ∈ M', G ∩ j) := by
@@ -177,15 +177,15 @@ lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Se
   simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at hx ⊢
   obtain ⟨b, memb, minb⟩ := M.exists_min_image 𝔰 (Finset.card_pos.mp (zero_le'.trans_lt hx))
-  simp_rw [M, Finset.mem_filter, Finset.mem_univ, true_and] at memb minb
+  simp_rw [M, Finset.mem_filter_univ] at memb minb
   use 𝓘 b, memb.2; intro c mc; rw [mem_setOf]
   refine hx.trans_le (Finset.card_le_card fun y hy ↦ ?_)
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hy ⊢
+  rw [Finset.mem_filter_univ] at hy ⊢
   exact ⟨hy.1, mem_of_mem_of_subset mc (le_of_mem_of_mem (minb y hy) memb.2 hy.2).1⟩
 
 lemma iUnion_MsetA_eq_setA : ⋃ i ∈ MsetA (X := X) l k n, ↑i = setA (X := X) l k n := by
   ext x
-  simp_rw [mem_iUnion₂, MsetA, Finset.mem_filter, Finset.mem_univ, true_and]
+  simp_rw [mem_iUnion₂, MsetA, Finset.mem_filter_univ]
   constructor <;> intro mx
   · obtain ⟨j, mj, lj⟩ := mx; exact mem_of_mem_of_subset lj mj
   · obtain ⟨j, mj, lj⟩ := dyadic_union mx; use j, lj, mj
@@ -202,8 +202,8 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     at mx
   simp_rw [mem_setOf_eq, and_assoc] at mx
   have mid0 : stackSize { p' ∈ 𝔐 k n | ¬𝓘 p' ≤ L ∧ Disjoint (𝓘 p' : Set X) L} x = 0 := by
-    simp_rw [stackSize, Finset.sum_eq_zero_iff, indicator_apply_eq_zero,
-      show ¬(1 : X → ℕ) x = 0 by simp, imp_false, Finset.mem_filter, Finset.mem_univ, true_and]
+    simp_rw [stackSize, Finset.sum_eq_zero_iff, indicator_apply_eq_zero, Finset.mem_filter_univ,
+      show ¬(1 : X → ℕ) x = 0 by simp, imp_false]
     rintro y ⟨-, -, dj2⟩
     exact disjoint_right.mp dj2 mx₂
   rw [mid0, zero_add] at mx

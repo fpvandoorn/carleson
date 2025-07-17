@@ -435,7 +435,7 @@ lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 
     stackSize C x = stackSize C x' := by
   classical
   refine Finset.sum_congr rfl fun p hp ↦ ?_
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hp
+  rw [Finset.mem_filter_univ] at hp
   simp_rw [indicator, h p hp, Pi.one_apply]
 
 lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
@@ -462,12 +462,12 @@ lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
     · simp [pC]
     · intro b hb hbp
       simp only [indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false]
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hb
+      classical rw [Finset.mem_filter_univ] at hb
       exact disjoint_left.1 (h pC hb hbp.symm) hp
     simp [hp]
   · have : stackSize C x = 0 := by
       apply Finset.sum_eq_zero (fun p hp ↦ ?_)
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_exists, not_and,
+      simp only [Finset.mem_filter_univ, not_exists, not_and,
         indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at hp hx ⊢
       exact hx _ hp
     linarith
@@ -476,7 +476,7 @@ lemma eq_empty_of_forall_stackSize_zero (s : Set (𝔓 X)) :
   (∀ x, stackSize s x = 0) → s = ∅ := by
   intro h
   dsimp [stackSize] at h
-  simp only [Finset.sum_eq_zero_iff, Finset.mem_filter, Finset.mem_univ, true_and,
+  simp only [Finset.sum_eq_zero_iff, Finset.mem_filter_univ,
     indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at h
   ext 𝔲
   simp only [mem_empty_iff_false, iff_false]
@@ -595,7 +595,7 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
       ≤ stackSize {q | q ∈ A ∧ q ≠ p} x := by
     apply Finset.sum_le_sum_of_subset
     rintro p hp
-    simp only [mem_image, mem_Iio, Finset.mem_filter, Finset.mem_univ, true_and] at hp
+    simp only [Finset.mem_filter_univ, mem_image, mem_Iio] at hp
     rcases hp with ⟨n, hn, rfl⟩
     simp only [ne_eq, mem_setOf_eq, Finset.mem_filter,
       Finset.mem_univ, iteratedMaximalSubfamily_subset _ _ (hu n hn), true_and]
@@ -604,7 +604,7 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
   have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
       = ∑ p ∈ {p | p ∈ u '' (Iio N)}, 1 := by
     apply Finset.sum_congr rfl (fun p hp ↦ ?_)
-    simp only [mem_image, mem_Iio, Finset.mem_filter, Finset.mem_univ, true_and] at hp
+    simp only [Finset.mem_filter_univ, mem_image, mem_Iio] at hp
     rcases hp with ⟨n, hn, rfl⟩
     have : x ∈ (𝓘 (u n) : Set X) := h'u n hn hxp
     simp [this]

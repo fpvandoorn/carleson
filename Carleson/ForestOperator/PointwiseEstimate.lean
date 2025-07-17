@@ -128,7 +128,7 @@ lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ 
     suffices ∀ i ∈ (Finset.univ.filter (· ∈ C)).filter (¬ J = ·),
       (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = 0 by simp [Finset.sum_congr rfl this]
     intro i hi
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi
+    rw [Finset.mem_filter, Finset.mem_filter_univ] at hi
     apply indicator_of_notMem <|
       Set.disjoint_left.mp ((hC.eq_or_disjoint hJ hi.1).resolve_left hi.2) xJ
   have eq_ave : ∑ i ∈ (Finset.univ.filter (· ∈ C)).filter (J = ·),
@@ -662,7 +662,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
   rcases (t.σ u x).eq_empty_or_nonempty with hne | hne; · simp [hne]
   let s₁ := Finset.min' (t.σ u x) hne
   have ms₁ : s₁ ∈ t.σ u x := Finset.min'_mem ..
-  simp_rw [σ, Finset.mem_image, Finset.mem_filter, Finset.mem_univ, true_and] at ms₁
+  simp_rw [σ, Finset.mem_image, Finset.mem_filter_univ] at ms₁
   obtain ⟨p, ⟨mp, xp, _, _⟩, sp⟩ := ms₁
   have Lle : L ≤ 𝓘 p := by
     rcases 𝓛_subset_𝓛₀ hL with hL | hL
@@ -670,7 +670,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
     · exact (le_or_ge_of_mem_of_mem xp hx).resolve_left (hL.2 p mp)
   let s₂ := Finset.max' (t.σ u x) hne
   have ms₂ : s₂ ∈ t.σ u x := Finset.max'_mem ..
-  simp_rw [σ, Finset.mem_image, Finset.mem_filter, Finset.mem_univ, true_and] at ms₂
+  simp_rw [σ, Finset.mem_image, Finset.mem_filter_univ] at ms₂
   obtain ⟨p', ⟨mp', xp', Qxp', _⟩, sp'⟩ := ms₂
   have s_ineq : 𝔰 p ≤ 𝔰 p' := by
     rw [sp, sp']; exact (t.σ u x).min'_le s₂ (Finset.max'_mem ..)
@@ -746,7 +746,7 @@ private lemma p_sum_eq_s_sum {α : Type*} [AddCommMonoid α] (I : ℤ → X → 
       ∑ p ∈ Finset.univ.filter (· ∈ t.𝔗 u), (E p).indicator (I (𝔰 p)) x := by
     apply Finset.sum_subset (fun p hp ↦ by simp [(Finset.mem_filter.mp hp).2.1])
     intro p p𝔗 p𝔗'
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_and, 𝔗'] at p𝔗 p𝔗'
+    simp_rw [𝔗', Finset.mem_filter_univ, not_and] at p𝔗 p𝔗'
     exact indicator_of_notMem (p𝔗' p𝔗) (I (𝔰 p))
   rw [← this]
   -- Now the relevant values of `p` and `s` are in bijection.

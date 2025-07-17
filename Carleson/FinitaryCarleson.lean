@@ -42,8 +42,8 @@ private lemma 𝔓_biUnion : @Finset.univ (𝔓 X) _ = (Icc (-S : ℤ) S).toFins
 private lemma sum_eq_zero_of_notMem_Icc {f : X → ℂ} {x : X} (s : ℤ)
     (hs : s ∈ (Icc (-S : ℤ) S).toFinset.filter (fun t ↦ t ∉ Icc (σ₁ x) (σ₂ x))) :
     ∑ i ∈ Finset.univ.filter (fun p ↦ 𝔰 p = s), carlesonOn i f x = 0 := by
-  refine Finset.sum_eq_zero (fun p hp ↦ ?_)
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp
+  refine Finset.sum_eq_zero fun p hp ↦ ?_
+  rw [Finset.mem_filter_univ] at hp
   simp only [mem_Icc, not_and, not_le, toFinset_Icc, Finset.mem_filter, Finset.mem_Icc] at hs
   rw [carlesonOn, Set.indicator_of_notMem]
   simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_setOf_eq, not_and, not_le]

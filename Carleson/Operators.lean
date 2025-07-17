@@ -245,8 +245,7 @@ lemma adjointCarlesonSum_inter {A B : Set (𝔓 X)} {f : X → ℂ} {x : X} :
   · simp only [Finset.disjoint_filter, mem_diff, not_and, not_not]
     exact fun x _ ⟨xA, xB⟩ _ ↦ xB
   congr; ext x
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and, mem_inter_iff, mem_diff,
-    Finset.mem_union]
+  simp_rw [Finset.mem_union, Finset.mem_filter_univ, mem_inter_iff, mem_diff]
   tauto
 
 variable {f g : X → ℂ}

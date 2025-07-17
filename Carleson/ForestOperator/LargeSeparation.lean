@@ -1078,8 +1078,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
     _ ≤ ∑ k ∈ Finset.Icc (s J) (s J + 3),
         ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
           2 ^ (103 * a ^ 3) * (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ := by
-      gcongr with k mk p mp
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+      gcongr with k mk p mp; rw [Finset.mem_filter_univ] at mp
       exact local_tree_control_sup_bound mk mp hf.aestronglyMeasurable.enorm
     _ = 2 ^ (103 * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
         (volume (ball (c J) (16 * D ^ k)))⁻¹ *
@@ -1102,7 +1101,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
     _ ≤ 2 ^ (103 * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
         (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in ball (c J) (16 * D ^ k), ‖f x‖ₑ := by
       gcongr with k mk; refine lintegral_mono_set (iUnion₂_subset fun p mp ↦ ?_)
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+      rw [Finset.mem_filter_univ] at mp
       refine (E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball' ?_)
       obtain ⟨y, my₁, my₂⟩ := not_disjoint_iff.mp mp.2
       rw [mem_ball] at my₁ my₂; change 4 * D ^ 𝔰 p + dist (𝔠 p) (c J) ≤ _
@@ -1501,7 +1500,7 @@ lemma support_holderFunction_subset (u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J :
   rw [support_subset_iff']; intro x nx
   have : adjointCarlesonSum (t u₁) f₁ x = 0 := by
     refine Finset.sum_eq_zero fun p mp ↦ ?_
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+    simp_rw [Finset.mem_filter_univ] at mp
     rw [adjoint_tile_support2 hu₁ mp]
     exact indicator_of_notMem nx _
   rw [holderFunction, this, mul_zero, mul_zero, zero_mul]
@@ -1545,7 +1544,7 @@ lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   by_cases mu₁ : x ∉ 𝓘 u₁
   · have : adjointCarlesonSum (t u₁) f₁ x = 0 := by
       refine Finset.sum_eq_zero fun p mp ↦ ?_
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+      simp_rw [Finset.mem_filter_univ] at mp
       rw [adjoint_tile_support2 hu₁ mp]
       exact indicator_of_notMem mu₁ _
     rw [this, enorm_zero, mul_zero, zero_mul]; exact zero_le _

@@ -78,14 +78,14 @@ lemma dens1_antichain_dach (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.ind
         ‖∫ x, adjointCarleson p' g x * conj (adjointCarleson p g x)‖ₑ := by
       congr! 2 with p mp; nth_rw 2 [← Finset.filter_filter]
       refine (Finset.sum_filter_of_ne fun x mx nx ↦ ?_).symm
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mx
+      rw [Finset.mem_filter_univ] at mx
       contrapose! nx; exact Tile.correlation_zero_of_ne_subset mx.2 nx
     _ ≤ 2 * ∑ p with p ∈ 𝔄,
         ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
         Tile.C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) /
         volume (𝓘 p : Set X) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ x in E p, ‖g x‖ₑ := by
       gcongr with p mp p' mp'
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp'
+      rw [Finset.mem_filter_univ] at mp'
       exact Tile.correlation_le mp'.1.2 hg hgG
     _ = 2 * Tile.C6_1_5 a * ∑ p with p ∈ 𝔄, (∫⁻ x in E p, ‖g x‖ₑ) * (volume (𝓘 p : Set X))⁻¹ *
         ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
@@ -169,7 +169,7 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
         rw [← mul_assoc, ← mul_assoc, mul_comm _ (_ ^ _), mul_assoc, mul_assoc]
       congr! 2 with p' mp'
       rw [← mul_assoc, ← inter_indicator_mul]; simp_rw [Pi.one_apply, mul_one]
-      simp_rw [A, mem_setOf_eq, Finset.mem_filter, Finset.mem_univ, true_and] at mp'
+      simp_rw [A, mem_setOf_eq, Finset.mem_filter_univ] at mp'
       have inter_eq : B ∩ E p' = E p' := by
         rw [inter_eq_right]; exact E_subset_𝓘.trans mp'.2
       rw [inter_eq]
@@ -249,7 +249,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
         ∫⁻ y in E p, C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by
       gcongr with p mp; rw [← lintegral_const_mul _ hg.enorm]
       refine setLIntegral_mono' measurableSet_E fun x mx ↦ mul_le_mul_right' ?_ _
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+      rw [Finset.mem_filter_univ] at mp
       refine dach_bound h𝔄 mp hg hgG <|
         ((E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball ?_)) mx
       change (4 : ℝ) * D ^ 𝔰 p ≤ _; gcongr; norm_num
@@ -264,7 +264,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
         have := (E_disjoint h𝔄 mp mp').mt hn
         rwa [not_not] at this
       · exact fun _ _ ↦ measurableSet_E
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+      simp only [Finset.mem_filter_univ]
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         ∫⁻ y, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by gcongr; exact setLIntegral_le_lintegral _ _
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *

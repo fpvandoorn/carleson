@@ -178,7 +178,7 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ �
     have hxE : x ∈ E ↑p := mem_of_indicator_ne_zero hpx
     have hne_p : ∀ b ∈ ({p | p ∈ 𝔄} : Finset (𝔓 X)), b ≠ ↑p → carlesonOn b f x = 0 := by
       intro p' hp' hpp'
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp'
+      rw [Finset.mem_filter_univ] at hp'
       by_contra hp'x
       exact hpp' (E_disjoint h𝔄 hp' p.2 <|
         not_disjoint_iff.mpr ⟨x, mem_of_indicator_ne_zero hp'x, hxE⟩)
@@ -267,9 +267,9 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ �
       simp only [iSup_le_iff, ENNReal.rpow_one]
       exact (fun _ hc ↦ hc p.1 p.2)
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
-    have h0 : (carlesonSum 𝔄 f x) = 0 := by
-      apply Finset.sum_eq_zero (fun p hp ↦ ?_)
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp
+    have h0 : carlesonSum 𝔄 f x = 0 := by
+      refine Finset.sum_eq_zero (fun p hp ↦ ?_)
+      rw [Finset.mem_filter_univ] at hp
       exact hx p hp
     simp only [h0, enorm_zero, zero_le]
 
