@@ -413,10 +413,10 @@ variable {C C' : Set (𝔓 X)} {x x' : X}
 open scoped Classical in
 /-- The number of tiles `p` in `s` whose underlying cube `𝓘 p` contains `x`. -/
 def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
-  ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator 1 x
+  ∑ p with p ∈ C, (𝓘 p : Set X).indicator 1 x
 
 lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
-    stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬ P p} x = stackSize C x := by
+    stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬P p} x = stackSize C x := by
   classical
   simp_rw [stackSize]
   conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ P]
@@ -445,7 +445,7 @@ lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
 open scoped Classical in
 -- Simplify the cast of `stackSize C x` from `ℕ` to `ℝ`
 lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
-    ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
+    ∑ p with p ∈ C, (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
   rw [stackSize, Nat.cast_sum]
   refine Finset.sum_congr rfl (fun u _ ↦ ?_)
   by_cases hx : x ∈ (𝓘 u : Set X) <;> simp [hx]
@@ -591,7 +591,7 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
     ext
     simp (config := {contextual := true}) [hp]
   classical
-  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
+  have : ∑ p with p ∈ u '' (Iio N), (𝓘 p : Set X).indicator 1 x
       ≤ stackSize {q | q ∈ A ∧ q ≠ p} x := by
     apply Finset.sum_le_sum_of_subset
     rintro p hp
@@ -601,14 +601,14 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
       Finset.mem_univ, iteratedMaximalSubfamily_subset _ _ (hu n hn), true_and]
     rintro rfl
     exact hN n hn (hu n hn)
-  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
-      = ∑ p ∈ {p | p ∈ u '' (Iio N)}, 1 := by
+  have : ∑ p with p ∈ u '' (Iio N), (𝓘 p : Set X).indicator 1 x
+      = ∑ p with p ∈ u '' (Iio N), 1 := by
     apply Finset.sum_congr rfl (fun p hp ↦ ?_)
     simp only [Finset.mem_filter_univ, mem_image, mem_Iio] at hp
     rcases hp with ⟨n, hn, rfl⟩
     have : x ∈ (𝓘 (u n) : Set X) := h'u n hn hxp
     simp [this]
-  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, 1 = N := by
+  have : ∑ p with p ∈ u '' (Iio N), 1 = N := by
     have : Finset.filter (fun p ↦ p ∈ u '' Iio N) Finset.univ = Finset.image u (Finset.Iio N) := by
       ext p; simp
     simp only [Finset.sum_const, smul_eq_mul, mul_one, this]

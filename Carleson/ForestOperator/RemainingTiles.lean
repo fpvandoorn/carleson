@@ -316,8 +316,8 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       gcongr
       linarith
   simp_rw [← Nat.cast_le (α := ℝ≥0∞)] at est₁
-  have est₂ (x) (hx : x ∈ J) : (∑ I ∈ {I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
-      ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) },
+  have est₂ (x) (hx : x ∈ J) : (∑ I with s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+      ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)),
       (ball (c I) (8 * D ^ s I)).indicator (1 : X → ℝ≥0∞) x) ≤
       if x ∈ supp then (defaultA a) ^ 7 else 0 := by
     split_ifs with hx'
@@ -770,7 +770,7 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
   ext x; simp only [approxOnCube]
   classical
   calc
-    _ = ∑ p ∈ {b | b ∈ 𝓙₆ t u₁}, (p : Set X).indicator (fun x ↦ ⨍ y in p,
+    _ = ∑ p with p ∈ 𝓙₆ t u₁, (p : Set X).indicator (fun x ↦ ⨍ y in p,
         ‖U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂) y‖) x := by
       apply (Finset.sum_subset (fun p mp ↦ ?_) (fun p mp np ↦ ?_)).symm
       · rw [Finset.mem_filter_univ] at mp ⊢

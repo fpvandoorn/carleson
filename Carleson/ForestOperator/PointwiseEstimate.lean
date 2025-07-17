@@ -100,7 +100,7 @@ open scoped Classical in
 /-- The projection operator `P_𝓒 f(x)`, given above Lemma 7.1.3.
 In lemmas the `c` will be pairwise disjoint on `C`. -/
 def approxOnCube (C : Set (Grid X)) (f : X → E') (x : X) : E' :=
-  ∑ J ∈ { p | p ∈ C }, (J : Set X).indicator (fun _ ↦ ⨍ y in J, f y) x
+  ∑ J with J ∈ C, (J : Set X).indicator (fun _ ↦ ⨍ y in J, f y) x
 
 lemma stronglyMeasurable_approxOnCube (C : Set (Grid X)) (f : X → E') :
     StronglyMeasurable (approxOnCube (X := X) (K := K) C f) :=
@@ -1114,7 +1114,7 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
     apply (integrable_Ks_x <| one_lt_D (K := K)).bdd_mul
     · exact (stronglyMeasurable_approxOnCube _ _).aestronglyMeasurable
     · classical
-      use ∑ J ∈ { p | p ∈ 𝓙 (t.𝔗 u) }, ‖⨍ y in J, f y‖
+      use ∑ J with J ∈ 𝓙 (t u), ‖⨍ y in J, f y‖
       refine fun x ↦ (norm_sum_le _ _).trans <| Finset.sum_le_sum (fun J hJ ↦ ?_)
       by_cases h : x ∈ (J : Set X) <;> simp [h]
   have : ∃ C, ∀ (y : X), ‖cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ ≤ C := by

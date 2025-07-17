@@ -736,7 +736,7 @@ lemma lintegral_carlesonSum_forest
   classical
   let 𝔉 := forest (X := X) k n j l
   have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ =
-      ∫⁻ x in G \ G', ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ := by
+      ∫⁻ x in G \ G', ‖∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f x‖ₑ := by
     congr with x
     congr
     rw [sum_carlesonSum_of_pairwiseDisjoint]; swap

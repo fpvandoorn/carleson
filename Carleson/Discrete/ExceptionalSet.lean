@@ -385,7 +385,7 @@ section TopTiles
 open scoped Classical in
 /-- The volume of a "layer" in the key function of Lemma 5.2.7. -/
 def layervol (k n : ℕ) (t : ℝ) : ℝ≥0∞ :=
-  volume {x | t ≤ ∑ m ∈ {p | p ∈ 𝔐 (X := X) k n },
+  volume {x | t ≤ ∑ m with m ∈ 𝔐 (X := X) k n,
     (𝓘 m : Set X).indicator (1 : X → ℝ) x}
 
 lemma indicator_sum_eq_natCast {s : Finset (𝔓 X)} :
@@ -434,16 +434,16 @@ lemma lintegral_Ioc_layervol_le {a b : ℕ} : ∫⁻ t in Ioc (a : ℝ) b, layer
     _ = _ := by rw [Finset.sum_const, Nat.card_Ico, nsmul_eq_mul]
 
 open scoped Classical in
-lemma top_tiles_aux : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m : Set X) =
+lemma top_tiles_aux : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) =
     ∫⁻ t in Ioc 0 ((𝔐 (X := X) k n).toFinset.card * 2 ^ (n + 1) : ℝ), layervol (X := X) k n t := by
   set M := 𝔐 (X := X) k n
   set Mc := M.toFinset.card
   calc
-    _ = ∑ m ∈ { p | p ∈ M }, ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
+    _ = ∑ m with m ∈ M, ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
       congr! with m; exact (lintegral_indicator_one coeGrid_measurable).symm
-    _ = ∫⁻ x, ∑ m ∈ { p | p ∈ M }, (𝓘 m : Set X).indicator 1 x :=
+    _ = ∫⁻ x, ∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x :=
       (lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
-    _ = ∫⁻ x, ENNReal.ofReal (∑ m ∈ { p | p ∈ M }, (𝓘 m : Set X).indicator 1 x) := by
+    _ = ∫⁻ x, ENNReal.ofReal (∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x) := by
       congr! 2 with x; rw [ENNReal.ofReal_sum_of_nonneg]
       · congr!; unfold indicator; split_ifs <;> simp
       · exact fun _ _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
@@ -466,7 +466,7 @@ lemma top_tiles_aux : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m 
 
 open scoped Classical in
 /-- Lemma 5.2.7 -/
-lemma top_tiles : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m : Set X) ≤
+lemma top_tiles : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) ≤
     2 ^ (n + k + 3) * volume G := by
   set M := 𝔐 (X := X) k n
   let Mc := M.toFinset.card
@@ -838,16 +838,16 @@ lemma third_exception_aux :
       measure_biUnion_le _ (𝔘₁ k n j).to_countable _
     _ ≤ ∑' u : 𝔘₁ (X := X) k n j, C5_2_9 X n * volume (𝓘 u.1 : Set X) :=
       ENNReal.tsum_le_tsum fun x ↦ boundary_exception
-    _ = C5_2_9 X n * ∑ u ∈ { p | p ∈ 𝔘₁ (X := X) k n j }, volume (𝓘 u : Set X) := by
+    _ = C5_2_9 X n * ∑ u with u ∈ 𝔘₁ (X := X) k n j, volume (𝓘 u : Set X) := by
       rw [filter_mem_univ_eq_toFinset, ENNReal.tsum_mul_left]; congr
       rw [tsum_fintype]; convert (Finset.sum_subtype _ (fun u ↦ mem_toFinset) _).symm; rfl
     _ ≤ C5_2_9 X n * 2 ^ (9 * a - j : ℤ) *
-        ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m : Set X) := by
+        ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) := by
       rw [mul_assoc]; refine mul_le_mul_left' ?_ _
       simp_rw [← lintegral_indicator_one coeGrid_measurable,
         ← lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
       have c1 : ∀ C : Set (𝔓 X),
-          ∫⁻ x, ∑ u ∈ { p | p ∈ C }, (𝓘 u : Set X).indicator 1 x =
+          ∫⁻ x, ∑ u with u ∈ C, (𝓘 u : Set X).indicator 1 x =
           ∫⁻ x, stackSize C x := fun C ↦ by
         refine lintegral_congr fun _ ↦ ?_; rw [stackSize, Nat.cast_sum]; congr!
         simp_rw [indicator]; split_ifs <;> simp
