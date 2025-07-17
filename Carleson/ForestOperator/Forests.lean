@@ -438,7 +438,7 @@ lemma _root_.ENNReal.le_of_pow_le_pow {a b : ℝ≥0∞} {n : ℕ} (hn : n ≠ 0
 
 -- move to mathlib, check name
 @[to_additive]
-lemma _root_.MonoidHomClass.map_mulIndicator {F X A B: Type*} [Monoid A] [Monoid B] [FunLike F A B]
+lemma _root_.MonoidHomClass.map_mulIndicator {F X A B : Type*} [Monoid A] [Monoid B] [FunLike F A B]
     [MonoidHomClass F A B] {s : Set X} (f : F) (x : X) (g : X → A) :
     f (s.mulIndicator g x) = s.mulIndicator (f ∘ g) x := by
   exact (MonoidHomClass.toMonoidHom f).map_mulIndicator s g x
@@ -451,8 +451,8 @@ lemma adjoint_density_tree_bound1
   simp_rw [← adjointCarlesonSum_adjoint hf hg]
   exact density_tree_bound1 hf hg hg2 hu
 
-lemma adjoint_refined_density_tree_bound1 (hu : u ∈ t) (hf : BoundedCompactSupport f) (hf2 : f.support ⊆ G):
-    eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
+lemma adjoint_refined_density_tree_bound1 (hu : u ∈ t) (hf : BoundedCompactSupport f)
+    (hf2 : f.support ⊆ G) : eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
       C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   have hf_indicator : BoundedCompactSupport ((adjointCarlesonSum (t u) f)) :=
     hf.adjointCarlesonSum
@@ -473,7 +473,7 @@ lemma adjoint_density_tree_bound2
   simp_rw [← adjointCarlesonSum_adjoint hf hg]
   exact density_tree_bound2 hf h2f hg h2g hu
 
-lemma adjoint_refined_density_tree_bound2 (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : f.support ⊆ G):
+lemma adjoint_refined_density_tree_bound2 (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : f.support ⊆ G) :
     eLpNorm (F.indicator <| adjointCarlesonSum (t u) f) 2 volume ≤
       ↑(C7_3_1_2 a) * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm (f) 2 volume := by
   have hf_indicator : BoundedCompactSupport (F.indicator (adjointCarlesonSum (t u) (f))) :=
@@ -490,7 +490,7 @@ lemma adjoint_refined_density_tree_bound2 (hu : u ∈ t) (hf : BoundedCompactSup
     rfl
 
 
-lemma adjoint_C7_7_2_bound1 (hu : u ∈ t) (hf : BoundedCompactSupport f):
+lemma adjoint_C7_7_2_bound1 (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm (adjointCarlesonSum (t u) (G.indicator f)) 2 volume ≤
       C7_7_2_1 a n * eLpNorm f 2 volume := by
   calc eLpNorm (adjointCarlesonSum (t u) (G.indicator f)) 2 volume
@@ -508,7 +508,7 @@ lemma adjoint_C7_7_2_bound1 (hu : u ∈ t) (hf : BoundedCompactSupport f):
     exact C7_7_2_1_bounds a n ((show 2 ≤ 4 from by norm_num).trans (four_le_a X))
 
 
-lemma adjoint_C7_7_2_bound2 (hu : u ∈ t) (hf : BoundedCompactSupport f):
+lemma adjoint_C7_7_2_bound2 (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm (F.indicator <| adjointCarlesonSum (t u) (G.indicator f)) 2 volume ≤
       C7_7_2_2 a n * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   calc eLpNorm (F.indicator <| adjointCarlesonSum (t u) (G.indicator f)) 2 volume
@@ -592,7 +592,7 @@ lemma part_2' (hg : BoundedCompactSupport g) {A : Set X} (hA : MeasurableSet A) 
 
 open Classical in
 lemma part_1_and_2 (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) {A : Set X}
-    (ha : MeasurableSet A) (j : ℕ):
+    (ha : MeasurableSet A) (j : ℕ) :
   (eLpNorm (A.indicator <| ∑ u with u ∈ rowDecomp t j, adjointCarlesonSum (t u) g) 2 volume) ^ 2
   ≤ ∑ u with u ∈ rowDecomp t j, (eLpNorm (A.indicator
       (adjointCarlesonSum (t u) (G.indicator ((𝓘 u : Set X).indicator g)))) 2 volume) ^ 2 := by

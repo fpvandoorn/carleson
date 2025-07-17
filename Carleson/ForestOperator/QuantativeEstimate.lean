@@ -457,8 +457,8 @@ lemma _root_.MeasureTheory.BoundedCompactSupport.const_smul (hf : BoundedCompact
 
 omit [TileStructure Q D κ S o] [MetricSpace X] in
 -- rename, move somewhere else
-lemma smul_le_indicator {A : Set X} (hf : f.support ⊆ A) {C : ℝ} (hC : ∀ x, ‖f x‖ ≤ C) (hCpos : 0 < C):
-  ∀ x, ‖(C⁻¹ • f) x‖ ≤ A.indicator 1 x := by
+lemma smul_le_indicator {A : Set X} (hf : f.support ⊆ A) {C : ℝ} (hC : ∀ x, ‖f x‖ ≤ C)
+    (hCpos : 0 < C) : ∀ x, ‖(C⁻¹ • f) x‖ ≤ A.indicator 1 x := by
   intro x
   simp only [Pi.smul_apply, real_smul, ofReal_inv, Complex.norm_mul, norm_inv, norm_real,
     Real.norm_eq_abs]
