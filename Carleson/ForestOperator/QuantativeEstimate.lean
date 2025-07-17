@@ -259,9 +259,8 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   norm_cast
   exact pow_le_pow_right' one_le_two (le_C7_3_3_exponent (four_le_a X) 10 (by norm_num))
 
-/-- The constant used in `density_tree_bound1`.
-Has value `2 ^ (155 * a ^ 3)` in the blueprint, but that was based on an incorrect
-version of Lemma 7.2.1. -/
+/-- The constant used in `density_tree_bound1` and `adjoint_tree_estimate`.
+Has value `2 ^ (202.5 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ (202.5 * (a : ℝ) ^ 3)
 
@@ -380,13 +379,10 @@ lemma eLpNorm_approxOnCube_two_le_self (hf : BoundedCompactSupport f)
   rwa [ENNReal.one_rpow, one_mul] at key
 
 -- Generalization that implies both parts of Lemma 7.3.1
-private lemma density_tree_bound_aux
-    (hf : BoundedCompactSupport f)
-    {c : ℝ≥0∞} (hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤ c * eLpNorm f 2 volume)
-    (hg : BoundedCompactSupport g)
-    (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hu : u ∈ t) :
-    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
+private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
+    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t)
+    {c : ℝ≥0∞} (hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤ c * eLpNorm f 2 volume) :
+    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * c * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   let ℰ := ⋃ p ∈ t u, E p
   have hgℰ : BoundedCompactSupport (ℰ.indicator g) :=
@@ -410,7 +406,7 @@ private lemma density_tree_bound_aux
         push_neg at hx
         by_cases xG : x ∈ G
         · apply indicator_of_notMem (hx xG)
-        · have : g x = 0 := by rw [← norm_le_zero_iff]; simpa [xG] using h2g x
+        · have : g x = 0 := by rw [← notMem_support]; exact xG ∘ (sg ·)
           exact indicator_apply_eq_zero.mpr (fun _ ↦ this)
       have hℰ : MeasurableSet (G ∩ ℰ) :=
         measurableSet_G.inter <| .biUnion (to_countable (t u)) (fun _ _ ↦ measurableSet_E)
@@ -435,32 +431,25 @@ private lemma density_tree_bound_aux
       congr; push_cast; ring
 
 /-- First part of Lemma 7.3.1. -/
-lemma density_tree_bound1
-    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
-    (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hu : u ∈ t) :
-    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
+lemma density_tree_bound1 (hf : BoundedCompactSupport f)
+    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
+    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   have hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤ 1 * eLpNorm f 2 volume := by
     have : ∀ L ∈ 𝓙 (t u), volume ((L : Set X) ∩ univ) ≤ 1 * volume (L : Set X) := by intros; simp
     apply le_of_le_of_eq <| eLpNorm_approxOnCube_two_le pairwiseDisjoint_𝓙 .univ this hf (by tauto)
     rw [ENNReal.one_rpow]
-  simpa using density_tree_bound_aux hf hc hg h2g hu
+  simpa using density_tree_bound_aux hf hg sg hu hc
 
-
-/-- The constant used in `density_tree_bound2`.
-Has value `2 ^ (256 * a ^ 3)` in the blueprint, but that was based on an incorrect
-version of Lemma 7.2.1. -/
+/-- The constant used in `density_tree_bound2` and `indicator_adjoint_tree_estimate`.
+Has value `2 ^ (303 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (303 * (a : ℝ) ^ 3)
 
 /-- Second part of Lemma 7.3.1. -/
 lemma density_tree_bound2
-    (hf : BoundedCompactSupport f)
-    (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : BoundedCompactSupport g)
-    (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hu : u ∈ t) :
+    (hf : BoundedCompactSupport f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
@@ -470,7 +459,7 @@ lemma density_tree_bound2
     have : ∀ J ∈ 𝓙 (t u), volume (J ∩ F) ≤ C7_3_3 a * dens₂ (t u) * volume (J : Set X) :=
       fun J hJ ↦ by rw [inter_comm]; apply local_dens2_tree_bound hu hJ
     exact eLpNorm_approxOnCube_two_le pairwiseDisjoint_𝓙 measurableSet_F this hf h2f
-  apply le_of_le_of_eq (density_tree_bound_aux hf hc hg h2g hu)
+  apply le_of_le_of_eq (density_tree_bound_aux hf hg sg hu hc)
   rw [ENNReal.mul_rpow_of_nonneg _ _ (inv_pos_of_pos two_pos).le]
   calc
     _ = (C7_3_1_1 a) * (C7_3_3 a) ^ (2 : ℝ)⁻¹ * dens₁ ((fun x ↦ t.𝔗 x) u) ^ (2 : ℝ)⁻¹ *
