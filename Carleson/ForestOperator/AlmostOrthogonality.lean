@@ -142,7 +142,7 @@ lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
 
 /-- Lemma 7.4.2. -/
 lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
-  (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
+  (h2f : f.support ⊆ G) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
@@ -196,7 +196,7 @@ lemma C7_4_3_le (ha : 4 ≤ a) : C7_4_3 a ≤ 2 ^ (203 * a ^ 3) := by
 
 /-- Lemma 7.4.3. -/
 lemma adjoint_tree_control
-    (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
+    (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : f.support ⊆ G) :
     eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤ C7_4_3 a * eLpNorm f 2 volume := by
   have m₁ : AEStronglyMeasurable (‖adjointCarlesonSum (t u) f ·‖ₑ) :=
     hf.aestronglyMeasurable.adjointCarlesonSum.enorm.aestronglyMeasurable
