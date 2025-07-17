@@ -83,10 +83,6 @@ def holderFunction (f₁ f₂ : X → ℂ) (J : Grid X) (x : X) : ℂ :=
 
 /- AUXILIARY LEMMAS:START -/
 
-lemma IF_subset_THEN_distance_between_centers (subset : (J : Set X) ⊆ J') :
-    dist (c J) (c J') < 4 * D ^ s J' :=
-  Grid_subset_ball (subset Grid.c_mem_Grid)
-
 lemma IF_subset_THEN_not_disjoint {A B : Grid X} (h : (A : Set X) ⊆ B) :
     ¬ Disjoint (B : Set X) (A : Set X) := by
   rw [disjoint_comm]
@@ -929,7 +925,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
       apply cdist_mono
       simp only [not_disjoint_iff] at h
       rcases h with ⟨middleX, lt_2, lt_3⟩
-      have lt_4 := IF_subset_THEN_distance_between_centers belongs.left
+      have lt_4 := Grid.dist_c_le_of_subset belongs.left
       intros x lt_1
       calc dist x (𝔠 p)
       _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
@@ -1891,7 +1887,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         gcongr
       _ ≤ 100 * D ^ (s J' + 1) + 4 * D ^ (s J') := by
         have : dist (c J) (c J') < 4 * D ^ (s J') :=
-          IF_subset_THEN_distance_between_centers (subset := JleJ'.1)
+          Grid.dist_c_le_of_subset (subset := JleJ'.1)
         rw [dist_comm] at this
         gcongr
       _ = 100 * D ^ (s J + 2) + 4 * D ^ (s J + 1) := by

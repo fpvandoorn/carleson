@@ -1,5 +1,6 @@
 import Carleson.HolderVanDerCorput
 import Carleson.Operators
+import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
@@ -20,11 +21,6 @@ def correlation (s₁ s₂ : ℤ) (x₁ x₂ y : X) : ℂ := conj (Ks s₁ x₁ 
 section FunProp
 
 attribute [fun_prop] Complex.measurable_exp Complex.measurable_ofReal
-
--- TODO: PR to Mathlib
-@[fun_prop]
-lemma Complex.measurable_starRingEnd : Measurable (starRingEnd ℂ) :=
-   Complex.continuous_conj.measurable
 
 @[fun_prop]
 lemma measurable_correlation :
@@ -68,12 +64,6 @@ lemma mem_ball_of_mem_tsupport_correlation {s₁ s₂ : ℤ} {x₁ x₂ y : X}
 /-- The constant from lemma 6.2.1. -/
 def C6_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (254 * a ^ 3)
 
---TODO: PR to Mathlib
-lemma ENNReal.mul_div_mul_comm {a b c d : ℝ≥0∞} (hc : c ≠ ⊤) (hd : d ≠ ⊤) :
-    a * b / (c * d) = a / c * (b / d) := by
-  simp only [div_eq_mul_inv, ENNReal.mul_inv (Or.inr hd) (Or.inl hc)]
-  ring
-
 lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X) :
   ‖Ks s₂ x₂ y‖ₑ * ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ ≤
   C2_1_3 a / volume (ball x₂ (D ^ s₂)) *
@@ -111,11 +101,13 @@ lemma e625 {s₁ s₂ : ℤ} {x₁ x₂ y y' : X} (hy' : y ≠ y') (hs : s₁ �
         norm_cast
         ring
       rw [mul_comm, mul_add, h2, mul_comm (volume _)]
-      rw [ENNReal.mul_div_mul_comm measure_ball_ne_top measure_ball_ne_top, mul_assoc]
+      rw [ENNReal.mul_div_mul_comm (Or.inr measure_ball_ne_top)
+        (Or.inl measure_ball_ne_top), mul_assoc]
       apply add_le_add (aux_6_2_3 s₁ s₂ x₁ x₂ y y')
       rw [← neg_sub, enorm_neg]
       convert aux_6_2_3 s₂ s₁ x₂ x₁ y' y using 1
-      simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm measure_ball_ne_top measure_ball_ne_top]
+      simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm (Or.inr measure_ball_ne_top)
+        (Or.inl measure_ball_ne_top)]
       rw [mul_comm (volume _), edist_comm]
     _ ≤ 2 ^ (252 * a ^ 3) / (volume (ball x₁ (D ^ s₁)) * volume (ball x₂ (D ^ s₂))) *
         (2 * (edist y y' ^ τ / (D ^ s₁) ^ τ)) := by
@@ -157,7 +149,8 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
   have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
       (C2_1_3 a) ^ 2 / (volume (ball x₁ (D ^ s₁)) * volume (ball x₂ (D ^ s₂))):= by
     simp only [correlation, enorm_mul, RCLike.enorm_conj, pow_two,
-      ENNReal.mul_div_mul_comm measure_ball_ne_top measure_ball_ne_top]
+      ENNReal.mul_div_mul_comm (Or.inr measure_ball_ne_top)
+        (Or.inl measure_ball_ne_top)]
     exact mul_le_mul enorm_Ks_le enorm_Ks_le (zero_le _) (zero_le _)
   -- 6.2.6 + 6.2.7
   calc
@@ -184,19 +177,6 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
           · linarith only [four_le_a X]
 
 variable [TileStructure Q D κ S o]
-
--- TODO: PR both versions to Mathlib
-theorem MeasureTheory.exists_ne_zero_of_setIntegral_ne_zero {α E : Type*} [NormedAddCommGroup E]
-    [NormedSpace ℝ E] [MeasurableSpace α] {μ : MeasureTheory.Measure α} {f : α → E} {U : Set α}
-    (hU : ∫ (u : α) in U, f u ∂μ ≠ 0) : ∃ u : α, u ∈ U ∧ f u ≠ 0 := by
-  contrapose! hU
-  exact setIntegral_eq_zero_of_forall_eq_zero hU
-
-theorem MeasureTheory.exists_ne_zero_of_integral_ne_zero {α E : Type*} [NormedAddCommGroup E]
-    [NormedSpace ℝ E] [MeasurableSpace α] {μ : MeasureTheory.Measure α} {f : α → E}
-    (h : ∫ (u : α), f u ∂μ ≠ 0) : ∃ u : α, f u ≠ 0 := by
-  contrapose! h
-  exact integral_eq_zero_of_ae ((eqOn_univ f 0).mp fun ⦃x⦄ a ↦ h x).eventuallyEq
 
 -- Lemma 6.2.2
 lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson p g y ≠ 0) :
@@ -432,23 +412,6 @@ lemma exp_ineq (ha : 4 ≤ a) : 0 < ((8 * a  : ℕ) : ℝ) * -(2 * (a : ℝ) ^ 2
   rw [Nat.cast_mul, Nat.cast_ofNat, sub_pos, ← div_eq_mul_inv, div_lt_one hpos]
   norm_cast
   nlinarith
-
--- TODO: PR to Mathlib
-lemma _root_.ENNReal.rpow_lt_rpow_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : z < 0) (h : x < y) :
-    y ^ z < x ^ z := by
-  rw [← neg_neg z, ENNReal.rpow_neg y, ENNReal.rpow_neg x, ← ENNReal.inv_rpow, ← ENNReal.inv_rpow]
-  exact ENNReal.rpow_lt_rpow (ENNReal.inv_lt_inv.mpr h) (neg_pos.mpr hz)
-
--- TODO: PR to Mathlib
-
-lemma _root_.ENNReal.rpow_lt_rpow_iff_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : z < 0) :
-    x ^ z < y ^ z ↔ y < x :=
-  ⟨lt_imp_lt_of_le_imp_le (fun h ↦ ENNReal.rpow_le_rpow_of_nonpos (le_of_lt hz) h),
-    fun h ↦ ENNReal.rpow_lt_rpow_of_neg hz h⟩
-
-lemma _root_.ENNReal.rpow_le_rpow_iff_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : z < 0) :
-    x ^ z ≤ y ^ z ↔ y ≤ x :=
-  le_iff_le_iff_lt_iff_lt.2 <| ENNReal.rpow_lt_rpow_iff_of_neg hz
 
 /-- Inequality 6.2.29. -/ -- TODO: add ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ in blueprint's RHS
 lemma I12_le (ha : 4 ≤ a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ)
@@ -729,12 +692,6 @@ lemma bound_6_2_29' (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 +
     _ ≤ (C6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
           (volume (coeGrid (𝓘 p))).toNNReal := by gcongr; exact hvol x2
 
--- TODO: PR to Mathlib
-omit [MetricSpace X] in
-lemma _root_.Set.indicator_one_le_one (x : X) : G.indicator (1 : X → ℝ) x ≤ 1 := by
-  classical
-  exact le_trans (ite_le_sup _ _ _) (by simp)
-
 omit [TileStructure Q D κ S o] in
 lemma enorm_eq_zero_of_notMem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     {x : X} (hx : x ∉ (closedBall (cancelPt X) (defaultD a ^ defaultS X / 4))) :
@@ -850,12 +807,6 @@ lemma boundedCompactSupport_Ks_mul_star_g (p : 𝔓 X) {g : X → ℂ}
       _ ≤ ‖(Ks (𝔰 p) x.1 x.2)‖ + C := by gcongr; exact hC y.1 y.2 hy
       _ ≤ C + C := by gcongr; exact hC x.1 x.2 hx
       _ = 2 * C := by ring
-
-
--- This was deleted from `BoundedCompactSupport.lean`, but I need it.
-open Bornology in
-lemma _root_.isBounded_range_iff_forall_norm_le {α β} [SeminormedAddCommGroup α] {f : β → α} :
-    IsBounded (range f) ↔ ∃ C, ∀ x, ‖f x‖ ≤ C := by convert isBounded_iff_forall_norm_le; simp
 
 -- memLp_top_of_bound
 lemma boundedCompactSupport_aux_6_2_26 (p p' : 𝔓 X) {g : X → ℂ}
@@ -1068,7 +1019,6 @@ lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p)
   exact MeasureTheory.IntegrableOn.congr_fun hf (fun _ hx ↦ by simp only [f, if_pos hx])
     (measurableSet_E.prod measurableSet_E)
 
-/- TODO: it should be way easier to deduce this from `integrableOn_I12`, right? -/
 lemma integrableOn_I12' (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hinter : (ball (𝔠 p') (5 * D ^ 𝔰 p') ∩ ball (𝔠 p) (5 * D ^ 𝔰 p)).Nonempty) :

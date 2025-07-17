@@ -457,4 +457,8 @@ lemma dist_strictMono_iterate' {I J : Grid X} {d : ℤ} (hd : d ≥ 0) (hij : I 
   rw [← Int.toNat_of_nonneg hd] at hs ⊢
   exact dist_strictMono_iterate hij hs
 
+lemma dist_c_le_of_subset {J J' : Grid X} (subset : (J : Set X) ⊆ J') :
+    dist (c J) (c J') < 4 * D ^ s J' :=
+  Grid_subset_ball (subset Grid.c_mem_Grid)
+
 end Grid

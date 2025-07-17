@@ -273,19 +273,6 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ �
       exact hx p hp
     simp only [h0, enorm_zero, zero_le]
 
--- TODO: PR to Mathlib
-omit [MetricSpace X] in
-lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    f = (F.indicator 1) * f := by
-  ext y
-  simp only [Pi.mul_apply, indicator, Pi.one_apply, ite_mul, one_mul, zero_mul]
-  split_ifs with hy
-  · rfl
-  · specialize hf y
-    simp only [indicator, hy, ↓reduceIte] at hf
-    rw [← norm_eq_zero]
-    exact le_antisymm hf (norm_nonneg _)
-
 -- Note: Proof shows that `111` can be replaced by `108`
 /-- Constant appearing in Lemma 6.1.3. -/
 noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (111 * a ^ 3) * (q - 1)⁻¹
@@ -356,7 +343,7 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f)
   have : ENNReal.ofReal p' ≠ ⊤ := ofReal_ne_top
   have hp_coe : p.toNNReal.toReal = p := Real.coe_toNNReal _ (by positivity)
 
-  conv_lhs => rw [eq_indicator_one_mul hfF]
+  conv_lhs => rw [eq_indicator_one_mul_of_norm_le hfF]
   apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul''
   · exact AEStronglyMeasurable.maximalFunction 𝔄.to_countable
   · refine ae_of_all _ <| fun x ↦ ?_
