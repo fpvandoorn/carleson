@@ -52,11 +52,11 @@ lemma ordConnected_C1 : OrdConnected (ℭ₁ k n j : Set (𝔓 X)) := by
   simp_rw [mp''.1.1, true_and, true_implies] at mp''
   constructor
   · refine mp''.1.trans (Finset.card_le_card fun b mb ↦ ?_)
-    simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔅, mem_setOf] at mb ⊢
+    simp_rw [Finset.mem_filter_univ, 𝔅, mem_setOf] at mb ⊢
     have h100 := wiggle_order_11_10 (n := 100) mp'.2 (C5_3_3_le (X := X).trans (by norm_num))
     exact ⟨mb.1, h100.trans mb.2⟩
   · refine (Finset.card_le_card fun b mb ↦ ?_).trans_lt mp.2
-    simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔅, mem_setOf] at mb ⊢
+    simp_rw [Finset.mem_filter_univ, 𝔅, mem_setOf] at mb ⊢
     have h100 := wiggle_order_11_10 (n := 100) mp'.1 (C5_3_3_le (X := X).trans (by norm_num))
     exact ⟨mb.1, h100.trans mb.2⟩
 
@@ -527,7 +527,7 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
   let C' : Finset (Grid X) := C.image 𝓘
   have C'n : C'.Nonempty := by rwa [Finset.image_nonempty]
   obtain ⟨i, mi, li⟩ := C'.exists_minimal C'n
-  simp_rw [C', Finset.mem_image, C, Finset.mem_filter, Finset.mem_univ, true_and] at mi
+  simp_rw [C', Finset.mem_image, C, Finset.mem_filter_univ] at mi
   obtain ⟨u, ⟨mu, mx⟩, uei⟩ := mi; subst uei
   have uA : (𝓘 u : Set X) ⊆ setA (2 * n + 6) k n := fun y my ↦
     calc
@@ -536,10 +536,10 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
       _ ≤ stackSize (𝔘₃ k n j) y := by
         simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id]
         apply Finset.card_le_card fun v mv ↦ ?_
-        simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mv ⊢
+        simp_rw [Finset.filter_filter, Finset.mem_filter_univ] at mv ⊢
         have mvC' : 𝓘 v ∈ C' := by
           simp_rw [C', Finset.mem_image]; use v
-          simp_rw [C, Finset.mem_filter, Finset.mem_univ, true_and, and_true]; exact mv
+          simp_rw [C, Finset.mem_filter_univ, and_true]; exact mv
         specialize li mvC'
         have inc := (or_assoc.mpr (le_or_ge_or_disjoint (i := 𝓘 u) (j := 𝓘 v))).resolve_right
           (not_disjoint_iff.mpr ⟨_, mx, mv.2⟩)
@@ -626,8 +626,8 @@ lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 
       exact disjoint_iff_forall_ne.1 this hp hq
     congr
     ext p
-    simp only [mem_Ico, mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and,
-      Finset.mem_biUnion, Finset.mem_Ico] -- perf: squeezed
+    simp_rw [Finset.mem_biUnion, Finset.mem_filter_univ, mem_Ico, Finset.mem_Ico, mem_iUnion,
+      exists_prop]
   _ ≤ ∑ i ∈ Finset.Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), 1 := by
     gcongr with i hi
     apply stackSize_le_one_of_pairwiseDisjoint
@@ -697,10 +697,10 @@ lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') {
   symm
   apply Finset.sum_subset
   · intro p hp
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
+    rw [Finset.mem_filter_univ] at hp ⊢
     exact ℭ₆_subset_ℭ₅ hp
   · intro p hp h'p
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp h'p
+    rw [Finset.mem_filter_univ] at hp h'p
     have : x ∉ 𝓘 p := by
       simp only [ℭ₆, mem_setOf_eq, not_and, Decidable.not_not] at h'p
       intro h'x
@@ -736,7 +736,7 @@ lemma lintegral_carlesonSum_forest
   classical
   let 𝔉 := forest (X := X) k n j l
   have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ =
-      ∫⁻ x in G \ G', ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ := by
+      ∫⁻ x in G \ G', ‖∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f x‖ₑ := by
     congr with x
     congr
     rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
@@ -748,7 +748,7 @@ lemma lintegral_carlesonSum_forest
       have := forest_disjoint (X := X) (𝔘₄_subset_𝔘₃ ha) (𝔘₄_subset_𝔘₃ hb) hab
       exact disjoint_iff_forall_ne.1 this hx hy
     congr with p
-    simp only [mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and, forest, 𝔉]
+    simp_rw [mem_iUnion, exists_prop, Finset.mem_filter_univ]
     exact Iff.rfl
   rw [this]
   have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G')

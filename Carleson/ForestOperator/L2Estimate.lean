@@ -388,7 +388,7 @@ def kissing (I : Grid X) : Finset (Grid X) :=
 
 lemma subset_of_kissing (h : J ∈ kissing I) :
     ball (c J) (D ^ s J / 4) ⊆ ball (c I) (33 * D ^ s I) := by
-  simp_rw [kissing, Finset.mem_filter, Finset.mem_univ, true_and] at h
+  simp_rw [kissing, Finset.mem_filter_univ] at h
   obtain ⟨x, xI, xJ⟩ := not_disjoint_iff.mp h.2
   apply ball_subset_ball'
   calc
@@ -405,7 +405,7 @@ lemma subset_of_kissing (h : J ∈ kissing I) :
 
 lemma volume_le_of_kissing (h : J ∈ kissing I) :
     volume (ball (c I) (33 * D ^ s I)) ≤ 2 ^ (9 * a) * volume (ball (c J) (D ^ s J / 4)) := by
-  simp_rw [kissing, Finset.mem_filter, Finset.mem_univ, true_and] at h
+  simp_rw [kissing, Finset.mem_filter_univ] at h
   obtain ⟨x, xI, xJ⟩ := not_disjoint_iff.mp h.2
   have : ball (c I) (33 * D ^ s I) ⊆ ball (c J) (128 * D ^ s J) := by
     apply ball_subset_ball'
@@ -619,7 +619,7 @@ lemma boundary_geometric_series :
       by_cases hs : k = s I; swap; · simp [hs]
       suffices (J : Set X) ⊆ ball (c I) (16 * D ^ s I) → I ∈ kissing J' by
         split_ifs; exacts [by simp_all, by tauto, by positivity, by rfl]
-      intro mJ; simp_rw [kissing, Finset.mem_filter, Finset.mem_univ, true_and]
+      intro mJ; simp_rw [kissing, Finset.mem_filter_univ]
       refine ⟨pJ'.1 ▸ hs.symm, not_disjoint_iff.mpr ⟨c J, ?_, mJ Grid.c_mem_Grid⟩⟩
       refine (pJ'.2.1.trans Grid_subset_ball |>.trans (ball_subset_ball ?_)) Grid.c_mem_Grid
       change (4 : ℝ) * D ^ s J' ≤ 16 * D ^ s J'; gcongr; norm_num
