@@ -436,19 +436,6 @@ lemma _root_.ENNReal.le_of_pow_le_pow {a b : ℝ≥0∞} {n : ℕ} (hn : n ≠ 0
   contrapose!
   exact (ENNReal.pow_right_strictMono hn ·)
 
--- move to mathlib
-omit [TileStructure Q D κ S o] in
-lemma _root_.MeasureTheory.MemLp.sq_eLpNorm_eq (hg : MemLp g 2 volume) :
-    (eLpNorm g 2 volume) ^ 2 =
-      ‖∫ (x:X), conj (g x) * g x‖₊ := by
-  simp only [conj_mul', ← ofReal_pow, integral_complex_ofReal, nnnorm_real, ←
-    enorm_eq_nnnorm]
-  rw [hg.eLpNorm_eq_integral_rpow_norm (by positivity) (by norm_num)]
-  simp only [ENNReal.toReal_ofNat, Real.rpow_two]
-  rw [Real.enorm_eq_ofReal (by positivity), ← ENNReal.ofReal_pow (by positivity)]
-  nth_rw 2 [← Nat.cast_ofNat (n := 2)]
-  rw [Real.rpow_inv_natCast_pow (n := 2) (by positivity) (by positivity)]
-
 -- move to mathlib, check name
 @[to_additive]
 lemma _root_.MonoidHomClass.map_mulIndicator {F X A B: Type*} [Monoid A] [Monoid B] [FunLike F A B]
@@ -470,7 +457,8 @@ lemma adjoint_refined_density_tree_bound1 (hu : u ∈ t) (hf : BoundedCompactSup
   have hf_indicator : BoundedCompactSupport ((adjointCarlesonSum (t u) f)) :=
     hf.adjointCarlesonSum
   rw [← ENNReal.sq_le_mul_right (hf_indicator.memLp 2).eLpNorm_ne_top,
-    (hf_indicator.memLp 2).sq_eLpNorm_eq]
+    eLpNorm_two_eq_enorm_integral_mul_conj (hf_indicator.memLp 2)]
+  simp_rw [Complex.mul_conj', ← Complex.conj_mul']
   trans
   · exact adjoint_density_tree_bound1 (X := X) hf_indicator (hf) hf2 hu
   ring_nf
@@ -490,7 +478,9 @@ lemma adjoint_refined_density_tree_bound2 (hu : u ∈ t) (hf : BoundedCompactSup
       ↑(C7_3_1_2 a) * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm (f) 2 volume := by
   have hf_indicator : BoundedCompactSupport (F.indicator (adjointCarlesonSum (t u) (f))) :=
     hf.adjointCarlesonSum.indicator measurableSet_F
-  rw [← ENNReal.sq_le_mul_right (hf_indicator.memLp 2).eLpNorm_ne_top, (hf_indicator.memLp 2).sq_eLpNorm_eq]
+  rw [← ENNReal.sq_le_mul_right (hf_indicator.memLp 2).eLpNorm_ne_top,
+    eLpNorm_two_eq_enorm_integral_mul_conj (hf_indicator.memLp 2)]
+  simp_rw [Complex.mul_conj', ← Complex.conj_mul']
   simp_rw [AddMonoidHomClass.map_indicator, ← indicator_mul]
   eta_expand
   simp_rw [indicator_mul_right]
