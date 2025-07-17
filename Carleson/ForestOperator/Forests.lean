@@ -528,153 +528,82 @@ lemma adjoint_C7_7_2_bound2 (hu : u ∈ t) (hf : BoundedCompactSupport f):
     exact C7_7_2_2_bounds a n ((show 2 ≤ 4 from by norm_num).trans (four_le_a X))
 
 open Classical in
-lemma part_1 (j : ℕ) {A:Set X}:
+lemma part_1' (j : ℕ) {A : Set X} :
     (eLpNorm (A.indicator <|
       ∑ u with u ∈ rowDecomp t j, adjointCarlesonSum (t u) g) 2 volume) ^ 2
     = (eLpNorm (A.indicator <| ∑ u with u ∈ rowDecomp t j,
-      ∑ p with p ∈ t.𝔗 u, ((𝓘 u: Set X).indicator <|
-        adjointCarleson p ((𝓘 u:Set X).indicator g))) 2 volume) ^ 2 := by
-  congr! with u hu'
+      ((𝓘 u: Set X).indicator <|
+        adjointCarlesonSum (t u) ((𝓘 u:Set X).indicator g))) 2 volume) ^ 2 := by
+  congr! 4 with u hu'
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hu'
   ext x
-  rw [adjoint_tile_support2_sum (mem_forest_of_mem hu'), ← Finset.indicator_sum]
-  congr
-  ext x
-  rw [adjointCarlesonSum, Finset.sum_apply]
+  rw [adjoint_tile_support2_sum (mem_forest_of_mem hu')]
 
 open Classical in
-lemma part_2 (hg : BoundedCompactSupport g) {A : Set X} (hA : MeasurableSet A) (j : ℕ):
+lemma part_2' (hg : BoundedCompactSupport g) {A : Set X} (hA : MeasurableSet A) (j : ℕ) :
     (eLpNorm (A.indicator <| ∑ u with u ∈ rowDecomp t j,
-      ∑ p with p ∈ t.𝔗 u, ((𝓘 u: Set X).indicator <|
-        adjointCarleson p ((𝓘 u:Set X).indicator g))) 2 volume) ^ 2
-    = ∑ u with u ∈ rowDecomp t j, .ofReal (∫ x in (𝓘 u : Set X),
-     ‖ (A.indicator (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator g)) x)‖ ^ 2) := by
-  simp_rw [Finset.indicator_sum _ A]
-  calc (eLpNorm (∑ u with u ∈ rowDecomp t j,
-      ∑ p with p ∈ t.𝔗 u, A.indicator (((𝓘 u: Set X).indicator (
-        adjointCarleson p ((𝓘 u:Set X).indicator g))))) 2 volume) ^ 2
-    = ENNReal.ofReal ( ∫ (x : X), ‖ ∑ u ∈ {p | p ∈ rowDecomp t j},
-      ∑ p with p ∈ t.𝔗 u, A.indicator (((𝓘 u: Set X).indicator <|
-        adjointCarleson p ((𝓘 u:Set X).indicator g))) x‖ ^ 2) := by
-
-        rw [MeasureTheory.MemLp.eLpNorm_eq_integral_rpow_norm (by norm_num) (by finiteness) ?memLp]
-        case memLp =>
-          apply MeasureTheory.memLp_finset_sum'
-          intro u hu
-          apply MeasureTheory.memLp_finset_sum'
-          intro p hp
-          refine MemLp.indicator hA (MemLp.indicator coeGrid_measurable ?_)
-          exact hg.indicator coeGrid_measurable |>.adjointCarleson (X := X) (p := p) |>.memLp 2
-        rw [← ENNReal.ofReal_pow (by positivity),ENNReal.toReal_ofNat]
-        rw [← Real.rpow_two,← Real.rpow_mul (by positivity), inv_mul_cancel₀ (by norm_num),
-          Real.rpow_one]
-        simp_rw [Finset.sum_apply,Real.rpow_two]
-  _ = ENNReal.ofReal ( ∫ (x : X), ‖ ∑ u with u ∈ rowDecomp t j,
-      (𝓘 u: Set X).indicator (A.indicator <| ∑ p with p ∈ t.𝔗 u, (
-        adjointCarleson p ((𝓘 u:Set X).indicator g))) x‖ ^ 2) := by
-      simp_rw [Finset.indicator_sum, Set.indicator_indicator, Set.inter_comm A, Finset.sum_apply]
-  _ = ENNReal.ofReal ( ∫ (x : X), ‖ ∑ u with u ∈ rowDecomp t j,
-      (𝓘 u: Set X).indicator (A.indicator <|
-        adjointCarlesonSum (t u) ((𝓘 u:Set X).indicator g)) x‖ ^ 2) := by
-    eta_expand -- otherwise can't rewrite with `adjointCarlesonSum`
-    simp_rw [adjointCarlesonSum, Finset.sum_apply]
-  _ = ENNReal.ofReal ( ∫ (x : X), ∑ u with u ∈ rowDecomp t j,
-      ‖ (𝓘 u: Set X).indicator (A.indicator <|
-        adjointCarlesonSum (t u) ((𝓘 u:Set X).indicator g)) x‖ ^ 2) := by
-      congr
-      ext x
-      if h : x ∈ ⋃ u ∈ {p | p ∈ rowDecomp t j}, (𝓘 u:Set X) then
-        simp only [mem_setOf_eq, mem_iUnion, exists_prop] at h
-        obtain ⟨u,hu,hx⟩ := h
-        rw [Finset.sum_eq_single_of_mem u,Finset.sum_eq_single_of_mem
-          (s := Finset.filter (fun p ↦ p ∈ t.rowDecomp j) Finset.univ) u]
-          <;> simp only [Finset.mem_filter, Finset.mem_univ, true_and, ne_eq,
-              OfNat.ofNat_ne_zero, not_false_eq_true, pow_eq_zero_iff, norm_eq_zero, indicator_apply_eq_zero]
-          <;> try assumption
-        -- all_goals sorry
-        all_goals
-          intro b hb hne hx'
-          rw [mem_rowDecomp_iff_mem_rowDecomp_𝔘] at hu hb
-          exact (hne ((rowDecomp_𝔘_pairwiseDisjoint t j).elim_set hb hu x hx' hx)).elim
-      else
-        simp only [mem_setOf_eq, mem_iUnion, exists_prop, not_exists, not_and] at h
-        rw [Finset.sum_eq_zero,Finset.sum_eq_zero,norm_zero,zero_pow (by norm_num)]
-        · intro u hu
-          simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hu
-          rw [pow_eq_zero_iff (by norm_num),norm_eq_zero]
-          apply Set.indicator_of_notMem (h u hu)
-        · intro u hu
-          simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hu
-          apply Set.indicator_of_notMem (h u hu)
-  _ = ∑ u with u ∈ rowDecomp t j, ENNReal.ofReal (∫ (x : X),
-      ‖ (𝓘 u: Set X).indicator (A.indicator <|
-        adjointCarlesonSum (t u) ((𝓘 u:Set X).indicator g)) x‖ ^ 2) := by
-      rw [integral_finset_sum,ENNReal.ofReal_sum_of_nonneg ]
-      · intros
-        apply integral_nonneg
-        intro x
-        positivity
-      · intro u hu
-        simp_rw [pow_two]
-        apply fun h => (BoundedCompactSupport.mul h h).integrable
-        apply BoundedCompactSupport.norm
-        apply BoundedCompactSupport.indicator _ coeGrid_measurable
-        apply BoundedCompactSupport.indicator _ hA
-        exact (hg.indicator coeGrid_measurable).adjointCarlesonSum
-  _ = _ := by
-    simp_rw [norm_indicator_eq_indicator_norm,pow_two,← Set.indicator_mul, ← pow_two,
-      integral_indicator (coeGrid_measurable)]
-
-open Classical in
-lemma part_3 (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) {A : Set X} (ha : MeasurableSet A)
-      (j : ℕ):
-    ∑ u with u ∈ rowDecomp t j, ENNReal.ofReal (∫ x in (𝓘 u : Set X),
-      ‖ (A.indicator (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator g)) x)‖ ^ 2)
-    ≤ ∑ u with u ∈ rowDecomp t j, (eLpNorm (A.indicator
-      (adjointCarlesonSum (t u) (G.indicator ((𝓘 u : Set X).indicator g)))) 2 volume) ^ 2 := by
-  calc
-  _ ≤ ∑ u with u ∈ rowDecomp t j, ENNReal.ofReal (∫ (x:X),
-      ‖ (A.indicator (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator g)) x)‖ ^ 2) := by
+      ((𝓘 u: Set X).indicator <|
+        adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator g))) 2 volume) ^ 2
+    ≤ ∑ u with u ∈ rowDecomp t j, (eLpNorm (A.indicator <|
+        adjointCarlesonSum (t u) ((𝓘 u:Set X).indicator g)) 2 volume) ^ 2:= by
+  calc _
+  _ = (eLpNorm (fun x => ∑ u with u ∈ rowDecomp t j,
+      A.indicator ((𝓘 u: Set X).indicator <|
+        adjointCarlesonSum (t u) ((𝓘 u:Set X).indicator g)) x) 2 volume) ^ 2 := by
+    simp_rw [Finset.indicator_sum, ← Finset.sum_apply]
+  _ ≤ ∑ u with u ∈ rowDecomp t j, (eLpNorm (A.indicator <| (𝓘 u: Set X).indicator <|
+        adjointCarlesonSum (t u) ((𝓘 u:Set X).indicator g)) 2 volume) ^ 2 +
+      ∑ u with u ∈ rowDecomp t j, ∑ u' ∈ {p | p ∈ rowDecomp t j} with u ≠ u',
+        ‖∫ (x:X),((A.indicator ((𝓘 u: Set X).indicator
+        <| adjointCarlesonSum (t u) ((𝓘 u:Set X).indicator g)) x) * conj (A.indicator ((𝓘 u': Set X).indicator
+        <| adjointCarlesonSum (t u') ((𝓘 u':Set X).indicator g)) x)) ‖ₑ := by
+    -- eta_expand
+    refine MeasureTheory.BoundedCompactSupport.sq_eLpNorm_le_sums (fun _ => ?_)
+    apply BoundedCompactSupport.indicator _ hA
+    apply BoundedCompactSupport.indicator _ coeGrid_measurable
+    apply BoundedCompactSupport.adjointCarlesonSum
+    exact hg.indicator coeGrid_measurable
+  _ = ∑ u with u ∈ rowDecomp t j, (eLpNorm (fun x => A.indicator ((𝓘 u: Set X).indicator <|
+        adjointCarlesonSum (t u) ((𝓘 u:Set X).indicator g)) x) 2 volume) ^ 2 := by
+    nth_rw 3 [← add_zero (Finset.sum _ _)]
+    congr
+    simp only [Finset.sum_eq_zero_iff,
+      Finset.mem_filter, Finset.mem_univ, true_and, enorm_eq_zero, and_imp]
+    rw [← integral_zero X ℂ (μ := volume)]
+    intro u hu u' hu' hne
+    congr with x
+    simp only [mul_eq_zero,map_eq_zero]
+    simp only [indicator_apply_eq_zero, ← imp_or]
+    intro hxA
+    if hxu: x ∈ (𝓘 u : Set X) then
+      right
+      intro hxu'
+      by_contra
+      rw [mem_rowDecomp_iff_mem_rowDecomp_𝔘] at hu hu'
+      exact (hne ((rowDecomp_𝔘_pairwiseDisjoint t j).elim_set hu hu' x hxu hxu')).elim
+    else
+      left
+      intro
+      contradiction
+  _ ≤ _ := by
     gcongr
-    refine setIntegral_le_integral ?_ ?_
-    · apply BoundedCompactSupport.integrable
-      simp_rw [pow_two]
-      apply fun h => BoundedCompactSupport.mul h h
-      apply BoundedCompactSupport.norm
-      apply BoundedCompactSupport.indicator _ ha
-      exact (hg.indicator coeGrid_measurable).adjointCarlesonSum
-    · rw [Filter.EventuallyLE]
-      apply Filter.Eventually.of_forall
-      intros
-      positivity
-  _ = ∑ u with u ∈ rowDecomp t j, (eLpNorm (A.indicator
-      (adjointCarlesonSum (t u) (G.indicator ((𝓘 u : Set X).indicator g)))) 2 volume) ^ 2 := by
-    apply Finset.sum_congr rfl
-    intros
-    rw [MeasureTheory.MemLp.eLpNorm_eq_integral_rpow_norm (by norm_num) (by finiteness) ?memLp]
-    case memLp =>
-      apply BoundedCompactSupport.memLp _ 2
-      apply BoundedCompactSupport.indicator _ ha
-      apply BoundedCompactSupport.adjointCarlesonSum
-      apply BoundedCompactSupport.indicator _ measurableSet_G
-      exact hg.indicator coeGrid_measurable
-    rw [← ENNReal.ofReal_pow (by positivity),← Real.rpow_two,← Real.rpow_mul (by positivity)]
-    simp only [ENNReal.toReal_ofNat, Real.rpow_two, isUnit_iff_ne_zero, ne_eq, OfNat.ofNat_ne_zero,
-      not_false_eq_true, IsUnit.inv_mul_cancel, Real.rpow_one]
-    have : G.indicator g = g:= by
-      rw [Set.indicator_eq_self]
-      exact h2g
-    nth_rw 1 [← this]
-    simp_rw [Set.indicator_indicator, Set.inter_comm G]
+    simp_rw [Set.indicator_indicator,Set.inter_comm A, ← Set.indicator_indicator]
+    apply eLpNorm_indicator_le
 
 open Classical in
-lemma part_123 (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) {A : Set X}
+lemma part_1_and_2 (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) {A : Set X}
     (ha : MeasurableSet A) (j : ℕ):
   (eLpNorm (A.indicator <| ∑ u with u ∈ rowDecomp t j, adjointCarlesonSum (t u) g) 2 volume) ^ 2
   ≤ ∑ u with u ∈ rowDecomp t j, (eLpNorm (A.indicator
       (adjointCarlesonSum (t u) (G.indicator ((𝓘 u : Set X).indicator g)))) 2 volume) ^ 2 := by
-  rw [part_1,part_2 hg ha]
-  exact part_3 hg h2g ha j
+  rw [part_1']
+  convert part_2' hg ha j using 4
+  congr! 2
+  ext x
+  simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, indicator_apply_eq_self,
+    indicator_apply_eq_zero]
+  intro hxG _
+  exact Function.notMem_support.mp (hxG <| h2g ·)
 
 omit [MetricSpace X] in
 lemma support_subset_of_norm_le_indicator {g : X → ℝ} {A : Set X} (h2f : ∀ x, ‖f x‖ ≤ A.indicator g x) :
@@ -695,20 +624,18 @@ lemma row_bound (_ : j < 2 ^ n) (hg : BoundedCompactSupport g)
   simp_rw [adjointCarlesonRowSum, ← Finset.sum_apply]
   eta_reduce
   rw [Finset.sum_apply]
-  -- rw [adjointCarlesonRowSum]
   calc
     eLpNorm (∑ u with u ∈ rowDecomp t j, adjointCarlesonSum (t u) g) 2 volume
     = eLpNorm (Set.univ.indicator <|
       ∑ u  with u ∈ rowDecomp t j, adjointCarlesonSum (t u) g) 2 volume := by
       rw [indicator_univ]
-
   _ ≤ (∑ u with u ∈ rowDecomp t j, (eLpNorm (Set.univ.indicator
       (adjointCarlesonSum (t u) (G.indicator ((𝓘 u : Set X).indicator g)))) 2 volume) ^ 2)^(2⁻¹:ℝ) := by
       apply ENNReal.le_of_pow_le_pow (by norm_num : 2 ≠ 0)
       simp_rw [← ENNReal.rpow_two, ← ENNReal.rpow_mul,inv_mul_cancel₀ (by norm_num : (2:ℝ) ≠ 0),
         ENNReal.rpow_one]
       simp_rw [ENNReal.rpow_two]
-      exact part_123 (t := t) hg h2g (.univ) j
+      exact part_1_and_2 (t := t) hg h2g (.univ) j
   _ ≤ (∑ u with u ∈ rowDecomp t j, (C7_7_2_1 a n *
       eLpNorm ((𝓘 u : Set X).indicator g) 2 volume) ^ 2)^(2⁻¹:ℝ) := by
     simp only [indicator_univ]
@@ -749,7 +676,7 @@ lemma indicator_row_bound (_ : j < 2 ^ n) (hg : BoundedCompactSupport g)
       simp_rw [← ENNReal.rpow_two, ← ENNReal.rpow_mul,inv_mul_cancel₀ (by norm_num : (2:ℝ) ≠ 0),
         ENNReal.rpow_one]
       simp_rw [ENNReal.rpow_two,]
-      exact part_123 (t := t) hg h2g (measurableSet_F) j
+      exact part_1_and_2 (t := t) hg h2g (measurableSet_F) j
   _ ≤ (∑ u with u ∈ rowDecomp t j, (C7_7_2_2 a n * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
       eLpNorm ((𝓘 u : Set X).indicator g) 2 volume) ^ 2)^(2⁻¹:ℝ) := by
     gcongr
