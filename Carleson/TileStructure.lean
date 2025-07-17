@@ -462,7 +462,7 @@ lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
     · simp [pC]
     · intro b hb hbp
       simp only [indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false]
-      classical rw [Finset.mem_filter_univ] at hb
+      simp only [Finset.mem_filter_univ] at hb
       exact disjoint_left.1 (h pC hb hbp.symm) hp
     simp [hp]
   · have : stackSize C x = 0 := by

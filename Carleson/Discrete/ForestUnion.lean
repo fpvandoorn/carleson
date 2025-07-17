@@ -748,7 +748,8 @@ lemma lintegral_carlesonSum_forest
       have := forest_disjoint (X := X) (𝔘₄_subset_𝔘₃ ha) (𝔘₄_subset_𝔘₃ hb) hab
       exact disjoint_iff_forall_ne.1 this hx hy
     congr with p
-    simp_rw [mem_iUnion, exists_prop, Finset.mem_filter_univ]; rfl
+    simp_rw [mem_iUnion, exists_prop, Finset.mem_filter_univ]
+    exact Iff.rfl
   rw [this]
   have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G')
     (measurableSet_G.diff measurable_G') diff_subset

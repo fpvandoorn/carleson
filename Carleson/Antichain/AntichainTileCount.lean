@@ -140,7 +140,7 @@ lemma biUnion_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
   obtain ⟨p₀, mp₀, hp₀⟩ := 𝔄.toFinset.exists_max_image f h𝔄'
   use f p₀ + 1; ext p
   simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_biUnion,
-    Finset.mem_range, Finset.mem_inter, Finset.mem_filter, Finset.mem_univ, true_and, mem_toFinset]
+    Finset.mem_range, Finset.mem_inter, Finset.mem_filter_univ, mem_toFinset]
   refine ⟨fun hp ↦ hp.choose_spec.2.1.1, fun hp ↦ ?_⟩
   simp only [hp, true_and]
   use f p, Nat.lt_add_one_iff.mpr (hp₀ p (mem_toFinset.mpr hp))
@@ -310,7 +310,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
   -- 6.3.22
   have hϑin : dist_(p) (𝒬 p) ϑ < ((2 : ℝ)^(N + 1)) := by
     simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter,
-      Finset.mem_filter, Finset.mem_univ, true_and] at hpin
+      Finset.mem_filter_univ] at hpin
     exact (lt_one_add (dist_(p) (𝒬 p) ϑ)).trans hpin.2.2
   -- 6.3.24
   have hsmul_le : smul (2 ^ (N + 3)) p' ≤ smul (2 ^ (N + 3)) p :=
@@ -352,10 +352,8 @@ lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
       exact empty_subset _
   · simp only [Finset.coe_filter]
     intro q hq q' hq' hqq'
-    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter,
-      toFinset_setOf, Finset.mem_inter, Finset.mem_filter, Finset.mem_univ, true_and,
-      mem_setOf_eq] at hq hq'
-    have hE : Disjoint (E q) (E q') := by simpa using (E_disjoint h𝔄 hq.1.1.1 hq'.1.1.1).mt hqq'
+    rw [𝔄_aux, mem_setOf, toFinset_setOf, Finset.mem_filter_univ] at hq hq'
+    have hE : Disjoint (E q) (E q') := by simpa using (E_disjoint h𝔄 hq.1.1 hq'.1.1).mt hqq'
     change Disjoint (_ ∩ _ ∩ _) (_ ∩ _ ∩ _)
     rw [inter_assoc, inter_assoc]; exact (hE.inter_right _).inter_left _
 
@@ -1114,9 +1112,8 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
       · intro i mi j mj hn
         rw [mul_assoc (2 ^ _), ← inter_indicator_mul, mul_assoc _ _ (G.indicator 1 x),
           ← inter_indicator_mul, mul_mul_mul_comm, ← inter_indicator_mul, inter_inter_inter_comm]
-        simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter,
-          Finset.mem_filter, Finset.mem_univ, true_and] at mi mj
-        have key := (E_disjoint h𝔄 mi.1.1 mj.1.1).mt hn
+        rw [𝔄_aux, toFinset_setOf, Finset.mem_filter_univ] at mi mj
+        have key := (E_disjoint h𝔄 mi.1 mj.1).mt hn
         rw [not_not, disjoint_iff_inter_eq_empty] at key; simp [key]
       rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
       · refine fun p mp ↦ pow_nonneg (mul_nonneg ?_ (indicator_nonneg (by simp) _)) _

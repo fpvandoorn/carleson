@@ -607,20 +607,6 @@ lemma hasStrongType_MB_finite [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpac
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
 irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) ^ (p₁⁻¹ : ℝ)
 
-lemma C2_0_6_defaultA_one_le {a : ℕ} {q : ℝ≥0} (hq : 1 < q) :
-    C2_0_6 (defaultA a) 1 q ≤ 2 ^ (2 * a + 1) * (q / (q - 1)) := by
-  rw [C2_0_6, div_one, defaultA, Nat.cast_pow, Nat.cast_ofNat, NNReal.coe_one,
-    inv_one, NNReal.rpow_one, CMB_eq_of_one_lt_q hq]
-  calc
-    _ ≤ 2 * (q / (q - 1) * (2 ^ a) ^ 2) := by
-      conv_rhs => enter [2]; rw [← NNReal.rpow_one (_ * _)]
-      gcongr
-      · nth_rw 1 [← mul_one 1]; gcongr
-        · exact (one_le_div (tsub_pos_of_lt hq)).mpr tsub_le_self
-        · norm_cast; rw [← pow_mul]; exact Nat.one_le_two_pow
-      · rw [inv_le_one_iff₀]; right; exact_mod_cast hq.le
-    _ = _ := by ring
-
 /-- Equation (2.0.44). The proof is given between (9.0.34) and (9.0.36).
 This is a special case of `hasStrongType_maximalFunction` below, which doesn't have the assumption
 `hR` (but uses this result in its proof). -/
@@ -1000,11 +986,16 @@ lemma C2_0_6'_defaultA_one_two_eq {a : ℕ} : C2_0_6' (defaultA a) 1 2 = 2 ^ (3 
 
 lemma C2_0_6'_defaultA_one_le {a : ℕ} {q : ℝ≥0} (hq : 1 < q) :
     C2_0_6' (defaultA a) 1 q ≤ 2 ^ (4 * a + 1) * (q / (q - 1)) := by
+  rw [C2_0_6', C2_0_6, div_one, defaultA, Nat.cast_pow, Nat.cast_ofNat, NNReal.coe_one,
+    inv_one, NNReal.rpow_one, CMB_eq_of_one_lt_q hq]
   calc
-    _ ≤ (2 ^ a) ^ 2 * (2 ^ (2 * a + 1) * (q / (q - 1))) := by
-      rw [C2_0_6']; gcongr
-      · norm_cast
-      · exact C2_0_6_defaultA_one_le hq
+    _ ≤ (2 ^ a) ^ 2 * (2 * (q / (q - 1) * (2 ^ a) ^ 2)) := by
+      conv_rhs => enter [2, 2]; rw [← NNReal.rpow_one (_ * _)]
+      gcongr
+      · nth_rw 1 [← mul_one 1]; gcongr
+        · exact (one_le_div (tsub_pos_of_lt hq)).mpr tsub_le_self
+        · norm_cast; rw [← pow_mul]; exact Nat.one_le_two_pow
+      · rw [inv_le_one_iff₀]; right; exact_mod_cast hq.le
     _ = _ := by ring
 
 /-- Equation (2.0.46). Easy from `hasStrongType_maximalFunction` -/
