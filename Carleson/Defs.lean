@@ -1,5 +1,5 @@
 import Carleson.ToMathlib.Annulus
-import Carleson.ToMathlib.CoverByBalls
+import Carleson.ToMathlib.CoveredByBalls
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
@@ -10,8 +10,6 @@ import Mathlib.Topology.MetricSpace.Holder
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
 open scoped NNReal
 noncomputable section
-
--- todo: rename and protect `Real.RCLike`
 
 /-! Miscellaneous definitions.
 These are mostly the definitions used to state the metric Carleson theorem.
@@ -27,14 +25,6 @@ section localOscillation
 /-- The local oscillation of two functions w.r.t. a set `E`. This is `d_E` in the blueprint. -/
 def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ≥0∞ :=
   ⨆ z ∈ E ×ˢ E, ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
-
-variable {E : Set X} {f g : C(X, 𝕜)}
-
---old
-/-- A ball w.r.t. the distance `localOscillation` -/
-def localOscillationBall (E : Set X) (f : C(X, 𝕜)) (r : ℝ) :
-    Set C(X, 𝕜) :=
-  { g : C(X, 𝕜) | localOscillation E f g < ENNReal.ofReal r }
 
 end localOscillation
 
@@ -186,7 +176,7 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
     (h : ∀ {x : X} {r : ℝ} {ϕ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm ϕ x r ≠ ∞)
     (_h2 : support ϕ ⊆ ball x r) {f g : Θ X},
       ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
-      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)) :
+      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (-τ)) :
     IsCancellative X τ := by
   constructor
   intro x r ϕ hr h1 h2 f g
@@ -292,6 +282,28 @@ Use `ENNReal.toReal` to get the corresponding real number. -/
 def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
 
+private lemma carlesonOperatorIntegrand_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ)
+    (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperatorIntegrand (z • K) θ R₁ R₂ f = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
+  unfold carlesonOperatorIntegrand
+  ext x
+  simp_rw [Pi.smul_apply, smul_eq_mul, ← integral_const_mul]
+  congr with y
+  ring
+
+private lemma linearizedCarlesonOperator_const_smul [FunctionDistances ℝ X] (Q : X → Θ X)
+    (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    linearizedCarlesonOperator Q (z • K) f = ‖z‖ₑ • linearizedCarlesonOperator Q K f := by
+  unfold linearizedCarlesonOperator
+  simp_rw [carlesonOperatorIntegrand_const_smul, Pi.smul_apply, smul_eq_mul, enorm_mul, ← mul_iSup]
+  rfl
+
+lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperator (z • K) f = ‖z‖ₑ • carlesonOperator K f := by
+  unfold carlesonOperator
+  simp_rw [linearizedCarlesonOperator_const_smul, Pi.smul_apply, ← smul_iSup]
+  rfl
+
 end DoublingMeasure
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
@@ -340,6 +352,19 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
 
 export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
 
+lemma isOneSidedKernel_const_smul {a : ℕ} {K : X → X → ℂ} [IsOneSidedKernel a K] {r : ℝ}
+    (hr : |r| ≤ 1) :
+    IsOneSidedKernel a (r • K) where
+  measurable_K := measurable_K.const_smul r
+  norm_K_le_vol_inv x y := by
+    convert mul_le_mul hr (norm_K_le_vol_inv (K := K) x y) (norm_nonneg _) (zero_le_one' ℝ) using 1
+    all_goals simp
+  norm_K_sub_le h := by
+    simp only [Pi.smul_apply, real_smul]
+    rw [← one_mul (_ ^ _ * _), ← mul_sub, Complex.norm_mul, norm_real, Real.norm_eq_abs]
+    gcongr
+    exact norm_K_sub_le h
+
 lemma MeasureTheory.stronglyMeasurable_K [IsOneSidedKernel a K] :
     StronglyMeasurable (uncurry K) :=
   measurable_K.stronglyMeasurable
@@ -363,7 +388,7 @@ lemma enorm_K_le_vol_inv [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Me
 
 --TODO good name
 lemma enorm_K_le_ball_complement [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
-    [IsOneSidedKernel a K] {r : ℝ} {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    [IsOneSidedKernel a K] {r : ℝ} {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ) :
     ‖K x y‖ₑ ≤ C_K a / volume (ball x r) := by
   apply le_trans (enorm_K_le_vol_inv x y)
   apply ENNReal.div_le_div_left
@@ -374,7 +399,7 @@ lemma enorm_K_le_ball_complement [ProperSpace X] [IsFiniteMeasureOnCompacts (vol
 
 lemma enorm_K_le_ball_complement' [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
     [IsOpenPosMeasure (volume : Measure X)] [IsOneSidedKernel a K] {r : ℝ} (hr : 0 < r)
-    {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ) :
     ‖K x y‖ₑ ≤ (C_K a / volume (ball x r)).toNNReal := by
   rw [ENNReal.coe_toNNReal ?ne_top]
   case ne_top =>
@@ -418,7 +443,7 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
   rw [← mul_one (K x)]
   refine integrableOn_K_mul ?_ x hr ?_
-  · have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by intro y; simp [dist_comm y x]
+  · have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := Annulus.cc_subset_closedBall
     exact integrableOn_const ((measure_mono this).trans_lt measure_closedBall_lt_top).ne
   · intro y hy; simp [hy.1, dist_comm y x]
 
@@ -462,10 +487,6 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
   isBounded_G : IsBounded G
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
-  /-- `volume_F_pos` can probably be removed. -/
-  volume_F_pos : 0 < volume F
-  /-- `volume_G_pos` can probably be removed. -/
-  volume_G_pos : 0 < volume G
   measurable_σ₁ : Measurable σ₁
   measurable_σ₂ : Measurable σ₂
   finite_range_σ₁ : Finite (range σ₁)
@@ -619,7 +640,7 @@ include a q K σ₁ σ₂ F G
 variable (X) in
 lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
     F ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧
-    G ⊆ ball (cancelPt X) (defaultD a ^ n / 4) := by
+    G ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧ 0 < n := by
   obtain ⟨l₁, hl₁⟩ := bddBelow_def.mp (Finite.bddBelow (finite_range_σ₁ (X := X)))
   obtain ⟨u₂, hu₂⟩ := bddAbove_def.mp (Finite.bddAbove (finite_range_σ₂ (X := X)))
   simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hl₁ hu₂
@@ -632,13 +653,13 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
     · use r
     · use 1, zero_lt_one, hr.trans (ball_subset_ball (lr.trans zero_le_one))
   let nF := ⌈Real.logb (defaultD a) (4 * rF)⌉
-  obtain ⟨rG, rGpos, hrG⟩ : ∃ r > 0, G ⊆ ball (cancelPt X) r := by
+  obtain ⟨rG, rGpos, hrG⟩ : ∃ r > 1, G ⊆ ball (cancelPt X) r := by
     obtain ⟨r, hr⟩ := isBounded_G.subset_ball (cancelPt X)
     rcases lt_or_ge 0 r with lr | lr
-    · use r
-    · use 1, zero_lt_one, hr.trans (ball_subset_ball (lr.trans zero_le_one))
+    · use r + 1, by linarith, subset_trans hr (ball_subset_ball (by simp))
+    · use 2, one_lt_two, hr.trans (ball_subset_ball (lr.trans zero_le_two))
   let nG := ⌈Real.logb (defaultD a) (4 * rG)⌉
-  refine ⟨(max (max (-l₁) u₂) (max nF nG)).toNat, ⟨fun x ↦ ?_, ?_, ?_⟩⟩
+  refine ⟨(max (max (-l₁) u₂) (max nF nG)).toNat, ⟨fun x ↦ ?_, ?_, ?_, ?_⟩⟩
   · simp only [Int.ofNat_toNat, ← min_neg_neg, neg_neg, min_le_iff, le_max_iff]
     exact ⟨.inl (.inl (.inl (hl₁ x))), .inl (.inl (.inr (hu₂ x)))⟩
   · refine hrF.trans (ball_subset_ball ?_)
@@ -669,6 +690,9 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
         gcongr
         · exact one_lt_D.le
         · exact Int.toNat_le_toNat ((le_max_right ..).trans (le_max_right ..))
+  · exact Int.pos_iff_toNat_pos.mp (lt_of_lt_of_le
+      (lt_of_lt_of_le (Int.ceil_pos.mpr (Real.logb_pos one_lt_D (by linarith))) (le_max_right _ _))
+      (le_max_right _ _))
 
 variable (X) in
 open Classical in
@@ -690,7 +714,10 @@ lemma F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
   classical exact (Nat.find_spec (S_spec X)).2.1
 
 lemma G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
-  classical exact (Nat.find_spec (S_spec X)).2.2
+  classical exact (Nat.find_spec (S_spec X)).2.2.1
+
+lemma defaultS_pos : 0 < defaultS X := by
+  classical exact (Nat.find_spec (S_spec X)).2.2.2
 
 lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (-defaultS X) (defaultS X) :=
   fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
@@ -741,6 +768,11 @@ lemma q_pos : 0 < q := zero_lt_one.trans (one_lt_q X)
 lemma q_nonneg : 0 ≤ q := (q_pos X).le
 lemma inv_q_sub_half_nonneg : 0 ≤ q⁻¹ - 2⁻¹ := by
   simp [inv_le_inv₀ zero_lt_two (q_pos X), q_le_two X]
+
+-- Note: For exponent computations it is usually cleaner to argue in terms
+-- of `q⁻¹` rather than `q`, both on paper and in Lean.
+lemma inv_q_mem_Ico : q⁻¹ ∈ Ico 2⁻¹ 1 := ⟨by linarith only [inv_q_sub_half_nonneg X],
+  inv_one (G := ℝ) ▸ inv_lt_inv₀ (q_pos X) zero_lt_one |>.mpr <| one_lt_q X⟩
 
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩

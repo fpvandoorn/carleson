@@ -97,6 +97,14 @@ variable (X) in
 /-- For all `r`, balls of radius `r` in `X` are covered by `n` balls of radius `a * r` -/
 def AllBallsCoverBalls (a : ℝ) (n : ℕ) : Prop := ∀ r : ℝ, BallsCoverBalls X (a * r) r n
 
+/-- Prove `AllBallsCoverBalls` only for balls of positive radius. -/
+lemma AllBallsCoverBalls.mk {a : ℝ} (ha : 0 ≤ a) (h : ∀ r > 0, BallsCoverBalls X (a * r) r n) :
+    AllBallsCoverBalls X a n := by
+  intro r
+  obtain hr|hr := lt_or_ge 0 r
+  · exact h r hr
+  exact .nonpos (mul_nonpos_of_nonneg_of_nonpos ha hr)
+
 lemma AllBallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) :
     AllBallsCoverBalls X (a ^ k) (n ^ k) := by
   intro r

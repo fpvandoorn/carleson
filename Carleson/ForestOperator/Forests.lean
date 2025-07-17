@@ -209,7 +209,7 @@ def rowDecomp (t : Forest X n) (j : ℕ) : Row X n where
   ball_subset' hu := t.ball_subset' (rowDecomp_𝔘_subset_forest t j hu)
   pairwiseDisjoint' := rowDecomp_𝔘_pairwiseDisjoint t j
 
-lemma mem_forest_of_mem {t: Forest X n} {j : ℕ} {x : 𝔓 X} (hx : x ∈ t.rowDecomp j) : x ∈ t :=
+lemma mem_forest_of_mem {t : Forest X n} {j : ℕ} {x : 𝔓 X} (hx : x ∈ t.rowDecomp j) : x ∈ t :=
   rowDecomp_𝔘_subset_forest t j hx
 
 lemma rowDecomp_𝔘_eq (t : Forest X n) (j : ℕ) :
@@ -218,7 +218,7 @@ lemma rowDecomp_𝔘_eq (t : Forest X n) (j : ℕ) :
 lemma mem_rowDecomp_iff_mem_rowDecomp_𝔘 (t : Forest X n) (j : ℕ) : ∀ x,
   x ∈ t.rowDecomp j ↔ x ∈ t.rowDecomp_𝔘 j := by intros; rfl
 
-lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x:X)
+lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x : X)
     (this : ∃ 𝔲' ∈ (t.rowDecomp j).𝔘, x ∈ 𝓘 𝔲') :
     1 ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j: Set _) x := by
   classical
@@ -227,8 +227,8 @@ lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x:X)
   rw [← Finset.sum_erase_add _ (a := 𝔲')]
   · rw [indicator_apply,← Grid.mem_def,if_pos h𝔲'.right,Pi.one_apply]
     simp only [le_add_iff_nonneg_left, zero_le]
-  simp only [mem_inter_iff, Finset.mem_filter, Finset.mem_univ, true_and]
-  exact ⟨t.rowDecomp_𝔘_subset j h𝔲'.left,h𝔲'.left⟩
+  simp_rw [Finset.mem_filter_univ, mem_inter_iff]
+  exact ⟨t.rowDecomp_𝔘_subset j h𝔲'.1, h𝔲'.1⟩
 
 lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) :
   ∀ x:X, stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
@@ -289,7 +289,7 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) :
         dsimp [stackSize]
         push_neg at h
         rw [Finset.sum_congr rfl (g := fun _ => 0) (by
-          simp only [Finset.mem_filter, Finset.mem_univ, true_and, indicator_apply_eq_zero,
+          simp_rw [Finset.mem_filter_univ, indicator_apply_eq_zero,
             Pi.one_apply, one_ne_zero] at h ⊢
           exact h)]
         rw [Finset.sum_eq_zero (fun _ _ => rfl)]
@@ -746,7 +746,7 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
       exact setLIntegral_le_lintegral _ _
     _ ≤ (∑ u ∈ U, (C7_4_3 a * eLpNorm ((𝓘 u : Set X).indicator f) 2 volume) ^ 2) ^ (2 : ℝ)⁻¹ := by
       gcongr with u mu
-      simp_rw [U, Finset.mem_filter, Finset.mem_univ, true_and] at mu
+      rw [Finset.mem_filter_univ] at mu
       apply adjoint_tree_control (mem_forest_of_mem mu) (hf.indicator coeGrid_measurable)
       rw [Set.support_indicator]
       exact inter_subset_right.trans nf
@@ -809,7 +809,7 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
         ‖∫ x, adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator f₁) x *
         conj (adjointCarlesonSum (t u') ((𝓘 u' : Set X).indicator f₂) x)‖ₑ := by
       congr! 5 with u mu u' mu' x
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu mu'
+      rw [Finset.mem_filter_univ] at mu mu'
       rw [adjoint_tile_support2_sum_partial (mem_forest_of_mem mu),
         adjoint_tile_support2_sum_partial (mem_forest_of_mem mu')]
     _ ≤ ∑ u with u ∈ rowDecomp t j, ∑ u' with u' ∈ rowDecomp t j',
@@ -819,7 +819,7 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
         eLpNorm ((𝓘 u ∩ 𝓘 u' : Set X).indicator
           (adjointBoundaryOperator t u' ((𝓘 u' : Set X).indicator f₂)) ·) 2 volume := by
       gcongr with u mu u' mu'
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu mu'
+      rw [Finset.mem_filter_univ] at mu mu'
       refine correlation_separated_trees (mem_forest_of_mem mu) (mem_forest_of_mem mu') ?_
         (hf₁.indicator coeGrid_measurable) (hf₂.indicator coeGrid_measurable)
       exact (pairwiseDisjoint_rowDecomp lj lj' hn).ne_of_mem mu mu'
@@ -921,7 +921,7 @@ lemma forest_operator_g_prelude
 lemma adjointCarlesonRowSum_rowSupport :
     adjointCarlesonRowSum t j f = adjointCarlesonRowSum t j ((rowSupport t j).indicator f) := by
   ext x; unfold adjointCarlesonRowSum adjointCarlesonSum; congr! 2 with u mu p mp
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu mp
+  simp_rw [Finset.mem_filter_univ] at mu mp
   refine setIntegral_congr_ae measurableSet_E (.of_forall fun y my ↦ ?_)
   congr; refine (indicator_of_mem ?_ _).symm
   simp_rw [rowSupport, mem_iUnion₂]; exact ⟨_, mu, _, mp, my⟩
@@ -1057,7 +1057,7 @@ lemma carlesonRowSum_rowSupport :
     carlesonRowSum t j f = (rowSupport t j).indicator (carlesonRowSum t j f) := by
   symm; rw [indicator_eq_self, support_subset_iff']
   refine fun x nx ↦ Finset.sum_eq_zero fun u mu ↦ Finset.sum_eq_zero fun p mp ↦ ?_
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at mu mp
+  simp_rw [Finset.mem_filter_univ] at mu mp
   simp only [rowSupport, mem_iUnion, exists_prop, not_exists, not_and] at nx
   exact indicator_of_notMem (nx _ mu _ mp) _
 
@@ -1270,7 +1270,7 @@ open scoped Classical in
 the integral of the function multiplied by another function. -/
 theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A) (sA : A ⊆ G) :
-    ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ ≤
+    ∫⁻ x in A, ‖∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * (volume A) ^ (1/2 : ℝ) := by
   /- This follows from the other version by taking for the test function `g` the argument of
@@ -1319,7 +1319,7 @@ the integral of the function multiplied by another function, and with the upper 
 of `volume F` and `volume G`. -/
 theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A) (sA : A ⊆ G) :
-    ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ ≤
+    ∫⁻ x in A, ‖∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     (volume F) ^ (1/2 : ℝ) * (volume A) ^ (1/2 : ℝ) := by
   apply (forest_operator' 𝔉 hf h2f hA sA).trans

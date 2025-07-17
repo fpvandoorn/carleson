@@ -59,19 +59,17 @@ lemma adjoint_tile_support2_sum (hu : u ∈ t) :
   unfold adjointCarlesonSum
   classical
   calc
-    _ = ∑ p ∈ {p | p ∈ t u},
+    _ = ∑ p with p ∈ t u,
         (𝓘 u : Set X).indicator (adjointCarleson p ((𝓘 u : Set X).indicator f)) := by
       ext x; simp only [Finset.sum_apply]; congr! 1 with p mp
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
-      rw [adjoint_tile_support2 hu mp]
+      rw [Finset.mem_filter_univ] at mp; rw [adjoint_tile_support2 hu mp]
     _ = _ := by simp_rw [← Finset.indicator_sum, ← Finset.sum_apply]
 
 /-- A partially applied variant of `adjoint_tile_support2_sum`, used to prove Lemma 7.7.3. -/
 lemma adjoint_tile_support2_sum_partial (hu : u ∈ t) :
     adjointCarlesonSum (t u) f = (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator f)) := by
   unfold adjointCarlesonSum
-  ext x; congr! 1 with p mp
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+  ext x; congr! 1 with p mp; classical rw [Finset.mem_filter_univ] at mp
   rw [← adjoint_eq_adjoint_indicator (E_subset_𝓘.trans (t.smul_four_le hu mp).1.1)]
 
 lemma enorm_adjointCarleson_le {x : X} :
@@ -124,7 +122,7 @@ irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
 
 -- unfortunate technicality
 lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
-    (hf : MemLp f 2): ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
+    (hf : MemLp f 2) : ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
   rw [show ∫ x, ofReal (normSq (f x)) = ofReal (∫ x, normSq (f x)) by exact integral_ofReal]
   rw [nnnorm_real]
   have hnn: 0 ≤ ∫ x, normSq (f x) := by-- todo: adjust `positivity` to handle this
