@@ -801,19 +801,12 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X}
       gcongr; simp only [𝔄']
       exact sep_subset _ _
 
--- Copied from`ForestOperator.LargeSeparation`, where it is called
--- `IF_subset_THEN_distance_between_centers`.
--- **TODO**: move to common import.
-private lemma dist_c_le_of_subset {J J' : Grid X} (subset : (J : Set X) ⊆ J') :
-    dist (c J) (c J') < 4 * D ^ s J' :=
-  Grid_subset_ball (subset Grid.c_mem_Grid)
-
 -- Ineq. 6.3.41
 private lemma volume_L'_le {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     volume (L' hL : Set X) ≤ 2 ^ (100*a^3 + 5*a) * volume (L : Set X) := by
   have hc : dist (c L) (c (L' hL)) + 4 * D ^ s (L' hL) ≤ 8 * D ^ s (L' hL) := by
     calc dist (c L) (c (L' hL)) + 4 * D ^ s (L' hL)
-      _ ≤ 4 * ↑D ^ s (L' hL) + 4 * D ^ s (L' hL) := by grw [dist_c_le_of_subset (L_le_L' hL).1]
+      _ ≤ 4 * ↑D ^ s (L' hL) + 4 * D ^ s (L' hL) := by grw [Grid.dist_c_le_of_subset (L_le_L' hL).1]
       _ ≤ 8 * ↑D ^ s (L' hL) := by linarith
   calc volume (L' hL : Set X)
     _ ≤ volume (ball (c (L' hL)) (4 * D ^ s (L' hL))) := by
