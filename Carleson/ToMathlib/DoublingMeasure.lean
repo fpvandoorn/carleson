@@ -449,7 +449,7 @@ This class is not Mathlib-ready code, and should not be used in the `ToMathlib` 
 -/
 class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
     CompleteSpace X, LocallyCompactSpace X,
-    MeasureSpace X, OpensMeasurableSpace X,
+    MeasureSpace X, BorelSpace X,
     IsLocallyFiniteMeasure (volume : Measure X),
     IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
 
