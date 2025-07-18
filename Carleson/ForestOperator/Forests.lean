@@ -365,74 +365,52 @@ lemma adjointCarlesonRowSum_adjoint
       exact hg.adjointCarlesonSum.conj
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
 
-/-- The constant used in `row_bound`.
-Has value `2 ^ (156 * a ^ 3 - n / 2)` in the blueprint. -/
--- Todo: edit blueprint to update w/r/t new value of C7_3_1_1
-irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 := (C7_3_1_1 a : ℝ≥0) * 2 ^ (a ^ 3 - n/2:ℝ)
+/-- The constant used in `row_bound`. -/
+irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 :=
+  2 ^ ((𝕔 + 7 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
 
-lemma C7_7_2_1_eq : C7_7_2_1 a n = 2 ^ (203.5 * a ^3 - n/2: ℝ) := by
-  rw [C7_7_2_1,C7_3_1_1, ← NNReal.rpow_add (by norm_num)]
-  ring_nf
-
-/--
-The approximation being used here should also depend on the constant used to bound the
-dens₁ operator found in `Forest.dens₁_𝔗_le`, which is equation 2.0.35 in the blueprint.
-As is, for the purposes of 7.7.2 the approximation
-`dens₁ (t.𝔗 u) ≤ 2 ^ (2 * a ^ 3 - n)` is good enough, but we assume
-`dens₁ (t.𝔗 u) ≤ 2 ^ (4 * a + 1 - n)` in the definition of `Forest`
-We get to the first bound by assuming `2 ≤ a`. This is the strictest bound on naturals that works.
--/
-lemma C7_7_2_1_bounds (a n : ℕ) (ha : 2 ≤ a) : (C7_3_1_1 a : ℝ≥0∞) * 2 ^ ((4 * a + 1-n)/2 : ℝ) ≤ C7_7_2_1 a n := by
-  rw [C7_7_2_1_def,ENNReal.coe_mul]
+lemma le_C7_7_2_1 (a4 : 4 ≤ a) :
+    C7_3_1_1 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ ≤ C7_7_2_1 a n := by
+  rw [sub_add_eq_add_sub, sub_eq_add_neg, NNReal.rpow_add two_ne_zero, NNReal.mul_rpow]
+  conv_lhs => enter [2, 2]; rw [← NNReal.rpow_mul, ← div_eq_mul_inv, neg_div]
+  conv_rhs => rw [C7_7_2_1]
+  rw [← mul_assoc]; gcongr
+  rw [C7_3_1_1, ← NNReal.rpow_mul, ← NNReal.rpow_natCast, ← NNReal.rpow_add two_ne_zero,
+    ← NNReal.rpow_natCast]
   gcongr
-  rw [ENNReal.coe_rpow_of_ne_zero (by norm_num),ENNReal.coe_ofNat]
-  apply ENNReal.rpow_le_rpow_of_exponent_le (by norm_num)
-  rw [sub_div, add_div, mul_div_right_comm]
-  norm_num
-  have : 2 ≤ (a:ℝ) := by simpa
-  calc (2:ℝ) * a + 1/2
-  _ ≤ 2 * a + 2 * 2 := by
-    gcongr
-    norm_num
-  _ ≤ 2 * a + 2 * a := by gcongr
-  _ ≤ (a:ℝ) ^ 3 := by
-    rw [← left_distrib,← two_mul, pow_three]
-    gcongr
+  · exact one_le_two
+  · simp only [Nat.cast_mul, Nat.cast_add, Nat.cast_ofNat, Nat.cast_pow]
+    ring_nf
+    have : (4 : ℝ) ≤ a := mod_cast a4
+    suffices 1/2 + 2 * (a : ℝ) ≤ a ^ 3 by linarith
+    calc
+      _ ≤ 2 * (a : ℝ) + 2 * a := by linarith
+      _ = 1 * 4 * a := by ring
+      _ ≤ a * a * a := by gcongr; linarith
+      _ = _ := by ring
 
+/-- The constant used in `indicator_row_bound`. -/
+irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 :=
+  2 ^ ((2 * 𝕔 + 8 + 𝕔/2 + 𝕔/4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
 
-/-- The constant used in `indicator_row_bound`.
-Has value `2 ^ (257 * a ^ 3 - n / 2)` in the blueprint. -/
--- Todo: edit blueprint to update w/r/t new value of C7_3_1_2
-irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 := (C7_3_1_2 a : ℝ≥0) * 2 ^ (a ^ 3 - n/2:ℝ)
-
-lemma C7_7_2_2_eq (a n : ℕ) : C7_7_2_2 a n = 2 ^ (304 * a ^ 3 - n/2: ℝ) := by
-  rw [C7_7_2_2,C7_3_1_2,← NNReal.rpow_add (by norm_num)]
-  ring_nf
-
-/--
-The approximation being used here should also depend on the constant used to bound the
-dens₁ operator found in `Forest.dens₁_𝔗_le`, which is equation 2.0.35 in the blueprint.
-As is, for the purposes of 7.2.2 the approximation
-`dens₁ (t.𝔗 u) ≤ 2 ^ (2 * a ^ 3 - n)` is good enough, but we assume
-`dens₁ (t.𝔗 u) ≤ 2 ^ (4 * a + 1 - n)` in the definition of `Forest`.
-We get to the first bound by assuming `2 ≤ a`. This is the strictest bound on naturals that works.
--/
-lemma C7_7_2_2_bounds (a n : ℕ) (ha : 2 ≤ a) : (C7_3_1_2 a : ℝ≥0∞) * 2 ^ ((4 * a + 1-n)/2 : ℝ) ≤ C7_7_2_2 a n := by
-  rw [C7_7_2_2_def,ENNReal.coe_mul]
+lemma le_C7_7_2_2 (a4 : 4 ≤ a) :
+    C7_3_1_2 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ ≤ C7_7_2_2 a n := by
+  rw [sub_add_eq_add_sub, sub_eq_add_neg, NNReal.rpow_add two_ne_zero, NNReal.mul_rpow]
+  conv_lhs => enter [2, 2]; rw [← NNReal.rpow_mul, ← div_eq_mul_inv, neg_div]
+  conv_rhs => rw [C7_7_2_2, ← NNReal.rpow_natCast]
+  rw [← mul_assoc]; gcongr
+  rw [C7_3_1_2, ← NNReal.rpow_mul, ← NNReal.rpow_natCast, ← NNReal.rpow_add two_ne_zero]
   gcongr
-  rw [ENNReal.coe_rpow_of_ne_zero (by norm_num),ENNReal.coe_ofNat]
-  apply ENNReal.rpow_le_rpow_of_exponent_le (by norm_num)
-  rw [sub_div, add_div, mul_div_right_comm]
-  norm_num
-  have : 2 ≤ (a:ℝ) := by simpa
-  calc (2:ℝ) * a + 1/2
-  _ ≤ 2 * a + 2 * 2 := by
-    gcongr
-    norm_num
-  _ ≤ 2 * a + 2 * a := by gcongr
-  _ ≤ (a:ℝ) ^ 3 := by
-    rw [← left_distrib,← two_mul, pow_three]
-    gcongr
+  · exact one_le_two
+  · simp only [Nat.cast_mul, Nat.cast_add, Nat.cast_ofNat, Nat.cast_pow]
+    ring_nf
+    have : (4 : ℝ) ≤ a := mod_cast a4
+    suffices 1/2 + 2 * (a : ℝ) ≤ a ^ 3 by linarith
+    calc
+      _ ≤ 2 * (a : ℝ) + 2 * a := by linarith
+      _ = 1 * 4 * a := by ring
+      _ ≤ a * a * a := by gcongr; linarith
+      _ = _ := by ring
 
 -- move
 lemma _root_.ENNReal.sq_le_mul_right {a : ℝ≥0∞} (htop : a ≠ ⊤) (b : ℝ≥0∞) : a ^ 2 ≤ b * a ↔ a ≤ b := by
@@ -501,7 +479,6 @@ lemma adjoint_refined_density_tree_bound2 (hu : u ∈ t) (hf : BoundedCompactSup
   · ring_nf
     rfl
 
-
 lemma adjoint_C7_7_2_bound1 (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm (adjointCarlesonSum (t u) (G.indicator f)) 2 volume ≤
       C7_7_2_1 a n * eLpNorm f 2 volume := by
@@ -509,16 +486,18 @@ lemma adjoint_C7_7_2_bound1 (hu : u ∈ t) (hf : BoundedCompactSupport f) :
   _ ≤ C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm (G.indicator f) 2 volume := by
     exact adjoint_refined_density_tree_bound1 hu (hf.indicator measurableSet_G)
       support_indicator_subset
-  _ ≤ C7_3_1_1 a * 2 ^ ((4 * a + 1 - n) / 2 : ℝ) * eLpNorm f 2 volume := by
-    rw [div_eq_mul_inv _ (2:ℝ),ENNReal.rpow_mul]
+  _ ≤ C7_3_1_1 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
     gcongr
-    · rw [add_sub_right_comm]
-      exact t.dens₁_𝔗_le hu
+    · exact t.dens₁_𝔗_le hu
     · exact eLpNorm_indicator_le f
   _ ≤ C7_7_2_1 a n * eLpNorm f 2 volume := by
     gcongr
-    exact C7_7_2_1_bounds a n ((show 2 ≤ 4 from by norm_num).trans (four_le_a X))
-
+    convert ENNReal.coe_le_coe.2 (le_C7_7_2_1 (four_le_a X) (n := n))
+    simp only [ENNReal.coe_mul]
+    rw [ENNReal.coe_rpow_of_nonneg, ENNReal.coe_rpow_of_ne_zero]
+    · norm_cast
+    · norm_num
+    · norm_num
 
 lemma adjoint_C7_7_2_bound2 (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm (F.indicator <| adjointCarlesonSum (t u) (G.indicator f)) 2 volume ≤
@@ -527,17 +506,19 @@ lemma adjoint_C7_7_2_bound2 (hu : u ∈ t) (hf : BoundedCompactSupport f) :
   _ ≤ C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm (G.indicator f) 2 volume := by
     exact adjoint_refined_density_tree_bound2 hu (hf.indicator measurableSet_G)
       support_indicator_subset
-  _ ≤ C7_3_1_2 a * 2 ^ ((4 * a + 1 - n) / 2 : ℝ) * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
-    rw [div_eq_mul_inv _ (2:ℝ),ENNReal.rpow_mul]
+  _ ≤ C7_3_1_2 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹
+      * eLpNorm f 2 volume := by
     gcongr
-    · rw [add_sub_right_comm]
-      exact t.dens₁_𝔗_le hu
+    · exact t.dens₁_𝔗_le hu
     · exact eLpNorm_indicator_le f
   _ ≤ C7_7_2_2 a n * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
     gcongr
-    -- it suffices that 2 ≤ a. this can be improved, but involves solving a cubic inequality.
-    -- 1 is not enough
-    exact C7_7_2_2_bounds a n ((show 2 ≤ 4 from by norm_num).trans (four_le_a X))
+    convert ENNReal.coe_le_coe.2 (le_C7_7_2_2 (four_le_a X) (n := n))
+    simp only [ENNReal.coe_mul]
+    rw [ENNReal.coe_rpow_of_nonneg, ENNReal.coe_rpow_of_ne_zero]
+    · norm_cast
+    · norm_num
+    · norm_num
 
 open Classical in
 lemma part_1' (j : ℕ) {A : Set X} :
@@ -789,11 +770,11 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
     (adjointBoundaryOperator t w.2 ((𝓘 w.2 : Set X).indicator f₂)) ·) 2 volume
   have N₁_bound : (∑ w ∈ W, N₁ w ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ ≤ C7_4_3 a * eLpNorm f₁ 2 volume := by
     unfold W N₁; rw [Finset.sum_product]
-    exact row_correlation_aux hf₁ sf₁
+    exact row_correlation_aux hf₁ nf₁
   have N₂_bound : (∑ w ∈ W, N₂ w ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ ≤ C7_4_3 a * eLpNorm f₂ 2 volume := by
     unfold W N₂; rw [Finset.sum_product, Finset.sum_comm]; dsimp only
     conv_lhs => enter [1, 2, u', 2, u]; rw [inter_comm]
-    exact row_correlation_aux hf₂ sf₂
+    exact row_correlation_aux hf₂ nf₂
   calc
     _ = ‖∫ x, ∑ u with u ∈ rowDecomp t j, ∑ u' with u' ∈ rowDecomp t j',
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
@@ -948,8 +929,8 @@ lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2
     rw [← NNReal.rpow_natCast, ← NNReal.rpow_add (by norm_num), ← NNReal.rpow_natCast,
       ← NNReal.rpow_mul]
     ring_nf
-  rw [this]
-  simp only [← mul_assoc, ← add_mul, ge_iff_le]
+  rw [this, ← mul_assoc, ← mul_assoc]
+  simp only [← mul_assoc, ← mul_assoc, ← mul_assoc, ← add_mul, ge_iff_le]
   gcongr
   rw [← pow_add]
   apply (add_le_pow_two_add_cube a4 (by omega) le_rfl).trans ?_
@@ -997,10 +978,10 @@ lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.i
         ∑ j ∈ Finset.range (2 ^ n), ∑ j' ∈ Finset.range (2 ^ n) with j ≠ j',
           C7_7_3 a n * eLpNorm ((rowSupport t j).indicator g) 2 *
           eLpNorm ((rowSupport t j').indicator g) 2 := by
-      have sg {j : ℕ} : support ((t.rowSupport j).indicator g) ⊆ G := by
-        rw [support_indicator]; apply inter_subset_right.trans
-        rw [support_subset_iff']; intro x nx
-        specialize h2g x; rwa [indicator_of_notMem nx, norm_le_zero_iff] at h2g
+      have nleg {j : ℕ} (x : X) : ‖(t.rowSupport j).indicator g x‖ ≤ G.indicator 1 x := by
+        by_cases mx : x ∈ t.rowSupport j
+        · rw [indicator_of_mem mx]; exact h2g x
+        · rw [indicator_of_notMem mx, norm_zero]; exact indicator_apply_nonneg fun _ ↦ by simp
       gcongr with j mj j mj j' mj'
       · simp_rw [Finset.mem_range] at mj
         exact row_bound (bcsrsi j) (support_subset_of_norm_le_indicator nleg)

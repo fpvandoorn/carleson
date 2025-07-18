@@ -116,25 +116,29 @@ lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
       gcongr; refine indicator_le_indicator_apply_of_subset (ball_subset_ball ?_) (zero_le _)
       gcongr; norm_num
 
-lemma adjoint_density_tree_bound1 (hf : BoundedCompactSupport f)
-    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
-    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
-    C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound1 hf hg sg hu
+/-- The constant used in `adjoint_tree_estimate`.
+Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
 
-/-- Part 1 of Lemma 7.4.2. -/
-lemma adjoint_tree_estimate
-    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
-    eLpNorm (adjointCarlesonSum (t u) g) 2 volume ≤
-    C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
-  by_cases h : eLpNorm (adjointCarlesonSum (t u) g) 2 = 0
-  · rw [h]; exact zero_le _
-  have bcs : BoundedCompactSupport (adjointCarlesonSum (t u) g) := hg.adjointCarlesonSum
-  rw [← ENNReal.mul_le_mul_right h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
-    eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
-    mul_comm (eLpNorm g 2 volume), ← mul_assoc]
-  conv_lhs => enter [1, 2, x]; rw [mul_comm]
-  exact adjoint_density_tree_bound1 bcs hg sg hu
+-- unfortunate technicality
+lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
+    (hf : MemLp f 2) : ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
+  rw [show ∫ x, ofReal (normSq (f x)) = ofReal (∫ x, normSq (f x)) by exact integral_ofReal]
+  rw [nnnorm_real]
+  have hnn: 0 ≤ ∫ x, normSq (f x) := by-- todo: adjust `positivity` to handle this
+    refine integral_nonneg ?_
+    refine Pi.le_def.mpr ?_
+    exact fun _ ↦ normSq_nonneg _
+  rw [← enorm_eq_nnnorm, Real.enorm_eq_ofReal hnn]
+  rw [hf.eLpNorm_eq_integral_rpow_norm (NeZero.ne 2) ENNReal.ofNat_ne_top]
+  rw [← ENNReal.rpow_natCast, ENNReal.ofReal_rpow_of_nonneg (by positivity) (by simp)]
+  rw [ENNReal.toReal_ofNat, Nat.cast_ofNat]
+  suffices ∫ x, normSq (f x) = ((∫ x, ‖f x‖ ^ 2) ^ ((2:ℝ)⁻¹)) ^ (2:ℝ) by
+    simp_rw [← Real.rpow_two] at this; rw [this]
+  have h : ∫ x, normSq (f x) = ∫ x, ‖f x‖ ^ 2 := by congr!; exact normSq_eq_norm_sq _
+  rw [← Real.rpow_mul ?_, IsUnit.inv_mul_cancel (by simp), Real.rpow_one]
+  · exact h
+  · rw [← h]; exact hnn
 
 /-- Lemma 7.4.2. -/
 lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
@@ -158,10 +162,9 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (203 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 7 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
-  -- C7_3_1_1 a + CMB (defaultA a) 2 + 1
 
-lemma C7_4_3_le (ha : 4 ≤ a) : C7_3_1_1 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a := by
-  rw [C7_4_3, C7_3_1_1, CMB_defaultA_two_eq]
+lemma le_C7_4_3 (ha : 4 ≤ a) : C7_4_2 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a := by
+  rw [C7_4_3, C7_4_2, C7_3_1_1, CMB_defaultA_two_eq]
   calc
     _ ≤ (2 : ℝ≥0) ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
         + 2 ^ ((a : ℝ) + 3 / 2) + 2 ^ ((a : ℝ) + 3 / 2) := by
@@ -205,24 +208,24 @@ lemma adjoint_tree_control
   have m₂ : AEStronglyMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) := .maximalFunction 𝓑.to_countable
   have m₃ : AEStronglyMeasurable (‖f ·‖ₑ) := hf.aestronglyMeasurable.enorm.aestronglyMeasurable
   calc
-    _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) g x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 g x) 2 volume +
-        eLpNorm (‖g ·‖ₑ) 2 volume := eLpNorm_add_le (m₁.add m₂) m₃ one_le_two
-    _ ≤ eLpNorm (‖adjointCarlesonSum (t u) g ·‖ₑ) 2 volume +
-        eLpNorm (MB volume 𝓑 c𝓑 r𝓑 g ·) 2 volume + eLpNorm (‖g ·‖ₑ) 2 volume := by
+    _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) f x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume +
+        eLpNorm (‖f ·‖ₑ) 2 volume := eLpNorm_add_le (m₁.add m₂) m₃ one_le_two
+    _ ≤ eLpNorm (‖adjointCarlesonSum (t u) f ·‖ₑ) 2 volume +
+        eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume + eLpNorm (‖f ·‖ₑ) 2 volume := by
       gcongr; apply eLpNorm_add_le m₁ m₂ one_le_two
-    _ ≤ C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume +
-        CMB (defaultA a) 2 * eLpNorm g 2 volume + eLpNorm g 2 volume := by
+    _ ≤ C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume +
+        CMB (defaultA a) 2 * eLpNorm f 2 volume + eLpNorm f 2 volume := by
       gcongr
-      · exact adjoint_tree_estimate hg h2g hu
-      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two) _ (hg.memLp _) |>.2
+      · exact adjoint_tree_estimate hu hf h2f
+      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two) _ (hf.memLp _) |>.2
       · rfl
-    _ ≤ (C7_3_1_1 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm g 2 volume := by
+    _ ≤ (C7_4_2 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
       simp_rw [add_mul, one_mul]; gcongr; exact dens₁_le_one
     _ ≤ _ := by
       gcongr
       simp only [ENNReal.one_rpow, mul_one, defaultA, Nat.cast_pow, Nat.cast_ofNat]
       norm_cast
-      apply C7_4_3_le (four_le_a X)
+      apply le_C7_4_3 (four_le_a X)
 
 /-- Part 1 of Lemma 7.4.7. -/
 lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)

@@ -462,7 +462,7 @@ lemma density_tree_bound1
     have : ∀ L ∈ 𝓙 (t u), volume ((L : Set X) ∩ univ) ≤ 1 * volume (L : Set X) := by intros; simp
     apply le_of_le_of_eq <| eLpNorm_approxOnCube_two_le pairwiseDisjoint_𝓙 .univ this hf (by tauto)
     rw [ENNReal.one_rpow]
-  simpa using density_tree_bound_aux hf hg sg hu hc
+  simpa using density_tree_bound_aux hf hc hg h2g hu
 
 omit [TileStructure Q D κ S o] in
 -- move somewhere else
@@ -511,12 +511,13 @@ lemma density_tree_bound2
     have : ∀ J ∈ 𝓙 (t u), volume (J ∩ F) ≤ C7_3_3 a * dens₂ (t u) * volume (J : Set X) :=
       fun J hJ ↦ by rw [inter_comm]; apply local_dens2_tree_bound hu hJ
     exact eLpNorm_approxOnCube_two_le pairwiseDisjoint_𝓙 measurableSet_F this hf h2f
-  apply (density_tree_bound_aux hf hg sg hu hc).trans
+  apply le_trans (density_tree_bound_aux hf hc hg h2g hu)
   rw [ENNReal.mul_rpow_of_nonneg _ _ (inv_pos_of_pos two_pos).le]
   calc
     _ = (C7_3_1_1 a) * (C7_3_3 a) ^ (2 : ℝ)⁻¹ * dens₁ ((fun x ↦ t.𝔗 x) u) ^ (2 : ℝ)⁻¹ *
           dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by ring
-    _ ≤ _ := by
+    _ ≤ C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
+        eLpNorm f 2 volume * eLpNorm g 2 volume := by
       rw [C7_3_1_1, C7_3_1_2, C7_3_3, ENNReal.rpow_ofNNReal (inv_pos.mpr two_pos).le,
         ← ENNReal.coe_mul, ← NNReal.rpow_mul, ← NNReal.rpow_natCast,
         ← NNReal.rpow_add two_pos.ne.symm, ← NNReal.rpow_natCast,
