@@ -70,13 +70,14 @@ We carry a multi purpose parameter, a natural number
 
 A doubling metric measure space $(X,\rho,\mu, a)$ is a complete
 and locally compact metric space $(X,\rho)$
-equipped with a $\sigma$-finite non-zero Radon--Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
+equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
 \begin{equation}\label{doublingx}
     \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
 \end{equation}
 where we have denoted by $B(x,R)$ the open ball of radius $R$ centred at $x$:
 \begin{equation}\label{eq-define-ball}
  B(x,R):=\{y\in X: \rho(x,y)<R\}. \end{equation}
+In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
 A collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible, if there is a point $o\in X$ where all the functions are equal to $0$, and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$, such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied. For every ball $B \subset X$
 \begin{equation}\label{osccontrol}
