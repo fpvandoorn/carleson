@@ -500,7 +500,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
     _ ≤ 1 + (1 / 256) ^ n * (2 * 2 ^ n + 3) := by
       gcongr
       · rw [C2_1_2]; positivity
-      · exact C2_1_2_le_inv_512 X
+      · exact C2_1_2_le_inv_256 X
       · exact_mod_cast (l_upper_bound hl qp').le
     _ = 1 + 2 * (2 / 256) ^ n + (1 / 256) ^ n * 3 := by
       simp [div_pow]; ring
@@ -540,7 +540,7 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
       _ ≤ smul (11 / 10 + C2_1_2 a * 200) p' := by
         apply smul_mono_left
         calc
-          _ ≤ 11 / 10 + 1 / 256 * (200 : ℝ) := by gcongr; exact C2_1_2_le_inv_512 X
+          _ ≤ 11 / 10 + 1 / 256 * (200 : ℝ) := by gcongr; exact C2_1_2_le_inv_256 X
           _ ≤ _ := by norm_num
       _ ≤ _ := by
         refine smul_C2_1_2 _ (by norm_num) ?_ (wiggle_order_11_10 l.le (C5_3_3_le (X := X)))
@@ -573,7 +573,7 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
         _ ≤ C2_1_2 a * (200 + 100) + 100 := by rw [mul_add]; gcongr; rw [dist_comm]; exact mϑ₂.le
         _ ≤ (1 / 256) * 300 + 100 := by
           rw [show (200 : ℝ) + 100 = 300 by norm_num]; gcongr
-          exact C2_1_2_le_inv_512 X
+          exact C2_1_2_le_inv_256 X
         _ < _ := by norm_num
     have : z.last < ⟨q, mq⟩ := by
       refine ⟨s200, (?_ : ¬(smul 200 q ≤ smul 200 z.last.1))⟩

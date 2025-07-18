@@ -332,7 +332,7 @@ lemma pairwiseDisjoint_𝓛 : (𝓛 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
 /-- The constant used in `first_tree_pointwise`.
-Has value `10 * 2 ^ ((𝕔 + 4) * a ^ 3)` in the blueprint. -/
+Has value `10 * 2 ^ (104 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ ((𝕔 + 4) * a ^ 3)
 
@@ -382,7 +382,7 @@ private lemma L7_1_4_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) {y : X
       _ ≤ C2_1_2 a ^ (t.σMax u x ⟨s, hs⟩ - s : ℝ)                     := by norm_cast
       _ ≤ (1 / 2 : ℝ) ^ (t.σMax u x ⟨s, hs⟩ - s : ℝ)                  :=
         Real.rpow_le_rpow (by rw [C2_1_2]; positivity)
-          ((C2_1_2_le_inv_512 X).trans (by norm_num)) (by norm_cast)
+          ((C2_1_2_le_inv_256 X).trans (by norm_num)) (by norm_cast)
       _ = 2 ^ (s - σMax t u x ⟨s, hs⟩)                                := by simp [← Int.cast_sub]
   calc ‖exp (.I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖
     _ ≤ dist_{x, D ^ s / 2} (𝒬 u) (Q x) :=
@@ -745,7 +745,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
       exact ⟨Finset.min'_le _ _ mz, Finset.le_max' _ _ mz⟩
 
 /-- The constant used in `third_tree_pointwise`.
-Has value `2 ^ ((𝕔 + 3 + 𝕔 / 4) * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔 / 4) * a ^ 3)
 
@@ -1065,7 +1065,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       · exact integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
 
 /-- The constant used in `pointwise_tree_estimate`.
-Has value `2 ^ ((𝕔 + 3 + 𝕔 / 4) * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3)
 
 lemma C7_1_6_le_C7_1_3 {a : ℕ} : C7_1_6 a ≤ C7_1_3 a := by

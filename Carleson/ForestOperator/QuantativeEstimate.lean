@@ -18,7 +18,7 @@ namespace TileStructure.Forest
 /-! ## Section 7.3 and Lemma 7.3.1 -/
 
 /-- The constant used in `local_dens1_tree_bound`.
-Has value `2 ^ (61 * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (101 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 1) * a ^ 3)
 
@@ -169,11 +169,11 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
         · rw [← mem_ball']; exact subset_cball hp'
         · exact t.dist_lt_four' hu mp''
       _ ≤ 1 / 256 * 10 + 4 := by
-        rw [show (9 : ℝ) + 1 = 10 by norm_num]; gcongr; exact C2_1_2_le_inv_512 X
+        rw [show (9 : ℝ) + 1 = 10 by norm_num]; gcongr; exact C2_1_2_le_inv_256 X
       _ < _ := by norm_num
 
 /-- The constant used in `local_dens2_tree_bound`.
-Has value `2 ^ (120 * a ^ 3 + 19)` in the blueprint, but that appears to be an error. -/
+Has value `2 ^ (200 * a ^ 3 + 19)` in the blueprint, but that appears to be an error. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_3 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 1) * (a : ℝ) ^ 3)
 
@@ -265,8 +265,9 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   norm_cast
   exact pow_le_pow_right' one_le_two (le_C7_3_3_exponent (four_le_a X) 10 (by norm_num))
 
-/-- The constant used in `density_tree_bound1` and `adjoint_tree_estimate`.
-Has value `2 ^ (202.5 * a ^ 3)` in the blueprint. -/
+/-- The constant used in `density_tree_bound1`.
+Has value `2 ^ (155 * a ^ 3)` in the blueprint, but that was based on an incorrect
+version of Lemma 7.2.1. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 6 + 𝕔/2 + 𝕔/4) * a ^ 3)
 

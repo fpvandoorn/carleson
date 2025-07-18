@@ -556,7 +556,7 @@ lemma btp_integral_bound :
 
 open Classical in
 /-- Equation (7.6.4) of Lemma 7.6.2 (before applying Cauchy–Schwarz). -/
-lemma e7104_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
@@ -620,7 +620,7 @@ lemma e7104_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
         ← mul_pow, Finset.mul_sum]
 
 /-- Equation (7.6.4) of Lemma 7.6.2 (after applying Cauchy–Schwarz and simplification). -/
-lemma e7104_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C2_1_3 a * 2 ^ (11 * a + 2) *
@@ -630,7 +630,7 @@ lemma e7104_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂
     (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
   classical
   calc
-    _ ≤ _ := e7104_preCS hu₁ hu₂ hu h2u hf
+    _ ≤ _ := e764_preCS hu₁ hu₂ hu h2u hf
     _ = C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
         (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y *
@@ -766,7 +766,7 @@ lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume :=
-  (e7104_postCS hu₁ hu₂ hu h2u hf).trans (mul_le_mul_right' btp_constant_bound _)
+  (e764_postCS hu₁ hu₂ hu h2u hf).trans (mul_le_mul_right' btp_constant_bound _)
 
 lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
     approxOnCube (𝓙 (t u₁))

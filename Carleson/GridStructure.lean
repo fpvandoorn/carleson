@@ -378,7 +378,7 @@ def _root_.C2_1_2 (a : ℕ) : ℝ := 2 ^ ((-𝕔 + 5) * a : ℝ)
 
 include q K σ₁ σ₂ F G in
 variable (X) in
-lemma _root_.C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 256 := by
+lemma _root_.C2_1_2_le_inv_256 : C2_1_2 a ≤ 1 / 256 := by
   rw [C2_1_2, show (1 / 256 : ℝ) = 2 ^ (-8 : ℝ) by norm_num,
     Real.rpow_le_rpow_left_iff one_lt_two, le_neg]
   simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le]
@@ -390,12 +390,12 @@ lemma _root_.C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 256 := by
 include q K σ₁ σ₂ F G in
 variable (X) in
 lemma _root_.C2_1_2_le_one : C2_1_2 a ≤ 1 :=
-  (C2_1_2_le_inv_512 X).trans <| by norm_num
+  (C2_1_2_le_inv_256 X).trans <| by norm_num
 
 include q K σ₁ σ₂ F G in
 variable (X) in
 lemma _root_.C2_1_2_lt_one : C2_1_2 a < 1 :=
-  (C2_1_2_le_inv_512 X).trans_lt <| by norm_num
+  (C2_1_2_le_inv_256 X).trans_lt <| by norm_num
 
 variable [GridStructure X D κ S o]
 
