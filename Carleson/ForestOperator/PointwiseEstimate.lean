@@ -146,7 +146,7 @@ lemma boundedCompactSupport_approxOnCube {𝕜 : Type*} [RCLike 𝕜] {C : Set (
     coeGrid_measurable
 
 -- Used in the proof of Lemma 7.1.6
-lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
+lemma lintegral_eq_lintegral_approxOnCube {C : Set (Grid X)}
     (hC : C.PairwiseDisjoint fun I ↦ (I : Set X)) {J : Grid X} (hJ : J ∈ C) {f : X → ℂ}
     (hf : BoundedCompactSupport f) :
     ∫⁻ y in J, ‖f y‖ₑ = ∫⁻ y in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖ₑ := by
@@ -809,14 +809,9 @@ private lemma L7_1_6_integral_le {J : Grid X} (hJ : J ∈ 𝓙 (t u)) {i : ℤ}
     D ^ ((s J - i : ℝ) / a)) • (‖f ·‖ₑ)
   simp_rw [L7_1_6_integral_eq hJ hf]
   apply le_trans <| enorm_integral_le_lintegral_enorm _
-  refine le_of_le_of_eq (lintegral_mono (f := g) (g := h) ?_) (by
+  refine le_of_le_of_eq (setLIntegral_mono' (f := g) (g := h) coeGrid_measurable fun y hy ↦ ?_) (by
     simp_rw [h, Pi.smul_apply, smul_eq_mul]
     rw [lintegral_const_mul'' _ hf.aestronglyMeasurable.enorm.restrict, mul_assoc])
-  suffices {y | g y ≤ h y}ᶜ ∩ (J : Set X) = ∅ by simp [this, coeGrid_measurable]
-  ext y
-  rw [mem_inter_iff, mem_compl_iff, mem_setOf_eq, mem_empty_iff_false, iff_false]
-  suffices ∀ y ∈ J, g y ≤ h y from fun hy ↦ hy.1 (this y hy.2)
-  intro y hy
   simp_rw [g, h, enorm_mul, Pi.smul_apply, smul_eq_mul]
   refine mul_le_mul_right' ?_ _
   have ⟨z₀, z₀J, hz₀⟩ : ∃ z₀ ∈ (J : Set X),
@@ -1023,7 +1018,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]; congr! 2
       rw [Finset.mul_sum]; congr! 2 with J hJ
       rw [← mul_assoc, mul_comm (_ / _), ← mul_div_assoc, mul_one, ijIntegral]; congr! 1
-      exact integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
+      exact lintegral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
 
 /-- The constant used in `pointwise_tree_estimate`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
