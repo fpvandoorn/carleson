@@ -83,10 +83,6 @@ def holderFunction (f₁ f₂ : X → ℂ) (J : Grid X) (x : X) : ℂ :=
 
 /- AUXILIARY LEMMAS:START -/
 
-lemma IF_subset_THEN_distance_between_centers (subset : (J : Set X) ⊆ J') :
-    dist (c J) (c J') < 4 * D ^ s J' :=
-  Grid_subset_ball (subset Grid.c_mem_Grid)
-
 lemma IF_subset_THEN_not_disjoint {A B : Grid X} (h : (A : Set X) ⊆ B) :
     ¬ Disjoint (B : Set X) (A : Set X) := by
   rw [disjoint_comm]
@@ -747,16 +743,17 @@ lemma QQQQ_bound_real {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u)
 
 lemma QQQQ_bound {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u)
     (hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) (hx' : x' ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
-    ‖-Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ ≤ Q7_5_5 a * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
+    ‖-Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ ≤ Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
   calc
     _ ≤ ‖Q7_5_5 a * (dist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹‖ₑ := by
       rw [← enorm_norm]
-      apply Real.enorm_le_enorm (norm_nonneg _) (QQQQ_bound_real my hu hp hx hx')
+      exact Real.enorm_le_enorm (norm_nonneg _) (QQQQ_bound_real my hu hp hx hx')
     _ = _ := by
       rw [enorm_mul, Real.enorm_rpow_of_nonneg (by positivity) (by norm_cast; positivity),
         NNReal.enorm_eq, div_eq_mul_inv, enorm_mul, enorm_inv (by unfold defaultD; positivity),
         ← div_eq_mul_inv]; congr
-      · rw [Real.enorm_eq_ofReal dist_nonneg, dist_nndist]; exact ENNReal.ofReal_coe_nnreal
+      · rw [Real.enorm_eq_ofReal dist_nonneg, dist_edist, ENNReal.ofReal_toReal]
+        exact edist_ne_top x x'
       · rw [Real.enorm_eq_ofReal (by positivity), ← Real.rpow_intCast,
           ← ENNReal.ofReal_rpow_of_pos (by simp), ENNReal.rpow_intCast]; norm_cast
 
@@ -769,33 +766,32 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
     _ ≤ (∫⁻ y in E p, ‖f y‖ₑ * ‖Ks (𝔰 p) y x‖ₑ * ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ) +
         ∫⁻ y in E p, ‖f y‖ₑ * ‖Ks (𝔰 p) y x - Ks (𝔰 p) y x'‖ₑ := holder_correlation_rearrange hf
     _ ≤ (∫⁻ y in E p, ‖f y‖ₑ *
-          (C2_1_3 a / volume (ball y (D ^ 𝔰 p))) *
-            (Q7_5_5 a * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹)) +
+          (C2_1_3 a / volume (ball y (D ^ 𝔰 p))) * (Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹)) +
         ∫⁻ y in E p, ‖f y‖ₑ *
-          (D2_1_3 a / volume (ball y (D ^ 𝔰 p)) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹) := by
+          (D2_1_3 a / volume (ball y (D ^ 𝔰 p)) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹) := by
       refine add_le_add (setLIntegral_mono' measurableSet_E fun y my ↦ ?_)
         (lintegral_mono fun _ ↦ ?_)
       · exact mul_le_mul' (mul_le_mul_left' enorm_Ks_le _) (QQQQ_bound my hu hp hx hx')
-      · gcongr; exact nnnorm_Ks_sub_Ks_le
-    _ = (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
+      · gcongr; exact enorm_Ks_sub_Ks_le
+    _ = (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
         ∫⁻ y in E p, ‖f y‖ₑ / volume (ball y (D ^ 𝔰 p)) := by
       conv_lhs =>
         enter [1, 2, y]
         rw [← mul_div_assoc, mul_comm ‖f y‖ₑ, mul_div_assoc, ← mul_rotate]
-      have nt₀ : (nndist x x' / (D : ℝ≥0∞) ^ 𝔰 p) ^ (a : ℝ)⁻¹ < ⊤ := by
+      have nt₀ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ < ⊤ := by
         apply ENNReal.rpow_lt_top_of_nonneg (by positivity); rw [← lt_top_iff_ne_top]
-        exact ENNReal.div_lt_top ENNReal.coe_ne_top (ENNReal.zpow_pos (by simp) (by simp) _).ne'
-      have nt₁ : Q7_5_5 a * (nndist x x' / (D : ℝ≥0∞) ^ 𝔰 p) ^ (a : ℝ)⁻¹ * C2_1_3 a ≠ ⊤ :=
+        exact ENNReal.div_lt_top (edist_ne_top _ _) (ENNReal.zpow_pos (by simp) (by simp) _).ne'
+      have nt₁ : Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * C2_1_3 a ≠ ⊤ :=
         ENNReal.mul_ne_top (ENNReal.mul_ne_top (by simp) nt₀.ne) (by simp)
       rw [lintegral_const_mul' _ _ nt₁]
       conv_lhs =>
         enter [2, 2, y]
         rw [← mul_assoc, ← mul_div_assoc, mul_comm ‖f y‖ₑ, mul_div_assoc, ← mul_rotate]
-      have nt₂ : (nndist x x' / (D : ℝ≥0∞) ^ 𝔰 p) ^ (a : ℝ)⁻¹ * D2_1_3 a ≠ ⊤ :=
+      have nt₂ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * D2_1_3 a ≠ ⊤ :=
         ENNReal.mul_ne_top nt₀.ne (by simp)
       rw [lintegral_const_mul' _ _ nt₂, ← add_mul]; congr 1
       rw [← mul_rotate, mul_comm _ (D2_1_3 a : ℝ≥0∞), ← add_mul]
-    _ ≤ (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
+    _ ≤ (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
         ∫⁻ y in E p, ‖f y‖ₑ / (volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a)) := by
       refine mul_le_mul_left' (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
       exact ENNReal.div_le_div_left (volume_xDsp_bound (E_subset_𝓘 my)) _
@@ -805,8 +801,7 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
         enter [2, 2, y]
         rw [ENNReal.div_eq_inv_mul]
       rw [lintegral_const_mul'' _ hf.restrict.aestronglyMeasurable.enorm, ← mul_assoc]; congr 1
-      rw [ENNReal.inv_div (by simp) (by simp), ← mul_rotate, ENNReal.mul_div_right_comm]; congr
-      exact coe_nnreal_ennreal_nndist ..
+      rw [ENNReal.inv_div (by simp) (by simp), ← mul_rotate, ENNReal.mul_div_right_comm]
     _ ≤ _ := by
       gcongr; rw [C2_1_3, D2_1_3, C7_5_5, Q7_5_5]; norm_cast
       calc
@@ -942,7 +937,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
       apply cdist_mono
       simp only [not_disjoint_iff] at h
       rcases h with ⟨middleX, lt_2, lt_3⟩
-      have lt_4 := IF_subset_THEN_distance_between_centers belongs.left
+      have lt_4 := Grid.dist_c_le_of_subset belongs.left
       intros x lt_1
       calc dist x (𝔠 p)
       _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
@@ -1103,7 +1098,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
       simp_rw [Finset.mul_sum, mul_assoc]
     _ = 2 ^ ((𝕔 + 3) * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
         (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in ⋃ p ∈ Finset.univ.filter (fun p ↦ 𝔰 p = k ∧
-          ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))), E p, ‖f x‖₊ := by
+          ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))), E p, ‖f x‖ₑ := by
       congr! with k mk
       refine (lintegral_biUnion_finset ?_ (fun _ _ ↦ measurableSet_E) _).symm
       intro p mp q mq hn
@@ -1920,7 +1915,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         gcongr
       _ ≤ 100 * D ^ (s J' + 1) + 4 * D ^ (s J') := by
         have : dist (c J) (c J') < 4 * D ^ (s J') :=
-          IF_subset_THEN_distance_between_centers (subset := JleJ'.1)
+          Grid.dist_c_le_of_subset (subset := JleJ'.1)
         rw [dist_comm] at this
         gcongr
       _ = 100 * D ^ (s J + 2) + 4 * D ^ (s J + 1) := by

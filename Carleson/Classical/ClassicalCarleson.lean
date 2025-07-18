@@ -211,5 +211,3 @@ theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f
 
 
 end
-
-#print axioms classical_carleson

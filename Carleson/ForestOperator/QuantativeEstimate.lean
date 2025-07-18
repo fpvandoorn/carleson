@@ -392,7 +392,7 @@ private lemma density_tree_bound_aux
     (hg : BoundedCompactSupport g)
     (h2g : g.support ⊆ G)
     (hu : u ∈ t) :
-    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
+    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * c * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   let ℰ := ⋃ p ∈ t u, E p
   have hgℰ : BoundedCompactSupport (ℰ.indicator g) :=
@@ -457,7 +457,7 @@ lemma density_tree_bound1
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
     (h2g : g.support ⊆ G)
     (hu : u ∈ t) :
-    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
+    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   have hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤ 1 * eLpNorm f 2 volume := by
     have : ∀ L ∈ 𝓙 (t u), volume ((L : Set X) ∩ univ) ≤ 1 * volume (L : Set X) := by intros; simp

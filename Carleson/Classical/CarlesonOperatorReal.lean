@@ -11,7 +11,7 @@ open MeasureTheory
 --TODO: avoid this extra definition?
 def carlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1),
-  ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
+  ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖ₑ
 
 
 lemma annulus_real_eq {x r R : ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.Ioo r R} = Set.Ioo (x - R) (x - r) ∪ Set.Ioo (x + r) (x + R) := by
@@ -79,9 +79,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
     fun x r y ↦
       {y | dist x y ∈ Set.Ioo r 1}.indicator (fun t ↦ f t * K x t * (Complex.I * ↑n * ↑t).exp) y
     with Fdef
-  set G : ℝ → ℝ → ENNReal := fun x r ↦ ↑‖∫ (y : ℝ), F x r y‖₊ with Gdef
-  have hFG : (fun x ↦ ⨆ r, ⨆ (_ : 0 < r), ⨆ (_ : r < 1), ↑‖∫ (y : ℝ) in
-                {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * (Complex.I * ↑n * ↑y).exp‖₊)
+  set G : ℝ → ℝ → ENNReal := fun x r ↦ ‖∫ (y : ℝ), F x r y‖ₑ with Gdef
+  have hFG : (fun x ↦ ⨆ r, ⨆ (_ : 0 < r), ⨆ (_ : r < 1), ‖∫ (y : ℝ) in
+                {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * (Complex.I * ↑n * ↑y).exp‖ₑ)
              = fun x ↦ ⨆ (r : ℝ) (_ : r ∈ Set.Ioo 0 1), G x r := by
     ext
     congr with r
@@ -245,8 +245,8 @@ variable {α β : Type*} [MeasurableSpace α]
   -- then use measurable_iSup
 -/
 
-
-lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
+lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) :
+    T f x = ENNReal.ofReal a * T (fun x ↦ 1 / a * f x) x := by
   rw [carlesonOperatorReal, carlesonOperatorReal, ENNReal.mul_iSup]
   congr with n
   rw [ENNReal.mul_iSup]
@@ -257,16 +257,10 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
   rw [ENNReal.mul_iSup]
   congr with rle1
   norm_cast
-  apply NNReal.eq
-  simp only [coe_nnnorm, NNReal.coe_mul]
-  rw [← Real.norm_of_nonneg NNReal.zero_le_coe, ← Complex.norm_real, ← norm_mul,
-    ← integral_const_mul, Real.coe_toNNReal a ha.le]
-  congr with y
-  field_simp
-  rw [mul_div_cancel_left₀]
-  norm_cast
-  exact ha.ne.symm
-
+  rw [← Real.enorm_eq_ofReal ha.le]
+  simp_rw [mul_assoc, integral_const_mul, enorm_mul, ← mul_assoc]
+  rw [← enorm_norm (Complex.ofReal (1 / a)), Complex.norm_real, enorm_norm, ← enorm_mul,
+    mul_one_div_cancel ha.ne', enorm_one, one_mul]
 
 lemma carlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ} (hx : x ∈ Set.Icc a b) : T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
   simp_rw [carlesonOperatorReal]

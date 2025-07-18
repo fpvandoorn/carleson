@@ -316,12 +316,6 @@ lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
 -- Todo: define this recursively in terms of previous constants
 def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 8 + 𝕔 / 8) * a ^ 3) / (q - 1)
 
---TODO: PR to Mathlib
-theorem ENNReal.rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (hx : 1 ≤ x) (hy : y ≤ 1) :
-    x ^ y ≤ x := by
-  nth_rw 2 [← ENNReal.rpow_one x]
-  exact ENNReal.rpow_le_rpow_of_exponent_le hx hy
-
 variable (X) in
 omit [TileStructure Q D κ S o] in
 private lemma ineq_aux_2_0_3 :

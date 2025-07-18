@@ -76,6 +76,10 @@ namespace BoundedCompactSupport
 
 section General
 
+open Bornology in
+lemma _root_.isBounded_range_iff_forall_norm_le {α β} [SeminormedAddCommGroup α] {f : β → α} :
+    IsBounded (range f) ↔ ∃ C, ∀ x, ‖f x‖ ≤ C := by convert isBounded_iff_forall_norm_le; simp
+
 variable [TopologicalSpace E] [ENorm E] [Zero E]
 
 theorem aestronglyMeasurable (hf : BoundedCompactSupport f μ) : AEStronglyMeasurable f μ :=
