@@ -467,24 +467,6 @@ instance : ProperSpace X := by
 
 instance : IsOpenPosMeasure (volume : Measure X) := isOpenPosMeasure_of_isDoubling _
 
--- the following classes hold
--- #synth ProperSpace X
--- #synth LocallyCompactSpace X
--- #synth CompleteSpace X
--- #synth SigmaCompactSpace X
--- #synth SigmaFinite (volume : Measure X)
--- #synth SecondCountableTopology X
--- #synth SeparableSpace X
-
-section MetricSpace
-variable {Y : Type*} [MetricSpace Y] [DoublingMeasure Y A]
--- Moreover, the following classes hold if we assume that `Y` is a metric space
--- #synth T4Space Y
--- #synth PolishSpace Y
--- #synth MeasurableSingletonClass Y
-end MetricSpace
-
-
 /-- Monotonicity of doubling measure metric spaces in `A`. -/
 @[reducible]
 def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
