@@ -385,10 +385,13 @@ lemma eLpNorm_approxOnCube_two_le_self (hf : BoundedCompactSupport f)
   rwa [ENNReal.one_rpow, one_mul] at key
 
 -- Generalization that implies both parts of Lemma 7.3.1
-private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
-    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t)
-    {c : ℝ≥0∞} (hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤ c * eLpNorm f 2 volume) :
-    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
+private lemma density_tree_bound_aux
+    (hf : BoundedCompactSupport f)
+    {c : ℝ≥0∞} (hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤ c * eLpNorm f 2 volume)
+    (hg : BoundedCompactSupport g)
+    (h2g : g.support ⊆ G)
+    (hu : u ∈ t) :
+    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * c * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   let ℰ := ⋃ p ∈ t u, E p
   have hgℰ : BoundedCompactSupport (ℰ.indicator g) :=
@@ -412,7 +415,7 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
         push_neg at hx
         by_cases xG : x ∈ G
         · apply indicator_of_notMem (hx xG)
-        · have : g x = 0 := by rw [← notMem_support]; exact xG ∘ (sg ·)
+        · have : g x = 0 := by rw [← notMem_support]; exact xG ∘ (h2g ·)
           exact indicator_apply_eq_zero.mpr (fun _ ↦ this)
       have hℰ : MeasurableSet (G ∩ ℰ) :=
         measurableSet_G.inter <| .biUnion (to_countable (t u)) (fun _ _ ↦ measurableSet_E)
@@ -449,9 +452,11 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
       ring
 
 /-- First part of Lemma 7.3.1. -/
-lemma density_tree_bound1 (hf : BoundedCompactSupport f)
-    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
-    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
+lemma density_tree_bound1
+    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
+    (h2g : g.support ⊆ G)
+    (hu : u ∈ t) :
+    ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   have hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤ 1 * eLpNorm f 2 volume := by
     have : ∀ L ∈ 𝓙 (t u), volume ((L : Set X) ∩ univ) ≤ 1 * volume (L : Set X) := by intros; simp
@@ -459,21 +464,50 @@ lemma density_tree_bound1 (hf : BoundedCompactSupport f)
     rw [ENNReal.one_rpow]
   simpa using density_tree_bound_aux hf hg sg hu hc
 
-/-- The constant used in `density_tree_bound2` and `indicator_adjoint_tree_estimate`.
-Has value `2 ^ (303 * a ^ 3)` in the blueprint. -/
+omit [TileStructure Q D κ S o] in
+-- move somewhere else
+lemma _root_.MeasureTheory.BoundedCompactSupport.const_smul (hf : BoundedCompactSupport f) (c : ℝ) :
+  BoundedCompactSupport (c • f) := by
+  simp_rw [Pi.smul_def,Complex.real_smul]
+  apply hf.const_mul
+
+omit [TileStructure Q D κ S o] [MetricSpace X] in
+-- rename, move somewhere else
+lemma smul_le_indicator {A : Set X} (hf : f.support ⊆ A) {C : ℝ} (hC : ∀ x, ‖f x‖ ≤ C)
+    (hCpos : 0 < C) : ∀ x, ‖(C⁻¹ • f) x‖ ≤ A.indicator 1 x := by
+  intro x
+  simp only [Pi.smul_apply, real_smul, ofReal_inv, Complex.norm_mul, norm_inv, norm_real,
+    Real.norm_eq_abs]
+  rw [inv_mul_le_iff₀ (by positivity),mul_comm,← indicator_mul_const]
+  simp only [Pi.one_apply, one_mul]
+  if h : x ∈ A then
+    rw [indicator_of_mem h]
+    exact le_trans (hC x) (by exact le_abs_self C)
+  else
+    rw [notMem_support.mp (fun a ↦ h (hf a)), indicator_of_notMem h]
+    simp only [norm_zero, le_refl]
+
+/-- The constant used in `density_tree_bound2`.
+Has value `2 ^ (256 * a ^ 3)` in the blueprint, but that was based on an incorrect
+version of Lemma 7.2.1. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 7 + 𝕔/2 + 𝕔/4) * a ^ 3)
 
 /-- Second part of Lemma 7.3.1. -/
 lemma density_tree_bound2
-    (hf : BoundedCompactSupport f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : BoundedCompactSupport g) (sg : support g ⊆ G) (hu : u ∈ t) :
+    (hf : BoundedCompactSupport f)
+    (h2f : f.support ⊆ F)
+    (hg : BoundedCompactSupport g)
+    (h2g : g.support ⊆ G)
+    (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   have hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤
       (C7_3_3 a * dens₂ (t u)) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
-    have h2f : ∀ x ∉ F, f x = 0 := fun x hx ↦ norm_le_zero_iff.mp <| (h2f x).trans (by simp [hx])
+    have h2f : ∀ x ∉ F, f x = 0 := fun x hx ↦
+      notMem_support.mp <| hx ∘ (h2f ·)
+      --norm_le_zero_iff.mp <| (h2f x).trans (by simp [hx])
     have : ∀ J ∈ 𝓙 (t u), volume (J ∩ F) ≤ C7_3_3 a * dens₂ (t u) * volume (J : Set X) :=
       fun J hJ ↦ by rw [inter_comm]; apply local_dens2_tree_bound hu hJ
     exact eLpNorm_approxOnCube_two_le pairwiseDisjoint_𝓙 measurableSet_F this hf h2f

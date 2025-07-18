@@ -144,7 +144,7 @@ lemma biUnion_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
   obtain ⟨p₀, mp₀, hp₀⟩ := 𝔄.toFinset.exists_max_image f h𝔄'
   use f p₀ + 1; ext p
   simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_biUnion,
-    Finset.mem_range, Finset.mem_inter, Finset.mem_filter, Finset.mem_univ, true_and, mem_toFinset]
+    Finset.mem_range, Finset.mem_inter, Finset.mem_filter_univ, mem_toFinset]
   refine ⟨fun hp ↦ hp.choose_spec.2.1.1, fun hp ↦ ?_⟩
   simp only [hp, true_and]
   use f p, Nat.lt_add_one_iff.mpr (hp₀ p (mem_toFinset.mpr hp))
@@ -160,7 +160,7 @@ open Metric
 open scoped Classical in
 -- Lemma 6.3.2
 lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
-    ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N).toFinset | 𝓘 p = L}), volume (E p ∩ G) ≤
+    ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝓘 p = L, volume (E p ∩ G) ≤
       2^(a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
   -- 6.3.17
   set 𝔄' : Set (𝔓 X) := {p ∈ (𝔄_aux 𝔄 ϑ N) | 𝓘 p = L} with 𝔄'_def
@@ -314,7 +314,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
   -- 6.3.22
   have hϑin : dist_(p) (𝒬 p) ϑ < ((2 : ℝ)^(N + 1)) := by
     simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter,
-      Finset.mem_filter, Finset.mem_univ, true_and] at hpin
+      Finset.mem_filter_univ] at hpin
     exact (lt_one_add (dist_(p) (𝒬 p) ϑ)).trans hpin.2.2
   -- 6.3.24
   have hsmul_le : smul (2 ^ (N + 3)) p' ≤ smul (2 ^ (N + 3)) p :=
@@ -339,7 +339,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
 open Classical in
 lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : Θ X) (N : ℕ)
     {p' : 𝔓 X} (hp' : ϑ ∈ ball_(p') (𝒬 p') (2 ^ (N + 1))) :
-    ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N).toFinset | 𝔰 p' < 𝔰 p}), volume (E p ∩ G ∩ 𝓘 p') ≤
+    ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝔰 p' < 𝔰 p, volume (E p ∩ G ∩ 𝓘 p') ≤
       volume (E₂ (2 ^ (N + 3)) p') := by
   rw [← MeasureTheory.measure_biUnion_finset _
     (fun _ _ ↦  MeasurableSet.inter (measurableSet_E.inter measurableSet_G) coeGrid_measurable)]
@@ -356,10 +356,8 @@ lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
       exact empty_subset _
   · simp only [Finset.coe_filter]
     intro q hq q' hq' hqq'
-    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter,
-      toFinset_setOf, Finset.mem_inter, Finset.mem_filter, Finset.mem_univ, true_and,
-      mem_setOf_eq] at hq hq'
-    have hE : Disjoint (E q) (E q') := by simpa using (E_disjoint h𝔄 hq.1.1.1 hq'.1.1.1).mt hqq'
+    rw [𝔄_aux, mem_setOf, toFinset_setOf, Finset.mem_filter_univ] at hq hq'
+    have hE : Disjoint (E q) (E q') := by simpa using (E_disjoint h𝔄 hq.1.1 hq'.1.1).mt hqq'
     change Disjoint (_ ∩ _ ∩ _) (_ ∩ _ ∩ _)
     rw [inter_assoc, inter_assoc]; exact (hE.inter_right _).inter_left _
 
@@ -416,7 +414,7 @@ private lemma 𝔄_min_sum_le :
       2 ^ (a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
   calc ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G)
     _ = ∑ L ∈ (𝓛_min 𝔄 ϑ N).toFinset,
-          ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N).toFinset | 𝓘 p = L}), volume (E p ∩ G) := by
+          ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝓘 p = L, volume (E p ∩ G) := by
       rw [Finset.sum_comm' (t' := (𝔄_min 𝔄 ϑ N).toFinset)
         (s' := fun p ↦ {L ∈ (𝓛_min 𝔄 ϑ N).toFinset | 𝓘 p = L})]
       · apply Finset.sum_congr rfl
@@ -861,7 +859,7 @@ lemma global_antichain_density_aux (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : G
       calc ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝓘 p = L' hL, volume (E p ∩ G ∩ ↑L)
         _ ≤ ∑ p ∈ 𝔄' 𝔄 ϑ N with 𝓘 p = L' hL, volume (E p ∩ G) :=
           Finset.sum_le_sum (fun _ _ ↦ OuterMeasureClass.measure_mono volume inter_subset_left)
-        _ ≤ ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N).toFinset | 𝓘 p = L' hL}), volume (E p ∩ G) := by
+        _ ≤ ∑ p ∈ 𝔄_aux 𝔄 ϑ N with 𝓘 p = L' hL, volume (E p ∩ G) := by
           gcongr
           intro _ hp
           simp only [𝔄', ne_eq] at hp
@@ -1079,9 +1077,8 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
       · intro i mi j mj hn
         rw [mul_assoc (2 ^ _), ← inter_indicator_mul, mul_assoc _ _ (G.indicator 1 x),
           ← inter_indicator_mul, mul_mul_mul_comm, ← inter_indicator_mul, inter_inter_inter_comm]
-        simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter,
-          Finset.mem_filter, Finset.mem_univ, true_and] at mi mj
-        have key := (E_disjoint h𝔄 mi.1.1 mj.1.1).mt hn
+        rw [𝔄_aux, toFinset_setOf, Finset.mem_filter_univ] at mi mj
+        have key := (E_disjoint h𝔄 mi.1 mj.1).mt hn
         rw [not_not, disjoint_iff_inter_eq_empty] at key; simp [key]
       rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
       · refine fun p mp ↦ pow_nonneg (mul_nonneg ?_ (indicator_nonneg (by simp) _)) _

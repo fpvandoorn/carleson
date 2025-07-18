@@ -325,7 +325,7 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
   have tO : ∀ p'' ∈ 𝔒 p' l,
       ball_(p') (𝒬 p'') 5⁻¹ ⊆ ball_(p') (𝒬 p') (l + 6 / 5) := fun p'' mp'' ↦ by
     apply ball_subset_ball'
-    simp_rw [𝔒, Finset.mem_filter, Finset.mem_univ, true_and] at mp''
+    simp_rw [𝔒, Finset.mem_filter_univ] at mp''
     obtain ⟨x, mx₁, mx₂⟩ := not_disjoint_iff.mp mp''.2
     replace mx₂ := _root_.subset_cball mx₂
     rw [@mem_ball] at mx₁ mx₂
@@ -549,9 +549,9 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
   let C : Finset (LTSeries (ℭ₁' k n j)) := { s | s.head = ⟨p, cp⟩ }
   have Cn : C.Nonempty := by
     use RelSeries.singleton _ ⟨p, cp⟩
-    simp_rw [C, Finset.mem_filter, Finset.mem_univ, true_and]; rfl
+    rw [Finset.mem_filter_univ]; rfl
   obtain ⟨z, mz, maxz⟩ := C.exists_max_image (·.length) Cn
-  simp_rw [C, Finset.mem_filter, Finset.mem_univ, true_and] at mz
+  rw [Finset.mem_filter_univ] at mz
   by_cases mu : z.last.1 ∈ 𝔘₁ k n j
   · have px : z.head ≤ z.last := z.monotone (Fin.zero_le _)
     rw [mz] at px
@@ -607,10 +607,10 @@ lemma carlesonSum_𝔓₁_compl_eq_𝔓pos_inter (f : X → ℂ) :
   symm
   apply Finset.sum_subset
   · intro p hp
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
+    simp_rw [Finset.mem_filter_univ] at hp ⊢
     exact hp.2
   · intro p hp h'p
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp h'p
+    simp_rw [Finset.mem_filter_univ] at hp h'p
     simp only [mem_inter_iff, hp, and_true] at h'p
     have : x ∉ 𝓘 p := hx _ h'p h'x
     have : x ∉ E p := by simp at this; simp [E, this]

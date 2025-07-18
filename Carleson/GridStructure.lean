@@ -245,10 +245,10 @@ lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
   simp_rw [Finset.mem_univ, true_and]
   classical let incs : Finset (Grid X) := { j | i < j }
   have ine : incs.Nonempty := by
-    use topCube; simp only [incs, Finset.mem_filter, Finset.mem_univ, true_and]
+    use topCube; simp_rw [incs, Finset.mem_filter_univ]
     exact lt_of_le_of_ne le_topCube (isMax_iff.not.mp h)
   obtain ⟨j, mj, hj⟩ := incs.exists_minimal ine
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and, incs] at mj hj
+  simp only [incs, Finset.mem_filter_univ] at mj hj
   replace hj : ∀ (x : Grid X), i < x → j ≤ x := fun x mx ↦ by
     rcases lt_or_ge (s x) (s j) with c | c
     · refine (eq_of_le_of_not_lt (le_dyadic c.le mx.le mj.le) ?_).symm.le

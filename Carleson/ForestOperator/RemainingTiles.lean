@@ -320,8 +320,8 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       gcongr
       linarith
   simp_rw [← Nat.cast_le (α := ℝ≥0∞)] at est₁
-  have est₂ (x) (hx : x ∈ J) : (∑ I ∈ {I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
-      ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) },
+  have est₂ (x) (hx : x ∈ J) : (∑ I with s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+      ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)),
       (ball (c I) (8 * D ^ s I)).indicator (1 : X → ℝ≥0∞) x) ≤
       if x ∈ supp then (defaultA a) ^ 7 else 0 := by
     split_ifs with hx'
@@ -330,7 +330,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       refine le_trans ?_ (est₁ (s J - s') x)
       gcongr
       intro I
-      simp only [mem_ball, Finset.mem_filter, Finset.mem_univ, true_and, mem_toFinset, 𝒟]
+      simp_rw [Finset.filter_filter, Finset.mem_filter_univ, mem_toFinset]
       exact fun H ↦ ⟨H.2, H.1.1⟩
     · have (I : Grid X) : ball (c I) (8 * D ^ s I) = EMetric.ball (c I) (8 * D ^ s I) := by
         trans EMetric.ball (c I) (show ℝ≥0 from ⟨8 * D ^ s I, by positivity⟩)
@@ -776,12 +776,12 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
   ext x; simp only [approxOnCube]
   classical
   calc
-    _ = ∑ p ∈ {b | b ∈ 𝓙₆ t u₁}, (p : Set X).indicator (fun x ↦ ⨍ y in p,
+    _ = ∑ p with p ∈ 𝓙₆ t u₁, (p : Set X).indicator (fun x ↦ ⨍ y in p,
         ‖U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂) y‖) x := by
       apply (Finset.sum_subset (fun p mp ↦ ?_) (fun p mp np ↦ ?_)).symm
-      · simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝓙₆] at mp ⊢
+      · rw [Finset.mem_filter_univ] at mp ⊢
         exact mp.1
-      · simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp np
+      · rw [Finset.mem_filter_univ] at mp np
         rw [indicator_apply_eq_zero]; intro mx
         rw [show (0 : ℝ) = ⨍ y in (p : Set X), 0 by simp]
         refine setAverage_congr_fun coeGrid_measurable (.of_forall fun y my ↦ ?_)
@@ -804,7 +804,7 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
     _ = _ := by
       congr! 3 with p mp
       refine setAverage_congr_fun coeGrid_measurable (.of_forall fun y my ↦ ?_)
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝓙₆, mem_inter_iff, mem_Iic] at mp
+      rw [Finset.mem_filter_univ, 𝓙₆, mem_inter_iff, mem_Iic] at mp
       rw [indicator_of_mem (mp.2.1 my)]
 
 /-- The constant used in `correlation_near_tree_parts`. -/
