@@ -834,8 +834,8 @@ theorem hasWeakType_maximalFunction_equal_exponents₀ [BorelSpace X]
 theorem hasWeakType_maximalFunction_equal_exponents
     [BorelSpace X] {p : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp : 0 < p) :
     HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p u x)
-      p p μ μ (A ^ ((2 / p : ℝ))) := fun v mlpv ↦ by
-  dsimp only
+      p p μ μ (A ^ ((2 / p : ℝ))) := by
+  intro v mlpv; dsimp only
   constructor; · exact AEStronglyMeasurable.maximalFunction h𝓑
   have p_pos : (p : ℝ) > 0 := NNReal.coe_pos.mpr hp
   have hestfin (k : ℕ) : wnorm
@@ -858,8 +858,8 @@ theorem hasWeakType_maximalFunction_equal_exponents
     rw [maximalFunction_seq_eq _ hp]
     rfl
   let f (k : ℕ) := fun x ↦ maximalFunction μ (tr h𝓑 k) c r (↑p) v x
-  have f_mon : Monotone f := fun a b hab x ↦ by
-    refine rpow_le_rpow (iSup₂_le fun i Hi ↦ ?_) (by positivity)
+  have f_mon : Monotone f := by
+    refine fun a b hab x ↦ rpow_le_rpow (iSup₂_le fun i Hi ↦ ?_) (by positivity)
     apply le_iSup₂ (f := fun j _ ↦ (ball (c j) (r j)).indicator
         (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ‖v y‖ₑ ^ (ofNNReal p).toReal ∂μ) x)
     obtain ⟨w, hw⟩ := Hi; use w; exact ⟨hw.1.trans hab, hw.2⟩

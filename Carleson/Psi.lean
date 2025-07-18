@@ -546,9 +546,8 @@ lemma enorm_Ks_le {s : ℤ} {x y : X} :
       rw [← enorm_norm]; exact Real.enorm_le_enorm (norm_nonneg _) norm_Ks_le
     _ = _ := by
       rw [div_eq_mul_inv, enorm_mul, enorm_inv]; swap
-      · rw [Measure.real, ENNReal.toReal_ne_zero]; constructor
-        · exact (measure_ball_pos volume _ (defaultD_pow_pos a s)).ne'
-        · finiteness
+      · exact ENNReal.toReal_ne_zero.mpr
+          ⟨(measure_ball_pos volume _ (defaultD_pow_pos a s)).ne', by finiteness⟩
       rw [enorm_eq, ← div_eq_mul_inv, Real.enorm_eq_ofReal measureReal_nonneg]; congr 1
       exact ENNReal.ofReal_toReal (by finiteness)
 
