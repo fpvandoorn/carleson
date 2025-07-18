@@ -446,7 +446,7 @@ lemma _root_.MonoidHomClass.map_mulIndicator {F X A B : Type*} [Monoid A] [Monoi
 lemma adjoint_density_tree_bound1
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
     (hg2 : g.support ⊆ G) (hu : u ∈ t) :
-    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖₊ ≤
+    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   simp_rw [← adjointCarlesonSum_adjoint hf hg]
   exact density_tree_bound1 hf hg hg2 hu
@@ -467,7 +467,7 @@ lemma adjoint_refined_density_tree_bound1 (hu : u ∈ t) (hf : BoundedCompactSup
 lemma adjoint_density_tree_bound2
     (hf : BoundedCompactSupport f) (h2f : support f ⊆ F)
     (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) (hu : u ∈ t) :
-    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖₊ ≤
+    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   simp_rw [← adjointCarlesonSum_adjoint hf hg]

@@ -881,26 +881,23 @@ lemma tree_projection_estimate
       exact pairwiseDisjoint_𝓛
     _ ≤ ∑ L ∈ 𝓛 (t u), ∫⁻ x in L, ‖g x‖ₑ * (⨅ x' ∈ L, ‖cS_bound t u f x'‖ₑ) := by
       gcongr ∑ L ∈ 𝓛 (t u), ?_ with L hL
-      refine setLIntegral_mono_ae (AEMeasurable.mul ?_ aemeasurable_const)
+      refine setLIntegral_mono_ae (hg.restrict.aestronglyMeasurable.enorm.mul_const _)
         (.of_forall fun x hx ↦ ?_)
-      · exact aemeasurable_coe_nnreal_ennreal_iff.mpr
-          hg.restrict.aestronglyMeasurable.aemeasurable.nnnorm
-      · gcongr
-        refine le_iInf₂ (fun x' hx' ↦ ?_)
-        simp only [mem_toFinset] at hL
-        convert pointwise_tree_estimate hu hL hx hx' (boundedCompactSupport_eI𝒬u_mul u hf) using 1
-        · congr
-          simp_rw [mul_neg, eI𝒬u_mul, ← mul_assoc, ← exp_add, neg_add_cancel, exp_zero, one_mul]
-        · simp only [cS_bound, enorm_eq_self, norm_eI𝒬u_mul_eq u f]
+      gcongr
+      refine le_iInf₂ fun x' hx' ↦ ?_
+      simp only [mem_toFinset] at hL
+      convert pointwise_tree_estimate hu hL hx hx' (boundedCompactSupport_eI𝒬u_mul u hf) using 1
+      · congr
+        simp_rw [mul_neg, eI𝒬u_mul, ← mul_assoc, ← exp_add, neg_add_cancel, exp_zero, one_mul]
+      · simp only [cS_bound, enorm_eq_self, norm_eI𝒬u_mul_eq u f]
     _ = ∑ L ∈ 𝓛 (t u), ∫⁻ x in L, eaOC x * (⨅ x' ∈ L, ‖cS_bound t u f x'‖ₑ) := by
       refine Finset.sum_congr rfl (fun L hL ↦ ?_)
       rw [lintegral_mul_const'', lintegral_mul_const]; rotate_left
       · exact ENNReal.measurable_ofReal.comp (stronglyMeasurable_approxOnCube _ _).measurable
       · exact hg.restrict.aestronglyMeasurable.enorm
-      simp_rw [eaOC, enorm_eq_nnnorm]
-      simp_rw [lintegral_coe_eq_integral (‖g ·‖₊) hg.integrable.norm.restrict, coe_nnnorm]
-      rw [integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓛 (mem_toFinset.mp hL) hg]
-      simp_rw [← Real.enorm_eq_ofReal aOC_nonneg, approxOnCube_ofReal, aOC, Complex.enorm_real]
+      rw [lintegral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓛 (mem_toFinset.mp hL) hg]
+      simp_rw [eaOC, ← Real.enorm_eq_ofReal aOC_nonneg, approxOnCube_ofReal, aOC,
+        Complex.enorm_real]
     _ ≤ ∑ L ∈ 𝓛 (t u), ∫⁻ x in L, eaOC x * ‖cS_bound t u f x‖ₑ :=
       Finset.sum_le_sum fun L hL ↦
         setLIntegral_mono' coeGrid_measurable (fun x hx ↦ mul_left_mono (biInf_le _ hx))

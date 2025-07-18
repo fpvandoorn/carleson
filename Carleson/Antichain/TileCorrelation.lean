@@ -79,10 +79,9 @@ lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X) :
   C2_1_3 a / volume (ball x₂ (D ^ s₂)) *
   (D2_1_3 a / volume (ball x₁ (D ^ s₁)) * (edist y y' ^ τ / (D ^ s₁) ^ τ)) := by
   apply mul_le_mul enorm_Ks_le _ (zero_le _) (zero_le _)
-  convert nnnorm_Ks_sub_Ks_le
+  convert enorm_Ks_sub_Ks_le
   rw [← ENNReal.div_rpow_of_nonneg _ _ (τ_nonneg X)]
-  simp only [defaultτ]; congr
-  simp only [coe_nnreal_ennreal_nndist]
+  simp only [defaultτ]
 
 /-- Equation (6.2.5) of Lemma 6.2.1. -/
 lemma e625 {s₁ s₂ : ℤ} {x₁ x₂ y y' : X} (hy' : y ≠ y') (hs : s₁ ≤ s₂) :
