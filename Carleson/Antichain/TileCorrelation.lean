@@ -203,7 +203,7 @@ lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson 
       gcongr -- uses hpos, hle.
 
 /-- The constant from lemma 6.2.3. -/
-def C6_2_3 (a : ℕ) : ℝ≥0 := 2^ (8 * a)
+def C6_2_3 (a : ℕ) : ℝ≥0 := 2 ^ (8 * a)
 
 lemma ineq_6_2_16 {p : 𝔓 X} {x : X} (hx : x ∈ E p) : dist_(p) (Q x) (𝒬 p) < 1 :=
   subset_cball hx.2.1
