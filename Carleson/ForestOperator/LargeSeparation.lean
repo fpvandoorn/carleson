@@ -232,7 +232,7 @@ lemma sum_χ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u
     ∑ J ∈ 𝓙₅ t u₁ u₂, χ t u₁ u₂ J x = (𝓘 u₁ : Set X).indicator 1 x := by
   simp_rw [χ, ← Finset.sum_div, NNReal.div_self_eq_ite, indicator, Pi.one_apply]
   refine if_congr ?_ rfl rfl
-  simp_rw [NNReal.finset_sum_pos_iff, mem_toFinset, χtilde_pos_iff]
+  simp_rw [Finset.sum_pos_iff, mem_toFinset, χtilde_pos_iff]
   conv_lhs => enter [1, J]; rw [and_rotate]
   rw [exists_and_left, Grid.mem_def, and_iff_left_iff_imp, ← union_𝓙₅ hu₁ hu₂ hu h2u]; intro mx
   rw [mem_iUnion₂] at mx; obtain ⟨J, mJ, hJ⟩ := mx
