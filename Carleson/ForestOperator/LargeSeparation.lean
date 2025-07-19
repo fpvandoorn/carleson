@@ -296,23 +296,23 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
         · norm_num
         · norm_cast; exact Nat.one_le_two_pow
       _ ≤ _ := by
-        rw [← two_mul, ← pow_succ', C7_5_2,
-          show 𝕔 * a ^ 2 + 1 + (2 * 𝕔 * a ^ 3 + 7 * a) + 1 =
-            2 * 𝕔 * a ^ 3 + 𝕔 * a ^ 2 + 7 * a + 2 by ring]
-        norm_cast; apply pow_le_pow_right' one_le_two
+        rw [C7_5_2]
+        norm_cast
+        apply add_le_pow_two le_rfl le_rfl ?_
         have := four_le_a X
+        ring_nf
+        suffices 𝕔 * a ^ 2 + 7 * a + 2 ≤ a ^ 3 * 2 + a ^ 3 * (𝕔 / 4)  by linarith
         calc
-          _ = 2 * 𝕔 * a ^ 3 + 𝕔 * a ^ 2 + 7 * a + 2 := by norm_num
-          _ ≤ 2 * 𝕔 * a ^ 3 + (4 * (𝕔/4) + 3) * a ^ 2 + 7 * a + a := by
+          _ ≤ (4 * (𝕔/4) + 3) * a ^ 2 + 7 * a + a := by
             gcongr
             · omega
             · linarith
-          _ = 2 * 𝕔 * a ^ 3 + (𝕔/4) * 4 * a ^ 2 + 3 * a ^ 2 + 2 * 4 * a := by ring
-          _ ≤ 2 * 𝕔 * a ^ 3 + (𝕔/4) * a * a ^ 2 + 3 * a ^ 2 + 2 * a * a := by gcongr
-          _ = 2 * 𝕔 * a ^ 3 + (𝕔/4) * a ^ 3 + 5 * a ^ 2 := by ring
-          _ ≤ 2 * 𝕔 * a ^ 3 + (𝕔/4) * a ^ 3 + 2 * 4 * a ^ 2 := by gcongr; norm_num
-          _ ≤ 2 * 𝕔 * a ^ 3 + (𝕔/4) * a ^ 3 + 2 * a * a ^ 2 := by gcongr
-          _ = (2 * 𝕔 + 2 + 𝕔/4) * a ^ 3 := by ring
+          _ = (𝕔/4) * 4 * a ^ 2 + 3 * a ^ 2 + 2 * 4 * a := by ring
+          _ ≤ (𝕔/4) * a * a ^ 2 + 3 * a ^ 2 + 2 * a * a := by gcongr
+          _ = (𝕔/4) * a ^ 3 + 5 * a ^ 2 := by ring
+          _ ≤ (𝕔/4) * a ^ 3 + 2 * 4 * a ^ 2 := by gcongr; norm_num
+          _ ≤ (𝕔/4) * a ^ 3 + 2 * a * a ^ 2 := by gcongr
+          _ = _ := by ring
   have dbl : ∀ J' ∈ V, volume (ball (c J) (9 * D ^ (s J + 1))) ≤
       2 ^ (2 * 𝕔 * a ^ 3 + 7 * a) * volume (ball (c J') (D ^ s J' / 4)) := fun J' mJ' ↦ by
     simp_rw [V, Finset.mem_filter, mem_toFinset] at mJ'
