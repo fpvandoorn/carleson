@@ -2,9 +2,9 @@ import Carleson.Classical.DirichletKernel
 import Carleson.Classical.HilbertKernel
 import Carleson.Classical.SpectralProjectionBound
 import Carleson.Defs
-import Carleson.ToMathlib.Algebra.BigOperators.Pi
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 import Carleson.TwoSidedCarleson.Basic
+import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
 import Mathlib.Data.Real.Pi.Bounds
 
 /- This file contains the proof that the Hilbert kernel is a bounded operator. -/
@@ -258,7 +258,7 @@ lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} (hmg : AEMeasura
   · simp [hn]
   rw [funext (indicator_const_mul _ _ _)]
   change eLpNorm ((n : ℂ)⁻¹ • _) _ _ ≤ _
-  rw [eLpNorm_const_smul _ _ _ _, ← Finset.sum_fn, ← sum_indicator_eq_indicator_sum,
+  rw [eLpNorm_const_smul _ _ _ _, ← Finset.sum_fn, Finset.indicator_sum,
     enorm_inv (Nat.cast_ne_zero.mpr hn), ← one_mul (eLpNorm (indicator _ _) _ _),
     ← ENNReal.inv_mul_cancel (by simp [hn]) (enorm_ne_top (x := (n : ℂ))), mul_assoc]
   refine mul_le_mul_left' (le_trans (eLpNorm_sum_le ?_ one_le_two) ?_) _

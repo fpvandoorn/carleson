@@ -43,7 +43,6 @@ import Carleson.Operators
 import Carleson.Psi
 import Carleson.TileExistence
 import Carleson.TileStructure
-import Carleson.ToMathlib.Algebra.BigOperators.Pi
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
 import Carleson.ToMathlib.Analysis.Convolution
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
