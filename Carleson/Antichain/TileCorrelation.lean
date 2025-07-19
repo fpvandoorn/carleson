@@ -1,3 +1,4 @@
+import Carleson.Calculations
 import Carleson.HolderVanDerCorput
 import Carleson.Operators
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
@@ -167,27 +168,15 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
         ENNReal.rpow_intCast]
     _ ≤ _ := by
       rw [← ENNReal.add_div]; refine ENNReal.div_le_div_right ?_ _
-      rw [C2_1_3, C6_2_1]; norm_cast
-      calc
-        _ ≤ 2 ^ ((2 * 𝕔 + 5 + 𝕔/4) * a ^ 3) + 2 ^ ((2 * 𝕔 + 5 + 𝕔/4) * a ^ 3) := by
-          rw [← pow_mul]
-          gcongr 2 ^ ?_ + 2 ^ ?_
-          · norm_num
-          · calc
-            _ = 𝕔 * a ^ 3 * 2 + a ^ 3 * 4 + 0 := by ring
-            _ ≤ 𝕔 * a ^ 3 * 2 + a ^ 3 * 5 + a ^ 3 * (𝕔 / 4) := by
-              gcongr
-              · norm_num
-              · positivity
-            _ = _ := by ring
-          · norm_num
-          · exact le_rfl
-        _ ≤ _ := by
-          rw [← two_mul, ← pow_succ', show 1 = 1 ^ 3 by norm_num,
-            show (2 * 𝕔 + 6 + 𝕔/4) * a ^ 3 = (2 * 𝕔 + 5 + 𝕔/4) * a ^ 3 + a ^ 3 by ring]
-          gcongr
-          · exact one_le_two
-          · linarith only [four_le_a X]
+      rw [C2_1_3, C6_2_1]
+      norm_cast
+      rw [← pow_mul]
+      apply add_le_pow_two ?_ le_rfl ?_
+      · ring_nf
+        omega
+      · ring_nf
+        suffices 1 ≤ a ^ 3 by omega
+        exact one_le_pow₀ (by linarith [four_le_a X])
 
 variable [TileStructure Q D κ S o]
 
