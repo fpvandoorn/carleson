@@ -959,7 +959,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
       _ ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_{𝔠 p, (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) :=
         mod_cast cdist_le_iterate (f := (𝒬 u₁)) (g := (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4)
           (k := 6) (x := 𝔠 p) bigger
-    _ ≤ 2 ^ ((-(𝕔-6) : ℝ) * a) * 2 ^ ((Z : ℝ) * n / 2) := by
+    _ ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * 2 ^ ((Z : ℝ) * n / 2) := by
       rcases hp with ⟨tile, notIn𝔖₀⟩
       unfold 𝔖₀ at notIn𝔖₀
       simp only [mem_setOf_eq, not_or, not_and, sep_union, mem_union] at notIn𝔖₀
