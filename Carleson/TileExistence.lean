@@ -36,7 +36,7 @@ lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
 
 -- lemma tsum_top_eq
 
-variable (X) in def J' : ℕ := 3 + 2 * S * 100 * a ^ 2
+variable (X) in def J' : ℕ := 3 + 2 * S * 𝕔 * a ^ 2
 
 lemma twopow_J : 2 ^ J' X = 8 * D ^ (2 * S) := by
   dsimp [J']
@@ -1431,6 +1431,7 @@ lemma two_le_a : 2 ≤ a := by linarith [four_le_a X]
 variable (X) in
 lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
   have : 2 ≤ a := two_le_a X
+  have 𝕔_pos : 0 < 𝕔 := by linarith [seven_le_c]
   rw [defaultD]
   simp only [Nat.cast_pow, Nat.cast_ofNat, mul_inv_rev]
   rw [← Real.rpow_natCast,Real.logb_rpow (by norm_num) (by norm_num)]
@@ -1441,10 +1442,11 @@ lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
     ← Real.rpow_natCast 2]
   norm_num
   calc
-    (200 * ↑a ^ 2 * 2 ^ (4 * ↑a:ℝ):ℝ)
+    (2 : ℝ) * 𝕔 * ↑a ^ 2 * 2 ^ (4 * ↑a:ℝ)
       ≤ 2^8 * (2^(a:ℝ))^2 * 2 ^ (4 * a:ℝ) := by
       gcongr
-      · norm_num
+      · norm_cast
+        linarith [c_le_100]
       · exact (Real.self_lt_two_rpow (a:ℝ)).le
     _ ≤ 2 ^ (4 * a:ℝ) * 2^(2*a:ℝ) * 2^(4*a:ℝ) := by
       gcongr
@@ -1948,8 +1950,16 @@ lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
         · rw [C2_1_2]; positivity
         · simpa only [mem_ball] using (ih ⟨z, mz₁⟩) hz
       _ < 2 ^ (-2 : ℝ) + C4_2_1 := by
-        gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, neg_mul, neg_lt_neg_iff]
-        norm_cast; linarith [four_le_a X]
+        gcongr
+        rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, lt_neg]
+        simp only [add_mul, neg_mul, neg_add_rev, neg_neg, lt_neg_add_iff_add_lt]
+        norm_cast
+        calc
+        5 * a + 2
+        _ < 6 * a := by linarith [four_le_a X]
+        _ ≤ 𝕔 * a := by
+          gcongr
+          linarith [seven_le_c]
       _ < _ := by norm_num
 
 lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y ≠ z) :
@@ -1973,8 +1983,16 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
       · rw [C2_1_2]; positivity
       · simpa only using (Ω_subset_cball (p := ⟨I.succ, ⟨x, mx₁⟩⟩)) mϑ₂
     _ < CΩ + 2 ^ (-4 : ℝ) := by
-      gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, neg_mul, neg_lt_neg_iff]
-      norm_cast; linarith [four_le_a X]
+      gcongr
+      rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, lt_neg]
+      simp only [add_mul, neg_mul, neg_add_rev, neg_neg, lt_neg_add_iff_add_lt]
+      norm_cast
+      calc
+      5 * a + 4
+      _ < 7 * a := by linarith [four_le_a X]
+      _ ≤ 𝕔 * a := by
+        gcongr
+        linarith [seven_le_c]
     _ ≤ _ := by norm_num
   replace u := (ball_subset_Ω₁ ⟨I, y⟩) u
   have := dj.ne_of_mem u mx₂; contradiction

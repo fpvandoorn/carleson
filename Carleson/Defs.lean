@@ -306,10 +306,29 @@ lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ
 
 end DoublingMeasure
 
+/-- The main constant in the blueprint, driving all the construction, is `D = 2 ^ (100 * a ^ 2)`.
+It turns out that the proof is robust, and works for other values of `100`, giving better constants
+in the end. We will formalize it using a parameter `𝕔` (that we fix equal to `100` to follow
+the blueprint) and having `D = 2 ^ (𝕔 * a ^ 2)`. We register two lemmas `seven_le_c` and
+`c_le_100` and will never unfold `𝕔` from this point on. -/
+irreducible_def 𝕔 : ℕ := 100
+
+lemma seven_le_c : 7 ≤ 𝕔 := by simp [𝕔]
+lemma c_le_100 : 𝕔 ≤ 100 := by simp [𝕔]
+
+/- To check that the value of `c` is irrelevant, you can take `𝕔 = 7` above, or you can comment
+the previous lines and uncomment the next ones.
+
+lemma exists_c : ∃ (c : ℕ), 7 ≤ c ∧ c ≤ 100 := ⟨7, le_rfl, by norm_num⟩
+def 𝕔 : ℕ := exists_c.choose
+lemma seven_le_c : 7 ≤ 𝕔 := exists_c.choose_spec.1
+lemma c_le_100 : 𝕔 ≤ 100 := exists_c.choose_spec.2
+-/
+
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/
 @[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
-@[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (100 * a ^ 2)
+@[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (𝕔 * a ^ 2)
 @[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
 @[simp] def defaultZ (a : ℕ) : ℕ := 2 ^ (12 * a)
 @[simp] def defaultτ (a : ℕ) : ℝ := a⁻¹
@@ -563,19 +582,18 @@ section DBounds
 variable (X)
 
 -- used in 7.5.6 (`limited_scale_impact`)
-lemma hundred_lt_realD [KernelProofData a K] : (100 : ℝ) < defaultD a := by
+lemma hundred_lt_D [KernelProofData a K] : 100 < defaultD a := by
+  have : 100 < 2 ^ 7 := by norm_num
+  apply this.trans_le
+  have : 16 ≤ a ^ 2 := by nlinarith [four_le_a X]
   simp only [defaultD]
-  norm_cast
-  calc 100
-    _ < 128 := by
-      linarith
-    _ = 2 ^ 7 := by
-      rfl
-    _ < 2 ^ (100 * a ^ 2) := by
-      have : 4 ≤ a := four_le_a X
-      gcongr
-      · linarith
-      · nlinarith
+  gcongr
+  · norm_num
+  · nlinarith [seven_le_c]
+
+-- used in 7.5.6 (`limited_scale_impact`)
+lemma hundred_lt_realD [KernelProofData a K] : (100 : ℝ) < defaultD a :=
+  mod_cast hundred_lt_D X
 
 -- used in 4.1.7 (`small_boundary`)
 lemma twentyfive_le_realD [KernelProofData a K] : (25 : ℝ) ≤ defaultD a := by
@@ -644,9 +662,7 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
   obtain ⟨l₁, hl₁⟩ := bddBelow_def.mp (Finite.bddBelow (finite_range_σ₁ (X := X)))
   obtain ⟨u₂, hu₂⟩ := bddAbove_def.mp (Finite.bddAbove (finite_range_σ₂ (X := X)))
   simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hl₁ hu₂
-  have one_lt_D : (1 : ℝ) < defaultD a := by
-    unfold defaultD; norm_cast; apply Nat.one_lt_two_pow
-    have := four_le_a X; positivity
+  have one_lt_D : (1 : ℝ) < defaultD a := by linarith [hundred_lt_realD X]
   obtain ⟨rF, rFpos, hrF⟩ : ∃ r > 0, F ⊆ ball (cancelPt X) r := by
     obtain ⟨r, hr⟩ := isBounded_F.subset_ball (cancelPt X)
     rcases lt_or_ge 0 r with lr | lr
@@ -804,7 +820,7 @@ open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
 
 lemma one_lt_D [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 1 < (D : ℝ) := by
-  exact_mod_cast one_lt_pow₀ Nat.one_lt_two (by nlinarith [four_le_a X])
+  linarith [hundred_lt_realD X]
 
 lemma one_le_D : 1 ≤ (D : ℝ) := by
   rw [← Nat.cast_one, Nat.cast_le, defaultD, ← pow_zero 2]
@@ -837,11 +853,13 @@ lemma DκZ_le_two_rpow_100 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F 
     ← Real.rpow_add zero_lt_two, show (-10 * a + 12 * a : ℝ) = 2 * a by ring,
     neg_le_neg_iff]
   norm_cast
+  have : 1 ≤ 𝕔 := by linarith [seven_le_c]
+  have := four_le_a X
   calc
-    _ ≤ 100 * a ^ 2 := by nlinarith [four_le_a X]
+    _ ≤ 1 * 4 ^ 2 * 2 ^ (2 * 4) := by norm_num
     _ ≤ _ := by
-      nth_rw 1 [← mul_one (a ^ 2), ← mul_assoc]
-      gcongr; exact Nat.one_le_two_pow
+      gcongr
+      norm_num
 
 lemma four_le_Z [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 4 ≤ Z := by
   rw [defaultZ, show 4 = 2 ^ 2 by rfl]

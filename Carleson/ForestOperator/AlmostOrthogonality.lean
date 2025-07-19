@@ -139,38 +139,43 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f :
 
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (203 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 :=
-  C7_4_2 a + CMB (defaultA a) 2 + 1
+irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 7 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
 
-lemma C7_4_3_le (ha : 4 ≤ a) : C7_4_3 a ≤ 2 ^ (203 * a ^ 3) := by
+lemma le_C7_4_3 (ha : 4 ≤ a) : C7_4_2 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a := by
   rw [C7_4_3, C7_4_2, C7_3_1_1, CMB_defaultA_two_eq]
   calc
-    _ ≤ (2 : ℝ≥0) ^ (202.5 * (a : ℝ) ^ 3) + 2 ^ ((a : ℝ) + 3 / 2) + 2 ^ ((a : ℝ) + 3 / 2) := by
+    _ ≤ (2 : ℝ≥0) ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
+        + 2 ^ ((a : ℝ) + 3 / 2) + 2 ^ ((a : ℝ) + 3 / 2) := by
       gcongr; exact NNReal.one_le_rpow one_le_two (by linarith)
-    _ = 2 ^ (202.5 * (a : ℝ) ^ 3) + 2 ^ ((a : ℝ) + 5 / 2) := by
+    _ = 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)  + 2 ^ ((a : ℝ) + 5 / 2) := by
       rw [add_assoc, ← two_mul, ← NNReal.rpow_one_add' (by positivity)]; congr 2; ring
-    _ ≤ 2 ^ (202.5 * (a : ℝ) ^ 3) + 2 ^ (202.5 * (a : ℝ) ^ 3) := by
+    _ ≤ 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
+        + 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4 : ℕ) * (a : ℝ) ^ 3) := by
       gcongr
       · exact one_le_two
       · calc
           _ ≤ 2 * (a : ℝ) := by
             rw [two_mul]; gcongr; exact (show (5 : ℝ) / 2 ≤ 4 by norm_num).trans (mod_cast ha)
           _ = 2 * a * 1 * 1 := by ring
-          _ ≤ 202.5 * a * a * a := by
+          _ ≤ (𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4 : ℕ) * a * a * a := by
             gcongr
-            · norm_num
+            · norm_cast
+              have := seven_le_c
+              omega
             · norm_cast; omega
             · norm_cast; omega
           _ = _ := by ring
-    _ ≤ 2 ^ (202.5 * (a : ℝ) ^ 3 + 1) := by rw [← mul_two, ← NNReal.rpow_add_one' (by positivity)]
+    _ ≤ 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4 : ℕ) * (a : ℝ) ^ 3 + 1) := by
+      rw [← NNReal.rpow_natCast]
+      simp only [Nat.cast_mul, Nat.cast_add, Nat.cast_ofNat, Nat.cast_pow]
+      rw [← mul_two, ← NNReal.rpow_add_one' (by positivity)]
     _ ≤ _ := by
       rw [← NNReal.rpow_natCast]; gcongr
       · exact one_le_two
-      · push_cast; rw [show 203 * (a : ℝ) ^ 3 = 202.5 * a ^ 3 + a ^ 3 / 2 by ring]; gcongr
-        rw [one_le_div₀ zero_lt_two]; norm_cast
-        calc
-          _ ≤ a ^ 1 := by linarith
-          _ ≤ _ := Nat.pow_le_pow_right (by positivity) (by norm_num)
+      · norm_cast
+        have : 1 ≤ a ^ 3 := one_le_pow_of_one_le' (by linarith) _
+        grw [this]
+        exact le_of_eq (by ring)
 
 /-- Lemma 7.4.3. -/
 lemma adjoint_tree_control
@@ -195,7 +200,10 @@ lemma adjoint_tree_control
     _ ≤ (C7_4_2 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
       simp_rw [add_mul, one_mul]; gcongr; exact dens₁_le_one
     _ ≤ _ := by
-      rw [C7_4_3, ENNReal.coe_add, ENNReal.coe_add, ENNReal.one_rpow, mul_one, ENNReal.coe_one]
+      gcongr
+      simp only [ENNReal.one_rpow, mul_one, defaultA, Nat.cast_pow, Nat.cast_ofNat]
+      norm_cast
+      apply le_C7_4_3 (four_le_a X)
 
 /-- Part 1 of Lemma 7.4.7. -/
 lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)

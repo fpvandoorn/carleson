@@ -255,7 +255,7 @@ def C5_3_3 (a : ℕ) : ℝ := (1 - C2_1_2 a)⁻¹
 include q K σ₁ σ₂ F G in
 lemma C5_3_3_le : C5_3_3 a ≤ 11 / 10 := by
   rw [C5_3_3, inv_le_comm₀ (sub_pos.mpr <| C2_1_2_lt_one X) (by norm_num), le_sub_comm]
-  exact C2_1_2_le_inv_512 X |>.trans <| by norm_num
+  exact C2_1_2_le_inv_256 X |>.trans <| by norm_num
 
 variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
@@ -269,7 +269,7 @@ lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) : smul 
       _ ≤ smul (1 + C2_1_2 a * n) p := by
         apply smul_mono_left
         rwa [← le_sub_iff_add_le, ← one_sub_mul, ← inv_le_iff_one_le_mul₀']
-        linarith [C2_1_2_le_inv_512 (X := X)]
+        linarith [C2_1_2_le_inv_256 (X := X)]
       _ ≤ smul n p' := smul_C2_1_2 (k := 5⁻¹) n (by norm_num) h
         (smul_le_toTileLike.trans <| 𝔓.le_def.mp hp |>.trans toTileLike_le_smul)
 
@@ -278,7 +278,7 @@ lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') 
     smul 100 p ≤ smul 100 p' :=
   calc
     _ ≤ smul (10 + C2_1_2 a * 100) p :=
-      smul_mono_left (by linarith [C2_1_2_le_inv_512 (X := X)])
+      smul_mono_left (by linarith [C2_1_2_le_inv_256 (X := X)])
     _ ≤ _ := smul_C2_1_2 100 zero_lt_one hn hp
 
 /-- Lemma 5.3.3, Equation (5.3.5) -/
@@ -286,7 +286,7 @@ lemma wiggle_order_500 (hp : smul 2 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
     smul 4 p ≤ smul 500 p' :=
   calc
     _ ≤ smul (2 + C2_1_2 a * 500) p :=
-      smul_mono_left (by linarith [C2_1_2_le_inv_512 (X := X)])
+      smul_mono_left (by linarith [C2_1_2_le_inv_256 (X := X)])
     _ ≤ _ := smul_C2_1_2 500 zero_lt_one hn hp
 
 def C5_3_2 (a : ℕ) : ℝ := 2 ^ (-95 * (a : ℝ))

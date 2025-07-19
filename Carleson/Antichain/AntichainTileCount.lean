@@ -94,10 +94,14 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
           simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat]
           rw [h4, ← zpow_natCast, ← zpow_add₀ two_ne_zero, ← zpow_add₀ two_ne_zero,
             ← zpow_zero (2 : ℝ)]
-          rw [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow]
+          rw [Nat.cast_mul, Nat.cast_pow]
           gcongr --uses h12
-          ring_nf
-          nlinarith only
+          suffices (2 : ℤ) * a + 5 * a ^ 2 ≤ 𝕔 * a ^ 2 by linarith
+          norm_cast
+          calc 2 * a + 5 * a ^ 2
+          _ ≤ a * a + 5 * a ^ 2 := by gcongr; linarith [four_le_a X]
+          _ = 6 * a ^ 2 := by ring
+          _ ≤ 𝕔 * a ^ 2 := by gcongr; linarith [seven_le_c]
       _ = (4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a)) * (D * D ^ 𝔰 p) := by ring
       _ ≤ 4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a) * D ^ 𝔰 p' := by
         have h1D : 1 ≤ (D : ℝ) := one_le_D
@@ -358,11 +362,11 @@ lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
     rw [inter_assoc, inter_assoc]; exact (hE.inter_right _).inter_left _
 
 /-- The constant appearing in Lemma 6.3.4. -/
-def C6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
+def C6_3_4 (a N : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 1) * a ^ 3 + N * a)
 
 /-- Auxiliary constant for Lemma 6.3.4. -/
 def C6_3_4' (a N : ℕ) : ℝ≥0 :=
-  (((2 : ℝ≥0)^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (100*a^3 + 5*a))
+  ((2 ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (𝕔 * a^3 + 5 * a))
 
 variable (𝔄 : Set (𝔓 X)) (ϑ : range (Q (X := X))) (N : ℕ)
 
@@ -803,7 +807,7 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : Grid X}
 
 -- Ineq. 6.3.41
 private lemma volume_L'_le {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
-    volume (L' hL : Set X) ≤ 2 ^ (100*a^3 + 5*a) * volume (L : Set X) := by
+    volume (L' hL : Set X) ≤ 2 ^ (𝕔 * a^3 + 5*a) * volume (L : Set X) := by
   have hc : dist (c L) (c (L' hL)) + 4 * D ^ s (L' hL) ≤ 8 * D ^ s (L' hL) := by
     calc dist (c L) (c (L' hL)) + 4 * D ^ s (L' hL)
       _ ≤ 4 * ↑D ^ s (L' hL) + 4 * D ^ s (L' hL) := by grw [Grid.dist_c_le_of_subset (L_le_L' hL).1]
@@ -816,17 +820,17 @@ private lemma volume_L'_le {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     _ = volume (ball (c L) ((32 * D) * (D ^ (s L))/4)) := by
       rw [s_L'_eq hL, zpow_add₀ (by simp), zpow_one]
       ring_nf
-    _ = volume (ball (c L) ((2^(100*a^2 + 5)) * ((D ^ (s L))/4))) := by
+    _ = volume (ball (c L) ((2 ^ (𝕔 * a^2 + 5)) * ((D ^ (s L))/4))) := by
       have h32 : (32 : ℝ) = (2^5 : ℕ) := by norm_num
       congr; simp only [defaultD, h32]; norm_cast; ring_nf
-    _ ≤ 2 ^ (100*a^3 + 5*a) * volume (ball (c L) ((D ^ (s L))/4)) := by
-      have : (2 : ℝ≥0∞) ^ (100*a^3 + 5*a) = (defaultA a)^(100*a^2 + 5) := by
+    _ ≤ 2 ^ (𝕔 * a^3 + 5*a) * volume (ball (c L) ((D ^ (s L))/4)) := by
+      have : (2 : ℝ≥0∞) ^ (𝕔 * a^3 + 5*a) = (defaultA a) ^ (𝕔 * a^2 + 5) := by
         simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul]
         ring
       rw [this]
       exact DoublingMeasure.volume_ball_two_le_same_repeat (c L) ((D ^ (s L))/4)
-        (100 * a ^ 2 + 5)
-    _ ≤ 2 ^ (100*a^3 + 5*a) * volume (L : Set X) := by gcongr; exact ball_subset_Grid
+        (𝕔 * a ^ 2 + 5)
+    _ ≤ 2 ^ (𝕔 * a^3 + 5*a) * volume (L : Set X) := by gcongr; exact ball_subset_Grid
 
 -- Ineq. 6.3.30
 open Classical in
@@ -866,11 +870,10 @@ lemma global_antichain_density_aux (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {L : G
       gcongr
       exact ineq_6_3_38 hL
     _ ≤ (2^(a * (N + 5)) + 2^(a * N + a * 3)) * dens₁ (𝔄 : Set (𝔓 X)) *
-        2 ^ (100*a^3 + 5*a) * volume (L : Set X) := by
-      grw [mul_assoc _ (2 ^ (100*a^3 + 5*a))  _, volume_L'_le hL]
-    _ = ((2^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (100*a^3 + 5*a)) * dens₁ (𝔄 : Set (𝔓 X)) *
-        volume (L : Set X) := by ring
-    _ = ↑(C6_3_4' a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by rfl
+        2 ^ (𝕔 * a^3 + 5*a) * volume (L : Set X) := by
+      grw [mul_assoc _ (2 ^ (𝕔 * a^3 + 5*a))  _, volume_L'_le hL]
+    _ = ((2^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (𝕔 * a ^ 3 + 5 * a))
+        * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by ring
 
 variable (𝔄 ϑ N)
 
@@ -924,50 +927,12 @@ private lemma lhs : ∑ (p ∈ (𝔄_aux 𝔄 ϑ N).toFinset), volume (E p ∩ G
           ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G) := by rw [lhs']
 
 private lemma le_C6_3_4 (ha : 4 ≤ a) :
-    (((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (100 * a ^ 3 + 5 * a)) +
-      2 ^ (a * (N + 5)) ≤ (C6_3_4 a N) := by
-  calc ((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (100 * a ^ 3 + 5 * a) +
-      2 ^ (a * (N + 5))
-    _ ≤ (2^(a * N + a * 5) + 2^(a * N + a * 5)) * 2 ^ (100*a^3 + 5*a) + 2 ^ (a * N + a* 5) * 1 := by
-      have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
-      have h35 : 3 ≤ 5 := by omega
-      gcongr <;> apply le_of_eq <;> ring
-    _ = 2^(a * N + a * 5) * (2 * 2 ^ (100*a^3 + 5*a)) + 2 ^ (a * N + a* 5) * 1 := by
-      rw [← two_mul]; ring
-    _ = 2^(a * N + a * 5) * (2 * 2 ^ (100*a^3 + 5*a) + 1) := by ring
-    _ ≤ 2^(a * N + a * 5) * (2^2 * 2 ^ (100*a^3 + 5*a)) := by
-      gcongr
-      norm_cast
-      rw [pow_two, mul_assoc 2 2]
-      conv_rhs => rw [two_mul]
-      gcongr
-      exact NeZero.one_le
-    _ = 2^(100*a^3 + a * N + a * 10 + 2) := by
-      rw [← pow_add, ← pow_add]
-      congr 1
-      ring
-    _ ≤ ↑(C6_3_4 a N) := by
-      have h101 : 101 * a ^ 3 = 100 * a ^ 3 +  a ^ 3 := by ring
-      have ha3 : a ^ 3 = a * (a^2 - 1) + a := by
-        simp only [mul_tsub, mul_one]
-        rw [tsub_add_cancel_of_le]
-        · ring
-        · nth_rewrite 1 [← mul_one a]
-          have ha' : 1 ≤ a^1 := by linarith
-          gcongr
-          apply le_trans ha' (Nat.pow_le_pow_right (by linarith) one_le_two)
-      rw [C6_3_4]
-      norm_cast
-      apply pow_le_pow (le_refl _) one_le_two
-      rw [add_assoc, add_assoc, add_comm (a * N), ← add_assoc, ← add_assoc, mul_comm N]
-      gcongr
-      rw [add_assoc, h101]
-      nth_rewrite 3 [ha3]
-      gcongr
-      · calc 10
-        _ ≤ 4^2 - 1 := by norm_num
-        _ ≤ a ^ 2 - 1 := by gcongr
-      · linarith
+    (((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (𝕔 * a ^ 3 + 5 * a)) +
+      2 ^ (a * (N + 5)) ≤ C6_3_4 a N := by
+  simp only [add_mul, ← pow_add, C6_3_4, one_mul, ENNReal.coe_pow, ENNReal.coe_ofNat]
+  apply add_le_pow_two₃ le_rfl (by linarith) (by omega) ?_
+  ring_nf
+  linarith [sixteen_times_le_cube ha]
 
 -- Lemma 6.3.4
 open Classical in
@@ -1083,7 +1048,7 @@ open Classical in
 lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range (Q (X := X)))
     {n : ℕ} : eLpNorm (fun x ↦ ∑ p ∈ 𝔄_aux 𝔄 ϑ n, (2 : ℝ) ^ (-n * (2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
       (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume ≤
-    (2 ^ (101 * a ^ 3 - n : ℝ)) ^ (p₆ a)⁻¹ * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
+    (2 ^ ((𝕔 + 1) * a ^ 3 - n : ℝ)) ^ (p₆ a)⁻¹ * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
     volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ := by
   have a4 := four_le_a X
   have p₆p := p₆_pos a4
@@ -1155,10 +1120,10 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
 def C6_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a)
 
 lemma le_C6_1_6 (a4 : 4 ≤ a) :
-    (2 : ℝ≥0∞) ^ (101 * a ^ 3 / p₆ a) * ∑ n ∈ Finset.range N, (2 ^ (-(p₆ a)⁻¹)) ^ n ≤ C6_1_6 a := by
+    (2 : ℝ≥0∞) ^ ((𝕔 + 1) * a ^ 3 / p₆ a) * ∑ n ∈ Finset.range N, (2 ^ (-(p₆ a)⁻¹)) ^ n ≤ C6_1_6 a := by
   have p₆p := p₆_pos a4
   calc
-    _ ≤ (2 : ℝ≥0∞) ^ (101 * a ^ 3 / p₆ a) * (8 * a ^ 4) := by
+    _ ≤ (2 : ℝ≥0∞) ^ ((𝕔 + 1) * a ^ 3 / p₆ a) * (8 * a ^ 4) := by
       gcongr
       calc
         _ ≤ _ := ENNReal.sum_le_tsum _
@@ -1172,7 +1137,8 @@ lemma le_C6_1_6 (a4 : 4 ≤ a) :
       gcongr
       · exact one_le_two
       · rw [div_le_iff₀ p₆p, p₆]; norm_cast; rw [show 7 * (4 * a ^ 4) = 28 * a * a ^ 3 by ring]
-        gcongr; omega
+        gcongr
+        linarith [c_le_100]
       · exact_mod_cast calculation_6_1_6 a4
     _ ≤ _ := by
       rw [C6_1_6]; norm_cast; rw [← pow_add]; gcongr
@@ -1219,10 +1185,10 @@ lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (�
       apply ENNReal.ofReal_le_ofReal
       simp only [𝔄_aux, mem_toFinset] at mp
       exact mp.2.1
-    _ ≤ ∑ n ∈ Finset.range N, (2 ^ (101 * a ^ 3 - n : ℝ)) ^ (p₆ a)⁻¹ * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
+    _ ≤ ∑ n ∈ Finset.range N, (2 ^ ((𝕔 + 1) * a ^ 3 - n : ℝ)) ^ (p₆ a)⁻¹ * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ :=
       Finset.sum_le_sum fun _ _ ↦ tile_count_aux h𝔄 ϑ
-    _ = 2 ^ (101 * a ^ 3 / p₆ a) * (∑ n ∈ Finset.range N, (2 ^ (-(p₆ a)⁻¹)) ^ n) *
+    _ = 2 ^ ((𝕔 + 1) * a ^ 3 / p₆ a) * (∑ n ∈ Finset.range N, (2 ^ (-(p₆ a)⁻¹)) ^ n) *
         dens₁ 𝔄 ^ (p₆ a)⁻¹ * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ := by
       rw [← Finset.sum_mul, ← Finset.sum_mul, Finset.mul_sum]; congr! with n mn
       rw [← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, ← ENNReal.rpow_mul, neg_mul, ← div_eq_inv_mul,

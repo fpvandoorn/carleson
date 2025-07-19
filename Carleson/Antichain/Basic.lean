@@ -1,3 +1,4 @@
+import Carleson.Calculations
 import Carleson.Operators
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
@@ -80,7 +81,7 @@ open MeasureTheory Metric
 open ENNReal NNReal Real
 
 /-- Constant appearing in Lemma 6.1.2. -/
-noncomputable def C6_1_2 (a : ℕ) : ℕ := 2 ^ (107 * a ^ 3)
+noncomputable def C6_1_2 (a : ℕ) : ℕ := 2 ^ ((𝕔 + 7) * a ^ 3)
 
 lemma C6_1_2_ne_zero (a : ℕ) : (C6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C6_1_2]; positivity
 
@@ -88,31 +89,31 @@ open MeasureTheory Metric Bornology Set
 
 private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
     (2 : ℝ≥0∞) ^ a ^ 3 / volume (ball x (D ^ 𝔰 p.1 / (D * 4))) ≤
-    2 ^ (5 * a + 101 * a ^ 3) / volume (ball x (8 * D ^ 𝔰 p.1)) := by
+    2 ^ (5 * a + (𝕔 + 1) * a ^ 3) / volume (ball x (8 * D ^ 𝔰 p.1)) := by
   calc
     _ = 2 ^ a ^ 3 / volume (ball x (1 / (D * 32) * (8 * D ^ 𝔰 p.1))) := by congr! 3; ring
-    _ = 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / (2 ^ (5 * a + 100 * a ^ 3) *
+    _ = 2 ^ a ^ 3 * 2 ^ (5 * a + 𝕔 * a ^ 3) / (2 ^ (5 * a + 𝕔 * a ^ 3) *
         volume (ball x (1 / (D * 32) * (8 * D ^ 𝔰 p.1)))) := by
       rw [mul_div_assoc, ← div_div, div_eq_mul_inv]
       conv_rhs => rw [← inv_inv (volume _), ← div_eq_mul_inv,
         ENNReal.div_div_cancel (by positivity) (by finiteness)]
-    _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / volume (ball x (8 * D ^ 𝔰 p.1)) := by
+    _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 𝕔 * a ^ 3) / volume (ball x (8 * D ^ 𝔰 p.1)) := by
       gcongr
-      · have heq : 2 ^ (100 * a ^ 2) * 2 ^ 5 * (1 / (D * 32) * (8 * (D : ℝ) ^ 𝔰 p.1)) =
+      · have heq : 2 ^ (𝕔 * a ^ 2) * 2 ^ 5 * (1 / (D * 32) * (8 * (D : ℝ) ^ 𝔰 p.1)) =
             8 * D ^ 𝔰 p.1 := by
-          have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
+          have hD : (D : ℝ) = 2 ^ (𝕔 * a^2) := by simp
           rw [← hD]
           ring_nf
           rw [mul_inv_cancel₀ (defaultD_pos _).ne', one_mul]
         convert measure_ball_two_le_same_iterate (μ := volume) x
-          (1 / (D * 32) * (8 * D ^ 𝔰 p.1)) (100*a^2 + 5) using 2
+          (1 / (D * 32) * (8 * D ^ 𝔰 p.1)) (𝕔*a^2 + 5) using 2
         · conv_lhs => rw [← heq, ← pow_add]
         · rw [Nat.cast_pow, Nat.cast_ofNat, ENNReal.coe_pow, coe_ofNat]; ring
     _ = _ := by ring_nf
 
 -- Composition of inequalities 6.1.6, 6.1.7, 6.1.8.
 lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p) (hy : Ks (𝔰 p.1) x y ≠ 0) :
-    ‖Ks (𝔰 p.1) x y‖ₑ ≤ 2 ^ (6 * a + 101 * a ^ 3) / volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) := by
+    ‖Ks (𝔰 p.1) x y‖ₑ ≤ 2 ^ (6 * a + (𝕔 + 1) * a ^ 3) / volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) := by
   have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := defaultD_pow_pos ..
   have h8Dpow_pos : 0 < 8 * (D : ℝ) ^ 𝔰 p.1 := mul_defaultD_pow_pos _ (by linarith) _
   have hdist_cp : dist x (𝔠 p) ≤ 4 * D ^ 𝔰 p.1 := (mem_ball.mp (Grid_subset_ball hxE.1)).le
@@ -123,9 +124,9 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
   apply h.trans
   rw [zpow_sub₀ (by simp), zpow_one, div_div]
   apply (ineq_6_1_7 x p).trans
-  have ha : 6 * a + 101 * a ^ 3 = (5 * a + 101 * a ^ 3) + a := by omega
+  have ha : 6 * a + (𝕔 + 1) * a ^ 3 = (5 * a + (𝕔 + 1) * a ^ 3) + a := by omega
   simp only [div_eq_mul_inv, ge_iff_le]
-  rw [ha, pow_add _ (5 * a + 101 * a ^ 3) a, mul_assoc]
+  rw [ha, pow_add _ (5 * a + (𝕔 + 1) * a ^ 3) a, mul_assoc]
   apply mul_le_mul_of_nonneg_left _ (zero_le _)
   suffices volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) ≤ 2 ^ a * volume (ball x (8 * D ^ 𝔰 p.1)) by
     rw [← inv_inv (2 ^ a), ← ENNReal.mul_inv (.inl (by simp)) (.inl (by finiteness)),
@@ -171,7 +172,7 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ �
         exact mul_lt_mul_of_pos_right (by norm_num) (defaultD_pow_pos ..)
     -- 6.1.6, 6.1.7, 6.1.8
     have hKs (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0) :
-        ‖Ks (𝔰 p.1) x y‖ₑ ≤ 2 ^ (6 * a + 101 * a ^ 3) / volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) :=
+        ‖Ks (𝔰 p.1) x y‖ₑ ≤ 2 ^ (6 * a + (𝕔 + 1) * a ^ 3) / volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) :=
       norm_Ks_le' _ hxE hy
     calc
     _ = ‖carlesonOn p f x‖ₑ := by
@@ -195,13 +196,13 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ �
         rw [mem_ball, dist_comm]
         exact hdist_cpy y hy.1
     _ ≤ ∫⁻ y in ball (𝔠 p) (8 * D ^ 𝔰 p.1),
-        2 ^ (6 * a + 101 * a ^ 3) / volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) * ‖f y‖ₑ := by
+        2 ^ (6 * a + (𝕔 + 1) * a ^ 3) / volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) * ‖f y‖ₑ := by
       refine lintegral_mono_fn fun y ↦ ?_
       rw [enorm_mul]; gcongr
       by_cases hy : Ks (𝔰 p.1) x y = 0
       · simp [hy]
       · exact hKs y hy
-    _ = 2 ^ (5 * a + 101 * a ^ 3 + a) * ⨍⁻ y in ball (𝔠 p.1) (8 * D ^ 𝔰 p.1), ‖f y‖ₑ ∂volume := by
+    _ = 2 ^ (5 * a + (𝕔 + 1) * a ^ 3 + a) * ⨍⁻ y in ball (𝔠 p.1) (8 * D ^ 𝔰 p.1), ‖f y‖ₑ ∂volume := by
       rw [lintegral_const_mul _ hfm.enorm, ENNReal.mul_comm_div, setLAverage_eq]
       congr 2; ring
     _ ≤ C6_1_2 a * (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)).indicator (x := x)
@@ -212,13 +213,13 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ �
         rw [C6_1_2, add_comm (5 * a), add_assoc]; norm_cast
         apply pow_le_pow_right₀ one_le_two
         calc
-        _ ≤ 101 * a ^ 3 + 6 * a ^ 3 := by
+        _ ≤ (𝕔 + 1) * a ^ 3  + 6 * a ^ 3:= by
           rw [add_le_add_iff_left]
           ring_nf
           gcongr
           exact le_self_pow₀ (by linarith [four_le_a X]) (by omega)
-        _ = 107 * a ^ 3 := by ring
-      · exact hdist_cp.trans_lt
+        _ = (𝕔 + 7) * a ^ 3 := by ring
+      · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith) hDpow_pos)
     _ ≤ C6_1_2 a * MB volume 𝔄 𝔠 (8 * D ^ 𝔰 ·) f x := by
       rw [mul_le_mul_left (C6_1_2_ne_zero a) coe_ne_top, MB, maximalFunction,
@@ -234,7 +235,7 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ �
 
 -- Note: Proof shows that `111` can be replaced by `108`
 /-- Constant appearing in Lemma 6.1.3. -/
-noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (111 * a ^ 3) * (q - 1)⁻¹
+noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 8) * a ^ 3) * (q - 1)⁻¹
 
 -- Namespace for auxiliaries used in the proof of Lemma 6.1.3
 namespace Lemma6_1_3
@@ -423,27 +424,17 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
           _ = (2 * q - 1) * (q - 1)⁻¹ := by field_simp [hqiq]
           _ ≤ _ := by gcongr; linarith only [q_mem_Ioc X |>.2]
   calc
-    _ ≤ 2 ^ (107 * a ^ 3) * (2 ^ (2 * a + 4) * (q - 1)⁻¹) := by simp [C6_1_2, hc_le]
-    _ ≤ 2 ^ (108 * a ^ 3) * (q - 1)⁻¹ := by
+    _ ≤ 2 ^ ((𝕔 + 7) * a ^ 3) * (2 ^ (2 * a + 4) * (q - 1)⁻¹) := by simp [C6_1_2, hc_le]
+    _ ≤ 2 ^ ((𝕔 + 8) * a ^ 3) * (q - 1)⁻¹ := by
       rw [← mul_assoc, ← pow_add]
       gcongr
       · norm_num
-      · rw [show 108 = 107 + 1 by rfl, add_mul, one_mul]
-        apply add_le_add (by rfl)
-        calc
-          _ ≤ 2 * a ^ 2 + a ^ 2 := by
-            gcongr
-            · rw [pow_succ, pow_one]; conv_lhs => rw [← one_mul a]
-              gcongr; exact le_trans (by norm_num) <| four_le_a X
-            · refine le_trans (show 4 ≤ 4 ^ 2 by norm_num) (by gcongr; exact four_le_a X)
-          _ = 3 * a ^ 2 := by group
-          _ ≤ _ := by
-            rw [pow_succ _ 2, mul_comm]; gcongr
-            exact le_trans (by norm_num) <| four_le_a X
-    _ ≤ _ := by
+      · ring_nf
+        linarith [sixteen_times_le_cube (four_le_a X), four_le_a X]
+    _ = _ := by
       simp only [C6_1_3, val_eq_coe, NNReal.coe_mul, NNReal.coe_pow, NNReal.coe_ofNat,
         NNReal.coe_inv, hq_coe]
-      gcongr <;> norm_num
+
 
 end Lemma6_1_3
 
