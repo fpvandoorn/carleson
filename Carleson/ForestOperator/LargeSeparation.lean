@@ -1814,7 +1814,7 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 /-! ### Subsection 7.5.3 and Lemma 7.4.5 -/
 
 /-- The constant used in `lower_oscillation_bound`.
-Has value `2 ^ (Z * n / 2 - (2 * 𝕔 + 1) * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (Z * n / 2 - 201 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - (2 * 𝕔 + 1) * (a : ℝ) ^ 3)
 
