@@ -947,7 +947,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
         rw [dist_comm] at lt_3 lt_4
         exact calculation_4 (lt_1 := lt_1) (lt_2 := lt_2) (lt_3 := lt_3) (lt_4 := lt_4)
           (three := three) (plusOne := plusOne) (X := X)
-    _ ≤ 2 ^ ((-(𝕔-6) : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
       apply calculation_5
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
       calc dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂)
