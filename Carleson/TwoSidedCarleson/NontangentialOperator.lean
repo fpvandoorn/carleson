@@ -1,5 +1,6 @@
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
+import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 
 open MeasureTheory Set Bornology Function ENNReal Metric
@@ -351,8 +352,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 /-- The constant used in `cotlar_control`. -/
 irreducible_def C10_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 4 * a + 1)
 
-lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
-  (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
+lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r ∈ Ioc 0 R)
+    (hx : dist x x' ≤ R / 4) :
     ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ ≤
       2 ^ (a ^ 3 + 4 * a) * globalMaximalFunction volume 1 g x := by
   have R_pos : 0 < R := by
@@ -482,8 +483,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
       · simp
 
 omit [IsTwoSidedKernel a K] in
-lemma cut_out_ball {g : X → ℂ}
-  (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
+lemma cut_out_ball {g : X → ℂ} (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
     czOperator K R g x' = czOperator K R ((ball x (R / 2))ᶜ.indicator g) x' := by
   have R_pos : 0 < R := by
     rw [mem_Ioc] at hr
@@ -504,8 +504,8 @@ lemma cut_out_ball {g : X → ℂ}
   · measurability
 
 /-- Lemma 10.1.3 -/
-theorem cotlar_control (ha : 4 ≤ a)
-    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
+theorem cotlar_control (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : r ∈ Ioc 0 R)
+    (hx : dist x x' ≤ R / 4) :
     ‖czOperator K R g x‖ₑ ≤ ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ +
     C10_1_3 a * globalMaximalFunction volume 1 g x := by
   have R_pos : 0 < R := by
@@ -609,7 +609,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     {g : X → ℂ} (hg : BoundedFiniteSupport g) :
     volume.restrict (ball x (R / 4))
       {x' | C10_1_4 a * globalMaximalFunction volume 1 g x <
-      ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ } ≤
+        ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
   by_cases hMzero : globalMaximalFunction volume 1 g x = 0
   · apply le_of_eq_of_le _ (zero_le _)
@@ -823,59 +823,6 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   nth_rw 5 [pow_succ]; rw [mul_two]
   gcongr <;> simp
 
--- TODO: this helper lemma may be useful in other places to, for instance in `HardyLittlewood.lean`
-lemma iSup_rpow {f : ℕ → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
-    (⨆ n, f n) ^ p = ⨆ n, f n ^ p := by
-  apply le_antisymm
-  · rw [← rpow_le_rpow_iff (z := p⁻¹) (by positivity), rpow_rpow_inv (by positivity)]
-    refine iSup_le fun i ↦ ?_
-    rw [← rpow_le_rpow_iff (z := p) (by positivity), rpow_inv_rpow (by positivity)]
-    apply le_iSup _ i
-  · apply iSup_le; intro i; gcongr; apply le_iSup _ i
-
-theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableSpace α]
-    {μ : Measure α} (f : ι → α → ℝ≥0∞) :
-    ⨆ n, eLpNormEssSup (f n) μ = eLpNormEssSup (⨆ n, f n) μ := by
-  simp_rw [eLpNormEssSup, essSup_eq_sInf, enorm_eq_self]
-  apply le_antisymm
-  · refine iSup_le fun i ↦ le_sInf fun b hb ↦ sInf_le ?_
-    simp only [iSup_apply, mem_setOf_eq] at hb ⊢
-    exact nonpos_iff_eq_zero.mp <|le_of_le_of_eq
-        (measure_mono fun ⦃x⦄ h ↦ lt_of_lt_of_le h (le_iSup (fun i ↦ f i x) i)) hb
-  · apply sInf_le
-    simp only [iSup_apply, mem_setOf_eq]
-    apply nonpos_iff_eq_zero.mp
-    calc
-    _ ≤ μ (⋃ i, {x | ⨆ n, sInf {a | μ {x | a < f n x} = 0} < f i x}) := by
-      refine measure_mono fun x hx ↦ mem_iUnion.mpr ?_
-      simp only [mem_setOf_eq] at hx
-      exact lt_iSup_iff.mp hx
-    _ ≤ _ := measure_iUnion_le _
-    _ ≤ ∑' i, μ {x | sInf {a | μ {x | a < f i x} = 0} < f i x} := by
-      gcongr with i; apply le_iSup _ i
-    _ ≤ ∑' i, μ {x | eLpNormEssSup (f i) μ < ‖f i x‖ₑ} := by
-      gcongr with i; rw [eLpNormEssSup, essSup_eq_sInf]; rfl
-    _ = ∑' i, 0 := by congr with i; exact meas_eLpNormEssSup_lt
-    _ = 0 := by simp
-
-/-- Monotone convergence applied to eLpNorms. AEMeasurable variant.
-  Possibly imperfect hypotheses, particularly on `p`. Note that for `p = ∞` the stronger
-  statement in `eLpNormEssSup_iSup` holds. -/
-theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : ℝ≥0∞}
-    {f : ℕ → α → ℝ≥0∞} (hf : ∀ n, AEMeasurable (f n) μ) (h_mono : ∀ᵐ x ∂μ, Monotone fun n => f n x) :
-    ⨆ n, eLpNorm (f n) p μ = eLpNorm (⨆ n, f n) p μ := by
-  unfold eLpNorm
-  split_ifs with hp hp'
-  · simp
-  · apply eLpNormEssSup_iSup
-  · unfold eLpNorm'
-    have := toReal_pos hp hp'
-    rw [← iSup_rpow (by positivity), ← lintegral_iSup']
-    · congr 2 with a; rw [← iSup_rpow (by positivity)]; simp
-    · fun_prop
-    · filter_upwards [h_mono] with a ha m n hmn
-      beta_reduce; gcongr; simp only [enorm_eq_self]; apply ha hmn
-
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/
 theorem simple_nontangential_operator_le (ha : 4 ≤ a)
@@ -1036,7 +983,7 @@ theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R
 theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     nontangentialOperator K f x =
     ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
-    ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ := by
+      ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ := by
   let sup : ℝ≥0∞ := ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
     ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ
   unfold nontangentialOperator
@@ -1172,12 +1119,5 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
       _ ≤ a ^ 3 + 2 * 4 * 4 * a := by omega
       _ ≤ a ^ 3 + 2 * a * a * a := by gcongr
       _ = _ := by ring
-
-omit [IsTwoSidedKernel a K] in
-lemma nontangentialOperator_const_smul (z : ℂ) :
-    nontangentialOperator (z • K) = ‖z‖ₑ • nontangentialOperator K := by
-  unfold nontangentialOperator
-  simp_rw [Pi.smul_apply, smul_eq_mul, mul_assoc, integral_const_mul, enorm_mul, ← ENNReal.mul_iSup]
-  rfl
 
 end
