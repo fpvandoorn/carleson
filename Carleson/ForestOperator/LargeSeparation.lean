@@ -73,7 +73,6 @@ lemma stronglyMeasurable_χ : StronglyMeasurable (χ t u₁ u₂ J) :=
     (Finset.measurable_sum _ fun _ _ ↦ stronglyMeasurable_χtilde.measurable) |>.stronglyMeasurable
 
 -- /-- The definition of `B`, defined in (7.5.1) -/
--- protected def _root_.Grid.ball (I : Grid X) : Set X := ball (c I) (8 * D ^ s I)
 
 variable (t u₁ u₂) in
 /-- The definition of h_J, defined in the proof of Section 7.5.2 -/
@@ -273,8 +272,8 @@ lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
       NNReal.coe_le_coe]
     exact χ_le_indicator hJ
 
-/-- The constant used in `dist_χ_le`. Has value `2 ^ (226 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
+/-- The constant used in `dist_χ_le`.
+Has value `2 ^ (227 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 2 + 𝕔/4) * a ^ 3)
 
 lemma one_le_C7_5_2 : 1 ≤ C7_5_2 a := by
@@ -468,9 +467,8 @@ lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
 /-! ### Subsection 7.5.2 and Lemma 7.5.4 -/
 
 /-- The constant used in `holder_correlation_tile`.
-Has value `2 ^ (78 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔/4) * a ^ 3)
+Has value `2 ^ (128 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔/4) * a ^ 3) -- SG
 
 section OneInOneOut
 
@@ -1071,8 +1069,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
 
 /-- The constant used in `local_tree_control`.
 Has value `2 ^ (104 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4) * a ^ 3)
+irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4) * a ^ 3) -- SG
 
 /-- Lemma 7.5.7. -/
 lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1317,8 +1314,9 @@ lemma gtc_sum_Icc_le_two : ∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s 
     _ ≤ ∑' k : ℕ, 2 ^ (-k : ℤ) := ENNReal.sum_le_tsum _
     _ = _ := ENNReal.sum_geometric_two_pow_neg_one
 
-/-- The constant used in `global_tree_control1_edist`. -/
-irreducible_def C7_5_9d (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 1)
+/-- The constant used in `global_tree_control1_edist`.
+Has value `2 ^ (128 * a ^ 3 + 4 * a + 1)` in the blueprint. -/
+irreducible_def C7_5_9d (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 1) -- SG
 
 /-- Part 2 of equation (7.5.18) of Lemma 7.5.9. -/
 lemma global_tree_control1_edist_part2
@@ -1386,8 +1384,9 @@ lemma global_tree_control1_edist_right (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t)
   global_tree_control1_edist_part2 hu₂ inter_subset_left hf
     (fun _ mp dp ↦ scales_impacting_interval hu₁ hu₂ hu h2u hJ (mem_union_right _ mp) dp) hx hx'
 
-/-- The constant used in `global_tree_control1_supbound`. -/
-irreducible_def C7_5_9s (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 3)
+/-- The constant used in `global_tree_control1_supbound`.
+Has value `2 ^ (128 * a ^ 3 + 4 * a + 3)` in the blueprint. -/
+irreducible_def C7_5_9s (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 3) -- SG
 
 lemma one_le_C7_5_9s : 1 ≤ C7_5_9s a := by
   simp only [C7_5_9s, C7_5_5]; norm_cast
@@ -1461,8 +1460,9 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
       rw [C7_5_9d, C7_5_9s, ENNReal.coe_mul, ENNReal.coe_pow, ENNReal.coe_ofNat, mul_assoc,
         ENNReal.rpow_natCast, ← pow_add]; rfl
 
-/-- The constant used in `global_tree_control2`. -/
-irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4 + 𝕔/4) * a ^ 3)
+/-- The constant used in `global_tree_control2`.
+Has value `2 ^ (129 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4 + 𝕔/4) * a ^ 3) -- SG
 
 lemma le_C7_5_10 (ha : 4 ≤ a) : C7_5_7 a + C7_5_9s a ≤ C7_5_10 a := by
   simp only [C7_5_7, C7_5_9s, C7_5_5, ← pow_add, C7_5_10]
@@ -1670,15 +1670,16 @@ lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     _ = _ := by rw [← mul_add, ← mul_add, mul_mul_mul_comm, P7_5_4]
 
 /-- An intermediate constant in Lemma 7.5.4. -/
-def I7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 10 + 3 * (𝕔/4)) * a ^ 3)
+def I7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 9 + 3 * (𝕔/4)) * a ^ 3 + 12 * a)
 
 lemma le_I7_5_4 (ha : 4 ≤ a) :
     32 * C7_5_2 a * C7_5_9s a * C7_5_10 a + C7_5_9d a * C7_5_10 a + C7_5_9s a * C7_5_9d a
     ≤ I7_5_4 a := by
   have C : (32 : ℝ≥0) = 2 ^ 5 := by norm_num
   simp only [C7_5_2, C7_5_9s, C7_5_10, C7_5_9d, C7_5_5, C, ← pow_add, I7_5_4]
-  apply add_le_pow_two₃ (s := 12 * a + (4 * 𝕔 + 9 + 3 * (𝕔/4)) * a ^ 3) ?_ ?_ ?_ ?_
-  · linarith
+  apply add_le_pow_two₃ (s := 11 * a + (4 * 𝕔 + 9 + 3 * (𝕔/4)) * a ^ 3) ?_ ?_ ?_ ?_
+  · ring_nf
+    linarith
   · ring_nf
     omega
   · ring_nf
@@ -1743,9 +1744,8 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       apply le_I7_5_4 (four_le_a X)
 
 /-- The constant used in `holder_correlation_tree`.
-Has value `2 ^ (529 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 11 + 3 * (𝕔/4)) * a ^ 3)
+Has value `2 ^ (485 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 10 + 3 * (𝕔/4)) * a ^ 3) -- SG
 
 lemma le_C7_5_4 (ha : 4 ≤ a) :
     C7_5_9s a * C7_5_10 a + 16 ^ τ * I7_5_4 a ≤ C7_5_4 a := by
@@ -1815,13 +1815,12 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 
 /-- The constant used in `lower_oscillation_bound`.
 Has value `2 ^ (Z * n / 2 - 201 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - (2 * 𝕔 + 1) * (a : ℝ) ^ 3)
+irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - (2 * 𝕔 + 1) * (a : ℝ) ^ 3) -- SG
 
 /-- A binomial bound used in Lemma 7.4.5. -/
 lemma C7_5_11_binomial_bound (a4 : 4 ≤ a) :
     (1 + C7_5_11 a n : ℝ≥0∞) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) ≤
-    2 ^ (3 * a ^ 3 + 3 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) :=
+    2 ^ ((𝕔 / 4) * a ^ 3 + 7) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) :=
   calc
     _ ≤ (2 : ℝ≥0∞) ^ ((Z * n / 2 - (2 * 𝕔 + 1) * a ^ 3) * -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) := by
       rw [ENNReal.rpow_mul]
@@ -1845,8 +1844,10 @@ lemma C7_5_11_binomial_bound (a4 : 4 ≤ a) :
       gcongr 2 ^ ?_ * _
       · exact one_le_two
       · calc
-          _ ≤ 3 * 4 ^ 3 + 3 * 4 := by linarith [c_le_100]
-          _ ≤ _ := by gcongr
+          _ ≤ 2 * (4 * (𝕔 / 4) + 3) + 1 := by omega
+          _ = 2 * 4 * 1 * (𝕔 / 4) + 7 := by ring
+          _ ≤ a * a * a * (𝕔 / 4) + 7 := by gcongr <;> linarith
+          _ = (𝕔 / 4) * a ^ 3 + 7 := by ring
 
 /-- Lemma 7.5.11 -/
 lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1978,13 +1979,14 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
       rw [holderFunction, χ_eq_zero_of_notMem_ball mJ nx, NNReal.coe_zero, ofReal_zero, zero_mul,
         zero_mul]
 
-/-- The constant used in `correlation_distant_tree_parts`. -/
-irreducible_def C7_4_5 (a n : ℕ) : ℝ≥0 :=
-  2 ^ ((4 * 𝕔 + 15 + 3 * (𝕔 / 4)) * a ^ 3) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))
+/-- The constant used in `correlation_distant_tree_parts`.
+Has value `2 ^ (511 * a ^ 3) * 2 ^ (-(Z n) / (4a^2 + 2a^3))` in the blueprint. -/
+irreducible_def C7_4_5 (a n : ℕ) : ℝ≥0 := -- SG
+  2 ^ ((4 * 𝕔 + 11 + 4 * (𝕔 / 4)) * a ^ 3) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))
 
 lemma le_C7_4_5 (a4 : 4 ≤ a) :
-    C2_0_5 a * C7_5_4 a * 2 ^ (3 * a ^ 3 + 9 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) ≤
-    C7_4_5 a n := by
+    C2_0_5 a * C7_5_4 a * 2 ^ ((𝕔 / 4) * a ^ 3 + 7 + 6 * a)
+      * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) ≤ C7_4_5 a n := by
   rw [C2_0_5, C7_5_4, C7_4_5]
   conv_lhs => enter [1, 1, 1, 2]; norm_cast
   conv_lhs => enter [1, 1, 2, 2]; norm_cast
@@ -2014,7 +2016,7 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
         ∑ J ∈ 𝓙₅ t u₁ u₂, volume (ball (c J) (8 * D ^ s J)) * P7_5_4 t u₁ u₂ f₁ f₂ J := by
       rw [Finset.mul_sum]; congr! 1 with J mJ; ring
     _ ≤ C2_0_5 a * C7_5_4 a *
-        (2 ^ (3 * a ^ 3 + 3 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))) *
+        (2 ^ ((𝕔 / 4) * a ^ 3 + 7) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))) *
         ∑ J ∈ 𝓙₅ t u₁ u₂,
           2 ^ (6 * a) * volume (ball (c J) (8⁻¹ * D ^ s J)) * P7_5_4 t u₁ u₂ f₁ f₂ J := by
       gcongr with J mJ
@@ -2022,7 +2024,7 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
       · convert measure_ball_two_le_same_iterate (μ := volume) (c J) (8⁻¹ * D ^ s J) 6 using 2
         · rw [← mul_assoc, show (2 : ℝ) ^ 6 * 8⁻¹ = 8 by norm_num]
         · unfold defaultA; norm_cast; rw [← pow_mul, mul_comm]
-    _ = C2_0_5 a * C7_5_4 a * 2 ^ (3 * a ^ 3 + 9 * a) *
+    _ = C2_0_5 a * C7_5_4 a * 2 ^ ((𝕔 / 4) * a ^ 3 + 7 + 6 * a) *
         2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) *
         ∑ J ∈ 𝓙₅ t u₁ u₂, ∫⁻ x in ball (c J) (8⁻¹ * D ^ s J), P7_5_4 t u₁ u₂ f₁ f₂ J := by
       simp_rw [mul_assoc (_ ^ (6 * a)), ← Finset.mul_sum, ← mul_assoc]; congr 1

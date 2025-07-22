@@ -499,7 +499,8 @@ lemma iLipENorm_holderApprox_le {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
     have : 0 < R := dist_nonneg.trans_lt hy
     linarith
 
-/-- The constant occurring in Proposition 2.0.5. -/
+/-- The constant occurring in Proposition 2.0.5.
+Has value `2 ^ (7 * a)` in the blueprint. -/
 def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (7 * a)
 
 section DivisionMonoid

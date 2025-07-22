@@ -62,8 +62,9 @@ lemma mem_ball_of_mem_tsupport_correlation {s₁ s₂ : ℤ} {x₁ x₂ y : X}
   exact lt_of_le_of_lt (dist_mem_Icc_of_mem_tsupport_Ks hKs).2
     (half_lt_self_iff.mpr (defaultD_pow_pos a s₁))
 
-/-- The constant from lemma 6.2.1. -/
-def C6_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 6 + 𝕔/4) * a ^ 3)
+/-- The constant from lemma 6.2.1.
+Has value `2 ^ (231 * a ^ 3)` in the blueprint. -/
+def C6_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 6 + 𝕔/4) * a ^ 3) -- SG
 
 lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X) :
   ‖Ks s₂ x₂ y‖ₑ * ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ ≤
@@ -325,8 +326,9 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
 
 section lemma_6_1_5
 
-/-- The constant from lemma 6.1.5. -/
-def C6_1_5 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 7 + 𝕔/4) * a ^ 3)
+/-- The constant from lemma 6.1.5.
+Has value `2 ^ (232 * a ^ 3)` in the blueprint. -/
+def C6_1_5 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 7 + 𝕔/4) * a ^ 3) -- SG
 
 -- TODO : 4 ≤ a in blueprint
 lemma C6_1_5_bound (ha : 4 ≤ a) :

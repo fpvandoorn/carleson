@@ -117,8 +117,8 @@ lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
       gcongr; norm_num
 
 /-- The constant used in `adjoint_tree_estimate`.
-Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
+Has value `2 ^ (181 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a -- SG
 
 /-- Lemma 7.4.2. -/
 lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : f.support ⊆ G) :
@@ -138,8 +138,8 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f :
     exact (hg.memLp 2).eLpNorm_ne_top
 
 /-- The constant used in `adjoint_tree_control`.
-Has value `2 ^ (203 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 7 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
+Has value `2 ^ (182 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 7 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3) -- SG
 
 lemma le_C7_4_3 (ha : 4 ≤ a) : C7_4_2 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a := by
   rw [C7_4_3, C7_4_2, C7_3_1_1, CMB_defaultA_two_eq]

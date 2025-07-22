@@ -393,10 +393,13 @@ lemma dist_mem_Icc_of_mem_tsupport_Ks' {s : ℤ} {x y : X} (h : y ∈ tsupport f
       ((isClosed_Icc.closure_subset_iff).mpr hC)
   exact hC' (mem_image_of_mem (fun y ↦ dist x y) h)
 
-/-- The constant appearing in part 2 of Lemma 2.1.3. -/
-def C2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3)
-/-- The constant appearing in part 3 of Lemma 2.1.3. -/
-def D2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2 + 𝕔/4) * a ^ 3)
+/-- The constant appearing in part 2 of Lemma 2.1.3.
+Equal to `2 ^ (102 * a ^ 3)` in the blueprint. -/
+def C2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3) -- SG
+
+/-- The constant appearing in part 3 of Lemma 2.1.3.
+Equal to `2 ^ (127 * a ^ 3)` in the blueprint. -/
+def D2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2 + 𝕔/4) * a ^ 3) -- SG
 
 -- 1.0.14.
 lemma kernel_bound {s : ℤ} {x y : X} : ‖Ks s x y‖ₑ ≤ C_K a / vol x y := by
