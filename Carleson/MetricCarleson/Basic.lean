@@ -284,7 +284,6 @@ irreducible_def C3_0_1 (a : ℕ) (R₁ R₂ : ℝ≥0) : ℝ≥0 :=
 
 lemma lintegral_inv_vol_le {R₁ R₂ : ℝ≥0} (hR₁ : 0 < R₁) (hR₂ : R₁ < R₂) :
     ∫⁻ y in Annulus.oo x R₁ R₂, (vol x y)⁻¹ ≤ ↑((2 * R₂ / R₁) ^ a) := by
-  -- rw [coe_pow, coe_div hR₁.ne', coe_mul, coe_ofNat]
   suffices ∀ y ∈ Annulus.oo x R₁ R₂, volume (ball x R₂) / ↑((2 * R₂ / R₁) ^ a) ≤ vol x y by
     calc
       _ ≤ ∫⁻ y in Annulus.oo x R₁ R₂, ↑((2 * R₂ / R₁) ^ a) / volume (ball x R₂) := by

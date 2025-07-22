@@ -30,6 +30,8 @@ end Real
 
 section ENNReal
 
+open ENNReal
+
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
   if hfin : s.Finite then
     have hfin' : Finite s := hfin
@@ -103,6 +105,16 @@ lemma tsum_geometric_ite_eq_tsum_geometric {k c : ℕ} :
 
 lemma ENNReal.toReal_zpow (x : ℝ≥0∞) (z : ℤ) : x.toReal ^ z = (x ^ z).toReal := by
   rw [← rpow_intCast, ← toReal_rpow, Real.rpow_intCast]
+
+-- TODO: this helper lemma may be useful in other places to, for instance in `HardyLittlewood.lean`
+lemma iSup_rpow {f : ℕ → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
+    (⨆ n, f n) ^ p = ⨆ n, f n ^ p := by
+  apply le_antisymm
+  · rw [← rpow_le_rpow_iff (z := p⁻¹) (by positivity), rpow_rpow_inv (by positivity)]
+    refine iSup_le fun i ↦ ?_
+    rw [← rpow_le_rpow_iff (z := p) (by positivity), rpow_inv_rpow (by positivity)]
+    apply le_iSup _ i
+  · apply iSup_le; intro i; gcongr; apply le_iSup _ i
 
 end ENNReal
 
