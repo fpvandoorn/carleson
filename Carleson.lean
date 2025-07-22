@@ -67,6 +67,7 @@ import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.Indicator
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
