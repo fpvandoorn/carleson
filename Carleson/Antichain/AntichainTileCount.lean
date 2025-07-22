@@ -357,7 +357,7 @@ lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
   · simp only [Finset.coe_filter]
     intro q hq q' hq' hqq'
     rw [𝔄_aux, mem_setOf, toFinset_setOf, Finset.mem_filter_univ] at hq hq'
-    have hE : Disjoint (E q) (E q') := by simpa using (E_disjoint h𝔄 hq.1.1 hq'.1.1).mt hqq'
+    have hE : Disjoint (E q) (E q') := by simpa using (tile_disjointness h𝔄 hq.1.1 hq'.1.1).mt hqq'
     change Disjoint (_ ∩ _ ∩ _) (_ ∩ _ ∩ _)
     rw [inter_assoc, inter_assoc]; exact (hE.inter_right _).inter_left _
 
@@ -1071,7 +1071,7 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
         rw [mul_assoc (2 ^ _), ← inter_indicator_mul, mul_assoc _ _ (G.indicator 1 x),
           ← inter_indicator_mul, mul_mul_mul_comm, ← inter_indicator_mul, inter_inter_inter_comm]
         rw [𝔄_aux, toFinset_setOf, Finset.mem_filter_univ] at mi mj
-        have key := (E_disjoint h𝔄 mi.1 mj.1).mt hn
+        have key := (tile_disjointness h𝔄 mi.1 mj.1).mt hn
         rw [not_not, disjoint_iff_inter_eq_empty] at key; simp [key]
       rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
       · refine fun p mp ↦ pow_nonneg (mul_nonneg ?_ (indicator_nonneg (by simp) _)) _

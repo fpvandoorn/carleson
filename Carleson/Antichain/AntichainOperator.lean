@@ -262,7 +262,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
       congr 1; simp_rw [← mul_assoc]; rw [← lintegral_biUnion_finset]; rotate_left
       · intro p mp p' mp' hn; change Disjoint (E p) (E p')
         simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at mp mp'
-        have := (E_disjoint h𝔄 mp mp').mt hn
+        have := (tile_disjointness h𝔄 mp mp').mt hn
         rwa [not_not] at this
       · exact fun _ _ ↦ measurableSet_E
       simp only [Finset.mem_filter_univ]
@@ -355,7 +355,7 @@ theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
   have h21 : (2 : ℝ) - 1 = 1 := by norm_cast
   have h21' : (2 : ℝ≥0) - 1 = 1 := by norm_cast
   -- Eq. 6.1.48
-  have heq : (nnq'⁻¹ - 2⁻¹) * (2 - q) = q⁻¹ - 2⁻¹ := by
+  have heq : (nnqt⁻¹ - 2⁻¹) * (2 - q) = q⁻¹ - 2⁻¹ := by
     have hq0 : q ≠ 0 := by rw [← hq, NNReal.coe_ne_zero]; exact (nnq_pos _).ne'
     simp only [inv_div, NNReal.coe_div, NNReal.coe_add, hq, NNReal.coe_one, NNReal.coe_mul,
       NNReal.coe_ofNat]
