@@ -449,9 +449,9 @@ This class is not Mathlib-ready code, and should not be used in the `ToMathlib` 
 -/
 class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
     CompleteSpace X, LocallyCompactSpace X,
-    MeasureSpace X, BorelSpace X, Regular (volume : Measure X),
-    IsDoubling (volume : Measure X) A, NeZero (volume : Measure X),
-    SigmaFinite (volume : Measure X) where
+    MeasureSpace X, BorelSpace X,
+    IsLocallyFiniteMeasure (volume : Measure X),
+    IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
 
 variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 
@@ -466,25 +466,6 @@ instance : ProperSpace X := by
   use s, s.finite_toSet, by simpa using h2s
 
 instance : IsOpenPosMeasure (volume : Measure X) := isOpenPosMeasure_of_isDoubling _
-
--- the following classes hold
--- #synth ProperSpace X
--- #synth LocallyCompactSpace X
--- #synth CompleteSpace X
--- #synth SigmaCompactSpace X
--- #synth SigmaFinite (volume : Measure X)
--- #synth SecondCountableTopology X
--- #synth SeparableSpace X
-
-
-section MetricSpace
-variable {Y : Type*} [MetricSpace Y] [DoublingMeasure Y A]
--- Moreover, the following classes hold if we assume that `Y` is a metric space
--- #synth T4Space Y
--- #synth PolishSpace Y
--- #synth MeasurableSingletonClass Y
-end MetricSpace
-
 
 /-- Monotonicity of doubling measure metric spaces in `A`. -/
 @[reducible]

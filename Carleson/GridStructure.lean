@@ -374,24 +374,28 @@ lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
 end GridManipulation
 
 /-- The constant appearing in Lemma 2.1.2, `2 ^ {-95a}`. -/
-def _root_.C2_1_2 (a : ℕ) : ℝ := 2 ^ (-95 * a : ℝ)
+def _root_.C2_1_2 (a : ℕ) : ℝ := 2 ^ ((-𝕔 + 5) * a : ℝ)
 
 include q K σ₁ σ₂ F G in
 variable (X) in
-lemma _root_.C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 512 := by
-  rw [C2_1_2, show (1 / 512 : ℝ) = 2 ^ (-9 : ℝ) by norm_num,
-    Real.rpow_le_rpow_left_iff one_lt_two, neg_mul, neg_le_neg_iff]
-  norm_cast; linarith [four_le_a X]
+lemma _root_.C2_1_2_le_inv_256 : C2_1_2 a ≤ 1 / 256 := by
+  rw [C2_1_2, show (1 / 256 : ℝ) = 2 ^ (-8 : ℝ) by norm_num,
+    Real.rpow_le_rpow_left_iff one_lt_two, le_neg]
+  simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le]
+  norm_cast
+  have := four_le_a X
+  have : 7 * a ≤ 𝕔 * a := by gcongr; exact seven_le_c
+  linarith
 
 include q K σ₁ σ₂ F G in
 variable (X) in
 lemma _root_.C2_1_2_le_one : C2_1_2 a ≤ 1 :=
-  (C2_1_2_le_inv_512 X).trans <| by norm_num
+  (C2_1_2_le_inv_256 X).trans <| by norm_num
 
 include q K σ₁ σ₂ F G in
 variable (X) in
 lemma _root_.C2_1_2_lt_one : C2_1_2 a < 1 :=
-  (C2_1_2_le_inv_512 X).trans_lt <| by norm_num
+  (C2_1_2_le_inv_256 X).trans_lt <| by norm_num
 
 variable [GridStructure X D κ S o]
 
@@ -401,34 +405,34 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
   calc
     _ ≤ dist_{c I, 4 * D ^ s I} f g :=
       cdist_mono (ball_subset_ball (by simp_rw [div_eq_inv_mul, defaultD]; gcongr; norm_num))
-    _ ≤ 2 ^ (-100 * (a : ℝ)) * dist_{c I, 4 * D ^ (s I + 1)} f g := by
+    _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c I, 4 * D ^ (s I + 1)} f g := by
       rw [← div_le_iff₀' (by positivity), neg_mul, Real.rpow_neg zero_le_two, div_inv_eq_mul, mul_comm]
-      convert le_cdist_iterate (x := c I) (r := 4 * D ^ s I) (by positivity) f g (100 * a) using 1
+      convert le_cdist_iterate (x := c I) (r := 4 * D ^ s I) (by positivity) f g (𝕔 * a) using 1
       · norm_cast
       · apply dist_congr rfl
-        have : (defaultA a : ℝ) ^ (100 * a) = D := by
+        have : (defaultA a : ℝ) ^ (𝕔 * a) = D := by
           simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat]
           rw [← pow_mul]; congr 1; ring
         rw [this, zpow_add_one₀ (defaultD_pos a).ne']; ring
-    _ ≤ 2 ^ (-100 * (a : ℝ)) * dist_{c I, 4 * D ^ s J} f g := by
+    _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c I, 4 * D ^ s J} f g := by
       gcongr
       have : s I < s J := (Grid.lt_def.mp hpq).2
       exact cdist_mono (ball_subset_ball (mul_le_mul_of_nonneg_left
         (zpow_le_zpow_right₀ one_le_D (by omega)) zero_le_four))
-    _ ≤ 2 ^ (-100 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
+    _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
       gcongr
       have : c I ∈ ball (c J) (4 * D ^ s J) :=
         mem_of_mem_of_subset c_mem_Grid ((Grid.lt_def.mp hpq).1.trans Grid_subset_ball)
       rw [mem_ball] at this
       exact cdist_mono (ball_subset_ball' (by linarith))
-    _ ≤ 2 ^ (-100 * (a : ℝ) + 5 * a) * dist_{J} f g := by
+    _ ≤ 2 ^ (-𝕔 * (a : ℝ) + 5 * a) * dist_{J} f g := by
       rw [Real.rpow_add zero_lt_two, mul_assoc]
       refine mul_le_mul_of_nonneg_left ?_ (by positivity)
       rw [show (2 : ℝ) ^ (5 * (a : ℝ)) = (defaultA a) ^ 5 by norm_cast; ring]
       convert cdist_le_iterate _ f g 5 using 1
       · exact dist_congr rfl (by ring)
       · have := @one_le_D a; positivity
-    _ = _ := by congr 1; rw [C2_1_2, ← add_mul]; norm_num
+    _ = _ := by congr 1; rw [C2_1_2, ← add_mul]
 
 /-- Weaker version of Lemma 2.1.2. -/
 lemma dist_mono {I J : Grid X} (hpq : I ≤ J) {f g : Θ X} : dist_{I} f g ≤ dist_{J} f g := by
@@ -456,5 +460,9 @@ lemma dist_strictMono_iterate' {I J : Grid X} {d : ℤ} (hd : d ≥ 0) (hij : I 
     (hs : s I + d = s J) {f g : Θ X} : dist_{I} f g ≤ C2_1_2 a ^ d * dist_{J} f g := by
   rw [← Int.toNat_of_nonneg hd] at hs ⊢
   exact dist_strictMono_iterate hij hs
+
+lemma dist_c_le_of_subset {J J' : Grid X} (subset : (J : Set X) ⊆ J') :
+    dist (c J) (c J') < 4 * D ^ s J' :=
+  Grid_subset_ball (subset Grid.c_mem_Grid)
 
 end Grid

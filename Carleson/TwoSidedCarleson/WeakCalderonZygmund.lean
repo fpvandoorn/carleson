@@ -474,7 +474,7 @@ lemma volume_lt_of_not_GeneralCase
   refine lt_of_le_of_lt (eq_univ_iff_forall.mpr h ▸ maximal_theorem' α hf) ?_ |>.ne
   exact mul_lt_top coe_lt_top (hf.memLp 1).eLpNorm_lt_top
 
-private lemma isFiniteMeasure_finite
+private lemma isFiniteMeasure_of_not_generalCase
     (hf : BoundedFiniteSupport f) (h : ¬ GeneralCase f α) (hα : 0 < α) :
     IsFiniteMeasure (volume : Measure X) :=
   (isFiniteMeasure_iff _).mpr <| volume_lt_of_not_GeneralCase hf h hα
@@ -558,8 +558,7 @@ lemma czBall_subset_czPartition {hX : GeneralCase f α} {i : ℕ} :
   intro r hr
   rw [mem_ball] at hr
   unfold czPartition
-  refine mem_diff_of_mem ?_ ?_
-  · rw [mem_ball]; linarith [lt_of_le_of_lt dist_nonneg hr]
+  apply mem_diff_of_mem (by rw [mem_ball]; linarith [dist_nonneg.trans_lt hr])
   simp only [mem_union, mem_iUnion, mem_ball, not_or, not_exists, not_lt]
   refine ⟨?_, fun j hj ↦ by
     refine le_of_not_gt (disjoint_left.mp (czBall_pairwiseDisjoint ?_ ?_ hj.ne) hr) <;> tauto⟩
@@ -908,7 +907,7 @@ lemma integral_czRemainder' {hX : GeneralCase f α} {i : ℕ} :
 lemma integral_czRemainder {hf : BoundedFiniteSupport f}
     (hX : ¬ GeneralCase f α) (hα : 0 < α) :
     ∫ x, czRemainder f α x = 0 := by
-  have := isFiniteMeasure_finite hf hX hα
+  have := isFiniteMeasure_of_not_generalCase hf hX hα
   simpa [czRemainder, czApproximation, hX] using integral_sub_average volume f
 
 -- Inequality (10.2.32)
@@ -956,7 +955,7 @@ private lemma eLpNorm_restrict_czRemainder'_le {hf : BoundedFiniteSupport f} {hX
 private lemma eLpNorm_czRemainder_le'
     (hf : BoundedFiniteSupport f) (hX : ¬ GeneralCase f α) (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
     eLpNorm (czRemainder f α) 1 volume ≤ 2 * ∫⁻ x, ‖f x‖ₑ :=
-  have := isFiniteMeasure_finite hf hX (lt_of_le_of_lt (zero_le _) hα)
+  have := isFiniteMeasure_of_not_generalCase hf hX (lt_of_le_of_lt (zero_le _) hα)
   calc
     _ = ∫⁻ x, ‖f x - ⨍ y, f y‖ₑ := by simp [czRemainder, eLpNorm, eLpNorm', czApproximation, hX]
     _ ≤ ∫⁻ x, (‖f x‖ₑ + ‖⨍ y, f y‖ₑ) := lintegral_mono (fun x ↦ enorm_sub_le)
@@ -971,7 +970,7 @@ lemma eLpNorm_czRemainder_le {hf : BoundedFiniteSupport f}
     eLpNorm (czRemainder f α) 1 volume ≤ 2 ^ (2 * a + 1) * α * volume (univ : Set X) := by
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; simp
-  have := isFiniteMeasure_finite hf hX (lt_of_le_of_lt (zero_le _) hα)
+  have := isFiniteMeasure_of_not_generalCase hf hX (lt_of_le_of_lt (zero_le _) hα)
   calc
     _ ≤ 2 * ∫⁻ x, ‖f x‖ₑ := eLpNorm_czRemainder_le' hf hX hα
     _ ≤ 2 * (α * volume (univ : Set X)) := by
@@ -1063,8 +1062,7 @@ private lemma div_α'_eq {p : ℝ≥0∞} : p / α' a α = p / c10_0_3 a / α :=
   · left; rw [c10_0_3]; finiteness
 
 /-- Lemma 10.2.6 -/
-lemma estimate_good (hf : BoundedFiniteSupport f)
-    (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
+lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     distribution (czOperator K r (czApproximation f (α' a α))) (α / 2) volume ≤
     C10_2_6 a / α * eLpNorm f 1 volume := by
@@ -1657,7 +1655,7 @@ lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
           C10_2_9]
         gcongr; exact le_self_add
 
-/- ### Lemmas 10.0.3 -/
+/- ### Lemma 10.0.3 -/
 
 /-- The constant used in `czOperator_weak_1_1`. -/
 irreducible_def C10_0_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 21 * a)

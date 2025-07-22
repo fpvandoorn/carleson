@@ -1,29 +1,11 @@
 import Carleson.Calculations
+import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
 
 open MeasureTheory Set Metric Function Topology NNReal ENNReal
 
 variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : ℕ)]
 variable {r : ℝ}
 variable {K : X → X → ℂ} {x x' : X} [IsOneSidedKernel a K]
-
--- TODO move to ToMathlib, properly generalise
-theorem integrableOn_of_integrableOn_inter_support {f : X → ℂ} {μ : Measure X} {s : Set X}
-    (hs : MeasurableSet s) (hf : IntegrableOn f (s ∩ support f) μ) :
-    IntegrableOn f s μ := by
-  apply IntegrableOn.of_forall_diff_eq_zero hf hs
-  simp
-
--- Is this valuable? Not used right now
-lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X} :
-    MemLp (K x) ∞ (volume.restrict (ball x r)ᶜ) := by
-  constructor
-  · exact (measurable_K_right x).aestronglyMeasurable
-  · simp only [eLpNorm_exponent_top]
-    apply eLpNormEssSup_lt_top_of_ae_enorm_bound
-    · apply ae_restrict_of_forall_mem
-      · measurability
-      · intro y hy
-        apply enorm_K_le_ball_complement' hr hy
 
 lemma czOperator_bound {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X) :
     ∃ (M : ℝ≥0), ∀ᵐ y ∂(volume.restrict (ball x r)ᶜ), ‖K x y * g y‖ ≤ M := by

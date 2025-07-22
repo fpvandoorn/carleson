@@ -497,14 +497,14 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
       rw [add_comm]; exact add_lt_add_right (dist_𝒬_lt_one_of_le s.head_le_last) _
     _ ≤ 1 + C2_1_2 a ^ n * dist_(sl.1) (𝒬 sl.1) θ := add_le_add_left (dist_LTSeries hs) _
     _ < 1 + C2_1_2 a ^ n * (2 * l + 3) := by gcongr; rw [C2_1_2]; positivity
-    _ ≤ 1 + (1 / 512) ^ n * (2 * 2 ^ n + 3) := by
+    _ ≤ 1 + (1 / 256) ^ n * (2 * 2 ^ n + 3) := by
       gcongr
       · rw [C2_1_2]; positivity
-      · exact C2_1_2_le_inv_512 X
+      · exact C2_1_2_le_inv_256 X
       · exact_mod_cast (l_upper_bound hl qp').le
-    _ = 1 + 2 * (2 / 512) ^ n + (1 / 512) ^ n * 3 := by
+    _ = 1 + 2 * (2 / 256) ^ n + (1 / 256) ^ n * 3 := by
       simp [div_pow]; ring
-    _ ≤ 1 + 2 * (2 / 512) ^ 0 + (1 / 512) ^ 0 * 3 := by
+    _ ≤ 1 + 2 * (2 / 256) ^ 0 + (1 / 256) ^ 0 * 3 := by
       gcongr 1 + 2 * ?_ + ?_ * 3 <;>
         exact pow_le_pow_of_le_one (by norm_num) (by norm_num) (by omega)
     _ < _ := by norm_num
@@ -540,7 +540,7 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
       _ ≤ smul (11 / 10 + C2_1_2 a * 200) p' := by
         apply smul_mono_left
         calc
-          _ ≤ 11 / 10 + 1 / 512 * (200 : ℝ) := by gcongr; exact C2_1_2_le_inv_512 X
+          _ ≤ 11 / 10 + 1 / 256 * (200 : ℝ) := by gcongr; exact C2_1_2_le_inv_256 X
           _ ≤ _ := by norm_num
       _ ≤ _ := by
         refine smul_C2_1_2 _ (by norm_num) ?_ (wiggle_order_11_10 l.le (C5_3_3_le (X := X)))
@@ -571,9 +571,9 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
         _ ≤ C2_1_2 a * dist_(q) r (𝒬 q) + C2_1_2 a * dist_(q) (𝒬 q) ϑ + 100 := by
           gcongr <;> exact Grid.dist_strictMono lq
         _ ≤ C2_1_2 a * (200 + 100) + 100 := by rw [mul_add]; gcongr; rw [dist_comm]; exact mϑ₂.le
-        _ ≤ (1 / 512) * 300 + 100 := by
+        _ ≤ (1 / 256) * 300 + 100 := by
           rw [show (200 : ℝ) + 100 = 300 by norm_num]; gcongr
-          exact C2_1_2_le_inv_512 X
+          exact C2_1_2_le_inv_256 X
         _ < _ := by norm_num
     have : z.last < ⟨q, mq⟩ := by
       refine ⟨s200, (?_ : ¬(smul 200 q ≤ smul 200 z.last.1))⟩
@@ -1063,7 +1063,7 @@ def C5_1_3_optimized (a : ℕ) (q : ℝ≥0) := C2_0_3 a q * 2 ^ (29 * a + 23) /
 
 /-- The constant used in Lemma 5.1.3 in the blueprint,
 with value `2 ^ (131 * a ^ 3) / (q - 1) ^ 5` -/
-def C5_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (131 * a ^ 3) / (q - 1) ^ 5
+def C5_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 11 + 𝕔 / 8) * a ^ 3) / (q - 1) ^ 5
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_3_pos : 0 < C5_1_3 a nnq := by
@@ -1075,14 +1075,14 @@ omit [TileStructure Q D κ S o] in
 lemma C5_1_3_optimized_le_C5_1_3 : C5_1_3_optimized a nnq ≤ C5_1_3 a nnq := by
   simp only [C5_1_3_optimized, C5_1_3, C2_0_3]
   calc
-    _ ≤ 2 ^ (128 * a ^ 3) / (nnq - 1) * 2 ^ (3 * a ^ 3) / (nnq - 1) ^ 4 := by
+    _ ≤ 2 ^ ((𝕔 + 8 + 𝕔 / 8) * a ^ 3) / (nnq - 1) * 2 ^ (3 * a ^ 3) / (nnq - 1) ^ 4 := by
       have := four_le_a X
       gcongr; · exact one_le_two
       calc
         _ ≤ 3 * 4 * 4 * a := by omega
         _ ≤ 3 * a * a * a := by gcongr
         _ = _ := by ring
-    _ = 2 ^ (128 * a ^ 3 + 3 * a ^ 3) / (nnq - 1) ^ (4 + 1) := by
+    _ = 2 ^ ((𝕔 + 8 + 𝕔 / 8) * a ^ 3 + 3 * a ^ 3) / (nnq - 1) ^ (4 + 1) := by
       rw [pow_add, pow_add, div_mul_eq_div_div]
       simp only [div_eq_inv_mul, pow_one]
       ring

@@ -70,13 +70,14 @@ We carry a multi purpose parameter, a natural number
 
 A doubling metric measure space $(X,\rho,\mu, a)$ is a complete
 and locally compact metric space $(X,\rho)$
-equipped with a $\sigma$-finite non-zero Radon--Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
+equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
 \begin{equation}\label{doublingx}
     \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
 \end{equation}
 where we have denoted by $B(x,R)$ the open ball of radius $R$ centred at $x$:
 \begin{equation}\label{eq-define-ball}
  B(x,R):=\{y\in X: \rho(x,y)<R\}. \end{equation}
+In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
 A collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible, if there is a point $o\in X$ where all the functions are equal to $0$, and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$, such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied. For every ball $B \subset X$
 \begin{equation}\label{osccontrol}
@@ -4808,13 +4809,13 @@ The main result of this subsection is the following quantitative bound for opera
     \leanok
     \lean{TileStructure.Forest.density_tree_bound1, TileStructure.Forest.density_tree_bound2}
     \uses{tree-projection-estimate,local-dens1-tree-bound,local-dens2-tree-bound}
-    Let $\fu \in \fU$. Then for all bounded $f$ with bounded support and $g$ with $|g| \le \mathbf{1}_G$
+    Let $\fu \in \fU$. Then for all bounded $f$ with bounded support and $g$ with $\text{support}(g) \subseteq G$
     we have
     \begin{equation}
         \label{eq-cor-tree-est}
         \left|\int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f \, \mathrm{d}\mu \right| \le 2^{202.5a^3} \dens_1(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
     \end{equation}
-    If additionally $|f| \le \mathbf{1}_F$, then we have
+    If additionally $\text{support}(f) \subseteq F$, then we have
     \begin{equation}
         \label{eq-cor-tree-est-F}
         \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f\, \mathrm{d}\mu \right| \le 2^{303a^3} \dens_1(\fT(\fu))^{1/2} \dens_2(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
@@ -5098,7 +5099,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
     \leanok
     \lean{TileStructure.Forest.adjoint_tree_estimate}
     \uses{densities-tree-bound}
-    For all $g$ with $|g| \le \mathbf{1}_G$, we have that
+    For all $g$ with $\text{support}(g) \subseteq G$, we have that
     $$
         \left\| \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{202.5a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
     $$
@@ -5126,7 +5127,7 @@ $$
     \leanok
     \lean{TileStructure.Forest.adjoint_tree_control}
     \uses{adjoint-tree-estimate}
-    We have for all $\fu \in \fU$ and $g$ with $|g| \le \mathbf{1}_G$
+    We have for all $\fu \in \fU$ and $g$ with $\text{support}(g) \subseteq G$
     $$
         \|S_{2, \fu} g\|_2 \le 2^{203a^3} \|g\|_2\,.
     $$
@@ -6118,7 +6119,7 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     \leanok
     \lean{TileStructure.Forest.row_bound, TileStructure.Forest.indicator_row_bound}
     \uses{densities-tree-bound,adjoint-tile-support}
-    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $|g| \le \mathbf{1}_G$, we have
+    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $\text{support}(g) \subseteq G$, we have
     \begin{equation}
         \label{eq-row-bound-1}
         \left\| T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{156a^3} 2^{-n/2} \|g\|_2
@@ -6131,6 +6132,7 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
 \end{lemma}
 
 \begin{proof}
+    \leanok
     By \Cref{densities-tree-bound} and the density assumption \eqref{forest4}, we have for each $\fu \in \fU$ and all bounded $f$ of bounded support that
     \begin{equation}
         \label{eq-explicit-tree-bound-1}
@@ -6168,7 +6170,7 @@ Because all involved operators are linear, \eqref{eq-row-bound-2} is also true f
     \leanok
     \lean{TileStructure.Forest.row_correlation}
     \uses{adjoint-tree-control,correlation-separated-trees}
-    For all $1 \le j,j' \le 2^n$ with $j\ne j'$ and for all $g_1, g_2$ with $|g_i| \le \mathbf{1}_G$, it holds that
+    For all $1 \le j,j' \le 2^n$ with $j\ne j'$ and for all $g_1, g_2$ with $\text{support}(g_i) \subseteq G$, it holds that
     $$
         \left| \int T_{\mathfrak{R}_j}^*g_1 \overline{T_{\mathfrak{R}_{j'}}^*g_2} \, \mathrm{d}\mu \right| \le
         2^{939a^3+1-4n}\|g_1\|_2 \|g_2\|_2\,.

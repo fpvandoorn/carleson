@@ -7,11 +7,6 @@ lemma div_self_eq_ite {x : ℝ≥0} : x / x = if 0 < x then 1 else 0 := by
   · exact div_self h.ne'
   · aesop
 
-lemma finset_sum_pos_iff {ι : Type*} {s : Finset ι} {f : ι → ℝ≥0} :
-    0 < ∑ x ∈ s, f x ↔ ∃ x ∈ s, 0 < f x := by
-  rw [← not_iff_not]
-  aesop
-
 end NNReal
 
 /-- Transfer an inequality over `ℝ` to one of `NNNorm`s over `ℝ≥0`. -/
