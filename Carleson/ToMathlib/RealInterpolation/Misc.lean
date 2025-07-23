@@ -254,6 +254,7 @@ lemma d_pos (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0
     @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f > 0 :=
   pos_of_ne_zero <| d_ne_zero_aux₃ hC₀ hC₁ hF
 
+@[aesop (rule_sets := [finiteness]) unsafe apply]
 lemma d_ne_top (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f ≠ ⊤ := by
   rw [d]
