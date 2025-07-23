@@ -781,7 +781,8 @@ lemma combine_estimates₁ {A : ℝ≥0} (hA : 0 < A)
     (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
     (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
     C₀ ^ (1 - t).toReal * C₁ ^ t.toReal * eLpNorm f p μ := by
-  have q_ne_zero : q ≠ 0 := (interpolated_pos' (lt_of_lt_of_le hp₀.1 hp₀.2) (lt_of_lt_of_le hp₁.1 hp₁.2) (ne_top_of_Ioo ht) hq).ne'
+  have q_ne_zero : q ≠ 0 := (interpolated_pos' (lt_of_lt_of_le hp₀.1 hp₀.2)
+    (lt_of_lt_of_le hp₁.1 hp₁.2) (ne_top_of_Ioo ht) hq).ne'
   have q_ne_top : q ≠ ⊤ := interp_exp_ne_top hq₀q₁ ht hq
   have q'pos : 0 < q.toReal := toReal_pos q_ne_zero q_ne_top
   refine le_of_rpow_le q'pos ?_

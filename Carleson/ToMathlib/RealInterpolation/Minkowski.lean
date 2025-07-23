@@ -337,7 +337,7 @@ theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restric
 @[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ≥0∞ × α | ‖g x‖ₑ ≤ tc.ton s }
         ((volume.restrict (Ioi 0)).prod μ) := by
   apply nullMeasurableSet_le hg.comp_snd.enorm
@@ -348,7 +348,7 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁]
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    [BorelSpace E₁] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ≥0∞ × α | tc.ton s < ‖g x‖ₑ }
         ((volume.restrict (Ioi 0)).prod μ) := by
   refine nullMeasurableSet_lt ?_ hg.comp_snd.enorm
@@ -359,7 +359,6 @@ lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁]
 @[measurability]
 lemma AEMeasurable.trunc_ton {f : α → E₁}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [SigmaFinite (μ.restrict f.support)] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a : ℝ≥0∞ × α ↦ (trunc f (tc.ton a.1)) a.2)
     ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
@@ -374,7 +373,6 @@ lemma AEMeasurable.trunc_ton {f : α → E₁}
 @[measurability]
 lemma AEMeasurable.truncCompl_ton {f : α → E₁}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [SigmaFinite (μ.restrict f.support)] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a : ℝ≥0∞ × α ↦ ((truncCompl f (tc.ton a.1))) a.2)
     ((volume.restrict (Ioi 0)).prod (μ.restrict f.support )) := by
@@ -421,7 +419,7 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁] [ENo
 @[fun_prop]
 theorem AEMeasurable.trunc_restrict
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁] {j : Bool}
-    {hμ : SigmaFinite (μ.restrict f.support)} (hf : AEMeasurable f μ) (tc : ToneCouple) :
+    (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
   by_cases hj: j
@@ -464,7 +462,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpa
           rw [this]
           apply AEMeasurable.comp_aemeasurable
           · fun_prop
-          · exact AEMeasurable.trunc_restrict (hμ := hμ)  (AEStronglyMeasurable.aemeasurable hf) _
+          · exact AEMeasurable.trunc_restrict (AEStronglyMeasurable.aemeasurable hf) _
         · fun_prop
         · fun_prop
       · fun_prop
@@ -799,7 +797,6 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
   have wt_est := (h₀T f hf).2 -- the weaktype estimate
   have q_pos : 0 < q.toReal := toReal_pos hq.ne' hq'.ne_top
   have tq_pos : 0 < t ^ q.toReal := ENNReal.rpow_pos_of_nonneg ht q_pos.le
-  have tq_ne_top : t ^ q.toReal ≠ ⊤ := by finiteness
   simp only [wnorm, wnorm', hq'.ne_top, ↓reduceIte, iSup_le_iff] at wt_est
   have wt_est_t := wt_est t.toNNReal -- this is the weaktype estimate applied to t
   have : ofNNReal t.toNNReal = t := coe_toNNReal ht'
