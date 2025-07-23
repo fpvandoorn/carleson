@@ -19,7 +19,7 @@ namespace TileStructure.Forest
 
 /-- The constant used in `local_dens1_tree_bound`.
 Has value `2 ^ (101 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 1) * a ^ 3) -- SG
+irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 1) * a ^ 3)
 
 /-- Part 1 of Lemma 7.3.2. -/
 lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
@@ -173,7 +173,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
 
 /-- The constant used in `local_dens2_tree_bound`.
 Has value `2 ^ (201 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_3_3 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 1) * (a : ℝ) ^ 3) -- SG
+irreducible_def C7_3_3 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 1) * (a : ℝ) ^ 3)
 
 private lemma le_C7_3_3_exponent (ha : 4 ≤ a) (b : ℕ) (hb : b ≤ 16) :
     2 * 𝕔 * a ^ 3 + b * a ≤ (2 * 𝕔 + 1) * a ^ 3 := by
@@ -265,7 +265,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
 
 /-- The constant used in `density_tree_bound1`.
 Has value `2 ^ (181 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 6 + 𝕔/2 + 𝕔/4) * a ^ 3) -- SG
+irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 6 + 𝕔/2 + 𝕔/4) * a ^ 3)
 
 -- Main bound in the proof of Lemma 7.3.1
 private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
@@ -486,7 +486,7 @@ lemma smul_le_indicator {A : Set X} (hf : f.support ⊆ A) {C : ℝ} (hC : ∀ x
 
 /-- The constant used in `density_tree_bound2`.
 Has value `2 ^ (282 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 7 + 𝕔/2 + 𝕔/4) * a ^ 3) -- SG
+irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 7 + 𝕔/2 + 𝕔/4) * a ^ 3)
 
 /-- Second part of Lemma 7.3.1. -/
 lemma density_tree_bound2

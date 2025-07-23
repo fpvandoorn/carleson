@@ -76,7 +76,7 @@ lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
 
 /-- The constant used in `correlation_separated_trees`.
 Has value `2 ^ (512 * a ^ 3 - 4 * n)` in the blueprint. -/
-irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := -- SG
+irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 :=
     2 ^ ((4 * 𝕔 + 12 + 4 * (𝕔 / 4)) * a ^ 3) * 2 ^ (-(4 * n : ℝ))
 
 lemma le_C7_4_4 (ha : 4 ≤ a) : C7_4_5 a n + C7_4_6 a n ≤ C7_4_4 a n := by
@@ -368,7 +368,7 @@ lemma adjointCarlesonRowSum_adjoint
 
 /-- The constant used in `row_bound`.
 Has value `2 ^ (182 * a ^ 3 - n / 2)` in the blueprint. -/
-irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 := -- SG
+irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 :=
   2 ^ ((𝕔 + 7 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
 
 lemma le_C7_7_2_1 (a4 : 4 ≤ a) :
@@ -393,7 +393,7 @@ lemma le_C7_7_2_1 (a4 : 4 ≤ a) :
 
 /-- The constant used in `indicator_row_bound`.
 Has value `2 ^ (283 * a ^ 3 - n / 2)` in the blueprint. -/
-irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 := -- SG
+irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 :=
   2 ^ ((2 * 𝕔 + 8 + 𝕔/2 + 𝕔/4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
 
 lemma le_C7_7_2_2 (a4 : 4 ≤ a) :
@@ -758,7 +758,7 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
 
 /-- The constant used in `row_correlation`.
 Has value `2 ^ (876 * a ^ 3 - 4 * n)` in the blueprint. -/
-irreducible_def C7_7_3 (a n : ℕ) : ℝ≥0 := C7_4_3 a ^ 2 * C7_4_4 a n -- SG
+irreducible_def C7_7_3 (a n : ℕ) : ℝ≥0 := C7_4_3 a ^ 2 * C7_4_4 a n
 
 /-- Lemma 7.7.3. -/
 lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
@@ -1208,7 +1208,7 @@ irreducible_def C2_0_4_base (a : ℕ) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 15 + 5 * (�
 
 /-- The constant used in `forest_operator`.
 Has value `2 ^ (440 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
-irreducible_def C2_0_4 (a : ℕ) (q : ℝ) (n : ℕ) : ℝ≥0 := C2_0_4_base a * 2 ^ (-(q - 1) / q * n) -- SG
+irreducible_def C2_0_4 (a : ℕ) (q : ℝ) (n : ℕ) : ℝ≥0 := C2_0_4_base a * 2 ^ (-(q - 1) / q * n)
 
 open scoped Classical in
 theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}

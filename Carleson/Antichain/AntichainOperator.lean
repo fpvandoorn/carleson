@@ -315,7 +315,7 @@ lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
 
 /-- The constant appearing in Proposition 2.0.3.
 Has value `2 ^ (117 * a ^ 3)` in the blueprint. -/
-def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 8) * a ^ 3) / (q - 1) -- SG
+def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 8) * a ^ 3) / (q - 1)
 
 variable (X) in
 omit [TileStructure Q D κ S o] in

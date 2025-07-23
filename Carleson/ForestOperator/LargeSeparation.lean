@@ -468,7 +468,7 @@ lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
 
 /-- The constant used in `holder_correlation_tile`.
 Has value `2 ^ (128 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔/4) * a ^ 3) -- SG
+irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔/4) * a ^ 3)
 
 section OneInOneOut
 
@@ -1069,7 +1069,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
 
 /-- The constant used in `local_tree_control`.
 Has value `2 ^ (104 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4) * a ^ 3) -- SG
+irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4) * a ^ 3)
 
 /-- Lemma 7.5.7. -/
 lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1316,7 +1316,7 @@ lemma gtc_sum_Icc_le_two : ∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s 
 
 /-- The constant used in `global_tree_control1_edist`.
 Has value `2 ^ (128 * a ^ 3 + 4 * a + 1)` in the blueprint. -/
-irreducible_def C7_5_9d (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 1) -- SG
+irreducible_def C7_5_9d (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 1)
 
 /-- Part 2 of equation (7.5.18) of Lemma 7.5.9. -/
 lemma global_tree_control1_edist_part2
@@ -1386,7 +1386,7 @@ lemma global_tree_control1_edist_right (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t)
 
 /-- The constant used in `global_tree_control1_supbound`.
 Has value `2 ^ (128 * a ^ 3 + 4 * a + 3)` in the blueprint. -/
-irreducible_def C7_5_9s (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 3) -- SG
+irreducible_def C7_5_9s (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 3)
 
 lemma one_le_C7_5_9s : 1 ≤ C7_5_9s a := by
   simp only [C7_5_9s, C7_5_5]; norm_cast
@@ -1462,7 +1462,7 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
 
 /-- The constant used in `global_tree_control2`.
 Has value `2 ^ (129 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4 + 𝕔/4) * a ^ 3) -- SG
+irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4 + 𝕔/4) * a ^ 3)
 
 lemma le_C7_5_10 (ha : 4 ≤ a) : C7_5_7 a + C7_5_9s a ≤ C7_5_10 a := by
   simp only [C7_5_7, C7_5_9s, C7_5_5, ← pow_add, C7_5_10]
@@ -1745,7 +1745,7 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 
 /-- The constant used in `holder_correlation_tree`.
 Has value `2 ^ (485 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 10 + 3 * (𝕔/4)) * a ^ 3) -- SG
+irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 10 + 3 * (𝕔/4)) * a ^ 3)
 
 lemma le_C7_5_4 (ha : 4 ≤ a) :
     C7_5_9s a * C7_5_10 a + 16 ^ τ * I7_5_4 a ≤ C7_5_4 a := by
@@ -1815,7 +1815,7 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 
 /-- The constant used in `lower_oscillation_bound`.
 Has value `2 ^ (Z * n / 2 - 201 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - (2 * 𝕔 + 1) * (a : ℝ) ^ 3) -- SG
+irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - (2 * 𝕔 + 1) * (a : ℝ) ^ 3)
 
 /-- A binomial bound used in Lemma 7.4.5. -/
 lemma C7_5_11_binomial_bound (a4 : 4 ≤ a) :
@@ -1981,7 +1981,7 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
 
 /-- The constant used in `correlation_distant_tree_parts`.
 Has value `2 ^ (511 * a ^ 3) * 2 ^ (-(Z n) / (4a^2 + 2a^3))` in the blueprint. -/
-irreducible_def C7_4_5 (a n : ℕ) : ℝ≥0 := -- SG
+irreducible_def C7_4_5 (a n : ℕ) : ℝ≥0 :=
   2 ^ ((4 * 𝕔 + 11 + 4 * (𝕔 / 4)) * a ^ 3) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))
 
 lemma le_C7_4_5 (a4 : 4 ≤ a) :

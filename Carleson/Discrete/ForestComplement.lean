@@ -1062,7 +1062,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux2 {N : ℕ} :
 def C5_1_3_optimized (a : ℕ) (q : ℝ≥0) := C2_0_3 a q * 2 ^ (29 * a + 23) / (q - 1) ^ 4
 
 /-- The constant used in Lemma 5.1.3.
-Has value `2 ^ (131 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/
+Has value `2 ^ (120 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/
 def C5_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 8 + 𝕔 / 8) * a ^ 3) / (q - 1) ^ 5
 
 omit [TileStructure Q D κ S o] in

@@ -82,7 +82,7 @@ open ENNReal NNReal Real
 
 /-- Constant appearing in Lemma 6.1.2.
 Has value `2 ^ (102 * a ^ 3)` in the blueprint. -/
-noncomputable def C6_1_2 (a : ℕ) : ℕ := 2 ^ ((𝕔 + 2) * a ^ 3) -- SG
+noncomputable def C6_1_2 (a : ℕ) : ℕ := 2 ^ ((𝕔 + 2) * a ^ 3)
 
 lemma C6_1_2_ne_zero (a : ℕ) : (C6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C6_1_2]; positivity
 
@@ -232,7 +232,7 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ �
 
 /-- Constant appearing in Lemma 6.1.3.
 Has value `2 ^ (103 * a ^ 3)` in the blueprint. -/
-noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 3) * a ^ 3) * (q - 1)⁻¹ -- SG
+noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 3) * a ^ 3) * (q - 1)⁻¹
 
 -- Namespace for auxiliaries used in the proof of Lemma 6.1.3
 namespace Lemma6_1_3

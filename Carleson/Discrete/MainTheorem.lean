@@ -9,10 +9,10 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 /-! ## Proposition 2.0.2 -/
 
-/-- The constant used in Proposition 2.0.2,
-which has value `2 ^ (471 * a ^ 3 + 1) / (q - 1) ^ 5` in the blueprint. -/
+/-- The constant used in Proposition 2.0.2.
+Has value `2 ^ (442 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/
 noncomputable def C2_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 :=
-    2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 5
+    2 ^ ((3 * 𝕔 + 17 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 5
 
 lemma le_C2_0_2 (ha : 4 ≤ a) {q : ℝ≥0} (hq : q ∈ Ioc 1 2) :
     C5_1_2 a q + C5_1_3 a q ≤ C2_0_2 a q := by

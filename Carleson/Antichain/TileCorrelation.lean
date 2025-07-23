@@ -64,7 +64,7 @@ lemma mem_ball_of_mem_tsupport_correlation {s₁ s₂ : ℤ} {x₁ x₂ y : X}
 
 /-- The constant from lemma 6.2.1.
 Has value `2 ^ (231 * a ^ 3)` in the blueprint. -/
-def C6_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 6 + 𝕔/4) * a ^ 3) -- SG
+def C6_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 6 + 𝕔/4) * a ^ 3)
 
 lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X) :
   ‖Ks s₂ x₂ y‖ₑ * ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ ≤
@@ -328,7 +328,7 @@ section lemma_6_1_5
 
 /-- The constant from lemma 6.1.5.
 Has value `2 ^ (232 * a ^ 3)` in the blueprint. -/
-def C6_1_5 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 7 + 𝕔/4) * a ^ 3) -- SG
+def C6_1_5 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 7 + 𝕔/4) * a ^ 3)
 
 -- TODO : 4 ≤ a in blueprint
 lemma C6_1_5_bound (ha : 4 ≤ a) :

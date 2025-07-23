@@ -147,7 +147,7 @@ lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedC
 
 /-- The constant used in `nontangential_operator_bound`, equal to `2 ^ (102 * a ^ 3)` in the
 blueprint. -/
-irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3) -- SG
+irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3)
 
 -- Bound for (7.2.3) in the proof of `nontangential_pointwise_bound`
 omit [TileStructure Q D κ S o] in
@@ -760,7 +760,7 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
 
 /-- The constant used in `tree_projection_estimate`.
 Has value `2 ^ (130 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 4) * a ^ 3) -- SG
+irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 4) * a ^ 3)
 
 -- Auxiliary function used in the proof of Lemma 7.2.1
 private def eI𝒬u_mul (u : 𝔓 X) (f : X → ℂ) : X → ℂ := fun y ↦ exp (.I * 𝒬 u y) * f y
