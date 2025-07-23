@@ -954,11 +954,9 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
     -- lemma below proves the same, but for M.toReal
     have M_pos : 0 < M := by
       apply d_pos <;> assumption
-    have M_lt_top : M < ∞ := by
-      apply lt_top_iff_ne_top.mpr
-      apply d_ne_top <;> assumption
-    have : 0 < M.toReal := toReal_pos M_pos.ne' M_lt_top.ne
-    have : ENNReal.ofReal M.toReal = M := by rw [ofReal_toReal M_lt_top.ne]
+    have M_ne_top : M ≠ ∞ := by finiteness
+    have : 0 < M.toReal := toReal_pos M_pos.ne' M_ne_top
+    have : ENNReal.ofReal M.toReal = M := by rw [ofReal_toReal M_ne_top]
     have coe_q : ENNReal.ofReal q.toReal = q :=
     ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
     -- type mismatches, ℝ vs ℝ≥0∞
@@ -1234,11 +1232,11 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A
   apply mul_ne_top
   · apply mul_ne_top
     · apply mul_ne_top
-      · apply mul_ne_top
+      · have := interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq |>.ne'
+        have := interp_exp_ne_top hq₀q₁ ht hq
+        apply mul_ne_top
         · split_ifs <;> finiteness
-        · apply rpow_ne_top'
-          · exact interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq |>.ne'
-          · exact interp_exp_ne_top hq₀q₁ ht hq
+        · finiteness
       · apply rpow_ne_top'
         · split_ifs
           · rw [one_mul, one_mul]
@@ -1250,8 +1248,8 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A
           · simp [ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq |>.ne']
           · simp_all
         · split_ifs <;> exact (ne_of_beq_false rfl).symm
-    · exact rpow_ne_top' (ENNReal.coe_pos.mpr hC₀).ne' coe_ne_top
-  · exact rpow_ne_top' (ENNReal.coe_pos.mpr hC₁).ne' coe_ne_top
+    · finiteness
+  · finiteness
 
 lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0} (hA : 0 < A)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
