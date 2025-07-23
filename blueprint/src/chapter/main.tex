@@ -3288,7 +3288,7 @@ We begin with the following crucial disjointedness property of the sets $E(\fp)$
 \begin{lemma}[tile disjointness]
 \label{tile-disjointness}
 \leanok
-\lean{E_disjoint}
+\lean{tile_disjointness}
 Let $\fp,\fp'\in \mathfrak{A}$.
 If there exists an $x\in X$ with $x\in E(\fp)\cap E(\fp')$,
 then $\fp= \fp'$.
@@ -3317,7 +3317,7 @@ $M_{\mathcal{B}}$ from Definition \ref{def-hlm}.
     \label{maximal-bound-antichain}
     \uses{tile-disjointness}
     \leanok
-    \lean{MaximalBoundAntichain}
+    \lean{maximal_bound_antichain}
     Let $x\in X$.
     Then
     \begin{equation}\label{hlmbound}
@@ -3769,7 +3769,7 @@ This is further estimated by applying the doubling property \eqref{firstdb} thre
 \begin{equation}\label{tgeo2}
     \le 2 + 2^{6a} +2^{3a}d_{B_1(x_1, D^{\ps(\fp_1)})}(\tQ(x_1), \tQ(x_2))\, .
 \end{equation}
-Now \eqref{tgeo} follows with $a\ge 1$.
+Now \eqref{tgeo} follows with $a\ge 4$.
 \end{proof}
 
 
@@ -3779,26 +3779,26 @@ We now prove \Cref{tile-correlation}.
     \proves{tile-correlation}
 We begin with \eqref{eq-basic-TT*-est}.
 By Lemma \ref{tile-range-support}, the left-hand side of \eqref{eq-basic-TT*-est} vanishes if
-$B(\pc(\fp_1),5D^{\ps(\fp_1)}) \cap B(\pc(\fp_2),5D^{\ps(\fp_2)}) = \emptyset$.
+$B(\pc(\fp'),5D^{\ps(\fp')}) \cap B(\pc(\fp),5D^{\ps(\fp)}) = \emptyset$.
 Thus we can assume for the remainder of the proof that
 \begin{equation}
         \label{intersec5B}
-        B(\pc(\fp_1),5D^{\ps(\fp_1)}) \cap B(\pc(\fp_2),5D^{\ps(\fp_2)}) \neq \emptyset\,.
+        B(\pc(\fp'),5D^{\ps(\fp')}) \cap B(\pc(\fp),5D^{\ps(\fp)}) \neq \emptyset\,.
 \end{equation}
 We expand the left-hand side of \eqref{eq-basic-TT*-est} as
 \begin{equation}\label{tstartstar}
-\left|\int \int_{E(\fp_1)} \overline{K_{\ps(\fp_1)}(x_1,y)}e(-\tQ(x_1)(y)+
+\left|\int \int_{E(\fp')} \overline{K_{\ps(\fp')}(x_1,y)}e(-\tQ(x_1)(y)+
     \tQ(x_1)(x_1))g(x_1)\, d\mu(x_1) \right.
 \end{equation}
-\begin{equation}
- \times \left.\int_{E(\fp_2)} {K_{\ps(\fp_2)}(x_2,y)}e(\tQ(x_2)(y)
+\begin{equation}\label{tstartstar'}
+ \times \left.\int_{E(\fp)} {K_{\ps(\fp)}(x_2,y)}e(\tQ(x_2)(y)
     -\tQ(x_2)(x_2))\overline{g(x_2)}\, d\mu(x_2)\, d\mu(y)\right|\, .
 \end{equation}
 By Fubini and the triangle inequality and
 the fact $|e(\tQ(x_i)(x_i))|=1$ for $i=1,2$, we can estimate
-\eqref{tstartstar} from above by
+\eqref{tstartstar} and \eqref{tstartstar'} from above by
 \begin{equation}\label{eqa1}
-    \int_{E(\fp_1)} \int_{E(\fp_2)} {\bf I}(x_1, x_2)\, d\mu(x_1)d\mu(x_2)\,.
+    \int_{E(\fp')} \int_{E(\fp)} {\bf I}(x_1, x_2)\, d\mu(x_1)d\mu(x_2)\,.
 \end{equation}
 with
 \begin{equation}
@@ -3809,47 +3809,47 @@ with
 \end{equation}
 
 
-We estimate for fixed $x_1\in E(\fp_1)$ and
-$x_2\in E(\fp_2)$ the inner integral of \eqref{eqa1} with
+We estimate for fixed $x_1\in E(\fp')$ and
+$x_2\in E(\fp)$ the inner integral of \eqref{eqa1} with
 \Cref{Holder-van-der-Corput}. The function
 $\varphi:=\varphi_{x_1,x_2}$ satisfies the assumptions of
 \Cref{Holder-van-der-Corput} with $z = x_1$ and $R = D^{s_1}$ by \Cref{correlation-kernel-bound}.
-We obtain with $B':= B(x_1, D^{\ps(\fp_1)})$,
+We obtain with $B':= B(x_1, D^{\ps(\fp')})$,
 \begin{equation*}
- {\bf I}(x_1, x_2) \le 2^{8a} \mu(B') \|{\varphi}\|_{C^\tau(B')}
-       (1 + d_{B'}(\tQ(x_1),\tQ(x_2)))^{-1/(2a^2+a^3)}
+ {\bf I}(x_1, x_2) \le 2^{8a} \mu(B') \|{\varphi}\|_{C^\tau(B')}|g(x_1)g(x_2)|
+       (1 + d_{B'}(\tQ(x_1),\tQ(x_2)))^{-1/(2a^2+a^3)}|g(x_1)g(x_2)|
 \end{equation*}
 \begin{equation}
 \label{eqa1.5}
  \le \frac{2^{231a^3+8a}}
- {\mu(B(x_2, D^{\ps(\fp_2)}))}
+ {\mu(B(x_2, D^{\ps(\fp)}))}
        (1 + d_{B'}(\tQ(x_1),\tQ(x_2)))^{-1/(2a^2+a^3)}\,.
 \end{equation}
 Using \eqref{intersec5B}, \Cref{tile-uncertainty} and $a\ge 1$ estimates \eqref{eqa1.5} by
 \begin{equation}\label{eqa2}
  \le \frac{2^{231a^3 + 8a + 1}}
- {\mu(B(x_2, D^{\ps(\fp_2)}))}
-       (1+d_{\fp_1}(\fcc(\fp_1), \fcc(\fp_2)))^{-1/(2a^2+a^3)}\,.
+ {\mu(B(x_2, D^{\ps(\fp)}))}
+       (1+d_{\fp'}(\fcc(\fp'), \fcc(\fp)))^{-1/(2a^2+a^3)}|g(x_1)g(x_2)|\,.
 \end{equation}
-As $x_2\in \scI(\fp_2)$ by Definition \eqref{defineep} of $E$, we have by \eqref{eq-vol-sp-cube}
+As $x_2\in \scI(\fp)$ by Definition \eqref{defineep} of $E$, we have by \eqref{eq-vol-sp-cube}
 \begin{equation}
-    \rho(x_2,\pc(\fp_2))\le 4D^{\ps(\fp_2)}
+    \rho(x_2,\pc(\fp)) < 4D^{\ps(\fp)}
 \end{equation}
 and thus by \eqref{eq-vol-sp-cube} again and the triangle inequality
 \begin{equation}
-    \scI(\fp_2)\subset B(x_2,8D^{\ps(\fp_2)})\, .
+    \scI(\fp)\subset B(x_2,8D^{\ps(\fp)})\, .
 \end{equation}
 Using three iterations of the doubling property \eqref{doublingx} give
 \begin{equation}
-    \mu(\scI(\fp_2))\le 2^{3a}\mu(B(x_2,D^{\ps(\fp_2)}))\, .
+    \mu(\scI(\fp))\le 2^{3a}\mu(B(x_2,D^{\ps(\fp)}))\, .
 \end{equation}
-With $a\ge 1$ and \eqref{eqa2} we conclude \eqref{eq-basic-TT*-est}.
+With $a\ge 4$ and \eqref{eqa2} we conclude \eqref{eq-basic-TT*-est}.
 
 
 Now assume the left-hand side of \eqref{eq-basic-TT*-est} is not zero.
 There is a $y\in X$ with
 \begin{equation}
-    T^*_{\fp}g(y)\overline{T^*_{\fp'}g(y)}\neq 0
+    T^*_{\fp'}g(y)\overline{T^*_{\fp}g(y)}\neq 0
 \end{equation}
 By the triangle inequality and \Cref{tile-range-support}, we conclude
 \begin{equation}

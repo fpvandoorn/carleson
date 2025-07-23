@@ -304,6 +304,12 @@ lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ
   simp_rw [linearizedCarlesonOperator_const_smul, Pi.smul_apply, ← smul_iSup]
   rfl
 
+lemma nontangentialOperator_const_smul (z : ℂ) {K : X → X → ℂ} :
+    nontangentialOperator (z • K) = ‖z‖ₑ • nontangentialOperator K := by
+  unfold nontangentialOperator
+  simp_rw [Pi.smul_apply, smul_eq_mul, mul_assoc, integral_const_mul, enorm_mul, ← ENNReal.mul_iSup]
+  rfl
+
 end DoublingMeasure
 
 /-- The main constant in the blueprint, driving all the construction, is `D = 2 ^ (100 * a ^ 2)`.
