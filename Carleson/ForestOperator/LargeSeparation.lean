@@ -274,7 +274,7 @@ lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
 
 /-- The constant used in `dist_χ_le`.
 Has value `2 ^ (227 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 2 + 𝕔/4) * a ^ 3)
+irreducible_def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 2 + 𝕔 / 4) * a ^ 3)
 
 lemma one_le_C7_5_2 : 1 ≤ C7_5_2 a := by
   rw [C7_5_2]; exact_mod_cast Nat.one_le_two_pow
@@ -302,15 +302,15 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
         ring_nf
         suffices 𝕔 * a ^ 2 + 7 * a + 2 ≤ a ^ 3 * 2 + a ^ 3 * (𝕔 / 4)  by linarith
         calc
-          _ ≤ (4 * (𝕔/4) + 3) * a ^ 2 + 7 * a + a := by
+          _ ≤ (4 * (𝕔 / 4) + 3) * a ^ 2 + 7 * a + a := by
             gcongr
             · omega
             · linarith
-          _ = (𝕔/4) * 4 * a ^ 2 + 3 * a ^ 2 + 2 * 4 * a := by ring
-          _ ≤ (𝕔/4) * a * a ^ 2 + 3 * a ^ 2 + 2 * a * a := by gcongr
-          _ = (𝕔/4) * a ^ 3 + 5 * a ^ 2 := by ring
-          _ ≤ (𝕔/4) * a ^ 3 + 2 * 4 * a ^ 2 := by gcongr; norm_num
-          _ ≤ (𝕔/4) * a ^ 3 + 2 * a * a ^ 2 := by gcongr
+          _ = (𝕔 / 4) * 4 * a ^ 2 + 3 * a ^ 2 + 2 * 4 * a := by ring
+          _ ≤ (𝕔 / 4) * a * a ^ 2 + 3 * a ^ 2 + 2 * a * a := by gcongr
+          _ = (𝕔 / 4) * a ^ 3 + 5 * a ^ 2 := by ring
+          _ ≤ (𝕔 / 4) * a ^ 3 + 2 * 4 * a ^ 2 := by gcongr; norm_num
+          _ ≤ (𝕔 / 4) * a ^ 3 + 2 * a * a ^ 2 := by gcongr
           _ = _ := by ring
   have dbl : ∀ J' ∈ V, volume (ball (c J) (9 * D ^ (s J + 1))) ≤
       2 ^ (2 * 𝕔 * a ^ 3 + 7 * a) * volume (ball (c J') (D ^ s J' / 4)) := fun J' mJ' ↦ by
@@ -468,7 +468,7 @@ lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
 
 /-- The constant used in `holder_correlation_tile`.
 Has value `2 ^ (128 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔/4) * a ^ 3)
+irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔 / 4) * a ^ 3)
 
 section OneInOneOut
 
@@ -560,7 +560,7 @@ lemma holder_correlation_tile_one
         _ = (𝕔 + 2) * a ^ 3 + 4 * 1 * a := by ring
         _ ≤ (𝕔 + 2) * a ^ 3 + a * a * a := by gcongr <;> linarith [four_le_a X]
         _ = (𝕔 + 3 + 0) * a ^ 3 := by ring
-        _ ≤ (𝕔 + 3 + 𝕔/4) * a ^ 3 := by gcongr; positivity
+        _ ≤ (𝕔 + 3 + 𝕔 / 4) * a ^ 3 := by gcongr; positivity
 
 end OneInOneOut
 
@@ -811,7 +811,7 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
             _ = (𝕔 + 2) * a ^ 3 + 2 * 1 * 2 + 2 * 3 * a := by ring
             _ ≤ (𝕔 + 2) * a ^ 3 + 2 * a * a + 2 * a * a := by gcongr <;> linarith [four_le_a X]
             _ = (𝕔 + 2) * a ^ 3 + 1 * 4 * a ^ 2 := by ring
-            _ ≤ (𝕔 + 2) * a ^ 3 + (𝕔/4) * a * a ^ 2 := by
+            _ ≤ (𝕔 + 2) * a ^ 3 + (𝕔 / 4) * a * a ^ 2 := by
               gcongr
               · have := seven_le_c; omega
               · exact four_le_a X
@@ -1462,7 +1462,7 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
 
 /-- The constant used in `global_tree_control2`.
 Has value `2 ^ (129 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4 + 𝕔/4) * a ^ 3)
+irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3)
 
 lemma le_C7_5_10 (ha : 4 ≤ a) : C7_5_7 a + C7_5_9s a ≤ C7_5_10 a := by
   simp only [C7_5_7, C7_5_9s, C7_5_5, ← pow_add, C7_5_10]
@@ -1670,14 +1670,14 @@ lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     _ = _ := by rw [← mul_add, ← mul_add, mul_mul_mul_comm, P7_5_4]
 
 /-- An intermediate constant in Lemma 7.5.4. -/
-def I7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 9 + 3 * (𝕔/4)) * a ^ 3 + 12 * a)
+def I7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 9 + 3 * (𝕔 / 4)) * a ^ 3 + 12 * a)
 
 lemma le_I7_5_4 (ha : 4 ≤ a) :
     32 * C7_5_2 a * C7_5_9s a * C7_5_10 a + C7_5_9d a * C7_5_10 a + C7_5_9s a * C7_5_9d a
     ≤ I7_5_4 a := by
   have C : (32 : ℝ≥0) = 2 ^ 5 := by norm_num
   simp only [C7_5_2, C7_5_9s, C7_5_10, C7_5_9d, C7_5_5, C, ← pow_add, I7_5_4]
-  apply add_le_pow_two₃ (s := 11 * a + (4 * 𝕔 + 9 + 3 * (𝕔/4)) * a ^ 3) ?_ ?_ ?_ ?_
+  apply add_le_pow_two₃ (s := 11 * a + (4 * 𝕔 + 9 + 3 * (𝕔 / 4)) * a ^ 3) ?_ ?_ ?_ ?_
   · ring_nf
     linarith
   · ring_nf
@@ -1745,7 +1745,7 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 
 /-- The constant used in `holder_correlation_tree`.
 Has value `2 ^ (485 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 10 + 3 * (𝕔/4)) * a ^ 3)
+irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 10 + 3 * (𝕔 / 4)) * a ^ 3)
 
 lemma le_C7_5_4 (ha : 4 ≤ a) :
     C7_5_9s a * C7_5_10 a + 16 ^ τ * I7_5_4 a ≤ C7_5_4 a := by

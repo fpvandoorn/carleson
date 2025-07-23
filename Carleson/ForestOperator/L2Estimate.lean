@@ -145,8 +145,8 @@ lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedC
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
-/-- The constant used in `nontangential_operator_bound`, equal to `2 ^ (102 * a ^ 3)` in the
-blueprint. -/
+/-- The constant used in `nontangential_operator_bound`.
+Has value `2 ^ (102 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3)
 
 -- Bound for (7.2.3) in the proof of `nontangential_pointwise_bound`

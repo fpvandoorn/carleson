@@ -27,7 +27,7 @@ lemma le_C2_0_2 (ha : 4 ≤ a) {q : ℝ≥0} (hq : q ∈ Ioc 1 2) :
   simp only [← add_div, ge_iff_le]
   gcongr
   apply (add_le_pow_two_add_cube ha le_rfl ?_).trans_eq (by ring)
-  have : 𝕔/8 ≤ 𝕔/4 := by omega
+  have : 𝕔 / 8 ≤ 𝕔 / 4 := by omega
   grw [this]
   ring_nf
   omega

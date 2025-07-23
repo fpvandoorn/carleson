@@ -38,7 +38,7 @@ lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
       _ ≤ _ := by simp_rw [← pow_add]; exact pow_le_pow_right' one_le_two (by linarith)
 
 lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
-    C7_4_6 a n ≤ 2 ^ ((2 * 𝕔 + 9 + 𝕔/4) * a ^ 3) * 2 ^ (-(4 * n : ℝ)) := by
+    C7_4_6 a n ≤ 2 ^ ((2 * 𝕔 + 9 + 𝕔 / 4) * a ^ 3) * 2 ^ (-(4 * n : ℝ)) := by
   simp_rw [C7_4_6, C7_2_1, C7_6_2, C2_1_3, ← mul_assoc]
   conv_lhs => enter [1, 1, 1, 2]; norm_cast
   conv_lhs => enter [1, 1, 2, 2]; norm_cast
@@ -394,7 +394,7 @@ lemma le_C7_7_2_1 (a4 : 4 ≤ a) :
 /-- The constant used in `indicator_row_bound`.
 Has value `2 ^ (283 * a ^ 3 - n / 2)` in the blueprint. -/
 irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 :=
-  2 ^ ((2 * 𝕔 + 8 + 𝕔/2 + 𝕔/4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
+  2 ^ ((2 * 𝕔 + 8 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3) * 2 ^ (- (n / 2 : ℝ))
 
 lemma le_C7_7_2_2 (a4 : 4 ≤ a) :
     C7_3_1_2 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ ≤ C7_7_2_2 a n := by
@@ -923,7 +923,7 @@ lemma adjointCarlesonRowSum_rowSupport :
 
 /-- The constant on the `g` side of Proposition 2.0.4.
 Has value `2 ^ (440 * a ^ 3)` in the blueprint. -/
-def G2_0_4 (a n : ℕ) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 15 + 5 * (𝕔/4)) * a ^ 3) * 2 ^ (-(n / 2 : ℝ))
+def G2_0_4 (a n : ℕ) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 15 + 5 * (𝕔 / 4)) * a ^ 3) * 2 ^ (-(n / 2 : ℝ))
 
 lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2_0_4 a n ^ 2 := by
   simp only [C7_7_2_1, mul_pow, C7_7_3, C7_4_3, C7_4_4, G2_0_4]
@@ -941,7 +941,7 @@ lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2
   apply (add_le_pow_two_add_cube a4 (by omega) le_rfl).trans ?_
   gcongr
   · norm_num
-  have : 𝕔 / 2 ≤ 2 * (𝕔/4) + 1 := by omega
+  have : 𝕔 / 2 ≤ 2 * (𝕔 / 4) + 1 := by omega
   grw [this]
   ring_nf
   omega
@@ -1111,7 +1111,7 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
 
 /-- The constant in the `f` side of Proposition 2.0.4.
 Has value `2 ^ (283 * a ^ 3)` in the blueprint. -/
-def C2_0_4_aux (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 8 + 𝕔/2 + 𝕔/4) * a ^ 3)
+def C2_0_4_aux (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 8 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
 
 open Classical in
 lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
@@ -1248,7 +1248,7 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
       simp only [ENNReal.coe_pow, ENNReal.coe_ofNat]
       gcongr _ * (2 ^ ?_) ^ _
       · norm_num
-      have : 𝕔/2 ≤ 2 * (𝕔/4) + 1 := by omega
+      have : 𝕔 / 2 ≤ 2 * (𝕔 / 4) + 1 := by omega
       grw [this]
       ring_nf
       omega
