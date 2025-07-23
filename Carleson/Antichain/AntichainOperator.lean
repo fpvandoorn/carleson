@@ -34,7 +34,7 @@ lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
     _ = ‖∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄,
           ∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
       congr 1
-      rw [integral_finset_sum ]
+      rw [integral_finset_sum]
       · congr! with p mp
         exact integral_finset_sum _ fun p' mp' ↦
           (bg.adjointCarleson.mul bg.adjointCarleson.conj).integrable

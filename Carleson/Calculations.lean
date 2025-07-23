@@ -135,25 +135,18 @@ lemma calculation_5 {dist_1 dist_2 : ℝ}
     (h : dist_1 ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_2) :
     2 ^ ((-𝕔 : ℝ) * a) * dist_1 ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * dist_2 := by
   apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (𝕔 * (a : ℝ)) by positivity)).mp
-  rw [
-    ← mul_assoc,
-    neg_mul,
+  rw [← mul_assoc, neg_mul,
     Real.rpow_neg (by positivity),
     mul_inv_cancel₀ (a := (2 : ℝ) ^ (𝕔 * (a : ℝ))) (by positivity),
-    ← mul_assoc,
-    ← Real.rpow_add (by positivity)
-  ]
+    ← mul_assoc, ← Real.rpow_add (by positivity)]
   ring_nf
   rw [Real.rpow_mul (x := (2 : ℝ)) (hx:=by positivity) (y := a) (z := 6)]
   exact_mod_cast h
 
 lemma calculation_6 (a : ℕ) (s : ℤ) :
     (D : ℝ) ^ (s + 3) = (D : ℝ) ^ (s + 2) * (D : ℝ) := by
-  rw [
-    zpow_add₀ (by linarith [defaultD_pos a]) s 3,
-    zpow_add₀ (by linarith [defaultD_pos a]) s 2,
-    mul_assoc
-  ]
+  rw [zpow_add₀ (by linarith [defaultD_pos a]) s 3,
+    zpow_add₀ (by linarith [defaultD_pos a]) s 2, mul_assoc]
   congr
 
 lemma calculation_7 (a : ℕ) (s : ℤ) :
