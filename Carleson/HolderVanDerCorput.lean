@@ -275,10 +275,10 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
     {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R)
     (hC : ∀ x, ‖ϕ x‖ ≤ C) {x x' : X} (h : dist x x' < R) :
     ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
-    2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / (2 * R) := by
+      2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / (2 * R) := by
   have M : (2⁻¹ * volume.real (ball x (2⁻¹ * t * R))) *
-      ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
-      2 * C * ∫ y, |cutoff R t x y - cutoff R t x' y| :=
+        ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
+        2 * C * ∫ y, |cutoff R t x y - cutoff R t x' y| :=
     calc
       (2⁻¹ * volume.real (ball x (2⁻¹ * t * R))) * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖
     _ ≤ (∫ y, cutoff R t x y) * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ := by
@@ -434,7 +434,7 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (
 lemma iLipENorm_holderApprox' {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
     {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R) (hC : ∀ x, ‖ϕ x‖ ≤ C) :
     iLipENorm (holderApprox R t ϕ) z (2 * R) ≤
-    2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * C := by
+      2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * C := by
   let C' : ℝ≥0 := 2 ^ (4 * a) * (t.toNNReal) ^ (-1 - a : ℝ) * C
   have : 2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * C = C' := by
     simp only [ENNReal.coe_mul, ENNReal.coe_pow, ENNReal.coe_ofNat, C', ENNReal.ofReal]
@@ -471,7 +471,7 @@ lemma iLipENorm_holderApprox' {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
 lemma iLipENorm_holderApprox_le {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
     {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) :
     iLipENorm (holderApprox R t ϕ) z (2 * R) ≤
-    2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z (2 * R) := by
+      2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z (2 * R) := by
   rcases eq_or_ne (iHolENorm ϕ z (2 * R)) ∞ with h'ϕ | h'ϕ
   · apply le_top.trans_eq
     rw [eq_comm]
