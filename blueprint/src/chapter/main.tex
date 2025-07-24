@@ -223,7 +223,7 @@ Our concept of a compatible collection $\Mf$ as a natural class of phase functio
 For the proof of \Cref{metric-space-Carleson}, we largely follow \cite{zk-polynomial}, which in turn was inspired by \cite{lie-polynomial}. We make suitable modifications to adapt to our more general setting and have made a few technical improvements in the proof. In particular, in \Cref{overviewsection}, we explicitly divide the main work of the proof into mutually independent sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. Some of these sections follow a similar pattern, starting with a subsection dividing the proof into further mutually independent subsections. This modularization of our proof was strongly endorsed in personal communication by the author of \cite{zk-polynomial}.
 
 \noindent \textit{Acknowledgement.}
-L.B., F.v.D., R.S., and C.T. were funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
+L.B., F.v.D., R.S., and C.T. were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
 L.B. , R.S., and C.T. were also supported by SFB 1060.
 A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
 
@@ -761,7 +761,7 @@ We also record the following basic estimates for the kernels $K_s$.
     Using $a\ge 4$ proves \eqref{eq-Ks-size}.
 
     To prove \eqref{eq-Ks-smooth} when $2\rho(y,y') > \rho(x,y)$, use the lower bound in
-    \eqref{supp-Ks}, $2\rho(y,y') > \frac{1}{4}D^{s-1}$. Then \eqref{eq-Ks-smooth} follows from
+    \eqref{supp-Ks} and the inequality $2\rho(y,y') > \frac{1}{4}D^{s-1}$. Then \eqref{eq-Ks-smooth} follows from
     the triangle inequality, \eqref{eq-Ks-size} and $a \ge 4$.
 
     If $2\rho(y,y') \le \rho(x,y)$, we rewrite $|K_s(x,y)-K_s(x, y')|$ as
@@ -792,7 +792,7 @@ We also record the following basic estimates for the kernels $K_s$.
     former case, the inequality is trivial; in the latter case, it follows from the
     fact that $\psi$ is Lipschitz with constant $4D$.
 
-    Combining the above bounds and using $a\ge 4$ proves \eqref{eq-Ks-smooth} in the case
+    Combining the above bounds and using $a\ge 4$ proves \eqref{eq-Ks-smooth} when
     $2\rho(y,y') \le \rho(x,y)$.
 \end{proof}
 
@@ -1020,7 +1020,7 @@ Summing the contributions from \eqref{middles} and \eqref{boundarys} completes t
     T_{\sigma_1(x),\sigma_2(x)} f(x)=T_{2,\sigma_1,\sigma_2} f(x),
     \end{equation*}
     we conclude that the left-hand side of \eqref{Scut} and \eqref{Sqlin} are equal.
-    Thus, \Cref{S-truncation} follows from \Cref{linearized-truncation}.
+    Therefore, \Cref{S-truncation} follows from \Cref{linearized-truncation}.
 \end{proof}
 
 \begin{lemma}[linearized truncation]
@@ -3010,7 +3010,7 @@ We have
     Let $\fu' \sim \fu$ be such that $\fp \in \mathfrak{T}_1(\fu')$.
     By the definition of $\sim$, it follows that $\fu' \sim \fu''$.
     By transitivity of $\sim$, we have $\fu \sim \fu''$.
-    By \Cref{relation-geometry}, we have $\sc(\fu'') = \sc(\fu)$, hence $\ps(\fq) < \ps(\fu)$ and $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
+    By \Cref{relation-geometry}, we have $\ps(\fu'') = \ps(\fu)$, hence $\ps(\fq) < \ps(\fu)$ and $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
 
     Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $\scI(\fp) \subset I$.
     Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \scI(\fu)$.
@@ -3229,7 +3229,7 @@ We now turn to the proof of \Cref{forest-complement}.
      \fL(k,n) \cap \fP_{F,G} \subset \fP_{G \setminus G'} \cap \fP_{F, G} = \emptyset.
      \end{equation*}
 
-    Applying now the triangle inequality according to the decomposition in \Cref{antichain-decomposition}, and then applying \Cref{antichain-operator} to each term, we obtain the estimate
+    Applying now the triangle inequality according to the decomposition coming from \Cref{antichain-decomposition}, and then applying \Cref{antichain-operator} to each term, we obtain the estimate
     \begin{multline*}
         \le \sum_{k \ge 0} \sum_{n \ge k} (n + (2n+4) + 2(2n+4) (1+Z(n+1))) \\
         \times 2^{128a^3}(q-1)^{-1} (2^{4a+1-n})^{\frac{q-1}{8a^4}} (2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2\|\mathbf{1}_{G\setminus G'}\|_2\,.
@@ -3805,7 +3805,7 @@ $\varphi:=\varphi_{x_1,x_2}$ satisfies the assumptions of
 \Cref{Holder-van-der-Corput} with $z = x_1$ and $R = D^{s_1}$ by \Cref{correlation-kernel-bound}.
 We obtain with $B':= B(x_1, D^{\ps(\fp')})$,
 \begin{equation*}
- {\bf I}(x_1, x_2) \le 2^{8a} \mu(B') \|{\varphi}\|_{C^\tau(B')}|g(x_1)g(x_2)|
+ {\bf I}(x_1, x_2) \le 2^{8a} \mu(B') \|{\varphi}\|_{C^\tau(B')}
        (1 + d_{B'}(\tQ(x_1),\tQ(x_2)))^{-1/(2a^2+a^3)}|g(x_1)g(x_2)|
 \end{equation*}
 \begin{equation}
@@ -4174,12 +4174,9 @@ By \Cref{local-antichain-density}, we can thus estimate \eqref{eqanti2} by
     \sum_{\fp\in\mathfrak{A}':\scI(\fp)\neq L'}\mu(E(\fp)\cap G\cap L')
     \le \mu (E_2(2^{N+3},\fp_{\mfa}))\, .
 \end{equation}
-Using the decomposition
-into \eqref{eqanti1} and
-\eqref{eqanti2} and the estimates
-\eqref{equanti1.5},
-\eqref{eqanti-0.5},
-\eqref{pmfadens} we obtain the estimate
+With the decomposition in \eqref{eqanti1} and \eqref{eqanti2} and the
+estimates \eqref{equanti1.5}, \eqref{eqanti-0.5}, \eqref{pmfadens} we obtain
+the estimate
 \begin{equation}\label{eqanti3.14}
 \sum_{\fp\in\mathfrak{A}'}\mu(E(\fp)\cap G \cap L)
     \le (2^{a(N+5)}+2^{Na+3a})\dens_1(\mathfrak{A})\mu(L')\,.
@@ -4388,7 +4385,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
         \label{eq-term-C}
         + \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) (f(y) - P_{\mathcal{J}(\fT(\fu))} f(y)) \, \mathrm{d}\mu(y) \Bigg|\,.
     \end{equation}
-    The proof is completed using the bounds for these three terms proven in \Cref{first-tree-pointwise}, \Cref{second-tree-pointwise} and \Cref{third-tree-pointwise}.
+    The proof is completed using the bounds for these three terms proven respectively in \Cref{first-tree-pointwise}, \Cref{second-tree-pointwise} and \Cref{third-tree-pointwise}.
 \end{proof}
 
 \begin{lemma}[first tree pointwise]
@@ -4749,7 +4746,7 @@ We need the following lemma to prepare the $L^2$-estimate for the auxiliary oper
     $$
         2^{9a}\mu(B(c(J), \frac{1}{4}D^{s(J)})) \ge \mu(B(c(I), 33 D^{s(I)}))\,,
     $$
-    and by the triangle inequality, the ball $B(c(J), \frac{1}{4}D^{s(J)})$ is contained in $B(c(I), 33 D^{s(I)})$.
+    and by the triangle inequality, $B(c(J), \frac{1}{4}D^{s(J)})$ is contained in $B(c(I), 33 D^{s(I)})$.
 
     If $\mathcal{C}$ is any finite collection of cubes $J \in \mathcal{D}$ satisfying $s(J) = s(I)$ and
     \begin{equation*}
@@ -4783,7 +4780,7 @@ Now we can bound the operators $S_{1, \fu}$.
     \label{eq-boundary-operator-bound-1}
         \le \sum_{J\in\mathcal{J}(\fT(\fu))}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y) \sum_{\substack{I \in \mathcal{D} \, : \, J\subset B(c(I),16 D^{s(I)})\\ s(I) \ge s(J)}} D^{(s(J)-s(I))/a}.
     \end{align}
-    By \Cref{boundary-overlap}, there are at most $2^{9a}$ cubes $I$ at each scale with $J \subset B(c(I),16D^{s(I)})$.
+    By \Cref{boundary-overlap}, there are at most $2^{9a}$ cubes $I$ at each scale satisfying the inclusion $J \subset B(c(I),16D^{s(I)})$.
     Since $D^{-1/a}\le\frac12$, $(1 - D^{-1/a})^{-1} \le 2$.
     Using this estimate for the sum of the geometric series, we conclude that \eqref{eq-boundary-operator-bound-1} is at most
     $$
@@ -5091,7 +5088,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
     $$
         T_{\fp}^* g(x) = \mathbf{1}_{B(\pc(\fp), 5D^{\ps(\fp)})}(x) T_{\fp}^* (\mathbf{1}_{\scI(\fp)} g)(x)\,.
     $$
-    The second claimed equation follows now since $\scI(\fp) \subset \scI(\fu)$ and by \eqref{forest6} $B(\pc(\fp), 5D^{\ps(\fp)}) \subset \scI(\fu)$.
+    The second claimed equation follows now since $\scI(\fp) \subset \scI(\fu)$ and by \eqref{forest6} we have $B(\pc(\fp), 5D^{\ps(\fp)}) \subset \scI(\fu)$.
 \end{proof}
 
 \begin{lemma}[adjoint tree estimate]
@@ -5127,7 +5124,7 @@ $$
     \leanok
     \lean{TileStructure.Forest.adjoint_tree_control}
     \uses{adjoint-tree-estimate}
-    We have for all $\fu \in \fU$ and $g$ with $\text{support}(g) \subseteq G$
+    We have for all $\fu \in \fU$ and for all $g$ with $\text{support}(g) \subseteq G$
     $$
         \|S_{2, \fu} g\|_2 \le 2^{203a^3} \|g\|_2\,.
     $$
@@ -6163,7 +6160,10 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     The proof of \eqref{eq-row-bound-1} from \eqref{eq-explicit-tree-bound-1} is the same up to replacing $F$ by $X$.
 \end{proof}
 
-Because all involved operators are linear, \eqref{eq-row-bound-2} is also true for uniformly bounded functions $g$ supported on $G$. This generalization will be needed for \Cref{forest-operator}.
+Because all involved operators are linear, the inequality
+\eqref{eq-row-bound-2} is also true for uniformly bounded functions $g$
+supported on $G$. This generalization will be needed for
+\Cref{forest-operator}.
 
 \begin{lemma}[row correlation]
     \label{row-correlation}
@@ -6202,10 +6202,10 @@ Because all involved operators are linear, \eqref{eq-row-bound-2} is also true f
         \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu'} (\mathbf{1}_{\scI(\fu')}g_2)\|_{L^2(\scI(\fu')\cap\scI(\fu))}^2 \right)^{1/2}\,.
     $$
     We can now estimate the factor involving $g_1$ as follows:
-    $$
+    \begin{multline*}
         \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2
-        = \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \int_{\scI(\fu) \cap \scI(\fu')} |S_{2,\fu} (\mathbf{1}_{\scI(\fu)}(y)g_1(y))|^2 \, \mathrm{d}\mu(y)
-    $$
+        \\ = \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \int_{\scI(\fu) \cap \scI(\fu')} |S_{2,\fu} (\mathbf{1}_{\scI(\fu)}(y)g_1(y))|^2 \, \mathrm{d}\mu(y)
+    \end{multline*}
     By pairwise disjointedness of the sets $\scI(\fu')$ for $\fu' \in \fU_{j'}$, we have
     $$
         \le \sum_{\fu \in \fU_j}\int_{\scI(\fu)} |S_{2,\fu} (\mathbf{1}_{\scI(\fu)}(y)g_1(y))|^2 \, \mathrm{d}\mu(y)
@@ -7099,7 +7099,7 @@ Then for all $x'\in X$ with $\rho(x,x')\le\frac {R}{4}$ we have
 \begin{proof}
 \leanok
 Let $x$ and $x'$ be given with $\rho(x,x')\le\frac {R}{4}$.
-By an application of \Cref{estimate-x-shift}, we estimate
+By \Cref{estimate-x-shift}, we estimate
 the left-hand-side of
 \eqref{eq-cotlar-control} by
 \begin{equation}\label{eqcotlar0}
@@ -7901,8 +7901,8 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     \leanok
     We estimate
     \begin{align}
-        \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\})
-        &\le \frac{8}{\alpha} \int_{X\setminus \Omega} F(x)\,d\mu(x) \\
+        \mu(\{x\in X\setminus\Omega&: F(x)> \alpha/8\})
+        \le \frac{8}{\alpha} \int_{X\setminus \Omega} F(x)\,d\mu(x) \\
         &\le \frac{8}{\alpha} \int_{X\setminus \Omega} 2^{a^3+2a+1} c\alpha \sum_{j} \left(\frac{3r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_{3,j})}{V(x,x_j)}\,d\mu(x) \\
         \label{eq-F-est-1}
         &\le 2^{a^3+2a+4} c \sum_{j} \mu(B_{3,j}) \int_{X\setminus B_{6,j}} \left(\frac{3r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\,d\mu(x)
@@ -8277,7 +8277,6 @@ The following lemma will be proved in \Cref{10projection}.
 \label{spectral-projection-bound}
 \leanok
 \lean{spectral_projection_bound}
-\uses{partial-sum-projection,partial-sum-selfadjoint}
     Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
    \begin{equation}\label{snbound}
    \|S_Nf\|_{L^2[0, 2\pi]} \le \|f\|_{L^2[0, 2\pi]}.
@@ -9038,7 +9037,7 @@ Define
     E := \{x \in [0, 2\pi] \ : \ \sup_{N > 0} |S_N g (x)| > C_\epsilon \delta \} \,.
 \end{equation*}
 Then \eqref{S-Ng-small} clearly holds, and it remains to show that $|E| \le \epsilon$.
-Using \Cref{partial-Fourier-sum-bound}, we obtain
+With \Cref{partial-Fourier-sum-bound}, we obtain
 \begin{equation*}
     E \subset \{x\in [0,2\pi] \ : \ C_\epsilon \delta < \frac{1}{2\pi} (Tg(x) + T\bar{g}(x)) + \pi\delta\} \subset E_1 \cup E_2,
 \end{equation*}
@@ -9066,7 +9065,7 @@ Analogously, we get the same estimate for $|E_2|$. This completes the proof usin
 \begin{proof}[Proof of \Cref{control-approximation-effect}]
 \proves{control-approximation-effect}
 \leanok
-    \Cref{control-approximation-effect} now follows directly from \Cref{partial-Fourier-sums-of-small} with $\delta:=\epsilon'$.
+    \Cref{control-approximation-effect} follows directly from \Cref{partial-Fourier-sums-of-small} with $\delta:=\epsilon'$.
 \end{proof}
 
 
