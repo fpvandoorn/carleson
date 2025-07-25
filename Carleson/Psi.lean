@@ -658,6 +658,7 @@ To prepare for the proof of `norm_Ks_sub_Ks_le₀`, we separate the main inequal
 `norm_Ks_sub_Ks_le₀₀` and `norm_Ks_sub_Ks_le₀₁`.
 -/
 
+/-
 -- Part of the inequality needed for `norm_Ks_sub_Ks_le₀`.
 private lemma norm_Ks_sub_Ks_le₀₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
      (hyy' : 2 * dist y y' ≤ dist x y) : ‖K x y - K x y'‖ * |ψ (D ^ (-s) * dist x y')| ≤
@@ -829,14 +830,35 @@ lemma norm_Ks_sub_Ks_le (s : ℤ) (x y y' : X) :
   · simp only [ne_eq, not_or, Decidable.not_not] at h
     rw [h.1, h.2, sub_zero, norm_zero]
     positivity
+    -/
+
+lemma enorm_Ks_sub_Ks_le_of_nonzero {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
+    ‖Ks s x y - Ks s x y'‖ₑ ≤
+      D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
+  by_cases h : 2 * dist y y' ≤ dist x y
+  · sorry --exact norm_Ks_sub_Ks_le₀ hK h
+  · sorry --exact norm_Ks_sub_Ks_le₁ hK h
 
 -- 2.1.3 (enorm version)
 lemma enorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
     ‖Ks s x y - Ks s x y'‖ₑ ≤
+      D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
+  by_cases h : Ks s x y ≠ 0 ∨ Ks s x y' ≠ 0
+  · rcases h with hy | hy'
+    · exact enorm_Ks_sub_Ks_le_of_nonzero hy
+    · rw [← neg_sub, enorm_neg, edist_comm]
+      exact enorm_Ks_sub_Ks_le_of_nonzero hy'
+  · simp only [ne_eq, not_or, Decidable.not_not] at h
+    rw [h.1, h.2, sub_zero, enorm_zero]
+    positivity
+
+-- 2.1.3 (enorm version)
+lemma enorm_Ks_sub_Ks_le' {s : ℤ} {x y y' : X} :
+    ‖Ks s x y - Ks s x y'‖ₑ ≤
     D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ :=
   calc
     _ ≤ ‖D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹‖ₑ := by
-      rw [← enorm_norm]; exact Real.enorm_le_enorm (norm_nonneg _) (norm_Ks_sub_Ks_le s x y y')
+      rw [← enorm_norm]; exact Real.enorm_le_enorm (norm_nonneg _) (by sorry) --(norm_Ks_sub_Ks_le s x y y')
     _ = D2_1_3 a / ‖volume.real (ball x (D ^ s))‖ₑ * ‖dist y y' / D ^ s‖ₑ ^ (a : ℝ)⁻¹ := by
       rw [enorm_mul, Real.enorm_rpow_of_nonneg (by positivity) (by positivity)]; congr 1
       rw [div_eq_mul_inv, enorm_mul, enorm_inv]; swap
