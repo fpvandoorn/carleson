@@ -3,7 +3,7 @@ import Carleson.Classical.ControlApproximationEffect
 
 /- This file contains the proof of the classical Carleson theorem from Section 11.1. -/
 
-open MeasureTheory Real
+open MeasureTheory Real Filter Topology
 
 noncomputable section
 
@@ -194,9 +194,11 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
 
 end
 
-/- Carleson's theorem asserting a.e. convergence of the partial Fourier sums for continous functions. -/
-theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
-    ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+/- Carleson's theorem asserting a.e. convergence of the
+partial Fourier sums for continous functions. -/
+theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f)
+    (periodic_f : f.Periodic (2 * π)) :
+    ∀ᵐ x, Tendsto (S_ · f x) atTop (𝓝 (f x)) := by
   -- Reduce to a.e. convergence on [0,2π]
   apply @Function.Periodic.ae_of_ae_restrict _ Real.two_pi_pos 0
   · rw [Function.Periodic]
@@ -205,7 +207,6 @@ theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f
     conv => pattern f _; rw [periodic_f]
   apply ae_restrict_of_ae_eq_of_ae_restrict Ico_ae_eq_Icc.symm
   rw [zero_add]
-
   -- Show a.e. convergence on [0,2π]
   exact carleson_interval cont_f periodic_f
 
