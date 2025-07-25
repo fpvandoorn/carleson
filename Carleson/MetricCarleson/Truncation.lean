@@ -205,9 +205,10 @@ lemma sum_le_four_div_q_sub_one (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q
       rw [hqq', mul_div_assoc]
     _ ≤ _ := by rw [sq]; gcongr; exact hq.2
 
-/-- The constant used in `linearized_truncation` and `S_truncation`. -/
+/-- The constant used in `linearized_truncation` and `S_truncation`.
+Has value `2 ^ (442 * a ^ 3 + 2)` in the blueprint. -/
 def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 :=
-  2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3 + 2) / (q - 1) ^ 6
+  2 ^ ((3 * 𝕔 + 17 + 5 * (𝕔 / 4)) * a ^ 3 + 2) / (q - 1) ^ 6
 
 lemma eq_C3_0_4 : C2_0_1 a q * (2 ^ 2 / (q - 1)) = C3_0_4 a q := by
   rw [C2_0_1, C2_0_2]
@@ -562,8 +563,9 @@ lemma lintegral_globalMaximalFunction_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderCo
 def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
 
-/-- The constant used from `R_truncation` to `metric_carleson`. -/
-def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 19 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
+/-- The constant used from `R_truncation` to `metric_carleson`.
+Has value `2 ^ (443 * a ^ 3)` in the blueprint. -/
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
 
 lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   rw [C1_0_2]

@@ -393,10 +393,13 @@ lemma dist_mem_Icc_of_mem_tsupport_Ks' {s : ℤ} {x y : X} (h : y ∈ tsupport f
       ((isClosed_Icc.closure_subset_iff).mpr hC)
   exact hC' (mem_image_of_mem (fun y ↦ dist x y) h)
 
-/-- The constant appearing in part 2 of Lemma 2.1.3. -/
+/-- The constant appearing in part 2 of Lemma 2.1.3.
+Equal to `2 ^ (102 * a ^ 3)` in the blueprint. -/
 def C2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3)
-/-- The constant appearing in part 3 of Lemma 2.1.3. -/
-def D2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2 + 𝕔/4) * a ^ 3)
+
+/-- The constant appearing in part 3 of Lemma 2.1.3.
+Equal to `2 ^ (127 * a ^ 3)` in the blueprint. -/
+def D2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3)
 
 -- 1.0.14.
 lemma kernel_bound {s : ℤ} {x y : X} : ‖Ks s x y‖ₑ ≤ C_K a / vol x y := by
@@ -741,12 +744,12 @@ private lemma norm_Ks_sub_Ks_le₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     have a3 : 3 ≤ a := by linarith
     calc
       _ = (𝕔 + 1) * a ^ 3 + 𝕔 * a ^ 2 + 2 * a + 3 := by ring
-      _ ≤ (𝕔 + 1) * a ^ 3 + (4 * (𝕔/4) + 3) * a ^ 2 + 2 * a + a := by gcongr; omega
-      _ = (𝕔 + 1) * a ^ 3 + (𝕔/4) * 4 * a * a + 3 * a ^ 2 + 3 * a := by ring
-      _ ≤ (𝕔 + 1) * a ^ 3 + (𝕔/4) * a * a * a + 3 * a ^ 2 + a * a := by gcongr
-      _ = (𝕔 + 1 + 𝕔/4) * a ^ 3 + 4 * a ^ 2 := by ring
-      _ ≤ (𝕔 + 1 + 𝕔/4) * a ^ 3 + a * a ^ 2 := by gcongr
-      _ = (𝕔 + 2 + 𝕔/4) * a ^ 3 := by ring
+      _ ≤ (𝕔 + 1) * a ^ 3 + (4 * (𝕔 / 4) + 3) * a ^ 2 + 2 * a + a := by gcongr; omega
+      _ = (𝕔 + 1) * a ^ 3 + (𝕔 / 4) * 4 * a * a + 3 * a ^ 2 + 3 * a := by ring
+      _ ≤ (𝕔 + 1) * a ^ 3 + (𝕔 / 4) * a * a * a + 3 * a ^ 2 + a * a := by gcongr
+      _ = (𝕔 + 1 + 𝕔 / 4) * a ^ 3 + 4 * a ^ 2 := by ring
+      _ ≤ (𝕔 + 1 + 𝕔 / 4) * a ^ 3 + a * a ^ 2 := by gcongr
+      _ = (𝕔 + 2 + 𝕔 / 4) * a ^ 3 := by ring
 
 -- Special case of `norm_Ks_sub_Ks_le`
 private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
@@ -799,15 +802,15 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
   · exact one_le_two
   · suffices 𝕔 * a + 2 ≤ (𝕔 / 4) * a ^ 3 by linarith
     have : 4 ≤ 𝕔 := by linarith [seven_le_c]
-    have : 1 ≤ 𝕔/4 := by omega
+    have : 1 ≤ 𝕔 / 4 := by omega
     have := four_le_a X
     calc
     𝕔 * a + 2
-    _ ≤ (4 * (𝕔/4) + 3) * a + 2 := by gcongr; omega
-    _ = 𝕔/4 * 4 * a + 1 * 3 * a + 1 * 1 * 1 * 2 := by ring
-    _ ≤ 𝕔/4 * a * a + 𝕔/4 * a * a + 𝕔/4 * 2 * a * a := by gcongr <;> linarith
-    _ = 𝕔/4 * 4 * a * a := by ring
-    _ ≤ 𝕔/4 * a * a * a := by gcongr
+    _ ≤ (4 * (𝕔 / 4) + 3) * a + 2 := by gcongr; omega
+    _ = 𝕔 / 4 * 4 * a + 1 * 3 * a + 1 * 1 * 1 * 2 := by ring
+    _ ≤ 𝕔 / 4 * a * a + 𝕔 / 4 * a * a + 𝕔 / 4 * 2 * a * a := by gcongr <;> linarith
+    _ = 𝕔 / 4 * 4 * a * a := by ring
+    _ ≤ 𝕔 / 4 * a * a * a := by gcongr
     _ = _ := by ring
 
 lemma norm_Ks_sub_Ks_le_of_nonzero {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :

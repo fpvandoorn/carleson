@@ -30,9 +30,10 @@ lemma add_le_pow_two {R : Type*} [Semiring R] [PartialOrder R] [IsOrderedRing R]
   grw [hp, hq, ← mul_two, ← pow_succ, hr] <;> norm_num
 
 lemma add_le_pow_two₃ {R : Type*} [Semiring R] [PartialOrder R] [IsOrderedRing R]
-    {p q r s t : ℕ} (hp : p ≤ s) (hq : q ≤ s) (hr : r ≤ s) (ht : s + 2 ≤ t) :
+    {p q r s t : ℕ} (hp : p ≤ s) (hq : q ≤ s) (hr : r ≤ s + 1) (ht : s + 2 ≤ t) :
     (2 : R) ^ p + 2 ^ q + 2 ^ r ≤ 2 ^ t := calc
-  (2 : R) ^ p + 2 ^ q + 2 ^ r ≤ 2 ^ (s + 1) + 2 ^ r := by
+  (2 : R) ^ p + 2 ^ q + 2 ^ r
+  _ ≤ 2 ^ (s + 1) + 2 ^ r := by
     gcongr; apply add_le_pow_two hp hq le_rfl
   _ ≤ 2 ^ t := add_le_pow_two le_rfl (by linarith) ht
 

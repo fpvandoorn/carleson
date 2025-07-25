@@ -1001,9 +1001,9 @@ lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :
     _ ≤ a + a * (a * a - 1) := by gcongr
     _ = a ^ 3 := by ring
 
-/-- The constant used in Lemma 5.1.2, with value `2 ^ (471 * a ^ 3) / (q - 1) ^ 4`.
-The best constant naturally given by this step is `C5_1_2_optimized` above. -/
-def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 17 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 4
+/-- The constant used in Lemma 5.1.2.
+Has value `2 ^ (441 * a ^ 3) / (q - 1) ^ 4` in the blueprint. -/
+def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 16 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 4
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by

@@ -807,7 +807,8 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
       rw [Finset.mem_filter_univ, 𝓙₆, mem_inter_iff, mem_Iic] at mp
       rw [indicator_of_mem (mp.2.1 my)]
 
-/-- The constant used in `correlation_near_tree_parts`. -/
+/-- The constant used in `correlation_near_tree_parts`.
+Has value `2 ^ (232 * a ^ 3 - 25/(101a) * Z n κ)` in the blueprint. -/
 irreducible_def C7_4_6 (a n : ℕ) : ℝ≥0 := C7_2_1 a * C7_6_2 a n
 
 /-- Lemma 7.4.6 -/
