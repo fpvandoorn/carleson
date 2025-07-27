@@ -82,13 +82,12 @@ private lemma e625 {s₁ s₂ : ℤ} {x₁ x₂ y y' : X} (hy' : y ≠ y') (hs :
         norm_cast
         ring
       rw [mul_comm, mul_add, h2, mul_comm (volume _)]
-      rw [ENNReal.mul_div_mul_comm (Or.inr measure_ball_ne_top)
-        (Or.inl measure_ball_ne_top), mul_assoc]
+      rw [ENNReal.mul_div_mul_comm (.inr measure_ball_ne_top) (.inl measure_ball_ne_top), mul_assoc]
       apply add_le_add (aux_6_2_3 s₁ s₂ x₁ x₂ y y')
       rw [← neg_sub, enorm_neg]
       convert aux_6_2_3 s₂ s₁ x₂ x₁ y' y using 1
-      simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm (Or.inr measure_ball_ne_top)
-        (Or.inl measure_ball_ne_top)]
+      simp only [← mul_assoc,
+        ← ENNReal.mul_div_mul_comm (.inr measure_ball_ne_top) (.inl measure_ball_ne_top)]
       rw [mul_comm (volume _), edist_comm]
     _ ≤ 2 ^ ((2 * 𝕔 + 4 + 𝕔 / 4) * a ^ 3) / (volume (ball x₁ (D ^ s₁)) *
         volume (ball x₂ (D ^ s₂))) * (2 * (edist y y' ^ τ / (D ^ s₁) ^ τ)) := by
@@ -129,9 +128,8 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
   have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
       (C2_1_3 a) ^ 2 / (volume (ball x₁ (D ^ s₁)) * volume (ball x₂ (D ^ s₂))):= by
     simp only [correlation, enorm_mul, RCLike.enorm_conj, pow_two,
-      ENNReal.mul_div_mul_comm (Or.inr measure_ball_ne_top)
-        (Or.inl measure_ball_ne_top)]
-    exact mul_le_mul enorm_Ks_le enorm_Ks_le (zero_le _) (zero_le _)
+      ENNReal.mul_div_mul_comm (.inr measure_ball_ne_top) (.inl measure_ball_ne_top)]
+    exact mul_le_mul' enorm_Ks_le enorm_Ks_le
   -- Bound 6.2.6 + 6.2.7
   calc
     _ ≤ C2_1_3 a ^ 2 / (volume (ball x₁ (D ^ s₁)) * volume (ball x₂ (D ^ s₂))) +
@@ -333,10 +331,10 @@ lemma I12_le' {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (x1 : E
     fun _ hx ↦ mem_ball_of_correlation_ne_zero hx
   -- For compatibility with holder_van_der_corput
   have heq : 2 ^ ((2 * 𝕔 + 6 + 𝕔 / 4) * a ^ 3 + 8 * a) *
-      ((1 + edist_{x1.1, D ^ 𝔰 p'} (Q x1) (Q x2)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹)) /
+      (1 + edist_{x1.1, D ^ 𝔰 p'} (Q x1) (Q x2)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) /
       volume (ball x2.1 (D ^ 𝔰 p)) =
       (2 ^ ((2 * 𝕔 + 6 + 𝕔 / 4) * a ^ 3 + 8 * a)) / volume (ball x2.1 (D ^ 𝔰 p)) *
-      ((1 + edist_{x1.1, D ^ 𝔰 p'} (Q x1) (Q x2)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹)) := by
+      (1 + edist_{x1.1, D ^ 𝔰 p'} (Q x1) (Q x2)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) := by
     rw [ENNReal.mul_comm_div, mul_comm, mul_comm _ (2 ^ _), mul_div_assoc]
   simp only [I12, enorm_mul]
   gcongr
@@ -356,10 +354,9 @@ lemma I12_le' {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (x1 : E
       C2_0_5 a * (C6_2_1 a / volume (ball x2.1 (D ^ 𝔰 p))) := by
       simp only [mul_assoc]
       congr 1
-      rw [ENNReal.div_eq_inv_mul, ENNReal.mul_inv (Or.inr measure_ball_ne_top)
-        (Or.inl measure_ball_ne_top), ← mul_assoc, ← mul_assoc, ENNReal.mul_inv_cancel
-        (ne_of_gt (measure_ball_pos volume _ hD')) measure_ball_ne_top, one_mul,
-        ENNReal.div_eq_inv_mul]
+      rw [ENNReal.div_eq_inv_mul, ENNReal.mul_inv (.inr measure_ball_ne_top)
+        (.inl measure_ball_ne_top), ← mul_assoc, ← mul_assoc, ENNReal.mul_inv_cancel
+        (measure_ball_pos volume _ hD').ne' measure_ball_ne_top, one_mul, ENNReal.div_eq_inv_mul]
     apply hle.trans
     rw [heq, mul_div]
     apply ENNReal.div_le_div _ le_rfl
@@ -386,19 +383,19 @@ lemma I12_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X �
       ((1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹))) /
     volume (ball x2.1 (D ^ 𝔰 p)) * ‖g x1‖ₑ * ‖g x2‖ₑ := by
   apply (I12_le' hle x1 x2).trans
-  gcongr ?_ * ‖g x1‖ₑ * ‖g x2‖ₑ
+  gcongr ?_ * _ * _
   rw [pow_add 2 _ 1, pow_one, mul_comm _ 2, mul_assoc, mul_comm 2 (_ * _), mul_assoc]
   gcongr
   -- Now we need to use Lemma 6.2.3 to conclude this inequality.
   have h623 := uncertainty (by omega) hle hinter x1.2 x2.2
   rw [C6_2_3, ENNReal.coe_pow, ENNReal.coe_ofNat] at h623
-  have hneg : -(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹ < 0 :=
+  have hneg : -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹ < 0 :=
     neg_neg_iff_pos.mpr (inv_pos.mpr (by norm_cast; nlinarith))
   rw [← ENNReal.rpow_le_rpow_iff_of_neg hneg] at h623
-  have h0 : ((2 : ℝ≥0∞) ^ (8 * a)) ^ (-(2 * ↑a ^ 2 + (a : ℝ) ^ 3)⁻¹) ≠ 0 := by simp
+  have h0 : ((2 : ℝ≥0∞) ^ (8 * a)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) ≠ 0 := by simp
   have h210 : (2 : ℝ≥0∞) ^ (1 : ℝ) ≠ 0 := by rw [ENNReal.rpow_one]; exact two_ne_zero
   rw [ENNReal.mul_rpow_of_ne_top (Ne.symm (not_eq_of_beq_eq_false rfl)) (by simp [edist_dist]),
-    mul_comm, ← ENNReal.le_div_iff_mul_le (Or.inl h0) (Or.inr (by simp [edist_dist]))] at h623
+    mul_comm, ← ENNReal.le_div_iff_mul_le (.inl h0) (.inr (by simp [edist_dist]))] at h623
   apply h623.trans
   rw [ENNReal.div_eq_inv_mul, mul_comm _ 2]
   gcongr
@@ -417,7 +414,7 @@ lemma volume_coeGrid_le {p : 𝔓 X} (x2 : E p) :
   have hsub : (𝓘 p : Set X) ⊆ ball x2 (8 * D ^ 𝔰 p) := by
     refine Grid_subset_ball.trans fun x hx ↦ ?_
     calc
-      _ ≤ dist x (𝔠 p) + dist (𝔠 p) x2 := dist_triangle _ _ _
+      _ ≤ dist x (𝔠 p) + dist (𝔠 p) x2 := dist_triangle ..
       _ < 4 * D ^ 𝔰 p + 4 * D ^ 𝔰 p := add_lt_add hx hdist
       _ = _ := by ring
   apply (measure_mono hsub).trans
@@ -580,9 +577,9 @@ lemma boundedCompactSupport_aux_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
           _ ≤ dist x.1 o - D ^ S / 4 := by gcongr
           _ ≤ dist x.1 o - dist x.2.1 o := by gcongr
           _ ≤ _ := by rw [tsub_le_iff_right]; exact dist_triangle_left _ _ _
-      · exact Or.inr (eq_zero_of_notMem_closedBall hg1 hx2)
-    · exact Or.inl (Or.inr (eq_zero_of_notMem_closedBall hg1 hx))
-    · exact Or.inr (Or.inr (eq_zero_of_notMem_closedBall hg1 hx))
+      · exact .inr (eq_zero_of_notMem_closedBall hg1 hx2)
+    · exact .inl (.inr (eq_zero_of_notMem_closedBall hg1 hx))
+    · exact .inr (.inr (eq_zero_of_notMem_closedBall hg1 hx))
 
 lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
     let f := fun (x, z1, z2) ↦
@@ -688,7 +685,7 @@ lemma correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {
     (hp : ¬(𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p)) :
     ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ = 0 := by
   contrapose! hp; rw [enorm_ne_zero] at hp
-  obtain ⟨y, hy⟩ := MeasureTheory.exists_ne_zero_of_integral_ne_zero hp
+  obtain ⟨y, hy⟩ := exists_ne_zero_of_integral_ne_zero hp
   rw [mul_ne_zero_iff, map_ne_zero] at hy
   refine Grid_subset_ball.trans fun x (mx : x ∈ ball (𝔠 p') (4 * D ^ 𝔰 p')) ↦ ?_
   rw [mem_ball] at mx ⊢
