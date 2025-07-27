@@ -587,8 +587,8 @@ lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
       (Ks (𝔰 p) z2 x * exp (I * (-Q z2 z2 + Q z2 x)) * conj (g z2))
     ∫⁻ x in E p' ×ˢ E p, ‖∫ y, f (y, x)‖ₑ = ∫⁻ z in E p' ×ˢ E p, I12 p p' g z.1 z.2 := by
   congr; ext x
-  /- We move `exp (I * Q x.1 x.1)`, `exp (I * -Q x.2 x.2)` and `g x.1` to the right
-  so that we can take their product with `conj (g x.2))` out of the integral. -/
+  -- We move `exp (I * Q x.1 x.1)`, `exp (I * -Q x.2 x.2)` and `g x.1` to the right
+  -- so that we can take their product with `conj (g x.2)` out of the integral.
   have heq :
       ∫ y, conj (Ks (𝔰 p') x.1 y) * exp (I * (Q x.1 x.1 - Q x.1 y)) * g x.1 *
       (Ks (𝔰 p) x.2 y * exp (I * (-Q x.2 x.2 + Q x.2 y)) * conj (g x.2)) =
