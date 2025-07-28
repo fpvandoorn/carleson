@@ -1,4 +1,5 @@
 import Carleson.TileStructure
+import Carleson.ToMathlib.Topology.Algebra.Support
 
 /-! This should roughly contain the contents of chapter 8. -/
 
@@ -133,16 +134,16 @@ lemma integral_mul_holderApprox {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (ϕ : X �
   apply ne_of_gt
   exact integral_cutoff_pos hR ht
 
--- This surely exists in mathlib; how is it named?
-lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
-  by_contra! h
-  exact hf (by simp [h])
-
 lemma support_holderApprox_subset_aux {z : X} {R R' t : ℝ} (hR : 0 < R)
     {ϕ : X → ℂ} (hϕ : ϕ.support ⊆ ball z R') (ht : t ∈ Ioc (0 : ℝ) 1) :
     support (holderApprox R t ϕ) ⊆ ball z (R + R') := by
   intro x hx
-  choose y hy using foo (left_ne_zero_of_mul hx)
+  have : ∃ z, cutoff R t x z * ϕ z ≠ 0 := by
+    suffices ∫ y, cutoff R t x y * ϕ y ≠ 0 by
+      by_contra! h
+      exact this (by simp only [h, integral_zero])
+    apply left_ne_zero_of_mul hx
+  choose y hy using this
   have : x ∈ ball y (t * R) := by
     apply aux_8_0_4 hR ht.1
     rw [cutoff_comm]
@@ -162,19 +163,6 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     support (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
   convert support_holderApprox_subset_aux hR hϕ ht using 2
   ring
-
-/- unused
-lemma tsupport_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
-    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
-    tsupport (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
-  rcases exists_pos_lt_subset_ball hR (isClosed_tsupport ϕ) hϕ with ⟨R', R'_pos, hR'⟩
-  have A : support (holderApprox R t ϕ) ⊆ ball z (R + R') :=
-    support_holderApprox_subset_aux hR ((subset_tsupport _).trans hR') ht
-  have : tsupport (holderApprox R t ϕ) ⊆ closedBall z (R + R') :=
-    (closure_mono A).trans closure_ball_subset_closedBall
-  apply this.trans (closedBall_subset_ball ?_)
-  linarith [R'_pos.2]
--/
 
 open Filter
 
@@ -289,7 +277,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
     ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
       2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / (2 * R) := by
   have M : (2⁻¹ * volume.real (ball x (2⁻¹ * t * R))) *
-      ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
+        ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
         2 * C * ∫ y, |cutoff R t x y - cutoff R t x' y| :=
     calc
       (2⁻¹ * volume.real (ball x (2⁻¹ * t * R))) * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖
@@ -408,7 +396,7 @@ lemma norm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h'
     {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R)
     (hC : ∀ x, ‖ϕ x‖ ≤ C) {x x' : X} :
     ‖holderApprox R t ϕ x - holderApprox R t ϕ x'‖ ≤
-      2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / (2 * R) := by
+    2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / (2 * R) := by
   rcases lt_or_ge (dist x x') R with hx | hx
   · rw [norm_sub_rev]
     exact norm_holderApprox_sub_le_aux hR ht h't hc hϕ hC hx
@@ -444,8 +432,7 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (
   ring
 
 lemma iLipENorm_holderApprox' {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
-    {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R)
-    (hC : ∀ x, ‖ϕ x‖ ≤ C) :
+    {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R) (hC : ∀ x, ‖ϕ x‖ ≤ C) :
     iLipENorm (holderApprox R t ϕ) z (2 * R) ≤
       2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * C := by
   let C' : ℝ≥0 := 2 ^ (4 * a) * (t.toNNReal) ^ (-1 - a : ℝ) * C
@@ -501,19 +488,6 @@ lemma iLipENorm_holderApprox_le {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
 
 /-- The constant occurring in Proposition 2.0.5. -/
 def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (7 * a)
-
-section DivisionMonoid
-
-variable {α β : Type*} [TopologicalSpace α] [DivisionMonoid β]
-variable {f f' : α → β}
-
-/- PR after HasCompactMulSupport.inv' -/
-
-@[to_additive]
-theorem HasCompactMulSupport.div (hf : HasCompactMulSupport f) (hf' : HasCompactMulSupport f') :
-    HasCompactMulSupport (f / f') := hf.comp₂_left hf' (div_one 1)
-
-end DivisionMonoid
 
 --NOTE (MI) : there was a missing minus sign in the exponent.
 /-- Proposition 2.0.5. -/
