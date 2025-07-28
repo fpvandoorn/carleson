@@ -467,7 +467,7 @@ lemma boundedCompactSupport_star_Ks_mul_g {p' : 𝔓 X} {g : X → ℂ}
     apply isCompact_of_isClosed_isBounded
       ((IsClosed.preimage continuous_fst hK.isClosed).inter (isClosed_tsupport _))
     rw [isBounded_iff]
-    use D ^ (𝔰 p') + C
+    use D ^ 𝔰 p' + C
     intros x hx y hy
     rw [Prod.dist_eq, sup_le_iff]
     constructor
