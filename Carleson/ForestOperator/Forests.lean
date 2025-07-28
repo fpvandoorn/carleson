@@ -384,7 +384,7 @@ lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : Measurab
     _ = eLpNorm (A.indicator (fun x ↦ ∑ u with u ∈ t.rowDecomp j,
         (𝓘 u : Set X).indicator (T u) x)) 2 ^ 2 := by
       unfold adjointCarlesonRowSum; congr! 5 with x u mu
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu
+      rw [Finset.mem_filter_univ] at mu
       rw [adjoint_tile_support2_sum (mem_forest_of_mem mu)]
     _ = eLpNorm (∑ u with u ∈ t.rowDecomp j, AT u) 2 ^ 2 := by
       simp_rw [← Finset.sum_apply, Finset.indicator_sum]; congr! 3 with u mu
@@ -398,19 +398,19 @@ lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : Measurab
       conv_rhs => rw [← add_zero (Finset.sum ..)]
       congr 1; refine Finset.sum_eq_zero fun u mu ↦ Finset.sum_eq_zero fun v mv ↦ ?_
       rw [enorm_eq_zero]; refine integral_eq_zero_of_ae (.of_forall fun x ↦ ?_)
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu mv; obtain ⟨mv, hn⟩ := mv
+      rw [Finset.mem_filter] at mv; obtain ⟨mv, hn⟩ := mv; rw [Finset.mem_filter_univ] at mu mv
       have : (𝓘 u : Set X) ∩ (𝓘 v) = ∅ := (t.rowDecomp_𝔘_pairwiseDisjoint j mu mv hn).inter_eq
       simp_rw [AT, indicator_indicator, conj_indicator, ← inter_indicator_mul]
       rw [inter_inter_inter_comm, this, empty_inter, indicator_empty, Pi.zero_apply]
     _ ≤ ∑ u with u ∈ t.rowDecomp j, eLpNorm (A.indicator (T u)) 2 ^ 2 := by
       gcongr with u mu; exact eLpNorm_indicator_le _
     _ ≤ ∑ u with u ∈ t.rowDecomp j, (C * eLpNorm ((𝓘 u : Set X).indicator g) 2) ^ 2 := by
-      gcongr with u mu; simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu; exact hC u mu
+      gcongr with u mu; rw [Finset.mem_filter_univ] at mu; exact hC u mu
     _ ≤ _ := by
       simp_rw [mul_pow, ← Finset.mul_sum]; gcongr
       apply sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint (fun _ ↦ coeGrid_measurable)
       convert rowDecomp_𝔘_pairwiseDisjoint t j
-      simp_rw [Finset.coe_filter, Finset.mem_univ, true_and]; rfl
+      rw [Finset.coe_filter_univ]; rfl
 
 /-- The constant used in `row_bound`. -/
 irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 :=
@@ -519,7 +519,7 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
         (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f) · ^ 2) x) ^ (2 : ℝ)⁻¹ := by
       congr! with u mu; refine (lintegral_biUnion_finset ?_ (fun _ _ ↦ coeGrid_measurable) _).symm
       convert rowDecomp_𝔘_pairwiseDisjoint t j'
-      simp_rw [U', Finset.coe_filter, Finset.mem_univ, true_and]; rfl
+      simp_rw [U', Finset.coe_filter_univ]; rfl
     _ ≤ (∑ u ∈ U, ∫⁻ x in 𝓘 u,
         adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f) x ^ 2) ^ (2 : ℝ)⁻¹ := by
       simp_rw [← lintegral_indicator coeGrid_measurable]
@@ -541,7 +541,7 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
       gcongr with u mu
       apply sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint fun _ ↦ coeGrid_measurable
       convert rowDecomp_𝔘_pairwiseDisjoint t j
-      simp_rw [U, Finset.coe_filter, Finset.mem_univ, true_and]; rfl
+      simp_rw [U, Finset.coe_filter_univ]; rfl
     _ = _ := by
       rw [← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, show (2 : ℕ) * (2 : ℝ)⁻¹ = 1 by norm_num,
         ENNReal.rpow_one]
@@ -763,12 +763,11 @@ lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.i
           (Finset.range (2 ^ n)).biUnion (fun j ↦ {u | u ∈ rowDecomp t j}) := by
         rw [← Finset.toFinset_coe ({u | u ∈ t} : Finset _),
           ← Finset.toFinset_coe (Finset.biUnion ..), toFinset_inj]
-        simp_rw [Finset.coe_biUnion, Finset.coe_range, mem_Iio, Finset.coe_filter, Finset.mem_univ,
-          true_and]
+        simp_rw [Finset.coe_biUnion, Finset.coe_range, mem_Iio, Finset.coe_filter_univ]
         exact biUnion_rowDecomp.symm
       rw [dc, Finset.sum_biUnion]; swap
       · rw [Finset.coe_range]; intro j mj j' mj' hn
-        simp_rw [← Finset.disjoint_coe, Finset.coe_filter, Finset.mem_univ, true_and]
+        simp_rw [← Finset.disjoint_coe, Finset.coe_filter_univ]
         exact pairwiseDisjoint_rowDecomp mj mj' hn
       rfl
     _ = eLpNorm (∑ j ∈ Finset.range (2 ^ n), TR j ·) 2 ^ 2 := by
@@ -932,12 +931,11 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
           (Finset.range (2 ^ n)).biUnion (fun j ↦ {u | u ∈ rowDecomp t j}) := by
         rw [← Finset.toFinset_coe ({u | u ∈ t} : Finset _),
           ← Finset.toFinset_coe (Finset.biUnion ..), toFinset_inj]
-        simp_rw [Finset.coe_biUnion, Finset.coe_range, mem_Iio, Finset.coe_filter, Finset.mem_univ,
-          true_and]
+        simp_rw [Finset.coe_biUnion, Finset.coe_range, mem_Iio, Finset.coe_filter_univ]
         exact biUnion_rowDecomp.symm
       rw [dc, Finset.sum_biUnion]; swap
       · rw [Finset.coe_range]; intro j mj j' mj' hn
-        simp_rw [← Finset.disjoint_coe, Finset.coe_filter, Finset.mem_univ, true_and]
+        simp_rw [← Finset.disjoint_coe, Finset.coe_filter_univ]
         exact pairwiseDisjoint_rowDecomp mj mj' hn
       rfl
     _ = eLpNorm (fun x ↦ ∑ j ∈ Finset.range (2 ^ n), TR j x) 2 ^ 2 := by
