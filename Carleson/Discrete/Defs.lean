@@ -310,8 +310,8 @@ lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
   replace mx := (zero_le _).trans_lt mx
   rw [Finset.card_pos] at mx
   obtain ⟨p, hp⟩ := mx
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔐, mem_setOf, maximal_iff,
-    aux𝔐, mem_setOf, TilesAt, mem_preimage] at hp
+  simp_rw [Finset.mem_filter_univ, 𝔐, mem_setOf, maximal_iff, aux𝔐, mem_setOf, TilesAt,
+    mem_preimage] at hp
   rw [mem_iUnion₂]; use 𝓘 p, hp.1.1.1, hp.2
 
 lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n := by

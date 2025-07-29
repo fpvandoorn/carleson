@@ -59,19 +59,17 @@ lemma adjoint_tile_support2_sum (hu : u ∈ t) :
   unfold adjointCarlesonSum
   classical
   calc
-    _ = ∑ p ∈ {p | p ∈ t u},
+    _ = ∑ p with p ∈ t u,
         (𝓘 u : Set X).indicator (adjointCarleson p ((𝓘 u : Set X).indicator f)) := by
       ext x; simp only [Finset.sum_apply]; congr! 1 with p mp
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
-      rw [adjoint_tile_support2 hu mp]
+      rw [Finset.mem_filter_univ] at mp; rw [adjoint_tile_support2 hu mp]
     _ = _ := by simp_rw [← Finset.indicator_sum, ← Finset.sum_apply]
 
 /-- A partially applied variant of `adjoint_tile_support2_sum`, used to prove Lemma 7.7.3. -/
 lemma adjoint_tile_support2_sum_partial (hu : u ∈ t) :
     adjointCarlesonSum (t u) f = (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator f)) := by
   unfold adjointCarlesonSum
-  ext x; congr! 1 with p mp
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+  ext x; congr! 1 with p mp; classical rw [Finset.mem_filter_univ] at mp
   rw [← adjoint_eq_adjoint_indicator (E_subset_𝓘.trans (t.smul_four_le hu mp).1.1)]
 
 lemma enorm_adjointCarleson_le {x : X} :
@@ -119,32 +117,11 @@ lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
       gcongr; norm_num
 
 /-- The constant used in `adjoint_tree_estimate`.
-Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (181 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
 
--- unfortunate technicality
-lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
-    (hf : MemLp f 2) : ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
-  rw [show ∫ x, ofReal (normSq (f x)) = ofReal (∫ x, normSq (f x)) by exact integral_ofReal]
-  rw [nnnorm_real]
-  have hnn: 0 ≤ ∫ x, normSq (f x) := by-- todo: adjust `positivity` to handle this
-    refine integral_nonneg ?_
-    refine Pi.le_def.mpr ?_
-    exact fun _ ↦ normSq_nonneg _
-  rw [← enorm_eq_nnnorm, Real.enorm_eq_ofReal hnn]
-  rw [hf.eLpNorm_eq_integral_rpow_norm (NeZero.ne 2) ENNReal.ofNat_ne_top]
-  rw [← ENNReal.rpow_natCast, ENNReal.ofReal_rpow_of_nonneg (by positivity) (by simp)]
-  rw [ENNReal.toReal_ofNat, Nat.cast_ofNat]
-  suffices ∫ x, normSq (f x) = ((∫ x, ‖f x‖ ^ 2) ^ ((2:ℝ)⁻¹)) ^ (2:ℝ) by
-    simp_rw [← Real.rpow_two] at this; rw [this]
-  have h : ∫ x, normSq (f x) = ∫ x, ‖f x‖ ^ 2 := by congr!; exact normSq_eq_norm_sq _
-  rw [← Real.rpow_mul ?_, IsUnit.inv_mul_cancel (by simp), Real.rpow_one]
-  · exact h
-  · rw [← h]; exact hnn
-
 /-- Lemma 7.4.2. -/
-lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
-  (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
+lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : f.support ⊆ G) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
@@ -152,9 +129,8 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
   have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
   have h := density_tree_bound1 hg hf h2f hu
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
-  have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
-      (eLpNorm g 2 volume)^2 := by
-    simp_rw [mul_comm, g, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memLp 2
+  have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖ₑ = eLpNorm g 2 volume ^ 2 := by
+    simp_rw [eLpNorm_two_eq_enorm_integral_mul_conj (hg.memLp 2), mul_comm, g]
   rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
   by_cases hgz : eLpNorm g 2 volume = 0
   · simp [hgz]
@@ -162,43 +138,48 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
     exact (hg.memLp 2).eLpNorm_ne_top
 
 /-- The constant used in `adjoint_tree_control`.
-Has value `2 ^ (203 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 :=
-  C7_4_2 a + CMB (defaultA a) 2 + 1
+Has value `2 ^ (182 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 7 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
 
-lemma C7_4_3_le (ha : 4 ≤ a) : C7_4_3 a ≤ 2 ^ (203 * a ^ 3) := by
+lemma le_C7_4_3 (ha : 4 ≤ a) : C7_4_2 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a := by
   rw [C7_4_3, C7_4_2, C7_3_1_1, CMB_defaultA_two_eq]
   calc
-    _ ≤ (2 : ℝ≥0) ^ (202.5 * (a : ℝ) ^ 3) + 2 ^ ((a : ℝ) + 3 / 2) + 2 ^ ((a : ℝ) + 3 / 2) := by
+    _ ≤ (2 : ℝ≥0) ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
+        + 2 ^ ((a : ℝ) + 3 / 2) + 2 ^ ((a : ℝ) + 3 / 2) := by
       gcongr; exact NNReal.one_le_rpow one_le_two (by linarith)
-    _ = 2 ^ (202.5 * (a : ℝ) ^ 3) + 2 ^ ((a : ℝ) + 5 / 2) := by
+    _ = 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)  + 2 ^ ((a : ℝ) + 5 / 2) := by
       rw [add_assoc, ← two_mul, ← NNReal.rpow_one_add' (by positivity)]; congr 2; ring
-    _ ≤ 2 ^ (202.5 * (a : ℝ) ^ 3) + 2 ^ (202.5 * (a : ℝ) ^ 3) := by
+    _ ≤ 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
+        + 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4 : ℕ) * (a : ℝ) ^ 3) := by
       gcongr
       · exact one_le_two
       · calc
           _ ≤ 2 * (a : ℝ) := by
             rw [two_mul]; gcongr; exact (show (5 : ℝ) / 2 ≤ 4 by norm_num).trans (mod_cast ha)
           _ = 2 * a * 1 * 1 := by ring
-          _ ≤ 202.5 * a * a * a := by
+          _ ≤ (𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4 : ℕ) * a * a * a := by
             gcongr
-            · norm_num
+            · norm_cast
+              have := seven_le_c
+              omega
             · norm_cast; omega
             · norm_cast; omega
           _ = _ := by ring
-    _ ≤ 2 ^ (202.5 * (a : ℝ) ^ 3 + 1) := by rw [← mul_two, ← NNReal.rpow_add_one' (by positivity)]
+    _ ≤ 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4 : ℕ) * (a : ℝ) ^ 3 + 1) := by
+      rw [← NNReal.rpow_natCast]
+      simp only [Nat.cast_mul, Nat.cast_add, Nat.cast_ofNat, Nat.cast_pow]
+      rw [← mul_two, ← NNReal.rpow_add_one' (by positivity)]
     _ ≤ _ := by
       rw [← NNReal.rpow_natCast]; gcongr
       · exact one_le_two
-      · push_cast; rw [show 203 * (a : ℝ) ^ 3 = 202.5 * a ^ 3 + a ^ 3 / 2 by ring]; gcongr
-        rw [one_le_div₀ zero_lt_two]; norm_cast
-        calc
-          _ ≤ a ^ 1 := by linarith
-          _ ≤ _ := Nat.pow_le_pow_right (by positivity) (by norm_num)
+      · norm_cast
+        have : 1 ≤ a ^ 3 := one_le_pow_of_one_le' (by linarith) _
+        grw [this]
+        exact le_of_eq (by ring)
 
 /-- Lemma 7.4.3. -/
 lemma adjoint_tree_control
-    (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
+    (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : f.support ⊆ G) :
     eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤ C7_4_3 a * eLpNorm f 2 volume := by
   have m₁ : AEStronglyMeasurable (‖adjointCarlesonSum (t u) f ·‖ₑ) :=
     hf.aestronglyMeasurable.adjointCarlesonSum.enorm.aestronglyMeasurable
@@ -219,7 +200,10 @@ lemma adjoint_tree_control
     _ ≤ (C7_4_2 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
       simp_rw [add_mul, one_mul]; gcongr; exact dens₁_le_one
     _ ≤ _ := by
-      rw [C7_4_3, ENNReal.coe_add, ENNReal.coe_add, ENNReal.one_rpow, mul_one, ENNReal.coe_one]
+      gcongr
+      simp only [ENNReal.one_rpow, mul_one, defaultA, Nat.cast_pow, Nat.cast_ofNat]
+      norm_cast
+      apply le_C7_4_3 (four_le_a X)
 
 /-- Part 1 of Lemma 7.4.7. -/
 lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)

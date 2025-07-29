@@ -30,6 +30,8 @@ end Real
 
 section ENNReal
 
+open ENNReal
+
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
   if hfin : s.Finite then
     have hfin' : Finite s := hfin
@@ -104,21 +106,17 @@ lemma tsum_geometric_ite_eq_tsum_geometric {k c : ℕ} :
 lemma ENNReal.toReal_zpow (x : ℝ≥0∞) (z : ℤ) : x.toReal ^ z = (x ^ z).toReal := by
   rw [← rpow_intCast, ← toReal_rpow, Real.rpow_intCast]
 
+-- TODO: this helper lemma may be useful in other places to, for instance in `HardyLittlewood.lean`
+lemma iSup_rpow {f : ℕ → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
+    (⨆ n, f n) ^ p = ⨆ n, f n ^ p := by
+  apply le_antisymm
+  · rw [← rpow_le_rpow_iff (z := p⁻¹) (by positivity), rpow_rpow_inv (by positivity)]
+    refine iSup_le fun i ↦ ?_
+    rw [← rpow_le_rpow_iff (z := p) (by positivity), rpow_inv_rpow (by positivity)]
+    apply le_iSup _ i
+  · apply iSup_le; intro i; gcongr; apply le_iSup _ i
+
 end ENNReal
-
-section Indicator
-attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
-
-lemma Set.indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
-    s.indicator f = s.indicator g := by
-  ext x
-  unfold indicator
-  split
-  · rename_i hxs
-    exact h x hxs
-  · rfl
-
-end Indicator
 
 section NNReal
 
@@ -448,9 +446,54 @@ lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
       _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two
       _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)
 
+@[fun_prop]
+lemma Complex.measurable_starRingEnd : Measurable (starRingEnd ℂ) :=
+   Complex.continuous_conj.measurable
+
+namespace ENNReal
+
+lemma rpow_le_rpow_of_nonpos {x y : ℝ≥0∞} {z : ℝ} (hz : z ≤ 0) (h : x ≤ y) :
+    y ^ z ≤ x ^ z := by
+  rw [← neg_neg z, rpow_neg y, rpow_neg x, ← inv_rpow, ← inv_rpow]
+  exact rpow_le_rpow (ENNReal.inv_le_inv.mpr h) (neg_nonneg.mpr hz)
+
+lemma rpow_lt_rpow_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : z < 0) (h : x < y) :
+    y ^ z < x ^ z := by
+  rw [← neg_neg z, ENNReal.rpow_neg y, ENNReal.rpow_neg x, ← ENNReal.inv_rpow, ← ENNReal.inv_rpow]
+  exact ENNReal.rpow_lt_rpow (ENNReal.inv_lt_inv.mpr h) (neg_pos.mpr hz)
+
+lemma rpow_lt_rpow_iff_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : z < 0) :
+    x ^ z < y ^ z ↔ y < x :=
+  ⟨lt_imp_lt_of_le_imp_le (fun h ↦ ENNReal.rpow_le_rpow_of_nonpos (le_of_lt hz) h),
+    fun h ↦ ENNReal.rpow_lt_rpow_of_neg hz h⟩
+
+lemma rpow_le_rpow_iff_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : z < 0) :
+    x ^ z ≤ y ^ z ↔ y ≤ x :=
+  le_iff_le_iff_lt_iff_lt.2 <| ENNReal.rpow_lt_rpow_iff_of_neg hz
+
+theorem rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (hx : 1 ≤ x) (hy : y ≤ 1) :
+    x ^ y ≤ x := by
+  nth_rw 2 [← ENNReal.rpow_one x]
+  exact ENNReal.rpow_le_rpow_of_exponent_le hx hy
+
+end ENNReal
+
 namespace Set
 
+section Indicator
+
 open ComplexConjugate
+
+attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
+
+lemma indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
+    s.indicator f = s.indicator g := by
+  ext x
+  unfold indicator
+  split
+  · rename_i hxs
+    exact h x hxs
+  · rfl
 
 lemma indicator_eq_indicator_one_mul {ι M : Type*} [MulZeroOneClass M]
     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by
@@ -459,6 +502,25 @@ lemma indicator_eq_indicator_one_mul {ι M : Type*} [MulZeroOneClass M]
 lemma conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (s : Set α) (x : α) :
     conj (s.indicator f x) = s.indicator (conj f) x := by
   simp only [indicator]; split_ifs <;> simp
+
+lemma eq_indicator_one_mul_of_norm_le {X : Type*} {F : Set X} {f : X → ℂ}
+    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    f = (F.indicator 1) * f := by
+  ext y
+  simp only [Pi.mul_apply, indicator, Pi.one_apply, ite_mul, one_mul, zero_mul]
+  split_ifs with hy
+  · rfl
+  · specialize hf y
+    simp only [indicator, hy, ↓reduceIte] at hf
+    rw [← norm_eq_zero]
+    exact le_antisymm hf (norm_nonneg _)
+
+lemma indicator_one_le_one {X : Type*} {G : Set X} (x : X) :
+    G.indicator (1 : X → ℝ) x ≤ 1 := by
+  classical
+  exact le_trans (ite_le_sup _ _ _) (by simp)
+
+end Indicator
 
 end Set
 

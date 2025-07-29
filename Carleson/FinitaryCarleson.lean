@@ -42,8 +42,8 @@ private lemma 𝔓_biUnion : @Finset.univ (𝔓 X) _ = (Icc (-S : ℤ) S).toFins
 private lemma sum_eq_zero_of_notMem_Icc {f : X → ℂ} {x : X} (s : ℤ)
     (hs : s ∈ (Icc (-S : ℤ) S).toFinset.filter (fun t ↦ t ∉ Icc (σ₁ x) (σ₂ x))) :
     ∑ i ∈ Finset.univ.filter (fun p ↦ 𝔰 p = s), carlesonOn i f x = 0 := by
-  refine Finset.sum_eq_zero (fun p hp ↦ ?_)
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp
+  refine Finset.sum_eq_zero fun p hp ↦ ?_
+  rw [Finset.mem_filter_univ] at hp
   simp only [mem_Icc, not_and, not_le, toFinset_Icc, Finset.mem_filter, Finset.mem_Icc] at hs
   rw [carlesonOn, Set.indicator_of_notMem]
   simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_setOf_eq, not_and, not_le]
@@ -63,8 +63,8 @@ lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (�
   simpa only [mem_iUnion, exists_prop] using Grid_subset_biUnion s s_mem x_mem_topCube
 
 /-- Lemma 4.0.3 -/
-theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
-    {x : X} (hx : x ∈ G \ G') : ∑ (p : 𝔓 X), carlesonOn p f x =
+theorem tile_sum_operator {G' : Set X} {f : X → ℂ} {x : X} (hx : x ∈ G \ G') :
+    ∑ (p : 𝔓 X), carlesonOn p f x =
     ∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
   classical
   rw [𝔓_biUnion, Finset.sum_biUnion]; swap
@@ -95,12 +95,14 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
 
 end
 
-/-- The constant used in Proposition 2.0.1. -/
+/-- The constant used in Proposition 2.0.1.
+Has value `2 ^ (442 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/
 def C2_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
 
 lemma C2_0_1_pos [TileStructure Q D κ S o] : C2_0_1 a nnq > 0 := C2_0_2_pos
 
 variable (X) in
+/-- Proposition 2.0.1 -/
 theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
     ∫⁻ x in G \ G', ‖∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤

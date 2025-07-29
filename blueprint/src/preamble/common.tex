@@ -10,7 +10,6 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{enumerate}
-\usepackage[hidelinks, colorlinks=false]{hyperref}
 % \usepackage{showlabels} % not compatible with Plastex
 \usepackage[normalem]{ulem}
 
@@ -31,9 +30,12 @@
 \newtheorem{example}[theorem]{Example}
 \newtheorem{examples}[theorem]{Examples}
 \numberwithin{section}{chapter}
-\numberwithin{subsection}{section}
-\numberwithin{subsubsection}{subsection}
+%\numberwithin{subsection}{section}
+%\numberwithin{subsubsection}{subsection}
 \numberwithin{equation}{section}
+
+\usepackage[hidelinks, colorlinks=false, hypertexnames=false]{hyperref}
+
 
 \newcommand{\N}{{\mathbb{N}}}
 \newcommand{\Z}{{\mathbb{Z}}}

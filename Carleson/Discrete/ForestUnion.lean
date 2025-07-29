@@ -52,11 +52,11 @@ lemma ordConnected_C1 : OrdConnected (ℭ₁ k n j : Set (𝔓 X)) := by
   simp_rw [mp''.1.1, true_and, true_implies] at mp''
   constructor
   · refine mp''.1.trans (Finset.card_le_card fun b mb ↦ ?_)
-    simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔅, mem_setOf] at mb ⊢
+    simp_rw [Finset.mem_filter_univ, 𝔅, mem_setOf] at mb ⊢
     have h100 := wiggle_order_11_10 (n := 100) mp'.2 (C5_3_3_le (X := X).trans (by norm_num))
     exact ⟨mb.1, h100.trans mb.2⟩
   · refine (Finset.card_le_card fun b mb ↦ ?_).trans_lt mp.2
-    simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔅, mem_setOf] at mb ⊢
+    simp_rw [Finset.mem_filter_univ, 𝔅, mem_setOf] at mb ⊢
     have h100 := wiggle_order_11_10 (n := 100) mp'.1 (C5_3_3_le (X := X).trans (by norm_num))
     exact ⟨mb.1, h100.trans mb.2⟩
 
@@ -395,9 +395,12 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
     _ ≤ (C2_1_2 a)⁻¹ ^ (Z * (n + 1)) := by
       refine pow_le_pow_left₀ zero_le_two ?_ _
       nth_rw 1 [C2_1_2, ← Real.inv_rpow zero_le_two, ← Real.rpow_neg_one,
-        ← Real.rpow_mul zero_le_two, neg_one_mul, neg_mul, neg_neg, ← Real.rpow_one 2]
+        ← Real.rpow_mul zero_le_two, neg_one_mul, ← Real.rpow_one 2]
       apply Real.rpow_le_rpow_of_exponent_le one_le_two
-      norm_cast; linarith [four_le_a X]
+      simp only [add_mul, neg_mul, neg_add_rev, neg_neg, le_neg_add_iff_add_le]
+      norm_cast
+      have : 7 * a ≤ 𝕔 * a := by gcongr; exact seven_le_c
+      linarith [four_le_a X]
     _ ≤ (C2_1_2 a)⁻¹ ^ d := by
       refine pow_le_pow_right₀ ?_ (by omega)
       simp_rw [one_le_inv_iff₀, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity
@@ -527,7 +530,7 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
   let C' : Finset (Grid X) := C.image 𝓘
   have C'n : C'.Nonempty := by rwa [Finset.image_nonempty]
   obtain ⟨i, mi, li⟩ := C'.exists_minimal C'n
-  simp_rw [C', Finset.mem_image, C, Finset.mem_filter, Finset.mem_univ, true_and] at mi
+  simp_rw [C', Finset.mem_image, C, Finset.mem_filter_univ] at mi
   obtain ⟨u, ⟨mu, mx⟩, uei⟩ := mi; subst uei
   have uA : (𝓘 u : Set X) ⊆ setA (2 * n + 6) k n := fun y my ↦
     calc
@@ -536,10 +539,10 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
       _ ≤ stackSize (𝔘₃ k n j) y := by
         simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id]
         apply Finset.card_le_card fun v mv ↦ ?_
-        simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mv ⊢
+        simp_rw [Finset.filter_filter, Finset.mem_filter_univ] at mv ⊢
         have mvC' : 𝓘 v ∈ C' := by
           simp_rw [C', Finset.mem_image]; use v
-          simp_rw [C, Finset.mem_filter, Finset.mem_univ, true_and, and_true]; exact mv
+          simp_rw [C, Finset.mem_filter_univ, and_true]; exact mv
         specialize li mvC'
         have inc := (or_assoc.mpr (le_or_ge_or_disjoint (i := 𝓘 u) (j := 𝓘 v))).resolve_right
           (not_disjoint_iff.mpr ⟨_, mx, mv.2⟩)
@@ -626,8 +629,8 @@ lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 
       exact disjoint_iff_forall_ne.1 this hp hq
     congr
     ext p
-    simp only [mem_Ico, mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and,
-      Finset.mem_biUnion, Finset.mem_Ico] -- perf: squeezed
+    simp_rw [Finset.mem_biUnion, Finset.mem_filter_univ, mem_Ico, Finset.mem_Ico, mem_iUnion,
+      exists_prop]
   _ ≤ ∑ i ∈ Finset.Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), 1 := by
     gcongr with i hi
     apply stackSize_le_one_of_pairwiseDisjoint
@@ -697,10 +700,10 @@ lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') {
   symm
   apply Finset.sum_subset
   · intro p hp
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
+    rw [Finset.mem_filter_univ] at hp ⊢
     exact ℭ₆_subset_ℭ₅ hp
   · intro p hp h'p
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp h'p
+    rw [Finset.mem_filter_univ] at hp h'p
     have : x ∉ 𝓘 p := by
       simp only [ℭ₆, mem_setOf_eq, not_and, Decidable.not_not] at h'p
       intro h'x
@@ -736,7 +739,7 @@ lemma lintegral_carlesonSum_forest
   classical
   let 𝔉 := forest (X := X) k n j l
   have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ =
-      ∫⁻ x in G \ G', ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ := by
+      ∫⁻ x in G \ G', ‖∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f x‖ₑ := by
     congr with x
     congr
     rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
@@ -748,7 +751,7 @@ lemma lintegral_carlesonSum_forest
       have := forest_disjoint (X := X) (𝔘₄_subset_𝔘₃ ha) (𝔘₄_subset_𝔘₃ hb) hab
       exact disjoint_iff_forall_ne.1 this hx hy
     congr with p
-    simp only [mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and, forest, 𝔉]
+    simp_rw [mem_iUnion, exists_prop, Finset.mem_filter_univ]
     exact Iff.rfl
   rw [this]
   have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G')
@@ -998,9 +1001,9 @@ lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :
     _ ≤ a + a * (a * a - 1) := by gcongr
     _ = a ^ 3 := by ring
 
-/-- The constant used in Lemma 5.1.2, with value `2 ^ (471 * a ^ 3) / (q - 1) ^ 4`.
-The best constant naturally given by this step is `C5_1_2_optimized` above. -/
-def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3) / (q - 1) ^ 4
+/-- The constant used in Lemma 5.1.2.
+Has value `2 ^ (441 * a ^ 3) / (q - 1) ^ 4` in the blueprint. -/
+def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 16 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 4
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by
@@ -1014,7 +1017,7 @@ lemma C5_1_2_optimized_le : C5_1_2_optimized a nnq ≤ C5_1_2 a nnq := by
   apply (C5_1_2_optimized_le' (four_le_a X)).trans_eq
   simp only [C2_0_4_base, C5_1_2]
   rw [← NNReal.rpow_natCast _ (a ^ 3), NNReal.rpow_natCast, ← pow_add, ← add_one_mul]
-  congr
+  ring_nf
 
 /-- Lemma 5.1.2 in the blueprint: the integral of the Carleson sum over the set which can
 naturally be decomposed as a union of forests can be controlled, thanks to the estimate for

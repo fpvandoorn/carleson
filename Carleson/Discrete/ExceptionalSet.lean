@@ -145,9 +145,9 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     _ ≤ 2 ^ (k + 1) * ∑ j ∈ M', volume (G ∩ j) := by
       rw [Finset.mul_sum]; refine Finset.sum_le_sum fun i hi ↦ ?_
       replace hi : i ∈ M := Finset.mem_of_subset (Finset.filter_subset _ M) hi
-      simp_rw [M, Finset.mem_filter, Finset.mem_univ, true_and] at hi
-      rw [← ENNReal.rpow_intCast, show (-(k + 1 : ℕ) : ℤ) = (-(k + 1) : ℝ) by simp,
-        mul_comm, ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
+      rw [Finset.mem_filter_univ, ← ENNReal.rpow_intCast,
+        show (-(k + 1 : ℕ) : ℤ) = (-(k + 1) : ℝ) by simp, mul_comm,
+        ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
         ← ENNReal.rpow_neg, neg_neg] at hi
       exact_mod_cast hi.le
     _ = 2 ^ (k + 1) * volume (⋃ j ∈ M', G ∩ j) := by
@@ -177,15 +177,15 @@ lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Se
   simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at hx ⊢
   obtain ⟨b, memb, minb⟩ := M.exists_min_image 𝔰 (Finset.card_pos.mp (zero_le'.trans_lt hx))
-  simp_rw [M, Finset.mem_filter, Finset.mem_univ, true_and] at memb minb
+  simp_rw [M, Finset.mem_filter_univ] at memb minb
   use 𝓘 b, memb.2; intro c mc; rw [mem_setOf]
   refine hx.trans_le (Finset.card_le_card fun y hy ↦ ?_)
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hy ⊢
+  rw [Finset.mem_filter_univ] at hy ⊢
   exact ⟨hy.1, mem_of_mem_of_subset mc (le_of_mem_of_mem (minb y hy) memb.2 hy.2).1⟩
 
 lemma iUnion_MsetA_eq_setA : ⋃ i ∈ MsetA (X := X) l k n, ↑i = setA (X := X) l k n := by
   ext x
-  simp_rw [mem_iUnion₂, MsetA, Finset.mem_filter, Finset.mem_univ, true_and]
+  simp_rw [mem_iUnion₂, MsetA, Finset.mem_filter_univ]
   constructor <;> intro mx
   · obtain ⟨j, mj, lj⟩ := mx; exact mem_of_mem_of_subset lj mj
   · obtain ⟨j, mj, lj⟩ := dyadic_union mx; use j, lj, mj
@@ -202,8 +202,8 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     at mx
   simp_rw [mem_setOf_eq, and_assoc] at mx
   have mid0 : stackSize { p' ∈ 𝔐 k n | ¬𝓘 p' ≤ L ∧ Disjoint (𝓘 p' : Set X) L} x = 0 := by
-    simp_rw [stackSize, Finset.sum_eq_zero_iff, indicator_apply_eq_zero,
-      show ¬(1 : X → ℕ) x = 0 by simp, imp_false, Finset.mem_filter, Finset.mem_univ, true_and]
+    simp_rw [stackSize, Finset.sum_eq_zero_iff, indicator_apply_eq_zero, Finset.mem_filter_univ,
+      show ¬(1 : X → ℕ) x = 0 by simp, imp_false]
     rintro y ⟨-, -, dj2⟩
     exact disjoint_right.mp dj2 mx₂
   rw [mid0, zero_add] at mx
@@ -385,7 +385,7 @@ section TopTiles
 open scoped Classical in
 /-- The volume of a "layer" in the key function of Lemma 5.2.7. -/
 def layervol (k n : ℕ) (t : ℝ) : ℝ≥0∞ :=
-  volume {x | t ≤ ∑ m ∈ {p | p ∈ 𝔐 (X := X) k n },
+  volume {x | t ≤ ∑ m with m ∈ 𝔐 (X := X) k n,
     (𝓘 m : Set X).indicator (1 : X → ℝ) x}
 
 lemma indicator_sum_eq_natCast {s : Finset (𝔓 X)} :
@@ -434,16 +434,16 @@ lemma lintegral_Ioc_layervol_le {a b : ℕ} : ∫⁻ t in Ioc (a : ℝ) b, layer
     _ = _ := by rw [Finset.sum_const, Nat.card_Ico, nsmul_eq_mul]
 
 open scoped Classical in
-lemma top_tiles_aux : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m : Set X) =
+lemma top_tiles_aux : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) =
     ∫⁻ t in Ioc 0 ((𝔐 (X := X) k n).toFinset.card * 2 ^ (n + 1) : ℝ), layervol (X := X) k n t := by
   set M := 𝔐 (X := X) k n
   set Mc := M.toFinset.card
   calc
-    _ = ∑ m ∈ { p | p ∈ M }, ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
+    _ = ∑ m with m ∈ M, ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
       congr! with m; exact (lintegral_indicator_one coeGrid_measurable).symm
-    _ = ∫⁻ x, ∑ m ∈ { p | p ∈ M }, (𝓘 m : Set X).indicator 1 x :=
+    _ = ∫⁻ x, ∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x :=
       (lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
-    _ = ∫⁻ x, ENNReal.ofReal (∑ m ∈ { p | p ∈ M }, (𝓘 m : Set X).indicator 1 x) := by
+    _ = ∫⁻ x, ENNReal.ofReal (∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x) := by
       congr! 2 with x; rw [ENNReal.ofReal_sum_of_nonneg]
       · congr!; unfold indicator; split_ifs <;> simp
       · exact fun _ _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
@@ -466,7 +466,7 @@ lemma top_tiles_aux : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m 
 
 open scoped Classical in
 /-- Lemma 5.2.7 -/
-lemma top_tiles : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m : Set X) ≤
+lemma top_tiles : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) ≤
     2 ^ (n + k + 3) * volume G := by
   set M := 𝔐 (X := X) k n
   let Mc := M.toFinset.card
@@ -778,12 +778,10 @@ lemma boundary_exception {u : 𝔓 X} :
           exact small_boundary_observation i hi
 
       _ ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by -- choosing the right k and D
-        have coeff_lt :  2 * (12 * D ^ (-Z * (n + 1) - 1 : ℝ)) ^ κ ≤ (D ^ (1 - κ * Z * (n + 1)) : ℝ≥0) := by
+        have coeff_lt : 2 * (12 * D ^ (-Z * (n + 1) - 1 : ℝ)) ^ κ
+            ≤ (D ^ (1 - κ * Z * (n + 1)) : ℝ≥0) := by
           have twelve_le_D : 12 ≤ D := by
-            have : 4 ≤ a := (show ProofData a q K σ₁ σ₂ F G by infer_instance).four_le_a
-            have : 2 ^ (100) ≤ 2^ (100 * a ^2) := (Nat.pow_le_pow_iff_right (by nlinarith)).mpr <| by nlinarith
-            simp only [defaultD, ge_iff_le]
-            nlinarith
+            apply le_trans (by norm_num) (hundred_lt_D X).le
           have two_time_twelve_over_D_to_the_k_le_D : 2 * (12 / D) ^ κ ≤ (D : ℝ≥0) := by
             have two_le_D : 2 ≤ D := by linarith
             have : 2 * (12 / D) ^ κ ≤ (2 : ℝ≥0) := by
@@ -813,12 +811,14 @@ lemma boundary_exception {u : 𝔓 X} :
         apply ENNReal.coe_le_coe.mpr at coeff_lt
         norm_cast
         have : 12 * (D ^ (-Z * (n + 1) - 1: ℤ ) : ℝ≥0) ≠ 0 := by
-          simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultZ, neg_mul, ne_eq, mul_eq_zero, OfNat.ofNat_ne_zero, false_or]
+          simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultZ, neg_mul, ne_eq, mul_eq_zero,
+            OfNat.ofNat_ne_zero, false_or]
           positivity
-        rw [← ENNReal.coe_rpow_of_ne_zero (by exact this)] -- why do I need this with exact_mod_cast?
+        rw [← ENNReal.coe_rpow_of_ne_zero (by exact this)]
         exact_mod_cast mul_le_mul_right' coeff_lt (volume (𝓘 u : Set X))
   · have : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) = 0 := by
-      have h1 : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ ∑' i : 𝓛 (X := X) n u, volume (i : Set X) := measure_biUnion_le _ (𝓛 n u).to_countable _
+      have h1 : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤
+        ∑' i : 𝓛 (X := X) n u, volume (i : Set X) := measure_biUnion_le _ (𝓛 n u).to_countable _
       have h2 : ∑' i : 𝓛 (X := X) n u, volume (i : Set X) = 0 := by
         have : 𝓛 (X := X) n u = ∅ := Set.not_nonempty_iff_eq_empty'.mp <| by
           rw [Set.Nonempty] at h_𝓛_n_u_non_empty
@@ -838,16 +838,16 @@ lemma third_exception_aux :
       measure_biUnion_le _ (𝔘₁ k n j).to_countable _
     _ ≤ ∑' u : 𝔘₁ (X := X) k n j, C5_2_9 X n * volume (𝓘 u.1 : Set X) :=
       ENNReal.tsum_le_tsum fun x ↦ boundary_exception
-    _ = C5_2_9 X n * ∑ u ∈ { p | p ∈ 𝔘₁ (X := X) k n j }, volume (𝓘 u : Set X) := by
+    _ = C5_2_9 X n * ∑ u with u ∈ 𝔘₁ (X := X) k n j, volume (𝓘 u : Set X) := by
       rw [filter_mem_univ_eq_toFinset, ENNReal.tsum_mul_left]; congr
       rw [tsum_fintype]; convert (Finset.sum_subtype _ (fun u ↦ mem_toFinset) _).symm; rfl
     _ ≤ C5_2_9 X n * 2 ^ (9 * a - j : ℤ) *
-        ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m : Set X) := by
+        ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) := by
       rw [mul_assoc]; refine mul_le_mul_left' ?_ _
       simp_rw [← lintegral_indicator_one coeGrid_measurable,
         ← lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
       have c1 : ∀ C : Set (𝔓 X),
-          ∫⁻ x, ∑ u ∈ { p | p ∈ C }, (𝓘 u : Set X).indicator 1 x =
+          ∫⁻ x, ∑ u with u ∈ C, (𝓘 u : Set X).indicator 1 x =
           ∫⁻ x, stackSize C x := fun C ↦ by
         refine lintegral_congr fun _ ↦ ?_; rw [stackSize, Nat.cast_sum]; congr!
         simp_rw [indicator]; split_ifs <;> simp
@@ -943,12 +943,25 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       gcongr
       · exact_mod_cast one_le_D
       · linarith [two_le_κZ (X := X)]
-    _ = 2 ^ (9 * a + 6 - 100 * a ^ 2 : ℤ) * volume G := by
+    _ = 2 ^ (9 * a + 6 - 𝕔 * a ^ 2 : ℤ) * volume G := by
       rw [← mul_rotate, ← mul_assoc, ← pow_succ', defaultD, Nat.cast_pow,
         show ((2 : ℕ) : ℝ≥0∞) = 2 by rfl, ← ENNReal.rpow_natCast, ← ENNReal.rpow_natCast,
         ← ENNReal.rpow_mul, ← ENNReal.rpow_add _ _ (by simp) (by simp), ← ENNReal.rpow_intCast]
       congr 2; norm_num; ring
-    _ ≤ _ := mul_le_mul_right' (ENNReal.zpow_le_of_le one_le_two (by nlinarith [four_le_a X])) _
+    _ ≤ _ := by
+      gcongr
+      · norm_num
+      simp only [Int.reduceNeg, tsub_le_iff_right, le_neg_add_iff_add_le]
+      norm_cast
+      calc
+      4 + (9 * a + 6)
+      _ = 9 * a + 10 := by ring
+      _ ≤ 3 * 4 * a + 4 * 4 := by gcongr <;> norm_num
+      _ ≤ 3 * a * a + a * a := by gcongr <;> linarith [four_le_a X]
+      _ = 4 * a ^ 2 := by ring
+      _ ≤ 𝕔 * a ^ 2 := by
+        gcongr
+        linarith [seven_le_c]
 
 /-- Lemma 5.1.1 -/
 lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (-1 : ℤ) * volume G :=
