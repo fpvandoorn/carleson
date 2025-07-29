@@ -159,16 +159,23 @@ The development of polynomial Carleson operators has led to further generalisati
 
 Surveys to Carleson's theorem can be found in \cite{MR2091007},\cite{MR3334208}.
 
-In this blueprint, we prove Theorem \ref{classical Carleson} as a corollary to a further generalization of the polynomial Carleson operator towards doubling metric measure spaces, Theorem \ref{metric-space-Carleson} below,
+In this blueprint, we prove Theorem \ref{classical Carleson} as a corollary to a further generalization of the polynomial Carleson operator towards doubling metric measure spaces,
+Theorem \ref{metric-space-Carleson} below,
 which is new and appears in the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric}.
 Theorem \ref{metric-space-Carleson} is an axiomatic approach to
 Carleson type theorems on doubling metric measure spaces. This axiomatic approach is suitable for formalization and a good route towards the classical theorem.
 
-Early drafts of the sibling communication
-\cite{becker2024carlesonoperatorsdoublingmetric} existed in summer 2023. The first draft of the present blueprint was
-created in the first half of 2024. In June 2024, the fourth author launched a \href{https://florisvandoorn.com/carleson/}{public website} to post the blueprint and coordinate a formalization of the complete proof in the Lean proof assistant~\cite{moura2021lean}, building on top of its mathematical library \texttt{Mathlib}~\cite{mathlib}. The formalization was completed in July 2025.
-The authors of the present final version of the blueprint, each having contributed substantial amount of text to the blueprint
-and/or formalized a significant number of results during the distributed formalization effort, acknowledge contributions in the form of small formalization additions, pointing out corrections to the blueprint, or supplying ideas to the
+Early drafts of the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric} existed in summer 2023.
+The first draft of the present blueprint was created in the first half of 2024.
+In June 2024, the fourth author launched a \href{https://florisvandoorn.com/carleson/}{public website}
+to post the blueprint and coordinate a formalization of the complete proof in the Lean proof assistant~\cite{moura2021lean},
+building on top of its mathematical library \texttt{Mathlib}~\cite{mathlib}.
+The formalization was performed in
+
+The formalization was completed in July 2025.
+% The authors of the present final version of the blueprint, each having contributed substantial amount of text to the blueprint
+% and/or formalized a significant number of results during the distributed formalization effort.
+We also acknowledge contributions in the form of small formalization additions, pointing out corrections to the blueprint, or supplying ideas to the
 Lean efforts by the following people:
 Michel Alexis,
 Bolton Bailey,
@@ -185,7 +192,7 @@ Dennis Tsar,
 Andrew Yang,
 Ruben van de Velde.
 
-\subsection{Statement of the metric space Carleson theorems}
+\section{Statement of the metric space Carleson theorems}
 
 Let
 \begin{equation}
@@ -201,12 +208,16 @@ equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the d
 \begin{equation}\label{doublingx}
     \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
 \end{equation}
-where we have denoted by $B(x,R)$ the open ball of radius $R$ centred at $x$:
+where we have denoted by $B(x,R)$ the open ball of radius $R$ centered at $x$:
 \begin{equation}\label{eq-define-ball}
  B(x,R):=\{y\in X: \rho(x,y)<R\}. \end{equation}
 In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
-A collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible, if there is a point $o\in X$ where all the functions are equal to $0$, and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$, such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied. For every ball $B \subset X$
+A collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
+if there is a point $o\in X$ where all the functions are equal to $0$,
+and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$,
+such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied.
+For every ball $B \subset X$
 \begin{equation}\label{osccontrol}
     \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb)\,.
 \end{equation}
@@ -271,7 +282,7 @@ We define the generalized Carleson operator $T$ by
 \end{equation}
 where $e(r)=e^{ir}$.
 
-Our main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
+Our first main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
 which by interpolation techniques recovers $L^q$ estimates for the open range $1<q<2$.
 \begin{theorem}[metric space Carleson]
 \label{metric-space-Carleson}
@@ -280,7 +291,8 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
 \lean{metric_carleson}
     For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
-    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$.
+    Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{nontanbound}
         \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
@@ -293,6 +305,11 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
     \end{equation}
 \end{theorem}
 
+In some applications, such as the Walsh-case of Carleson's theorem, the kernel $K$ naturally depends also on the modulation functions $\mfa$.
+The fact that we don't assume H\"older-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
+
+We now state another Theorem with a slightly weaker replacement of the assumption \eqref{nontanbound}.
+It implies the Walsh-case of Carleson's theorem.
 For a Borel function $\tQ:X\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
 \begin{equation}
     R_{\tQ}(\mfa,x)=\sup\{r>0:d_{B(x,r)}(\mfa, \tQ(x))<1\}
