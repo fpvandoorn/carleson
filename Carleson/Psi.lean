@@ -748,98 +748,92 @@ private lemma norm_Ks_sub_Ks_le₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
       _ = (𝕔 + 1 + 𝕔/4) * a ^ 3 + 4 * a ^ 2 := by ring
       _ ≤ (𝕔 + 1 + 𝕔/4) * a ^ 3 + a * a ^ 2 := by gcongr
       _ = (𝕔 + 2 + 𝕔/4) * a ^ 3 := by ring
+-/
 
 -- Special case of `norm_Ks_sub_Ks_le`
-private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
-    (h : ¬ 2 * dist y y' ≤ dist x y) : ‖Ks s x y - Ks s x y'‖ ≤
-    D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
-  have a4n := four_le_a X
-  have a4 : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
-  have := D0' X
-  apply le_trans <| norm_sub_le (Ks s x y) (Ks s x y')
-  apply le_trans <| add_le_add norm_Ks_le norm_Ks_le
-  rw [div_mul_eq_mul_div, div_add_div_same, ← two_mul,
-    div_le_div_iff_of_pos_right (measure_ball_pos_real x (D ^ s) (D_pow0' (D1 X) s)), ← pow_one 2]
-  rw [not_le, ← div_lt_iff₀' two_pos] at h
-  have dist_pos : dist y y' > 0 := lt_of_le_of_lt (div_nonneg dist_nonneg two_pos.le) h
-  have := lt_of_le_of_lt
-    ((div_le_div_iff_of_pos_right two_pos).2 ((mem_Icc.1 <| dist_mem_Icc_of_Ks_ne_zero hK).1)) h
-  rw [div_div, (show (4 : ℝ) * 2 = 8 by norm_num), zpow_sub₀ (D0' X).ne.symm, div_div, zpow_one,
-    div_lt_comm₀ (by positivity) dist_pos] at this
-  have dist_div_Ds_gt := inv_strictAnti₀ (div_pos (Ds0 X s) dist_pos) this
-  rw [inv_div] at dist_div_Ds_gt
-  have key : (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ > (2 : ℝ) ^ (- 𝕔 * a + (-1 : ℤ)) := by
-    have := a0' X
-    have a_inv_pos : (a : ℝ)⁻¹ > 0 := inv_pos.2 (by exact_mod_cast this)
-    refine lt_of_le_of_lt ?_ <| Real.rpow_lt_rpow (by positivity) dist_div_Ds_gt a_inv_pos
-    rw [mul_inv, Real.mul_rpow (inv_nonneg.2 (D0' X).le) (by norm_num), zpow_add₀ two_ne_zero]
-    gcongr
-    · have : -𝕔 * (a : ℤ) ^ 2 * (a : ℝ)⁻¹ = -𝕔 * a := by field_simp; rw [sq, mul_assoc]
-      exact le_of_eq <| calc
-        (2 : ℝ) ^ (-𝕔 * (a : ℤ))
-          = 2 ^ (-𝕔 * (a : ℤ) ^ 2 * (a : ℝ)⁻¹)    := by rw [this]; norm_cast
-        _ = (2 ^ (-𝕔 * a ^ 2 : ℝ)) ^ (a : ℝ)⁻¹    := Real.rpow_mul two_pos.le _ _
-        _ = (2 ^ (𝕔 * a ^ 2 : ℝ))⁻¹ ^ (a : ℝ)⁻¹   := by
-            rw [← Real.rpow_neg two_pos.le]
-            norm_cast
-            simp
-        _ = ((2 ^ (𝕔 * a ^ 2) : ℕ) : ℝ)⁻¹ ^ (a : ℝ)⁻¹ := by norm_cast
-    · have a_inv_le : (a : ℝ)⁻¹ ≤ 3⁻¹ :=
-        (inv_le_inv₀ (a0 X) three_pos).2 (by exact_mod_cast le_trans (Nat.le_succ 3) (four_le_a X))
-      refine le_of_eq_of_le ?_ <|
-        (Real.strictAnti_rpow_of_base_lt_one (by norm_num) (by norm_num)).antitone a_inv_le
-      rw [← Real.rpow_left_inj (by positivity) (by positivity) three_pos.ne.symm]
-      rw [← Real.rpow_mul (by norm_num)]
-      norm_num
-  have hlt : 0 < (D2_1_3 a : ℝ) := by simp [D2_1_3]
-  have : D2_1_3 a * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ ≥
-      D2_1_3 a * (2 : ℝ) ^ (-𝕔 * a + (-1 : ℝ)) := mod_cast ((mul_lt_mul_left hlt).2 key).le
-  refine le_trans ?_ this
-  rw [neg_mul, ← neg_add, Real.rpow_neg zero_le_two, ← div_eq_mul_inv, le_div_iff₀ (by positivity)]
-  unfold C2_1_3 D2_1_3; norm_cast; rw [← pow_add, ← pow_add]; gcongr
-  · exact one_le_two
-  · suffices 𝕔 * a + 2 ≤ (𝕔 / 4) * a ^ 3 by linarith
-    have : 4 ≤ 𝕔 := by linarith [seven_le_c]
-    have : 1 ≤ 𝕔/4 := by omega
-    have := four_le_a X
-    calc
-    𝕔 * a + 2
-    _ ≤ (4 * (𝕔/4) + 3) * a + 2 := by gcongr; omega
-    _ = 𝕔/4 * 4 * a + 1 * 3 * a + 1 * 1 * 1 * 2 := by ring
-    _ ≤ 𝕔/4 * a * a + 𝕔/4 * a * a + 𝕔/4 * 2 * a * a := by gcongr <;> linarith
-    _ = 𝕔/4 * 4 * a * a := by ring
-    _ ≤ 𝕔/4 * a * a * a := by gcongr
-    _ = _ := by ring
+private lemma enorm_Ks_sub_Ks_le₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
+    (h : 2 * edist y y' ≤ edist x y) : ‖Ks s x y - Ks s x y'‖ₑ ≤
+    D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
+  unfold Ks
+  sorry
 
-lemma norm_Ks_sub_Ks_le_of_nonzero {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
-    ‖Ks s x y - Ks s x y'‖ ≤
-    D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
-  by_cases h : 2 * dist y y' ≤ dist x y
-  · exact norm_Ks_sub_Ks_le₀ hK h
-  · exact norm_Ks_sub_Ks_le₁ hK h
-
--- 2.1.3
-lemma norm_Ks_sub_Ks_le (s : ℤ) (x y y' : X) :
-    ‖Ks s x y - Ks s x y'‖ ≤
-    D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
-  by_cases h : Ks s x y ≠ 0 ∨ Ks s x y' ≠ 0
-  · rcases h with hy | hy'
-    · exact norm_Ks_sub_Ks_le_of_nonzero hy
-    · rw [← neg_sub, norm_neg, dist_comm]
-      exact norm_Ks_sub_Ks_le_of_nonzero hy'
-  · simp only [ne_eq, not_or, Decidable.not_not] at h
-    rw [h.1, h.2, sub_zero, norm_zero]
-    positivity
-    -/
+-- First case of `norm_Ks_sub_Ks_le` in blueprint
+private lemma enorm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
+    (h : ¬ 2 * edist y y' ≤ edist x y) : ‖Ks s x y - Ks s x y'‖ₑ ≤
+      D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
+  -- triangle inequality combined with 2.1.3 (`enorm_Ks_le`)
+  apply enorm_sub_le.trans <| add_le_add enorm_Ks_le enorm_Ks_le |>.trans _
+  rw [← ENNReal.mul_div_right_comm,
+    ENNReal.div_add_div_same, ← two_mul, ← pow_one 2]
+  apply ENNReal.div_le_div_right
+  replace h := ENNReal.div_lt_of_lt_mul' <| not_le.mp h
+  have edist_pos : 0 < edist y y' := zero_le _ |>.trans_lt h
+  have : D ^ (s - 1) / 8 < edist y y' := by --lower bound 2.1.2 combined with `h`
+    apply lt_of_le_of_lt _ h
+    have : (2 : ℝ≥0∞) / 8 = 1 / 4 := by apply ENNReal.div_eq_div_iff .. |>.mpr (by norm_num) <;> simp
+    rw [ENNReal.le_div_iff_mul_le (by simp) (by simp), ENNReal.mul_comm_div, this,
+      ← ENNReal.mul_comm_div, mul_one, edist_dist, ENNReal.le_ofReal_iff_toReal_le ?fin dist_nonneg,
+      ENNReal.toReal_div, ← ENNReal.toReal_zpow]
+    case fin => finiteness_nonterminal; apply ENNReal.zpow_ne_top <;> simp
+    exact_mod_cast (mem_Icc.1 <| dist_mem_Icc_of_Ks_ne_zero hK).1
+  -- apply `this`
+  have : ↑(D2_1_3 a) * (1 / (8 * D) ) ^ (a : ℝ)⁻¹ ≤ ↑(D2_1_3 a) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
+    gcongr 2
+    refine (ENNReal.div_le_iff' (by unfold defaultD; positivity) (by finiteness)).mpr ?_
+    trans 8 * ↑D * (D ^ (s - 1) / 8 / ↑D ^ s)
+    on_goal 2 => gcongr
+    apply le_of_eq
+    rw [ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul, ← ENNReal.zpow_neg (by simp) (by simp)]
+    suffices 1 = (8 * (8 : ℝ≥0∞)⁻¹) * (D ^ (1 : ℤ) * D ^ (-s) * D ^ (s - 1)) by
+      apply this.trans
+      rw [zpow_one]
+      ring
+    rw [ENNReal.mul_inv_cancel (by simp) (by simp), one_mul, mul_assoc,
+      ← ENNReal.zpow_add (by simp) (by simp), ← ENNReal.zpow_add (by simp) (by simp)]
+    ring_nf
+    simp
+  apply le_trans _ this
+  -- constant manipulation
+  rw [one_div, ENNReal.inv_rpow, ← ENNReal.rpow_neg, C2_1_3, D2_1_3, defaultD]
+  push_cast
+  rw [show 8 * (2 : ℝ≥0∞) ^ (𝕔 * a ^ 2) = 2 ^ (𝕔 * a ^ 2 + 3) by ring, ← pow_add,
+    ← ENNReal.rpow_natCast_mul]
+  simp_rw [← ENNReal.rpow_natCast]
+  rw [← ENNReal.rpow_add _ _ (by simp) (by simp)]
+  apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
+  simp only [mul_neg, le_add_neg_iff_add_le]
+  have _ := four_le_a X
+  have _ := seven_le_c
+  rw [← mul_le_mul_iff_of_pos_right (a := (a : ℝ)) (by positivity)]
+  ring_nf
+  rw [mul_assoc, mul_inv_cancel₀ (by positivity), mul_one]
+  norm_cast
+  ring_nf
+  apply le_of_eq_of_le (show _ = 𝕔 * a ^ 4 + a ^ 4 * 2 + (3 + a + 𝕔 * a ^ 2) by ring)
+  gcongr
+  calc _
+    _ ≤ 2 * a ^ 2 * 𝕔 := by
+      nth_rw 1 [mul_comm]
+      rw [mul_assoc, two_mul]
+      gcongr
+      apply le_trans (b := a * 2) (by linarith)
+      gcongr <;> linarith [Nat.le_pow zero_lt_two (a := a)]
+    _ ≤ (2 * a ^ 2) * (2 * a * (𝕔 / 4)) := by
+      gcongr
+      rw [mul_assoc]
+      apply le_trans (b := (4 + 4) * (𝕔 / 4)) (by omega) (by rw [← mul_assoc, two_mul]; gcongr)
+    _ = 4 * a ^ 3 * (𝕔 / 4) := by ring
+    _ ≤ a * a ^ 3 * (𝕔 / 4) := by gcongr
+  linarith
 
 lemma enorm_Ks_sub_Ks_le_of_nonzero {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
     ‖Ks s x y - Ks s x y'‖ₑ ≤
       D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
-  by_cases h : 2 * dist y y' ≤ dist x y
-  · sorry --exact norm_Ks_sub_Ks_le₀ hK h
-  · sorry --exact norm_Ks_sub_Ks_le₁ hK h
+  by_cases h : 2 * edist y y' ≤ edist x y
+  · exact enorm_Ks_sub_Ks_le₀ hK h
+  · exact enorm_Ks_sub_Ks_le₁ hK h
 
--- 2.1.3 (enorm version)
+-- 2.1.3
 lemma enorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
     ‖Ks s x y - Ks s x y'‖ₑ ≤
       D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
@@ -851,29 +845,6 @@ lemma enorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
   · simp only [ne_eq, not_or, Decidable.not_not] at h
     rw [h.1, h.2, sub_zero, enorm_zero]
     positivity
-
--- 2.1.3 (enorm version)
-lemma enorm_Ks_sub_Ks_le' {s : ℤ} {x y y' : X} :
-    ‖Ks s x y - Ks s x y'‖ₑ ≤
-    D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ :=
-  calc
-    _ ≤ ‖D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹‖ₑ := by
-      rw [← enorm_norm]; exact Real.enorm_le_enorm (norm_nonneg _) (by sorry) --(norm_Ks_sub_Ks_le s x y y')
-    _ = D2_1_3 a / ‖volume.real (ball x (D ^ s))‖ₑ * ‖dist y y' / D ^ s‖ₑ ^ (a : ℝ)⁻¹ := by
-      rw [enorm_mul, Real.enorm_rpow_of_nonneg (by positivity) (by positivity)]; congr 1
-      rw [div_eq_mul_inv, enorm_mul, enorm_inv]; swap
-      · rw [Measure.real, ENNReal.toReal_ne_zero]; constructor
-        · exact (measure_ball_pos volume _ (defaultD_pow_pos a s)).ne'
-        · finiteness
-      rw [enorm_eq, ← div_eq_mul_inv]
-    _ = _ := by
-      congr
-      · rw [Real.enorm_eq_ofReal measureReal_nonneg]; exact ENNReal.ofReal_toReal (by finiteness)
-      · rw [div_eq_mul_inv, enorm_mul, enorm_inv (defaultD_pow_pos a s).ne',
-          Real.enorm_eq_ofReal dist_nonneg, edist_dist, ← div_eq_mul_inv]; congr 1
-        rw [Real.enorm_eq_ofReal_abs, ← Real.norm_eq_abs, norm_zpow, ← Real.rpow_intCast,
-          ← ENNReal.ofReal_rpow_of_pos (by simp), ENNReal.rpow_intCast, ofReal_norm,
-          Real.enorm_natCast]
 
 lemma stronglyMeasurable_Ks {s : ℤ} : StronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) := by
   unfold Ks _root_.ψ
