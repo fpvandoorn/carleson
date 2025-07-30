@@ -1,10 +1,10 @@
 # Formalization of a generalized Carleson's theorem
-A formalized proof of a generalized Carleson's theorem in Lean.
+A formalized proof of a generalized Carleson's theorem in the [Lean interactive theorem prover](https://lean-lang.org/).
 
 ## What is Carleson's theorem?
 
-Carleson's theorem is a statement about Fourier analysis: given a continuous periodic function $f\colon ℝ → ℝ$, its Fourier converges to $f$ point-wise at almost every point.
-More precisely, let $f\colon\mathbb{R} → \mathbb{C}$ be a $2\pi$-periodic bounded Borel measurable function.
+Carleson's theorem is a statement about Fourier analysis: given a continuous periodic function $f\colon ℝ\to ℝ$, its Fourier converges to $f$ point-wise at almost every point.
+More precisely, let $f\colon\mathbb{R}\to \mathbb{C}$ be a $2\pi$-periodic bounded Borel measurable function.
 For each integer $n\in\mathbb{Z}$, define the $n$-th Fourier coefficient as
 \[ \widehat{f}_n:=\frac {1}{2\pi} \int_0^{2\pi} f(x) e^{- i nx} dx. \]
 For $N\geq 0$, define the partial Fourier sum as
@@ -12,6 +12,8 @@ For $N\geq 0$, define the partial Fourier sum as
 Then Carleson's theorem states $\lim_{N\to\infty} s_N f(x) = f(x)$ for almost all $x\in\mathbb{R}$.
 
 Despite being simple to state, its proof is very hard. (It is also quite subtle: for instance, asking for point-wise convergence *everywhere* makes this false.)
+The detailed statement can be found [here](https://florisvandoorn.com/carleson/blueprint/sect0001.html#classical-carleson),
+the corresponding Lean statement is here. TODO: link to it after re-organising the main files!
 
 ## How do we prove it?
 
@@ -21,7 +23,7 @@ This boundedness holds in much greater generality: we formalise a new generalisa
 The main technical result we prove is the following.
 To keep this exposition short, we refer to the [introduction](https://florisvandoorn.com/carleson/blueprint/sect0001.html) for the main set-up and notation, and merely note that $T$ is the generalised Carleson operator whose boundedness is instrumental for proving Carleson's theorem.
 
-**Metric space Carleson theorem**
+**Metric space Carleson theorem** ([precise statement](https://florisvandoorn.com/carleson/blueprint/sect0001.html#metric-space-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/Carleson/MetricCarleson/Main.html#metric_carleson))
 For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
 Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
 Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
@@ -33,7 +35,7 @@ Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ w
 The third main result allows proving a generalisation of Carleson's theorem to **Walsh functions.**
 Again, we refer the reader to the [introduction](https://florisvandoorn.com/carleson/blueprint/sect0001.html) for the set-up and notation.
 
-**Linearised metric space Carleson theorem.**
+**Linearised metric space Carleson theorem.** ([precise statement](https://florisvandoorn.com/carleson/blueprint/sect0001.html#linearised-metric-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/Carleson/MetricCarleson/Linearized.html#linearized_metric_carleson))
 For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
 Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a cancellative compatible collection of functions.
 Let $\tQ:X\to \Mf$ be a Borel function with finite range.
@@ -45,7 +47,8 @@ Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ w
 
 ## Verifying the formalisation
 
-This proof has been formalised in the Lean theorem prover. To confirm the correctness and completeness yourself, follow these steps.
+This proof has been formalised in the Lean theorem prover.
+To confirm the correctness and completeness yourself, follow these steps.
 1. Make sure you have [installed Lean](https://leanprover-community.github.io/get_started.html).
 2. Download the repository using `git clone https://github.com/fpvandoorn/carleson.git`.
 3. Open the directory where you downloaded the repository (but not any further sub-directory). Open a terminal in this directory and run `lake exe cache get!` to download built dependencies. (This step is not required, but speeds up the build process in the next steps.)
