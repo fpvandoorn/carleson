@@ -1,5 +1,5 @@
 # Formalization of a generalized Carleson's theorem
-A (WIP) formalized proof of a generalized Carleson's theorem in Lean.
+A formalized proof of a generalized Carleson's theorem in Lean.
 
 * [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/442935-Carleson) for coordination
 * [Webpage](https://florisvandoorn.com/carleson/)
@@ -8,9 +8,60 @@ A (WIP) formalized proof of a generalized Carleson's theorem in Lean.
 * [Dependency graph](https://florisvandoorn.com/carleson/blueprint/dep_graph_document.html)
 * [Doc pages for this repository](https://florisvandoorn.com/carleson/docs/)
 
-## Carleson's theorem
+## What is Carleson's theorem?
 
-The classical statement of [Carleson's theorem](https://en.wikipedia.org/wiki/Carleson%27s_theorem) is easy. One phrasing is that if you have a continuous periodic function `f : ℝ → ℝ` then the Fourier series of `f` converges pointwise to `f` almost everywhere. However, the proof is very hard! In this project we will prove this theorem, from a much more general theorem, which was recently proved by Christoph Thiele and his group (it has not been published yet at the moment). This generalization proves the boundedness of a generalized Carleson operator on [doubling metric measure spaces](https://florisvandoorn.com/carleson/docs/Carleson/ToMathlib/DoublingMeasure.html#MeasureTheory.DoublingMeasure).
+Carleson's theorem is a statement about Fourier analysis: given a continuous periodic function $f\colon ℝ → ℝ$, its Fourier converges to $f$ point-wise at almost every point.
+More precisely, let $f\colon\mathbb{R} → \mathbb{C}$ be a $2\pi$-periodic bounded Borel measurable function.
+For each integer $n\in\mathbb{Z}$, define the $n$-th Fourier coefficient as
+\[ \widehat{f}_n:=\frac {1}{2\pi} \int_0^{2\pi} f(x) e^{- i nx} dx. \]
+For $N\geq 0$, define the partial Fourier sum as
+\[ s_Nf(x):=\sum_{n=-N}^N \widehat{f}_n e^{i nx}. \]
+Then Carleson's theorem states $\lim_{N\to\infty} s_N f(x) = f(x)$ for almost all $x\in\mathbb{R}$.
+
+Despite being simple to state, its proof is very hard. (It is also quite subtle: for instance, asking for point-wise convergence *everywhere* makes this false.)
+
+## How do we prove it?
+
+In this project, we deduce this statement from the boundedness of a certain linear operator, the so-called *Carleson operator*.
+This boundedness holds in much greater generality: we formalise a new generalisation (due to Christoph Thiele and his group) to [doubling metric measure spaces](https://florisvandoorn.com/carleson/docs/Carleson/ToMathlib/DoublingMeasure.html#MeasureTheory.DoublingMeasure).
+
+The main technical result we prove is the following.
+To keep this exposition short, we refer to the [introduction](https://florisvandoorn.com/carleson/blueprint/sect0001.html) for the main set-up and notation, and merely note that $T$ is the generalised Carleson operator whose boundedness is instrumental for proving Carleson's theorem.
+
+**Metric space Carleson theorem**
+For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
+Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
+Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+\[ \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,, \]
+where $T_{*}$ is defined in \eqref{def-tang-unm-op}.
+Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
+\[ \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, . \]
+
+The third main result allows proving a generalisation of Carleson's theorem to **Walsh functions.**
+Again, we refer the reader to the [introduction](https://florisvandoorn.com/carleson/blueprint/sect0001.html) for the set-up and notation.
+
+**Linearised metric space Carleson theorem.**
+For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
+Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a cancellative compatible collection of functions.
+Let $\tQ:X\to \Mf$ be a Borel function with finite range.
+Let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+\[ \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,, \]
+where $T_{\tQ}^\mfa$ is defined in \eqref{def-lin-star-op}.
+Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
+\[ \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \le \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, . \]
+
+## Verifying the formalisation
+
+This proof has been formalised in the Lean theorem prover. To confirm the correctness and completeness yourself, follow these steps.
+1. Make sure you have [installed Lean](https://leanprover-community.github.io/get_started.html).
+2. Download the repository using `git clone https://github.com/fpvandoorn/carleson.git`.
+3. Open the directory where you downloaded the repository (but not any further sub-directory). Open a terminal in this directory and run `lake exe cache get!` to download built dependencies. (This step is not required, but speeds up the build process in the next steps.)
+4. Determine which Lean statement you want to verify: the Lean statements of the main theorems above are `classical_carleson`, `metric_carleson` and `linearized_metric_carleson`, respectively.
+metric_carleson. Open the file `Carleson/Carleson.lean` in a text editor of your choice. Add the end of the file, add a line `#print axioms linearized_metric_carleson` (or similar). This will tell Lean to verify that the proof of this result was completed correctly.
+5. In the terminal from step 3, run `lake build` to build all files in this repository. This may take a few minutes.
+When the process is complete, at the very end of the output, you will see a line `'linearized_metric_carleson' depends on axioms: [propext, Classical.choice, Quot.sound]` (followed by `Build completed successfully`).
+This shows the proof is complete and correct. Had the build failed or the output included `sorryAx`, this would have indicated an error resp. an incomplete proof.
+(For the experts: this shows which axioms Lean used in the course of the proof. `propext` and `Quot.sound` are built into Lean's type theory, `Classical.choice` tells you that Lean's version of the axiom of choice was used.)
 
 ## Contribute
 
