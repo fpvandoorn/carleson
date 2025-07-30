@@ -10,7 +10,7 @@ variable {𝕜 : Type*} [_root_.RCLike 𝕜]
 
 variable (X) in
 /-- A grid structure on `X`.
-I expect we prefer `coeGrid : Grid → Set X` over `Grid : Set (Set X)`
+We prefer `coeGrid : Grid → Set X` over `Grid : Set (Set X)`
 Note: the `s` in this paper is `-s` of Christ's paper.
 -/
 class GridStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
@@ -63,12 +63,6 @@ instance : Fintype (Grid X) := GridStructure.fintype_Grid
 instance : Coe (Grid X) (Set X) := ⟨GridStructure.coeGrid⟩
 instance : Membership X (Grid X) := ⟨fun i x ↦ x ∈ (i : Set X)⟩
 instance : PartialOrder (Grid X) := PartialOrder.lift _ GridStructure.inj
-/- These should probably not/only rarely be used. I comment them out for now,
-so that we don't accidentally use it. We can put it back if useful after all. -/
--- instance : HasSubset (Grid X) := ⟨fun i j ↦ (i : Set X) ⊆ (j : Set X)⟩
--- instance : HasSSubset (Grid X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
--- @[simp] lemma Grid.subset_def : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
--- @[simp] lemma Grid.ssubset_def : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
 /- not sure whether these should be simp lemmas, but that might be required if we want to
   conveniently rewrite/simp with Set-lemmas -/
@@ -137,12 +131,6 @@ lemma volume_coeGrid_pos (hD : 0 < D) : 0 < volume (i : Set X) := by
 @[aesop (rule_sets := [finiteness]) safe apply]
 lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
   measure_lt_top_of_subset Grid_subset_ball measure_ball_ne_top
-
-/- lemma volumeNNReal_coeGrid_pos (hD : 0 < D) : 0 < volume.nnreal (i : Set X) := by
-  rw [lt_iff_le_and_ne]
-  refine ⟨zero_le _, ?_⟩
-  rw [ne_eq, eq_comm, measureNNReal_eq_zero_iff]
-  exact ne_of_gt (volume_coeGrid_pos hD) -/
 
 namespace Grid
 

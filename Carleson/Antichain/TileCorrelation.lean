@@ -43,7 +43,8 @@ lemma mem_ball_of_correlation_ne_zero {s₁ s₂ : ℤ} {x₁ x₂ y : X}
   rw [mem_ball, dist_comm]
   exact (dist_mem_Icc_of_Ks_ne_zero hKs).2.trans_lt (half_lt_self_iff.mpr (defaultD_pow_pos a s₁))
 
-/-- The constant from Lemma 6.2.1. -/
+/-- The constant from lemma 6.2.1.
+Has value `2 ^ (231 * a ^ 3)` in the blueprint. -/
 def C6_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 6 + 𝕔 / 4) * a ^ 3)
 
 private lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X) :
@@ -294,7 +295,8 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
 
 section lemma_6_1_5
 
-/-- The constant from Lemma 6.1.5. -/
+/-- The constant from lemma 6.1.5.
+Has value `2 ^ (232 * a ^ 3)` in the blueprint. -/
 def C6_1_5 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 7 + 𝕔 / 4) * a ^ 3)
 
 lemma C6_1_5_bound (ha : 4 ≤ a) :

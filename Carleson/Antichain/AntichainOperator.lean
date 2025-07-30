@@ -231,7 +231,8 @@ lemma M14_bound (hg : MemLp g 2 volume) :
   rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← ENNReal.coe_pow, ENNReal.coe_le_coe]
   exact C2_0_6_q₆_le a4
 
-/-- Constant appearing in Lemma 6.1.4. -/
+/-- Constant appearing in Lemma 6.1.4.
+Has value `2 ^ (117 * a ^ 3)` in the blueprint. -/
 irreducible_def C6_1_4 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 8) * a ^ 3)
 
 lemma le_C6_1_4 (a4 : 4 ≤ a) :
@@ -314,30 +315,30 @@ lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (hf : Measurable f)
       grw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (2 : ℕ) by norm_num),
         ENNReal.rpow_natCast, ENNReal.rpow_natCast, dens1_antichain_sq h𝔄 hg hgG]
 
-/-- The constant appearing in Proposition 2.0.3. -/
-def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 8 + 𝕔 / 8) * a ^ 3) / (q - 1)
+/-- The constant appearing in Proposition 2.0.3.
+Has value `2 ^ (117 * a ^ 3)` in the blueprint. -/
+def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 8) * a ^ 3) / (q - 1)
 
 variable (X) in
 omit [TileStructure Q D κ S o] in
 private lemma ineq_aux_2_0_3 :
     ((2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-      (((2 ^ ((𝕔 + 8) * a ^ 3) : ℝ≥0) : ℝ≥0∞) * (nnq - 1)⁻¹) ^ (2 - q) ≤
-        (2 ^ ((𝕔 + 8 + 𝕔 / 8 : ℕ) * a ^ 3) / (nnq - 1) : ℝ≥0) := by
+    (((2 ^ ((𝕔 + 3) * a ^ 3) : ℝ≥0) : ℝ≥0∞) * (nnq - 1)⁻¹) ^ (2 - q) ≤
+    (2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) / (nnq - 1) : ℝ≥0) := by
   have hq1 : 0 ≤ q - 1 := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).1.le)
   have hq2 : 0 ≤ 2 - q := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2)
   have h21 : (2 : ℝ) - 1 = 1 := by norm_num
   calc
     _ = ((2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ ((𝕔 + 8 + 0) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q) := by
+        (((2 ^ ((𝕔 + 3 + 0) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q) := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ hq2]; ring
-    _ ≤ ((2 ^ ((𝕔 + 8 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ ((𝕔 + 8 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
+    _ ≤ ((2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+        (((2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
       have h11 : (1 + 1 : ℝ≥0) = 2 := by norm_num
       gcongr
       · norm_num
       · norm_num
       · norm_num
-      · simp
       · refine ENNReal.rpow_le_self_of_one_le ?_ (by linarith)
         rw [one_le_coe_iff, one_le_inv₀ (tsub_pos_iff_lt.mpr (nnq_mem_Ioc X).1), tsub_le_iff_right,
           h11]; exact (nnq_mem_Ioc X).2
@@ -369,8 +370,7 @@ theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (hf : Measurab
     simp only [hq2, h21, one_div, sub_self, ENNReal.rpow_zero, mul_one]
     apply (dens1_antichain h𝔄 hf hf1 hg hg1).trans
     gcongr
-    simp only [C2_0_3, hnnq2, h21', div_one, C6_1_4]
-    gcongr <;> norm_num
+    simp only [C6_1_4, C2_0_3, hnnq2, h21', div_one, le_refl]
   · have hq2' : 0 < 2 - q :=
       sub_pos.mpr (lt_of_le_of_ne (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2) hq2)
     -- Take the (2-q)-th power of 6.1.11
