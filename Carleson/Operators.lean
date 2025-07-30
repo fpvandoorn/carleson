@@ -36,7 +36,9 @@ def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 
--- not used anywhere and deprecated for `AEStronglyMeasurable.carlesonOn`
+/- Deprecated for `AEStronglyMeasurable.carlesonOn`
+Used through `measurable_carlesonSum` in `Antichain.AntichainOperator` and `ForestOperator.Forests`
+with nontrivial rework in order to move from `Measurable` to `AEStronglyMeasurable`. -/
 lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonOn p f) := by
   refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
@@ -230,7 +232,6 @@ variable [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ
 /-- The definition of `Tₚ*g(x)`, defined above Lemma 7.4.1 -/
 def adjointCarleson (p : 𝔓 X) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in E p, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y
-  -- todo: consider changing to `(E p).indicator 1 y`
 
 open scoped Classical in
 /-- The definition of `T_ℭ*g(x)`, defined at the bottom of Section 7.4 -/
@@ -460,15 +461,6 @@ lemma adjointCarlesonSum_adjoint
       refine BoundedCompactSupport.mul ?_ hf |>.integrable
       exact hg.adjointCarleson.conj
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
-
-/- XXX: this version is not used, and may not be useful in general
-lemma integrable_adjointCarlesonSum' (u : 𝔓 X) {f : X → ℂ} (hf : AEStronglyMeasurable f volume)
-    (hf' : IsBounded (range f)) (hf'' : HasCompactSupport f) :
-    Integrable (adjointCarlesonSum (t.𝔗 u) f ·) := by
-  obtain ⟨M, hM⟩ := hf'.exists_norm_le
-  have : BoundedCompactSupport f :=
-    ⟨memLp_top_of_bound hf M <| by filter_upwards with x using hM _ (mem_range_self x), hf''⟩
-  exact integrable_finset_sum _ fun i hi ↦ this.adjointCarleson (p := i).integrable -/
 
 lemma integrable_adjointCarlesonSum (s : Set (𝔓 X)) {f : X → ℂ} (hf : BoundedCompactSupport f) :
     Integrable (adjointCarlesonSum s f ·) :=
