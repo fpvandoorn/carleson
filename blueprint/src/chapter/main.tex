@@ -6272,11 +6272,7 @@ Now we prove \Cref{forest-operator}.
     $$
     We use \Cref{row-bound} to estimate each term in the first sum, and \Cref{row-correlation} to bound each term in the second sum:
     $$
-<<<<<<< HEAD
-        \le 2^{406a^3-n} \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2^2 + 2^{939a^3+1-4n}\sum_{j=1}^{2^n}\sum_{j' = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2 \|\mathbf{1}_{E_{j'}}g\|_2\,.
-=======
         \le 2^{566a^3-n} \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2^2 + 2^{876a^3-4n}\sum_{j=1}^{2^n}\sum_{j' = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2 \|\mathbf{1}_{E_{j'}}g\|_2\,.
->>>>>>> master
     $$
     By Cauchy-Schwarz in the second two sums, this is at most
     $$
@@ -6300,17 +6296,6 @@ Now we prove \Cref{forest-operator}.
         \| \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2^2 = \left| \int_X \overline{\mathbf{1}_G T_{\mathfrak{R}_j} f} T_{\mathfrak{R}_j} f \right| = \left| \int_X \overline{T_{\mathfrak{R}_j}^* \mathbf{1}_G T_{\mathfrak{R}_j} f} \mathbf{1}_F f \right|
     $$
     $$
-<<<<<<< HEAD
-        \le \|f\|_2 \| \mathbf{1}_F T_{\mathfrak{R}_j}^* \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2 \le 2^{304a^3-n/2} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{1/2} \| \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2 \|f\|_2.
-    $$
-    Dividing this last inequality by the finite $\| \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2$, substituting back and taking square roots we get
-    $$
-        \left\|\mathbf{1}_G \sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2 \le 2^{304a^3} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{\frac{1}{2}} 2^{-\frac{n}{2}} (\sum_{j = 1}^{2^n} \|f\|_2^2)^{\frac{1}{2}}
-    $$
-    \begin{equation}
-        \label{eq-forest-bound-2}
-        = 2^{304a^3} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{\frac{1}{2}} \|f\|_2\,.
-=======
         \le \|f\|_2 \| \mathbf{1}_F T_{\mathfrak{R}_j}^* \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2 \le 2^{283a^3-n/2} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{1/2} \| \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2 \|f\|_2.
     $$
     Dividing this last inequality by the finite $\| \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2$, substituting back and taking square roots we get
@@ -6320,7 +6305,6 @@ Now we prove \Cref{forest-operator}.
     \begin{equation}
         \label{eq-forest-bound-2}
         = 2^{283a^3} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{\frac{1}{2}} \|f\|_2\,.
->>>>>>> master
     \end{equation}
     \Cref{forest-operator} follows by taking the product of the $(2 - \frac{2}{q})$-th power of \eqref{eq-forest-bound-1} and the $(\frac{2}{q} - 1)$-st power of \eqref{eq-forest-bound-2}.
 \end{proof}
