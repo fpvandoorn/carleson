@@ -1,419 +1,269 @@
-import Carleson.DoublingMeasure
-import Mathlib.Topology.MetricSpace.Holder
+import Carleson.ToMathlib.Annulus
+import Carleson.ToMathlib.DoublingMeasure
+import Carleson.ToMathlib.WeakType
+import Mathlib.Analysis.CStarAlgebra.Classes
+import Mathlib.Analysis.Fourier.AddCircle
 
-open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
+open MeasureTheory Measure Metric Complex Set Function ENNReal
 open scoped NNReal
+
 noncomputable section
 
-/-! # ProofData.
+/-! # Main statements of the Carleson project
 
-This file introduces the class `ProofData`, used to bundle data common through most of
-chapters 2-7 (except 3), and provides API for it.
+This file contains the statements of the main theorems from the Carleson formalization project:
+Theorem 1.0.1 (classical Carleson), Theorem 1.0.2 (metric space Carleson) and Theorem 1.0.3
+(linearised metric Carleson), as well as the definitions required to state these results.
+
+## Main definitions
+
+- `MeasureTheory.DoublingMeasure`: A metric space with a measure with some nice propreties,
+including a doubling condition. This is called a "doubling metric measure space" in the blueprint.
+- `FunctionDistances`: class stating that continuous functions have distances associated to
+every ball.
+- `IsOneSidedKernel K` states that `K` is a one-sided Calderon-Zygmund kernel.
+- `KernelProofData`: Data common through most of chapters 2-7. These contain the minimal axioms
+for `kernel-summand`'s proof.
+- `ClassicalCarleson`: statement of Carleson's theorem asserting a.e. convergence of the partial
+Fourier sums for continous functions (Theorem 1.0.1 in the blueprint).
+- `MetricSpaceCarleson`: statement of Theorem 1.0.2 from the blueprint.
+- `LinearizedMetricCarleson`: statement of Theorem 1.0.3 from the blueprint.
 
 -/
 
-/-- Data common through most of chapters 2-7 (except 3). -/
-class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
-  (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] extends
-    KernelProofData a K where
-  c : IsCancellative X (defaultτ a)
-  q_mem_Ioc : q ∈ Ioc 1 2
-  isBounded_F : IsBounded F
-  isBounded_G : IsBounded G
-  measurableSet_F : MeasurableSet F
-  measurableSet_G : MeasurableSet G
-  measurable_σ₁ : Measurable σ₁
-  measurable_σ₂ : Measurable σ₂
-  finite_range_σ₁ : Finite (range σ₁)
-  finite_range_σ₂ : Finite (range σ₂)
-  σ₁_le_σ₂ : σ₁ ≤ σ₂
-  Q : SimpleFunc X (Θ X)
-  BST_T_Q (θ : Θ X) : HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
-    2 2 volume volume (C_Ts a)
+section DoublingMeasure
 
-export ProofData (q_mem_Ioc isBounded_F isBounded_G measurableSet_F measurableSet_G
-  measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q BST_T_Q)
-attribute [instance] ProofData.c
+universe u
 
-section ProofData
+/- # Doubling metric measure spaces -/
 
-variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+/-- A metric space with a measure with some nice propreties, including a doubling condition.
+This is called a "doubling metric measure space" in the blueprint.
+`A` will usually be `2 ^ a`. -/
+class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
+    CompleteSpace X, LocallyCompactSpace X,
+    MeasureSpace X, BorelSpace X,
+    IsLocallyFiniteMeasure (volume : Measure X),
+    IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
 
-include a q K σ₁ σ₂ F G
+variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X]
 
-variable (X) in
-lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
-    F ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧
-    G ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧ 0 < n := by
-  obtain ⟨l₁, hl₁⟩ := bddBelow_def.mp (Finite.bddBelow (finite_range_σ₁ (X := X)))
-  obtain ⟨u₂, hu₂⟩ := bddAbove_def.mp (Finite.bddAbove (finite_range_σ₂ (X := X)))
-  simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hl₁ hu₂
-  have one_lt_D : (1 : ℝ) < defaultD a := by linarith [hundred_lt_realD X]
-  obtain ⟨rF, rFpos, hrF⟩ : ∃ r > 0, F ⊆ ball (cancelPt X) r := by
-    obtain ⟨r, hr⟩ := isBounded_F.subset_ball (cancelPt X)
-    rcases lt_or_ge 0 r with lr | lr
-    · use r
-    · use 1, zero_lt_one, hr.trans (ball_subset_ball (lr.trans zero_le_one))
-  let nF := ⌈Real.logb (defaultD a) (4 * rF)⌉
-  obtain ⟨rG, rGpos, hrG⟩ : ∃ r > 1, G ⊆ ball (cancelPt X) r := by
-    obtain ⟨r, hr⟩ := isBounded_G.subset_ball (cancelPt X)
-    rcases lt_or_ge 0 r with lr | lr
-    · use r + 1, by linarith, subset_trans hr (ball_subset_ball (by simp))
-    · use 2, one_lt_two, hr.trans (ball_subset_ball (lr.trans zero_le_two))
-  let nG := ⌈Real.logb (defaultD a) (4 * rG)⌉
-  refine ⟨(max (max (-l₁) u₂) (max nF nG)).toNat, ⟨fun x ↦ ?_, ?_, ?_, ?_⟩⟩
-  · simp only [Int.ofNat_toNat, ← min_neg_neg, neg_neg, min_le_iff, le_max_iff]
-    exact ⟨.inl (.inl (.inl (hl₁ x))), .inl (.inl (.inr (hu₂ x)))⟩
-  · refine hrF.trans (ball_subset_ball ?_)
-    calc
-      _ ≤ (defaultD a : ℝ) ^ nF / 4 := by
-        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
-          ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
-        exact Int.le_ceil _
-      _ ≤ (defaultD a : ℝ) ^ nF.toNat / 4 := by
-        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
-        · exact one_lt_D.le
-        · exact_mod_cast Int.self_le_toNat nF
-      _ ≤ _ := by
-        gcongr
-        · exact one_lt_D.le
-        · exact Int.toNat_le_toNat ((le_max_left ..).trans (le_max_right ..))
-  · refine hrG.trans (ball_subset_ball ?_)
-    calc
-      _ ≤ (defaultD a : ℝ) ^ nG / 4 := by
-        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
-          ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
-        exact Int.le_ceil _
-      _ ≤ (defaultD a : ℝ) ^ nG.toNat / 4 := by
-        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
-        · exact one_lt_D.le
-        · exact_mod_cast Int.self_le_toNat nG
-      _ ≤ _ := by
-        gcongr
-        · exact one_lt_D.le
-        · exact Int.toNat_le_toNat ((le_max_right ..).trans (le_max_right ..))
-  · exact Int.pos_iff_toNat_pos.mp (lt_of_lt_of_le
-      (lt_of_lt_of_le (Int.ceil_pos.mpr (Real.logb_pos one_lt_D (by linarith))) (le_max_right _ _))
-      (le_max_right _ _))
+/-- The local oscillation of two functions w.r.t. a set `E`. This is `d_E` in the blueprint. -/
+def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ≥0∞ :=
+  ⨆ z ∈ E ×ˢ E, ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
 
-variable (X) in
-open Classical in
-def defaultS : ℕ := Nat.find (S_spec X)
+/-- A class stating that continuous functions have distances associated to every ball.
+We use a separate type to conveniently index these functions. -/
+class FunctionDistances (𝕜 : outParam Type*) (X : Type u)
+    [NormedField 𝕜] [TopologicalSpace X] where
+  /-- A type of continuous functions from `X` to `𝕜`. -/
+  Θ : Type u
+  /-- The coercion map from `Θ` to `C(X, 𝕜)`. -/
+  coeΘ : Θ → C(X, 𝕜)
+  /-- Injectivity of the coercion map from `Θ` to `C(X, 𝕜)`. -/
+  coeΘ_injective {f g : Θ} (h : ∀ x, coeΘ f x = coeΘ g x) : f = g
+  /-- For each `_x : X` and `_r : ℝ`, a `PseudoMetricSpace Θ`. -/
+  metric : ∀ (_x : X) (_r : ℝ), PseudoMetricSpace Θ
 
-lemma range_σ₁_subset : range σ₁ ⊆ Icc (-defaultS X) (defaultS X) := by
-  classical
-  rw [range_subset_iff]
-  have := (Nat.find_spec (S_spec X)).1
-  exact fun x ↦ ⟨(this x).1, (σ₁_le_σ₂ x).trans (this x).2⟩
+export FunctionDistances (Θ coeΘ)
 
-lemma range_σ₂_subset : range σ₂ ⊆ Icc (-defaultS X) (defaultS X) := by
-  classical
-  rw [range_subset_iff]
-  have := (Nat.find_spec (S_spec X)).1
-  exact fun x ↦ ⟨(this x).1.trans (σ₁_le_σ₂ x), (this x).2⟩
+section FunctionDistances
 
-lemma F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
-  classical exact (Nat.find_spec (S_spec X)).2.1
+variable [FunctionDistances 𝕜 X]
 
-lemma G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
-  classical exact (Nat.find_spec (S_spec X)).2.2.1
+instance : Coe (Θ X) C(X, 𝕜) := ⟨FunctionDistances.coeΘ⟩
+instance : FunLike (Θ X) X 𝕜 where
+  coe := fun f ↦ (f : C(X, 𝕜))
+  coe_injective' _ _ hfg := FunctionDistances.coeΘ_injective fun x ↦ congrFun hfg x
 
-lemma defaultS_pos : 0 < defaultS X := by
-  classical exact (Nat.find_spec (S_spec X)).2.2.2
-
-lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (-defaultS X) (defaultS X) :=
-  fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
-
-variable (X)
-
-lemma one_lt_q : 1 < q := (q_mem_Ioc X).1
-lemma q_le_two : q ≤ 2 := (q_mem_Ioc X).2
-lemma q_pos : 0 < q := zero_lt_one.trans (one_lt_q X)
-lemma q_nonneg : 0 ≤ q := (q_pos X).le
-lemma inv_q_sub_half_nonneg : 0 ≤ q⁻¹ - 2⁻¹ := by
-  simp [inv_le_inv₀ zero_lt_two (q_pos X), q_le_two X]
-
--- Note: For exponent computations it is usually cleaner to argue in terms
--- of `q⁻¹` rather than `q`, both on paper and in Lean.
-lemma inv_q_mem_Ico : q⁻¹ ∈ Ico 2⁻¹ 1 := ⟨by linarith only [inv_q_sub_half_nonneg X],
-  inv_one (G := ℝ) ▸ inv_lt_inv₀ (q_pos X) zero_lt_one |>.mpr <| one_lt_q X⟩
-
-/-- `q` as an element of `ℝ≥0`. -/
-def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
-
-lemma one_lt_nnq : 1 < nnq X := one_lt_q X
-lemma nnq_le_two : nnq X ≤ 2 := q_le_two X
-lemma nnq_pos : 0 < nnq X := q_pos X
-lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
-  ⟨NNReal.coe_lt_coe.mp (q_mem_Ioc X).1, NNReal.coe_le_coe.mp (q_mem_Ioc X).2⟩
-
-end ProofData
-
-namespace ShortVariables
--- open this section to get shorter 1-letter names for a bunch of variables
-
-set_option hygiene false
-scoped notation "nnq" => nnq X
-
-end ShortVariables
-
-open scoped ShortVariables
-
-variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-
-/-- Used in `third_exception` (Lemma 5.2.10). -/
-lemma two_le_κZ [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 2 ≤ κ * Z := by
-  rw [defaultκ, defaultZ, Nat.cast_pow, show ((2 : ℕ) : ℝ) = 2 by rfl,
-    show (2 : ℝ) ^ (12 * a) = 2 ^ (12 * a : ℝ) by norm_cast, ← Real.rpow_add zero_lt_two,
-    show (-10 * a + 12 * a : ℝ) = 2 * a by ring]
-  norm_cast; change 2 ^ 1 ≤ _
-  exact Nat.pow_le_pow_of_le one_lt_two (by linarith [four_le_a X])
-
-/-- Used in `third_exception` (Lemma 5.2.10). -/
-lemma DκZ_le_two_rpow_100 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] :
-    (D : ℝ≥0∞) ^ (-κ * Z) ≤ 2 ^ (-100 : ℝ) := by
-  rw [defaultD, Nat.cast_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul,
-    show ((2 : ℕ) : ℝ≥0∞) = 2 by rfl]
-  apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
-  rw [defaultκ, defaultZ, Nat.cast_pow, show ((2 : ℕ) : ℝ) = 2 by rfl, neg_mul,
-    show (2 : ℝ) ^ (12 * a) = 2 ^ (12 * a : ℝ) by norm_cast, mul_neg,
-    ← Real.rpow_add zero_lt_two, show (-10 * a + 12 * a : ℝ) = 2 * a by ring,
-    neg_le_neg_iff]
-  norm_cast
-  have : 1 ≤ 𝕔 := by linarith [seven_le_c]
-  have := four_le_a X
-  calc
-    _ ≤ 1 * 4 ^ 2 * 2 ^ (2 * 4) := by norm_num
-    _ ≤ _ := by
-      gcongr
-      norm_num
-
-lemma four_le_Z [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 4 ≤ Z := by
-  rw [defaultZ, show 4 = 2 ^ 2 by rfl]
-  exact Nat.pow_le_pow_right zero_lt_two (by linarith [four_le_a X])
-
-section PseudoMetricSpace
-
-variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-
-lemma volume_F_lt_top : volume F < ⊤ := isBounded_F.measure_lt_top
-lemma volume_F_ne_top : volume F ≠ ⊤ := volume_F_lt_top.ne
-lemma volume_G_lt_top : volume G < ⊤ := isBounded_G.measure_lt_top
-lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
-
-/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? Defined in ℝ≥0∞ to
-avoid sup-related issues. -/
+set_option linter.unusedVariables false in
+/-- Class used to endow `Θ X` with a pseudometric space structure. -/
 @[nolint unusedArguments]
-def iHolENorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
-  (⨆ (x ∈ ball x₀ R), ‖ϕ x‖ₑ) + (ENNReal.ofReal R) ^ τ *
-    ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ)
+def WithFunctionDistance (x : X) (r : ℝ) := Θ X
 
-def iHolNNNorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ≥0 :=
-  (iHolENorm ϕ x₀ R).toNNReal
+instance {x : X} {r : ℝ} [d : FunctionDistances 𝕜 X] :
+    PseudoMetricSpace (WithFunctionDistance x r) := d.metric x r
 
-/-! Lemma 2.1.1 -/
+end FunctionDistances
 
-def C2_1_1 (k : ℕ) (a : ℕ) : ℕ := 2 ^ (k * a)
+/-- The real-valued distance function on `WithFunctionDistance x r`. -/
+notation3 "dist_{" x ", " r "}" => @dist (WithFunctionDistance x r) _
+/-- The `ℝ≥0∞`-valued distance function on `WithFunctionDistance x r`. Preferred over `nndist`. -/
+notation3 "edist_{" x ", " r "}" => @edist (WithFunctionDistance x r) _
 
-lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
-    {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
-    𝓩.Finite ∧ Cardinal.mk 𝓩 ≤ C2_1_1 k a := by
-  obtain ⟨𝓩', c𝓩', u𝓩'⟩ := ballsCoverBalls_iterate_nat (x := x₀) (n := k) (r := r) (d := R) f
-  rw [mul_comm] at u𝓩'
-  classical
-    let g : Θ X → Finset (Θ X) := fun z ↦ 𝓩'.filter (z ∈ ball_{x₀, R} · r)
-    have g_pd : 𝓩.PairwiseDisjoint g := fun z hz z' hz' hne ↦ by
-      refine Finset.disjoint_filter.mpr fun c _ mz mz' ↦ ?_
-      rw [mem_ball_comm (α := WithFunctionDistance x₀ R)] at mz mz'
-      exact Set.disjoint_left.mp (h2𝓩 hz hz' hne) mz mz'
-  have g_ne : ∀ z, z ∈ 𝓩 → (g z).Nonempty := fun z hz ↦ by
-    obtain ⟨c, hc⟩ := mem_iUnion.mp <| mem_of_mem_of_subset hz (h𝓩.trans u𝓩')
-    simp only [mem_iUnion, exists_prop] at hc
-    use c; simpa only [g, Finset.mem_filter]
-  have g_injOn : 𝓩.InjOn g := fun z hz z' hz' e ↦ by
-    have : z ≠ z' → Disjoint (g z) (g z') := g_pd hz hz'
-    rw [← e, Finset.disjoint_self_iff_empty] at this
-    exact not_ne_iff.mp <| this.mt <| Finset.nonempty_iff_ne_empty.mp (g_ne z hz)
-  have g_subset : g '' 𝓩 ⊆ 𝓩'.powerset.toSet := fun gz hgz ↦ by
-    rw [mem_image] at hgz
-    obtain ⟨z, hz⟩ := hgz
-    simp_rw [Finset.coe_powerset, mem_preimage, mem_powerset_iff, Finset.coe_subset, ← hz.2, g,
-      Finset.filter_subset]
-  have f𝓩 : (g '' 𝓩).Finite := Finite.subset 𝓩'.powerset.finite_toSet g_subset
-  rw [Set.finite_image_iff g_injOn] at f𝓩
-  refine ⟨f𝓩, ?_⟩
-  lift 𝓩 to Finset (Θ X) using f𝓩
-  simp_rw [Cardinal.mk_fintype, Finset.coe_sort_coe, Fintype.card_coe]
-  norm_cast
-  classical calc
-    _ = ∑ _ ∈ 𝓩, 1 := by simp
-    _ ≤ ∑ u ∈ 𝓩, (g u).card := Finset.sum_le_sum fun z hz ↦ Finset.card_pos.mpr (g_ne z hz)
-    _ = (𝓩.biUnion g).card := (Finset.card_biUnion (fun z hz z' hz' ↦ g_pd hz hz')).symm
-    _ ≤ 𝓩'.card := by
-      refine Finset.card_le_card fun _ h ↦ ?_
-      rw [Finset.mem_biUnion] at h
-      exact Finset.mem_of_subset (by simp [g]) h.choose_spec.2
-    _ ≤ (2 ^ a) ^ k := c𝓩'
-    _ ≤ _ := by rw [C2_1_1, mul_comm, pow_mul]
+/-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
+class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
+  [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
+  eq_zero : ∃ o : X, ∀ f : Θ, coeΘ f o = 0
+  /-- The distance is bounded below by the local oscillation. (1.0.7) -/
+  localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
+    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g)
+  /-- The distance is monotone in the ball. (1.0.9) -/
+  cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
+    (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
+  /-- The distance of a ball with large radius is bounded above. (1.0.8) -/
+  cdist_le {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h : dist x₁ x₂ < 2 * r) :
+    dist_{x₂, 2 * r} f g ≤ A * dist_{x₁, r} f g
+  /-- The distance of a ball with large radius is bounded below. (1.0.10) -/
+  le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r)) :
+    /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/
+    2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
+  /-- Every ball of radius `2R` can be covered by `A` balls of radius `R`. (1.0.11) -/
+  allBallsCoverBalls {x : X} {r : ℝ} :
+    AllBallsCoverBalls (WithFunctionDistance x r) 2 A
 
-lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
-    {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
-    Nat.card 𝓩 ≤ C2_1_1 k a := by
-  obtain ⟨f𝓩, c𝓩⟩ := finite_and_mk_le_of_le_dist h𝓩 h2𝓩
-  lift 𝓩 to Finset (Θ X) using f𝓩
-  simpa using c𝓩
+/-- The inhomogeneous Lipschitz norm on a ball. -/
+def iLipENorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
+  (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
+  ENNReal.ofReal R * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), ‖ϕ x - ϕ y‖ₑ / edist x y
 
-end PseudoMetricSpace
+variable [hXA : DoublingMeasure X A]
 
-section MetricSpace
+variable (X) in
+/-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
+class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
+  /- We register a definition with strong assumptions, which makes them easier to prove.
+  However, `enorm_integral_exp_le` removes them for easier application. -/
+  enorm_integral_exp_le' {x : X} {r : ℝ} {ϕ : X → ℂ} (hr : 0 < r) (h1 : iLipENorm ϕ x r ≠ ∞)
+    (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
+    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ)
 
-variable [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+/-- The "volume function" `V`. Preferably use `vol` instead. -/
+protected def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
+  volume.real (ball x (dist x y))
 
-lemma iLipENorm_le_add {z : X} {R : ℝ} {C C' : ℝ≥0} {ϕ : X → ℂ}
-    (h : ∀ x ∈ ball z R, ‖ϕ x‖ ≤ C)
-    (h' : ∀ x ∈ ball z R, ∀ x' ∈ ball z R, x ≠ x' → ‖ϕ x - ϕ x'‖ ≤ C' * dist x x' / R) :
-    iLipENorm ϕ z R ≤ C + C' := by
-  apply add_le_add
-  · simp only [iSup_le_iff, enorm_le_coe]
-    exact h
-  · apply ENNReal.mul_le_of_le_div'
-    simp only [ne_eq, iSup_le_iff]
-    intro x hx x' hx' hne
-    have hR : 0 < R := pos_of_mem_ball hx
-    have W := h' x hx x' hx' hne
-    rw [ENNReal.div_le_iff (by simpa only [ne_eq, edist_eq_zero] using hne) (edist_ne_top x x')]
-    convert ENNReal.ofReal_le_ofReal W
-    · exact (ofReal_norm_eq_enorm (ϕ x - ϕ x')).symm
-    · rw [ENNReal.ofReal_div_of_pos hR, ENNReal.ofReal_mul NNReal.zero_le_coe, edist_dist,
-        ENNReal.mul_div_right_comm, ENNReal.ofReal_coe_nnreal]
+/-- `R_Q(θ, x)` defined in (1.0.20). -/
+def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
+  ⨆ (r : ℝ) (_ : dist_{x, r} θ (Q x) < 1), ENNReal.ofReal r
 
-lemma iLipENorm_le {z : X} {R : ℝ} {C : ℝ≥0} {ϕ : X → ℂ}
-    (h : ∀ x ∈ ball z R, ‖ϕ x‖ ≤ 2⁻¹ * C)
-    (h' : ∀ x ∈ ball z R, ∀ x' ∈ ball z R, x ≠ x' → ‖ϕ x - ϕ x'‖ ≤ 2⁻¹ * C * dist x x' / R) :
-    iLipENorm ϕ z R ≤ C := by
-  apply (iLipENorm_le_add (C := 2⁻¹ * C) (C' := 2⁻¹ * C) h h').trans_eq
-  simp [← add_mul, ENNReal.inv_two_add_inv_two]
+/-- The linearized maximally truncated nontangential Calderon–Zygmund operator `T_Q^θ`. -/
+def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
+    (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+  ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
+  ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) (min (ENNReal.ofReal R₂) (upperRadius Q θ x')),
+    K x' y * f y‖ₑ
 
-lemma enorm_le_iLipENorm_of_mem {z : X} {R : ℝ} (ϕ : X → ℂ) {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ₑ ≤ iLipENorm ϕ z R := by
-  apply le_trans _ le_self_add
-  simp only [le_iSup_iff, iSup_le_iff]
-  tauto
+/-- The maximally truncated nontangential Calderon–Zygmund operator `T_*`. -/
+def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+  ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁), ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
 
-lemma norm_le_iLipNNNorm_of_mem {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤)
-    {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ ≤ iLipNNNorm ϕ z R :=
-  (ENNReal.toReal_le_toReal (by simp) hϕ).2 (enorm_le_iLipENorm_of_mem ϕ hx)
+/-- The integrand in the (linearized) Carleson operator.
+This is `G` in Lemma 3.0.1. -/
+def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
+    (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
+  ∫ y in Annulus.oo x R₁ R₂, K x y * f y * exp (I * θ y)
 
-lemma norm_le_iLipNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤)
-    {x : X} (h : support ϕ ⊆ ball z R) : ‖ϕ x‖ ≤ iLipNNNorm ϕ z R := by
-  by_cases hx : x ∈ ball z R
-  · apply norm_le_iLipNNNorm_of_mem hϕ hx
-  · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [notMem_support.mp this]
+/-- The linearized generalized Carleson operator `T_Q`, taking values in `ℝ≥0∞`.
+Use `ENNReal.toReal` to get the corresponding real number. -/
+def linearizedCarlesonOperator [FunctionDistances ℝ X] (Q : X → Θ X) (K : X → X → ℂ)
+    (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂), ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ
 
-lemma LipschitzOnWith.of_iLipENorm_ne_top
-    {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤) :
-    LipschitzOnWith (iLipNNNorm ϕ z R / R.toNNReal) ϕ (ball z R) := by
-  intro x hx y hy
-  have hR : 0 < R := by
-    simp only [mem_ball] at hx
-    apply dist_nonneg.trans_lt hx
-  rcases eq_or_ne x y with rfl | hne
-  · simp
-  have : (ENNReal.ofReal R) * (‖ϕ x - ϕ y‖ₑ / edist x y) ≤ iLipENorm ϕ z R := calc
-      (ENNReal.ofReal R) * (‖ϕ x - ϕ y‖ₑ / (edist x y))
-    _ ≤ (ENNReal.ofReal R) *
-        ⨆ (x ∈ ball z R) (y ∈ ball z R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / edist x y) := by
-      gcongr
-      simp only [ne_eq, le_iSup_iff, iSup_le_iff]
-      tauto
-    _ ≤ _ := le_add_self
-  rw [edist_eq_enorm_sub, ENNReal.coe_div (by simp [hR]), iLipNNNorm, coe_toNNReal hϕ]
-  rw [← ENNReal.div_le_iff_le_mul]; rotate_left
-  · have : edist x y ≠ 0 := by simp [hne]
-    simp [this]
-  · simp [edist_ne_top]
-  rw [ENNReal.le_div_iff_mul_le]; rotate_left
-  · simp [hR]
-  · simp
-  convert this using 1
-  simp only [ENNReal.ofReal, mul_comm]
+/-- The generalized Carleson operator `T`, taking values in `ℝ≥0∞`.
+Use `ENNReal.toReal` to get the corresponding real number. -/
+def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+  ⨆ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
 
-lemma continuous_of_iLipENorm_ne_top {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iLipENorm ϕ z R ≠ ⊤) :
-    Continuous ϕ :=
-  (LipschitzOnWith.of_iLipENorm_ne_top h'ϕ).continuousOn.continuous_of_tsupport_subset
-    isOpen_ball hϕ
+end DoublingMeasure
 
-lemma enorm_le_iHolENorm_of_mem {z : X} {R : ℝ} (ϕ : X → ℂ) {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ₑ ≤ iHolENorm ϕ z R := by
-  apply le_trans _ le_self_add
-  simp only [le_iSup_iff, iSup_le_iff]
-  tauto
+/-- The main constant in the blueprint, driving all the construction, is `D = 2 ^ (100 * a ^ 2)`.
+It turns out that the proof is robust, and works for other values of `100`, giving better constants
+in the end. We will formalize it using a parameter `𝕔` (that we fix equal to `100` to follow
+the blueprint) and having `D = 2 ^ (𝕔 * a ^ 2)`. We register two lemmas `seven_le_c` and
+`c_le_100` and will never unfold `𝕔` from this point on. -/
+irreducible_def 𝕔 : ℕ := 100
 
-lemma norm_le_iHolNNNorm_of_mem {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤)
-    {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ ≤ iHolNNNorm ϕ z R :=
-  (ENNReal.toReal_le_toReal (by simp) hϕ).2 (enorm_le_iHolENorm_of_mem ϕ hx)
+/-- This is usually the value of the argument `A` in `DoublingMeasure`
+and `CompatibleFunctions` -/
+@[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
+/-- `defaultτ` is the inverse of `a`. -/
+@[simp] def defaultτ (a : ℕ) : ℝ := a⁻¹
 
-lemma norm_le_iHolNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤)
-    {x : X} (h : support ϕ ⊆ ball z R) : ‖ϕ x‖ ≤ iHolNNNorm ϕ z R := by
-  by_cases hx : x ∈ ball z R
-  · apply norm_le_iHolNNNorm_of_mem hϕ hx
-  · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [notMem_support.mp this]
+section Kernel
 
-lemma HolderOnWith.of_iHolENorm_ne_top
-    {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤) :
-    HolderOnWith (iHolNNNorm ϕ z R / R.toNNReal ^ τ) nnτ ϕ (ball z R) := by
-  intro x hx y hy
-  have hR : 0 < R := by
-    simp only [mem_ball] at hx
-    apply dist_nonneg.trans_lt hx
-  rcases eq_or_ne x y with rfl | hne
-  · simp
-  have : (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) ≤ iHolENorm ϕ z R := calc
-      (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ)
-    _ ≤ (ENNReal.ofReal R) ^ τ *
-        ⨆ (x ∈ ball z R) (y ∈ ball z R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) := by
-      gcongr
-      simp only [ne_eq, le_iSup_iff, iSup_le_iff]
-      tauto
-    _ ≤ _ := le_add_self
-  rw [edist_eq_enorm_sub, ENNReal.coe_div (by simp [hR]), iHolNNNorm, coe_toNNReal hϕ]
-  rw [← ENNReal.div_le_iff_le_mul]; rotate_left
-  · have : edist x y ≠ 0 := by simp [hne]
-    simp [this]
-  · simp [edist_ne_top]
-  rw [ENNReal.le_div_iff_mul_le]; rotate_left
-  · simp [hR]
-  · simp
-  convert this using 1
-  rw [ENNReal.coe_rpow_of_ne_zero (by simp [hR])]
-  simp only [ENNReal.ofReal, mul_comm]
-  rfl
+variable {X : Type*} {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X] [MeasureSpace X]
+open Function
 
-lemma continuous_of_iHolENorm_ne_top {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z R ≠ ∞) :
-    Continuous ϕ :=
-  ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
-    (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball hϕ
+/-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
+@[simp] def C_K (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
-lemma continuous_of_iHolENorm_ne_top' {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z (2 * R) ≠ ∞) :
-    Continuous ϕ := by
-  rcases le_or_gt R 0 with hR | hR
-  · have : support ϕ ⊆ ∅ := by rwa [ball_eq_empty.2 hR] at hϕ
-    simp only [subset_empty_iff, support_eq_empty_iff] at this
-    simp only [this]
-    exact continuous_const
-  apply ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
-    (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball
-  apply (closure_mono hϕ).trans (closure_ball_subset_closedBall.trans ?_)
-  exact closedBall_subset_ball (by linarith)
+/-- `K` is a one-sided Calderon-Zygmund kernel.
+In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
+that `K x x = 0`. -/
+class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
+  measurable_K : Measurable (uncurry K)
+  norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / Real.vol x y
+  norm_K_sub_le {x y y' : X} (h : 2 * dist y y' ≤ dist x y) :
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
 
-end MetricSpace
+end Kernel
+
+/-- A constant used on the boundedness of `T_Q^θ` and `T_*`. We generally assume
+`HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·) 2 2 volume volume (C_Ts a)`
+throughout this formalization. -/
+def C_Ts (a : ℕ) : ℝ≥0 := 2 ^ a ^ 3
+
+/-- Data common through most of chapters 2-7.
+These contain the minimal axioms for `kernel-summand`'s proof.
+This is used in chapter 3 when we don't have all other fields from `ProofData`. -/
+class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
+    [PseudoMetricSpace X] where
+  d : DoublingMeasure X (defaultA a)
+  four_le_a : 4 ≤ a
+  cf : CompatibleFunctions ℝ X (defaultA a)
+  hcz : IsOneSidedKernel a K
+
+export KernelProofData (four_le_a)
+
+attribute [instance] KernelProofData.d KernelProofData.cf KernelProofData.hcz
+
+section statements
+
+/- ## Main statements
+
+This section contains the statements of the main theorems from the project: Theorem 1.0.1
+(classical Carleson), Theorem 1.0.2 (metric space Carleson) and Theorem 1.0.3 (linearised metric
+Carleson). -/
+
+set_option linter.unusedVariables false
+
+open Real
+
+/-- The Nᵗʰ partial Fourier sum of `f : ℝ → ℂ` for `N : ℕ`. -/
+def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ := ∑ n ∈ Finset.Icc (-(N : ℤ)) N,
+    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * π))
+
+local notation "S_" => partialFourierSum
+
+/-- Theorem 1.0.1: Carleson's theorem asserting a.e. convergence of the partial Fourier sums for
+continous functions.
+For the proof, see `classical_carleson` in the file `Carleson.Classical.ClassicalCarleson`. -/
+def ClassicalCarleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
+    Prop := ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x))
+
+/-- The constant used from `R_truncation` to `metric_carleson`.
+Has value `2 ^ (443 * a ^ 3)` in the blueprint. -/
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
+
+/-- Theorem 1.0.2.
+For the proof, see `metric_carleson` in the file `Carleson.MetricCarleson.Main`. -/
+def MetricSpaceCarleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X}
+    {K : X → X → ℂ} [KernelProofData a K] {f : X → ℂ} [IsCancellative X (defaultτ a)]
+    (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+    (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)) : Prop :=
+    ∫⁻ x in G, carlesonOperator K f x ≤ C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
+
+/-- Theorem 1.0.3.
+For the proof, see `linearized_metric_carleson` in the file `Carleson.MetricCarleson.Linearized`. -/
+def LinearizedMetricCarleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X}
+    {K : X → X → ℂ} [KernelProofData a K] {Q : SimpleFunc X (Θ X)} {f : X → ℂ}
+    [IsCancellative X (defaultτ a)] (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
+    (mF : MeasurableSet F) (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+    (hT : ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+      2 2 volume volume (C_Ts a)) : Prop :=
+    ∫⁻ x in G, linearizedCarlesonOperator Q K f x ≤
+    C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
+
+end statements

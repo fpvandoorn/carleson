@@ -7,8 +7,9 @@ Roughly speaking, if a lemma is in this file, it should be purely calculational/
 e.g. `lemma calculation_1 : 2 + 2 = 4`.
 All lemmas are prepended with a prefix `calculation_`.
 -/
-import Carleson.Defs
+import Carleson.ProofData
 import Mathlib.Tactic.Rify
+
 open ShortVariables
 open scoped NNReal ENNReal
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}

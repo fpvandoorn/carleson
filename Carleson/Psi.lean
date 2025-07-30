@@ -1,4 +1,4 @@
-import Carleson.Defs
+import Carleson.ProofData
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
 open scoped ENNReal
