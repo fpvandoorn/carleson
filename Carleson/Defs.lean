@@ -7,6 +7,8 @@ import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
 import Mathlib.Topology.MetricSpace.Holder
 
+import Mathlib.Analysis.Fourier.AddCircle
+
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
 open scoped NNReal
 noncomputable section
@@ -1108,3 +1110,52 @@ lemma continuous_of_iHolENorm_ne_top' {z : X} {R : ℝ}
   exact closedBall_subset_ball (by linarith)
 
 end MetricSpace
+
+section statements
+
+/- ## Main statements
+
+This section contains the statements of the main theorems from the project: Theorem 1.0.1
+(classical Carleson), Theorem 1.0.2 (metric space Carleson) and Theorem 1.0.3 (linearised metric
+Carleson). -/
+
+set_option linter.unusedVariables false
+
+open Real
+
+def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ := ∑ n ∈ Finset.Icc (-(N : ℤ)) N,
+    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * π))
+
+local notation "S_" => partialFourierSum
+
+/-- Theorem 1.0.1: Carleson's theorem asserting a.e. convergence of the partial Fourier sums for
+continous functions.
+For the proof, see `classical_carleson` in the file `Carleson.Classical.ClassicalCarleson`. -/
+def ClassicalCarleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
+    Prop := ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x))
+
+/-- The constant used from `R_truncation` to `metric_carleson`.
+Has value `2 ^ (443 * a ^ 3)` in the blueprint. -/
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
+
+/-- Theorem 1.0.2.
+For the proof, see `metric_carleson` in the file `Carleson.MetricCarleson.Main`. -/
+def MetricSpaceCarleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X}
+    {K : X → X → ℂ} [KernelProofData a K] {f : X → ℂ} [IsCancellative X (defaultτ a)]
+    (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+    (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)) : Prop :=
+    ∫⁻ x in G, carlesonOperator K f x ≤ C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
+
+/-- Theorem 1.0.3.
+For the proof, see `linearized_metric_carleson` in the file `Carleson.MetricCarleson.Linearized`. -/
+def LinearizedMetricCarleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X}
+    {K : X → X → ℂ} [KernelProofData a K] {Q : SimpleFunc X (Θ X)} {f : X → ℂ}
+    [IsCancellative X (defaultτ a)] (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
+    (mF : MeasurableSet F) (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+    (hT : ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+      2 2 volume volume (C_Ts a)) : Prop :=
+    ∫⁻ x in G, linearizedCarlesonOperator Q K f x ≤
+    C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
+
+end statements
