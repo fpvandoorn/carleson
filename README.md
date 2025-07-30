@@ -75,7 +75,7 @@ This shows the proof is complete and correct. Had the build failed or the output
 3. Run `lake exe cache get!` to download built dependencies (this speeds up the build process).
 4. Run `lake build` to build all files in this repository.
 
-See the README of [my course repository](https://github.com/fpvandoorn/LeanCourse23) for more detailed instructions.
+See the README of [Floris van Doorn's course repository](https://github.com/fpvandoorn/LeanCourse24) for more detailed instructions.
 
 ### In github codespaces
 
