@@ -79,7 +79,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     rcases hp with ⟨p, rfl, r, hr, h⟩
     use r, hr
     refine ENNReal.lt_div_iff_mul_lt ?_ (Or.inl measure_ball_ne_top) |>.mp h |>.le
-    have r0 : r > 0 := lt_of_lt_of_le (by have := defaultD_pos a; positivity) hr
+    have r0 : r > 0 := lt_of_lt_of_le (by have := realD_pos a; positivity) hr
     exact Or.inl <| (measure_ball_pos volume (𝔠 p) r0).ne.symm
   let r (p : 𝔓 X) := dite (p ∈ highDensityTiles) (fun hp ↦ Classical.choose (this p hp)) (fun _ ↦ 0)
   have hr {p : 𝔓 X} (hp : p ∈ highDensityTiles) := Classical.choose_spec (this p hp)
@@ -729,7 +729,7 @@ lemma boundary_exception {u : 𝔓 X} :
             -- small boundary property assumption for 𝓘 u
             have small_boundary_h : D ^ ((- S - s (𝓘 u)) : ℤ) ≤ t := by
               have one_le_nnreal_D : 1 ≤ (D : ℝ≥0) := by
-                have h1 : 1 ≤ (D : ℝ) := one_le_D
+                have h1 : 1 ≤ (D : ℝ) := one_le_realD _
                 assumption_mod_cast
               have small_boundary_h_intermediate : D ^ (- S : ℤ) ≤ t * D ^ (𝔰 u: ℤ) := by
                 rw [ht, D_pow_algebra,
@@ -941,7 +941,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
         ← ENNReal.inv_pow, ENNReal.rpow_natCast]
     _ ≤ 2 ^ (9 * a + 5) * D ^ (-1 : ℝ) * volume G * 2 := by
       gcongr
-      · exact_mod_cast one_le_D
+      · exact_mod_cast one_le_realD _
       · linarith [two_le_κZ (X := X)]
     _ = 2 ^ (9 * a + 6 - 𝕔 * a ^ 2 : ℤ) * volume G := by
       rw [← mul_rotate, ← mul_assoc, ← pow_succ', defaultD, Nat.cast_pow,

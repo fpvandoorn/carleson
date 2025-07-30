@@ -172,7 +172,7 @@ section GridManipulation
 variable [GridStructure X D κ S o]
 
 lemma c_mem_Grid {i : Grid X} : c i ∈ (i : Set X) := by
-  obtain ⟨hD⟩ := NeZero.of_pos <| zero_lt_one.trans_le one_le_D
+  obtain ⟨hD⟩ := NeZero.of_pos <| zero_lt_one.trans_le (one_le_realD _)
   exact mem_of_mem_of_subset (Metric.mem_ball_self (by positivity)) ball_subset_Grid
 
 lemma nonempty (i : Grid X) : (i : Set X).Nonempty := ⟨c i, c_mem_Grid⟩
@@ -401,12 +401,12 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
         have : (defaultA a : ℝ) ^ (𝕔 * a) = D := by
           simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat]
           rw [← pow_mul]; congr 1; ring
-        rw [this, zpow_add_one₀ (defaultD_pos a).ne']; ring
+        rw [this, zpow_add_one₀ (realD_pos a).ne']; ring
     _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c I, 4 * D ^ s J} f g := by
       gcongr
       have : s I < s J := (Grid.lt_def.mp hpq).2
       exact cdist_mono (ball_subset_ball (mul_le_mul_of_nonneg_left
-        (zpow_le_zpow_right₀ one_le_D (by omega)) zero_le_four))
+        (zpow_le_zpow_right₀ (one_le_realD _) (by omega)) zero_le_four))
     _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
       gcongr
       have : c I ∈ ball (c J) (4 * D ^ s J) :=
@@ -419,7 +419,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       rw [show (2 : ℝ) ^ (5 * (a : ℝ)) = (defaultA a) ^ 5 by norm_cast; ring]
       convert cdist_le_iterate _ f g 5 using 1
       · exact dist_congr rfl (by ring)
-      · have := @one_le_D a; positivity
+      · have := one_le_realD a; positivity
     _ = _ := by congr 1; rw [C2_1_2, ← add_mul]
 
 /-- Weaker version of Lemma 2.1.2. -/

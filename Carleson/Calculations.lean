@@ -46,7 +46,7 @@ lemma add_le_pow_two_add_cube {R : Type*} [Semiring R] [PartialOrder R] [IsOrder
 
 lemma calculation_1 (s : ℤ) :
     4 * (D : ℝ) ^ (-2 : ℝ) * D ^ (s + 3) = 4 * D ^ (s + 1) := by
-  have D_pos : (0 : ℝ) < D := defaultD_pos a
+  have D_pos : (0 : ℝ) < D := realD_pos a
   calc 4 * (D : ℝ) ^ (-2 : ℝ) * D ^ (s + 3)
   _ = 4 * (D ^ (-2 : ℝ) * D ^ (s + 3)) := by
     ring
@@ -59,7 +59,7 @@ lemma calculation_1 (s : ℤ) :
 
 lemma calculation_2 (s : ℤ) :
     ((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s + 3) = 8⁻¹ * D ^ s := by
-  have D_pos : (0 : ℝ) < D := defaultD_pos a
+  have D_pos : (0 : ℝ) < D := realD_pos a
   calc (8 : ℝ)⁻¹ * (D : ℝ) ^ (-3 : ℝ) * D ^ (s + 3)
   _ = (8 : ℝ)⁻¹ * (D ^ (-3 : ℝ) * D ^ (s + 3)) := by
     ring
@@ -90,11 +90,11 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y
     linarith [four_le_realD X]
   _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * (D ^ (y) * D ^ (- 1 : ℝ)) := by
     congr
-    exact_mod_cast Real.rpow_add (y := y) (z:= (-1)) (hx := defaultD_pos a)
+    exact_mod_cast Real.rpow_add (y := y) (z:= (-1)) (hx := realD_pos a)
   _ < 2 * D ^ y := by
     nth_rw 4 [mul_comm ..]
     rw [← mul_assoc ..]
-    have D_pos : (0 : ℝ) < D := defaultD_pos a
+    have D_pos : (0 : ℝ) < D := realD_pos a
     gcongr
     exact calculation_10 (hundred_lt_realD X)
 
@@ -146,8 +146,8 @@ lemma calculation_5 {dist_1 dist_2 : ℝ}
 
 lemma calculation_6 (a : ℕ) (s : ℤ) :
     (D : ℝ) ^ (s + 3) = (D : ℝ) ^ (s + 2) * (D : ℝ) := by
-  rw [zpow_add₀ (by linarith [defaultD_pos a]) s 3,
-    zpow_add₀ (by linarith [defaultD_pos a]) s 2, mul_assoc]
+  rw [zpow_add₀ (by linarith [realD_pos a]) s 3,
+    zpow_add₀ (by linarith [realD_pos a]) s 2, mul_assoc]
   congr
 
 lemma calculation_7 (a : ℕ) (s : ℤ) :
@@ -184,7 +184,7 @@ lemma calculation_11 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s 
   rw [right_distrib]
   gcongr
   · linarith
-  · exact one_lt_D (X := X)
+  · exact one_lt_realD (X := X)
   · linarith
 
 lemma calculation_12 (s : ℝ) :
@@ -254,7 +254,7 @@ lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s 
     4 * (D : ℝ) ^ s < 100 * D ^ (s + 1) := by
   gcongr
   · linarith
-  · exact one_lt_D (X := X)
+  · exact one_lt_realD (X := X)
   · linarith
 
 lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {n : ℕ} :

@@ -375,13 +375,13 @@ lemma R₁_le_D_zpow_div_four {R₁ : ℝ} : R₁ ≤ D ^ (L302 a R₁ - 1) / 4 
   have Dg1 := one_lt_realD X
   calc
     _ = (2 : ℝ) * D ^ Real.logb D (2 * R₁) := by
-      rw [Real.rpow_logb (defaultD_pos a) Dg1.ne' (by linarith only [hR₁])]; ring
+      rw [Real.rpow_logb (realD_pos a) Dg1.ne' (by linarith only [hR₁])]; ring
     _ ≤ D * D ^ (⌊Real.logb D (2 * R₁)⌋ + 1) := by
       rw [← Real.rpow_intCast]; gcongr
       · linarith only [four_le_realD X]
       · exact Dg1.le
       · push_cast; exact (Int.lt_floor_add_one _).le
-    _ = _ := by rw [← zpow_one_add₀ (defaultD_pos a).ne']; congr 1; omega
+    _ = _ := by rw [← zpow_one_add₀ (realD_pos a).ne']; congr 1; omega
 
 include K in
 lemma D_zpow_div_two_le_R₂ {R₂ : ℝ} (hR₂ : 0 < R₂) : D ^ (U302 a R₂) / 2 ≤ R₂ := by
@@ -389,12 +389,12 @@ lemma D_zpow_div_two_le_R₂ {R₂ : ℝ} (hR₂ : 0 < R₂) : D ^ (U302 a R₂)
   have Dg1 := one_lt_realD X
   calc
     _ = (D : ℝ)⁻¹ * D ^ (⌈Real.logb D (4 * R₂)⌉ - 1) := by
-      conv_rhs => rw [mul_comm, ← zpow_sub_one₀ (defaultD_pos a).ne']
+      conv_rhs => rw [mul_comm, ← zpow_sub_one₀ (realD_pos a).ne']
       congr 1; omega
     _ ≤ 2⁻¹ * (4 * R₂) := by
       gcongr; · linarith only [four_le_realD X]
       have : 0 < 4 * R₂ := by positivity
-      nth_rw 2 [← Real.rpow_logb (defaultD_pos a) Dg1.ne' this]
+      nth_rw 2 [← Real.rpow_logb (realD_pos a) Dg1.ne' this]
       rw [← Real.rpow_intCast]; gcongr
       · exact Dg1.le
       · push_cast; rw [sub_le_iff_le_add]; exact (Int.ceil_lt_add_one _).le
