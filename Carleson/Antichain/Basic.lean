@@ -87,8 +87,9 @@ lemma tile_disjointness {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) (
 
 open ENNReal Metric NNReal Real
 
-/-- Constant appearing in Lemma 6.1.2. -/
-noncomputable def C6_1_2 (a : ℕ) : ℕ := 2 ^ ((𝕔 + 7) * a ^ 3)
+/-- Constant appearing in Lemma 6.1.2.
+Has value `2 ^ (102 * a ^ 3)` in the blueprint. -/
+noncomputable def C6_1_2 (a : ℕ) : ℕ := 2 ^ ((𝕔 + 2) * a ^ 3)
 
 lemma C6_1_2_ne_zero (a : ℕ) : (C6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C6_1_2]; positivity
 
@@ -212,13 +213,9 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
       · gcongr
         rw [C6_1_2, add_comm (5 * a), add_assoc]; norm_cast
         apply pow_le_pow_right₀ one_le_two
-        calc
-        _ ≤ (𝕔 + 1) * a ^ 3  + 6 * a ^ 3:= by
-          rw [add_le_add_iff_left]
-          ring_nf
-          gcongr
-          exact le_self_pow₀ (by linarith [four_le_a X]) (by omega)
-        _ = (𝕔 + 7) * a ^ 3 := by ring
+        ring_nf
+        suffices 6 * a ≤ a ^ 3 by omega
+        linarith [sixteen_times_le_cube (four_le_a X)]
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith) hDpow_pos)
     _ ≤ C6_1_2 a * MB volume 𝔄 𝔠 (8 * D ^ 𝔰 ·) f x := by
@@ -232,8 +229,8 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
     simp [h0]
 
 /-- Constant appearing in Lemma 6.1.3.
-Note: the proof shows that `111` can be replaced by `108`. -/
-noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 8) * a ^ 3) * (q - 1)⁻¹
+Has value `2 ^ (103 * a ^ 3)` in the blueprint. -/
+noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 3) * a ^ 3) * (q - 1)⁻¹
 
 -- Namespace for auxiliaries used in the proof of Lemma 6.1.3.
 namespace Lemma6_1_3
@@ -411,8 +408,8 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
           _ = (2 * q - 1) * (q - 1)⁻¹ := by field_simp [hqiq]
           _ ≤ _ := by gcongr; linarith only [q_mem_Ioc X |>.2]
   calc
-    _ ≤ 2 ^ ((𝕔 + 7) * a ^ 3) * (2 ^ (2 * a + 4) * (q - 1)⁻¹) := by simp [C6_1_2, hc_le]
-    _ ≤ 2 ^ ((𝕔 + 8) * a ^ 3) * (q - 1)⁻¹ := by
+    _ ≤ 2 ^ ((𝕔 + 2) * a ^ 3) * (2 ^ (2 * a + 4) * (q - 1)⁻¹) := by simp [C6_1_2, hc_le]
+    _ ≤ 2 ^ ((𝕔 + 3) * a ^ 3) * (q - 1)⁻¹ := by
       rw [← mul_assoc, ← pow_add]
       gcongr
       · norm_num

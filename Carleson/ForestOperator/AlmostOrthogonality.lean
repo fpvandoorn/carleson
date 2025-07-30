@@ -165,7 +165,7 @@ lemma indicator_adjoint_tree_estimate
     _ ≤ _ := adjoint_density_tree_bound2 bcs support_indicator_subset hg h2g hu
 
 /-- The constant used in `adjoint_tree_control`.
-Has value `2 ^ (203 * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (182 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 7 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
 
 lemma le_C7_4_3 (ha : 4 ≤ a) : C7_3_1_1 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a := by

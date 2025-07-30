@@ -729,8 +729,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
       exact ⟨Finset.min'_le _ _ mz, Finset.le_max' _ _ mz⟩
 
 /-- The constant used in `third_tree_pointwise`.
-Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
+Has value `2 ^ (128 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔 / 4) * a ^ 3)
 
 -- Used in the proof of Lemmas 7.1.3 and 7.1.6 to translate between `∑ p` into `∑ s`
@@ -1021,7 +1020,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       exact lintegral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
 
 /-- The constant used in `pointwise_tree_estimate`.
-Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (129 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3)
 
 lemma C7_1_6_le_C7_1_3 {a : ℕ} : C7_1_6 a ≤ C7_1_3 a := by
