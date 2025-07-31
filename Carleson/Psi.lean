@@ -401,7 +401,7 @@ def C2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3)
 Equal to `2 ^ (127 * a ^ 3)` in the blueprint. -/
 def D2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3)
 
--- 1.0.14.
+/-- Equation (1.1.11) in the blueprint -/
 lemma kernel_bound {s : ℤ} {x y : X} : ‖Ks s x y‖ₑ ≤ C_K a / vol x y := by
   change ‖K x y * ψ (D ^ (-s) * dist x y)‖ₑ ≤ C_K a / volume (ball x (dist x y))
   calc

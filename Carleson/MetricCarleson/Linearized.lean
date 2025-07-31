@@ -100,7 +100,7 @@ lemma measurable_lcoConvergent {n : ℕ} (mf : Measurable f) (nf : (‖f ·‖) 
     simp_rw [← Rat.cast_lt (K := ℝ), Rat.cast_inv, Rat.cast_pow, Rat.cast_ofNat] at bR₁ bR₂ bR₃
     use R₁, ⟨bR₁, bR₂.trans bR₃⟩, R₂, ⟨bR₂, bR₃⟩
 
-/-- Theorem 1.0.3 -/
+/-- Theorem 1.1.2 -/
 theorem linearized_metric_carleson [IsCancellative X (defaultτ a)]
     (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
