@@ -659,15 +659,11 @@ private lemma ψ_ineq {x y y' : X} :
       apply mul_le_mul_left'
       rw [edist_dist, edist_dist, ENNReal.ofReal_le_ofReal_iff (by positivity)]
       exact dist_dist_dist_le_right ..
-    _ ≤ _ := by
-      have : ‖((D : ℝ) ^ s)⁻¹‖ₑ * edist y y' = (edist y y' / D ^ s) := by
-        rw [ENNReal.div_eq_inv_mul]
-        congr
-        rw [Real.enorm_of_nonneg, ENNReal.ofReal_inv_of_pos, ENNReal.ofReal_zpow,
-          ENNReal.ofReal_natCast]
-        all_goals positivity
-      rw [← ENNReal.rpow_one (_ * _), this]
-      exact ENNReal.rpow_le_rpow_of_exponent_ge h.le (Nat.cast_inv_le_one a)
+    _ = (edist y y' / D ^ s) ^ (1 : ℝ) := by
+      rw [ENNReal.rpow_one, ENNReal.div_eq_inv_mul, Real.enorm_of_nonneg, ENNReal.ofReal_inv_of_pos,
+        ENNReal.ofReal_zpow, ENNReal.ofReal_natCast]
+      all_goals positivity
+    _ ≤ _ := ENNReal.rpow_le_rpow_of_exponent_ge h.le (Nat.cast_inv_le_one a)
 
 private lemma D_pow_a_inv : (D : ℝ) ^ (a : ℝ)⁻¹ = 2 ^ (𝕔 * a) :=
   calc
