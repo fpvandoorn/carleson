@@ -6,9 +6,9 @@ A formalized proof of a generalized Carleson's theorem in the [Lean interactive 
 Carleson's theorem is a statement about Fourier analysis: given a continuous periodic function $f\colon ℝ\to ℝ$, its Fourier converges to $f$ point-wise at almost every point.
 More precisely, let $f\colon\mathbb{R}\to \mathbb{C}$ be a $2\pi$-periodic bounded Borel measurable function.
 For each integer $n\in\mathbb{Z}$, define the $n$-th Fourier coefficient as
-$$ \widehat{f}_n:=\frac {1}{2\pi} \int_0^{2\pi} f(x) e^{- i nx} dx. $$
+$$\widehat{f}_n := \frac {1}{2\pi} \int_0^{2\pi} f(x) e^{- i nx} dx.$$
 For $N\geq 0$, define the partial Fourier sum as
-$$ s_Nf(x):=\sum_{n=-N}^N \widehat{f}_n e^{i nx}. $$
+$$s_Nf(x):=\sum_{n=-N}^N \widehat{f}_n e^{i nx}.$$
 Then Carleson's theorem states $\lim_{N\to\infty} s_N f(x) = f(x)$ for almost all $x\in\mathbb{R}$.
 
 Despite being simple to state, its proof is very hard. (It is also quite subtle: for instance, asking for point-wise convergence *everywhere* makes this false.)
