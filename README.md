@@ -1,6 +1,16 @@
 # Formalization of a generalized Carleson's theorem
 A formalized proof of a generalized Carleson's theorem in the [Lean interactive theorem prover](https://lean-lang.org/).
 
+## Links
+
+* [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/442935-Carleson) for coordination
+* [Webpage](https://florisvandoorn.com/carleson/)
+* [Blueprint](https://florisvandoorn.com/carleson/blueprint/)
+* [Blueprint as pdf](https://florisvandoorn.com/carleson/blueprint.pdf)
+* [Dependency graph](https://florisvandoorn.com/carleson/blueprint/dep_graph_document.html)
+* [Documentation pages for this repository](https://florisvandoorn.com/carleson/docs/)
+
+
 ## What is Carleson's theorem?
 
 Carleson's theorem is a statement about Fourier analysis: given a continuous periodic function $f\colon ℝ\to ℝ$, its Fourier converges to $f$ point-wise at almost every point.
@@ -43,13 +53,6 @@ This shows the proof is complete and correct. Had the build failed or the output
 (For the experts: this shows which axioms Lean used in the course of the proof. `propext` and `Quot.sound` are built into Lean's type theory, `Classical.choice` tells you that Lean's version of the axiom of choice was used.)
 
 ## Contribute
-
-* [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/442935-Carleson) for coordination
-* [Webpage](https://florisvandoorn.com/carleson/)
-* [Blueprint](https://florisvandoorn.com/carleson/blueprint/)
-* [Blueprint as pdf](https://florisvandoorn.com/carleson/blueprint.pdf)
-* [Dependency graph](https://florisvandoorn.com/carleson/blueprint/dep_graph_document.html)
-* [Documentation pages for this repository](https://florisvandoorn.com/carleson/docs/)
 
 ### Locally
 
