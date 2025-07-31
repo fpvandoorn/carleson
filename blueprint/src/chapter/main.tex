@@ -14,35 +14,95 @@
 % Regex to (hopefully) count the number of green borders:
 % \\leanok.*\n[^%\n]*\\lean
 
-\title{Carleson operators on doubling metric measure spaces}
+\title[Formalization of Carleson's theorem]{A blueprint for the formalization of Carleson's theorem on convergence of Fourier series}
 
 \date{\today}
 
 \begin{abstract}
-    We prove a new generalization of a theorem of Carleson, namely bounds for a generalized Carleson operator on doubling metric measure spaces.
-    Additionally, we explicitly reduce Carleson's classical result on pointwise convergence of Fourier series to this new theorem.
-    Both proofs are presented in great detail, suitable as a blueprint for computer verification using the current capabilities of the software package Lean.
-    Note that even Carleson's classical result has not yet been computer-verified.
+This paper is the blueprint underlying the Lean formalization of the proof of Carleson's classical result \cite{carleson} asserting almost everywhere convergence of Fourier series of continuous functions. We break up the proof into two steps, a reduction of the classical result to a new theorem that appears in the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric} and a proof of this new theorem, which is also detailed as blueprint in this paper. An early version of this blueprint was used to initiate the Lean formalization. During the formalization, many contributors elaborated the blueprint with minor corrections, modifications and extensions.
+The final version is presented here as a guide through the accompanying Lean code.
 \end{abstract}
 
 \maketitle
 
 \tableofcontents
 
-\textbf{Acknowledgements}: We greatly appreciate the help by anyone proof reading this blueprint or helping with the formalization process.
+% \textbf{Acknowledgements}: We greatly appreciate the help by anyone proof reading this blueprint or helping with the formalization process.
 
-\chapter{Introduction}
+\section{Introduction}
 
-In \cite{carleson}, L. Carleson addressed a classical question regarding the convergence of Fourier series of continuous functions by proving their pointwise convergence almost everywhere, as stated below in \Cref{classical-carleson}.
 
-Let $f$ be a complex valued, $2\pi$-periodic bounded Borel measurable function on the real line, and for an integer $n$, define the Fourier coefficient as
-\begin{equation}
-    \widehat{f}_n:=\frac {1}{2\pi} \int_0^{2\pi} f(x) e^{- i nx} dx .
+Trigonometric series represent functions as possibly infinite linear combinations of pure frequencies.
+They gained particular prominence through the work of J. Fourier, who used them in his analytical theory of heat \cite{Fourier}, see also \cite{MR3470070}, thereby establishing them as a tool for solving partial differential equations.
+Fourier also made the groundbreaking claim that a wide range of functions could be represented using trigonometric series. This sparked the interest of many mathematicians,
+including Dirichlet, who gave some rigorous conditions for convergence of Fourier series, as trigonometric series are now called. Dirichlet also opened a branch of analytic number theory partially inspired by the ideas of
+Fourier.
+Nowadays, Fourier analysis plays an important role in many areas of mathematics.
+
+
+With Euler's formula to represent pure frequencies in mind, a trigonometric polynomial can be expressed as
+\begin{equation}\label{eq:trig-series}
+    s_N(x):= \sum_{n=-N}^N c_n e^{inx} \ .
 \end{equation}
-Define the partial Fourier sum for $N\ge 0$ as
-\begin{equation}\label{eq:partial-fourier-sum}
-    S_Nf(x):=\sum_{n=-N}^N \widehat{f}_n e^{i nx}\ .
+The Fourier series is then defined as the limit $f$
+of such a sequence $s_N$ as $N$ tends to $\infty$.
+Fourier's vision to represent rather general functions raises two fundamental questions.
+The first question is to identify the appropriate choice of coefficients
+$c_n$ to use to represent a given $f$. The second question addresses the convergence of $s_N$ to $f$.
+
+The first question has a fairly canonical and standard answer, provided by the Fourier integral formula:
+\begin{equation}\label{eq:fourier-coefficients}
+    c_n:=\widehat{f}_n:=\frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx,
 \end{equation}
+ where the precise interpretation of the integral depends on the chosen theory of integration. For a continuous function $f$,
+Riemann's notion of the integral suffices. If $f$ is integrable in the Lebesgue sense,
+$f\in L^1(0,2\pi)$, the Lebesgue integral is appropriate. More generally, if
+$f$ is a distribution in the sense of Schwartz, supported in $[0,2\pi]$
+the integral can be understood as an evaluation against the periodic test function
+$e^{-i nx}$. In each case, the more general definitions reduce to the simpler ones within their respective more restrictive domains.
+Hence, the Fourier coefficients given by \eqref{eq:fourier-coefficients} serve as a universal choice.
+This choice is unique in several respects, in particular if one is to exactly reproduce
+a trigonometric polynomial $f$ in the form
+\eqref{eq:trig-series}.
+
+
+The second question of convergence bifurcates into the question of pointwise convergence
+of the series \eqref{eq:trig-series} (with coefficients given by \eqref{eq:fourier-coefficients}) for a given $x$ on the one hand and convergence of the functions $s_N$ to the function $f$ in a suitable
+function space with corresponding topology on the other hand. There are at
+least as many function spaces for
+the question of convergence as there are different definitions of the integral elaborated earlier.
+There are some very
+canonical answers to the convergence question in function spaces, albeit not known at the time of Fourier and Dirichlet.
+One example is convergence in the Hilbert space sense for $f$ in $L^2(0,2\pi)$,
+as discovered in the first decade of the twentieth century
+as a consequence of the rapid development of Lebesgue integration theory.
+Another canonical example is convergence in the sense of distributions for general distributional $f$, as discovered a few decades after Lebesgue integration. For some other natural spaces, such as $L^1(0,2\pi)$, there is no guarantee of convergence in the
+norm of that space even if $f$ is in the space.
+
+
+In contrast to these examples of function spaces with a very natural theory of
+convergence of Fourier series in the topology of the function space, there are no similarly elegant solutions to the
+characterization of pointwise convergence.
+For example, the space of all functions $f$ such that the sequence of coefficients $\widehat{f}_n$ is absolutely summable, the natural condition on the Fourier coefficients $\widehat{f}_n$ to give pointwise absolute convergence,
+has no good characterization more
+directly in terms of $f$ itself.
+
+
+When the Fourier integral is defined in the Lebesgue sense and
+$f\in L^1(0,2\pi)$, then the function
+$f$ itself is meaningful not everywhere but only pointwise almost everywhere
+in the Lebesgue sense. The question of pointwise convergence to $f$ for all $x$ then becomes
+meaningless, and instead one asks for almost everywhere convergence.
+Such convergence
+was conjectured by N. Luzin \cite{Luzin13}
+for the space
+$f\in L^2(0,2\pi)$, see also the collected works \cite{Luzin53}. Kolmogorov's example \cite{Kolmogorov} of an $L^1$ function whose Fourier series diverges at almost every point seemed to provide some evidence against Luzin's conjecture.
+Indeed, in the 1960s, L. Carleson tried to construct a counterexample to Luzin's conjecture.
+In his own recollection, his efforts led him to better and better understand how such a potential counterexample should look like.
+In the end, the counterexample had to satisfy so many properties that the properties started to contradict each other,
+and Carleson realized that a counterexample could not exist.
+Thus, he had proved Luzin's conjecture \cite{carleson}.
+In particular, he had proven the more elementary statement
 
 \begin{theorem}[classical Carleson]
     \label{classical-carleson}
@@ -52,20 +112,108 @@ Define the partial Fourier sum for $N\ge 0$ as
     Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
     Then for almost all $x \in \mathbb{R}$ we have
     \begin{equation}\label{eq:fourier-limit}
-      \lim_{N\to\infty}S_N f(x) = f(x),
+      \lim_{N\to\infty}s_N f(x) = f(x),
     \end{equation}
-    where $S_N f$ is the $N$-th partial Fourier sum of $f$ defined in \eqref{eq:partial-fourier-sum}.
-    % In other words: the set of real numbers $x$ where \eqref{eq:fourier-limit} fails has Lebesgue measure $0$.
+    where $S_N f$ is the $N$-th partial Fourier sum of $f$ defined in \eqref{eq:trig-series}
+    with coefficients \eqref{eq:fourier-coefficients}.
 \end{theorem}
 
-The purpose of this paper is twofold. On the one hand, it prepares computer verification of \Cref{classical-carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
+Here, almost every $x$ means in the Lebesgue sense, i.e., for every $\epsilon>0$ the set of $x$ where convergence fails can be covered by a sequence of intervals
+such that the sum of the lengths of these
+intervals is less than $\epsilon$. While Carleson had proven the more general Luzin conjecture for functions in $L^2[0,2\pi]$, even this more elementary statement for continuous functions was not known before Carleson's work
+and until now has not seen any substantially easier proof than
+those generalizing to $L^2$, partially because there is no readily usable criterion on the level of
+Fourier coefficients to distinguish between continuous functions and $L^2$
+functions.
 
-We proceed to introduce the setup for our general theorem.
-We carry a multi purpose parameter, a natural number
+
+Shortly after Carleson's breakthrough, Hunt \cite{MR238019} proved the analogous result for $L^p$ functions
+with $p>1$ and for functions in $L^1\log(L)^2$.
+Billard \cite{MR217510} adapted Carleson's arguments to prove almost everywhere convergence of Walsh-Fourier series
+for functions in $L^2$.
+
+
+In \cite{fefferman}, C. Fefferman gave an alternative proof of Carleson's theorem via an a priori
+bound for Carleson's operator, the maximally modulated singular integral
+\begin{equation}\label{eq:feffermancarleson}
+    Tf(x):=\sup_{N} \int_{-\pi}^\pi e^{iNy}f(x-y)\frac 1y {dy}\, .
+\end{equation}
+In \cite{lacey-thiele}, a duality
+between the approaches by Carleson and Fefferman was pointed out and a more symmetric and self-dual proof
+presented.
+
+
+Various strengthenings of Fefferman's estimates for Carleson's operator have appeared since, such as bounds for a higher dimensional Carleson operator in the isotropic
+\cite{MR336222}, \cite{MR2007237} and anisotropic \cite{MR4014801} setting.
+The supremum norm in the variable $N$ in \eqref{eq:feffermancarleson} was strengthened
+to maximal multiplier norms in \cite{MR2420509} with applications to return times theorems in ergodic theory.
+It was strengthened to variation norms $V^r$ with $r>2$ in \cite{MR2881301} with applications to nonlinear analysis.
+
+Stein and Wainger \cite{stein-wainger} proposed to study variants of \eqref{eq:feffermancarleson} replacing the
+linear modulation phase $Ny$ by polynomial phases in $y$ and proved a result for polynomials without a linear term.
+This was generalized by Lie to general polynomial Carleson operators, first for a supremum over all quadratic
+polynomials \cite{lie-quadratic} and the for a supremum over all polynomials in \cite{lie-polynomial}.
+The polynomial Carleson operator was further generalized to higher dimensions and H\"older regular kernels in \cite{zk-polynomial}.
+The development of polynomial Carleson operators has led to further generalisations, for example to almost everywhere convergence of Malmquist-Takenaka series
+\cite{mnatsakanyan} and maximally modulated singular Radon transforms \cite{ramos}, \cite{becker2024maximal}.
+
+Surveys to Carleson's theorem can be found in \cite{MR2091007},\cite{MR3334208}.
+
+In this blueprint, we prove Theorem \ref{classical-carleson} as a corollary to a further generalization of the polynomial Carleson operator towards doubling metric measure spaces,
+Theorem \ref{metric-space-Carleson} below,
+which is new and appears in the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric}.
+Theorem \ref{metric-space-Carleson} is an axiomatic approach to
+Carleson type theorems on doubling metric measure spaces.
+This axiomatic approach is suitable for formalization and a good route towards the classical theorem.
+
+Early drafts of the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric} existed in summer 2023.
+Based on this, the first draft of the present blueprint was written in the first half of 2024,
+containing a much more detailed proof, which involved increasing the size by a factor of four,
+and adding the derivation of Carleson's classical result.
+In June 2024, the fourth author launched a \href{https://florisvandoorn.com/carleson/}{public website}
+to post the blueprint, using the open-source software \texttt{leanblueprint} developed by Patrick Massot,
+calling for contributions to formalize the proof.
+The goal was to formalize the blueprint in the Lean proof assistant~\cite{moura2021lean},
+building on top of its mathematical library \texttt{Mathlib}~\cite{mathlib}.
+The work was split up into about 180 tasks, to be claimed by individual contributors.
+Most tasks were to formalize the proof of a single lemma from the blueprint, and some were to develop basic theory or refactor existing code.
+The contributors adapted the blueprint to fix some gaps found during the formalization and gave feedback that led to discussions about the proof.
+This even resulted in a few changes to the general setup and the main theorems.
+All of the gaps found required only fairly localized changes to the blueprint, indicating that the initial blueprint was already of high quality.
+The formalization was completed in July 2025. It is attached to this arXiv posting, and the latest version can be found \href{https://github.com/fpvandoorn/carleson}{on Github}.
+
+Everyone that completed a substantial amount of tasks is included as a coauthor of the blueprint.
+The authors acknowledge contributions in the form of small formalization additions,
+pointing out corrections to the blueprint,
+or supplying ideas to the Lean efforts by the following people:
+Michel Alexis,
+Bolton Bailey,
+Julian Berman,
+Joachim Breitner,
+Martin Dvořák,
+Georges Gonthier,
+Aaron Hill,
+Austin Letson,
+Bhavik Mehta,
+Eric Paul,
+Clara Torres,
+Dennis Tsar,
+Andrew Yang,
+Ruben van de Velde.
+
+\noindent \textit{Acknowledgement.}
+L.B., M.I.d.F.F., L.D., F.v.D., M.R., R.S., and C.T. were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
+L.B. , R.S., and C.T. were also supported by SFB 1060.
+A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
+
+\subsection{Statement of the metric space Carleson theorems}
+
+Let
 \begin{equation}
     a\ge 4
-\end{equation} in our notation that as it gets larger will allow more general applications but will worsen the constants in the estimates.
-
+\end{equation}
+be a natural number that as it gets larger will allow for more general applications of Theorem \ref{metric-space-Carleson}
+but will worsen the constants in the estimates.
 
 
 A doubling metric measure space $(X,\rho,\mu, a)$ is a complete
@@ -74,12 +222,16 @@ equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the d
 \begin{equation}\label{doublingx}
     \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
 \end{equation}
-where we have denoted by $B(x,R)$ the open ball of radius $R$ centred at $x$:
+where we have denoted by $B(x,R)$ the open ball of radius $R$ centered at $x$:
 \begin{equation}\label{eq-define-ball}
  B(x,R):=\{y\in X: \rho(x,y)<R\}. \end{equation}
 In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
-A collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible, if there is a point $o\in X$ where all the functions are equal to $0$, and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$, such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied. For every ball $B \subset X$
+A collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
+if there is a point $o\in X$ where all the functions are equal to $0$,
+and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$,
+such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied.
+For every ball $B \subset X$
 \begin{equation}\label{osccontrol}
     \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb)\,.
 \end{equation}
@@ -144,7 +296,7 @@ We define the generalized Carleson operator $T$ by
 \end{equation}
 where $e(r)=e^{ir}$.
 
-Our main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
+Our first main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
 which by interpolation techniques recovers $L^q$ estimates for the open range $1<q<2$.
 \begin{theorem}[metric space Carleson]
 \label{metric-space-Carleson}
@@ -153,7 +305,8 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
 \lean{metric_carleson}
     For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
-    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$.
+    Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{nontanbound}
         \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
@@ -166,6 +319,11 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
     \end{equation}
 \end{theorem}
 
+In some applications, such as the Walsh-case of Carleson's theorem, the kernel $K$ naturally depends also on the modulation functions $\mfa$.
+The fact that we don't assume H\"older-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
+
+We now state another Theorem with a slightly weaker replacement of the assumption \eqref{nontanbound}.
+It implies the Walsh-case of Carleson's theorem.
 For a Borel function $\tQ:X\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
 \begin{equation}
     R_{\tQ}(\mfa,x)=\sup\{r>0:d_{B(x,r)}(\mfa, \tQ(x))<1\}
@@ -205,40 +363,20 @@ where again $e(r)=e^{ir}$.
     \end{equation}
 \end{theorem}
 
-We note that in Chapter \ref{lin max} we formulate a variant of this theorem where
-$\tQ$ has countable range.
-
 \begin{remark}
-The value of the constant factor $2^(443a^3)$ in Theorems~\ref{metric-space-Carleson}
-and~\ref{linearised-metric-Carleson} is by no means sharp. For readability concerns, in most statements
-of this document, we write the constants as $2^{na^3}$ for some explicit constant $n$.
+The value of the constant factor $2^{443a^3}$ in Theorems~\ref{metric-space-Carleson}
+and~\ref{linearised-metric-Carleson} is by no means sharp.
+One source of non-sharpness is our choice to write for readability most constants in the form $2^{na^3}$ for some explicit constant $n$.
 
 An a posteriori byproduct of the Lean formalization of this document is that Theorems~\ref{metric-space-Carleson}
 and~\ref{linearised-metric-Carleson} remain true with $2^{44a^3}$ instead of $2^{443a^3}$. This is obtained by
 changing the parameter $D$ introduced in~\eqref{defineD} from $2^{100a^3}$ to $2^{7a^3}$, checking that exactly the same
 proof goes through, tracking the constants, and getting $2^{44a^3}$ in the end. This value is again by no means sharp.
+In the formalization we define the parameter $D$ as $2^{\mathbb{c}a^3}$
+and the constants in this blueprint are obtained by setting $\mathbb{c} = 100$.
 \end{remark}
 
-In the one-dimensional Euclidean setting, with $K$ representing the Hilbert kernel:
-\begin{equation*}
-    K(x,y)=(x-y)^{-1}
-\end{equation*}
-and $\Mf$ denoting the class of linear functions, the operator \eqref{def-main-op} is the classical Carleson operator, which plays a crucial role in proving the almost everywhere convergence of Fourier series \cite{carleson}, \cite{fefferman}, \cite{lacey-thiele}. The supremum in $R_1$ and $R_2$ is often omitted in classical treatments, but considering the maximal truncations can easily be reduced to the case without these truncations.
-
-By replacing $\Mf$ with the class of polynomials vanishing at $0$ up to some fixed but arbitrary degree, we obtain the polynomial Carleson operator of Lie \cite{lie-quadratic} (quadratic case) and \cite{lie-polynomial}. The case of the class of polynomials with vanishing linear coefficient is simpler and was estimated in \cite{stein-wainger}. The polynomial Carleson operator was generalized to the high-dimensional Euclidean setting in \cite{zk-polynomial} for $K$ being a Calder\'on-Zygmund kernel with some H\"older regularity.
-
-Doubling metric measure spaces are instances of spaces of homogeneous type. Indeed, by changing from a quasi-metric to an equivalent metric, every space of homogeneous type can be viewed as a doubling metric measure space (cf. \cite{MaciasSegovia}). Spaces of homogeneous type were introduced by \cite{MR0499948} as a natural setting for Calder\'on-Zygmund theory. We refer to the textbook \cite{stein-book} for an account of these spaces.
-
-Our concept of a compatible collection $\Mf$ as a natural class of phase functions on a doubling metric measure space does not appear in \cite{stein-book} but is implicitly anticipated in \cite{zk-polynomial} and subsequent work of \cite{mnatsakanyan}, who proves a Carleson-type theorem for the Malmquist-Takenaka series, which leads to classes of phases related to Blaschke products. A generalization of \eqref{def-main-op} from the previously mentioned Euclidean setting into the anisotropic setting that was suggested in \cite{zk-polynomial} is included in our theory. The polynomial Carleson operator also plays a role in the study of maximally modulated singular Radon transforms along the parabola, see \cite{ramos} and \cite{becker2024maximal}.
-
-For the proof of \Cref{metric-space-Carleson}, we largely follow \cite{zk-polynomial}, which in turn was inspired by \cite{lie-polynomial}. We make suitable modifications to adapt to our more general setting and have made a few technical improvements in the proof. In particular, in \Cref{overviewsection}, we explicitly divide the main work of the proof into mutually independent sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. Some of these sections follow a similar pattern, starting with a subsection dividing the proof into further mutually independent subsections. This modularization of our proof was strongly endorsed in personal communication by the author of \cite{zk-polynomial}.
-
-\noindent \textit{Acknowledgement.}
-L.B., F.v.D., R.S., and C.T. were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
-L.B. , R.S., and C.T. were also supported by SFB 1060.
-A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
-
-\chapter{Proof of Metric Space Carleson, overview}
+\section{Proof of Metric Space Carleson, overview}
 \label{overviewsection}
 
 This section organizes the proof of \Cref{metric-space-Carleson} into sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. These sections are mutually independent except for referring to the statements formulated in the present section. \Cref{thmfromproplinear} proves the main \Cref{metric-space-Carleson}, while sections \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm} each prove one proposition that is stated in the present section. The present section also introduces all definitions used across these sections.
@@ -653,7 +791,7 @@ and for all $1 \le p_1 < p_2 \le \infty$
 
 This completes the overview of the proof of \Cref{metric-space-Carleson}.
 
-\section{Auxiliary lemmas}
+\subsection{Auxiliary lemmas}
 \label{global-auxiliary-lemmas}
 We close this section by recording some auxiliary lemmas about the objects defined in \Cref{overviewsection}, which will be used in multiple sections to follow.
 
@@ -808,7 +946,7 @@ We also record the following basic estimates for the kernels $K_s$.
 \end{proof}
 
 
-\chapter{Proof of Metric Space Carleson}
+\section{Proof of Metric Space Carleson}
 \label{thmfromproplinear}
 
 In this section we prove \Cref{metric-space-Carleson} and \Cref{linearised-metric-Carleson}.
@@ -1079,7 +1217,7 @@ This completes the proof of \Cref{linearized-truncation}
 and thus \Cref{metric-space-Carleson}.
 \end{proof}
 
-\chapter{Proof of Finitary Carleson}
+\section{Proof of Finitary Carleson}
 \label{christsection}
 
 To prove Proposition
@@ -1178,7 +1316,7 @@ This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and 
 \end{proof}
 
 
-\section{Proof of Grid Existence Lemma}
+\subsection{Proof of Grid Existence Lemma}
 \label{subsecdyadic}
 
 We begin with the construction of the centers of the dyadic cubes.
@@ -1629,7 +1767,7 @@ This proves $I\subset J$ and thus \eqref{dyadicproperty}.
 Now note that properties \eqref{dyadicproperty}, \eqref{eq-vol-sp-cube} and \eqref{eq-small-boundary} immediately carry over to $(\mathcal{D},c, s)$ by restriction. \eqref{subsetmaxcube} is true for $(\mathcal{D}, c, s)$ by definition, and \eqref{coverdyadic} follows from \eqref{coverdyadic} and \eqref{dyadicproperty} for $(\tilde{\mathcal{D}}, c, s)$.
 \end{proof}
 
-\section{Proof of Tile Structure Lemma}
+\subsection{Proof of Tile Structure Lemma}
 \label{subsectiles}
 Choose a grid structure $(\mathcal{D}, c, s)$ with \Cref{grid-existence}
 Let $I \in \mathcal{D}$. Suppose that
@@ -1797,14 +1935,14 @@ We now verify that $(\fP,\scI,\fc,\fcc,\pc,\ps)$ forms a tile structure.
     By \eqref{eq-it-omega}, it follows that $\Omega(\fq) \subset \Omega(\fq')$. Note that then $\scI(\fp) \subset \scI(\fq')$ and $\fc(\fp) \cap \fc(\fq') \ne \emptyset$ and $\ps(\fq') - \ps(\fp) = \ps(\fq) - \ps(\fp) - 1$. Thus, we have by the induction hypothesis that $\Omega(\fq') \subset \Omega(\fp)$. This completes the proof.
 \end{proof}
 
-\chapter{Proof of discrete Carleson}
+\section{Proof of discrete Carleson}
 \label{proptopropprop}
 
 
 
 Let a grid structure $(\mathcal{D}, c, s)$ and a tile structure $(\fP, \scI, \fc, \fcc)$ for this grid structure be given. In \Cref{subsectilesorg}, we decompose the set $\fP$ of tiles into subsets. Each subset will be controlled by one of three methods. The guiding principle of the decomposition is to be able to apply the forest estimate of \Cref{forest-operator} to the final subsets defined in \eqref{defc5}. This application is done in \Cref{subsecforest}. The miscellaneous subsets along the construction of the forests will either be thrown into exceptional sets, which are defined and controlled in \Cref{subsetexcset}, or will be controlled by the antichain estimate of \Cref{antichain-operator}, which is done in \Cref{subsecantichain}. \Cref{subsec-lessim-aux} contains some auxiliary lemmas needed for the proofs in Subsections \ref{subsecforest}-\ref{subsecantichain}.
 
-\section{Organisation of the tiles}\label{subsectilesorg}
+\subsection{Organisation of the tiles}\label{subsectilesorg}
 
 In the following definitions, $k, n$, and
 $j$ will be nonnegative integers.
@@ -2042,7 +2180,7 @@ and \Cref{forest-complement} and using both Lemmas as well
 as the bound on the set $G'$ given by \Cref{exceptional-set}.
 \end{proof}
 
-\section{Proof of the Exceptional Sets Lemma}
+\subsection{Proof of the Exceptional Sets Lemma}
 \label{subsetexcset}
 
 
@@ -2483,7 +2621,7 @@ Adding up the bounds in Lemmas \ref{first-exception}, \ref{second-exception}, an
 \end{proof}
 
 
-\section{Auxiliary lemmas}
+\subsection{Auxiliary lemmas}
 \label{subsec-lessim-aux}
 Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some useful properties of $\lesssim$.
 
@@ -2772,7 +2910,7 @@ there exists $J\in \mathcal{D}$ with
     $$
 \end{proof}
 
-\section{Proof of the Forest Union Lemma}
+\subsection{Proof of the Forest Union Lemma}
 \label{subsecforest}
 
 Fix $k,n,j\ge 0$.
@@ -3102,7 +3240,7 @@ We now turn to the proof of \Cref{forest-union}.
     which completes the proof of the lemma.
 \end{proof}
 
-\section{Proof of the Forest Complement Lemma}
+\subsection{Proof of the Forest Complement Lemma}
 \label{subsecantichain}
 
 Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(\scI(\fp) \cap (G \setminus  G')) > 0$.
@@ -3256,7 +3394,7 @@ We now turn to the proof of \Cref{forest-complement}.
     This completes the proof.
 \end{proof}
 
-\chapter{Proof of the Antichain Operator Proposition}
+\section{Proof of the Antichain Operator Proposition}
 
 \label{antichainboundary}
 
@@ -3282,7 +3420,7 @@ geometric \Cref{antichain-tile-count} counting the relevant tile pairs.
 
 
 
-\section{The density arguments}\label{sec-TT*-T*T}
+\subsection{The density arguments}\label{sec-TT*-T*T}
 
 We begin with the following crucial disjointedness property of the sets $E(\fp)$ with $\fp \in \mathfrak{A}$.
 \begin{lemma}[tile disjointness]
@@ -3623,7 +3761,7 @@ With the definition of $p$, this implies
 \end{proof}
 
 
-\section{Proof of the Tile Correlation Lemma}\label{sec-tile-operator}
+\subsection{Proof of the Tile Correlation Lemma}\label{sec-tile-operator}
 
 The next lemma prepares an application of
 \Cref{Holder-van-der-Corput}.
@@ -3867,7 +4005,7 @@ we conclude
 
 
 
-\section{Proof of the Antichain Tile Count Lemma}
+\subsection{Proof of the Antichain Tile Count Lemma}
 \label{subsec-geolem}
 
 
@@ -4254,11 +4392,11 @@ $$
 Using that $p = 4a^4$ and $a \ge 4$, this proves the lemma.
 \end{proof}
 
-\chapter{Proof of the Forest Operator Proposition}
+\section{Proof of the Forest Operator Proposition}
 
 \label{treesection}
 
-\section{The pointwise tree estimate}
+\subsection{The pointwise tree estimate}
 Fix a forest $(\fU, \fT)$. The main result of this subsection is \Cref{pointwise-tree-estimate}, we begin this section with some definitions necessary to state the lemma.
 
 For $\fu \in \fU$ and $x\in X$, we define
@@ -4546,7 +4684,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     This completes the proof.
 \end{proof}
 
-\section{An auxiliary \texorpdfstring{$L^2$}{L2} tree estimate}
+\subsection{An auxiliary \texorpdfstring{$L^2$}{L2} tree estimate}
 
 In this subsection we prove the following estimate on $L^2$ for operators associated to trees.
 
@@ -4808,7 +4946,7 @@ Now we can bound the operators $S_{1, \fu}$.
     The lemma now follows by choosing $g = S_{1,\fu}f$ and dividing on both sides by the finite $\|S_{1,\fu}f\|_2$.
 \end{proof}
 
-\section{The quantitative \texorpdfstring{$L^2$}{L2} tree estimate}
+\subsection{The quantitative \texorpdfstring{$L^2$}{L2} tree estimate}
 
 The main result of this subsection is the following quantitative bound for operators associated to trees, with decay in the densities $\dens_1$ and $\dens_2$.
 
@@ -5056,7 +5194,7 @@ Now we prove the two auxiliary estimates.
 
 \end{proof}
 
-\section{Almost orthogonality of separated trees}
+\subsection{Almost orthogonality of separated trees}
 
 The main result of this subsection is the almost orthogonality estimate for operators associated to distinct trees in a forest in \Cref{correlation-separated-trees} below. We will deduce it from Lemmas \ref{correlation-distant-tree-parts} and \ref{correlation-near-tree-parts}, which are proven in Subsections \ref{subsec-big-tiles} and \ref{subsec-rest-tiles}, respectively. Before stating it, we introduce some relevant notation.
 
@@ -5244,12 +5382,12 @@ $$
     T_{\fC} f := \sum_{\fp \in \fC} T_{\fp} f\,, \quad\quad T_{\fC}^* g := \sum_{\fp\in\fC} T_{\fp}^* g\,.
 $$
 
-\section{Proof of the Tiles with large separation Lemma}
+\subsection{Proof of the Tiles with large separation Lemma}
     \label{subsec-big-tiles}
 
 \Cref{correlation-distant-tree-parts} follows from the van der Corput estimate in \Cref{Holder-van-der-Corput}. We apply this proposition in \Cref{subsubsec-van-der-corput}. To prepare this application, we first, in \Cref{subsubsec-pao}, construct a suitable partition of unity, and show then, in \Cref{subsubsec-holder-estimates} the H\"older estimates needed to apply \Cref{Holder-van-der-Corput}.
 
-\subsection{A partition of unity}
+\subsubsection{A partition of unity}
 \label{subsubsec-pao}
     Define
     $$
@@ -5392,7 +5530,7 @@ $$
     \end{proof}
 
 
-\subsection{H\"older estimates for adjoint tree operators}
+\subsubsection{H\"older estimates for adjoint tree operators}
 \label{subsubsec-holder-estimates}
     Let $g_1, g_2:X \to \mathbb{C}$ be bounded with bounded support.
     Define for $J \in \mathcal{J}'$
@@ -5782,7 +5920,7 @@ $$
         Using that $\rho(y,y') \le 32D^{s(J)}$ and $a \ge 4$, the lemma follows.
     \end{proof}
 
-\subsection{The van der Corput estimate}
+\subsubsection{The van der Corput estimate}
 \label{subsubsec-van-der-corput}
     \begin{lemma}[lower oscillation bound]
         \label{lower-oscillation-bound}
@@ -5855,7 +5993,7 @@ $$
     Applying the Cauchy-Schwarz inequality, \Cref{correlation-distant-tree-parts} follows.
     \end{proof}
 
-\section{Proof of The Remaining Tiles Lemma}
+\subsection{Proof of The Remaining Tiles Lemma}
     \label{subsec-rest-tiles}
     We define
     $$
@@ -6087,7 +6225,7 @@ $$
 
 
 
-\section{Forests}
+\subsection{Forests}
 In this subsection, we complete the proof of \Cref{forest-operator} from the results of the previous subsections.
 
 Define an $n$-row to be an $n$-forest $(\fU, \fT)$, i.e. satisfying conditions \eqref{forest1} - \eqref{forest6}, such that in addition the sets $\scI(\fu), \fu \in \fU$ are pairwise disjoint.
@@ -6309,7 +6447,7 @@ Now we prove \Cref{forest-operator}.
     \Cref{forest-operator} follows by taking the product of the $(2 - \frac{2}{q})$-th power of \eqref{eq-forest-bound-1} and the $(\frac{2}{q} - 1)$-st power of \eqref{eq-forest-bound-2}.
 \end{proof}
 
-\chapter{Proof of the H\"older cancellative condition}
+\section{Proof of the H\"older cancellative condition}
 \label{liphoel}
 
 We need the following auxiliary lemma.
@@ -6533,7 +6671,7 @@ where we used $\tau\le 1$.
 This completes the proof of \Cref{Holder-van-der-Corput}.
 \end{proof}
 
-\chapter{Proof of Vitali covering and Hardy--Littlewood}
+\section{Proof of Vitali covering and Hardy--Littlewood}
 \label{sec-hlm}
 
 
@@ -6844,7 +6982,7 @@ It follows that for each $z \in B(x,r)$
 This completes the proof.
 \end{proof}
 
-\chapter{Two-sided Metric Space Carleson}
+\section{Two-sided Metric Space Carleson}
 
 We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Zygmund kernel on the doubling metric measure space $(X,\rho,\mu,a)$, i.e. a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
 \begin{equation}
@@ -6945,7 +7083,7 @@ Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD} and \Cref{subsec-cotlar} h
 
 
 
-\section{Proof of Cotlar's Inequality}
+\subsection{Proof of Cotlar's Inequality}
 \label{subsec-cotlar}
 
 \begin{lemma}[geometric series estimate]
@@ -7390,7 +7528,7 @@ $x'\in B(x,R_2)$, at which time the integral does not depend on $R_1$, we estima
 
 
 
-\section{Calder\'on-Zygmund Decomposition}
+\subsection{Calder\'on-Zygmund Decomposition}
 \label{subsec-CZD}
 Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
 It is classical and can be found in \cite{stein-book}.
@@ -7981,7 +8119,7 @@ Using \Cref{estimate-good}, \Cref{estimate-bad} and the definition \eqref{weak-1
 \end{proof}
 
 
-\chapter{Proof of The Classical Carleson Theorem}
+\section{Proof of The Classical Carleson Theorem}
 
 The convergence of partial Fourier sums is proved in
 \Cref{10classical} in two steps. In the first step,
@@ -7998,7 +8136,7 @@ All subsections past \Cref{10classical} are mutually independent.
 
 
 
-\section{The classical Carleson theorem}
+\subsection{The classical Carleson theorem}
 \label{10classical}
 
 Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$ and $\epsilon>0$ be given.
@@ -8364,7 +8502,7 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 
 
 
-\section{Smooth functions.}
+\subsection{Smooth functions.}
 \label{10smooth}
 \begin{lemma}
 \label{fourier-coeff-derivative}
@@ -8429,7 +8567,7 @@ Applying \Cref{fourier-coeff-derivative} twice and using the fact that $f''$ is 
 \end{proof}
 
 
-\section{The truncated Hilbert transform}
+\subsection{The truncated Hilbert transform}
 \label{10hilbert}
 
 
@@ -8802,7 +8940,7 @@ We now prove \Cref{Hilbert-strong-2-2}.
 
 
 
-\section{The proof of the van der Corput Lemma}
+\subsection{The proof of the van der Corput Lemma}
 \label{10vandercorput}
 
 \begin{proof}[Proof of \Cref{van-der-Corput}]
@@ -8860,7 +8998,7 @@ $$
 \end{proof}
 
 
-\section{Partial sums as orthogonal projections}
+\subsection{Partial sums as orthogonal projections}
 \label{10projection}
 
 This subsection proves \Cref{spectral-projection-bound}
@@ -8883,7 +9021,7 @@ Therefore we have
 This completes the proof of the lemma.
 \end{proof}
 
-\section{The error bound}
+\subsection{The error bound}
 \label{10difference}
 
 \begin{lemma}[Dirichlet kernel - Hilbert kernel relation]
@@ -9070,7 +9208,7 @@ Analogously, we get the same estimate for $|E_2|$. This completes the proof usin
 
 
 
-\section{Carleson on the real line}
+\subsection{Carleson on the real line}
 \label{10carleson}
 
 We prove \Cref{real-Carleson}.
