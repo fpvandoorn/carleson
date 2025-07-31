@@ -1,5 +1,4 @@
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.RealInterpolation.Misc
 
 /-!
@@ -24,7 +23,7 @@ variable {α α' ε E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measu
 /-! ## Minkowski's integral inequality -/
 namespace MeasureTheory
 
-lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : 0 < c) (hd : 0 < d):
+lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : 0 < c) (hd : 0 < d) :
     a ^ (c + d) = a ^ c * a ^ d := by
   have hcd : 0 < c + d := by linarith
   rcases (eq_or_ne a 0) with a_eq_zero | a_ne_zero
@@ -33,7 +32,7 @@ lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : 0 < c) (hd : 0 < d):
     · rw [a_eq_top, top_rpow_of_pos hcd, top_rpow_of_pos hc, top_rpow_of_pos hd, top_mul_top]
     · rw [ENNReal.rpow_add c d a_ne_zero a_ne_top]
 
-lemma eq_of_le_of_le (a b : ℝ≥0∞) (hab : a ≤ b) (hab': b ≤ a) : a = b := by
+lemma eq_of_le_of_le (a b : ℝ≥0∞) (hab : a ≤ b) (hab' : b ≤ a) : a = b := by
   rcases (eq_or_ne a b) with a_eq_b | a_ne_b
   · exact a_eq_b
   · rcases lt_or_gt_of_ne a_ne_b with a_lt_b | b_lt_a
@@ -330,61 +329,62 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
 @[measurability, fun_prop]
 theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restrict (Ioi 0)) := by
   -- ton is either increasing or decreasing
-  have mono_or_anti := tc.ton_is_ton
-  split_ifs at mono_or_anti
-  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi mono_or_anti.monotoneOn
-  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi mono_or_anti.antitoneOn
+  have tone := tc.ton_is_ton
+  split_ifs at tone
+  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi (tone.strictMonoOn _).monotoneOn
+  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi (tone.strictAntiOn _).antitoneOn
 
-@[measurability, nolint unusedHavesSuffices] -- TODO: remove nolint once the sorries are fixed
+@[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
-    NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖ₑ ≤ tc.ton (ENNReal.ofReal s) }
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
+    (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    NullMeasurableSet {(s, x) : ℝ≥0∞ × α | ‖g x‖ₑ ≤ tc.ton s }
         ((volume.restrict (Ioi 0)).prod μ) := by
   apply nullMeasurableSet_le hg.comp_snd.enorm
-  have : AEMeasurable ENNReal.ofReal := by fun_prop
-  sorry -- proof was: (ton_aeMeasurable tc).comp_fst
+  apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton a)
+  refine AEMeasurable.comp_aemeasurable ?_ aemeasurable_id'
+  simp only [Measure.map_id', ton_aeMeasurable]
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁]
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
-    NullMeasurableSet {(s, x) : ℝ × α | tc.ton (ENNReal.ofReal s) < ‖g x‖ₑ }
+    [BorelSpace E₁] (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    NullMeasurableSet {(s, x) : ℝ≥0∞ × α | tc.ton s < ‖g x‖ₑ }
         ((volume.restrict (Ioi 0)).prod μ) := by
   refine nullMeasurableSet_lt ?_ hg.comp_snd.enorm
-  sorry -- proof was: (ton_aeMeasurable tc).comp_fst; same issue as above
+  apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton a)
+  refine AEMeasurable.comp_aemeasurable ?_ aemeasurable_id'
+  simp only [Measure.map_id', ton_aeMeasurable]
 
 @[measurability]
 lemma AEMeasurable.trunc_ton {f : α → E₁}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [SigmaFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
-    AEMeasurable (fun a : ℝ × α ↦ (trunc f (tc.ton (ENNReal.ofReal a.1))) a.2)
-    ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f) )) := by
-  let A := {(s, x) : ℝ × α | ‖f x‖ₑ ≤ tc.ton (ENNReal.ofReal s)}
-  have : (fun z : ℝ × α ↦ (trunc f (tc.ton (ENNReal.ofReal z.1))) z.2) =
-      Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
+    AEMeasurable (fun a : ℝ≥0∞ × α ↦ (trunc f (tc.ton a.1)) a.2)
+    ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
+  let A := {(s, x) : ℝ≥0∞ × α | ‖f x‖ₑ ≤ tc.ton s}
+  have : (fun z : ℝ≥0∞ × α ↦ (trunc f (tc.ton z.1)) z.2) =
+      Set.indicator A (fun z : ℝ≥0∞ × α ↦ f z.2) := by
     ext z; simp [trunc, indicator, A]
   rw [this]
-  exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable hf.restrict _)).mpr
+  exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable (AEMeasurable.restrict hf) _)).mpr
     hf.restrict.comp_snd.restrict
 
 @[measurability]
 lemma AEMeasurable.truncCompl_ton {f : α → E₁}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [SigmaFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
-    AEMeasurable (fun a : ℝ × α ↦ ((truncCompl f (tc.ton (ENNReal.ofReal a.1)))) a.2)
-    ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f) )) := by
-  let A := {(s, x) : ℝ × α | tc.ton (ENNReal.ofReal s) < ‖f x‖ₑ}
-  have : (fun z : ℝ × α ↦ (truncCompl f (tc.ton (ENNReal.ofReal z.1))) z.2) = Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
+    AEMeasurable (fun a : ℝ≥0∞ × α ↦ ((truncCompl f (tc.ton a.1))) a.2)
+    ((volume.restrict (Ioi 0)).prod (μ.restrict f.support )) := by
+  let A := {(s, x) : ℝ≥0∞ × α | tc.ton s < ‖f x‖ₑ}
+  have : (fun z : ℝ≥0∞ × α ↦ (truncCompl f (tc.ton z.1)) z.2) = Set.indicator A (fun z : ℝ≥0∞ × α ↦ f z.2) := by
     ext z; rw [truncCompl_eq]; simp [A, indicator]
   rw [this]
   exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
     hf.restrict.comp_snd.restrict
 
 lemma restrict_to_support {p : ℝ} (hp : 0 < p) [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (f : α → E₁) :
-    ∫⁻ x : α in Function.support f, ‖trunc f t x‖ₑ ^ p ∂ μ = ∫⁻ x : α, ‖trunc f t x‖ₑ ^ p ∂μ := by
+    ∫⁻ x : α in f.support, ‖trunc f t x‖ₑ ^ p ∂ μ = ∫⁻ x : α, ‖trunc f t x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
   unfold Function.support trunc
   rw [setOf_subset_setOf]
@@ -394,7 +394,7 @@ lemma restrict_to_support {p : ℝ} (hp : 0 < p) [TopologicalSpace E₁] [ENorme
   simp_rw [f_zero]; simp [hp]
 
 lemma restrict_to_support_truncCompl {p : ℝ} [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (hp : 0 < p) (f : α → E₁) :
-    ∫⁻ x : α in Function.support f, ‖(truncCompl f t) x‖ₑ ^ p ∂μ =
+    ∫⁻ x : α in f.support, ‖(truncCompl f t) x‖ₑ ^ p ∂μ =
     ∫⁻ x : α, ‖(truncCompl f t) x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
   unfold Function.support
@@ -405,7 +405,7 @@ lemma restrict_to_support_truncCompl {p : ℝ} [TopologicalSpace E₁] [ENormedA
   simp [hp, f_zero]
 
 lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (hp : 0 < p) (f : α → E₁) :
-    ∫⁻ x : α in Function.support f, ‖trnc j f t x‖ₑ ^ p ∂μ =
+    ∫⁻ x : α in f.support, ‖trnc j f t x‖ₑ ^ p ∂μ =
     ∫⁻ x : α, ‖trnc j f t x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
   unfold Function.support trnc trunc truncCompl
@@ -418,25 +418,26 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁] [ENo
 
 @[fun_prop]
 theorem AEMeasurable.trunc_restrict
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] {j : Bool}
-    {hμ : SigmaFinite (μ.restrict (Function.support f))} (hf : AEMeasurable f μ) (tc : ToneCouple) :
+    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁] {j : Bool}
+    (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
-      ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) := by
+      ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
   by_cases hj: j
   · simp only [hj, trnc]
-    sorry -- was: hf.trunc_ton _
+    exact hf.trunc_ton _
   · simp only [hj, trnc]
-    sorry -- was: hf.truncCompl_ton _
+    exact hf.truncCompl_ton _
 
-lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    {j : Bool} {hμ : SigmaFinite (μ.restrict (Function.support f))}
+lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [TopologicalSpace.PseudoMetrizableSpace E₁]
+    [BorelSpace E₁] -- TODO: I needed to add these, is that acceptable?
+    {j : Bool} {hμ : SigmaFinite (μ.restrict f.support)}
     (hp₀ : 0 < p₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
     ∫⁻ (s : ℝ) in Ioi 0,
-        (∫⁻ (a : α) in Function.support f, ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
+        (∫⁻ (a : α) in f.support, ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) ≤
-    (∫⁻ a : α in Function.support f,
+    (∫⁻ a : α in f.support,
       (∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀) ^ (p₀⁻¹ * q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
@@ -444,13 +445,32 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
   · apply le_of_mul_le_mul_left _ hp₀
     field_simp [hp₀q₀]
   · unfold Function.uncurry
-    simp only [Pi.sub_apply]
-    sorry -- TODO: was fun_prop
+    -- TODO: this is quite some effort, somehow the infrastructure may need to be better
+    apply AEMeasurable.mul'
+    · fun_prop
+    · have : (fun a ↦ ‖trnc j f (tc.ton (ENNReal.ofReal a.1)) a.2‖ₑ ^ p₀) =
+          (fun a ↦ ‖trnc j f (tc.ton a.1) a.2‖ₑ ^ p₀ ) ∘
+          (Prod.map (fun a ↦ ENNReal.ofReal a) (fun a ↦ a)) := by rfl
+      rw [this]
+      apply AEMeasurable.comp_aemeasurable
+      · rw [← Measure.map_prod_map]
+        · simp only [Measure.map_id']
+          have : Measure.map (fun a ↦ ENNReal.ofReal a) (volume.restrict (Ioi 0)) = volume.restrict (Ioi 0) := by
+            simp [map_restrict_Ioi_eq_restrict_Ioi]
+          rw [this]
+          have : (fun a ↦ ‖trnc j f (tc.ton a.1) a.2‖ₑ ^ p₀) = (fun z : E₁ ↦ ‖ z ‖ₑ ^ p₀) ∘ (fun a : ℝ≥0∞ × α ↦ trnc j f (tc.ton a.1) a.2) := rfl
+          rw [this]
+          apply AEMeasurable.comp_aemeasurable
+          · fun_prop
+          · exact AEMeasurable.trunc_restrict (AEStronglyMeasurable.aemeasurable hf) _
+        · fun_prop
+        · fun_prop
+      · fun_prop
 
-lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
+lemma lintegral_congr_support {f : α → E₁} {g h : α → ENNReal}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    (hf : AEStronglyMeasurable f μ) (hgh : ∀ x ∈ Function.support f, g x = h x) :
-    ∫⁻ x : α in Function.support f, g x ∂μ = ∫⁻ x : α in Function.support f, h x ∂μ := by
+    (hf : AEStronglyMeasurable f μ) (hgh : ∀ x ∈ f.support, g x = h x) :
+    ∫⁻ x : α in f.support, g x ∂μ = ∫⁻ x : α in f.support, h x ∂μ := by
   refine lintegral_congr_ae (ae_iff.mpr ?_)
   rw [Measure.restrict_apply₀']
   · refine measure_mono_null (fun x h₀ ↦ ?_) measure_empty
@@ -458,7 +478,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
     have : x ∈ {a | ¬g a = h a} := mem_of_mem_diff h₀
     change ¬ (g x = h x) at this
     contradiction
-  · have : (Function.support f) = (Function.support (fun x ↦ ‖f x‖ₑ)) := by
+  · have : f.support = (fun x ↦ ‖f x‖ₑ).support := by
       unfold Function.support
       ext x
       simp only [ne_eq, mem_setOf_eq, enorm_eq_zero]
@@ -467,21 +487,22 @@ lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
 
 /-- One of the key estimates for the real interpolation theorem, not yet using
     the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
-@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁] [BorelSpace E₁]
+    [TopologicalSpace.PseudoMetrizableSpace E₁]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀q₀ : p₀ ≤ q₀)
-    (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (Function.support f)))
-    (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀) :
+    (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict f.support))
+    (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀)
+    (hpow_pos : 0 < q₀ + spf.σ⁻¹ * (q - q₀)) :
     ∫⁻ s : ℝ in Ioi 0,
     eLpNorm (trnc j f ((spf_to_tc spf).ton (ENNReal.ofReal s))) (ENNReal.ofReal p₀) μ ^ q₀ *
     ENNReal.ofReal (s ^ (q - q₀ - 1)) ≤
     (spf.d ^ (q - q₀)) * ENNReal.ofReal |q - q₀|⁻¹ *
-    (∫⁻ (a : α) in Function.support f,
+    (∫⁻ (a : α) in f.support,
     ‖f a‖ₑ ^ (p₀ + spf.σ⁻¹ * (q - q₀) * (p₀ / q₀)) ∂μ) ^ (p₀⁻¹ * q₀) := by
   have := spf.hd
   unfold eLpNorm eLpNorm'
-  set tc := spf_to_tc spf
+  set tc := (spf_to_tc spf).toToneCouple
   split_ifs with is_p₀pos is_p₀top
   · have : p₀ ≤ 0 := ofReal_eq_zero.mp is_p₀pos
     contrapose! this; exact hp₀
@@ -490,20 +511,19 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     calc
     _ = ∫⁻ s : ℝ in Ioi 0, ENNReal.ofReal (s ^ (q - q₀ - 1)) *
     ((∫⁻ (a : α), ↑‖trnc j f ((spf_to_tc spf).ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (1 / p₀)) ^ q₀ := by
-      --simp only [enorm_eq_nnnorm]
       congr 1
       ext x
       rw [mul_comm]
     _ = ∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹) ^ (p₀⁻¹ * q₀) *
-        (∫⁻ (a : α) in Function.support f, ↑‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
+        (∫⁻ (a : α) in f.support, ↑‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
       refine setLIntegral_congr_fun measurableSet_Ioi fun s hs ↦ ?_
       dsimp
       rw [ENNReal.rpow_inv_rpow]
       · rw [one_div, ← ENNReal.rpow_mul, restrict_to_support_trnc hp₀]
       · positivity
     _ = ∫⁻ (s : ℝ) in Ioi 0,
-        (∫⁻ (a : α) in Function.support f,
+        (∫⁻ (a : α) in f.support,
         ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
       refine setLIntegral_congr_fun measurableSet_Ioi fun s hs ↦ ?_
@@ -511,13 +531,13 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       rw [lintegral_const_mul', ENNReal.mul_rpow_of_nonneg]
       · positivity
       · exact (ENNReal.rpow_lt_top_of_nonneg (by positivity) coe_ne_top).ne
-    _ ≤ (∫⁻ a : α in Function.support f,
+    _ ≤ (∫⁻ a : α in f.support,
         (∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀) ^ (p₀⁻¹ * q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       -- This is a consequence of Minkowski's integral inequality
       apply lintegral_lintegral_pow_swap_truncCompl hp₀ hp₀q₀ hf tc; assumption
-    _ = (∫⁻ a : α in Function.support f,
+    _ = (∫⁻ a : α in f.support,
         (∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) *
         ↑‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
@@ -530,38 +550,39 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       rw [ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_inv_rpow, ← ENNReal.rpow_mul] <;> try positivity
       congr
       field_simp
-    _ = (∫⁻ a : α in Function.support f,
+    _ = (∫⁻ a : α in f.support,
         ((∫⁻ (s : ℝ) in res (xor j tc.mon) (tc.inv ‖f a‖ₑ),
         (ENNReal.ofReal (s ^ (q - q₀ - 1)))) * ‖f a‖ₑ ^ q₀) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       congr 1
       apply lintegral_congr_support hf
       intro x hfx
       congr 1
-      apply lintegral_trunc_mul _ hq₀ (enorm_pos.mpr hfx)
+      apply lintegral_trunc_mul _ hq₀
       measurability
-    _ = (∫⁻ a : α in Function.support f,
+    _ = (∫⁻ a : α in f.support,
         (((tc.inv ‖f a‖ₑ ^ (q - q₀ - 1 + 1) / ENNReal.ofReal |q - q₀ - 1 + 1|)) *
         ‖f a‖ₑ ^ q₀) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       congr 1
       apply lintegral_congr_support hf
       intro x hfx
       congr 2
-      · apply value_lintegral_res₀
-        · have : 0 < ‖f x‖ₑ := enorm_pos.mpr hfx
-          sorry -- proof was: apply tc.ran_inv
-        · split_ifs with h
-          · simp only [h, ↓reduceIte] at hpowers; linarith
-          · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
-    _ = (∫⁻ a : α in Function.support f,
+      apply value_lintegral_res₀
+      split_ifs with h
+      · simp only [h, ↓reduceIte] at hpowers; linarith
+      · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
+    _ ≤ (∫⁻ a : α in f.support,
         ((
         (spf.d ^ (q - q₀ - 1 + 1) * ‖f a‖ₑ ^ (spf.σ⁻¹ * (q - q₀ - 1 + 1) + q₀) /
         ENNReal.ofReal |q - q₀ - 1 + 1|))) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
-      congr 1
-      apply lintegral_congr_support hf
-      intro x hfx
-      congr 1
-      exact value_lintegral_res₁ (enorm_pos.mpr hfx)
-    _ = (∫⁻ a : α in Function.support f,
+      gcongr (?_) ^ (p₀⁻¹ * q₀)
+      apply setLIntegral_mono_ae
+      · fun_prop
+      · filter_upwards with x hfx
+        gcongr (?_) ^ (p₀⁻¹ * q₀)⁻¹
+        apply value_lintegral_res₂
+        · exact enorm_pos.mpr hfx
+        · simp only [sub_add_cancel]; linarith
+    _ = (∫⁻ a : α in f.support,
         (((spf.d ^ (q - q₀)) ^ (p₀⁻¹ * q₀)⁻¹ *
         (‖f a‖ₑ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹)) *
     ENNReal.ofReal |q - q₀|⁻¹ ^ (p₀⁻¹ * q₀)⁻¹))  ∂μ) ^ (p₀⁻¹ * q₀) := by
@@ -574,7 +595,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       have : q ≠ q₀ := by split_ifs at hpowers <;> order
       exact abs_sub_pos.mpr this
     _ = (spf.d ^ (q - q₀)) *
-        (∫⁻ (a : α) in Function.support f,
+        (∫⁻ (a : α) in f.support,
         ‖f a‖ₑ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹) ∂μ) ^ (p₀⁻¹ * q₀) *
         ENNReal.ofReal |q - q₀|⁻¹ := by
       rw [lintegral_mul_const', lintegral_const_mul', ENNReal.mul_rpow_of_nonneg,
@@ -585,7 +606,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         refine rpow_ne_top_of_nonneg (by positivity) (by finiteness)
       · finiteness
     _ = (spf.d ^ (q - q₀)) *
-        (∫⁻ (a : α) in Function.support f,
+        (∫⁻ (a : α) in f.support,
         ‖f a‖ₑ ^ (p₀ + spf.σ⁻¹ * (q - q₀) * (p₀ / q₀)) ∂μ) ^ (p₀⁻¹ * q₀) *
         ENNReal.ofReal |q - q₀|⁻¹ := by
       congr
@@ -602,12 +623,13 @@ def sel (j : Bool) (p₀ p₁ : ℝ≥0∞) := match j with | true => p₁ | fal
     the particular choice of exponent, but not yet using the
     particular choice of scale in the `ScaledPowerFunction`. -/
 lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (ht : t ∈ Ioo 0 1)
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁]
+    [BorelSpace E₁] [TopologicalSpace.PseudoMetrizableSpace E₁] (ht : t ∈ Ioo 0 1)
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hpq : sel j p₀ p₁ ≤ sel j q₀ q₁)
-    (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤)  (hp₀p₁ : p₀ < p₁)
+    (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤) (hp₀p₁ : p₀ < p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
-    (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (Function.support f)))
+    (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict f.support))
     (hspf : spf.σ = ζ p₀ q₀ p₁ q₁ t.toReal) :
     ∫⁻ s : ℝ in Ioi 0,
     eLpNorm (trnc j f ((spf_to_tc spf).ton (ENNReal.ofReal s))) (sel j p₀ p₁) μ ^ (sel j q₀ q₁).toReal *
@@ -617,10 +639,30 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     ((eLpNorm f p μ) ^ p.toReal) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
   have p_toReal_pos : 0 < p.toReal :=
     interp_exp_toReal_pos' ht hp₀ hp₁ hp (Or.inl hp₀p₁.ne_top)
+  have simpl_exp : (sel j p₀ p₁).toReal + spf.σ⁻¹ * (q.toReal - (sel j q₀ q₁).toReal) *
+      ((sel j p₀ p₁).toReal / (sel j q₀ q₁).toReal) =
+    p.toReal := by
+    rcases j
+    · dsimp only [sel]
+      rw [hspf]
+      apply ζ_equality₅ (hp₀p₁ := hp₀p₁.ne) <;> assumption
+    · dsimp only [sel]
+      rw [hspf]
+      apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> assumption
+  have : 0 < (sel j q₀ q₁).toReal := by
+    apply toReal_pos _ hq'
+    rcases j
+    · exact hq₀.ne'
+    · exact hq₁.ne'
+  have : 0 < (sel j p₀ p₁).toReal := by
+    apply toReal_pos _ hp'
+    rcases j
+    · exact hp₀.ne'
+    · exact hp₁.ne'
   calc
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
-      (∫⁻ (a : α) in Function.support f,
+      (∫⁻ (a : α) in f.support,
       ‖f a‖ₑ ^ ((sel j p₀ p₁).toReal + spf.σ⁻¹ * (q.toReal - (sel j q₀ q₁).toReal) *
       ((sel j p₀ p₁).toReal / (sel j q₀ q₁).toReal)) ∂μ) ^
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
@@ -665,20 +707,16 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
           · exact interp_exp_ne_top hq₀q₁ ht hq
           · exact (ζ_le_zero_iff_of_lt₁ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
                 (le_of_not_gt is_ζ_pos)
+    · have : 0 < (sel j p₀ p₁).toReal / (sel j q₀ q₁).toReal := by positivity
+      refine (pos_iff_pos_of_mul_pos ?_).mpr this
+      rw [add_mul, ← mul_div_assoc, mul_div_cancel_left₀, simpl_exp] <;> positivity
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
         ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
-        (∫⁻ (a : α) in Function.support f,
+        (∫⁻ (a : α) in f.support,
         (‖f a‖ₑ ^ p.toReal) ∂μ) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
     ext x
     congr
-    rcases j
-    · dsimp only [sel]
-      rw [hspf]
-      apply ζ_equality₅ (hp₀p₁ := hp₀p₁.ne) <;> assumption
-    · dsimp only [sel]
-      rw [hspf]
-      apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> assumption
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       (∫⁻ (a : α), ‖f a‖ₑ ^ p.toReal ∂μ) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
@@ -749,7 +787,6 @@ lemma eLpNorm_trnc_est {f : α → E₁} {j : Bool} :
     eLpNorm (trnc j f t) p μ ≤ eLpNorm f p μ := eLpNorm_mono_enorm fun _x ↦ trnc_le_func
 
 variable [ContinuousENorm ε₁] [ContinuousENorm ε₂] {T : (α → ε₁) → (α' → ε₂)} in
-@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : α → ε₁}
       (hq : 0 < q) (hq' : q < ⊤) (hf : MemLp f p μ)
     (h₀T : HasWeakType T p q μ ν C₀) (ht : 0 < t) :
@@ -760,18 +797,12 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
   have wt_est := (h₀T f hf).2 -- the weaktype estimate
   have q_pos : 0 < q.toReal := toReal_pos hq.ne' hq'.ne_top
   have tq_pos : 0 < t ^ q.toReal := ENNReal.rpow_pos_of_nonneg ht q_pos.le
-  have tq_ne_top : t ^ q.toReal ≠ ⊤ := by finiteness
-  -- have hq₁ : q.toReal = q := by exact toReal_ofReal q_nonneg
   simp only [wnorm, wnorm', hq'.ne_top, ↓reduceIte, iSup_le_iff] at wt_est
   have wt_est_t := wt_est t.toNNReal -- this is the weaktype estimate applied to t
-  sorry /- rw [← ENNReal.mul_le_mul_right (c := t ^ q.toReal) _ tq_ne_top,
-      mul_assoc _ _ (t ^ q.toReal), ← ofReal_mul',
-      ← Real.rpow_add, neg_add_cancel, Real.rpow_zero, ofReal_one, mul_one, mul_comm,
-      ← ENNReal.mul_rpow_of_nonneg] <;> try positivity
-  refine (ENNReal.rpow_inv_le_iff q_pos).mp ?_
-  rw [ENNReal.mul_rpow_of_nonneg, ENNReal.ofReal_rpow_of_pos,
-      Real.rpow_rpow_inv] <;> try positivity
-  rwa [← coe_coe_eq_ofReal] -/
+  have : ofNNReal t.toNNReal = t := coe_toNNReal ht'
+  rw [this, mul_le_iff_le_inv ht.ne' ht', mul_comm, ENNReal.rpow_inv_le_iff q_pos,
+      ENNReal.mul_rpow_of_nonneg _ _ q_pos.le, ENNReal.mul_rpow_of_nonneg _ _ q_pos.le,
+      ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, neg_one_mul] at wt_est_t; exact wt_est_t
 
 variable [ContinuousENorm ε₁] [ContinuousENorm ε₂] {T : (α → ε₁) → (α' → ε₂)} in
 lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
@@ -806,7 +837,7 @@ lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)
 -- try to generalize to ENorm-classes after Mathlib refactor
 variable {T : (α → E₁) → (α' → E₂)}
 
-lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α → E₁}
+lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀ : ℝ≥0∞} {f : α → E₁}
     (hp₀ : 0 < p₀) {q₀ : ℝ≥0∞} (hp : p ≠ ⊤) (hq₀ : 0 < q₀) (hq₀' : q₀ < ⊤)
     (hp₀p : p₀ ≤ p) (hf : MemLp f p μ)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (ht : 0 < t) {a : ℝ≥0∞} (ha : 0 < a) :
@@ -816,7 +847,7 @@ lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α
   exact truncCompl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ ha hf
 
 -- TODO: can we remove the hypothesis on a?
-lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α → E₁}
+lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁ : ℝ≥0∞} {f : α → E₁}
     (hp : 0 < p) (hq₁ : 0 < q₁) (hq₁' : q₁ < ⊤) (hp₁p : p ≤ p₁) (hf : MemLp f p μ)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) {a : ℝ≥0∞} (ha : a ≠ ⊤) :
     distribution (T (trunc f a)) t ν ≤ C₁ ^ q₁.toReal *
@@ -871,9 +902,9 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
       eLpNormEssSup_eq_zero_iff.mpr <| (eLpNorm_eq_zero_iff hf.1 p_pos.ne').mp snorm_0
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
       apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
-    have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
-        mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
-          (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
+    have := MemLp.eLpNorm_ne_top hf
+    have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ := by
+      finiteness
     have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
     have d_ne_top : d ≠ ⊤ := hdeq ▸ (by finiteness)
     have a_pos : 0 < a := ha ▸ ENNReal.rpow_pos (ENNReal.div_pos ht.ne' d_ne_top) (by finiteness)

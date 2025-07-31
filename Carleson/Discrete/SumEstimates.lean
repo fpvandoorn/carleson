@@ -1,7 +1,5 @@
-import Mathlib.Analysis.SumIntegralComparisons
-import Mathlib.Analysis.SpecialFunctions.Integrals
 import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
-import Mathlib.Data.Complex.ExponentialBounds
+import Mathlib.Analysis.SumIntegralComparisons
 
 open scoped Nat
 open Real MeasureTheory

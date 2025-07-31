@@ -53,7 +53,7 @@ lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal {s : Set ℝ≥0∞} (h : �
 lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal' {s : Set ℝ≥0∞} (h : ∞ ∈ s) :
     ENNReal.toReal '' s = NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) ∪ {0}:= by
   ext x
-  simp only [mem_image, mem_preimage]
+  simp only [mem_image]
   constructor
   · rintro ⟨y, hys, hyx⟩
     by_cases hy : y = ∞
@@ -77,7 +77,6 @@ lemma ENNReal.map_toReal_ae_eq_map_toReal_comap_ofReal {s : Set ℝ≥0∞} :
     apply insert_ae_eq_self
   rw [ENNReal.map_toReal_eq_map_toReal_comap_ofReal h]
 
-
 lemma ENNReal.volume_val {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
     volume s = volume (ENNReal.toReal '' s) := by
   calc volume s
@@ -85,6 +84,44 @@ lemma ENNReal.volume_val {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
       MeasureTheory.Measure.map_apply_of_aemeasurable (by fun_prop) hs
     _ = volume (NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s)) := NNReal.volume_val
     _ = volume (ENNReal.toReal '' s) := Eq.symm (measure_congr ENNReal.map_toReal_ae_eq_map_toReal_comap_ofReal)
+
+lemma ENNReal.volume_eq_volume_preimage {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
+    volume s = volume (ENNReal.ofReal ⁻¹' s ∩ Ici 0) := by
+  rw [ENNReal.volume_val hs, measure_congr ENNReal.map_toReal_ae_eq_map_toReal_comap_ofReal]
+  congr; ext x; simp only [mem_image, mem_preimage, mem_inter_iff, mem_Ici]
+  constructor <;> intro h
+  · obtain ⟨x', hx', rfl⟩ := h; simpa
+  · lift x to ℝ≥0 using h.2; rw [ofReal_coe_nnreal] at h; use x, h.1
+
+lemma Ioo_zero_top_ae_eq_univ : Ioo 0 ∞ =ᶠ[ae volume] Set.univ := by
+    simp only [ae_eq_univ]
+    rw [ENNReal.volume_val]
+    · have : (Ioo 0 ⊤)ᶜ = {0, ∞} := by rw [@compl_def]; ext x; simp [pos_iff_ne_zero]; tauto
+      rw [this]
+      have : ENNReal.toReal '' {0, ⊤} = { 0 } := by unfold image; simp
+      rw [this]
+      simp
+    · measurability
+
+lemma ae_in_Ioo_zero_top : ∀ᵐ x : ℝ≥0∞, x ∈ Ioo 0 ∞ := by
+  filter_upwards [Ioo_zero_top_ae_eq_univ] with a ha
+  simp only [eq_iff_iff] at ha; exact ha.mpr trivial
+
+lemma map_restrict_Ioi_eq_restrict_Ioi :
+    (volume.restrict (Ioi 0)).map ENNReal.ofReal = volume.restrict (Ioi 0) := by
+  ext s hs
+  rw [Measure.map_apply measurable_ofReal hs]
+  simp only [measurableSet_Ioi, Measure.restrict_apply']
+  rw [ENNReal.volume_eq_volume_preimage (by measurability)]
+  congr 1
+  ext x
+  simp +contextual [LT.lt.le]
+
+lemma map_restrict_Ioi_eq_volume :
+    (volume.restrict (Ioi 0)).map ENNReal.ofReal = volume := by
+  refine Eq.trans map_restrict_Ioi_eq_restrict_Ioi ?_
+  refine Measure.restrict_eq_self_of_ae_mem ?_
+  filter_upwards [ae_in_Ioo_zero_top] with a ha using ha.1
 
 --TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) :
@@ -95,7 +132,7 @@ lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ 
   · rintro ⟨y, hy, hyx⟩
     rwa [← hyx,
           toReal_le_toReal ha (lt_top_iff_ne_top.mp (hy.2.trans_lt (lt_top_iff_ne_top.mpr hb))),
-          toReal_le_toReal (lt_top_iff_ne_top.mp (hy.2.trans_lt (lt_top_iff_ne_top.mpr hb))) hb ]
+          toReal_le_toReal (lt_top_iff_ne_top.mp (hy.2.trans_lt (lt_top_iff_ne_top.mpr hb))) hb]
   · rintro hx
     use ENNReal.ofReal x
     constructor
@@ -110,22 +147,44 @@ example : volume (Set.Icc (3 : ℝ≥0∞) 42) = 39 := by
   rw [toReal_ofNat, Real.volume_Icc, ofReal_eq_ofNat]
   norm_num
 
-lemma integral_nnreal {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ici (0 : ℝ), f x.toNNReal := by
+lemma lintegral_nnreal_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ici (0 : ℝ), f x.toNNReal := by
   change ∫⁻ (x : ℝ≥0), f x = ∫⁻ (x : ℝ) in Ici 0, (f ∘ Real.toNNReal) x
   rw [← lintegral_subtype_comap measurableSet_Ici]
   simp
   rfl
 
-lemma integral_nnreal' {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f x.toNNReal := by
-  rw [integral_nnreal]
-  apply setLIntegral_congr
-  exact Filter.EventuallyEq.symm Ioi_ae_eq_Ici
+lemma lintegral_nnreal_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) := by
+  rw [lintegral_nnreal_eq_lintegral_Ici_ofReal]
+  exact setLIntegral_congr Ioi_ae_eq_Ici.symm
 
-lemma integral_ennreal {f : ℝ≥0∞ → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) := sorry
+lemma lintegral_ennreal_eq_lintegral_of_nnreal {f : ℝ≥0∞ → ℝ≥0∞} :
+    ∫⁻ x : ℝ≥0∞, f x = ∫⁻ x : ℝ≥0, f x := by
+  refine (MeasurePreserving.lintegral_comp_emb ⟨by fun_prop, rfl⟩ ?_ f).symm
+  refine isEmbedding_coe.measurableEmbedding ?_
+  rw [range_coe']; exact measurableSet_Iio
 
--- TODO: prove these integral lemmas and name them properly
-lemma todo' (f : ℝ≥0 → ℝ≥0∞) : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (Real.toNNReal x) := sorry
+lemma lintegral_ennreal_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} :
+    ∫⁻ x : ℝ≥0∞, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) :=
+  lintegral_ennreal_eq_lintegral_of_nnreal.trans lintegral_nnreal_eq_lintegral_Ioi_ofReal
 
-lemma todo'' (f : ℝ → ℝ≥0∞) : ∫⁻ x : ℝ≥0, f (x.toReal) = ∫⁻ x in Ioi (0 : ℝ), f x := sorry
+-- TODO: are there better names?
+lemma lintegral_nnreal_eq_lintegral_toNNReal_Ioi (f : ℝ≥0 → ℝ≥0∞) :
+    ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f x.toNNReal := by
+  rw [lintegral_nnreal_eq_lintegral_Ici_ofReal]
+  exact setLIntegral_congr Ioi_ae_eq_Ici.symm
+
+-- TODO: do we actually use this?
+lemma lintegral_nnreal_toReal_eq_lintegral_Ioi (f : ℝ → ℝ≥0∞) :
+    ∫⁻ x : ℝ≥0, f (x.toReal) = ∫⁻ x in Ioi (0 : ℝ), f x := by
+  rw [lintegral_nnreal_eq_lintegral_toNNReal_Ioi]
+  refine setLIntegral_congr_fun_ae measurableSet_Ioi ?_
+  filter_upwards with x hx
+  have : max x 0 = x := max_eq_left_of_lt hx
+  simp [this]
+
+lemma lintegral_nnreal_toReal_eq_lintegral_Ici (f : ℝ → ℝ≥0∞) :
+    ∫⁻ x : ℝ≥0, f (x.toReal) = ∫⁻ x in Ici (0 : ℝ), f x := by
+  rw [lintegral_nnreal_toReal_eq_lintegral_Ioi]
+  exact setLIntegral_congr Ioi_ae_eq_Ici
 
 -- TODO: lemmas about interaction with the Bochner integral

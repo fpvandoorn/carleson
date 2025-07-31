@@ -255,7 +255,7 @@ def C5_3_3 (a : ℕ) : ℝ := (1 - C2_1_2 a)⁻¹
 include q K σ₁ σ₂ F G in
 lemma C5_3_3_le : C5_3_3 a ≤ 11 / 10 := by
   rw [C5_3_3, inv_le_comm₀ (sub_pos.mpr <| C2_1_2_lt_one X) (by norm_num), le_sub_comm]
-  exact C2_1_2_le_inv_512 X |>.trans <| by norm_num
+  exact C2_1_2_le_inv_256 X |>.trans <| by norm_num
 
 variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
@@ -269,7 +269,7 @@ lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) : smul 
       _ ≤ smul (1 + C2_1_2 a * n) p := by
         apply smul_mono_left
         rwa [← le_sub_iff_add_le, ← one_sub_mul, ← inv_le_iff_one_le_mul₀']
-        linarith [C2_1_2_le_inv_512 (X := X)]
+        linarith [C2_1_2_le_inv_256 (X := X)]
       _ ≤ smul n p' := smul_C2_1_2 (k := 5⁻¹) n (by norm_num) h
         (smul_le_toTileLike.trans <| 𝔓.le_def.mp hp |>.trans toTileLike_le_smul)
 
@@ -278,7 +278,7 @@ lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') 
     smul 100 p ≤ smul 100 p' :=
   calc
     _ ≤ smul (10 + C2_1_2 a * 100) p :=
-      smul_mono_left (by linarith [C2_1_2_le_inv_512 (X := X)])
+      smul_mono_left (by linarith [C2_1_2_le_inv_256 (X := X)])
     _ ≤ _ := smul_C2_1_2 100 zero_lt_one hn hp
 
 /-- Lemma 5.3.3, Equation (5.3.5) -/
@@ -286,7 +286,7 @@ lemma wiggle_order_500 (hp : smul 2 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
     smul 4 p ≤ smul 500 p' :=
   calc
     _ ≤ smul (2 + C2_1_2 a * 500) p :=
-      smul_mono_left (by linarith [C2_1_2_le_inv_512 (X := X)])
+      smul_mono_left (by linarith [C2_1_2_le_inv_256 (X := X)])
     _ ≤ _ := smul_C2_1_2 500 zero_lt_one hn hp
 
 def C5_3_2 (a : ℕ) : ℝ := 2 ^ (-95 * (a : ℝ))
@@ -335,15 +335,14 @@ lemma subset_lowerCubes {𝔓' : Set (𝔓 X)} : 𝔓' ⊆ lowerCubes 𝔓' := f
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p' ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a : ℝ) *
-  ⨆ (p ∈ lowerCubes 𝔓') (_h2 : smul l p' ≤ smul l p),
-  volume (E₂ l p) / volume (𝓘 p : Set X)
+    ⨆ (p ∈ lowerCubes 𝔓') (_h2 : smul l p' ≤ smul l p),
+      volume (E₂ l p) / volume (𝓘 p : Set X)
 
 lemma dens₁_mono {𝔓₁ 𝔓₂ : Set (𝔓 X)} (h : 𝔓₁ ⊆ 𝔓₂) :
     dens₁ 𝔓₁ ≤ dens₁ 𝔓₂ := by
   simp only [dens₁, iSup_le_iff]
   intro p hp r hr
-  refine le_iSup₂_of_le p (h hp) ?_
-  apply ENNReal.mul_le_of_le_div'
+  apply le_iSup₂_of_le p (h hp) <| ENNReal.mul_le_of_le_div' ?_
   simp only [iSup_le_iff]
   intro q hq hqr
   rw [ENNReal.le_div_iff_mul_le (by left; simp)]
@@ -358,7 +357,7 @@ lemma dens₁_mono {𝔓₁ 𝔓₂ : Set (𝔓 X)} (h : 𝔓₁ ⊆ 𝔓₂) :
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p ∈ 𝔓') (r ≥ 4 * (D ^ 𝔰 p : ℝ)),
-  volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r)
+    volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r)
 
 lemma le_dens₂ (𝔓' : Set (𝔓 X)) {p : 𝔓 X} (hp : p ∈ 𝔓') {r : ℝ} (hr : r ≥ 4 * (D ^ 𝔰 p : ℝ)) :
     volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r) ≤ dens₂ 𝔓' :=
@@ -368,17 +367,6 @@ lemma dens₂_eq_biSup_dens₂ (𝔓' : Set (𝔓 X)) :
     dens₂ (𝔓') = ⨆ (p ∈ 𝔓'), dens₂ ({p}) := by
   simp [dens₂]
 
--- -- a small characterization that might be useful
--- lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
---     IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔
---     ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
---     Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
-
-lemma ENNReal.rpow_le_rpow_of_nonpos {x y : ℝ≥0∞} {z : ℝ} (hz : z ≤ 0) (h : x ≤ y) :
-    y ^ z ≤ x ^ z := by
-  rw [← neg_neg z, rpow_neg y, rpow_neg x, ← inv_rpow, ← inv_rpow]
-  exact rpow_le_rpow (ENNReal.inv_le_inv.mpr h) (neg_nonneg.mpr hz)
-
 /- A rough estimate. It's also less than 2 ^ (-a) -/
 lemma dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
   conv_rhs => rw [← mul_one 1]
@@ -386,19 +374,16 @@ lemma dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
   intros i _ j hj
   gcongr
   · calc
-    (j : ℝ≥0∞) ^ (-(a : ℝ)) ≤ 2 ^ (-(a : ℝ)) := by
-      apply ENNReal.rpow_le_rpow_of_nonpos
-      · simp_rw [neg_nonpos, Nat.cast_nonneg']
-      exact_mod_cast hj
+    (j : ℝ≥0∞) ^ (-(a : ℝ)) ≤ 2 ^ (-(a : ℝ)) :=
+      ENNReal.rpow_le_rpow_of_nonpos (by simp_rw [neg_nonpos, Nat.cast_nonneg'])
+        (by exact_mod_cast hj)
     _ ≤ 2 ^ (0 : ℝ) :=
       ENNReal.rpow_le_rpow_of_exponent_le (by norm_num) (neg_nonpos.mpr (Nat.cast_nonneg' _))
     _ = 1 := by norm_num
   simp only [iSup_le_iff, and_imp]
   intros i' _ _ _ _
-  calc
-  volume (E₂ j i') / volume (𝓘 i' : Set X) ≤ volume (𝓘 i' : Set X) / volume (𝓘 i' : Set X) := by
-    gcongr
-    apply E₂_subset
+  calc volume (E₂ j i') / volume (𝓘 i' : Set X)
+  _ ≤ volume (𝓘 i' : Set X) / volume (𝓘 i' : Set X) := by gcongr; apply E₂_subset
   _ ≤ 1 := ENNReal.div_self_le_one
 
 lemma volume_E₂_le_dens₁_mul_volume {𝔓' : Set (𝔓 X)} (mp : p ∈ lowerCubes 𝔓') (mp' : p' ∈ 𝔓')
@@ -407,7 +392,7 @@ lemma volume_E₂_le_dens₁_mul_volume {𝔓' : Set (𝔓 X)} (mp : p ∈ lower
   have vpos : volume (𝓘 p : Set X) ≠ 0 := (volume_coeGrid_pos (defaultD_pos' a)).ne'
   rw [← ENNReal.div_le_iff_le_mul (.inl vpos) (.inl volume_coeGrid_lt_top.ne),
     ← ENNReal.rpow_natCast, ← neg_neg (a : ℝ), ENNReal.rpow_neg, ← ENNReal.div_eq_inv_mul]
-  have plt : (l : ℝ≥0∞) ^ (-(a : ℝ)) ≠ ⊤ := by aesop
+  have plt : (l : ℝ≥0∞) ^ (-(a : ℝ)) ≠ ⊤ := by finiteness
   rw [ENNReal.le_div_iff_mul_le (by simp) (.inl plt), mul_comm, dens₁]
   refine le_iSup₂_of_le p' mp' (le_iSup₂_of_le l hl ?_); gcongr
   exact le_iSup₂_of_le p mp (le_iSup_of_le sp le_rfl)
@@ -419,10 +404,10 @@ variable {C C' : Set (𝔓 X)} {x x' : X}
 open scoped Classical in
 /-- The number of tiles `p` in `s` whose underlying cube `𝓘 p` contains `x`. -/
 def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
-  ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator 1 x
+  ∑ p with p ∈ C, (𝓘 p : Set X).indicator 1 x
 
 lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
-    stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬ P p} x = stackSize C x := by
+    stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬P p} x = stackSize C x := by
   classical
   simp_rw [stackSize]
   conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ P]
@@ -434,14 +419,14 @@ lemma stackSize_inter_add_stackSize_sdiff :
   stackSize_setOf_add_stackSize_setOf_not
 
 lemma stackSize_sdiff_eq (x : X) :
-  stackSize (C \ C') x = stackSize C x - stackSize (C ∩ C') x := by
+    stackSize (C \ C') x = stackSize C x - stackSize (C ∩ C') x := by
   exact Nat.eq_sub_of_add_eq' stackSize_inter_add_stackSize_sdiff
 
 lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
     stackSize C x = stackSize C x' := by
   classical
   refine Finset.sum_congr rfl fun p hp ↦ ?_
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hp
+  rw [Finset.mem_filter_univ] at hp
   simp_rw [indicator, h p hp, Pi.one_apply]
 
 lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
@@ -450,8 +435,8 @@ lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
 
 open scoped Classical in
 -- Simplify the cast of `stackSize C x` from `ℕ` to `ℝ`
-lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
-    ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
+lemma stackSize_real (C : Set (𝔓 X)) (x : X) :
+    (stackSize C x : ℝ) = ∑ p with p ∈ C, (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
   rw [stackSize, Nat.cast_sum]
   refine Finset.sum_congr rfl (fun u _ ↦ ?_)
   by_cases hx : x ∈ (𝓘 u : Set X) <;> simp [hx]
@@ -468,21 +453,21 @@ lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
     · simp [pC]
     · intro b hb hbp
       simp only [indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false]
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hb
+      simp only [Finset.mem_filter_univ] at hb
       exact disjoint_left.1 (h pC hb hbp.symm) hp
     simp [hp]
   · have : stackSize C x = 0 := by
       apply Finset.sum_eq_zero (fun p hp ↦ ?_)
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_exists, not_and,
+      simp only [Finset.mem_filter_univ, not_exists, not_and,
         indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at hp hx ⊢
       exact hx _ hp
     linarith
 
 lemma eq_empty_of_forall_stackSize_zero (s : Set (𝔓 X)) :
-  (∀ x, stackSize s x = 0) → s = ∅ := by
+    (∀ x, stackSize s x = 0) → s = ∅ := by
   intro h
   dsimp [stackSize] at h
-  simp only [Finset.sum_eq_zero_iff, Finset.mem_filter, Finset.mem_univ, true_and,
+  simp only [Finset.sum_eq_zero_iff, Finset.mem_filter_univ,
     indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at h
   ext 𝔲
   simp only [mem_empty_iff_false, iff_false]
@@ -597,24 +582,24 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
     ext
     simp (config := {contextual := true}) [hp]
   classical
-  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
+  have : ∑ p with p ∈ u '' (Iio N), (𝓘 p : Set X).indicator 1 x
       ≤ stackSize {q | q ∈ A ∧ q ≠ p} x := by
     apply Finset.sum_le_sum_of_subset
     rintro p hp
-    simp only [mem_image, mem_Iio, Finset.mem_filter, Finset.mem_univ, true_and] at hp
+    simp only [Finset.mem_filter_univ, mem_image, mem_Iio] at hp
     rcases hp with ⟨n, hn, rfl⟩
     simp only [ne_eq, mem_setOf_eq, Finset.mem_filter,
       Finset.mem_univ, iteratedMaximalSubfamily_subset _ _ (hu n hn), true_and]
     rintro rfl
     exact hN n hn (hu n hn)
-  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
-      = ∑ p ∈ {p | p ∈ u '' (Iio N)}, 1 := by
+  have : ∑ p with p ∈ u '' (Iio N), (𝓘 p : Set X).indicator 1 x
+      = ∑ p with p ∈ u '' (Iio N), 1 := by
     apply Finset.sum_congr rfl (fun p hp ↦ ?_)
-    simp only [mem_image, mem_Iio, Finset.mem_filter, Finset.mem_univ, true_and] at hp
+    simp only [Finset.mem_filter_univ, mem_image, mem_Iio] at hp
     rcases hp with ⟨n, hn, rfl⟩
     have : x ∈ (𝓘 (u n) : Set X) := h'u n hn hxp
     simp [this]
-  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, 1 = N := by
+  have : ∑ p with p ∈ u '' (Iio N), 1 = N := by
     have : Finset.filter (fun p ↦ p ∈ u '' Iio N) Finset.univ = Finset.image u (Finset.Iio N) := by
       ext p; simp
     simp only [Finset.sum_const, smul_eq_mul, mul_one, this]

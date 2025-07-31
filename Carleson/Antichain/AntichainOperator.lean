@@ -1,12 +1,19 @@
 import Carleson.Antichain.AntichainTileCount
 import Carleson.Antichain.TileCorrelation
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 
+/-!
+# 6. Proof of the Antichain Operator Proposition
+
+This file contains the proofs of Lemma 6.1.4 and Proposition 2.0.3 from the blueprint. Three
+versions of the latter are provided.
+
+## Main results
+- `dens1_antichain` : Lemma 6.1.4.
+- `antichain_operator`: Proposition 2.0.3.
+-/
 noncomputable section
 
-open scoped ShortVariables
-open scoped ComplexConjugate GridStructure
+open scoped ShortVariables ComplexConjugate GridStructure
 open Set Complex MeasureTheory Metric NNReal ENNReal
 
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -16,40 +23,41 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 open Classical in
 lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
     eLpNorm (adjointCarlesonSum 𝔄 g) 2 ^ 2 ≤
-    2 * ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p,
-    ‖∫ x, adjointCarleson p' g x * conj (adjointCarleson p g x)‖ₑ :=
+      2 * ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p,
+        ‖∫ x, adjointCarleson p' g x * conj (adjointCarleson p g x)‖ₑ :=
   calc
     _ = ‖∫ x, ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄,
-        adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
+          adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
       rw [eLpNorm_two_eq_enorm_integral_mul_conj (bg.adjointCarlesonSum.memLp 2)]; congr! with x
       unfold adjointCarlesonSum; rw [map_sum, Finset.sum_mul]; congr! with p mp
       rw [Finset.mul_sum]
     _ = ‖∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄,
-        ∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
-      congr 1; rw [integral_finset_sum]; swap
+          ∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
+      congr 1
+      rw [integral_finset_sum]
+      · congr! with p mp
+        exact integral_finset_sum _ fun p' mp' ↦
+          (bg.adjointCarleson.mul bg.adjointCarleson.conj).integrable
       · exact fun p mp ↦ (BoundedCompactSupport.finset_sum fun p' mp' ↦
           bg.adjointCarleson.mul bg.adjointCarleson.conj).integrable
-      congr! with p mp
-      exact integral_finset_sum _ fun p' mp' ↦
-        (bg.adjointCarleson.mul bg.adjointCarleson.conj).integrable
     _ ≤ ∑ p with p ∈ 𝔄, ‖∑ p' with p' ∈ 𝔄,
-        ∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := enorm_sum_le _ _
+          ∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := enorm_sum_le _ _
     _ ≤ ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄,
-        ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
+          ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
       gcongr; exact enorm_sum_le _ _
     _ = ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p,
-        ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ +
-        ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p < 𝔰 p',
-        ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
+          ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ +
+            ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p < 𝔰 p',
+              ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
       conv_lhs =>
         enter [2, p]
         rw [← Finset.sum_filter_add_sum_filter_not (p := fun p' ↦ 𝔰 p' ≤ 𝔰 p)]
       rw [Finset.sum_add_distrib]; congr! 3 with p mp p mp <;> rw [Finset.filter_filter]
       simp only [not_le]
     _ = ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p,
-        ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ +
-        ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p' < 𝔰 p,
-        ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
+          ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ +
+            ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p' < 𝔰 p,
+              ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
       congr 1
       conv_lhs => enter [2, p]; rw [← Finset.filter_filter, Finset.sum_filter]
       conv_rhs => enter [2, p]; rw [← Finset.filter_filter, Finset.sum_filter]
@@ -68,40 +76,40 @@ def dach (𝔄 : Set (𝔓 X)) (p : 𝔓 X) (g : X → ℂ) : ℝ≥0∞ :=
     (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) * (E p').indicator (‖g ·‖ₑ) x
 
 open Classical in
-lemma dens1_antichain_dach (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+lemma dens1_antichain_dach (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     eLpNorm (adjointCarlesonSum 𝔄 g) 2 ^ 2 ≤
-    Tile.C6_1_5 a * 2 ^ (6 * a + 1) * ∑ p with p ∈ 𝔄, dach 𝔄 p g * ∫⁻ y in E p, ‖g y‖ₑ := by
-  have bg := bcs_of_measurable_of_le_indicator_g hg h2g
+      Tile.C6_1_5 a * 2 ^ (6 * a + 1) * ∑ p with p ∈ 𝔄, dach 𝔄 p g * ∫⁻ y in E p, ‖g y‖ₑ := by
+  have bg := bcs_of_measurable_of_le_indicator_g hg hgG
   calc
     _ ≤ _ := dens1_antichain_rearrange bg
     _ = 2 * ∑ p with p ∈ 𝔄,
-        ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
-        ‖∫ x, adjointCarleson p' g x * conj (adjointCarleson p g x)‖ₑ := by
+          ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
+            ‖∫ x, adjointCarleson p' g x * conj (adjointCarleson p g x)‖ₑ := by
       congr! 2 with p mp; nth_rw 2 [← Finset.filter_filter]
       refine (Finset.sum_filter_of_ne fun x mx nx ↦ ?_).symm
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mx
+      rw [Finset.mem_filter_univ] at mx
       contrapose! nx; exact Tile.correlation_zero_of_ne_subset mx.2 nx
     _ ≤ 2 * ∑ p with p ∈ 𝔄,
         ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
         Tile.C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) /
         volume (𝓘 p : Set X) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ x in E p, ‖g x‖ₑ := by
       gcongr with p mp p' mp'
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp'
-      exact Tile.correlation_le mp'.1.2 hg h2g
+      rw [Finset.mem_filter_univ] at mp'
+      exact Tile.correlation_le mp'.1.2 hg hgG
     _ = 2 * Tile.C6_1_5 a * ∑ p with p ∈ 𝔄, (∫⁻ x in E p, ‖g x‖ₑ) * (volume (𝓘 p : Set X))⁻¹ *
-        ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
-        ∫⁻ y, (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
-          (E p').indicator (‖g ·‖ₑ) y := by
+          ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
+            ∫⁻ y, (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
+              (E p').indicator (‖g ·‖ₑ) y := by
       rw [mul_assoc, Finset.mul_sum _ _ (Tile.C6_1_5 a : ℝ≥0∞)]; congr! 2 with p mp
       rw [Finset.mul_sum, Finset.mul_sum]; congr! 1 with p' mp'
       rw [ENNReal.div_eq_inv_mul, lintegral_const_mul _ (hg.enorm.indicator measurableSet_E),
         lintegral_indicator measurableSet_E]
       ring
     _ ≤ 2 * Tile.C6_1_5 a * ∑ p with p ∈ 𝔄,
-        (∫⁻ x in E p, ‖g x‖ₑ) * (2 ^ (6 * a) * (volume (ball (𝔠 p) (14 * D ^ 𝔰 p)))⁻¹) *
-        ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
-        ∫⁻ y, (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
-          (E p').indicator (‖g ·‖ₑ) y := by
+          (∫⁻ x in E p, ‖g x‖ₑ) * (2 ^ (6 * a) * (volume (ball (𝔠 p) (14 * D ^ 𝔰 p)))⁻¹) *
+            ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
+              ∫⁻ y, (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
+                (E p').indicator (‖g ·‖ₑ) y := by
       gcongr with p mp
       rw [← ENNReal.inv_le_inv, ENNReal.mul_inv (.inl (by positivity)) (.inl (by finiteness)),
         inv_inv, inv_inv, ← ENNReal.div_eq_inv_mul]
@@ -118,23 +126,24 @@ lemma dens1_antichain_dach (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.ind
       rw [← Finset.mul_sum, ← mul_assoc]; congr 1
       · rw [← mul_rotate, ← pow_succ, mul_comm]
       · congr! 1 with p mp; rw [mul_comm (lintegral ..), ← mul_assoc, dach]; congr 2
-        refine (lintegral_finset_sum _ fun p' mp' ↦ ?_).symm
-        exact (hg.enorm.indicator measurableSet_E).const_mul _
+        exact (lintegral_finset_sum _ fun p' mp' ↦
+          (hg.enorm.indicator measurableSet_E).const_mul _).symm
 
 /-- The `maximalFunction` instance that appears in Lemma 6.1.4's proof. -/
 def M14 (𝔄 : Set (𝔓 X)) (p : ℝ) (g : X → ℂ) : X → ℝ≥0∞ :=
   maximalFunction volume 𝔄 𝔠 (14 * D ^ 𝔰 ·) p g
 
-lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄)
-    {x₀ : X} (hx : x₀ ∈ ball (𝔠 p) (14 * D ^ 𝔰 p)) {r : ℝ} (hr : 0 < r) :
+lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄) {x₀ : X} (hx : x₀ ∈ ball (𝔠 p) (14 * D ^ 𝔰 p))
+    {r : ℝ} (hr : 0 < r) :
     eLpNorm ((ball (𝔠 p) (14 * D ^ 𝔰 p)).indicator (‖g ·‖ₑ)) (ENNReal.ofReal r) volume ≤
-    volume (ball (𝔠 p) (14 * D ^ 𝔰 p)) ^ r⁻¹ * M14 𝔄 r g x₀ := by
+      volume (ball (𝔠 p) (14 * D ^ 𝔰 p)) ^ r⁻¹ * M14 𝔄 r g x₀ := by
   have vpos : 0 < volume (ball (𝔠 p) (14 * D ^ 𝔰 p)) := by
     apply measure_ball_pos; unfold defaultD; positivity
   rw [mul_comm (_ ^ _), ← ENNReal.div_le_iff_le_mul]; rotate_left
-  · left; rw [← inv_ne_top, ← ENNReal.rpow_neg]
+  · left
+    rw [← inv_ne_top, ← ENNReal.rpow_neg]
     exact rpow_ne_top_of_ne_zero vpos.ne' measure_ball_ne_top
-  · left; exact rpow_ne_top_of_ne_zero vpos.ne' measure_ball_ne_top
+  · exact Or.inl <| rpow_ne_top_of_ne_zero vpos.ne' measure_ball_ne_top
   rw [ENNReal.div_eq_inv_mul, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, mul_comm _ (-1),
     ENNReal.rpow_mul, ENNReal.rpow_neg_one,
     eLpNorm_eq_lintegral_rpow_enorm (by simpa) (by finiteness)]
@@ -150,9 +159,8 @@ lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄)
 
 open Antichain in
 /-- Equations (6.1.34) to (6.1.37) in Lemma 6.1.4. -/
-lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈ 𝔄)
-    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    {x₀ : X} (hx : x₀ ∈ ball (𝔠 p) (14 * D ^ 𝔰 p)) :
+lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈ 𝔄) (hg : Measurable g)
+    (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x) {x₀ : X} (hx : x₀ ∈ ball (𝔠 p) (14 * D ^ 𝔰 p)) :
     dach 𝔄 p g ≤ C6_1_6 a * dens₁ 𝔄 ^ (p₆ a : ℝ)⁻¹ * M14 𝔄 (q₆ a) g x₀ := by
   classical
   unfold dach
@@ -161,8 +169,8 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
   have sA : A ⊆ 𝔄 := fun _ ↦ by simp only [A, mem_setOf_eq, and_imp]; tauto
   calc
     _ = (volume B)⁻¹ * ∫⁻ x, B.indicator (‖g ·‖ₑ) x *
-        ∑ p' with p' ∈ A, (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
-          (E p').indicator 1 x * G.indicator 1 x := by
+          ∑ p' with p' ∈ A, (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
+            (E p').indicator 1 x * G.indicator 1 x := by
       congr! with x; change ∑ p' with p' ∈ A, _ = _
       rw [Finset.mul_sum]
       conv_rhs =>
@@ -170,15 +178,13 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
         rw [← mul_assoc, ← mul_assoc, mul_comm _ (_ ^ _), mul_assoc, mul_assoc]
       congr! 2 with p' mp'
       rw [← mul_assoc, ← inter_indicator_mul]; simp_rw [Pi.one_apply, mul_one]
-      simp_rw [A, mem_setOf_eq, Finset.mem_filter, Finset.mem_univ, true_and] at mp'
-      have inter_eq : B ∩ E p' = E p' := by
-        rw [inter_eq_right]; exact E_subset_𝓘.trans mp'.2
-      rw [inter_eq]
+      simp_rw [A, mem_setOf_eq, Finset.mem_filter_univ] at mp'
+      rw [inter_eq_right.mpr (E_subset_𝓘.trans mp'.2)]
       by_cases hx : x ∈ G
       · rw [indicator_of_mem hx, Pi.one_apply, mul_one]
-      · specialize h2g x; rw [indicator_of_notMem hx, norm_le_zero_iff] at h2g
+      · specialize hgG x; rw [indicator_of_notMem hx, norm_le_zero_iff] at hgG
         have : (E p').indicator (‖g ·‖ₑ) x = 0 := by
-          rw [indicator_apply_eq_zero, h2g, enorm_zero]; exact fun _ ↦ rfl
+          rw [indicator_apply_eq_zero, hgG, enorm_zero]; exact fun _ ↦ rfl
         rw [this, zero_mul]
     _ ≤ (volume B)⁻¹ * eLpNorm (B.indicator (‖g ·‖ₑ)) (ENNReal.ofReal (q₆ a)) *
         eLpNorm (fun x ↦ ∑ p' with p' ∈ A,
@@ -189,13 +195,12 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
       · exact (hg.enorm.indicator measurableSet_ball).aemeasurable
       · refine Finset.aemeasurable_sum _ fun p' mp' ↦ ?_
         simp_rw [mul_assoc, ← inter_indicator_mul]
-        refine (AEMeasurable.indicator ?_ (measurableSet_E.inter measurableSet_G)).const_mul _
-        simp
+        exact (AEMeasurable.indicator (by simp) (measurableSet_E.inter measurableSet_G)).const_mul _
     _ ≤ (volume B)⁻¹ * (volume B ^ (q₆ a)⁻¹ * M14 𝔄 (q₆ a) g x₀) *
         (C6_1_6 a * dens₁ A ^ (p₆ a)⁻¹ * volume (⋃ t ∈ A, (𝓘 t : Set X)) ^ (p₆ a)⁻¹) := by
       gcongr
       · exact eLpNorm_le_M14 mp hx (q₆_pos (four_le_a X))
-      · convert tile_count (h𝔄.subset sA) (𝒬 p)
+      · convert tile_count (h𝔄.subset sA) ⟨𝒬 p, range_𝒬 (mem_range_self p)⟩
     _ ≤ (volume B)⁻¹ * (volume B ^ (q₆ a)⁻¹ * M14 𝔄 (q₆ a) g x₀) *
         (C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * volume B ^ (p₆ a)⁻¹) := by
       have : 0 ≤ (p₆ a)⁻¹ := by rw [Right.inv_nonneg]; exact (p₆_pos (four_le_a X)).le
@@ -215,43 +220,45 @@ open Antichain in
 lemma M14_bound (hg : MemLp g 2 volume) :
     eLpNorm (M14 𝔄 (q₆ a) g) 2 ≤ 2 ^ (a + 2) * eLpNorm g 2 := by
   have a4 := four_le_a X
-  have : HasStrongType (M14 𝔄 (q₆ a).toNNReal) 2 2 volume volume
+  have ha22 : HasStrongType (M14 𝔄 (q₆ a).toNNReal) 2 2 volume volume
       (C2_0_6 (defaultA a) (q₆ a).toNNReal 2) := by
     apply hasStrongType_maximalFunction 𝔄.to_countable
-    · rw [Real.lt_toNNReal_iff_coe_lt]; exact zero_lt_one.trans (one_lt_q₆ a4)
-    · simp only [Nat.cast_ofNat, Real.toNNReal_lt_ofNat]
-      exact (q₆_le_superparticular a4).trans_lt (by norm_num)
-  rw [Real.coe_toNNReal _ (q₆_pos (four_le_a X)).le] at this
-  apply (this g hg).2.trans; gcongr
+      (Real.toNNReal_pos.mpr <| zero_lt_one.trans (one_lt_q₆ a4))
+    simp only [Nat.cast_ofNat, Real.toNNReal_lt_ofNat]
+    exact (q₆_le_superparticular a4).trans_lt (by norm_num)
+  rw [Real.coe_toNNReal _ (q₆_pos (four_le_a X)).le] at ha22
+  apply (ha22 g hg).2.trans; gcongr
   rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← ENNReal.coe_pow, ENNReal.coe_le_coe]
   exact C2_0_6_q₆_le a4
 
-/-- Constant appearing in Lemma 6.1.4. -/
-irreducible_def C6_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (128 * a ^ 3)
+/-- Constant appearing in Lemma 6.1.4.
+Has value `2 ^ (117 * a ^ 3)` in the blueprint. -/
+irreducible_def C6_1_4 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 8) * a ^ 3)
 
 lemma le_C6_1_4 (a4 : 4 ≤ a) :
     Tile.C6_1_5 a * 2 ^ (6 * a + 1) * Antichain.C6_1_6 a * 2 ^ (a + 2) ≤ C6_1_4 a ^ 2 := by
-  simp only [Tile.C6_1_5, Antichain.C6_1_6, C6_1_4]
-  simp_rw [← pow_add, ← pow_mul]; gcongr
+  simp_rw [Tile.C6_1_5, Antichain.C6_1_6, C6_1_4, ← pow_add, ← pow_mul]
+  gcongr
   · exact one_le_two
-  · calc
-      _ ≤ 255 * a ^ 3 + 4 * 4 * a := by linarith
-      _ ≤ 255 * a ^ 3 + a * a * a := by gcongr
-      _ = _ := by ring
+  · have : 𝕔 / 4 ≤ 2 * (𝕔 / 8) + 1 := by omega
+    have : (𝕔 / 4) * a ^ 3 ≤ 2 * (𝕔 / 8) * a ^ 3 + a ^ 3 :=
+      (mul_le_mul_of_nonneg_right this (Nat.zero_le _)).trans_eq (by ring)
+    ring_nf
+    linarith [sixteen_times_le_cube a4]
 
 open Classical Antichain in
 lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     eLpNorm (adjointCarlesonSum 𝔄 g) 2 ^ 2 ≤
-    (C6_1_4 a * dens₁ 𝔄 ^ (8 * a ^ 4 : ℝ)⁻¹ * eLpNorm g 2 volume) ^ 2 := by
+      (C6_1_4 a * dens₁ 𝔄 ^ (8 * a ^ 4 : ℝ)⁻¹ * eLpNorm g 2 volume) ^ 2 := by
   calc
-    _ ≤ _ := dens1_antichain_dach hg h2g
+    _ ≤ _ := dens1_antichain_dach hg hgG
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * ∑ p with p ∈ 𝔄,
         ∫⁻ y in E p, C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by
       gcongr with p mp; rw [← lintegral_const_mul _ hg.enorm]
       refine setLIntegral_mono' measurableSet_E fun x mx ↦ mul_le_mul_right' ?_ _
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
-      refine dach_bound h𝔄 mp hg h2g <|
+      rw [Finset.mem_filter_univ] at mp
+      refine dach_bound h𝔄 mp hg hgG <|
         ((E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball ?_)) mx
       change (4 : ℝ) * D ^ 𝔰 p ≤ _; gcongr; norm_num
     _ = Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
@@ -259,86 +266,77 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
       rw [mul_assoc _ (C6_1_6 a : ℝ≥0∞), mul_assoc (_ * _), ← lintegral_const_mul'']; swap
       · exact ((AEStronglyMeasurable.maximalFunction 𝔄.to_countable).aemeasurable.mul
           hg.enorm.aemeasurable).restrict
-      congr 1; simp_rw [← mul_assoc]; rw [← lintegral_biUnion_finset]; rotate_left
-      · intro p mp p' mp' hn; change Disjoint (E p) (E p')
+      congr 1; simp_rw [← mul_assoc]
+      rw [← lintegral_biUnion_finset _ (fun _ _ ↦ measurableSet_E)]
+      · simp
+      · intro p mp p' mp' hn
         simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at mp mp'
-        have := (E_disjoint h𝔄 mp mp').mt hn
-        rwa [not_not] at this
-      · exact fun _ _ ↦ measurableSet_E
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+        exact not_not.mp ((tile_disjointness h𝔄 mp mp').mt hn)
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         ∫⁻ y, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by gcongr; exact setLIntegral_le_lintegral _ _
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (eLpNorm (M14 𝔄 (q₆ a) g) 2 * eLpNorm g 2) := by
       conv_rhs => enter [2, 2]; rw [← eLpNorm_enorm]
-      gcongr; apply ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
-      · exact (AEStronglyMeasurable.maximalFunction 𝔄.to_countable).aemeasurable
-      · exact hg.enorm.aemeasurable
+      gcongr
+      exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
+        (AEStronglyMeasurable.maximalFunction 𝔄.to_countable).aemeasurable hg.enorm.aemeasurable
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (2 ^ (a + 2) * eLpNorm g 2 ^ 2) := by
-      rw [sq, ← mul_assoc (_ ^ _)]; gcongr
-      have bg := bcs_of_measurable_of_le_indicator_g hg h2g
-      exact M14_bound (bg.memLp _)
+      rw [sq, ← mul_assoc (_ ^ _)]
+      gcongr
+      exact M14_bound ((bcs_of_measurable_of_le_indicator_g hg hgG).memLp _)
     _ ≤ _ := by
       rw [mul_pow, mul_pow]; nth_rw 5 [← ENNReal.rpow_natCast]
       rw [← ENNReal.rpow_mul, show ((2 : ℕ) : ℝ) = 2⁻¹⁻¹ by norm_num, ← mul_inv,
         show 8 * a ^ 4 * 2⁻¹ = p₆ a by rw [p₆]; ring, mul_mul_mul_comm, ← mul_assoc]
       gcongr
       simp_rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← ENNReal.coe_pow, ← ENNReal.coe_mul,
-        ENNReal.coe_le_coe]
-      exact le_C6_1_4 (four_le_a X)
+        ENNReal.coe_le_coe, le_C6_1_4 (four_le_a X)]
 
-/-- Lemma 6.1.4 -/
-lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+/-- Lemma 6.1.4. -/
+lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (hf : Measurable f)
+    (hfF : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ≤
-    C6_1_4 a * dens₁ 𝔄 ^ (8 * a ^ 4 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  have bf := bcs_of_measurable_of_le_indicator_f hf h2f
-  have bg := bcs_of_measurable_of_le_indicator_g hg h2g
+      C6_1_4 a * dens₁ 𝔄 ^ (8 * a ^ 4 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
+  have bf := bcs_of_measurable_of_le_indicator_f hf hfF
+  have bg := bcs_of_measurable_of_le_indicator_g hg hgG
   calc
     _ ≤ ∫⁻ x, ‖adjointCarlesonSum 𝔄 g x‖ₑ * ‖f x‖ₑ := by
       rw [adjointCarlesonSum_adjoint bf bg]
       conv_rhs => enter [2, x]; rw [← RCLike.enorm_conj, ← enorm_mul]
       exact enorm_integral_le_lintegral_enorm _
     _ ≤ eLpNorm (adjointCarlesonSum 𝔄 g) 2 * eLpNorm f 2 := by
-      conv_rhs => rw [← eLpNorm_enorm]; enter [2]; rw [← eLpNorm_enorm]
+      conv_rhs => rw [← eLpNorm_enorm, ← eLpNorm_enorm]
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
         bg.adjointCarlesonSum.enorm.aestronglyMeasurable.aemeasurable
         bf.enorm.aestronglyMeasurable.aemeasurable
     _ ≤ _ := by
       rw [← mul_rotate, mul_comm (eLpNorm g 2 volume)]; gcongr
-      rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (2 : ℕ) by norm_num),
-        ENNReal.rpow_natCast, ENNReal.rpow_natCast]
-      exact dens1_antichain_sq h𝔄 hg h2g
+      grw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (2 : ℕ) by norm_num),
+        ENNReal.rpow_natCast, ENNReal.rpow_natCast, dens1_antichain_sq h𝔄 hg hgG]
 
-/-- The constant appearing in Proposition 2.0.3. -/
--- Todo: define this recursively in terms of previous constants
-def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (128 * a ^ 3) / (q - 1)
-
---TODO: PR to Mathlib
-theorem ENNReal.rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (h₁ : 1 ≤ x) (h₂ : y ≤ 1) :
-    x ^ y ≤ x := by
-  nth_rw 2 [← ENNReal.rpow_one x]
-  exact ENNReal.rpow_le_rpow_of_exponent_le h₁ h₂
+/-- The constant appearing in Proposition 2.0.3.
+Has value `2 ^ (117 * a ^ 3)` in the blueprint. -/
+def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 8) * a ^ 3) / (q - 1)
 
 variable (X) in
 omit [TileStructure Q D κ S o] in
 private lemma ineq_aux_2_0_3 :
-    ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-    (((2 ^ (111 * a ^ 3) : ℝ≥0) : ℝ≥0∞) * (nnq - 1)⁻¹) ^ (2 - q) ≤
-    (2 ^ (128 * a ^ 3) / (nnq - 1) : ℝ≥0) := by
+    ((2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+    (((2 ^ ((𝕔 + 3) * a ^ 3) : ℝ≥0) : ℝ≥0∞) * (nnq - 1)⁻¹) ^ (2 - q) ≤
+    (2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) / (nnq - 1) : ℝ≥0) := by
   have hq1 : 0 ≤ q - 1 := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).1.le)
   have hq2 : 0 ≤ 2 - q := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2)
   have h21 : (2 : ℝ) - 1 = 1 := by norm_num
   calc
-    _ = ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ (111 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q)  := by
+    _ = ((2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+        (((2 ^ ((𝕔 + 3 + 0) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q) := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ hq2]; ring
-    _ ≤ ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
+    _ ≤ ((2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+        (((2 ^ ((𝕔 + 5 + 𝕔 / 8 : ℕ) * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
       have h11 : (1 + 1 : ℝ≥0) = 2 := by norm_num
       gcongr
+      · norm_num
       · norm_num
       · norm_num
       · refine ENNReal.rpow_le_self_of_one_le ?_ (by linarith)
@@ -348,18 +346,17 @@ private lemma ineq_aux_2_0_3 :
       rw [div_eq_mul_inv, ENNReal.coe_mul, ← ENNReal.rpow_add_of_nonneg _ _ hq1 hq2,
         sub_add_sub_cancel', h21, ENNReal.rpow_one]
 
-/-- Proposition 2.0.3 -/
-theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    (hf : Measurable f) (hf1 : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+/-- Proposition 2.0.3. -/
+theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (hf : Measurable f)
+    (hf1 : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ≤
-    C2_0_3 a nnq * dens₁ 𝔄 ^ ((q - 1) / (8 * a ^ 4)) * dens₂ 𝔄 ^ (q⁻¹ - 2⁻¹) *
-    eLpNorm f 2 volume * eLpNorm g 2 volume := by
+      C2_0_3 a nnq * dens₁ 𝔄 ^ ((q - 1) / (8 * a ^ 4)) * dens₂ 𝔄 ^ (q⁻¹ - 2⁻¹) *
+        eLpNorm f 2 volume * eLpNorm g 2 volume := by
   have hq : (nnq : ℝ) = q := rfl
   have h21 : (2 : ℝ) - 1 = 1 := by norm_cast
   have h21' : (2 : ℝ≥0) - 1 = 1 := by norm_cast
-  -- Eq. 6.1.48
-  have heq : (nnq'⁻¹ - 2⁻¹) * (2 - q) = q⁻¹ - 2⁻¹ := by
+  -- Eq. 6.1.47
+  have heq : (nnqt⁻¹ - 2⁻¹) * (2 - q) = q⁻¹ - 2⁻¹ := by
     have hq0 : q ≠ 0 := by rw [← hq, NNReal.coe_ne_zero]; exact (nnq_pos _).ne'
     simp only [inv_div, NNReal.coe_div, NNReal.coe_add, hq, NNReal.coe_one, NNReal.coe_mul,
       NNReal.coe_ofNat]
@@ -371,12 +368,13 @@ theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
   by_cases hq2 : q = 2
   · have hnnq2 : nnq = 2 := by simp only [← NNReal.coe_inj, NNReal.coe_ofNat, ← hq2]; rfl
     simp only [hq2, h21, one_div, sub_self, ENNReal.rpow_zero, mul_one]
-    convert dens1_antichain h𝔄 hf hf1 hg hg1
-    simp only [C2_0_3, hnnq2, h21', div_one, C6_1_4]
+    apply (dens1_antichain h𝔄 hf hf1 hg hg1).trans
+    gcongr
+    simp only [C6_1_4, C2_0_3, hnnq2, h21', div_one, le_refl]
   · have hq2' : 0 < 2 - q :=
       sub_pos.mpr (lt_of_le_of_ne (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2) hq2)
     -- Take the (2-q)-th power of 6.1.11
-    have h2 := dens2_antichain h𝔄 hf1 hf hg1
+    have h2 := dens2_antichain h𝔄 hf1 hf hg1 hg
     rw [← ENNReal.rpow_le_rpow_iff hq2'] at h2
     simp only [mul_assoc] at h2
     rw [ENNReal.mul_rpow_of_nonneg _ _ hq2'.le, ENNReal.mul_rpow_of_nonneg _ _ hq2'.le,
@@ -420,7 +418,7 @@ theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
 /-- Version of the antichain operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function. -/
 theorem antichain_operator' {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
+    (hf : Measurable f) (hfF : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
     ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
     C2_0_3 a nnq * dens₁ 𝔄 ^ ((q - 1) / (8 * a ^ 4)) * dens₂ 𝔄 ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * volume G ^ (1/2 : ℝ) := by
@@ -431,53 +429,36 @@ theorem antichain_operator' {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
   apply (lintegral_mono_set hA).trans
   /- This follows from the other version by taking for the test function `g` the argument of
   the sum to be controlled. -/
-  have bf := bcs_of_measurable_of_le_indicator_f hf h2f
-  rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
-  · exact bf.carlesonSum.restrict.integrable
+  have bf := bcs_of_measurable_of_le_indicator_f hf hfF
+  rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm bf.carlesonSum.restrict.integrable]
   rw [← integral_indicator measurableSet_G]
   simp_rw [indicator_mul_left, ← Function.comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
-  apply (antichain_operator h𝔄 hf h2f ?_ ?_).trans; rotate_left
-  · refine Measurable.indicator ?_ measurableSet_G
-    suffices Measurable (carlesonSum 𝔄 f ·) by exact this.div (measurable_ofReal.comp this.norm)
-    exact measurable_carlesonSum hf
-  · intro x
-    simp [indicator]
-    split_ifs
-    · simp [I]
-    · simp
+  apply (antichain_operator h𝔄 hf hfF
+    (((measurable_carlesonSum hf).div (measurable_ofReal.comp (measurable_carlesonSum hf).norm)
+      ).indicator measurableSet_G)
+    (fun _ ↦ by simp [indicator]; split_ifs <;> simp [I])).trans
   gcongr
   calc
-  _ ≤ eLpNorm (G.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
-    apply eLpNorm_mono (fun x ↦ ?_)
-    simp only [indicator, coe_algebraMap, Real.norm_eq_abs]
-    split_ifs
-    · simpa using I _
-    · simp
+  _ ≤ eLpNorm (G.indicator (fun x ↦ 1) : X → ℝ) 2 volume :=
+    eLpNorm_mono (fun x ↦ by simp only [indicator]; split_ifs <;> simp [I])
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const]
-    · simp
-    · exact measurableSet_G
-    · norm_num
-    · norm_num
+    rw [eLpNorm_indicator_const measurableSet_G (by norm_num) (by norm_num)]
+    simp
 
 /-- Version of the antichain operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function, and with the upper bound in terms
 of `volume F` and `volume G`. -/
 theorem antichain_operator_le_volume {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
+    (hf : Measurable f) (hfF : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
     ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
     C2_0_3 a nnq * dens₁ 𝔄 ^ ((q - 1) / (8 * a ^ 4)) * dens₂ 𝔄 ^ (q⁻¹ - 2⁻¹) *
     volume F ^ (1/2 : ℝ) * volume G ^ (1/2 : ℝ) := by
-  apply (antichain_operator' h𝔄 hf h2f hA).trans
+  apply (antichain_operator' h𝔄 hf hfF hA).trans
   gcongr
   calc
-  _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
-    apply eLpNorm_mono (fun x ↦ ?_)
-    apply (h2f x).trans (le_abs_self _)
+  _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume :=
+    eLpNorm_mono (fun x ↦ (hfF x).trans (le_abs_self _))
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const]
-    · simp
-    · exact measurableSet_F
-    · norm_num
-    · norm_num
+    rw [eLpNorm_indicator_const measurableSet_F (by norm_num) (by norm_num)]
+    simp

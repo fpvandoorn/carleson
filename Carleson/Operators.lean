@@ -36,7 +36,9 @@ def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 
--- not used anywhere and deprecated for `AEStronglyMeasurable.carlesonOn`
+/- Deprecated for `AEStronglyMeasurable.carlesonOn`
+Used through `measurable_carlesonSum` in `Antichain.AntichainOperator` and `ForestOperator.Forests`
+with nontrivial rework in order to move from `Measurable` to `AEStronglyMeasurable`. -/
 lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonOn p f) := by
   refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
@@ -55,7 +57,7 @@ open Classical in
 /-- The operator `T_ℭ f` defined at the bottom of Section 7.4.
 We will use this in other places of the formalization as well. -/
 def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
-  ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
+  ∑ p with p ∈ ℭ, carlesonOn p f x
 
 @[fun_prop]
 lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
@@ -230,12 +232,11 @@ variable [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ
 /-- The definition of `Tₚ*g(x)`, defined above Lemma 7.4.1 -/
 def adjointCarleson (p : 𝔓 X) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in E p, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y
-  -- todo: consider changing to `(E p).indicator 1 y`
 
 open scoped Classical in
 /-- The definition of `T_ℭ*g(x)`, defined at the bottom of Section 7.4 -/
 def adjointCarlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
-  ∑ p ∈ {p | p ∈ ℭ}, adjointCarleson p f x
+  ∑ p with p ∈ ℭ, adjointCarleson p f x
 
 /-- A helper lemma used in Lemma 7.5.10. -/
 lemma adjointCarlesonSum_inter {A B : Set (𝔓 X)} {f : X → ℂ} {x : X} :
@@ -245,8 +246,7 @@ lemma adjointCarlesonSum_inter {A B : Set (𝔓 X)} {f : X → ℂ} {x : X} :
   · simp only [Finset.disjoint_filter, mem_diff, not_and, not_not]
     exact fun x _ ⟨xA, xB⟩ _ ↦ xB
   congr; ext x
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and, mem_inter_iff, mem_diff,
-    Finset.mem_union]
+  simp_rw [Finset.mem_union, Finset.mem_filter_univ, mem_inter_iff, mem_diff]
   tauto
 
 variable {f g : X → ℂ}
@@ -449,27 +449,18 @@ lemma adjointCarlesonSum_adjoint
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (ℭ : Set (𝔓 X)) :
     ∫ x, conj (g x) * carlesonSum ℭ f x = ∫ x, conj (adjointCarlesonSum ℭ g x) * f x := by
   classical calc
-    _ = ∫ x, ∑ p ∈ {p | p ∈ ℭ}, conj (g x) * carlesonOn p f x := by
+    _ = ∫ x, ∑ p with p ∈ ℭ, conj (g x) * carlesonOn p f x := by
       unfold carlesonSum; simp_rw [Finset.mul_sum]
-    _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ x, conj (g x) * carlesonOn p f x := by
+    _ = ∑ p with p ∈ ℭ, ∫ x, conj (g x) * carlesonOn p f x := by
       apply integral_finset_sum; intro p _
       refine hg.conj.mul hf.carlesonOn |>.integrable
-    _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ y, conj (adjointCarleson p g y) * f y := by
+    _ = ∑ p with p ∈ ℭ, ∫ y, conj (adjointCarleson p g y) * f y := by
       simp_rw [adjointCarleson_adjoint hf hg]
-    _ = ∫ y, ∑ p ∈ {p | p ∈ ℭ}, conj (adjointCarleson p g y) * f y := by
+    _ = ∫ y, ∑ p with p ∈ ℭ, conj (adjointCarleson p g y) * f y := by
       symm; apply integral_finset_sum; intro p _
       refine BoundedCompactSupport.mul ?_ hf |>.integrable
       exact hg.adjointCarleson.conj
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
-
-/- XXX: this version is not used, and may not be useful in general
-lemma integrable_adjointCarlesonSum' (u : 𝔓 X) {f : X → ℂ} (hf : AEStronglyMeasurable f volume)
-    (hf' : IsBounded (range f)) (hf'' : HasCompactSupport f) :
-    Integrable (adjointCarlesonSum (t.𝔗 u) f ·) := by
-  obtain ⟨M, hM⟩ := hf'.exists_norm_le
-  have : BoundedCompactSupport f :=
-    ⟨memLp_top_of_bound hf M <| by filter_upwards with x using hM _ (mem_range_self x), hf''⟩
-  exact integrable_finset_sum _ fun i hi ↦ this.adjointCarleson (p := i).integrable -/
 
 lemma integrable_adjointCarlesonSum (s : Set (𝔓 X)) {f : X → ℂ} (hf : BoundedCompactSupport f) :
     Integrable (adjointCarlesonSum s f ·) :=

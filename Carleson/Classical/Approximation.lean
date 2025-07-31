@@ -1,10 +1,8 @@
-/- This file contains the arguments from section 11.2 (smooth functions) from the blueprint. -/
-
 import Carleson.Classical.Basic
-
 import Mathlib.Analysis.Calculus.BumpFunction.Convolution
-import Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension
 import Mathlib.Analysis.PSeries
+
+/- This file contains the arguments from section 11.2 (smooth functions) from the blueprint. -/
 
 noncomputable section
 
@@ -15,7 +13,7 @@ local notation "S_" => partialFourierSum
 open scoped ContDiff
 
 lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
-  (periodicf : f.Periodic (2 * π)) {ε : ℝ} (εpos : ε > 0):
+  (periodicf : f.Periodic (2 * π)) {ε : ℝ} (εpos : ε > 0) :
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ∞ f₀ ∧ f₀.Periodic (2 * π) ∧
       ∀ x, ‖f x - f₀ x‖ ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
@@ -129,7 +127,7 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodi
       simp at h1 h2
       simp [h1, h2]
       ring_nf
-      simp [mul_inv_cancel, one_mul, pi_pos.ne.symm]
+      simp [pi_pos.ne.symm]
     · exact (contDiff_one_iff_deriv.mp ((contDiff_succ_iff_deriv (n := 1)).mp
         fdiff).2.2).2.intervalIntegrable ..
     · exact ((contDiff_succ_iff_deriv (n := 1)).mp fdiff).2.2.continuous.intervalIntegrable ..
@@ -168,7 +166,7 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
     · symm
       rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
       simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, Int.reduceNeg, Nat.succ_eq_add_one,
-        Int.ofNat_eq_coe, add_right_inj, add_comm]
+        Int.ofNat_eq_coe, add_comm]
     · simp
     · norm_num
       linarith

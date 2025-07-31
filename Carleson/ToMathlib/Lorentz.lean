@@ -1,14 +1,5 @@
-import Mathlib.MeasureTheory.Integral.MeanInequalities
-import Mathlib.MeasureTheory.Integral.Layercake
-import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
-import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
-import Mathlib.Analysis.SpecialFunctions.Pow.Integral
-import Carleson.ToMathlib.ENorm
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.RealInterpolation.Misc
-
+import Carleson.ToMathlib.WeakType
 
 noncomputable section
 
@@ -35,7 +26,8 @@ end decreasing_rearrangement
 -/
 
 section Lorentz
-variable [ENorm ε] [ENorm ε'] {p : ℝ≥0∞} {q : ℝ}
+
+variable [ENorm ε] [TopologicalSpace ε'] [ENormedAddMonoid ε'] {p : ℝ≥0∞} {q : ℝ}
 
 
 /-- The Lorentz norm of a function, for `p < ∞` -/
@@ -48,29 +40,25 @@ def eLorentzNorm (f : α → ε) (p : ℝ≥0∞) (r : ℝ≥0∞) (μ : Measure
   if p = 0 then 0 else if p = ∞ then (if r = 0 then 0 else if r = ∞ then eLpNormEssSup f μ else ∞ * eLpNormEssSup f μ)
   else eLorentzNorm' f p r μ
 
+variable {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α}
+
 @[simp]
-lemma eLorentzNorm_eq_eLorentzNorm' {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α} (hp_ne_zero : p ≠ 0) (hp_ne_top : p ≠ ∞) :
+lemma eLorentzNorm_eq_eLorentzNorm' (hp_ne_zero : p ≠ 0) (hp_ne_top : p ≠ ∞) :
     eLorentzNorm f p r μ = eLorentzNorm' f p r μ := by
   unfold eLorentzNorm
   simp [hp_ne_zero, hp_ne_top]
 
 @[simp]
-lemma eLorentzNorm_zero {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α} (hp : p = 0) :
-    eLorentzNorm f p r μ = 0 := by
-  unfold eLorentzNorm
-  simp [hp]
+lemma eLorentzNorm_zero (hp : p = 0) : eLorentzNorm f p r μ = 0 := by simp [eLorentzNorm, hp]
 
 @[simp]
-lemma eLorentzNorm_zero' {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α} (hr : r = 0) :
-    eLorentzNorm f p r μ = 0 := by
-  unfold eLorentzNorm eLorentzNorm'
-  simp [hr]
+lemma eLorentzNorm_zero' (hr : r = 0) : eLorentzNorm f p r μ = 0 := by
+  simp [hr, eLorentzNorm, eLorentzNorm']
 
 
 --TODO: make this an iff, for p, r ≠ 0?
-lemma eLorentzNorm_zero_of_ae_zero {E : Type*} [TopologicalSpace E] [ENormedAddMonoid E] {p r : ℝ≥0∞} {μ : Measure α} {f : α → E} (h : f =ᵐ[μ] 0) : eLorentzNorm f p r μ = 0 := by
-  unfold eLorentzNorm
-  simp only [ite_eq_left_iff]
+lemma eLorentzNorm_zero_of_ae_zero {f : α → ε'} (h : f =ᵐ[μ] 0) : eLorentzNorm f p r μ = 0 := by
+  simp only [eLorentzNorm, ite_eq_left_iff]
   intro p_ne_zero
   rw [eLpNormEssSup_eq_zero_iff.mpr h]
   simp only [mul_zero, ite_self, ite_eq_left_iff]
@@ -91,22 +79,17 @@ lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Me
 -/
 
 @[simp]
-lemma eLorentzNorm_top_top {E : Type*} [ENorm E] {μ : Measure α} {f : α → E} :
-    eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
-  unfold eLorentzNorm
-  simp
+lemma eLorentzNorm_top_top {f : α → ε} : eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
+  simp [eLorentzNorm]
 
-lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [ENormedAddCommMonoid E]
-    {μ : Measure α} {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞}  :
+lemma eLorentzNorm_eq_Lp {f : α → ε'} (hf : AEStronglyMeasurable f μ) :
   eLorentzNorm f p p μ = eLpNorm f p μ := by
-  unfold eLorentzNorm
   by_cases p_zero : p = 0
   · simp [p_zero]
   by_cases p_eq_top : p = ∞
   · simp [p_eq_top]
   have p_eq : p = .ofReal p.toReal := by simp [p_eq_top]
-  simp only [p_zero, ↓reduceIte, p_eq_top]
-  unfold eLorentzNorm'
+  simp only [eLorentzNorm, eLorentzNorm', p_zero, ↓reduceIte, p_eq_top]
   calc _
     _ = (ENNReal.ofReal p.toReal  * ∫⁻ t in Set.Ioi (0 : ℝ), distribution f (.ofReal t) μ *
       ENNReal.ofReal t ^ (p.toReal - 1) ) ^ p⁻¹.toReal := by
@@ -115,15 +98,16 @@ lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [E
         · simp only [ENNReal.toReal_inv, enorm_eq_self, one_div]
           congr 2
           simp only [Pi.mul_apply]
-          rw [@integral_nnreal' (fun x ↦ (↑x)⁻¹ * (x * distribution f x μ ^ p.toReal⁻¹)^ p.toReal)]
+          rw [lintegral_nnreal_eq_lintegral_Ioi_ofReal
+            (f := fun x ↦ x⁻¹ * (x * distribution f x μ ^ p.toReal⁻¹)^ p.toReal)]
           apply setLIntegral_congr_fun measurableSet_Ioi
           intro t ht
           simp only
           rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp), ← mul_assoc, ← ENNReal.rpow_neg_one,
               ← ENNReal.rpow_add _ _ (by simpa) (by simp), mul_comm]
           congr 2
-          · rw [← ENNReal.rpow_mul, inv_mul_cancel₀ (ENNReal.toReal_ne_zero.mpr ⟨p_zero,p_eq_top⟩),
-                ENNReal.rpow_one, ENNReal.ofNNReal_toNNReal]
+          · rw [← ENNReal.rpow_mul, inv_mul_cancel₀ (ENNReal.toReal_ne_zero.mpr ⟨p_zero, p_eq_top⟩),
+              ENNReal.rpow_one]
           · exact neg_add_eq_sub 1 p.toReal
         · exact Measurable.inv measurable_coe_nnreal_ennreal
         · rw[Filter.eventually_iff_exists_mem]
@@ -142,15 +126,11 @@ lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [E
         congr 2
         apply setLIntegral_congr_fun measurableSet_Ioi
         intro t ht
-        simp [Pi.mul_apply, ENNReal.ofReal_rpow_of_pos ht]
+        simp [ENNReal.ofReal_rpow_of_pos ht]
     _ = eLpNorm f (.ofReal p.toReal) μ := (eLpNorm_eq_distribution hf (ENNReal.toReal_pos p_zero p_eq_top)).symm
     _ = eLpNorm f p μ := by congr; exact p_eq.symm
 
-
-
-
-lemma eLorentzNorm_eq_wnorm {E : Type*} [ENorm E] --[NormedAddCommGroup E]
-    {f : α → E} {p : ℝ≥0∞} (hp : p ≠ 0) {μ : Measure α} : eLorentzNorm f p ∞ μ = wnorm f p μ := by
+lemma eLorentzNorm_eq_wnorm (hp : p ≠ 0) : eLorentzNorm f p ∞ μ = wnorm f p μ := by
   by_cases p_eq_top : p = ∞
   · rw [p_eq_top]
     simp
@@ -352,10 +332,8 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] 
 
 
 
-
 variable {α' ε₁ ε₂ : Type*} {m : MeasurableSpace α'} [TopologicalSpace ε₁] [ContinuousENorm ε₁]
-    [TopologicalSpace ε₂] [ContinuousENorm ε₂] --[TopologicalSpace ε₃] [ContinuousENorm ε₃]
-    {f : α → ε} {f₁ : α → ε₁}
+    [TopologicalSpace ε₂] [ContinuousENorm ε₂] {f : α → ε} {f₁ : α → ε₁}
 
 /-- An operator has Lorentz type `(p, r, q, s)` if it is bounded as a map
 from `L^{q, s}` to `L^{p, r}`. `HasLorentzType T p r q s μ ν c` means that
@@ -386,9 +364,8 @@ def HasRestrictedWeakType (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥
       eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
         ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
 
-lemma HasRestrictedWeakType.HasLorentzType
-  {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [ENormedAddCommMonoid E]
-  [BorelSpace E] {T : (α → 𝕂) → (α' → E)} {p p' : ℝ≥0∞}
+lemma HasRestrictedWeakType.hasLorentzType /- [MeasurableSpace ε'] [BorelSpace ε'] -/
+  {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}
   {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p') :
     --TODO: might have to adjust the constant
@@ -438,8 +415,7 @@ lemma HasRestrictedWeakType.HasLorentzType
               gcongr
               intro x hx
               unfold G at hx
-              simp only [coe_lt_enorm, Set.mem_setOf_eq] at hx
-              simp only [coe_le_enorm, Set.mem_setOf_eq, hx.le]
+              rw [Set.mem_setOf_eq] at hx ⊢; exact hx.le
           apply mul_meas_ge_le_lintegral₀
           sorry
         _ = eLpNorm (T f) 1 (ν.restrict G) / ν G ^ p'⁻¹.toReal := by

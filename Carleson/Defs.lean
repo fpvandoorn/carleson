@@ -1,18 +1,15 @@
+import Carleson.ToMathlib.Annulus
+import Carleson.ToMathlib.CoveredByBalls
+import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
-import Carleson.ToMathlib.Data.ENNReal
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.Annulus
-import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
-import Mathlib.Topology.Algebra.Support
+import Mathlib.Topology.MetricSpace.Holder
 
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
 open scoped NNReal
 noncomputable section
-
--- todo: rename and protect `Real.RCLike`
 
 /-! Miscellaneous definitions.
 These are mostly the definitions used to state the metric Carleson theorem.
@@ -28,22 +25,6 @@ section localOscillation
 /-- The local oscillation of two functions w.r.t. a set `E`. This is `d_E` in the blueprint. -/
 def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ≥0∞ :=
   ⨆ z ∈ E ×ˢ E, ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
-
--- example (E : Set X) (hE : IsBounded E) (f : C(X, ℝ)) :
---     BddAbove (range fun z : E ↦ f z) := by
---   have : IsCompact (closure E) := IsBounded.isCompact_closure hE
---   sorry
-
--- lemma bddAbove_localOscillation (E : Set X) [Fact (IsBounded E)] (f g : C(X, 𝕜)) :
---     BddAbove ((fun z : X × X ↦ ‖f z.1 - g z.1 - f z.2 + g z.2‖) '' E ×ˢ E) := sorry
-
-variable {E : Set X} {f g : C(X, 𝕜)}
-
---old
-/-- A ball w.r.t. the distance `localOscillation` -/
-def localOscillationBall (E : Set X) (f : C(X, 𝕜)) (r : ℝ) :
-    Set C(X, 𝕜) :=
-  { g : C(X, 𝕜) | localOscillation E f g < ENNReal.ofReal r }
 
 end localOscillation
 
@@ -89,11 +70,11 @@ instance [d : FunctionDistances 𝕜 X] : PseudoMetricSpace (WithFunctionDistanc
 
 end FunctionDistances
 
-notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
+notation3 "dist_{" x ", " r "}" => @dist (WithFunctionDistance x r) _
 /-- preferably use `edist` -/
-notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
-notation3 "edist_{" x " ," r "}" => @edist (WithFunctionDistance x r) _
-notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
+notation3 "nndist_{" x ", " r "}" => @nndist (WithFunctionDistance x r) _
+notation3 "edist_{" x ", " r "}" => @edist (WithFunctionDistance x r) _
+notation3 "ball_{" x ", " r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
@@ -151,11 +132,6 @@ def cancelPt [CompatibleFunctions 𝕜 X A] : X :=
 lemma cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X) = 0 :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose_spec f
 
--- not sure if needed
--- lemma CompatibleFunctions.IsSeparable [CompatibleFunctions 𝕜 X A] :
---   IsSeparable (range (coeΘ (X := X))) :=
---   sorry
-
 /-- The inhomogeneous Lipschitz norm on a ball. -/
 def iLipENorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
@@ -192,7 +168,7 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
   rcases eq_or_ne (iLipENorm ϕ x r) ∞ with h1 | h1
   · apply le_top.trans_eq
     symm
-    simp [h1, ENNReal.mul_eq_top, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
+    simp [h1, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
   exact IsCancellative.enorm_integral_exp_le' hr h1 h2
 
 /-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
@@ -200,7 +176,7 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
     (h : ∀ {x : X} {r : ℝ} {ϕ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm ϕ x r ≠ ∞)
     (_h2 : support ϕ ⊆ ball x r) {f g : Θ X},
       ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
-      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)) :
+      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (-τ)) :
     IsCancellative X τ := by
   constructor
   intro x r ϕ hr h1 h2 f g
@@ -243,6 +219,13 @@ lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology 
   · apply measurable_measure_ball
   · fun_prop
 
+@[fun_prop]
+lemma measurable_vol₁ {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
+    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] {y : X} :
+    Measurable (vol · y) := by
+  change Measurable (uncurry vol ∘ fun x : X ↦ (x, y))
+  apply Measurable.comp <;> fun_prop
+
 lemma Real.vol_def {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] {x y : X} :
   Real.vol x y = (vol x y).toReal := rfl
 
@@ -271,23 +254,22 @@ lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x :
     (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
   apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
-/-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
+/-- The linearized maximally truncated nontangential Calderon–Zygmund operator `T_Q^θ`. -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (x' : X) (_ : dist x x' ≤ R₁),
-  ‖∫ y in {y | ENNReal.ofReal (dist x' y) ∈ Ioo (ENNReal.ofReal R₁) (upperRadius Q θ x')},
-    K x' y * f y‖₊
+  ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
+  ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) (min (ENNReal.ofReal R₂) (upperRadius Q θ x')),
+    K x' y * f y‖ₑ
 
-/-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
+/-- The maximally truncated nontangential Calderon–Zygmund operator `T_*`. -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (_ : 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
-  ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
+  ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁), ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
 
 /-- The integrand in the (linearized) Carleson operator.
 This is `G` in Lemma 3.0.1. -/
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
-  ∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * θ y)
+  ∫ y in Annulus.oo x R₁ R₂, K x y * f y * exp (I * θ y)
 
 /-- The linearized generalized Carleson operator `T_Q`, taking values in `ℝ≥0∞`.
 Use `ENNReal.toReal` to get the corresponding real number. -/
@@ -300,13 +282,59 @@ Use `ENNReal.toReal` to get the corresponding real number. -/
 def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
 
+private lemma carlesonOperatorIntegrand_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ)
+    (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperatorIntegrand (z • K) θ R₁ R₂ f = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
+  unfold carlesonOperatorIntegrand
+  ext x
+  simp_rw [Pi.smul_apply, smul_eq_mul, ← integral_const_mul]
+  congr with y
+  ring
+
+private lemma linearizedCarlesonOperator_const_smul [FunctionDistances ℝ X] (Q : X → Θ X)
+    (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    linearizedCarlesonOperator Q (z • K) f = ‖z‖ₑ • linearizedCarlesonOperator Q K f := by
+  unfold linearizedCarlesonOperator
+  simp_rw [carlesonOperatorIntegrand_const_smul, Pi.smul_apply, smul_eq_mul, enorm_mul, ← mul_iSup]
+  rfl
+
+lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperator (z • K) f = ‖z‖ₑ • carlesonOperator K f := by
+  unfold carlesonOperator
+  simp_rw [linearizedCarlesonOperator_const_smul, Pi.smul_apply, ← smul_iSup]
+  rfl
+
+lemma nontangentialOperator_const_smul (z : ℂ) {K : X → X → ℂ} :
+    nontangentialOperator (z • K) = ‖z‖ₑ • nontangentialOperator K := by
+  unfold nontangentialOperator
+  simp_rw [Pi.smul_apply, smul_eq_mul, mul_assoc, integral_const_mul, enorm_mul, ← ENNReal.mul_iSup]
+  rfl
 
 end DoublingMeasure
+
+/-- The main constant in the blueprint, driving all the construction, is `D = 2 ^ (100 * a ^ 2)`.
+It turns out that the proof is robust, and works for other values of `100`, giving better constants
+in the end. We will formalize it using a parameter `𝕔` (that we fix equal to `100` to follow
+the blueprint) and having `D = 2 ^ (𝕔 * a ^ 2)`. We register two lemmas `seven_le_c` and
+`c_le_100` and will never unfold `𝕔` from this point on. -/
+irreducible_def 𝕔 : ℕ := 100
+
+lemma seven_le_c : 7 ≤ 𝕔 := by simp [𝕔]
+lemma c_le_100 : 𝕔 ≤ 100 := by simp [𝕔]
+
+/- To check that the value of `c` is irrelevant, you can take `𝕔 = 7` above, or you can comment
+the previous lines and uncomment the next ones.
+
+lemma exists_c : ∃ (c : ℕ), 7 ≤ c ∧ c ≤ 100 := ⟨7, le_rfl, by norm_num⟩
+def 𝕔 : ℕ := exists_c.choose
+lemma seven_le_c : 7 ≤ 𝕔 := exists_c.choose_spec.1
+lemma c_le_100 : 𝕔 ≤ 100 := exists_c.choose_spec.2
+-/
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/
 @[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
-@[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (100 * a ^ 2)
+@[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (𝕔 * a ^ 2)
 @[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
 @[simp] def defaultZ (a : ℕ) : ℕ := 2 ^ (12 * a)
 @[simp] def defaultτ (a : ℕ) : ℝ := a⁻¹
@@ -349,6 +377,19 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
 
 export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
 
+lemma isOneSidedKernel_const_smul {a : ℕ} {K : X → X → ℂ} [IsOneSidedKernel a K] {r : ℝ}
+    (hr : |r| ≤ 1) :
+    IsOneSidedKernel a (r • K) where
+  measurable_K := measurable_K.const_smul r
+  norm_K_le_vol_inv x y := by
+    convert mul_le_mul hr (norm_K_le_vol_inv (K := K) x y) (norm_nonneg _) (zero_le_one' ℝ) using 1
+    all_goals simp
+  norm_K_sub_le h := by
+    simp only [Pi.smul_apply, real_smul]
+    rw [← one_mul (_ ^ _ * _), ← mul_sub, Complex.norm_mul, norm_real, Real.norm_eq_abs]
+    gcongr
+    exact norm_K_sub_le h
+
 lemma MeasureTheory.stronglyMeasurable_K [IsOneSidedKernel a K] :
     StronglyMeasurable (uncurry K) :=
   measurable_K.stronglyMeasurable
@@ -372,7 +413,7 @@ lemma enorm_K_le_vol_inv [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Me
 
 --TODO good name
 lemma enorm_K_le_ball_complement [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
-    [IsOneSidedKernel a K] {r : ℝ} {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    [IsOneSidedKernel a K] {r : ℝ} {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ) :
     ‖K x y‖ₑ ≤ C_K a / volume (ball x r) := by
   apply le_trans (enorm_K_le_vol_inv x y)
   apply ENNReal.div_le_div_left
@@ -383,7 +424,7 @@ lemma enorm_K_le_ball_complement [ProperSpace X] [IsFiniteMeasureOnCompacts (vol
 
 lemma enorm_K_le_ball_complement' [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
     [IsOpenPosMeasure (volume : Measure X)] [IsOneSidedKernel a K] {r : ℝ} (hr : 0 < r)
-    {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ) :
     ‖K x y‖ₑ ≤ (C_K a / volume (ball x r)).toNNReal := by
   rw [ENNReal.coe_toNNReal ?ne_top]
   case ne_top =>
@@ -408,32 +449,32 @@ lemma enorm_K_sub_le [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measur
         apply ofReal_div_le (by positivity)
       · exact ofReal_div_le measureReal_nonneg
 
+lemma integrableOn_K_mul [IsOpenPosMeasure (volume : Measure X)]
+    [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X] [IsOneSidedKernel a K]
+    {f : X → ℂ} {s : Set X} (hf : IntegrableOn f s) (x : X) {r : ℝ} (hr : 0 < r)
+    (hs : s ⊆ (ball x r)ᶜ) : IntegrableOn (K x * f) s := by
+  use (measurable_K_right x).aemeasurable.restrict.mul hf.aemeasurable |>.aestronglyMeasurable
+  exact (hasFiniteIntegral_def _ _).mpr <| calc
+    _ = ∫⁻ y in s, ‖K x y‖ₑ * ‖f y‖ₑ := by simp
+    _ ≤ ∫⁻ y in s, C_K a / volume (ball x r) * ‖f y‖ₑ := by
+      exact setLIntegral_mono_ae (hf.aemeasurable.enorm.const_mul _) <| Filter.Eventually.of_forall
+        fun y hy ↦ mul_le_mul_right' (enorm_K_le_ball_complement (hs hy)) _
+    _ = _ * ∫⁻ y in s, ‖f y‖ₑ := by exact lintegral_const_mul'' _ hf.aemeasurable.enorm
+    _ < ∞ := ENNReal.mul_lt_top (ENNReal.div_lt_top coe_ne_top (measure_ball_pos _ x hr).ne') hf.2
+
 lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X]
     [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
     IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
-  use Measurable.aestronglyMeasurable (measurable_K_right x)
-  rw [hasFiniteIntegral_def]
-  calc ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, ‖K x y‖ₑ
-    _ ≤ ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, C_K a / volume (ball x r) := by
-      refine setLIntegral_mono measurable_const (fun y hy ↦ ?_)
-      refine (enorm_K_le_vol_inv x y).trans ?_
-      rw [vol]
-      gcongr
-      exact hy.1
-    _ < _ := by
-      rw [setLIntegral_const]
-      apply ENNReal.mul_lt_top (ENNReal.div_lt_top ENNReal.coe_ne_top _); swap
-      · simp_rw [← pos_iff_ne_zero, measure_ball_pos _ _ hr]
-      refine (Ne.lt_top fun h ↦ ?_)
-      have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by
-        intro y ⟨_, hy⟩
-        exact mem_closedBall_comm.mp hy
-      exact measure_closedBall_lt_top.ne (measure_mono_top this h)
+  rw [← mul_one (K x)]
+  refine integrableOn_K_mul ?_ x hr ?_
+  · have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := Annulus.cc_subset_closedBall
+    exact integrableOn_const ((measure_mono this).trans_lt measure_closedBall_lt_top).ne
+  · intro y hy; simp [hy.1, dist_comm y x]
 
-/-- `K` is a two-sided Calderon-Zygmund kernel
-In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
-that `K x x = 0`. -/
+/-- `K` is a two-sided Calderon-Zygmund kernel.
+In the formalization `K x y` is defined everywhere, even for `x = y`.
+The assumptions on `K` show that `K x x = 0`. -/
 class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
   enorm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
     ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
@@ -446,13 +487,13 @@ end Kernel
 
 -- to show: K is locally bounded and hence integrable outside the diagonal
 
-/- A constant used on the boundedness of `T_*`. We generally assume
-`HasBoundedStrongType (nontangentialOperator K) volume volume 2 2 (C_Ts a)`
+/-- A constant used on the boundedness of `T_Q^θ` and `T_*`. We generally assume
+`HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·) 2 2 volume volume (C_Ts a)`
 throughout this formalization. -/
-def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
+def C_Ts (a : ℕ) : ℝ≥0 := 2 ^ a ^ 3
 
 /-- Data common through most of chapters 2-7.
-These contain the minimal axioms for `kernel-summand`'s proof and `hasBoundedStrongType_Tstar`.
+These contain the minimal axioms for `kernel-summand`'s proof.
 This is used in chapter 3 when we don't have all other fields from `ProofData`. -/
 class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
     [PseudoMetricSpace X] where
@@ -460,34 +501,30 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   hcz : IsOneSidedKernel a K
-  hasBoundedStrongType_Tstar :
-    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
 
 /-- Data common through most of chapters 2-7 (except 3). -/
 class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
   (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] extends
     KernelProofData a K where
   c : IsCancellative X (defaultτ a)
+  q_mem_Ioc : q ∈ Ioc 1 2
   isBounded_F : IsBounded F
   isBounded_G : IsBounded G
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
-  /-- `volume_F_pos` can probably be removed. -/
-  volume_F_pos : 0 < volume F
-  /-- `volume_G_pos` can probably be removed. -/
-  volume_G_pos : 0 < volume G
   measurable_σ₁ : Measurable σ₁
   measurable_σ₂ : Measurable σ₂
   finite_range_σ₁ : Finite (range σ₁)
   finite_range_σ₂ : Finite (range σ₂)
   σ₁_le_σ₂ : σ₁ ≤ σ₂
   Q : SimpleFunc X (Θ X)
-  q_mem_Ioc : q ∈ Ioc 1 2
+  BST_T_Q (θ : Θ X) : HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+    2 2 volume volume (C_Ts a)
 
-export KernelProofData (four_le_a hasBoundedStrongType_Tstar)
-export ProofData (isBounded_F isBounded_G measurableSet_F measurableSet_G
-  measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
-attribute [instance] KernelProofData.d KernelProofData.cf ProofData.c KernelProofData.hcz
+export KernelProofData (four_le_a)
+export ProofData (q_mem_Ioc isBounded_F isBounded_G measurableSet_F measurableSet_G
+  measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q BST_T_Q)
+attribute [instance] KernelProofData.d KernelProofData.cf KernelProofData.hcz ProofData.c
 
 section ProofData
 
@@ -546,6 +583,48 @@ lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hr : 0 < r) :
 
 end Iterate
 
+section DBounds
+
+variable (X)
+
+-- used in 7.5.6 (`limited_scale_impact`)
+lemma hundred_lt_D [KernelProofData a K] : 100 < defaultD a := by
+  have : 100 < 2 ^ 7 := by norm_num
+  apply this.trans_le
+  have : 16 ≤ a ^ 2 := by nlinarith [four_le_a X]
+  simp only [defaultD]
+  gcongr
+  · norm_num
+  · nlinarith [seven_le_c]
+
+-- used in 7.5.6 (`limited_scale_impact`)
+lemma hundred_lt_realD [KernelProofData a K] : (100 : ℝ) < defaultD a :=
+  mod_cast hundred_lt_D X
+
+-- used in 4.1.7 (`small_boundary`)
+lemma twentyfive_le_realD [KernelProofData a K] : (25 : ℝ) ≤ defaultD a := by
+  linarith [hundred_lt_realD X]
+
+-- used in 4.1.3 (`I3_prop_3_1`)
+lemma eight_le_realD [KernelProofData a K] : (8 : ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+-- used in 4.1.6 (`transitive_boundary`)
+lemma five_le_realD [KernelProofData a K] : (5 : ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+-- used in various places in `Carleson.TileExistence`
+lemma four_le_realD [KernelProofData a K] : (4 : ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+lemma one_le_realD [KernelProofData a K] : (1 : ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+lemma one_lt_realD [KernelProofData a K] : (1 : ℝ) < defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+end DBounds
+
 section MeasQ
 
 variable [KernelProofData a K] {Q : SimpleFunc X (Θ X)}
@@ -585,26 +664,24 @@ include a q K σ₁ σ₂ F G
 variable (X) in
 lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
     F ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧
-    G ⊆ ball (cancelPt X) (defaultD a ^ n / 4) := by
+    G ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧ 0 < n := by
   obtain ⟨l₁, hl₁⟩ := bddBelow_def.mp (Finite.bddBelow (finite_range_σ₁ (X := X)))
   obtain ⟨u₂, hu₂⟩ := bddAbove_def.mp (Finite.bddAbove (finite_range_σ₂ (X := X)))
   simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hl₁ hu₂
-  have one_lt_D : (1 : ℝ) < defaultD a := by
-    unfold defaultD; norm_cast; apply Nat.one_lt_two_pow
-    have := four_le_a X; positivity
+  have one_lt_D : (1 : ℝ) < defaultD a := by linarith [hundred_lt_realD X]
   obtain ⟨rF, rFpos, hrF⟩ : ∃ r > 0, F ⊆ ball (cancelPt X) r := by
     obtain ⟨r, hr⟩ := isBounded_F.subset_ball (cancelPt X)
     rcases lt_or_ge 0 r with lr | lr
     · use r
     · use 1, zero_lt_one, hr.trans (ball_subset_ball (lr.trans zero_le_one))
   let nF := ⌈Real.logb (defaultD a) (4 * rF)⌉
-  obtain ⟨rG, rGpos, hrG⟩ : ∃ r > 0, G ⊆ ball (cancelPt X) r := by
+  obtain ⟨rG, rGpos, hrG⟩ : ∃ r > 1, G ⊆ ball (cancelPt X) r := by
     obtain ⟨r, hr⟩ := isBounded_G.subset_ball (cancelPt X)
     rcases lt_or_ge 0 r with lr | lr
-    · use r
-    · use 1, zero_lt_one, hr.trans (ball_subset_ball (lr.trans zero_le_one))
+    · use r + 1, by linarith, subset_trans hr (ball_subset_ball (by simp))
+    · use 2, one_lt_two, hr.trans (ball_subset_ball (lr.trans zero_le_two))
   let nG := ⌈Real.logb (defaultD a) (4 * rG)⌉
-  refine ⟨(max (max (-l₁) u₂) (max nF nG)).toNat, ⟨fun x ↦ ?_, ?_, ?_⟩⟩
+  refine ⟨(max (max (-l₁) u₂) (max nF nG)).toNat, ⟨fun x ↦ ?_, ?_, ?_, ?_⟩⟩
   · simp only [Int.ofNat_toNat, ← min_neg_neg, neg_neg, min_le_iff, le_max_iff]
     exact ⟨.inl (.inl (.inl (hl₁ x))), .inl (.inl (.inr (hu₂ x)))⟩
   · refine hrF.trans (ball_subset_ball ?_)
@@ -635,49 +712,13 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
         gcongr
         · exact one_lt_D.le
         · exact Int.toNat_le_toNat ((le_max_right ..).trans (le_max_right ..))
+  · exact Int.pos_iff_toNat_pos.mp (lt_of_lt_of_le
+      (lt_of_lt_of_le (Int.ceil_pos.mpr (Real.logb_pos one_lt_D (by linarith))) (le_max_right _ _))
+      (le_max_right _ _))
 
-section DBounds
-
-variable (X)
-
--- used in 7.5.6 (`limited_scale_impact`)
-lemma hundred_lt_realD : (100 : ℝ) < defaultD a := by
-  simp only [defaultD]
-  norm_cast
-  calc 100
-    _ < 128 := by
-      linarith
-    _ = 2 ^ 7 := by
-      rfl
-    _ < 2 ^ (100 * a ^ 2) := by
-      have : 4 ≤ a := four_le_a X
-      gcongr
-      · linarith
-      · nlinarith
-
--- used in 4.1.7 (`small_boundary`)
-lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
-  linarith [hundred_lt_realD X]
-
--- used in 4.1.3 (`I3_prop_3_1`)
-lemma eight_le_realD : (8 : ℝ) ≤ defaultD a := by
-  linarith [twentyfive_le_realD X]
-
--- used in 4.1.6 (`transitive_boundary`)
-lemma five_le_realD : (5 : ℝ) ≤ defaultD a := by
-  linarith [twentyfive_le_realD X]
-
--- used in various places in `Carleson.TileExistence`
-lemma four_le_realD : (4 : ℝ) ≤ defaultD a := by
-  linarith [twentyfive_le_realD X]
-
-lemma one_le_realD : (1 : ℝ) ≤ defaultD a := by
-  linarith [twentyfive_le_realD X]
-
+variable (X) in
 open Classical in
 def defaultS : ℕ := Nat.find (S_spec X)
-
-end DBounds
 
 lemma range_σ₁_subset : range σ₁ ⊆ Icc (-defaultS X) (defaultS X) := by
   classical
@@ -695,7 +736,10 @@ lemma F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
   classical exact (Nat.find_spec (S_spec X)).2.1
 
 lemma G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
-  classical exact (Nat.find_spec (S_spec X)).2.2
+  classical exact (Nat.find_spec (S_spec X)).2.2.1
+
+lemma defaultS_pos : 0 < defaultS X := by
+  classical exact (Nat.find_spec (S_spec X)).2.2.2
 
 lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (-defaultS X) (defaultS X) :=
   fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
@@ -747,6 +791,11 @@ lemma q_nonneg : 0 ≤ q := (q_pos X).le
 lemma inv_q_sub_half_nonneg : 0 ≤ q⁻¹ - 2⁻¹ := by
   simp [inv_le_inv₀ zero_lt_two (q_pos X), q_le_two X]
 
+-- Note: For exponent computations it is usually cleaner to argue in terms
+-- of `q⁻¹` rather than `q`, both on paper and in Lean.
+lemma inv_q_mem_Ico : q⁻¹ ∈ Ico 2⁻¹ 1 := ⟨by linarith only [inv_q_sub_half_nonneg X],
+  inv_one (G := ℝ) ▸ inv_lt_inv₀ (q_pos X) zero_lt_one |>.mpr <| one_lt_q X⟩
+
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
 
@@ -777,7 +826,7 @@ open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
 
 lemma one_lt_D [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 1 < (D : ℝ) := by
-  exact_mod_cast one_lt_pow₀ Nat.one_lt_two (by nlinarith [four_le_a X])
+  linarith [hundred_lt_realD X]
 
 lemma one_le_D : 1 ≤ (D : ℝ) := by
   rw [← Nat.cast_one, Nat.cast_le, defaultD, ← pow_zero 2]
@@ -810,11 +859,13 @@ lemma DκZ_le_two_rpow_100 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F 
     ← Real.rpow_add zero_lt_two, show (-10 * a + 12 * a : ℝ) = 2 * a by ring,
     neg_le_neg_iff]
   norm_cast
+  have : 1 ≤ 𝕔 := by linarith [seven_le_c]
+  have := four_le_a X
   calc
-    _ ≤ 100 * a ^ 2 := by nlinarith [four_le_a X]
+    _ ≤ 1 * 4 ^ 2 * 2 ^ (2 * 4) := by norm_num
     _ ≤ _ := by
-      nth_rw 1 [← mul_one (a ^ 2), ← mul_assoc]
-      gcongr; exact Nat.one_le_two_pow
+      gcongr
+      norm_num
 
 lemma four_le_Z [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 4 ≤ Z := by
   rw [defaultZ, show 4 = 2 ^ 2 by rfl]
@@ -822,7 +873,7 @@ lemma four_le_Z [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 4 ≤ 
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
-def nnD : ℝ≥0 := ⟨D, by simp [D_nonneg]⟩
+def nnD : ℝ≥0 := ⟨D, by simp⟩
 
 namespace ShortVariables
 

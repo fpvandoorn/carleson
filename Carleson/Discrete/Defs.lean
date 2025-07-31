@@ -1,4 +1,5 @@
-import Carleson.MinLayerTiles
+import Carleson.TileStructure
+import Carleson.ToMathlib.MinLayer
 
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
@@ -247,7 +248,7 @@ variable {k n j l : ℕ}
 lemma 𝔏₀_subset_ℭ : 𝔏₀ (X := X) k n ⊆ ℭ k n := fun _ mu ↦ mu.1
 lemma 𝔏₀_disjoint_ℭ₁ : Disjoint (𝔏₀ (X := X) k n) (ℭ₁ k n j) := by
   by_contra h; rw [not_disjoint_iff] at h; obtain ⟨p, ⟨_, b0⟩, ⟨⟨_, bp⟩ , _⟩⟩ := h
-  simp [filter_mem_univ_eq_toFinset, b0] at bp
+  simp [b0] at bp
 
 lemma 𝔏₁_subset_ℭ₁ : 𝔏₁ (X := X) k n j l ⊆ ℭ₁ k n j := minLayer_subset
 lemma 𝔏₁_subset_ℭ : 𝔏₁ (X := X) k n j l ⊆ ℭ k n := minLayer_subset.trans ℭ₁_subset_ℭ
@@ -309,8 +310,8 @@ lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
   replace mx := (zero_le _).trans_lt mx
   rw [Finset.card_pos] at mx
   obtain ⟨p, hp⟩ := mx
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔐, mem_setOf, maximal_iff,
-    aux𝔐, mem_setOf, TilesAt, mem_preimage] at hp
+  simp_rw [Finset.mem_filter_univ, 𝔐, mem_setOf, maximal_iff, aux𝔐, mem_setOf, TilesAt,
+    mem_preimage] at hp
   rw [mem_iUnion₂]; use 𝓘 p, hp.1.1.1, hp.2
 
 lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n := by

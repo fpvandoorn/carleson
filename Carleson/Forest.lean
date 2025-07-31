@@ -11,18 +11,6 @@ variable [TileStructure Q D κ S o] {u u' p p' : 𝔓 X} {f g : Θ X}
   {C C' : Set (𝔓 X)} {x x' : X}
 
 namespace TileStructure
--- variable (X) in
--- structure Tree where
---   carrier : Set (𝔓 X)
---   nonempty : Nonempty carrier
---   ordConnected : OrdConnected carrier -- (2.0.33)
-
--- attribute [coe] Tree.carrier
--- instance : CoeTC (Tree X) (Set (𝔓 X)) where coe := Tree.carrier
--- -- instance : CoeTC (Tree X) (Finset (𝔓 X)) where coe := Tree.carrier
--- -- instance : CoeTC (Tree X) (Set (𝔓 X)) where coe p := ((p : Finset (𝔓 X)) : Set (𝔓 X))
--- instance : Membership (𝔓 X) (Tree X) := ⟨fun x p => x ∈ (p : Set _)⟩
--- instance : Preorder (Tree X) := Preorder.lift Tree.carrier
 
 variable (X) in
 /-- An `n`-forest -/

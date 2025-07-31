@@ -1,6 +1,5 @@
 import Carleson.Calculations
 import Carleson.ForestOperator.AlmostOrthogonality
-import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -40,7 +39,6 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) :
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
     have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t u₁) := mem_of_mem_inter_left cube_in_𝓙
-    simp only [mem_setOf_eq] at cubeIn𝓙₀
     cases cubeIn𝓙₀ with
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
@@ -90,7 +88,7 @@ lemma pairwiseDisjoint_𝓙₆ : (𝓙₆ t u₁).PairwiseDisjoint (fun I ↦ (I
 /-- The constant used in `thin_scale_impact`. This is denoted `s₁` in the proof of Lemma 7.6.3.
 Has value `Z * n / (202 * a ^ 3) - 2` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_6_3 (a n : ℕ) : ℝ := Z * n / (202 * a ^ 3) - 2
+irreducible_def C7_6_3 (a n : ℕ) : ℝ := Z * n / ((2 * 𝕔 + 2) * a ^ 3) - 2
 
 lemma nonneg_C7_6_3_add_two : 0 ≤ C7_6_3 a n + 2 := by
   simp_rw [C7_6_3, sub_add_cancel]; positivity
@@ -135,7 +133,7 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     (hd : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)))
     (h : s J - C7_6_3 a n < 𝔰 p) :
     (2 : ℝ) ^ (Z * (n + 1) - 1) <
-    2 ^ (a * (100 * a ^ 2 * (C7_6_3 a n + 2 + 1) + 9)) * 2 ^ ((Z : ℝ) * n / 2) := by
+    2 ^ (a * (𝕔 * a ^ 2 * (C7_6_3 a n + 2 + 1) + 9)) * 2 ^ ((Z : ℝ) * n / 2) := by
   obtain ⟨b1, ⟨J', lJ', sJ', ⟨p', mp', sp'⟩⟩⟩ := thin_scale_impact_prelims hu₁ hJ hd h
   have bZn : 4 ≤ Z * (n + 1) := by
     rw [← mul_one 4]; gcongr
@@ -166,17 +164,17 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
           gcongr 100 * (D : ℝ) ^ ?_ + 4 * D ^ ?_ + _
           exacts [one_le_D, by linarith only [h], one_le_D, by linarith only [h]]
         _ ≤ _ := by rw [← add_mul, ← add_mul]; gcongr; norm_num
-    _ ≤ dist_{𝔠 p, 2 ^ (100 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ dist_{𝔠 p, 2 ^ (𝕔 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
       refine cdist_mono (ball_subset_ball ?_)
       rw [add_assoc, Real.rpow_add (by simp), Real.rpow_intCast,
         show (128 : ℝ) * (D ^ 𝔰 p * D ^ (C7_6_3 a n + 2)) =
           D ^ (C7_6_3 a n + 2) * 2 ^ 9 * (D ^ 𝔰 p / 4) by ring]
       refine mul_le_mul_of_nonneg_right ?_ (by positivity)
-      rw [pow_add, pow_mul _ (100 * a ^ 2), defaultD, ← Real.rpow_natCast _ ⌈_⌉₊, Nat.cast_pow,
+      rw [pow_add, pow_mul _ (𝕔 * a ^ 2), defaultD, ← Real.rpow_natCast _ ⌈_⌉₊, Nat.cast_pow,
         Nat.cast_ofNat]; gcongr
       · exact_mod_cast Nat.one_le_two_pow
       · exact Nat.le_ceil _
-    _ ≤ (defaultA a) ^ (100 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * dist_(p) (𝒬 u₁) (𝒬 u₂) :=
+    _ ≤ (defaultA a) ^ (𝕔 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * dist_(p) (𝒬 u₁) (𝒬 u₂) :=
       cdist_le_iterate (by unfold defaultD; positivity) ..
     _ ≤ _ := by
       obtain ⟨hp₁, hp₂⟩ := hp
@@ -203,22 +201,26 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
     Nat.cast_one, mul_add_one] at key
   nth_rw 1 [← add_halves ((Z : ℝ) * n)] at key
   rw [add_rotate, ← sub_add_eq_add_sub, add_lt_add_iff_right, C7_6_3, sub_add_cancel] at key
-  have rearr : (a : ℝ) * (100 * a ^ 2 * (Z * n / (202 * a ^ 3) + 1) + 9) =
-      Z * n / 2 * (100 / 101) * a ^ 3 / a ^ 3 + 100 * a ^ 3 + 9 * a := by ring
+  have : (2 * 𝕔 + 2 : ℝ) ≠ 0 := by norm_cast
+  have : (a : ℝ) ≠ 0 := by norm_cast; linarith [four_le_a X]
+  have rearr : (a : ℝ) * (𝕔 * a ^ 2 * (Z * n / ((2 * 𝕔 + 2) * a ^ 3) + 1) + 9) =
+      Z * n / 2 * (𝕔 / (𝕔 + 1)) * a ^ 3 / a ^ 3 + 𝕔 * a ^ 3 + 9 * a := by
+        field_simp; ring
   have fla := four_le_a X
   rw [rearr, mul_div_cancel_right₀ _ (by norm_cast; positivity), add_assoc,
     ← sub_lt_iff_lt_add', sub_right_comm, add_sub_right_comm, ← mul_one_sub, div_mul_comm,
-    show (1 - 100 / 101) / (2 : ℝ) = 202⁻¹ by norm_num, sub_lt_iff_lt_add] at key
+    show (1 - 𝕔 / (𝕔 + 1)) / (2 : ℝ) = 1 / (2 * 𝕔 + 2) by field_simp; ring,
+    sub_lt_iff_lt_add] at key
   apply absurd key; rw [not_lt]
-  suffices 100 * a ^ 3 + 9 * a + 1 ≤ (Z : ℝ) by
+  suffices 𝕔 * a ^ 3 + 9 * a + 1 ≤ (Z : ℝ) by
     apply this.trans; nth_rw 1 [← zero_add (Z : ℝ)]; gcongr; positivity
   norm_cast; rw [defaultZ]
   calc
-    _ = 100 * a ^ 3 + 9 * a * 1 * 1 + 1 * 1 * 1 * 1 := by norm_num
-    _ ≤ 100 * a ^ 3 + 9 * a * a * a + 1 * a * a * a := by gcongr <;> omega
-    _ = 110 * a ^ 3 := by ring
+    _ = 𝕔 * a ^ 3 + 9 * a * 1 * 1 + 1 * 1 * 1 * 1 := by norm_num
+    _ ≤ 𝕔 * a ^ 3 + 9 * a * a * a + 1 * a * a * a := by gcongr <;> omega
+    _ = (𝕔 + 10) * a ^ 3 := by ring
     _ ≤ 2 ^ (7 + 3 * a) := by
-      rw [pow_add, pow_mul']; gcongr; exacts [by norm_num, Nat.lt_two_pow_self.le]
+      rw [pow_add, pow_mul']; gcongr; exacts [by linarith [c_le_100], Nat.lt_two_pow_self.le]
     _ ≤ _ := by gcongr <;> omega
 
 /-- Lemma 7.6.3 with a floor on the constant to avoid casting. -/
@@ -243,8 +245,8 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
         ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) } : Finset (Grid X)) = ∅ by
       rw [this]
       simp
-    simp only [Nat.cast_pow, Nat.cast_ofNat, Finset.filter_eq_empty_iff, Finset.mem_univ,
-      not_and, Decidable.not_not, true_implies]
+    simp only [Finset.filter_eq_empty_iff, Finset.mem_univ, not_and, Decidable.not_not,
+      true_implies]
     intros I hI
     have : -S ≤ s I := (range_s_subset ⟨I, rfl⟩).1
     linarith
@@ -267,17 +269,17 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       rw [ENNReal.coe_zpow (by simp)]
       norm_num
     · rw [show (8 : ℝ≥0) = 2 ^ 3 by norm_num]
-      simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA,
-        ← zpow_neg, ← zpow_natCast, ← zpow_mul, ← zpow_add₀ (show (2 : ℝ≥0) ≠ 0 by norm_num)]
+      simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA, ← zpow_natCast, ← zpow_mul,
+        ← zpow_add₀ (show (2 : ℝ≥0) ≠ 0 by norm_num)]
       -- #adaptation note(2024-11-02): this line was `gcongr`
       -- This was probably broken by mathlib4#19626 and friends, see
       -- https://leanprover.zulipchat.com/#narrow/channel/428973-nightly-testing/topic/.2319314.20adaptations.20for.20nightly-2024-11-20
       -- for details.
       refine zpow_le_zpow_right₀ ?ha ?hmn
       · norm_num
-      · simp only [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow, mul_neg,
+      · simp only [Nat.cast_mul, Nat.cast_pow, mul_neg,
         le_add_neg_iff_add_le, ← mul_add]
-        refine (Int.mul_nonpos_of_nonneg_of_nonpos (by simp) ?_).trans (by norm_num)
+        refine (Int.mul_nonpos_of_nonneg_of_nonpos (by positivity) ?_).trans (by norm_num)
         rwa [← sub_nonpos, sub_eq_neg_add, neg_add] at hs'
   have vsupp : volume supp ≤ ENNReal.ofReal (2 * (↑8 * ↑D ^ (-s')) ^ κ) * volume (J : Set X) := by
     apply ENNReal.ofReal_le_ofReal at vsupp
@@ -293,7 +295,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
     · rw [Finset.mul_sum, ← nsmul_eq_mul, ← Finset.sum_const]
       refine Finset.sum_le_sum fun I hI ↦ ?_
       simp only [mem_toFinset] at hI
-      apply le_trans _ (measure_real_ball_two_le_same_iterate (μ := volume) (c I) (D ^ s I / 4) 7)
+      apply le_trans _ (measureReal_ball_two_le_same_iterate (μ := volume) (c I) (D ^ s I / 4) 7)
       refine measureReal_mono ?_ (by finiteness)
       apply ball_subset_ball'
       refine (add_le_add le_rfl hI.1.le).trans ?_
@@ -318,8 +320,8 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       gcongr
       linarith
   simp_rw [← Nat.cast_le (α := ℝ≥0∞)] at est₁
-  have est₂ (x) (hx : x ∈ J) : (∑ I ∈ {I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
-      ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) },
+  have est₂ (x) (hx : x ∈ J) : (∑ I with s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+      ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)),
       (ball (c I) (8 * D ^ s I)).indicator (1 : X → ℝ≥0∞) x) ≤
       if x ∈ supp then (defaultA a) ^ 7 else 0 := by
     split_ifs with hx'
@@ -328,8 +330,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       refine le_trans ?_ (est₁ (s J - s') x)
       gcongr
       intro I
-      simp only [Nat.cast_pow, Nat.cast_ofNat, mem_ball, Finset.mem_filter,
-        Finset.mem_univ, true_and, mem_toFinset, 𝒟]
+      simp_rw [Finset.filter_filter, Finset.mem_filter_univ, mem_toFinset]
       exact fun H ↦ ⟨H.2, H.1.1⟩
     · have (I : Grid X) : ball (c I) (8 * D ^ s I) = EMetric.ball (c I) (8 * D ^ s I) := by
         trans EMetric.ball (c I) (show ℝ≥0 from ⟨8 * D ^ s I, by positivity⟩)
@@ -692,7 +693,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
 
 /-- The constant used in `bound_for_tree_projection`. -/
 irreducible_def C7_6_2 (a n : ℕ) : ℝ≥0 :=
-  C2_1_3 a * 2 ^ (21 * a + 5) * 2 ^ (-(25 / (101 * a) * Z * n * κ))
+  C2_1_3 a * 2 ^ (21 * a + 5) * 2 ^ (-(𝕔 / ((4 * 𝕔 + 4) * a) * Z * n * κ))
 
 omit [TileStructure Q D κ S o] in
 lemma btp_constant_bound :
@@ -723,11 +724,11 @@ lemma btp_constant_bound :
         rw [← ENNReal.rpow_add _ _ (by norm_cast; unfold defaultD; positivity)
           (ENNReal.natCast_ne_top D)]
         congr; ring
-    _ ≤ C2_1_3 a * 2 ^ (11 * a + 2) * 2 ^ (-100 * a ^ 2 * (Z * n / (202 * a ^ 3) - 3) * κ / 2) *
-        2 ^ (10 * a + 2) := by
+    _ ≤ C2_1_3 a * 2 ^ (11 * a + 2) * 2 ^ (-𝕔 * a ^ 2 * (Z * n / ((2 * 𝕔 + 2) * a ^ 3) - 3)
+         * κ / 2) * 2 ^ (10 * a + 2) := by
       gcongr with k
       · rw [defaultD, Nat.cast_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, neg_mul, neg_div,
-          ← neg_mul_comm, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, Nat.cast_ofNat, ← neg_mul,
+          ← neg_mul_comm, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, ← neg_mul,
           ← mul_div_assoc, ← mul_assoc]
         gcongr _ ^ (?_ * _ / _)
         · exact one_le_two
@@ -735,10 +736,12 @@ lemma btp_constant_bound :
         · apply mul_le_mul_of_nonpos_left
           · rw [show (3 : ℝ) = 2 + 1 by norm_num, ← sub_sub, ← C7_6_3_def, sub_le_iff_le_add]
             exact (Int.lt_floor_add_one _).le
-          · rw [neg_mul, Left.neg_nonpos_iff, mul_nonneg_iff_of_pos_left (by norm_num)]
+          · rw [neg_mul, Left.neg_nonpos_iff, mul_nonneg_iff_of_pos_left
+              (by norm_cast; linarith [seven_le_c])]
             positivity
       · exact calculation_7_6_2 (X := X)
-    _ = C2_1_3 a * 2 ^ (21 * a + 4) * 2 ^ (150 * a ^ 2 * κ - 100 / (404 * a) * Z * n * κ) := by
+    _ = C2_1_3 a * 2 ^ (21 * a + 4) *
+        2 ^ ((𝕔 * (3 / 2)) * a ^ 2 * κ - 𝕔 / ((4 * 𝕔 + 4) * a) * Z * n * κ) := by
       rw [← mul_rotate]; congr 1
       · rw [← mul_assoc, ← mul_rotate, ← pow_add, mul_comm]
         congr 2; omega
@@ -747,16 +750,16 @@ lemma btp_constant_bound :
         congr
         · ring
         · have a4 := four_le_a X
-          rw [← mul_comm_div, pow_succ' _ 2, ← mul_assoc 202, mul_div_mul_right _ _ (by positivity),
-            mul_assoc, ← div_mul_eq_mul_div, div_div, ← mul_assoc, ← mul_assoc,
-            show 202 * (a : ℝ) * 2 = 404 * a by ring]
-    _ ≤ C2_1_3 a * 2 ^ (21 * a + 4) * 2 ^ (1 - 100 / (404 * a) * Z * n * κ) := by
+          have : 2 * 𝕔 + (2 : ℝ) ≠ 0 := by norm_cast
+          field_simp
+          ring
+    _ ≤ C2_1_3 a * 2 ^ (21 * a + 4) * 2 ^ (1 - 𝕔 / ((4 * 𝕔 + 4) * a) * Z * n * κ) := by
       gcongr; exacts [one_le_two, calculation_150 (X := X)]
     _ = _ := by
       rw [sub_eq_add_neg, ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, ENNReal.rpow_one,
-        ← mul_assoc, mul_assoc _ _ 2, ← pow_succ, C7_6_2, ENNReal.coe_mul, ← div_div, ← div_div,
+        ← mul_assoc, mul_assoc _ _ 2, ← pow_succ, C7_6_2, ENNReal.coe_mul, ← div_div,
         ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_mul, ENNReal.coe_pow]
-      congr 7; norm_num
+      rfl
 
 /-- Lemma 7.6.2. -/
 lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -773,12 +776,12 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
   ext x; simp only [approxOnCube]
   classical
   calc
-    _ = ∑ p ∈ {b | b ∈ 𝓙₆ t u₁}, (p : Set X).indicator (fun x ↦ ⨍ y in p,
+    _ = ∑ p with p ∈ 𝓙₆ t u₁, (p : Set X).indicator (fun x ↦ ⨍ y in p,
         ‖U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂) y‖) x := by
       apply (Finset.sum_subset (fun p mp ↦ ?_) (fun p mp np ↦ ?_)).symm
-      · simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝓙₆] at mp ⊢
+      · rw [Finset.mem_filter_univ] at mp ⊢
         exact mp.1
-      · simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp np
+      · rw [Finset.mem_filter_univ] at mp np
         rw [indicator_apply_eq_zero]; intro mx
         rw [show (0 : ℝ) = ⨍ y in (p : Set X), 0 by simp]
         refine setAverage_congr_fun coeGrid_measurable (.of_forall fun y my ↦ ?_)
@@ -801,10 +804,11 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
     _ = _ := by
       congr! 3 with p mp
       refine setAverage_congr_fun coeGrid_measurable (.of_forall fun y my ↦ ?_)
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝓙₆, mem_inter_iff, mem_Iic] at mp
+      rw [Finset.mem_filter_univ, 𝓙₆, mem_inter_iff, mem_Iic] at mp
       rw [indicator_of_mem (mp.2.1 my)]
 
-/-- The constant used in `correlation_near_tree_parts`. -/
+/-- The constant used in `correlation_near_tree_parts`.
+Has value `2 ^ (232 * a ^ 3 + 21 * a + 5- 25/(101a) * Z n κ)` in the blueprint. -/
 irreducible_def C7_4_6 (a n : ℕ) : ℝ≥0 := C7_2_1 a * C7_6_2 a n
 
 /-- Lemma 7.4.6 -/

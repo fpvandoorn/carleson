@@ -1,7 +1,6 @@
 import Carleson.Calculations
 import Carleson.ForestOperator.AlmostOrthogonality
 import Carleson.HolderVanDerCorput
-import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 import Carleson.ToMathlib.Data.NNReal
 
 open ShortVariables TileStructure
@@ -74,7 +73,6 @@ lemma stronglyMeasurable_χ : StronglyMeasurable (χ t u₁ u₂ J) :=
     (Finset.measurable_sum _ fun _ _ ↦ stronglyMeasurable_χtilde.measurable) |>.stronglyMeasurable
 
 -- /-- The definition of `B`, defined in (7.5.1) -/
--- protected def _root_.Grid.ball (I : Grid X) : Set X := ball (c I) (8 * D ^ s I)
 
 variable (t u₁ u₂) in
 /-- The definition of h_J, defined in the proof of Section 7.5.2 -/
@@ -84,11 +82,7 @@ def holderFunction (f₁ f₂ : X → ℂ) (J : Grid X) (x : X) : ℂ :=
 
 /- AUXILIARY LEMMAS:START -/
 
-lemma IF_subset_THEN_distance_between_centers (subset : (J : Set X) ⊆ J') :
-    dist (c J) (c J') < 4 * D ^ s J' :=
-  Grid_subset_ball (subset Grid.c_mem_Grid)
-
-lemma IF_subset_THEN_not_disjoint {A : Grid X} {B: Grid X} (h : (A : Set X) ⊆ B) :
+lemma IF_subset_THEN_not_disjoint {A B : Grid X} (h : (A : Set X) ⊆ B) :
     ¬ Disjoint (B : Set X) (A : Set X) := by
   rw [disjoint_comm]
   intro disjoint
@@ -139,7 +133,6 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
     have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
-    simp only [mem_setOf_eq] at cubeIn𝓙₀
     cases cubeIn𝓙₀ with
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
@@ -238,7 +231,7 @@ lemma sum_χ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u
     ∑ J ∈ 𝓙₅ t u₁ u₂, χ t u₁ u₂ J x = (𝓘 u₁ : Set X).indicator 1 x := by
   simp_rw [χ, ← Finset.sum_div, NNReal.div_self_eq_ite, indicator, Pi.one_apply]
   refine if_congr ?_ rfl rfl
-  simp_rw [NNReal.finset_sum_pos_iff, mem_toFinset, χtilde_pos_iff]
+  simp_rw [Finset.sum_pos_iff, mem_toFinset, χtilde_pos_iff]
   conv_lhs => enter [1, J]; rw [and_rotate]
   rw [exists_and_left, Grid.mem_def, and_iff_left_iff_imp, ← union_𝓙₅ hu₁ hu₂ hu h2u]; intro mx
   rw [mem_iUnion₂] at mx; obtain ⟨J, mJ, hJ⟩ := mx
@@ -279,9 +272,9 @@ lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
       NNReal.coe_le_coe]
     exact χ_le_indicator hJ
 
-/-- The constant used in `dist_χ_le`. Has value `2 ^ (226 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ (226 * (a : ℝ) ^ 3)
+/-- The constant used in `dist_χ_le`.
+Has value `2 ^ (227 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ ((2 * 𝕔 + 2 + 𝕔 / 4) * a ^ 3)
 
 lemma one_le_C7_5_2 : 1 ≤ C7_5_2 a := by
   rw [C7_5_2]; exact_mod_cast Nat.one_le_two_pow
@@ -292,34 +285,41 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
       ¬Disjoint (ball (c J) (8 * D ^ s J)) (ball (c J') (8 * D ^ s J'))}.card ≤ C7_5_2 a := by
   set V := {J' ∈ (𝓙₅ t u₁ u₂).toFinset |
       ¬Disjoint (ball (c J) (8 * D ^ s J)) (ball (c J') (8 * D ^ s J'))}
-  suffices V.card ≤ 2 ^ (200 * a ^ 3 + 7 * a) by
+  suffices V.card ≤ 2 ^ (2 * 𝕔 * a ^ 3 + 7 * a) by
     calc
-      _ ≤ 1 / 4 + 2 * (D : ℝ) * 2 ^ (200 * a ^ 3 + 7 * a) := by gcongr; norm_cast
-      _ ≤ 2 ^ (100 * a ^ 2 + 1 + (200 * a ^ 3 + 7 * a)) +
-          2 ^ (100 * a ^ 2 + 1 + (200 * a ^ 3 + 7 * a)) := by
+      _ ≤ 1 / 4 + 2 * (D : ℝ) * 2 ^ (2 * 𝕔 * a ^ 3 + 7 * a) := by gcongr; norm_cast
+      _ ≤ 2 ^ (𝕔 * a ^ 2 + 1 + (2 * 𝕔 * a ^ 3 + 7 * a)) +
+          2 ^ (𝕔 * a ^ 2 + 1 + (2 * 𝕔 * a ^ 3 + 7 * a)) := by
         rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_succ', ← pow_add]
         gcongr; trans 1
         · norm_num
         · norm_cast; exact Nat.one_le_two_pow
       _ ≤ _ := by
-        rw [← two_mul, ← pow_succ', C7_5_2,
-          show 100 * a ^ 2 + 1 + (200 * a ^ 3 + 7 * a) + 1 =
-            200 * a ^ 3 + 100 * a ^ 2 + 7 * a + 2 by ring]
-        norm_cast; apply pow_le_pow_right' one_le_two
+        rw [C7_5_2]
+        norm_cast
+        apply add_le_pow_two le_rfl le_rfl ?_
+        have := four_le_a X
+        ring_nf
+        suffices 𝕔 * a ^ 2 + 7 * a + 2 ≤ a ^ 3 * 2 + a ^ 3 * (𝕔 / 4)  by linarith
         calc
-          _ = 200 * a ^ 3 + 25 * 4 * a ^ 2 + 7 * a + 2 := by norm_num
-          _ ≤ 200 * a ^ 3 + 25 * a * a ^ 2 + 7 * a + a := by gcongr <;> linarith [four_le_a X]
-          _ = 225 * a ^ 3 + 4 * 2 * a := by ring
-          _ ≤ 225 * a ^ 3 + a * a * a := by gcongr <;> linarith [four_le_a X]
+          _ ≤ (4 * (𝕔 / 4) + 3) * a ^ 2 + 7 * a + a := by
+            gcongr
+            · omega
+            · linarith
+          _ = (𝕔 / 4) * 4 * a ^ 2 + 3 * a ^ 2 + 2 * 4 * a := by ring
+          _ ≤ (𝕔 / 4) * a * a ^ 2 + 3 * a ^ 2 + 2 * a * a := by gcongr
+          _ = (𝕔 / 4) * a ^ 3 + 5 * a ^ 2 := by ring
+          _ ≤ (𝕔 / 4) * a ^ 3 + 2 * 4 * a ^ 2 := by gcongr; norm_num
+          _ ≤ (𝕔 / 4) * a ^ 3 + 2 * a * a ^ 2 := by gcongr
           _ = _ := by ring
   have dbl : ∀ J' ∈ V, volume (ball (c J) (9 * D ^ (s J + 1))) ≤
-      2 ^ (200 * a ^ 3 + 7 * a) * volume (ball (c J') (D ^ s J' / 4)) := fun J' mJ' ↦ by
+      2 ^ (2 * 𝕔 * a ^ 3 + 7 * a) * volume (ball (c J') (D ^ s J' / 4)) := fun J' mJ' ↦ by
     simp_rw [V, Finset.mem_filter, mem_toFinset] at mJ'
     have hs := moderate_scale_change hJ mJ'.1 mJ'.2
     rw [disjoint_comm] at mJ'
     have hs' := moderate_scale_change mJ'.1 hJ mJ'.2
     calc
-      _ ≤ 2 ^ (200 * a ^ 3) * volume (ball (c J') (18 * D ^ s J')) := by
+      _ ≤ 2 ^ (2 * 𝕔 * a ^ 3) * volume (ball (c J') (18 * D ^ s J')) := by
         have db : dist (c J') (c J) + 9 * D ^ (s J + 1) ≤ D ^ 2 * (18 * D ^ s J') :=
           calc
             _ ≤ 8 * (D : ℝ) ^ s J' + 8 * D ^ s J + 9 * D ^ (s J + 1) := by
@@ -336,18 +336,18 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
           Real.logb_self_eq_one one_lt_two, mul_one, Nat.ceil_natCast, ENNReal.coe_pow,
           ENNReal.coe_ofNat]
         ring
-      _ ≤ 2 ^ (200 * a ^ 3 + 7 * a) * volume (ball (c J') (18 / 128 * D ^ s J')) := by
+      _ ≤ 2 ^ (2 * 𝕔 * a ^ 3 + 7 * a) * volume (ball (c J') (18 / 128 * D ^ s J')) := by
         nth_rw 1 [show (18 : ℝ) * D ^ s J' = 2 ^ 7 * (18 / 128 * D ^ s J') by ring]
-        rw [pow_add, mul_assoc]; gcongr
+        rw [pow_add, mul_assoc, mul_assoc]; gcongr
         convert measure_ball_two_le_same_iterate (μ := volume) (c J') _ 7 using 2
         unfold defaultA; norm_cast; rw [← pow_mul']
       _ ≤ _ := by rw [div_eq_inv_mul _ 4]; gcongr; norm_num
   replace dbl : V.card * volume (ball (c J) (9 * D ^ (s J + 1))) ≤
-      2 ^ (200 * a ^ 3 + 7 * a) * volume (ball (c J) (9 * D ^ (s J + 1))) := by
+      2 ^ (2 * 𝕔 * a ^ 3 + 7 * a) * volume (ball (c J) (9 * D ^ (s J + 1))) := by
     calc
-      _ ≤ 2 ^ (200 * a ^ 3 + 7 * a) * ∑ J' ∈ V, volume (ball (c J') (D ^ s J' / 4)) := by
+      _ ≤ 2 ^ (2 * 𝕔 * a ^ 3 + 7 * a) * ∑ J' ∈ V, volume (ball (c J') (D ^ s J' / 4)) := by
         rw [Finset.mul_sum, ← nsmul_eq_mul, ← Finset.sum_const]; exact Finset.sum_le_sum dbl
-      _ = 2 ^ (200 * a ^ 3 + 7 * a) * volume (⋃ J' ∈ V, ball (c J') (D ^ s J' / 4)) := by
+      _ = 2 ^ (2 * 𝕔 * a ^ 3 + 7 * a) * volume (⋃ J' ∈ V, ball (c J') (D ^ s J' / 4)) := by
         congr; refine (measure_biUnion_finset ?_ fun _ _ ↦ measurableSet_ball).symm
         have Vs : V ⊆ (t.𝓙₅ u₁ u₂).toFinset := Finset.filter_subset ..
         rw [subset_toFinset] at Vs
@@ -421,9 +421,10 @@ lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
   · have : ctx' = 0 := by
       simp_rw [ctx', ← not_ne_iff, ← zero_lt_iff, χtilde_pos_iff]; tauto
     rw [this, NNReal.coe_zero, zero_mul, add_zero, div_eq_inv_mul _ 4, mul_div_assoc]; gcongr
-    rw [show 4⁻¹ = (2 : ℝ) ^ (-2 : ℝ) by norm_num, C7_5_2, NNReal.coe_rpow, NNReal.coe_ofNat,
-      Real.rpow_le_rpow_left_iff one_lt_two]
-    norm_cast; omega
+    rw [show 4⁻¹ = (2 : ℝ) ^ (-2 : ℝ) by norm_num, C7_5_2, NNReal.coe_pow, NNReal.coe_ofNat,
+      ← Real.rpow_natCast, Real.rpow_le_rpow_left_iff one_lt_two]
+    apply le_trans ?_ (by positivity)
+    linarith
   rw [not_notMem] at hx'
   calc
     _ ≤ (dist x x' / D ^ s J +
@@ -466,9 +467,8 @@ lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
 /-! ### Subsection 7.5.2 and Lemma 7.5.4 -/
 
 /-- The constant used in `holder_correlation_tile`.
-Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
+Has value `2 ^ (128 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔 / 4) * a ^ 3)
 
 section OneInOneOut
 
@@ -556,10 +556,11 @@ lemma holder_correlation_tile_one
       simp_rw [show 4 = 2 ^ 2 by norm_num, ← pow_add]
       apply pow_le_pow_right' one_le_two
       calc
-        _ = 102 * a ^ 3 + 3 * a * 1 * 1 + 2 * 1 * 1 * 1 := by norm_num
-        _ ≤ 102 * a ^ 3 + 3 * a * a * a + 2 * a * a * a := by gcongr <;> linarith [four_le_a X]
-        _ = 107 * a ^ 3 := by ring
-        _ ≤ _ := by gcongr; norm_num
+        _ ≤ (𝕔 + 2) * a ^ 3 + 3 * a + a := by gcongr; linarith [four_le_a X]
+        _ = (𝕔 + 2) * a ^ 3 + 4 * 1 * a := by ring
+        _ ≤ (𝕔 + 2) * a ^ 3 + a * a * a := by gcongr <;> linarith [four_le_a X]
+        _ = (𝕔 + 3 + 0) * a ^ 3 := by ring
+        _ ≤ (𝕔 + 3 + 𝕔 / 4) * a ^ 3 := by gcongr; positivity
 
 end OneInOneOut
 
@@ -740,16 +741,17 @@ lemma QQQQ_bound_real {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u)
 
 lemma QQQQ_bound {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u)
     (hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) (hx' : x' ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
-    ‖-Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ ≤ Q7_5_5 a * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
+    ‖-Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ ≤ Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
   calc
     _ ≤ ‖Q7_5_5 a * (dist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹‖ₑ := by
       rw [← enorm_norm]
-      apply Real.enorm_le_enorm (norm_nonneg _) (QQQQ_bound_real my hu hp hx hx')
+      exact Real.enorm_le_enorm (norm_nonneg _) (QQQQ_bound_real my hu hp hx hx')
     _ = _ := by
       rw [enorm_mul, Real.enorm_rpow_of_nonneg (by positivity) (by norm_cast; positivity),
         NNReal.enorm_eq, div_eq_mul_inv, enorm_mul, enorm_inv (by unfold defaultD; positivity),
         ← div_eq_mul_inv]; congr
-      · rw [Real.enorm_eq_ofReal dist_nonneg, dist_nndist]; exact ENNReal.ofReal_coe_nnreal
+      · rw [Real.enorm_eq_ofReal dist_nonneg, dist_edist, ENNReal.ofReal_toReal]
+        exact edist_ne_top x x'
       · rw [Real.enorm_eq_ofReal (by positivity), ← Real.rpow_intCast,
           ← ENNReal.ofReal_rpow_of_pos (by simp), ENNReal.rpow_intCast]; norm_cast
 
@@ -762,33 +764,32 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
     _ ≤ (∫⁻ y in E p, ‖f y‖ₑ * ‖Ks (𝔰 p) y x‖ₑ * ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ) +
         ∫⁻ y in E p, ‖f y‖ₑ * ‖Ks (𝔰 p) y x - Ks (𝔰 p) y x'‖ₑ := holder_correlation_rearrange hf
     _ ≤ (∫⁻ y in E p, ‖f y‖ₑ *
-          (C2_1_3 a / volume (ball y (D ^ 𝔰 p))) *
-            (Q7_5_5 a * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹)) +
+          (C2_1_3 a / volume (ball y (D ^ 𝔰 p))) * (Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹)) +
         ∫⁻ y in E p, ‖f y‖ₑ *
-          (D2_1_3 a / volume (ball y (D ^ 𝔰 p)) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹) := by
+          (D2_1_3 a / volume (ball y (D ^ 𝔰 p)) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹) := by
       refine add_le_add (setLIntegral_mono' measurableSet_E fun y my ↦ ?_)
         (lintegral_mono fun _ ↦ ?_)
       · exact mul_le_mul' (mul_le_mul_left' enorm_Ks_le _) (QQQQ_bound my hu hp hx hx')
-      · gcongr; exact nnnorm_Ks_sub_Ks_le
-    _ = (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
+      · gcongr; exact enorm_Ks_sub_Ks_le
+    _ = (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
         ∫⁻ y in E p, ‖f y‖ₑ / volume (ball y (D ^ 𝔰 p)) := by
       conv_lhs =>
         enter [1, 2, y]
         rw [← mul_div_assoc, mul_comm ‖f y‖ₑ, mul_div_assoc, ← mul_rotate]
-      have nt₀ : (nndist x x' / (D : ℝ≥0∞) ^ 𝔰 p) ^ (a : ℝ)⁻¹ < ⊤ := by
+      have nt₀ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ < ⊤ := by
         apply ENNReal.rpow_lt_top_of_nonneg (by positivity); rw [← lt_top_iff_ne_top]
-        exact ENNReal.div_lt_top ENNReal.coe_ne_top (ENNReal.zpow_pos (by simp) (by simp) _).ne'
-      have nt₁ : Q7_5_5 a * (nndist x x' / (D : ℝ≥0∞) ^ 𝔰 p) ^ (a : ℝ)⁻¹ * C2_1_3 a ≠ ⊤ :=
+        exact ENNReal.div_lt_top (edist_ne_top _ _) (ENNReal.zpow_pos (by simp) (by simp) _).ne'
+      have nt₁ : Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * C2_1_3 a ≠ ⊤ :=
         ENNReal.mul_ne_top (ENNReal.mul_ne_top (by simp) nt₀.ne) (by simp)
       rw [lintegral_const_mul' _ _ nt₁]
       conv_lhs =>
         enter [2, 2, y]
         rw [← mul_assoc, ← mul_div_assoc, mul_comm ‖f y‖ₑ, mul_div_assoc, ← mul_rotate]
-      have nt₂ : (nndist x x' / (D : ℝ≥0∞) ^ 𝔰 p) ^ (a : ℝ)⁻¹ * D2_1_3 a ≠ ⊤ :=
+      have nt₂ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * D2_1_3 a ≠ ⊤ :=
         ENNReal.mul_ne_top nt₀.ne (by simp)
       rw [lintegral_const_mul' _ _ nt₂, ← add_mul]; congr 1
       rw [← mul_rotate, mul_comm _ (D2_1_3 a : ℝ≥0∞), ← add_mul]
-    _ ≤ (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
+    _ ≤ (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
         ∫⁻ y in E p, ‖f y‖ₑ / (volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a)) := by
       refine mul_le_mul_left' (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
       exact ENNReal.div_le_div_left (volume_xDsp_bound (E_subset_𝓘 my)) _
@@ -798,25 +799,28 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
         enter [2, 2, y]
         rw [ENNReal.div_eq_inv_mul]
       rw [lintegral_const_mul'' _ hf.restrict.aestronglyMeasurable.enorm, ← mul_assoc]; congr 1
-      rw [ENNReal.inv_div (by simp) (by simp), ← mul_rotate, ENNReal.mul_div_right_comm]; congr
-      exact coe_nnreal_ennreal_nndist ..
+      rw [ENNReal.inv_div (by simp) (by simp), ← mul_rotate, ENNReal.mul_div_right_comm]
     _ ≤ _ := by
       gcongr; rw [C2_1_3, D2_1_3, C7_5_5, Q7_5_5]; norm_cast
       calc
-        _ ≤ 2 ^ (3 * a) *
-            (2 ^ (102 * a ^ 3) * (2 ^ 4 * 2 ^ (6 * a)) + 2 ^ (150 * a ^ 3)) := by gcongr; norm_num
-        _ ≤ 2 ^ (3 * a) * (2 ^ (150 * a ^ 3) + 2 ^ (150 * a ^ 3)) := by
+        _ ≤ 2 ^ (3 * a) * (2 ^ ((𝕔 + 2) * a ^ 3) * (2 ^ 4 * 2 ^ (6 * a))
+              + 2 ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3)) := by gcongr; norm_num
+        _ ≤ 2 ^ (3 * a) * (2 ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3) + 2 ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3)) := by
           gcongr; rw [← pow_add, ← pow_add]; apply pow_le_pow_right' one_le_two
           calc
-            _ = 102 * a ^ 3 + 4 * 1 * 1 * 1 + 6 * a * 1 * 1 := by ring
-            _ ≤ 102 * a ^ 3 + 4 * a * a * a + 6 * a * a * a := by gcongr <;> linarith [four_le_a X]
-            _ = 112 * a ^ 3 := by ring
-            _ ≤ _ := by gcongr; norm_num
-        _ = 2 ^ (150 * a ^ 3 + (3 * a + 1)) := by
+            _ = (𝕔 + 2) * a ^ 3 + 2 * 1 * 2 + 2 * 3 * a := by ring
+            _ ≤ (𝕔 + 2) * a ^ 3 + 2 * a * a + 2 * a * a := by gcongr <;> linarith [four_le_a X]
+            _ = (𝕔 + 2) * a ^ 3 + 1 * 4 * a ^ 2 := by ring
+            _ ≤ (𝕔 + 2) * a ^ 3 + (𝕔 / 4) * a * a ^ 2 := by
+              gcongr
+              · have := seven_le_c; omega
+              · exact four_le_a X
+            _ = _ := by ring
+        _ = 2 ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3 + (3 * a + 1)) := by
           rw [← two_mul, ← pow_succ', ← pow_add]; ring
         _ ≤ _ := by
           apply pow_le_pow_right' one_le_two
-          rw [show 151 * a ^ 3 = 150 * a ^ 3 + a ^ 3 by ring]; gcongr
+          rw [show (𝕔 + 3 + 𝕔 / 4) * a ^ 3 = (𝕔 + 2 + 𝕔 / 4) * a ^ 3 + a ^ 3 by ring]; gcongr
           calc
             _ = 3 * a * 1 + 1 * 1 * 1 := by ring
             _ ≤ 3 * a * a + 1 * a * a := by gcongr <;> linarith [four_le_a X]
@@ -922,16 +926,16 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
       apply cdist_mono
       intros x hx
       exact hundred (ball_subset_Grid hx)
-    _ ≤ 2 ^ ((-100 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ 2 ^ ((-𝕔 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
       apply calculation_8
       rw [mul_comm, calculation_6 a (s J), calculation_7 a (s J)]
-      exact_mod_cast le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (hr := by positivity)
-    _ ≤ 2 ^ ((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
+      exact_mod_cast le_cdist_iterate (k := 𝕔 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (hr := by positivity)
+    _ ≤ 2 ^ ((-𝕔 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
       gcongr
       apply cdist_mono
       simp only [not_disjoint_iff] at h
       rcases h with ⟨middleX, lt_2, lt_3⟩
-      have lt_4 := IF_subset_THEN_distance_between_centers belongs.left
+      have lt_4 := Grid.dist_c_le_of_subset belongs.left
       intros x lt_1
       calc dist x (𝔠 p)
       _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
@@ -941,7 +945,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
         rw [dist_comm] at lt_3 lt_4
         exact calculation_4 (lt_1 := lt_1) (lt_2 := lt_2) (lt_3 := lt_3) (lt_4 := lt_4)
           (three := three) (plusOne := plusOne) (X := X)
-    _ ≤ 2 ^ ((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
       apply calculation_5
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
       calc dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂)
@@ -953,7 +957,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
       _ ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_{𝔠 p, (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) :=
         mod_cast cdist_le_iterate (f := (𝒬 u₁)) (g := (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4)
           (k := 6) (x := 𝔠 p) bigger
-    _ ≤ 2 ^ ((-94 : ℝ) * a) * 2 ^ ((Z : ℝ) * n / 2) := by
+    _ ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * 2 ^ ((Z : ℝ) * n / 2) := by
       rcases hp with ⟨tile, notIn𝔖₀⟩
       unfold 𝔖₀ at notIn𝔖₀
       simp only [mem_setOf_eq, not_or, not_and, sep_union, mem_union] at notIn𝔖₀
@@ -974,7 +978,7 @@ lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) :
     ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ ≤
     ∑ k ∈ Finset.Icc (s J) (s J + 3),
-    ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
+    ∑ p with 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J)),
       ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarleson p f x‖ₑ :=
   calc
     _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),
@@ -1015,7 +1019,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
     (mp : 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J)))
     (nfm : AEMeasurable fun x ↦ ‖f x‖ₑ) :
     ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarleson p f x‖ₑ ≤
-    2 ^ (103 * a ^ 3) * (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ :=
+    2 ^ ((𝕔 + 3) * a ^ 3) * (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ :=
   calc
     _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),
         ∫⁻ y in E p, ‖conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y‖ₑ :=
@@ -1059,12 +1063,13 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
       gcongr; unfold C2_1_3; norm_cast
       simp_rw [← pow_add]
       refine pow_le_pow_right' one_le_two ?_
-      rw [show 103 * a ^ 3 = a * a * a + 102 * a ^ 3 by ring]; gcongr; nlinarith [four_le_a X]
+      rw [show (𝕔 + 3) * a ^ 3 = a * a * a + (𝕔 + 2) * a ^ 3 by ring]
+      gcongr
+      nlinarith [four_le_a X]
 
 /-- The constant used in `local_tree_control`.
 Has value `2 ^ (104 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
+irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4) * a ^ 3)
 
 /-- Lemma 7.5.7. -/
 lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1074,23 +1079,23 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
   classical
   calc
     _ ≤ ∑ k ∈ Finset.Icc (s J) (s J + 3),
-        ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
+        ∑ p with 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J)),
           ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarleson p f x‖ₑ :=
       local_tree_control_sumsumsup hu₁ hu₂ hu h2u hJ
     _ ≤ ∑ k ∈ Finset.Icc (s J) (s J + 3),
         ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
-          2 ^ (103 * a ^ 3) * (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ := by
+          2 ^ ((𝕔 + 3) * a ^ 3) * (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ := by
       gcongr with k mk p mp
       simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
       exact local_tree_control_sup_bound mk mp hf.aestronglyMeasurable.enorm
-    _ = 2 ^ (103 * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
+    _ = 2 ^ ((𝕔 + 3) * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
         (volume (ball (c J) (16 * D ^ k)))⁻¹ *
-          ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
+          ∑ p with 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J)),
             ∫⁻ x in E p, ‖f x‖ₑ := by
       simp_rw [Finset.mul_sum, mul_assoc]
-    _ = 2 ^ (103 * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
+    _ = 2 ^ ((𝕔 + 3) * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
         (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in ⋃ p ∈ Finset.univ.filter (fun p ↦ 𝔰 p = k ∧
-          ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))), E p, ‖f x‖₊ := by
+          ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))), E p, ‖f x‖ₑ := by
       congr! with k mk
       refine (lintegral_biUnion_finset ?_ (fun _ _ ↦ measurableSet_E) _).symm
       intro p mp q mq hn
@@ -1101,10 +1106,10 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, mem_setOf_eq] at mp mq
         have := eq_or_disjoint (mq.1 ▸ mp.1)
         exact this.resolve_left hi
-    _ ≤ 2 ^ (103 * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
+    _ ≤ 2 ^ ((𝕔 + 3) * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
         (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in ball (c J) (16 * D ^ k), ‖f x‖ₑ := by
       gcongr with k mk; refine lintegral_mono_set (iUnion₂_subset fun p mp ↦ ?_)
-      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+      rw [Finset.mem_filter_univ] at mp
       refine (E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball' ?_)
       obtain ⟨y, my₁, my₂⟩ := not_disjoint_iff.mp mp.2
       rw [mem_ball] at my₁ my₂; change 4 * D ^ 𝔰 p + dist (𝔠 p) (c J) ≤ _
@@ -1114,10 +1119,10 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         _ ≤ (4 + 8 + 8⁻¹) * D ^ k := by
           rw [Finset.mem_Icc] at mk; simp_rw [add_mul, mp.1]; gcongr; exacts [one_le_D, mk.1]
         _ ≤ _ := by gcongr; norm_num
-    _ = 2 ^ (103 * a ^ 3) *
+    _ = 2 ^ ((𝕔 + 3) * a ^ 3) *
         ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨍⁻ x in ball (c J) (16 * D ^ k), ‖f x‖ₑ ∂volume := by
       simp_rw [setLAverage_eq, ENNReal.div_eq_inv_mul]
-    _ ≤ 2 ^ (103 * a ^ 3) *
+    _ ≤ 2 ^ ((𝕔 + 3) * a ^ 3) *
         ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
       gcongr with k mk; rw [Finset.mem_Icc] at mk
       apply laverage_le_biInf_MB
@@ -1128,13 +1133,15 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         rw [show s J + (k - s J).toNat = k by omega, Int.toNat_le, Nat.cast_add, Nat.cast_mul,
           Nat.cast_ofNat]
         exact ⟨by omega, by norm_num⟩
-    _ = 2 ^ (103 * a ^ 3) * 2 ^ 2 * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    _ = 2 ^ ((𝕔 + 3) * a ^ 3) * 2 ^ 2 * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
       rw [Finset.sum_const, Int.card_Icc, show s J + 3 + 1 - s J = 4 by omega, nsmul_eq_mul,
         show (Int.toNat 4 : ℝ≥0∞) = 2 ^ 2 by simp; norm_num, mul_assoc]
     _ ≤ _ := by
       gcongr; rw [C7_5_7, ← pow_add]; norm_cast
       refine pow_le_pow_right' one_le_two ?_
-      rw [show 104 * a ^ 3 = 103 * a ^ 3 + a * a * a by ring]; gcongr; nlinarith [four_le_a X]
+      rw [show (𝕔 + 4) * a ^ 3 = (𝕔 + 3) * a ^ 3 + a * a * a by ring]
+      gcongr
+      nlinarith [four_le_a X]
 
 /-- Lemma 7.5.8. -/
 lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1294,8 +1301,9 @@ lemma gtc_sum_Icc_le_two : ∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s 
       apply ENNReal.rpow_le_rpow_of_nonpos (by simp_all)
       rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul]
       nth_rw 1 [← ENNReal.rpow_one 2]; apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
-      rw [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow, sq, mul_assoc, mul_self_mul_inv]
-      norm_cast; linarith [four_le_a X]
+      rw [Nat.cast_mul, Nat.cast_pow, sq, mul_assoc, mul_self_mul_inv]
+      norm_cast
+      nlinarith [seven_le_c, four_le_a X]
     _ = ∑ k ∈ Finset.Icc 0 (S - s J).toNat, 2 ^ (-k : ℤ) := by
       have : s J ≤ S := scale_mem_Icc.2
       apply Finset.sum_nbij' (fun (k : ℤ) ↦ (k - s J).toNat) (· + s J) <;> intro k hk
@@ -1306,7 +1314,8 @@ lemma gtc_sum_Icc_le_two : ∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s 
     _ ≤ ∑' k : ℕ, 2 ^ (-k : ℤ) := ENNReal.sum_le_tsum _
     _ = _ := ENNReal.sum_geometric_two_pow_neg_one
 
-/-- The constant used in `global_tree_control1_edist`. -/
+/-- The constant used in `global_tree_control1_edist`.
+Has value `2 ^ (128 * a ^ 3 + 4 * a + 1)` in the blueprint. -/
 irreducible_def C7_5_9d (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 1)
 
 /-- Part 2 of equation (7.5.18) of Lemma 7.5.9. -/
@@ -1375,7 +1384,8 @@ lemma global_tree_control1_edist_right (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t)
   global_tree_control1_edist_part2 hu₂ inter_subset_left hf
     (fun _ mp dp ↦ scales_impacting_interval hu₁ hu₂ hu h2u hJ (mem_union_right _ mp) dp) hx hx'
 
-/-- The constant used in `global_tree_control1_supbound`. -/
+/-- The constant used in `global_tree_control1_supbound`.
+Has value `2 ^ (128 * a ^ 3 + 4 * a + 3)` in the blueprint. -/
 irreducible_def C7_5_9s (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 3)
 
 lemma one_le_C7_5_9s : 1 ≤ C7_5_9s a := by
@@ -1450,13 +1460,25 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
       rw [C7_5_9d, C7_5_9s, ENNReal.coe_mul, ENNReal.coe_pow, ENNReal.coe_ofNat, mul_assoc,
         ENNReal.rpow_natCast, ← pow_add]; rfl
 
-/-- The constant used in `global_tree_control2`. -/
-irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := C7_5_7 a + C7_5_9s a
+/-- The constant used in `global_tree_control2`.
+Has value `2 ^ (129 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3)
 
-lemma C7_5_9s_le_C7_5_10 : C7_5_9s a ≤ C7_5_10 a := by
-  simp only [C7_5_10, C7_5_9s]; exact le_add_self
+lemma le_C7_5_10 (ha : 4 ≤ a) : C7_5_7 a + C7_5_9s a ≤ C7_5_10 a := by
+  simp only [C7_5_7, C7_5_9s, C7_5_5, ← pow_add, C7_5_10]
+  apply add_le_pow_two ?_ le_rfl ?_
+  · suffices 1 * a ^ 3 ≤ (𝕔 / 4) * a ^ 3 by linarith
+    gcongr
+    have := seven_le_c
+    omega
+  · have : 4 * (4 * a) ≤ a ^ 3 := by rw [pow_three]; gcongr
+    linarith
 
-lemma one_le_C7_5_10 : 1 ≤ C7_5_10 a := one_le_C7_5_9s.trans C7_5_9s_le_C7_5_10
+lemma C7_5_9s_le_C7_5_10 (ha : 4 ≤ a) : C7_5_9s a ≤ C7_5_10 a :=
+  le_trans le_add_self (le_C7_5_10 ha)
+
+lemma one_le_C7_5_10 (ha : 4 ≤ a) : 1 ≤ C7_5_10 a :=
+  one_le_C7_5_9s.trans (C7_5_9s_le_C7_5_10 ha)
 
 /-- Lemma 7.5.10 -/
 lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1474,9 +1496,15 @@ lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
         (⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ) +
         C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
       gcongr; exact ENNReal.biInf_enorm_sub_le
+    _ ≤ (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖ₑ) +
+        (C7_5_7 a + C7_5_9s a) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+      rw [add_mul, add_assoc]
+      gcongr
+      exact local_tree_control hu₁ hu₂ hu h2u hJ hf
     _ ≤ _ := by
-      rw [C7_5_10, ENNReal.coe_add, add_mul, add_assoc]
-      gcongr; exact local_tree_control hu₁ hu₂ hu h2u hJ hf
+      gcongr
+      norm_cast
+      apply le_C7_5_10 (four_le_a X)
 
 /-- The product on the right-hand side of Lemma 7.5.4. -/
 def P7_5_4 (t : Forest X n) (u₁ u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J : Grid X) : ℝ≥0∞ :=
@@ -1503,7 +1531,7 @@ lemma support_holderFunction_subset (u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J :
   rw [support_subset_iff']; intro x nx
   have : adjointCarlesonSum (t u₁) f₁ x = 0 := by
     refine Finset.sum_eq_zero fun p mp ↦ ?_
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+    simp_rw [Finset.mem_filter_univ] at mp
     rw [adjoint_tile_support2 hu₁ mp]
     exact indicator_of_notMem nx _
   rw [holderFunction, this, mul_zero, mul_zero, zero_mul]
@@ -1534,7 +1562,7 @@ lemma enorm_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       conv_rhs => rw [mul_add, mul_add]
       gcongr <;> (nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff])
       · exact one_le_C7_5_9s
-      · exact one_le_C7_5_10
+      · exact one_le_C7_5_10 (four_le_a X)
 
 lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
@@ -1547,7 +1575,7 @@ lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   by_cases mu₁ : x ∉ 𝓘 u₁
   · have : adjointCarlesonSum (t u₁) f₁ x = 0 := by
       refine Finset.sum_eq_zero fun p mp ↦ ?_
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+      simp_rw [Finset.mem_filter_univ] at mp
       rw [adjoint_tile_support2 hu₁ mp]
       exact indicator_of_notMem mu₁ _
     rw [this, enorm_zero, mul_zero, zero_mul]; exact zero_le _
@@ -1570,7 +1598,7 @@ lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       conv_rhs => rw [mul_add, mul_add]
       gcongr <;> (nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff])
       · exact one_le_C7_5_9s
-      · exact one_le_C7_5_10
+      · exact one_le_C7_5_10 (four_le_a X)
     _ = _ := by
       rw [mul_div_assoc, ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_coe_nnreal,
         ENNReal.ofReal_div_of_pos (by unfold defaultD; positivity), ← edist_dist x x',
@@ -1606,7 +1634,7 @@ lemma holder_correlation_tree_2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       gcongr
       · exact le_add_self
       · nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff]
-        exact one_le_C7_5_10
+        exact one_le_C7_5_10 (four_le_a X)
     _ = _ := by rw [← mul_add, ← mul_add, mul_mul_mul_comm, P7_5_4]
 
 lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -1642,8 +1670,21 @@ lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     _ = _ := by rw [← mul_add, ← mul_add, mul_mul_mul_comm, P7_5_4]
 
 /-- An intermediate constant in Lemma 7.5.4. -/
-def I7_5_4 (a : ℕ) : ℝ≥0 :=
-  32 * C7_5_2 a * C7_5_9s a * C7_5_10 a + C7_5_9d a * C7_5_10 a + C7_5_9s a * C7_5_9d a
+def I7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 9 + 3 * (𝕔 / 4)) * a ^ 3 + 12 * a)
+
+lemma le_I7_5_4 (ha : 4 ≤ a) :
+    32 * C7_5_2 a * C7_5_9s a * C7_5_10 a + C7_5_9d a * C7_5_10 a + C7_5_9s a * C7_5_9d a
+    ≤ I7_5_4 a := by
+  have C : (32 : ℝ≥0) = 2 ^ 5 := by norm_num
+  simp only [C7_5_2, C7_5_9s, C7_5_10, C7_5_9d, C7_5_5, C, ← pow_add, I7_5_4]
+  apply add_le_pow_two₃ (s := 11 * a + (4 * 𝕔 + 9 + 3 * (𝕔 / 4)) * a ^ 3) ?_ ?_ ?_ ?_
+  · ring_nf
+    linarith
+  · ring_nf
+    omega
+  · ring_nf
+    omega
+  · linarith [sixteen_times_le_cube ha]
 
 lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
@@ -1695,58 +1736,35 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
           _ ≤ dist x (c J) + dist x' (c J) := dist_triangle_right ..
           _ ≤ 16 * D ^ s J + 16 * D ^ s J := add_le_add (mem_ball.mp mx).le (mem_ball.mp mx').le
           _ = _ := by ring
-    _ = _ := by
-      rw [← mul_assoc, mul_comm _ 32]; simp_rw [← mul_assoc]
-      rw [← add_mul, ← add_mul]; congr
-      rw [← add_mul, ← add_mul]; congr
+    _ = (32 * C7_5_2 a * C7_5_9s a * C7_5_10 a + C7_5_9d a * C7_5_10 a + C7_5_9s a * C7_5_9d a)
+          * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by ring
+    _ ≤ _ := by
+      gcongr
+      norm_cast
+      apply le_I7_5_4 (four_le_a X)
 
 /-- The constant used in `holder_correlation_tree`.
-Has value `2 ^ (529 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ (529 * (a : ℝ) ^ 3)
+Has value `2 ^ (485 * a ^ 3)` in the blueprint. -/
+irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ ((4 * 𝕔 + 10 + 3 * (𝕔 / 4)) * a ^ 3)
 
-lemma le_C7_5_4 (a4 : 4 ≤ a) : C7_5_9s a * C7_5_10 a + 16 ^ τ * I7_5_4 a ≤ C7_5_4 a :=
-  calc
-    _ ≤ C7_5_9s a * C7_5_10 a + 2 * I7_5_4 a := by
-      gcongr
-      rw [defaultτ, show (16 : ℝ≥0) = 2 ^ (4 : ℝ) by norm_num, ← NNReal.rpow_mul, ← div_eq_mul_inv]
-      nth_rw 2 [← NNReal.rpow_one 2]; apply NNReal.rpow_le_rpow_of_exponent_le one_le_two
-      rw [div_le_one_iff]; norm_cast; omega
-    _ ≤ 32 * C7_5_2 a * C7_5_9s a * C7_5_10 a +
-        2 * (32 * C7_5_2 a * C7_5_9s a * C7_5_10 a +
-        8 * C7_5_2 a * C7_5_9s a * C7_5_10 a +
-        8 * C7_5_2 a * C7_5_9s a * C7_5_10 a) := by
-      unfold I7_5_4; gcongr ?_ + 2 * (_ + ?_ + ?_)
-      · nth_rw 1 [← one_mul (_ * _), mul_assoc]; gcongr
-        exact one_le_mul (by norm_num) one_le_C7_5_2
-      · rw [show C7_5_9d a * C7_5_10 a = 1 * 1 * C7_5_9d a * C7_5_10 a by ring]; gcongr
-        · norm_num
-        · exact one_le_C7_5_2
-        · exact C7_5_9d_le_C7_5_9s
-      · rw [show C7_5_9s a * C7_5_9d a = 1 * 1 * C7_5_9d a * C7_5_9s a by ring]; gcongr
-        · norm_num
-        · exact one_le_C7_5_2
-        · exact C7_5_9d_le_C7_5_9s
-        · exact C7_5_9s_le_C7_5_10
-    _ = 2 ^ 7 * C7_5_2 a * C7_5_9s a * C7_5_10 a := by ring
-    _ ≤ 2 ^ 7 * C7_5_2 a * C7_5_9s a * (2 * C7_5_9s a) := by
-      rw [C7_5_10, C7_5_9s, two_mul, C7_5_7, C7_5_5]; gcongr; norm_cast
-      rw [← pow_add]; apply pow_le_pow_right' one_le_two; omega
-    _ = 2 ^ 8 * C7_5_2 a * C7_5_9s a ^ 2 := by ring
-    _ = 2 ^ (528 * a ^ 3 + 8 * a + 14) := by
-      rw [C7_5_2, ← Nat.cast_pow, show (226 : ℝ) = (226 : ℕ) by rfl, ← Nat.cast_mul,
-        NNReal.rpow_natCast, ← pow_add, C7_5_9s, C7_5_5, ← Nat.cast_pow,
-        show (151 : ℝ) = (151 : ℕ) by rfl, ← Nat.cast_mul, NNReal.rpow_natCast]
-      ring
-    _ ≤ _ := by
-      rw [C7_5_4, ← Nat.cast_pow, show (529 : ℝ) = (529 : ℕ) by rfl, ← Nat.cast_mul,
-        NNReal.rpow_natCast, add_assoc, show 529 * a ^ 3 = 528 * a ^ 3 + a ^ 3 by ring]
-      refine pow_le_pow_right' one_le_two (add_le_add_left ?_ _)
-      calc
-        _ ≤ 2 * 4 * a + 1 * 4 * 4 := by omega
-        _ ≤ 2 * a * a + 2 * a * a := by gcongr; omega
-        _ = 4 * a ^ 2 := by ring
-        _ ≤ _ := by rw [pow_succ' _ 2]; gcongr
+lemma le_C7_5_4 (ha : 4 ≤ a) :
+    C7_5_9s a * C7_5_10 a + 16 ^ τ * I7_5_4 a ≤ C7_5_4 a := by
+  have : (16 : ℝ≥0) ^ τ ≤ 2 ^ 1 := by
+    rw [defaultτ, show (16 : ℝ≥0) = 2 ^ (4 : ℝ) by norm_num, ← NNReal.rpow_mul, ← div_eq_mul_inv,
+      pow_one]
+    nth_rw 2 [← NNReal.rpow_one 2]
+    apply NNReal.rpow_le_rpow_of_exponent_le one_le_two
+    rw [div_le_one_iff]
+    norm_cast
+    omega
+  grw [this]
+  simp only [C7_5_9s, C7_5_5, C7_5_10, I7_5_4, C7_5_4, ← pow_add]
+  apply add_le_pow_two ?_ le_rfl ?_
+  · ring_nf
+    suffices 2 + a * 4 ≤ a ^ 3 by omega
+    linarith [sixteen_times_le_cube ha]
+  · ring_nf
+    linarith [sixteen_times_le_cube ha]
 
 /-- Lemma 7.5.4. -/
 lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -1797,35 +1815,39 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 
 /-- The constant used in `lower_oscillation_bound`.
 Has value `2 ^ (Z * n / 2 - 201 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - 201 * (a : ℝ) ^ 3)
+irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - (2 * 𝕔 + 1) * (a : ℝ) ^ 3)
 
 /-- A binomial bound used in Lemma 7.4.5. -/
 lemma C7_5_11_binomial_bound (a4 : 4 ≤ a) :
     (1 + C7_5_11 a n : ℝ≥0∞) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) ≤
-    2 ^ (3 * a ^ 3 + 3 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) :=
+    2 ^ ((𝕔 / 4) * a ^ 3 + 7) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) :=
   calc
-    _ ≤ (2 : ℝ≥0∞) ^ ((Z * n / 2 - 201 * a ^ 3) * -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) := by
+    _ ≤ (2 : ℝ≥0∞) ^ ((Z * n / 2 - (2 * 𝕔 + 1) * a ^ 3) * -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) := by
       rw [ENNReal.rpow_mul]
       apply ENNReal.rpow_le_rpow_of_nonpos (by rw [Left.neg_nonpos_iff]; positivity)
       rw [C7_5_11, ENNReal.coe_rpow_of_ne_zero two_ne_zero]
       exact le_add_self
-    _ = 2 ^ (201 * (a : ℝ) / (2 + a)) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) := by
+    _ = 2 ^ ((2 * 𝕔 + 1) * (a : ℝ) / (2 + a)) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) := by
       rw [← neg_mul_comm, neg_sub, ← div_eq_mul_inv, sub_div, sub_eq_add_neg,
         ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]
       congr 2
       · rw [pow_succ' _ 2, ← add_mul, ← mul_assoc, mul_div_mul_right _ _ (by positivity)]
       · rw [div_div, ← neg_div]; congr; ring
-    _ ≤ 2 ^ 201 * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) := by
+    _ ≤ 2 ^ (2 * 𝕔 + 1) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) := by
       rw [← ENNReal.rpow_natCast]; gcongr
       · exact one_le_two
-      · rw [div_le_iff₀ (by positivity)]; gcongr; linarith
+      · rw [div_le_iff₀ (by positivity)]
+        gcongr
+        · simp
+        · linarith
     _ ≤ _ := by
-      gcongr
+      gcongr 2 ^ ?_ * _
       · exact one_le_two
       · calc
-          _ ≤ 3 * 4 ^ 3 + 3 * 4 := by norm_num
-          _ ≤ _ := by gcongr
+          _ ≤ 2 * (4 * (𝕔 / 4) + 3) + 1 := by omega
+          _ = 2 * 4 * 1 * (𝕔 / 4) + 7 := by ring
+          _ ≤ a * a * a * (𝕔 / 4) + 7 := by gcongr <;> linarith
+          _ = (𝕔 / 4) * a ^ 3 + 7 := by ring
 
 /-- Lemma 7.5.11 -/
 lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1876,7 +1898,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
     apply bigger_than_𝓙_is_not_in_𝓙₀ (sle := by linarith) (le := JleJ')
     exact mem_of_mem_inter_left hJ
   unfold 𝓙₀ at notIn𝓙₀
-  simp only [mem_setOf_eq, not_or, not_forall, Classical.not_imp, Decidable.not_not] at notIn𝓙₀
+  simp only [mem_setOf_eq, not_or, not_forall] at notIn𝓙₀
   push_neg at notIn𝓙₀
   obtain ⟨_, ⟨ p, pIn, pSubset ⟩⟩ := notIn𝓙₀
   have thus :=
@@ -1894,15 +1916,15 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         gcongr
       _ ≤ 100 * D ^ (s J' + 1) + 4 * D ^ (s J') := by
         have : dist (c J) (c J') < 4 * D ^ (s J') :=
-          IF_subset_THEN_distance_between_centers (subset := JleJ'.1)
+          Grid.dist_c_le_of_subset (subset := JleJ'.1)
         rw [dist_comm] at this
         gcongr
       _ = 100 * D ^ (s J + 2) + 4 * D ^ (s J + 1) := by
         rw [scaleSmaller, add_assoc, show (1 : ℤ) + 1 = 2 by rfl]
       _ < 128 * D^(s J + 2) := by
         exact calculation_11 (s J) (X := X)
-    _ ≤ 2 ^ (200 * (a^3) + 4 * a) * dist_{c J, 8 * D ^ s J} (𝒬 u₁) (𝒬 u₂) := by
-      rw [show 128 * (D : ℝ)^(s J + 2) = 2^(200*a^2 + 4) * (8*D^(s J))
+    _ ≤ 2 ^ (2 * 𝕔 * (a^3) + 4 * a) * dist_{c J, 8 * D ^ s J} (𝒬 u₁) (𝒬 u₂) := by
+      rw [show 128 * (D : ℝ)^(s J + 2) = 2 ^ (2 * 𝕔 * a ^ 2 + 4) * (8*D^(s J))
         by exact_mod_cast calculation_12 (s := s J)]
       rw [calculation_13]
       apply cdist_le_iterate
@@ -1957,22 +1979,20 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
       rw [holderFunction, χ_eq_zero_of_notMem_ball mJ nx, NNReal.coe_zero, ofReal_zero, zero_mul,
         zero_mul]
 
-/-- The constant used in `correlation_distant_tree_parts`. -/
+/-- The constant used in `correlation_distant_tree_parts`.
+Has value `2 ^ (511 * a ^ 3) * 2 ^ (-(Z n) / (4a^2 + 2a^3))` in the blueprint. -/
 irreducible_def C7_4_5 (a n : ℕ) : ℝ≥0 :=
-  2 ^ (533 * a ^ 3) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))
+  2 ^ ((4 * 𝕔 + 11 + 4 * (𝕔 / 4)) * a ^ 3) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))
 
 lemma le_C7_4_5 (a4 : 4 ≤ a) :
-    C2_0_5 a * C7_5_4 a * 2 ^ (3 * a ^ 3 + 9 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) ≤
-    C7_4_5 a n := by
+    C2_0_5 a * C7_5_4 a * 2 ^ ((𝕔 / 4) * a ^ 3 + 7 + 6 * a)
+      * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) ≤ C7_4_5 a n := by
   rw [C2_0_5, C7_5_4, C7_4_5]
   conv_lhs => enter [1, 1, 1, 2]; norm_cast
   conv_lhs => enter [1, 1, 2, 2]; norm_cast
   simp_rw [NNReal.rpow_natCast, ← pow_add]; gcongr
   · exact one_le_two
-  · calc
-      _ = 532 * a ^ 3 + 4 * 4 * a := by ring
-      _ ≤ 532 * a ^ 3 + a * a * a := by gcongr
-      _ = _ := by ring
+  · linarith [sixteen_times_le_cube a4]
 
 /-- Lemma 7.4.5 -/
 lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1996,7 +2016,7 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
         ∑ J ∈ 𝓙₅ t u₁ u₂, volume (ball (c J) (8 * D ^ s J)) * P7_5_4 t u₁ u₂ f₁ f₂ J := by
       rw [Finset.mul_sum]; congr! 1 with J mJ; ring
     _ ≤ C2_0_5 a * C7_5_4 a *
-        (2 ^ (3 * a ^ 3 + 3 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))) *
+        (2 ^ ((𝕔 / 4) * a ^ 3 + 7) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))) *
         ∑ J ∈ 𝓙₅ t u₁ u₂,
           2 ^ (6 * a) * volume (ball (c J) (8⁻¹ * D ^ s J)) * P7_5_4 t u₁ u₂ f₁ f₂ J := by
       gcongr with J mJ
@@ -2004,7 +2024,7 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
       · convert measure_ball_two_le_same_iterate (μ := volume) (c J) (8⁻¹ * D ^ s J) 6 using 2
         · rw [← mul_assoc, show (2 : ℝ) ^ 6 * 8⁻¹ = 8 by norm_num]
         · unfold defaultA; norm_cast; rw [← pow_mul, mul_comm]
-    _ = C2_0_5 a * C7_5_4 a * 2 ^ (3 * a ^ 3 + 9 * a) *
+    _ = C2_0_5 a * C7_5_4 a * 2 ^ ((𝕔 / 4) * a ^ 3 + 7 + 6 * a) *
         2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) *
         ∑ J ∈ 𝓙₅ t u₁ u₂, ∫⁻ x in ball (c J) (8⁻¹ * D ^ s J), P7_5_4 t u₁ u₂ f₁ f₂ J := by
       simp_rw [mul_assoc (_ ^ (6 * a)), ← Finset.mul_sum, ← mul_assoc]; congr 1

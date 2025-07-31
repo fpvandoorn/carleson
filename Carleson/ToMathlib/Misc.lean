@@ -1,15 +1,8 @@
-import Mathlib.Analysis.Convex.PartitionOfUnity
-import Mathlib.Analysis.Calculus.ContDiff.Basic
-import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
-import Mathlib.MeasureTheory.Integral.Average
-import Mathlib.MeasureTheory.Integral.Bochner.Basic
-import Mathlib.MeasureTheory.Measure.Haar.OfBasis
-import Mathlib.Topology.MetricSpace.Holder
-import Mathlib.Data.Set.Card
-import Mathlib.Data.Real.ENatENNReal
-import Mathlib.MeasureTheory.Measure.Real
 import Carleson.ToMathlib.ENorm
 import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
+import Mathlib.MeasureTheory.Integral.Average
+import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 
 /-
 * This file can import all ToMathlib files.
@@ -19,6 +12,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Base
 open Function Set
 open scoped ENNReal
 
+-- todo: rename and protect `Real.RCLike`
 
 namespace Real
 -- to Mathlib.Analysis.SpecialFunctions.Log.Base
@@ -35,6 +29,8 @@ lemma le_pow_natCeil_logb {b x : ℝ} (hb : 1 < b) (hx : 0 < x) :
 end Real
 
 section ENNReal
+
+open ENNReal
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
   if hfin : s.Finite then
@@ -59,9 +55,7 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
       ext
       exact heq
     · intro a ha
-      use ⟨a,by
-        simp only [Finite.mem_toFinset] at ha
-        exact ha⟩
+      use ⟨a, by simpa [Finite.mem_toFinset] using ha⟩
       simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
         exists_const]
   else
@@ -112,21 +106,17 @@ lemma tsum_geometric_ite_eq_tsum_geometric {k c : ℕ} :
 lemma ENNReal.toReal_zpow (x : ℝ≥0∞) (z : ℤ) : x.toReal ^ z = (x ^ z).toReal := by
   rw [← rpow_intCast, ← toReal_rpow, Real.rpow_intCast]
 
+-- TODO: this helper lemma may be useful in other places to, for instance in `HardyLittlewood.lean`
+lemma iSup_rpow {f : ℕ → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
+    (⨆ n, f n) ^ p = ⨆ n, f n ^ p := by
+  apply le_antisymm
+  · rw [← rpow_le_rpow_iff (z := p⁻¹) (by positivity), rpow_rpow_inv (by positivity)]
+    refine iSup_le fun i ↦ ?_
+    rw [← rpow_le_rpow_iff (z := p) (by positivity), rpow_inv_rpow (by positivity)]
+    apply le_iSup _ i
+  · apply iSup_le; intro i; gcongr; apply le_iSup _ i
+
 end ENNReal
-
-section Indicator
-attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
-
-lemma Set.indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
-    s.indicator f = s.indicator g := by
-  ext x
-  unfold indicator
-  split
-  · rename_i hxs
-    exact h x hxs
-  · rfl
-
-end Indicator
 
 section NNReal
 
@@ -248,15 +238,6 @@ theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStro
     AEStronglyMeasurable (fun x ↦ (u x).toReal) μ := by
   refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
   exact ENNReal.measurable_toReal.comp_aemeasurable hu.aemeasurable
-
-lemma laverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
-    ⨍⁻ a, f a ∂μ ≤ ⨍⁻ a, g a ∂μ :=
-  lintegral_mono_ae <| h.filter_mono <| Measure.ae_mono' Measure.smul_absolutelyContinuous
-
-@[gcongr]
-lemma setLAverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
-    ⨍⁻ a in s, f a ∂μ ≤ ⨍⁻ a in s, g a ∂μ :=
-  laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self
 
 lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := by
   simp_rw [setLAverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
@@ -465,17 +446,81 @@ lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
       _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two
       _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)
 
+@[fun_prop]
+lemma Complex.measurable_starRingEnd : Measurable (starRingEnd ℂ) :=
+   Complex.continuous_conj.measurable
+
+namespace ENNReal
+
+lemma rpow_le_rpow_of_nonpos {x y : ℝ≥0∞} {z : ℝ} (hz : z ≤ 0) (h : x ≤ y) :
+    y ^ z ≤ x ^ z := by
+  rw [← neg_neg z, rpow_neg y, rpow_neg x, ← inv_rpow, ← inv_rpow]
+  exact rpow_le_rpow (ENNReal.inv_le_inv.mpr h) (neg_nonneg.mpr hz)
+
+lemma rpow_lt_rpow_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : z < 0) (h : x < y) :
+    y ^ z < x ^ z := by
+  rw [← neg_neg z, ENNReal.rpow_neg y, ENNReal.rpow_neg x, ← ENNReal.inv_rpow, ← ENNReal.inv_rpow]
+  exact ENNReal.rpow_lt_rpow (ENNReal.inv_lt_inv.mpr h) (neg_pos.mpr hz)
+
+lemma rpow_lt_rpow_iff_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : z < 0) :
+    x ^ z < y ^ z ↔ y < x :=
+  ⟨lt_imp_lt_of_le_imp_le (fun h ↦ ENNReal.rpow_le_rpow_of_nonpos (le_of_lt hz) h),
+    fun h ↦ ENNReal.rpow_lt_rpow_of_neg hz h⟩
+
+lemma rpow_le_rpow_iff_of_neg {x y : ℝ≥0∞} {z : ℝ} (hz : z < 0) :
+    x ^ z ≤ y ^ z ↔ y ≤ x :=
+  le_iff_le_iff_lt_iff_lt.2 <| ENNReal.rpow_lt_rpow_iff_of_neg hz
+
+theorem rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (hx : 1 ≤ x) (hy : y ≤ 1) :
+    x ^ y ≤ x := by
+  nth_rw 2 [← ENNReal.rpow_one x]
+  exact ENNReal.rpow_le_rpow_of_exponent_le hx hy
+
+end ENNReal
+
 namespace Set
 
+section Indicator
+
 open ComplexConjugate
+
+attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
+
+lemma indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
+    s.indicator f = s.indicator g := by
+  ext x
+  unfold indicator
+  split
+  · rename_i hxs
+    exact h x hxs
+  · rfl
 
 lemma indicator_eq_indicator_one_mul {ι M : Type*} [MulZeroOneClass M]
     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by
   simp only [indicator]; split_ifs <;> simp
 
-lemma conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (s : Set α) (x : α):
+lemma conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (s : Set α) (x : α) :
     conj (s.indicator f x) = s.indicator (conj f) x := by
   simp only [indicator]; split_ifs <;> simp
+
+lemma eq_indicator_one_mul_of_norm_le {X : Type*} {F : Set X} {f : X → ℂ}
+    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    f = (F.indicator 1) * f := by
+  ext y
+  simp only [Pi.mul_apply, indicator, Pi.one_apply, ite_mul, one_mul, zero_mul]
+  split_ifs with hy
+  · rfl
+  · specialize hf y
+    simp only [indicator, hy, ↓reduceIte] at hf
+    rw [← norm_eq_zero]
+    exact le_antisymm hf (norm_nonneg _)
+
+lemma indicator_one_le_one {X : Type*} {G : Set X} (x : X) :
+    G.indicator (1 : X → ℝ) x ≤ 1 := by
+  classical
+  exact le_trans (ite_le_sup _ _ _) (by simp)
+
+end Indicator
 
 end Set
 
@@ -489,14 +534,24 @@ lemma norm_indicator_one_le {α E}
     ‖s.indicator (1 : α → E) x‖ ≤ 1 :=
   Trans.trans (norm_indicator_le_norm_self 1 x) norm_one
 
-lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ = 1 := by
+@[simp] lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (I * x)‖ = 1 := by
   rw [mul_comm, Complex.norm_exp_ofReal_mul_I]
 
-lemma enorm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ₑ = 1 := by
+@[simp] lemma enorm_exp_I_mul_ofReal (x : ℝ) : ‖exp (I * x)‖ₑ = 1 := by
   rw [← enorm_norm, mul_comm, Complex.norm_exp_ofReal_mul_I, enorm_one]
 
-lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (.I * (x - y))‖ = 1 := by
+lemma norm_exp_I_mul_sub_ofReal (x y : ℝ) : ‖exp (I * (x - y))‖ = 1 := by
   rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
+
+@[simp] lemma norm_exp_neg_I_mul_ofReal (x : ℝ) : ‖exp (-(I * x))‖ = 1 := by
+  rw [exp_neg, norm_inv, norm_exp_I_mul_ofReal, inv_one]
+
+lemma norm_exp_neg_I_mul_ofReal' (x : ℝ) : ‖exp (-I * x)‖ = 1 := by simp
+
+lemma norm_one_sub_exp_neg_I_mul_ofReal (x : ℝ) : ‖1 - exp (-(I * x))‖ = ‖1 - exp (I * x)‖ := by
+  have : 1 - exp (I * x) = - exp (I * x) * (1 - exp (I * (-x))) := by
+    simp [mul_sub, ← exp_add]; ring
+  simp [this]
 
 lemma norm_exp_I_mul_ofReal_sub_one {x : ℝ} : ‖exp (I * x) - 1‖ = ‖2 * Real.sin (x / 2)‖ := by
   rw [show ‖2 * Real.sin (x / 2)‖ = ‖2 * sin (x / 2)‖ by norm_cast, two_sin]
@@ -517,6 +572,13 @@ lemma norm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ ≤ ‖
 lemma enorm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ₑ ≤ ‖x‖ₑ := by
   iterate 2 rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg _)]
   exact ENNReal.ofReal_le_ofReal norm_exp_I_mul_ofReal_sub_one_le
+
+open Real in
+lemma exp_I_mul_eq_one_iff_of_lt_of_lt (x : ℝ) (hx : -(2 * π) < x) (h'x : x < 2 * π) :
+    exp (I * x) = 1 ↔ x = 0 := by
+  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩
+  have : Real.cos x = 1 := by simpa [mul_comm I x] using congr(($h).re)
+  rwa [Real.cos_eq_one_iff_of_lt_of_lt hx h'x] at this
 
 end Norm
 
@@ -641,7 +703,7 @@ theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [Measura
       ext T hT
       simp only [Measure.sum_apply (hs := hT), Measure.coe_finset_sum, s.sum_apply, μ₀]
       rw [tsum_eq_sum (s := s) (fun b hb ↦ by simp [hb])]
-      exact Finset.sum_congr rfl (fun i hi ↦ by simp [hi, res_res])
+      exact Finset.sum_congr rfl (fun i hi ↦ by simp [hi])
     rw [Filter.EventuallyLE, this, Measure.ae_sum_iff' (by exact meas)]
     intro i
     by_cases hi : i ∈ s

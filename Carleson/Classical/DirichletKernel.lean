@@ -14,7 +14,14 @@ def dirichletKernel (N : ℕ) : ℝ → ℂ :=
 def dirichletKernel' (N : ℕ) : ℝ → ℂ :=
   fun x ↦ (exp (I * N * x) / (1 - exp (-I * x)) + exp (-I * N * x) / (1 - exp (I * x)))
 
+
 variable {N : ℕ}
+
+@[fun_prop]
+lemma continuous_dirichletKernel : Continuous (dirichletKernel N) := by
+  change Continuous (fun x ↦ dirichletKernel N x)
+  simp only [dirichletKernel]
+  fun_prop
 
 lemma dirichletKernel_periodic : Function.Periodic (dirichletKernel N) (2 * π) := by
   intro x
