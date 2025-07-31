@@ -14,12 +14,12 @@
 % Regex to (hopefully) count the number of green borders:
 % \\leanok.*\n[^%\n]*\\lean
 
-\title{Carleson operators on doubling metric measure spaces}
+\title[Formalization of Carleson's theorem]{A blueprint for the formalization of Carleson's theorem on convergence of Fourier series}
 
 \date{\today}
 
 \begin{abstract}
-This paper is the blueprint underlying the Lean formalization of the proof of Carleson's classical result \cite{MR199631} asserting almost everywhere convergence of Fourier series of continuous functions. We break up the proof into two steps, a reduction of the classical result to a new theorem that appears in the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric} and a proof of this new theorem, which is also detailed as blueprint in this paper. An early version of this blueprint was used to initiate the Lean formalization. During the formalization, many contributors elaborated the blueprint with minor corrections, modifications and extensions.
+This paper is the blueprint underlying the Lean formalization of the proof of Carleson's classical result \cite{carleson} asserting almost everywhere convergence of Fourier series of continuous functions. We break up the proof into two steps, a reduction of the classical result to a new theorem that appears in the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric} and a proof of this new theorem, which is also detailed as blueprint in this paper. An early version of this blueprint was used to initiate the Lean formalization. During the formalization, many contributors elaborated the blueprint with minor corrections, modifications and extensions.
 The final version is presented here as a guide through the accompanying Lean code.
 \end{abstract}
 
@@ -101,7 +101,7 @@ Indeed, in the 1960s, L. Carleson tried to construct a counterexample to Luzin's
 In his own recollection, his efforts led him to better and better understand how such a potential counterexample should look like.
 In the end, the counterexample had to satisfy so many properties that the properties started to contradict each other,
 and Carleson realized that a counterexample could not exist.
-Thus, he had proved Luzin's conjecture \cite{MR199631}.
+Thus, he had proved Luzin's conjecture \cite{carleson}.
 In particular, he had proven the more elementary statement
 
 \begin{theorem}[classical Carleson]
@@ -133,12 +133,12 @@ Billard \cite{MR217510} adapted Carleson's arguments to prove almost everywhere 
 for functions in $L^2$.
 
 
-In \cite{MR340926}, C. Fefferman gave an alternative proof of Carleson's theorem via an a priori
+In \cite{fefferman}, C. Fefferman gave an alternative proof of Carleson's theorem via an a priori
 bound for Carleson's operator, the maximally modulated singular integral
 \begin{equation}\label{eq:feffermancarleson}
     Tf(x):=\sup_{N} \int_{-\pi}^\pi e^{iNy}f(x-y)\frac 1y {dy}\, .
 \end{equation}
-In \cite{MR1783613}, a duality
+In \cite{lacey-thiele}, a duality
 between the approaches by Carleson and Fefferman was pointed out and a more symmetric and self-dual proof
 presented.
 
@@ -149,34 +149,43 @@ The supremum norm in the variable $N$ in \eqref{eq:feffermancarleson} was streng
 to maximal multiplier norms in \cite{MR2420509} with applications to return times theorems in ergodic theory.
 It was strengthened to variation norms $V^r$ with $r>2$ in \cite{MR2881301} with applications to nonlinear analysis.
 
-Stein and Wainger \cite{MR1879821} proposed to study variants of \eqref{eq:feffermancarleson} replacing the
+Stein and Wainger \cite{stein-wainger} proposed to study variants of \eqref{eq:feffermancarleson} replacing the
 linear modulation phase $Ny$ by polynomial phases in $y$ and proved a result for polynomials without a linear term.
 This was generalized by Lie to general polynomial Carleson operators, first for a supremum over all quadratic
-polynomials \cite{MR2545246} and the for a supremum over all polynomials in \cite{MR4125450}.
-The polynomial Carleson operator was further generalized to higher dimensions and H\"older regular kernels in \cite{MR4270523}.
+polynomials \cite{lie-quadratic} and the for a supremum over all polynomials in \cite{lie-polynomial}.
+The polynomial Carleson operator was further generalized to higher dimensions and H\"older regular kernels in \cite{zk-polynomial}.
 The development of polynomial Carleson operators has led to further generalisations, for example to almost everywhere convergence of Malmquist-Takenaka series
-\cite{MR4460014} and maximally modulated singular Radon transforms \cite{MR4211085}, \cite{MR4687376}.
+\cite{mnatsakanyan} and maximally modulated singular Radon transforms \cite{ramos}, \cite{becker2024maximal}.
 
 Surveys to Carleson's theorem can be found in \cite{MR2091007},\cite{MR3334208}.
 
-In this blueprint, we prove Theorem \ref{classical Carleson} as a corollary to a further generalization of the polynomial Carleson operator towards doubling metric measure spaces,
+In this blueprint, we prove Theorem \ref{classical-carleson} as a corollary to a further generalization of the polynomial Carleson operator towards doubling metric measure spaces,
 Theorem \ref{metric-space-Carleson} below,
 which is new and appears in the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric}.
 Theorem \ref{metric-space-Carleson} is an axiomatic approach to
-Carleson type theorems on doubling metric measure spaces. This axiomatic approach is suitable for formalization and a good route towards the classical theorem.
+Carleson type theorems on doubling metric measure spaces.
+This axiomatic approach is suitable for formalization and a good route towards the classical theorem.
 
 Early drafts of the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric} existed in summer 2023.
-The first draft of the present blueprint was created in the first half of 2024.
+Based on this, the first draft of the present blueprint was written in the first half of 2024,
+containing a much more detailed proof, which involved increasing the size by a factor of four,
+and adding the derivation of Carleson's classical result.
 In June 2024, the fourth author launched a \href{https://florisvandoorn.com/carleson/}{public website}
-to post the blueprint and coordinate a formalization of the complete proof in the Lean proof assistant~\cite{moura2021lean},
+to post the blueprint, using the open-source software developed by Patrick Massot,
+calling for contributions to formalize the proof.
+The goal was to formalize the blueprint in the Lean proof assistant~\cite{moura2021lean},
 building on top of its mathematical library \texttt{Mathlib}~\cite{mathlib}.
-The formalization was performed in % todo
-
+The work was split up into about 180 tasks, to be claimed by individual contributors.
+Most tasks were to formalize the proof of a single lemma from the blueprint, and some were to develop basic theory or refactor existing code.
+The contributors adapted the blueprint to fix some gaps found during the formalization and gave feedback that led to discussions about the proof.
+This even resulted in a few changes to the general setup and the main theorems.
+All of the gaps found required only fairly localized changes to the blueprint, indicating that the initial blueprint was already of high quality.
 The formalization was completed in July 2025.
-% The authors of the present final version of the blueprint, each having contributed substantial amount of text to the blueprint
-% and/or formalized a significant number of results during the distributed formalization effort.
-We also acknowledge contributions in the form of small formalization additions, pointing out corrections to the blueprint, or supplying ideas to the
-Lean efforts by the following people:
+
+Everyone that completed a substantial amount of tasks is included as a coauthor of the blueprint.
+The authors acknowledge contributions in the form of small formalization additions,
+pointing out corrections to the blueprint,
+or supplying ideas to the Lean efforts by the following people:
 Michel Alexis,
 Bolton Bailey,
 Julian Berman,
@@ -191,6 +200,11 @@ Clara Torres,
 Dennis Tsar,
 Andrew Yang,
 Ruben van de Velde.
+
+\noindent \textit{Acknowledgement.}
+L.B., F.v.D., R.S., and C.T. were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
+L.B. , R.S., and C.T. were also supported by SFB 1060.
+A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
 
 \section{Statement of the metric space Carleson theorems}
 
@@ -350,34 +364,17 @@ where again $e(r)=e^{ir}$.
 \end{theorem}
 
 \begin{remark}
-The value of the constant factor $2^(443a^3)$ in Theorems~\ref{metric-space-Carleson}
-and~\ref{linearised-metric-Carleson} is by no means sharp. For readability concerns, in most statements
-of this document, we write the constants as $2^{na^3}$ for some explicit constant $n$.
+The value of the constant factor $2^{443a^3}$ in Theorems~\ref{metric-space-Carleson}
+and~\ref{linearised-metric-Carleson} is by no means sharp.
+One source of non-sharpness is our choice to write for readability most constants in the form $2^{na^3}$ for some explicit constant $n$.
 
 An a posteriori byproduct of the Lean formalization of this document is that Theorems~\ref{metric-space-Carleson}
 and~\ref{linearised-metric-Carleson} remain true with $2^{44a^3}$ instead of $2^{443a^3}$. This is obtained by
 changing the parameter $D$ introduced in~\eqref{defineD} from $2^{100a^3}$ to $2^{7a^3}$, checking that exactly the same
 proof goes through, tracking the constants, and getting $2^{44a^3}$ in the end. This value is again by no means sharp.
+In the formalization we define the parameter $D$ as $2^{\mathbb{c}a^3}$
+and the constants in this blueprint are obtained by setting $\mathbb{c} = 100$.
 \end{remark}
-
-In the one-dimensional Euclidean setting, with $K$ representing the Hilbert kernel:
-\begin{equation*}
-    K(x,y)=(x-y)^{-1}
-\end{equation*}
-and $\Mf$ denoting the class of linear functions, the operator \eqref{def-main-op} is the classical Carleson operator, which plays a crucial role in proving the almost everywhere convergence of Fourier series \cite{carleson}, \cite{fefferman}, \cite{lacey-thiele}. The supremum in $R_1$ and $R_2$ is often omitted in classical treatments, but considering the maximal truncations can easily be reduced to the case without these truncations.
-
-By replacing $\Mf$ with the class of polynomials vanishing at $0$ up to some fixed but arbitrary degree, we obtain the polynomial Carleson operator of Lie \cite{lie-quadratic} (quadratic case) and \cite{lie-polynomial}. The case of the class of polynomials with vanishing linear coefficient is simpler and was estimated in \cite{stein-wainger}. The polynomial Carleson operator was generalized to the high-dimensional Euclidean setting in \cite{zk-polynomial} for $K$ being a Calder\'on-Zygmund kernel with some H\"older regularity.
-
-Doubling metric measure spaces are instances of spaces of homogeneous type. Indeed, by changing from a quasi-metric to an equivalent metric, every space of homogeneous type can be viewed as a doubling metric measure space (cf. \cite{MaciasSegovia}). Spaces of homogeneous type were introduced by \cite{MR0499948} as a natural setting for Calder\'on-Zygmund theory. We refer to the textbook \cite{stein-book} for an account of these spaces.
-
-Our concept of a compatible collection $\Mf$ as a natural class of phase functions on a doubling metric measure space does not appear in \cite{stein-book} but is implicitly anticipated in \cite{zk-polynomial} and subsequent work of \cite{mnatsakanyan}, who proves a Carleson-type theorem for the Malmquist-Takenaka series, which leads to classes of phases related to Blaschke products. A generalization of \eqref{def-main-op} from the previously mentioned Euclidean setting into the anisotropic setting that was suggested in \cite{zk-polynomial} is included in our theory. The polynomial Carleson operator also plays a role in the study of maximally modulated singular Radon transforms along the parabola, see \cite{ramos} and \cite{becker2024maximal}.
-
-For the proof of \Cref{metric-space-Carleson}, we largely follow \cite{zk-polynomial}, which in turn was inspired by \cite{lie-polynomial}. We make suitable modifications to adapt to our more general setting and have made a few technical improvements in the proof. In particular, in \Cref{overviewsection}, we explicitly divide the main work of the proof into mutually independent sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. Some of these sections follow a similar pattern, starting with a subsection dividing the proof into further mutually independent subsections. This modularization of our proof was strongly endorsed in personal communication by the author of \cite{zk-polynomial}.
-
-\noindent \textit{Acknowledgement.}
-L.B., F.v.D., R.S., and C.T. were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
-L.B. , R.S., and C.T. were also supported by SFB 1060.
-A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
 
 \chapter{Proof of Metric Space Carleson, overview}
 \label{overviewsection}
