@@ -122,4 +122,7 @@ theorem linearized_metric_carleson [IsCancellative X (defaultτ a)]
       unfold lcoConvergent; rw [lintegral_indicator mG]
       exact R_truncation hq hqq' mF mG mf nf rfl hT
 
+theorem linearized_metric_carleson_check : LinearizedMetricCarleson :=
+  @linearized_metric_carleson
+
 end

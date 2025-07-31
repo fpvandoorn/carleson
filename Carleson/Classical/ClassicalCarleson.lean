@@ -205,9 +205,9 @@ theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f
     conv => pattern f _; rw [periodic_f]
   apply ae_restrict_of_ae_eq_of_ae_restrict Ico_ae_eq_Icc.symm
   rw [zero_add]
-
   -- Show a.e. convergence on [0,2π]
   exact carleson_interval cont_f periodic_f
 
+theorem classical_carleson_check : ClassicalCarleson := @classical_carleson
 
 end
