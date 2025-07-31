@@ -80,20 +80,20 @@ notation3 "ball_{" x ", " r "}" => @ball (WithFunctionDistance x r) _ in
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
   eq_zero : ∃ o : X, ∀ f : Θ, coeΘ f o = 0
-  /-- The distance is bounded below by the local oscillation. (1.0.7) -/
+  /-- The distance is bounded below by the local oscillation. (1.1.4) -/
   localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g)
-  /-- The distance is monotone in the ball. (1.0.9) -/
+  /-- The distance is monotone in the ball. (1.1.6) -/
   cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
     (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
-  /-- The distance of a ball with large radius is bounded above. (1.0.8) -/
+  /-- The distance of a ball with large radius is bounded above. (1.1.5) -/
   cdist_le {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h : dist x₁ x₂ < 2 * r) :
     dist_{x₂, 2 * r} f g ≤ A * dist_{x₁, r} f g
-  /-- The distance of a ball with large radius is bounded below. (1.0.10) -/
+  /-- The distance of a ball with large radius is bounded below. (1.1.7) -/
   le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r)) :
     /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
-  /-- Every ball of radius `2R` can be covered by `A` balls of radius `R`. (1.0.11) -/
+  /-- Every ball of radius `2R` can be covered by `A` balls of radius `R`. (1.1.8) -/
   allBallsCoverBalls {x : X} {r : ℝ} :
     AllBallsCoverBalls (WithFunctionDistance x r) 2 A
 
@@ -246,7 +246,7 @@ lemma ofReal_vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] [ProperSpace
 def czOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in (ball x r)ᶜ, K x y * f y
 
-/-- `R_Q(θ, x)` defined in (1.0.20). -/
+/-- `R_Q(θ, x)` defined in (1.1.17). -/
 def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
   ⨆ (r : ℝ) (_ : dist_{x, r} θ (Q x) < 1), ENNReal.ofReal r
 
