@@ -145,7 +145,8 @@ lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedC
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
-/-- The constant used in `nontangential_operator_bound`. -/
+/-- The constant used in `nontangential_operator_bound`.
+Has value `2 ^ (102 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3)
 
 -- Bound for (7.2.3) in the proof of `nontangential_pointwise_bound`
@@ -758,8 +759,7 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     simp [enorm_eq_nnnorm, nnnorm_real]
 
 /-- The constant used in `tree_projection_estimate`.
-Originally had value `2 ^ (104 * a ^ 3)` in the blueprint, but that seems to be a mistake. -/
--- Todo: define this recursively in terms of previous constants
+Has value `2 ^ (130 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 5 + 𝕔 / 4) * a ^ 3)
 
 -- Auxiliary function used in the proof of Lemma 7.2.1

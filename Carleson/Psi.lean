@@ -407,10 +407,13 @@ private lemma lowerBound_edist_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y �
   rw [ENNReal.toReal_div, ← ENNReal.toReal_zpow]
   simp
 
-/-- The constant appearing in part 2 of Lemma 2.1.3. -/
+/-- The constant appearing in part 2 of Lemma 2.1.3.
+Equal to `2 ^ (102 * a ^ 3)` in the blueprint. -/
 def C2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2) * a ^ 3)
-/-- The constant appearing in part 3 of Lemma 2.1.3. -/
-def D2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2 + 𝕔/4) * a ^ 3)
+
+/-- The constant appearing in part 3 of Lemma 2.1.3.
+Equal to `2 ^ (127 * a ^ 3)` in the blueprint. -/
+def D2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3)
 
 -- 1.0.14.
 lemma kernel_bound {s : ℤ} {x y : X} : ‖Ks s x y‖ₑ ≤ C_K a / vol x y := by
