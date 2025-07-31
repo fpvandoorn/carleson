@@ -361,6 +361,7 @@ lemma dist_mem_Ioo_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
     div_lt_iff₀ (D_pow0' (D1 X) s), mul_inv, mul_assoc, inv_mul_eq_div (4 : ℝ), ← zpow_neg_one,
     ← zpow_add₀ (D0' X).ne.symm, neg_add_eq_sub, ← div_eq_inv_mul] at dist_mem_Ioo
 
+/-- Lemma 2.1.3 part 1, equation (2.1.2) -/
 lemma dist_mem_Icc_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
     dist x y ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) :=
   Ioo_subset_Icc_self (dist_mem_Ioo_of_Ks_ne_zero h)
@@ -541,7 +542,7 @@ lemma enorm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) /
   rw [ENNReal.ofReal_le_ofReal_iff (by positivity)]
   exact norm_K_le n hxy
 
--- 2.1.3
+/-- Lemma 2.1.3 part 2 (Real version). Prefer `enorm_Ks_le` -/
 lemma norm_Ks_le {s : ℤ} {x y : X} :
     ‖Ks s x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by
   have : 0 ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by unfold C2_1_3; positivity
@@ -557,7 +558,7 @@ lemma norm_Ks_le {s : ℤ} {x y : X} :
     nlinarith [show 4 ≤ (a : ℝ) by exact_mod_cast four_le_a X]
   · exact abs_ψ_le_one D (D ^ (-s) * dist x y)
 
--- 2.1.3 (ENNReal version)
+/-- Lemma 2.1.3 part 2, equation (2.1.3) -/
 lemma enorm_Ks_le {s : ℤ} {x y : X} :
     ‖Ks s x y‖ₑ ≤ C2_1_3 a / volume (ball x (D ^ s)) := by
   calc
@@ -627,7 +628,7 @@ private lemma Ks_eq_Ks (x : X) {y y' : X} (hyy' : dist y y' = 0) :
     Ks s x y = Ks s x y' := by
   simp_rw [Ks, PseudoMetricSpace.dist_eq_of_dist_zero x hyy', K_eq_K_of_dist_eq_zero hyy']
 
--- Needed to prove `norm_Ks_sub_Ks_le`
+-- Needed to prove `enorm_Ks_sub_Ks_le`
 include K in
 private lemma ψ_ineq {x y y' : X} :
     ‖ψ (D ^ (-s) * dist x y) - ψ (D ^ (-s) * dist x y')‖ₑ ≤
@@ -692,7 +693,6 @@ To prepare for the proof of `norm_Ks_sub_Ks_le_y'close`, we separate the main in
 subgoals `_pt1` and `_pt2`.
 -/
 
--- Part of the inequality needed for `norm_Ks_sub_Ks_le₀`.
 private lemma enorm_Ks_sub_Ks_le_y'close_pt1 {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
      (hyy' : 2 * edist y y' ≤ edist x y) : ‖K x y - K x y'‖ₑ * ‖ψ (D ^ (-s) * dist x y')‖ₑ ≤
     2 ^ (1 + (𝕔 + 2) * a + (𝕔 + 1) * a ^ 3) / volume (ball x (D ^ s)) *
@@ -754,7 +754,7 @@ private lemma enorm_Ks_sub_Ks_le_y'close_pt2 {s : ℤ} {x y y' : X} (hK : Ks s x
   apply le_of_le_of_eq <| div_vol_le₀ hK
   rw_mod_cast [C_K, ← pow_add, show 2 * a + 𝕔 * a ^ 3 + a ^ 3 = 2 * a + (𝕔 + 1) * a ^ 3 by ring]
 
--- Second case of `norm_Ks_sub_Ks_le`
+-- Second case of `norm_Ks_sub_Ks_le` in blueprint
 private lemma enorm_Ks_sub_Ks_le_y'close {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     (h : 2 * edist y y' ≤ edist x y) : ‖Ks s x y - Ks s x y'‖ₑ ≤
     D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
@@ -836,6 +836,7 @@ private lemma enorm_Ks_sub_Ks_le_y'far {s : ℤ} {x y y' : X} (hK : Ks s x y ≠
   rw [← ENNReal.rpow_add _ _ (by simp) (by simp)]
   apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
   simp only [mul_neg, le_add_neg_iff_add_le]
+  -- only `𝕔` and `a` terms
   have _ := four_le_a X
   have _ := seven_le_c
   rw [← mul_le_mul_iff_of_pos_right (a := (a : ℝ)) (by positivity)]
@@ -846,15 +847,9 @@ private lemma enorm_Ks_sub_Ks_le_y'far {s : ℤ} {x y y' : X} (hK : Ks s x y ≠
   apply le_of_eq_of_le <| show _ = 𝕔 * a ^ 4 + a ^ 4 * 2 + (3 + a + 𝕔 * a ^ 2) by ring
   gcongr
   calc _
-    _ ≤ 2 * a ^ 2 * 𝕔 := by
-      nth_rw 1 [mul_comm]
-      rw [mul_assoc, two_mul]
-      gcongr
-      apply le_trans (b := a * 2) (by linarith)
-      gcongr <;> linarith [Nat.le_pow zero_lt_two (a := a)]
+    _ ≤ 2 * a ^ 2 * 𝕔 := by nlinarith
     _ ≤ (2 * a ^ 2) * (2 * a * (𝕔 / 4)) := by
-      gcongr
-      rw [mul_assoc]
+      gcongr; rw [mul_assoc]
       apply le_trans (b := (4 + 4) * (𝕔 / 4)) (by omega) (by rw [← mul_assoc, two_mul]; gcongr)
     _ = 4 * a ^ 3 * (𝕔 / 4) := by ring
     _ ≤ a * a ^ 3 * (𝕔 / 4) := by gcongr
@@ -867,7 +862,7 @@ lemma enorm_Ks_sub_Ks_le_of_nonzero {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
   · exact enorm_Ks_sub_Ks_le_y'close hK h
   · exact enorm_Ks_sub_Ks_le_y'far hK h
 
--- 2.1.3
+/-- Lemma 2.1.3 part 3, equation (2.1.4) -/
 lemma enorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
     ‖Ks s x y - Ks s x y'‖ₑ ≤
       D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
