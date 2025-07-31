@@ -34,6 +34,9 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 /-- Def 6.2.1 (from Lemma 6.2.1), denoted by `φ(y)` in the blueprint. -/
 def correlation (s₁ s₂ : ℤ) (x₁ x₂ y : X) : ℂ := conj (Ks s₁ x₁ y) * Ks s₂ x₂ y
 
+@[fun_prop]
+lemma measurable_correlation : Measurable (correlation (X := X)) := by fun_prop
+
 /-- First part of Lemma 6.2.1 (eq. 6.2.2). -/
 lemma mem_ball_of_correlation_ne_zero {s₁ s₂ : ℤ} {x₁ x₂ y : X}
     (hy : correlation s₁ s₂ x₁ x₂ y ≠ 0) : y ∈ ball x₁ (D ^ s₁) := by
@@ -311,10 +314,7 @@ lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
     conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
     ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) := by
   simp only [← integral_conj, map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
-  congr
-  ext x
-  rw [← exp_conj]
-  congr
+  congr; ext x; rw [← exp_conj]; congr
   simp only [map_mul, conj_I, map_sub, conj_ofReal]
   ring
 
