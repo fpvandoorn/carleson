@@ -18,7 +18,7 @@ the corresponding Lean statement is here. TODO: link to it after re-organising t
 ## How do we prove it?
 
 In this project, we deduce this statement from the boundedness of a certain linear operator, the so-called *Carleson operator*.
-This boundedness holds in much greater generality: we formalise a new generalisation (due to Christoph Thiele and his group) to [doubling metric measure spaces](https://florisvandoorn.com/carleson/docs/Carleson/ToMathlib/DoublingMeasure.html#MeasureTheory.DoublingMeasure).
+This boundedness holds in much greater generality: we formalise a new generalisation (due to the harmonic analysis group in Bonn) to [doubling metric measure spaces](https://florisvandoorn.com/carleson/docs/Carleson/ToMathlib/DoublingMeasure.html#MeasureTheory.DoublingMeasure).
 
 The main technical result we prove is the following.
 To keep this exposition short, we refer to the [introduction](https://florisvandoorn.com/carleson/blueprint/sect0001.html) for the main set-up and notation, and merely note that $T$ is the generalised Carleson operator whose boundedness is instrumental for proving Carleson's theorem.
@@ -51,10 +51,10 @@ This proof has been formalised in the Lean theorem prover.
 To confirm the correctness and completeness yourself, follow these steps.
 1. Make sure you have [installed Lean](https://leanprover-community.github.io/get_started.html).
 2. Download the repository using `git clone https://github.com/fpvandoorn/carleson.git`.
-3. Open the directory where you downloaded the repository (but not any further sub-directory). Open a terminal in this directory and run `lake exe cache get!` to download built dependencies. (This step is not required, but speeds up the build process in the next steps.)
+3. Open the directory where you downloaded the repository (but not any further sub-directory). Open a terminal in this directory and run `lake exe cache get!` to download built dependencies.
 4. Determine which Lean statement you want to verify: the Lean statements of the main theorems above are `classical_carleson`, `metric_carleson` and `linearized_metric_carleson`, respectively.
-metric_carleson. Open the file `Carleson/Carleson.lean` in a text editor of your choice. Add the end of the file, add a line `#print axioms linearized_metric_carleson` (or similar). This will tell Lean to verify that the proof of this result was completed correctly.
-5. In the terminal from step 3, run `lake build` to build all files in this repository. This may take a few minutes.
+Open the file `Carleson.lean` in a text editor of your choice. Add the end of the file, add a line `#print axioms linearized_metric_carleson` (or similar). This will tell Lean to verify that the proof of this result was completed correctly.
+5. In the terminal from step 3, run `lake build` to build all files in this repository. This will likely take 5-30 minutes.
 When the process is complete, at the very end of the output, you will see a line `'linearized_metric_carleson' depends on axioms: [propext, Classical.choice, Quot.sound]` (followed by `Build completed successfully`).
 This shows the proof is complete and correct. Had the build failed or the output included `sorryAx`, this would have indicated an error resp. an incomplete proof.
 (For the experts: this shows which axioms Lean used in the course of the proof. `propext` and `Quot.sound` are built into Lean's type theory, `Classical.choice` tells you that Lean's version of the axiom of choice was used.)
