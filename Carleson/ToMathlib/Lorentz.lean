@@ -1,5 +1,6 @@
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.WeakType
+import Carleson.ToMathlib.RealInterpolation.Misc
 
 noncomputable section
 
@@ -252,11 +253,12 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] 
         rw [ENNReal.mul_lt_top_iff]
         left
         use ENNReal.rpow_lt_top_of_nonneg (by simp) h₁
-        exact (MeasureTheory.MemLp_of_MemLp_le_of_MemLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ memLp_r₁ memLp_top).2
+        exact (MeasureTheory.memLp_of_memLp_le_of_memLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ memLp_r₁ memLp_top).2
 
       /- Hardest part -/
       rw [eLpNorm_eq_lintegral_rpow_enorm r₁_pos.ne.symm r₁_top,
-          lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (measurable_mul_distribution_rpow.aestronglyMeasurable.enorm.pow_const r₁.toReal), integral_nnreal'] at norm_lt_top
+          lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (measurable_mul_distribution_rpow.aestronglyMeasurable.enorm.pow_const r₁.toReal),
+          lintegral_nnreal_eq_lintegral_toNNReal_Ioi] at norm_lt_top
       simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply, one_div] at norm_lt_top
       rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, eLorentzNorm_eq_wnorm h₀, wnorm_ne_top h₁, wnorm']
       rw [iSup_lt_iff]
