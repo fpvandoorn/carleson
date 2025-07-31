@@ -1,6 +1,5 @@
 # Formalization of a generalized Carleson's theorem
-
-A formalized proof of a generalized Carleson's theorem in the [Lean interactive theorem prover](https://lean-lang.org).
+A formalized proof of a generalized Carleson's theorem in the [Lean interactive theorem prover](https://lean-lang.org/).
 
 ## Links
 
