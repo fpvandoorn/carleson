@@ -23,31 +23,10 @@ the corresponding Lean statement is here. TODO: link to it after re-organising t
 
 In this project, we deduce this statement from the boundedness of a certain linear operator, the so-called *Carleson operator*.
 This boundedness holds in much greater generality: we formalise a new generalisation (due to the harmonic analysis group in Bonn) to [doubling metric measure spaces](https://florisvandoorn.com/carleson/docs/Carleson/ToMathlib/DoublingMeasure.html#MeasureTheory.DoublingMeasure).
+The precise technical result we prove is the **metric spaces Carleson theorem** ([precise statement](https://florisvandoorn.com/carleson/blueprint/sect0001.html#metric-space-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/Carleson/MetricCarleson/Main.html#metric_carleson)).
 
-The main technical result we prove is the following.
-To keep this exposition short, we refer to the [introduction](https://florisvandoorn.com/carleson/blueprint/sect0001.html) for the main set-up and notation, and merely note that $T$ is the generalised Carleson operator whose boundedness is instrumental for proving Carleson's theorem.
-
-**Metric space Carleson theorem** ([precise statement](https://florisvandoorn.com/carleson/blueprint/sect0001.html#metric-space-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/Carleson/MetricCarleson/Main.html#metric_carleson))
-For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
-Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
-Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
-\[ \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,, \]
-where $T_{*}$ is defined in \eqref{def-tang-unm-op}.
-Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
-\[ \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, . \]
-
-The third main result allows proving a generalisation of Carleson's theorem to **Walsh functions.**
-Again, we refer the reader to the [introduction](https://florisvandoorn.com/carleson/blueprint/sect0001.html) for the set-up and notation.
-
-**Linearised metric space Carleson theorem.** ([precise statement](https://florisvandoorn.com/carleson/blueprint/sect0001.html#linearised-metric-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/Carleson/MetricCarleson/Linearized.html#linearized_metric_carleson))
-For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
-Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a cancellative compatible collection of functions.
-Let $\tQ:X\to \Mf$ be a Borel function with finite range.
-Let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
-\[ \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,, \]
-where $T_{\tQ}^\mfa$ is defined in \eqref{def-lin-star-op}.
-Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
-\[ \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \le \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, . \]
+We also prove a **linearised metric space Carleson theorem** ([precise statement](https://florisvandoorn.com/carleson/blueprint/sect0001.html#linearised-metric-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/Carleson/MetricCarleson/Linearized.html#linearized_metric_carleson)),
+which allows proving a generalisation of Carleson's theorem to [Walsh functions](https://en.wikipedia.org/wiki/Walsh_function).
 
 ## Verifying the formalisation
 
