@@ -509,16 +509,15 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
 
 -- Useful special case of `div_vol_le`
 private lemma div_vol_le₀ {x y : X} {c : ℝ≥0∞} (hK : Ks s x y ≠ 0) :
-    c / vol x y ≤
-    (2 ^ (2 * a + 𝕔 * a ^ 3)) * c / volume (ball x (D ^ s)) := by
-  sorry
-  simpa using div_vol_le hc (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1 0
-
--- Useful special case of `div_vol_le`
-private lemma div_vol_le₀' {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 0) :
-    c / volume.real (ball x (dist x y)) ≤
-    (2 ^ (2 * a + 𝕔 * a ^ 3)) * c / volume.real (ball x (D ^ s)) := by
-  simpa using div_vol_le hc (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1 0
+    c / vol x y ≤ (2 ^ (2 * a + 𝕔 * a ^ 3)) * c / volume (ball x (D ^ s)) := by
+  rw [ENNReal.div_eq_inv_mul, ENNReal.mul_div_right_comm]
+  apply mul_le_mul_right'
+  rw [ENNReal.inv_le_iff_inv_le, ENNReal.inv_div (by left; finiteness) (by right; positivity)]
+  unfold vol
+  apply le_trans _ <| measure_mono <| ball_subset_ball <| dist_mem_Icc_of_Ks_ne_zero hK |>.1
+  rw [ENNReal.div_le_iff_le_mul (by left; positivity) (by left; finiteness), mul_comm,
+    show (2 : ℝ≥0∞) ^ (2 * a + 𝕔 * a ^ 3) = (2 ^ a) ^ (2 + 𝕔 * a ^ 2) by ring]
+  simpa using DoublingMeasure.volume_ball_two_le_same_repeat' s x 0
 
 -- preferably use `enorm_K_le`
 lemma norm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 4) :
@@ -577,11 +576,11 @@ lemma enorm_Ks_le' {s : ℤ} {x y : X} :
   by_cases hK : Ks s x y = 0
   · rw [hK, enorm_zero]; exact zero_le _
   rw [Ks, enorm_mul]; nth_rw 2 [← enorm_norm]; rw [norm_real, enorm_norm]
-  gcongr; apply le_trans <| enorm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
+  gcongr
+  apply le_trans <| enorm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
   rw [pow_zero, one_mul]; norm_cast; rw [add_zero, C2_1_3]; gcongr; norm_cast
-  rw [show (𝕔 + 2) * a ^ 3 = a ^ 2 * a + (𝕔 + 1) * a ^ 3 by ring]; gcongr
-  · exact one_le_two
-  · nlinarith [four_le_a X]
+  rw [show (𝕔 + 2) * a ^ 3 = a ^ 2 * a + (𝕔 + 1) * a ^ 3 by ring]
+  gcongr; exacts [one_le_two, by nlinarith [four_le_a X]]
 
 /-- `Ks` is bounded uniformly in `x`, `y` assuming `x` is in a fixed closed ball. -/
 lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx : dist x x₀ ≤ r₀) (s : ℤ) :
@@ -618,15 +617,11 @@ lemma _root_.Bornology.IsBounded.exists_bound_of_norm_Ks
   · positivity
 
 -- Needed to prove `ψ_ineq`
-private lemma norm_ψ_sub_ψ_le_two {r s : ℝ} : ‖ψ r - ψ s‖ ≤ 2 :=
-  (norm_sub_le _ _).trans <| le_of_le_of_eq (add_le_add (abs_ψ_le_one D r) (abs_ψ_le_one D s))
-    one_add_one_eq_two
-
--- Needed to prove `ψ_ineq`
 private lemma enorm_ψ_sub_ψ_le_two {r s : ℝ} : ‖ψ r - ψ s‖ₑ ≤ 2 := by
   rw [show 2 = ‖(2 : ℝ)‖ₑ by rw [Real.enorm_eq_ofReal zero_le_two]; simp,
     enorm_le_iff_norm_le, Real.norm_ofNat]
-  exact norm_ψ_sub_ψ_le_two
+  exact norm_sub_le _ _ |>.trans <|
+    add_le_add (abs_ψ_le_one D r) (abs_ψ_le_one D s) |>.trans_eq one_add_one_eq_two
 
 private lemma Ks_eq_Ks (x : X) {y y' : X} (hyy' : dist y y' = 0) :
     Ks s x y = Ks s x y' := by
@@ -670,31 +665,6 @@ private lemma ψ_ineq {x y y' : X} :
       rw [← ENNReal.rpow_one (_ * _), this]
       exact ENNReal.rpow_le_rpow_of_exponent_ge h.le (Nat.cast_inv_le_one a)
 
--- Needed to prove `norm_Ks_sub_Ks_le`
-include K in
-private lemma ψ_ineq' {x y y' : X} :
-    |ψ (D ^ (-s) * dist x y) - ψ (D ^ (-s) * dist x y')| ≤
-    4 * D * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
-  by_cases hyy' : dist y y' = 0
-  · rw [PseudoMetricSpace.dist_eq_of_dist_zero x hyy', _root_.sub_self, abs_zero]
-    positivity
-  by_cases h : dist y y' / D ^ s ≥ 1    -- If `dist y y'` is large, then the RHS is large while
-  · apply le_trans norm_ψ_sub_ψ_le_two  -- the LHS remains bounded.
-    rw [← mul_one 2]
-    gcongr
-    · linarith [D1 X]
-    · exact Real.one_le_rpow h (inv_nonneg.2 (a0 X).le)
-  push_neg at h
-  -- If `dist y y'` is small, then `(dist y y') ^ (a : ℝ)⁻¹` is comparable with `dist y y'`,
-  -- so the Lipschitz bound for `ψ` is enough to finish the proof.
-  have D1 := one_le_D (a := a)
-  apply (lipschitzWith_ψ' (by exact_mod_cast D1) (D ^ (-s) * dist x y) (D ^ (-s) * dist x y')).trans
-  gcongr
-  rw [zpow_neg, ← smul_eq_mul, ← smul_eq_mul, dist_smul₀]
-  apply (mul_le_mul_of_nonneg_left (dist_dist_dist_le_right x y y') (norm_nonneg _)).trans
-  rw [← Real.rpow_one (_ * _), Real.norm_of_nonneg (inv_pos.2 (Ds0 X s)).le, inv_mul_eq_div]
-  exact Real.rpow_le_rpow_of_exponent_ge (by positivity) h.le (Nat.cast_inv_le_one a)
-
 private lemma D_pow_a_inv : (D : ℝ) ^ (a : ℝ)⁻¹ = 2 ^ (𝕔 * a) :=
   calc
     _ = ((2 : ℝ) ^ (𝕔 * a ^ 2 : ℝ)) ^ (a : ℝ)⁻¹ := by rw [defaultD]; norm_cast
@@ -715,11 +685,11 @@ private lemma four_D_rpow_a_inv : (4 * D : ℝ) ^ (a : ℝ)⁻¹ ≤ 2 ^ (1 + �
   · exact le_of_eq D_pow_a_inv
 
 /-
-The proof of `norm_Ks_sub_Ks_le` is divided into two cases `norm_Ks_sub_Ks_le₀` and
-`norm_Ks_sub_Ks_le₁`, depending whether `2 * dist y y' ≤ dist x y` or `2 * dist y y' > dist x y`.
+The proof of `norm_Ks_sub_Ks_le` is divided into two cases `norm_Ks_sub_Ks_le_y'close` and
+`norm_Ks_sub_Ks_le_y'far`, depending if `2 * dist y y' ≤ dist x y` or `2 * dist y y' > dist x y`.
 
-To prepare for the proof of `norm_Ks_sub_Ks_le₀`, we separate the main inequality into two subgoals
-`norm_Ks_sub_Ks_le₀₀` and `norm_Ks_sub_Ks_le₀₁`.
+To prepare for the proof of `norm_Ks_sub_Ks_le_y'close`, we separate the main inequality into two
+subgoals `_pt1` and `_pt2`.
 -/
 
 -- Part of the inequality needed for `norm_Ks_sub_Ks_le₀`.
