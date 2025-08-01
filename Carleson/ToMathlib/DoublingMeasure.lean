@@ -438,45 +438,4 @@ instance InnerProductSpace.IsDoubling {E : Type*} [NormedAddCommGroup E]
 
 end Normed
 
-
-/- # Doubling metric measure spaces -/
-
-/-- A metric space with a measure with some nice propreties, including a doubling condition.
-This is called a "doubling metric measure space" in the blueprint.
-`A` will usually be `2 ^ a`.
-
-This class is not Mathlib-ready code, and should not be used in the `ToMathlib` folder.
--/
-class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
-    CompleteSpace X, LocallyCompactSpace X,
-    MeasureSpace X, BorelSpace X,
-    IsLocallyFiniteMeasure (volume : Measure X),
-    IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
-
-variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
-
-instance : ProperSpace X := by
-  constructor
-  intro x r
-  refine isCompact_of_totallyBounded_isClosed ?_ isClosed_closedBall
-  obtain ⟨r', hr'⟩ := exists_gt r
-  apply TotallyBounded.subset (closedBall_subset_ball hr')
-  refine Metric.totallyBounded_iff.mpr fun ε hε ↦ ?_
-  obtain ⟨s, _, h2s⟩ := IsDoubling.allBallsCoverBalls volume |>.ballsCoverBalls (by norm_num) hε x
-  use s, s.finite_toSet, by simpa using h2s
-
-instance : IsOpenPosMeasure (volume : Measure X) := isOpenPosMeasure_of_isDoubling _
-
-/-- Monotonicity of doubling measure metric spaces in `A`. -/
-@[reducible]
-def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
-  toIsDoubling := IsDoubling.mono h
-
-open Module
-
-instance InnerProductSpace.DoublingMeasure
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
-    [MeasurableSpace E] [BorelSpace E] [FiniteDimensional ℝ E] :
-    DoublingMeasure E (2 ^ finrank ℝ E) where
-
 end MeasureTheory

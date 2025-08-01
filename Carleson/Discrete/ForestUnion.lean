@@ -456,10 +456,10 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
         · linarith [four_le_realD X]
         · exact ds.le
       _ = 4 * D ^ (𝔰 p + 1) + 4 * D ^ s I := by
-        rw [mul_assoc]; congr; rw [mul_comm, ← zpow_add_one₀ (defaultD_pos _).ne']
+        rw [mul_assoc]; congr; rw [mul_comm, ← zpow_add_one₀ (realD_pos _).ne']
       _ ≤ 4 * D ^ s I + 4 * D ^ s I := by
         gcongr
-        · exact one_le_D
+        · exact one_le_realD a
         · omega
       _ = _ := by ring
 
