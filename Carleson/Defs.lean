@@ -1,5 +1,5 @@
 import Carleson.ToMathlib.Annulus
-import Carleson.ToMathlib.DoublingMeasure
+import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 import Carleson.ToMathlib.WeakType
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Analysis.Fourier.AddCircle

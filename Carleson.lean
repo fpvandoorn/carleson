@@ -56,7 +56,7 @@ import Carleson.ToMathlib.CoveredByBalls
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.Data.NNReal
 import Carleson.ToMathlib.Data.Real.ConjExponents
-import Carleson.ToMathlib.DoublingMeasure
+import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.Interval
