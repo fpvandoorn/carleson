@@ -546,10 +546,4 @@ lemma measurable_Q₁ (x : X) : Measurable (Q x) :=
 
 end MeasQ
 
-variable (X) [hK : KernelProofData a K]
-
-include hK
-
-
-
 end PseudoMetricSpace
