@@ -10,7 +10,7 @@ usemathjax: true
 
 # Formalization of a generalized Carleson's theorem
 
-A (WIP) formalized proof of a generalized Carleson's theorem in Lean.
+A formalized proof of a generalized Carleson's theorem in Lean.
 
 * [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/442935-Carleson) for coordination
 * [Blueprint](https://florisvandoorn.com/carleson/blueprint/)

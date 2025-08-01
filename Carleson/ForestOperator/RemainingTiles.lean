@@ -73,7 +73,7 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) :
           have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
             gcongr
             linarith
-            exact one_lt_D (X := X)
+            exact one_lt_realD X
             linarith
           exact gt_trans numbers xy
       have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
@@ -105,9 +105,9 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
       _ < 8 * (D : ℝ) ^ 𝔰 p + 8 * D ^ s J := dist_lt_of_not_disjoint_ball hd
       _ ≤ 8 * D ^ (𝔰 p + C7_6_3 a n + 2) + 8 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
         simp_rw [← Real.rpow_intCast]; gcongr (8 : ℝ) * D ^ ?_ + 8 * D ^ ?_
-        · exact one_le_D
+        · exact one_le_realD _
         · rw [add_assoc, le_add_iff_nonneg_right]; exact nonneg_C7_6_3_add_two
-        · exact one_le_D
+        · exact one_le_realD _
         · linarith
       _ ≤ _ := by rw [← two_mul, ← mul_assoc]; norm_num
   obtain ⟨q, mq⟩ := t.nonempty hu₁
@@ -118,7 +118,7 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
     refine ⟨(scale_mem_Icc.1.trans_lt qlt.2).ne',
       ⟨q, mq, qlt.1.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩⟩
     change 4 * (D : ℝ) ^ (𝔰 u₁) ≤ 100 * D ^ (𝔰 u₁ + 1); gcongr
-    exacts [by norm_num, one_le_D, by omega]
+    exacts [by norm_num, one_le_realD _, by omega]
   have Jlt : J < 𝓘 u₁ := by apply lt_of_le_of_ne hJ.2; by_contra hh; subst hh; exact u₁nm hJ
   rw [Grid.lt_def] at Jlt; obtain ⟨J', lJ', sJ'⟩ := Grid.exists_scale_succ Jlt.2
   replace lJ' : J < J' := Grid.lt_def.mpr ⟨lJ'.1, by omega⟩
@@ -162,7 +162,7 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
           rw [← sJ', Int.cast_sub, Int.cast_one, sub_lt_iff_lt_add, sub_lt_iff_lt_add] at h
           simp_rw [← Real.rpow_intCast, Int.cast_add, Int.cast_one]
           gcongr 100 * (D : ℝ) ^ ?_ + 4 * D ^ ?_ + _
-          exacts [one_le_D, by linarith only [h], one_le_D, by linarith only [h]]
+          exacts [one_le_realD _, by linarith only [h], one_le_realD _, by linarith only [h]]
         _ ≤ _ := by rw [← add_mul, ← add_mul]; gcongr; norm_num
     _ ≤ dist_{𝔠 p, 2 ^ (𝕔 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
       refine cdist_mono (ball_subset_ball ?_)
@@ -386,7 +386,7 @@ lemma btp_expansion (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume =
     (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
     (∫⁻ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
-  have Vpos {J : Grid X} : 0 < volume (J : Set X) := volume_coeGrid_pos (defaultD_pos' a)
+  have Vpos {J : Grid X} : 0 < volume (J : Set X) := volume_coeGrid_pos (defaultD_pos a)
   have Vlt {J : Grid X} : volume (J : Set X) < ⊤ := volume_coeGrid_lt_top
   calc
     _ = (∫⁻ x, ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (fun _ ↦

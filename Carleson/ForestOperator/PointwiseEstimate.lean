@@ -68,7 +68,7 @@ lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonem
   have ⟨p, hp⟩ := h𝔖
   refine ⟨p, hp, subset_topCube.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩
   apply mul_le_mul (by norm_num) (c0 := by positivity) (b0 := by norm_num)
-  exact zpow_le_zpow_right₀ one_le_D (scale_mem_Icc.2.trans (Int.le.intro 1 rfl))
+  exact zpow_le_zpow_right₀ (one_le_realD _) (scale_mem_Icc.2.trans (Int.le.intro 1 rfl))
 
 /-- The definition of `𝓛₀(𝔖), defined above Lemma 7.1.2 -/
 def 𝓛₀ (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
@@ -151,7 +151,7 @@ lemma lintegral_eq_lintegral_approxOnCube {C : Set (Grid X)}
     (hf : BoundedCompactSupport f) :
     ∫⁻ y in J, ‖f y‖ₑ = ∫⁻ y in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖ₑ := by
   have nonneg : 0 ≤ᶠ[ae (volume.restrict J)] fun y ↦ ‖f y‖ := Filter.Eventually.of_forall (by simp)
-  have vol_J_ne_zero := (volume_coeGrid_pos (X := X) (i := J) (defaultD_pos' a)).ne.symm
+  have vol_J_ne_zero := (volume_coeGrid_pos (X := X) (i := J) (defaultD_pos a)).ne.symm
   have eq : ∫⁻ y in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖ₑ =
       ∫⁻ y in (J : Set X), ENNReal.ofReal (⨍ z in J, ‖f z‖) := by
     refine setLIntegral_congr_fun coeGrid_measurable fun y hy ↦ ?_
@@ -491,15 +491,15 @@ private lemma s_le_s {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p)
   · exact h.elim id (· ▸ (range_s_subset ⟨𝓘 p, rfl⟩).1)
   push_neg at h
   apply False.elim ∘ hJ.1.1.resolve_left h.2 p pu ∘ le_trans Grid_subset_ball ∘ ball_subset_ball'
-  have : (D : ℝ) ^ 𝔰 p ≤ D ^ s J := (zpow_le_zpow_iff_right₀ (one_lt_D (X := X))).mpr h.1.le
+  have : (D : ℝ) ^ 𝔰 p ≤ D ^ s J := (zpow_le_zpow_iff_right₀ (one_lt_realD (X := X))).mpr h.1.le
   calc 4 * (D : ℝ) ^ GridStructure.s (𝓘 p) + dist (GridStructure.c (𝓘 p)) (c J)
     _ ≤ 4 * (D : ℝ) ^ (s J) + (4 * D ^ (s J) + 4.5 * D ^ (s J)) := by
       gcongr 4 * ?_ + ?_
       · exact this
       · exact dist_comm (c (𝓘 p)) (c J) ▸ L7_1_4_dist_le xp hJ.2 |>.trans (by gcongr)
     _ ≤ 100 * D ^ (s J + 1) := by
-      rw [zpow_add' (Or.inl (defaultD_pos a).ne.symm), zpow_one]
-      nlinarith [one_le_D (a := a), defaultD_pow_pos a (s J)]
+      rw [zpow_add' (Or.inl (realD_pos a).ne.symm), zpow_one]
+      nlinarith [one_le_realD a, defaultD_pow_pos a (s J)]
 
 private lemma ball_covered_by_𝓙 (hu : u ∈ t) {p : 𝔓 X} (pu : p ∈ t u) (xp : x ∈ E p) :
     ball x (D ^ 𝔰 p / 2) ⊆ ⋃ J ∈ 𝓙 (t.𝔗 u), (J : Set X) :=
@@ -515,7 +515,7 @@ private lemma Grid_subset_ball' {J : Grid X} {p : 𝔓 X} (pu : p ∈ t.𝔗 u) 
   have ⟨z, hz⟩ := hJ.2
   refine Grid_subset_ball.trans (ball_subset_ball' ?_)
   change _ * _ ^ (s J) + dist (c J) _ ≤ _
-  have := (zpow_le_zpow_iff_right₀ (one_lt_D (X := X))).mpr <| s_le_s pu xp hJ
+  have := (zpow_le_zpow_iff_right₀ (one_lt_realD (X := X))).mpr <| s_le_s pu xp hJ
   linarith [L7_1_4_dist_le xp hJ.2, defaultD_pow_pos a (𝔰 p)]
 
 -- The integral bound needed for the proof of Lemma 7.1.4
@@ -542,7 +542,7 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
       have eo : EqOn (fun y ↦ ‖approxOnCube (𝓙 (t u)) (‖f ·‖) y‖ₑ)
           (fun _ ↦ ‖⨍ y in J, ‖f y‖‖ₑ) J := fun y hy ↦ by
         dsimp only; congr; exact approxOnCube_apply pairwiseDisjoint_𝓙 (‖f ·‖) (mem_Js.mp hJ).1 hy
-      have vJn0 : volume (J : Set X) ≠ 0 := (volume_coeGrid_pos (defaultD_pos' a)).ne'
+      have vJn0 : volume (J : Set X) ≠ 0 := (volume_coeGrid_pos (defaultD_pos a)).ne'
       have vJnt : volume (J : Set X) ≠ ⊤ := volume_coeGrid_lt_top.ne
       rw [setLIntegral_congr_fun coeGrid_measurable eo, setLIntegral_const, setAverage_eq,
         enorm_smul, Measure.real, enorm_inv]; swap
@@ -668,7 +668,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
   have d5' : dist_{x, D ^ s₂} (𝒬 u) (Q x) < 5 * defaultA a ^ 5 := by
     have i1 : dist x (𝔠 p) < 4 * D ^ 𝔰 p' :=
       (mem_ball.mp (Grid_subset_ball xp)).trans_le <|
-        mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ one_le_D s_ineq) zero_le_four
+        mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ (one_le_realD _) s_ineq) zero_le_four
     have i2 : dist (𝔠 p') (𝔠 p) < 4 * D ^ 𝔰 p' :=
       mem_ball'.mp (ball_subset_Grid.trans (Grid.le_def.mp pinc).1 |>.trans Grid_subset_ball <|
         mem_ball_self (by unfold defaultD; positivity))
@@ -697,7 +697,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
         · apply dist_congr rfl
           rw [Nat.cast_npow, ← pow_mul, show a * (𝕔 * a) = 𝕔 * a ^ 2 by ring, ← Nat.cast_npow]
           change _ = (D : ℝ) * _
-          rw [← zpow_one_add₀ (defaultD_pos _).ne', add_sub_cancel]
+          rw [← zpow_one_add₀ (realD_pos _).ne', add_sub_cancel]
         · unfold defaultD; positivity
       _ < 5 * defaultA a ^ 5 * 2 ^ (-𝕔 * a : ℤ) := by gcongr
       _ = 5 * (2 : ℝ) ^ (-(𝕔 - 5) * a : ℤ) := by
@@ -769,18 +769,18 @@ private lemma L7_1_6_integral_eq {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
   -- Preliminary trivialities
   have i1 : IntegrableOn (fun y ↦ Ks i x y * f y) (J : Set X) := by
     simp_rw [mul_comm]
-    exact (hf.integrable_mul (integrable_Ks_x (one_lt_D (X := X)))).restrict
+    exact (hf.integrable_mul (integrable_Ks_x (one_lt_realD (X := X)))).restrict
   have i2 : IntegrableOn (fun y ↦ Ks i x y * ⨍ z in J, f z) (J : Set X) :=
-    ((integrable_Ks_x (one_lt_D (X := X))).mul_const _).integrableOn
+    ((integrable_Ks_x (one_lt_realD (X := X))).mul_const _).integrableOn
   have eq1 : ∀ y ∈ (J : Set X), Ks i x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y) =
       Ks i x y * (f y - ⨍ z in J, f z) :=
     fun y hy ↦ by rw [approxOnCube_apply pairwiseDisjoint_𝓙 _ hJ hy]
   have eq2 : ∀ y ∈ (J : Set X), ⨍ z in (J : Set X), Ks i x y • f y - Ks i x z • f y =
       (⨍ z in (J : Set X), Ks i x y • f y) - ⨍ z in (J : Set X), Ks i x z • f y :=
     fun y hy ↦ integral_sub ((integrableOn_const_iff).mpr (Or.inr volume_coeGrid_lt_top)).to_average
-      ((integrable_Ks_x (one_lt_D (X := X))).smul_const _).restrict.to_average
+      ((integrable_Ks_x (one_lt_realD (X := X))).smul_const _).restrict.to_average
   have μJ_neq_0 : NeZero (volume.restrict (J : Set X)) :=
-    NeZero.mk fun h ↦ (volume_coeGrid_pos (defaultD_pos' a) (i := J)).ne <|
+    NeZero.mk fun h ↦ (volume_coeGrid_pos (defaultD_pos a) (i := J)).ne <|
       by simpa [h] using Measure.restrict_apply_self volume (J : Set X)
   have μJ_finite := Restrict.isFiniteMeasure volume (hs := ⟨volume_coeGrid_lt_top (i := J)⟩)
   -- Split both sides into two separate integrals
@@ -814,11 +814,11 @@ private lemma L7_1_6_integral_le {J : Grid X} (hJ : J ∈ 𝓙 (t u)) {i : ℤ}
   refine mul_le_mul_right' ?_ _
   have ⟨z₀, z₀J, hz₀⟩ : ∃ z₀ ∈ (J : Set X),
       ⨍⁻ z in J, ‖Ks i x y - Ks i x z‖ₑ ∂volume ≤ ‖Ks i x y - Ks i x z₀‖ₑ := by
-    apply exists_setLAverage_le (volume_coeGrid_pos (defaultD_pos' a)).ne.symm
+    apply exists_setLAverage_le (volume_coeGrid_pos (defaultD_pos a)).ne.symm
     · exact coeGrid_measurable.nullMeasurableSet
     · simp_rw [← edist_eq_enorm_sub]; refine (lintegral_edist_lt_top ?_ ?_).ne
       · exact integrable_const_iff.mpr (by simp [volume_coeGrid_lt_top, isFiniteMeasure_iff])
-      · exact (integrable_Ks_x (one_lt_D (X := X))).restrict
+      · exact (integrable_Ks_x (one_lt_realD (X := X))).restrict
   calc
     _ ≤ _ := enorm_integral_le_lintegral_enorm _
     _ ≤ _ := hz₀
@@ -830,7 +830,7 @@ private lemma L7_1_6_integral_le {J : Grid X} (hJ : J ∈ 𝓙 (t u)) {i : ℤ}
         gcongr
         have : 8 * D ^ s J = ENNReal.ofReal (8 * D ^ s J) := by
           rw [ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat, ← Real.rpow_intCast,
-            ← ENNReal.ofReal_rpow_of_pos (defaultD_pos _), ENNReal.ofReal_natCast,
+            ← ENNReal.ofReal_rpow_of_pos (realD_pos _), ENNReal.ofReal_natCast,
             ENNReal.rpow_intCast]
         rw [this, edist_le_ofReal (by positivity)]
         calc
@@ -875,7 +875,7 @@ private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : �
       simp_rw [mul_comm (Ks (𝔰 p) x _)]
       refine (BoundedCompactSupport.integrable_mul ?_ ?_).integrableOn
       · exact hf.sub boundedCompactSupport_approxOnCube
-      · exact integrable_Ks_x (one_lt_D (X := X))
+      · exact integrable_Ks_x (one_lt_realD (X := X))
   _ ≤ ∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), ‖∫ y in J, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t u)) f y)‖ₑ :=
     enorm_sum_le (𝓙' t u (𝔠 p) (𝔰 p)) _
   _ ≤ _ := Finset.sum_le_sum (fun J hJ ↦ L7_1_6_integral_le (mem_𝓙_of_mem_𝓙' hJ) hf)
@@ -1088,7 +1088,7 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
       exact (third_tree_pointwise hu hL hx hx' hf).trans <| mul_right_mono (by exact_mod_cast h)
   -- In order to split the integral, we will first need some trivial integrability results
   have h1 {i : ℤ} : Integrable (fun y ↦ approxOnCube (𝓙 (t.𝔗 u)) f y * Ks i x y) := by
-    apply (integrable_Ks_x <| one_lt_D (K := K)).bdd_mul
+    apply (integrable_Ks_x <| one_lt_realD (K := K)).bdd_mul
     · exact (stronglyMeasurable_approxOnCube _ _).aestronglyMeasurable
     · classical
       use ∑ J with J ∈ 𝓙 (t u), ‖⨍ y in J, f y‖
@@ -1100,11 +1100,11 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
     rw [mul_comm, norm_exp_ofReal_mul_I, one_add_one_eq_two]
   have h2 {i : ℤ} : Integrable
       (fun y ↦ f y * ((cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y)) :=
-    hf.integrable_mul <| (integrable_Ks_x <| one_lt_D (K := K)).bdd_mul
+    hf.integrable_mul <| (integrable_Ks_x <| one_lt_realD (K := K)).bdd_mul
       (Measurable.aestronglyMeasurable (by fun_prop)) this
   have h3 {i : ℤ} : Integrable (fun y ↦ (f y - approxOnCube (𝓙 (t.𝔗 u)) f y) * Ks i x y) := by
     simp_rw [sub_mul]
-    exact hf.integrable_mul (integrable_Ks_x <| one_lt_D (K := K)) |>.sub h1
+    exact hf.integrable_mul (integrable_Ks_x <| one_lt_realD (K := K)) |>.sub h1
   exact Finset.fold_congr fun i _ ↦ (by rw [integral_add _ h1, integral_add h2 h3]; exact h2.add h3)
 
 end TileStructure.Forest
