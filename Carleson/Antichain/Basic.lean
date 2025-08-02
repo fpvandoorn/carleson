@@ -110,7 +110,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           have hD : (D : ℝ) = 2 ^ (𝕔 * a^2) := by simp
           rw [← hD]
           ring_nf
-          rw [mul_inv_cancel₀ (defaultD_pos _).ne', one_mul]
+          rw [mul_inv_cancel₀ (realD_pos _).ne', one_mul]
         convert measure_ball_two_le_same_iterate (μ := volume) x
           (1 / (D * 32) * (8 * D ^ 𝔰 p.1)) (𝕔*a^2 + 5) using 2
         · conv_lhs => rw [← heq, ← pow_add]

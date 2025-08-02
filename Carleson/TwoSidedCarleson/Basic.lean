@@ -7,6 +7,11 @@ variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : 
 variable {r : ℝ}
 variable {K : X → X → ℂ} {x x' : X} [IsOneSidedKernel a K]
 
+/-- The Calderon Zygmund operator `T_r` in chapter Two-sided Metric Space Carleson -/
+noncomputable def czOperator {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (K : X → X → ℂ)
+    (r : ℝ) (f : X → ℂ) (x : X) : ℂ := ∫ y in (ball x r)ᶜ, K x y * f y
+
+
 lemma czOperator_bound {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X) :
     ∃ (M : ℝ≥0), ∀ᵐ y ∂(volume.restrict (ball x r)ᶜ), ‖K x y * g y‖ ≤ M := by
   let M0 := (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
