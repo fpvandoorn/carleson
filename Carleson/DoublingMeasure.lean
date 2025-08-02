@@ -49,7 +49,7 @@ lemma defaultD_pos : 0 < defaultD a := by rw [defaultD]; positivity
 
 lemma realD_pos : 0 < (defaultD a : ℝ) := mod_cast defaultD_pos a
 
-lemma D_nonneg : 0 ≤ (defaultD a : ℝ) := le_of_lt (realD_pos a)
+lemma realD_nonneg : 0 ≤ (defaultD a : ℝ) := le_of_lt (realD_pos a)
 
 lemma one_le_realD : 1 ≤ (defaultD a : ℝ) := by
   rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]

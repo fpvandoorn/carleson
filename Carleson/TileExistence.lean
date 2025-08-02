@@ -9,8 +9,6 @@ open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
-lemma realD_nonneg : 0 ≤ (D:ℝ) := (realD_pos a).le
-
 lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
     (hY : Y ⊆ ball o (4 * D ^ (S : ℤ) - D ^ k)) (y : X) (hy : y ∈ Y) :
     ball o (4 * D ^ (S : ℤ)) ⊆ ball y (8 * D ^ (2 * S : ℤ) * D ^ k) := by
