@@ -59,7 +59,7 @@ Riemann's notion of the integral suffices. If $f$ is integrable in the Lebesgue 
 $f\in L^1(0,2\pi)$, the Lebesgue integral is appropriate. More generally, if
 $f$ is a distribution in the sense of Schwartz, supported in $[0,2\pi]$
 the integral can be understood as an evaluation against the periodic test function
-$e^{-i nx}$. In each case, the more general definitions reduce to the simpler ones within their respective more restrictive domains.
+$e^{-i nx}$. In each case, the more general definition reduces to the simpler one within the respective more restrictive domain.
 Hence, the Fourier coefficients given by \eqref{eq:fourier-coefficients} serve as a universal choice.
 This choice is unique in several respects, in particular if one is to exactly reproduce
 a trigonometric polynomial $f$ in the form
@@ -83,10 +83,8 @@ norm of that space even if $f$ is in the space.
 In contrast to these examples of function spaces with a very natural theory of
 convergence of Fourier series in the topology of the function space, there are no similarly elegant solutions to the
 characterization of pointwise convergence.
-For example, the space of all functions $f$ such that the sequence of coefficients $\widehat{f}_n$ is absolutely summable, the natural condition on the Fourier coefficients $\widehat{f}_n$ to give pointwise absolute convergence,
-has no good characterization more
-directly in terms of $f$ itself.
-
+In particular, the space of functions $f$ such that the sequence $s_N(x)$ converges for every $x$ does not have a good characterization in terms of $f$ itself.
+Similarly, the space of all functions $f$ such that the sequence of coefficients $\widehat{f}_n$ is absolutely summable has also no good characterization.
 
 When the Fourier integral is defined in the Lebesgue sense and
 $f\in L^1(0,2\pi)$, then the function
@@ -96,7 +94,7 @@ meaningless, and instead one asks for almost everywhere convergence.
 Such convergence
 was conjectured by N. Luzin \cite{Luzin13}
 for the space
-$f\in L^2(0,2\pi)$, see also the collected works \cite{Luzin53}. Kolmogorov's example \cite{Kolmogorov} of an $L^1$ function whose Fourier series diverges at almost every point seemed to provide some evidence against Luzin's conjecture.
+$L^2(0,2\pi)$, see also the collected works \cite{Luzin53}. Kolmogorov's example \cite{Kolmogorov} of an $L^1$ function whose Fourier series diverges at almost every point seemed to provide some evidence against Luzin's conjecture.
 Indeed, in the 1960s, L. Carleson tried to construct a counterexample to Luzin's conjecture.
 In his own recollection, his efforts led him to better and better understand how such a potential counterexample should look like.
 In the end, the counterexample had to satisfy so many properties that the properties started to contradict each other,
@@ -120,11 +118,10 @@ In particular, he had proven the more elementary statement
 
 Here, almost every $x$ means in the Lebesgue sense, i.e., for every $\epsilon>0$ the set of $x$ where convergence fails can be covered by a sequence of intervals
 such that the sum of the lengths of these
-intervals is less than $\epsilon$. While Carleson had proven the more general Luzin conjecture for functions in $L^2[0,2\pi]$, even this more elementary statement for continuous functions was not known before Carleson's work
-and until now has not seen any substantially easier proof than
-those generalizing to $L^2$, partially because there is no readily usable criterion on the level of
-Fourier coefficients to distinguish between continuous functions and $L^2$
-functions.
+intervals is less than $\epsilon$. While Carleson had proven the more general Luzin conjecture for functions in $L^2[0,2\pi]$, even the more elementary statement for continuous functions was not known before Carleson's work.
+Moreover, until now, the elementary statement has not seen any substantially easier proof than those generalizing to $L^2$,
+partially because there is no readily usable criterion on the level of
+Fourier coefficients to distinguish between continuous functions and $L^2$ functions.
 
 
 Shortly after Carleson's breakthrough, Hunt \cite{MR238019} proved the analogous result for $L^p$ functions
@@ -139,8 +136,7 @@ bound for Carleson's operator, the maximally modulated singular integral
     Tf(x):=\sup_{N} \int_{-\pi}^\pi e^{iNy}f(x-y)\frac 1y {dy}\, .
 \end{equation}
 In \cite{lacey-thiele}, a duality
-between the approaches by Carleson and Fefferman was pointed out and a more symmetric and self-dual proof
-presented.
+between the approaches by Carleson and Fefferman was pointed out and a more symmetric and self-dual proof was presented.
 
 
 Various strengthenings of Fefferman's estimates for Carleson's operator have appeared since, such as bounds for a higher dimensional Carleson operator in the isotropic
@@ -152,7 +148,7 @@ It was strengthened to variation norms $V^r$ with $r>2$ in \cite{MR2881301} with
 Stein and Wainger \cite{stein-wainger} proposed to study variants of \eqref{eq:feffermancarleson} replacing the
 linear modulation phase $Ny$ by polynomial phases in $y$ and proved a result for polynomials without a linear term.
 This was generalized by Lie to general polynomial Carleson operators, first for a supremum over all quadratic
-polynomials \cite{lie-quadratic} and the for a supremum over all polynomials in \cite{lie-polynomial}.
+polynomials \cite{lie-quadratic} and then for a supremum over all polynomials in \cite{lie-polynomial}.
 The polynomial Carleson operator was further generalized to higher dimensions and H\"older regular kernels in \cite{zk-polynomial}.
 The development of polynomial Carleson operators has led to further generalisations, for example to almost everywhere convergence of Malmquist-Takenaka series
 \cite{mnatsakanyan} and maximally modulated singular Radon transforms \cite{ramos}, \cite{becker2024maximal}.
