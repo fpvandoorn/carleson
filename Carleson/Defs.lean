@@ -12,7 +12,7 @@ noncomputable section
 /-! # Main statements of the Carleson project
 
 This file contains the statements of the main theorems from the Carleson formalization project:
-Theorem 1.0.1 (classical Carleson), Theorem 1.0.2 (metric space Carleson) and Theorem 1.0.3
+Theorem 1.0.1 (classical Carleson), Theorem 1.1.1 (metric space Carleson) and Theorem 1.1.2
 (linearised metric Carleson), as well as the definitions required to state these results.
 
 ## Main definitions
@@ -26,8 +26,8 @@ every ball.
 for `kernel-summand`'s proof.
 - `ClassicalCarleson`: statement of Carleson's theorem asserting a.e. convergence of the partial
 Fourier sums for continous functions (Theorem 1.0.1 in the blueprint).
-- `MetricSpaceCarleson`: statement of Theorem 1.0.2 from the blueprint.
-- `LinearizedMetricCarleson`: statement of Theorem 1.0.3 from the blueprint.
+- `MetricSpaceCarleson`: statement of Theorem 1.1.1 from the blueprint.
+- `LinearizedMetricCarleson`: statement of Theorem 1.1.2 from the blueprint.
 
 -/
 
@@ -95,20 +95,20 @@ notation3 "edist_{" x ", " r "}" => @edist (WithFunctionDistance x r) _
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
   eq_zero : ∃ o : X, ∀ f : Θ, coeΘ f o = 0
-  /-- The distance is bounded below by the local oscillation. (1.0.7) -/
+  /-- The distance is bounded below by the local oscillation. (1.1.4) -/
   localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g)
-  /-- The distance is monotone in the ball. (1.0.9) -/
+  /-- The distance is monotone in the ball. (1.1.6) -/
   cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
     (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
-  /-- The distance of a ball with large radius is bounded above. (1.0.8) -/
+  /-- The distance of a ball with large radius is bounded above. (1.1.5) -/
   cdist_le {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h : dist x₁ x₂ < 2 * r) :
     dist_{x₂, 2 * r} f g ≤ A * dist_{x₁, r} f g
-  /-- The distance of a ball with large radius is bounded below. (1.0.10) -/
+  /-- The distance of a ball with large radius is bounded below. (1.1.7) -/
   le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r)) :
     /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
-  /-- Every ball of radius `2R` can be covered by `A` balls of radius `R`. (1.0.11) -/
+  /-- Every ball of radius `2R` can be covered by `A` balls of radius `R`. (1.1.8) -/
   allBallsCoverBalls {x : X} {r : ℝ} :
     AllBallsCoverBalls (WithFunctionDistance x r) 2 A
 
@@ -133,7 +133,7 @@ class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
 protected def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
   volume.real (ball x (dist x y))
 
-/-- `R_Q(θ, x)` defined in (1.0.20). -/
+/-- `R_Q(θ, x)` defined in (1.1.17). -/
 def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
   ⨆ (r : ℝ) (_ : dist_{x, r} θ (Q x) < 1), ENNReal.ofReal r
 
@@ -223,7 +223,7 @@ section statements
 /- ## Main statements
 
 This section contains the statements of the main theorems from the project: Theorem 1.0.1
-(classical Carleson), Theorem 1.0.2 (metric space Carleson) and Theorem 1.0.3 (linearised metric
+(classical Carleson), Theorem 1.1.1 (metric space Carleson) and Theorem 1.1.2 (linearised metric
 Carleson). -/
 
 set_option linter.unusedVariables false
@@ -243,11 +243,11 @@ def ClassicalCarleson : Prop :=
   ∀ {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)),
     ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x))
 
-/-- The constant used from `R_truncation` to `metric_carleson`.
+/-- The constant used in the statement of `MetricSpaceCarleson`.
 Has value `2 ^ (443 * a ^ 3)` in the blueprint. -/
 def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
 
-/-- Theorem 1.0.2.
+/-- Theorem 1.1.1.
 For the proof, see `metric_carleson` in the file `Carleson.MetricCarleson.Main`. -/
 def MetricSpaceCarleson : Prop :=
   ∀ {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ}
@@ -257,7 +257,7 @@ def MetricSpaceCarleson : Prop :=
     (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)),
     ∫⁻ x in G, carlesonOperator K f x ≤ C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
 
-/-- Theorem 1.0.3.
+/-- Theorem 1.1.2.
 For the proof, see `linearized_metric_carleson` in the file `Carleson.MetricCarleson.Linearized`. -/
 def LinearizedMetricCarleson : Prop :=
   ∀ {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ}
