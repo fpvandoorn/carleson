@@ -18,7 +18,7 @@ Then Carleson's theorem states $\lim_{N\to\infty} s_N f(x) = f(x)$ for almost al
 Despite being simple to state, its proof is very hard. (It is also quite subtle: for instance, asking for point-wise convergence *everywhere* makes this false.)
 The precise English statement statement can be found [as Theorem 1.0.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#classical-carleson),
 the corresponding Lean statement is [here](Carleson/Defs.lean#L242),
-and the final steps in the proof are [here](Carleson/Classical/ClassicalCarleson.lean#L197).
+and Lean proof [here](Carleson/Classical/ClassicalCarleson.lean#L197).
 
 ### Metric space Carleson theorem
 
