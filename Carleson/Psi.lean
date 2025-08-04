@@ -642,7 +642,7 @@ To prepare for the proof of `norm_Ks_sub_Ks_le_y'close`, we separate the main in
 subgoals `_pt1` and `_pt2`.
 -/
 
-private lemma enorm_Ks_sub_Ks_le_y'close_pt1 {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
+private lemma enorm_Ks_sub_Ks_le_close_pt1 {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
      (hyy' : 2 * edist y y' ≤ edist x y) : ‖K x y - K x y'‖ₑ * ‖ψ (D ^ (-s) * dist x y')‖ₑ ≤
     2 ^ (1 + (𝕔 + 2) * a + (𝕔 + 1) * a ^ 3) / volume (ball x (D ^ s)) *
     (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
@@ -690,7 +690,7 @@ private lemma enorm_Ks_sub_Ks_le_y'close_pt1 {s : ℤ} {x y y' : X} (hK : Ks s x
   push_cast
   ring
 
-private lemma enorm_Ks_sub_Ks_le_y'close_pt2 {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
+private lemma enorm_Ks_sub_Ks_le_close_pt2 {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
     ‖K x y‖ₑ * ‖(ψ (D ^ (-s) * dist x y)) - (ψ (D ^ (-s) * dist x y'))‖ₑ ≤
     2 ^ (2 + 2 * a + 𝕔 * a ^ 2 + (𝕔 + 1) * a ^ 3) / volume (ball x (D ^ s)) *
     (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
@@ -703,7 +703,7 @@ private lemma enorm_Ks_sub_Ks_le_y'close_pt2 {s : ℤ} {x y y' : X} (hK : Ks s x
   rw_mod_cast [C_K, ← pow_add, show 2 * a + 𝕔 * a ^ 3 + a ^ 3 = 2 * a + (𝕔 + 1) * a ^ 3 by ring]
 
 -- Second case of `norm_Ks_sub_Ks_le` in blueprint
-private lemma enorm_Ks_sub_Ks_le_y'close {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
+private lemma enorm_Ks_sub_Ks_le_close {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     (h : 2 * edist y y' ≤ edist x y) : ‖Ks s x y - Ks s x y'‖ₑ ≤
     D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   unfold Ks
@@ -713,8 +713,8 @@ private lemma enorm_Ks_sub_Ks_le_y'close {s : ℤ} {x y y' : X} (hK : Ks s x y �
   simp_rw [enorm_mul, ← Complex.ofReal_sub]
   nth_rw 2 [← enorm_norm]; nth_rw 4 [← enorm_norm]
   simp_rw [norm_real, enorm_norm]
-  apply le_trans <| add_le_add (enorm_Ks_sub_Ks_le_y'close_pt1 hK h)
-    (enorm_Ks_sub_Ks_le_y'close_pt2 hK (y' := y'))
+  apply le_trans <| add_le_add (enorm_Ks_sub_Ks_le_close_pt1 hK h)
+    (enorm_Ks_sub_Ks_le_close_pt2 hK (y' := y'))
   rw [← add_mul, ← ENNReal.add_div]
   gcongr
   -- constant manipulation
@@ -740,7 +740,7 @@ private lemma enorm_Ks_sub_Ks_le_y'close {s : ℤ} {x y y' : X} (hK : Ks s x y �
   linarith
 
 -- First case of `norm_Ks_sub_Ks_le` in blueprint
-private lemma enorm_Ks_sub_Ks_le_y'far {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
+private lemma enorm_Ks_sub_Ks_le_far {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     (h : ¬ 2 * edist y y' ≤ edist x y) : ‖Ks s x y - Ks s x y'‖ₑ ≤
       D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   -- triangle inequality combined with 2.1.3 (`enorm_Ks_le`)
@@ -807,8 +807,8 @@ lemma enorm_Ks_sub_Ks_le_of_nonzero {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     ‖Ks s x y - Ks s x y'‖ₑ ≤
       D2_1_3 a / volume (ball x (D ^ s)) * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   by_cases h : 2 * edist y y' ≤ edist x y
-  · exact enorm_Ks_sub_Ks_le_y'close hK h
-  · exact enorm_Ks_sub_Ks_le_y'far hK h
+  · exact enorm_Ks_sub_Ks_le_close hK h
+  · exact enorm_Ks_sub_Ks_le_far hK h
 
 /-- Lemma 2.1.3 part 3, equation (2.1.4) -/
 lemma enorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
