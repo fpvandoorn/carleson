@@ -47,10 +47,9 @@ This shows the proof is complete and correct. Had the build failed or the output
 
 ## Links
 
-* [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/442935-Carleson) for coordination
 * [Webpage](https://florisvandoorn.com/carleson/)
 * [Blueprint](https://florisvandoorn.com/carleson/blueprint/)
 * [Blueprint as pdf](https://florisvandoorn.com/carleson/blueprint.pdf)
 * [Dependency graph](https://florisvandoorn.com/carleson/blueprint/dep_graph_document.html)
 * [Documentation pages for this repository](https://florisvandoorn.com/carleson/docs/)
-* If you want instructions on building the html version of the blueprint, see [the README on Github](https://github.com/fpvandoorn/carleson).
+* If you want to view the latest version of this formalization, or the instructions on building the html version of the blueprint, see [the README on Github](https://github.com/fpvandoorn/carleson).
