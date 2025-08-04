@@ -1,4 +1,4 @@
-import Carleson.Defs
+import Carleson.ProofData
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
 open scoped ENNReal
@@ -578,7 +578,7 @@ lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx :
       _ ≤ C2_1_3 a / (C⁻¹*volume.real (ball x₀ r₀)) := by gcongr
       _ = _ := by unfold defaultA defaultD C; field_simp
   have : volume.real (ball x (2*r₀)) ≤ C * volume.real (ball x (D^s)) := by
-    have : (0:ℝ) < D := defaultD_pos _
+    have : (0 : ℝ) < D := realD_pos _
     refine measureReal_ball_le_same x (by positivity) ?_
     apply le_of_eq; field_simp
   calc
@@ -626,7 +626,7 @@ private lemma ψ_ineq {x y y' : X} :
   push_neg at h
   -- If `dist y y'` is small, then `(dist y y') ^ (a : ℝ)⁻¹` is comparable with `dist y y'`,
   -- so the Lipschitz bound for `ψ` is enough to finish the proof.
-  have D1 := one_le_D (a := a)
+  have D1 := one_le_realD a
   apply (lipschitzWith_ψ' (by exact_mod_cast D1) (D ^ (-s) * dist x y) (D ^ (-s) * dist x y')).trans
   gcongr
   rw [zpow_neg, ← smul_eq_mul, ← smul_eq_mul, dist_smul₀]
@@ -903,8 +903,8 @@ lemma Ks_eq_zero_of_dist_le {s : ℤ} {x y : X} (hxy : x ≠ y)
   rw [Ks_def]
   simp only [mul_eq_zero, ofReal_eq_zero]
   right
-  rw [psi_eq_zero_iff (one_lt_D (X := X)) (dist_pos.mpr hxy),
-    mem_nonzeroS_iff (one_lt_D (X := X)) (dist_pos.mpr hxy)]
+  rw [psi_eq_zero_iff (one_lt_realD (X := X)) (dist_pos.mpr hxy),
+    mem_nonzeroS_iff (one_lt_realD (X := X)) (dist_pos.mpr hxy)]
   simp only [mem_Ioo, not_and_or, not_lt]
   left
   rw [mul_comm]
@@ -924,8 +924,8 @@ lemma Ks_eq_zero_of_le_dist {s : ℤ} {x y : X} (h : D ^ s / 2 ≤ dist x y) : K
   rw [Ks_def]
   simp only [mul_eq_zero, ofReal_eq_zero]
   right
-  rw [psi_eq_zero_iff (one_lt_D (X := X)) (dist_pos.mpr hxy),
-    mem_nonzeroS_iff (one_lt_D (X := X)) (dist_pos.mpr hxy)]
+  rw [psi_eq_zero_iff (one_lt_realD (X := X)) (dist_pos.mpr hxy),
+    mem_nonzeroS_iff (one_lt_realD (X := X)) (dist_pos.mpr hxy)]
   simp only [mem_Ioo, not_and_or, not_lt]
   right
   rw [zpow_neg, le_inv_mul_iff₀ (defaultD_pow_pos a s)]

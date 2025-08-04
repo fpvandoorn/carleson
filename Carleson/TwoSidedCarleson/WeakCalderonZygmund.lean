@@ -8,6 +8,16 @@ open scoped NNReal
 
 noncomputable section
 
+/-- `K` is a two-sided Calderon-Zygmund kernel.
+In the formalization `K x y` is defined everywhere, even for `x = y`.
+The assumptions on `K` show that `K x x = 0`. -/
+class IsTwoSidedKernel {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (a : outParam ℕ)
+    (K : X → X → ℂ) extends IsOneSidedKernel a K where
+  enorm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
+    ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+
+export IsTwoSidedKernel (enorm_K_sub_le')
+
 variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : ℕ)]
 variable {τ C r R : ℝ} {q q' : ℝ≥0}
 variable {F G : Set X}

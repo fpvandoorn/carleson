@@ -110,9 +110,9 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
           _ ≤ 𝕔 * a ^ 2 := by gcongr; linarith [seven_le_c]
       _ = (4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a)) * (D * D ^ 𝔰 p) := by ring
       _ ≤ 4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a) * D ^ 𝔰 p' := by
-        have h1D : 1 ≤ (D : ℝ) := one_le_D
+        have h1D : 1 ≤ (D : ℝ) := one_le_realD _
         nth_rewrite 1 [mul_le_mul_left (by positivity), ← zpow_one (D : ℝ),
-          ← zpow_add₀ (ne_of_gt (defaultD_pos _))]
+          ← zpow_add₀ (ne_of_gt (realD_pos _))]
         gcongr
         rw [add_comm]
         exact hs
@@ -189,7 +189,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
           have hIL : 𝓘 p = L := by simp_rw [← hp.2]
           have h2a : ((2 : ℝ≥0∞) ^ a)⁻¹ = 2^(-(a : ℤ)) := by
             rw [← zpow_natCast, ENNReal.zpow_neg two_ne_zero ENNReal.ofNat_ne_top]
-          rw [← ENNReal.div_le_iff (ne_of_gt (hIL ▸ volume_coeGrid_pos (defaultD_pos' a)))
+          rw [← ENNReal.div_le_iff (ne_of_gt (hIL ▸ volume_coeGrid_pos (defaultD_pos a)))
             (by finiteness), ← ENNReal.div_le_iff' (Ne.symm (NeZero.ne' (2 ^ a))) (by finiteness),
             ENNReal.div_eq_inv_mul, h2a, dens₁]
           refine le_iSup₂_of_le p hp fun c hc ↦ ?_

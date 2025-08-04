@@ -234,6 +234,8 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
         _ ≤ _ := by convert le_iSup₂ _ hq₁; rfl
     _ ≤ _ := iSup_le fun n ↦ linearized_metric_carleson hq hqq' mF mG mf nf (BST_LNT_of_BST_NT hT)
 
+theorem metric_carleson_check : MetricSpaceCarleson := @metric_carleson
+
 /- Theorem 1.1.1, with an explicit value for the constant, corresponding to `𝕔 = 100` and following
 the blueprint. If one takes `𝕔 = 7`, one gets `2 ^ (44 * a ^ 3)` instead. -/
 theorem metric_carleson' [IsCancellative X (defaultτ a)]

@@ -38,9 +38,9 @@ private lemma eq_K (b : ℤ) (c : ℤ) (x y : X)
     (h : dist x y ∈ Icc ((D : ℝ) ^ (b - 1) / 2) (D ^ c / 4)) : K' b c x y = K x y := by
   have hxy : dist x y > 0 := lt_of_lt_of_le (div_pos (defaultD_pow_pos a (b - 1)) two_pos) h.1
   simp_rw [K', Ks, ← Finset.mul_sum, ← Complex.ofReal_sum]
-  rw [← finsum_eq_sum_of_support_subset, finsum_ψ (one_lt_D (X := X)) hxy, ofReal_one, mul_one]
+  rw [← finsum_eq_sum_of_support_subset, finsum_ψ (one_lt_realD X) hxy, ofReal_one, mul_one]
   rw [toFinset_Icc, Finset.coe_Icc]
-  exact support_ψS_subset_Icc (one_lt_D (X := X)) h
+  exact support_ψS_subset_Icc (one_lt_realD X) h
 
 private lemma integrableOn_mul_f {x' : X} (hf : BoundedCompactSupport f) {r : ℝ≥0∞} (hr : 0 < r)
     (s₁ s₂ : ℤ) : IntegrableOn (fun y ↦ K' s₁ s₂ x' y * f y) (EAnnulus.ci x' r) := by
@@ -63,14 +63,14 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
   refine Finset.sum_eq_zero (fun s hs ↦ ?_)
   rw [toFinset_Icc] at hs
   suffices ((D : ℝ) ^ s)⁻¹ * dist x y ∉ support ψ by simp [Ks, notMem_support.mp this, -defaultD]
-  rw [support_ψ (one_lt_D (X := X)), mem_Ioo, not_and_or]
+  rw [support_ψ (one_lt_realD X), mem_Ioo, not_and_or]
   rcases lt_or_ge ((D : ℝ) ^ (b - 1) / 4) (dist x y) with h | h
   · push_neg; right
     calc
       _ ≥ ((D : ℝ) ^ c)⁻¹ * (D ^ c / 2) := by
         gcongr
         · exact defaultD_pow_pos a s
-        · exact one_le_D
+        · exact one_le_realD _
         · exact (Finset.mem_Icc.mp hs).2
         · exact hy h
       _ = _ := by field_simp
@@ -79,9 +79,9 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
       _ ≤ ((D : ℝ) ^ b)⁻¹ * (D ^ (b - 1) / 4) := by
         refine mul_le_mul ?_ h dist_nonneg ?_
         · apply inv_anti₀ (defaultD_pow_pos a b)
-          exact zpow_right_mono₀ one_le_D (Finset.mem_Icc.mp hs).1
+          exact zpow_right_mono₀ (one_le_realD _) (Finset.mem_Icc.mp hs).1
         · exact inv_nonneg.mpr (defaultD_pow_pos a b).le
-      _ = _ := by rw [zpow_sub₀ (defaultD_pos a).ne.symm]; field_simp; apply mul_comm
+      _ = _ := by rw [zpow_sub₀ (realD_pos a).ne.symm]; field_simp; apply mul_comm
 
 private lemma enorm_le_enorm_K (a : ℤ) (b : ℤ) (x y : X) : ‖K' a b x y‖ₑ ≤ ‖K x y‖ₑ := by
   unfold K' Ks
@@ -94,7 +94,7 @@ private lemma enorm_le_enorm_K (a : ℤ) (b : ℤ) (x y : X) : ‖K' a b x y‖�
   apply le_trans <| nnnorm_sum_le _ _
   simp_rw [← norm_toNNReal, Real.norm_eq_abs, ← Real.toNNReal_sum_of_nonneg fun _ _ ↦ abs_nonneg _,
     Real.toNNReal_le_one, abs_eq_self.mpr <| zero_le_ψ _ _]
-  exact sum_ψ_le (one_lt_D (X := X)) _ <| lt_of_le_of_ne dist_nonneg hxy
+  exact sum_ψ_le (one_lt_realD X) _ <| lt_of_le_of_ne dist_nonneg hxy
 
 end K'
 
@@ -252,12 +252,12 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
   refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ ms₂ ↦ iSup_le fun ls₂ ↦ ?_
   rw [← integral_finset_sum]; swap
   · intro i hi; simp_rw [mul_comm]
-    exact hf.integrable_mul (integrable_Ks_x (one_lt_D (X := X)))
+    exact hf.integrable_mul (integrable_Ks_x (one_lt_realD X))
   simp_rw [← Finset.sum_mul]
   have ineq {n : ℕ} (hn : n > 0) : (D : ℝ) ^ (s I - 1) / n < 8 * D ^ s I := by
-    rw [zpow_sub₀ (defaultD_pos a).ne.symm, div_div, zpow_one]
+    rw [zpow_sub₀ (realD_pos a).ne.symm, div_div, zpow_one]
     calc (D : ℝ) ^ s I / ((D : ℝ) * n)
-      _ ≤ D ^ s I / 1 := by gcongr; exact_mod_cast (mul_pos (defaultD_pos' a) hn)
+      _ ≤ D ^ s I / 1 := by gcongr; exact_mod_cast (mul_pos (defaultD_pos a) hn)
       _ < 8 * D ^ s I := by linarith [defaultD_pow_pos a (s I)]
   calc
     _ = ‖∫ y in Annulus.cc x' (D ^ (s I - 1) / 4) (D ^ s₂ / 2), K' (s I) s₂ x' y * f y‖ₑ := by
@@ -273,7 +273,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       apply annulus_integral_bound
       · exact (ineq four_pos).le
       · gcongr
-        · exact one_le_D
+        · exact one_le_realD _
         · omega
         · norm_num
       · refine K'.integrableOn_mul_f hf (r := ENNReal.ofReal (D ^ (s I - 1) / 4)) ?_ (s I) s₂
@@ -291,11 +291,11 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       · refine (congrArg (‖·‖ₑ) <| setIntegral_congr_fun Annulus.measurableSet_oc fun y hy ↦ ?_).le
         apply mul_eq_mul_right_iff.mpr ∘ Or.inl ∘ K'.eq_K (s I) s₂ x' y
         refine mem_Icc.mpr ⟨(lt_trans (ineq two_pos) hy.1).le, hy.2.trans ?_⟩
-        rw [zpow_sub₀ (defaultD_pos a).ne.symm, div_div, zpow_one]
-        have : (D : ℝ) * 4 > 0 := mul_pos (defaultD_pos a) four_pos
+        rw [zpow_sub₀ (realD_pos a).ne.symm, div_div, zpow_one]
+        have : (D : ℝ) * 4 > 0 := mul_pos (realD_pos a) four_pos
         apply (div_le_div_iff_of_pos_left (defaultD_pow_pos a s₂) this four_pos).mpr
         norm_cast
-        linarith [defaultD_pos' a]
+        linarith [defaultD_pos a]
       · exact norm_K'_f_le _
       · exact norm_K'_f_le _
     _ ≤ 2 * linearizedNontangentialOperator Q θ K f x +
@@ -708,7 +708,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
           show 3 * (S : ℤ) + 3 = S + (2 * S + 3) by ring]
         gcongr
         · exact one_le_two
-        · exact one_le_D
+        · exact one_le_realD _
         · exact scale_mem_Icc.2
         · exact_mod_cast mb2
       specialize ST g (hg.memLp 2)
