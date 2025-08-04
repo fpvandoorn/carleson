@@ -12,7 +12,7 @@ noncomputable section
 /-! # Main statements of the Carleson project
 
 This file contains the statements of the main theorems from the Carleson formalization project:
-Theorem 1.0.1 (classical Carleson), Theorem 1.0.2 (metric space Carleson) and Theorem 1.0.3
+Theorem 1.0.1 (classical Carleson), Theorem 1.1.1 (metric space Carleson) and Theorem 1.1.2
 (linearised metric Carleson), as well as the definitions required to state these results.
 
 ## Main definitions
@@ -26,8 +26,8 @@ every ball.
 for `kernel-summand`'s proof.
 - `ClassicalCarleson`: statement of Carleson's theorem asserting a.e. convergence of the partial
 Fourier sums for continous functions (Theorem 1.0.1 in the blueprint).
-- `MetricSpaceCarleson`: statement of Theorem 1.0.2 from the blueprint.
-- `LinearizedMetricCarleson`: statement of Theorem 1.0.3 from the blueprint.
+- `MetricSpaceCarleson`: statement of Theorem 1.1.1 from the blueprint.
+- `LinearizedMetricCarleson`: statement of Theorem 1.1.2 from the blueprint.
 
 -/
 
@@ -223,7 +223,7 @@ section statements
 /- ## Main statements
 
 This section contains the statements of the main theorems from the project: Theorem 1.0.1
-(classical Carleson), Theorem 1.0.2 (metric space Carleson) and Theorem 1.0.3 (linearised metric
+(classical Carleson), Theorem 1.1.1 (metric space Carleson) and Theorem 1.1.2 (linearised metric
 Carleson). -/
 
 set_option linter.unusedVariables false
@@ -243,11 +243,11 @@ def ClassicalCarleson : Prop :=
   ∀ {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)),
     ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x))
 
-/-- The constant used from `R_truncation` to `metric_carleson`.
+/-- The constant used in the statement of `MetricSpaceCarleson`.
 Has value `2 ^ (443 * a ^ 3)` in the blueprint. -/
 def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
 
-/-- Theorem 1.0.2.
+/-- Theorem 1.1.1.
 For the proof, see `metric_carleson` in the file `Carleson.MetricCarleson.Main`. -/
 def MetricSpaceCarleson : Prop :=
   ∀ {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ}
@@ -257,7 +257,7 @@ def MetricSpaceCarleson : Prop :=
     (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)),
     ∫⁻ x in G, carlesonOperator K f x ≤ C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
 
-/-- Theorem 1.0.3.
+/-- Theorem 1.1.2.
 For the proof, see `linearized_metric_carleson` in the file `Carleson.MetricCarleson.Linearized`. -/
 def LinearizedMetricCarleson : Prop :=
   ∀ {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ}
