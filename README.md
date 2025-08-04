@@ -17,16 +17,16 @@ Then Carleson's theorem states $\lim_{N\to\infty} s_N f(x) = f(x)$ for almost al
 
 Despite being simple to state, its proof is very hard. (It is also quite subtle: for instance, asking for point-wise convergence *everywhere* makes this false.)
 The precise English statement statement can be found [as Theorem 1.0.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#classical-carleson),
-the corresponding Lean statement is [here](https://florisvandoorn.com/carleson/docs/find/?pattern=ClassicalCarleson#doc),
-and the Lean proof [here](https://florisvandoorn.com/carleson/docs/find/?pattern=classical_carleson#doc).
+the corresponding Lean statement is [here](Carleson/Defs.lean#L242),
+and the final steps in the proof are [here](Carleson/Classical/ClassicalCarleson.lean#L197).
 
 ### Metric space Carleson theorem
 
 In this project, we deduce this statement from the boundedness of a certain linear operator, the so-called *Carleson operator*.
 This boundedness holds in much greater generality: we formalise a new generalisation (due to the harmonic analysis group in Bonn) to [doubling metric measure spaces](Carleson/Defs.lean#L40).
-The precise technical result we prove is the **metric spaces Carleson theorem** ([Theorem 1.1.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#metric-space-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/find/?pattern=MetricSpaceCarleson#doc), [Lean proof](https://florisvandoorn.com/carleson/docs/find/?pattern=metric_carleson#doc)).
+The precise technical result we prove is the **metric spaces Carleson theorem** ([Theorem 1.1.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#metric-space-Carleson), [Lean statement](Carleson/Defs.lean#L252), [Lean proof](Carleson/MetricCarleson/Main.lean#L197)).
 
-We also prove a **linearised metric space Carleson theorem** ([Theorem 1.1.2](https://florisvandoorn.com/carleson/blueprint/sect0001.html#linearised-metric-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/find/?pattern=LinearizedMetricCarleson#doc), [Lean proof](https://florisvandoorn.com/carleson/docs/find/?pattern=linearized_metric_carleson#doc)),
+We also prove a **linearised metric space Carleson theorem** ([Theorem 1.1.2](https://florisvandoorn.com/carleson/blueprint/sect0001.html#linearised-metric-Carleson), [Lean statement](Carleson/Defs.lean#L262), [Lean proof](Carleson/MetricCarleson/Linearized.lean#L103)),
 which allows proving a generalisation of Carleson's theorem to [Walsh functions](https://en.wikipedia.org/wiki/Walsh_function).
 
 The new definitions needed to verify the *statements* of these theorems are in the file [`Carleson.Defs`](Carleson/Defs.lean)
