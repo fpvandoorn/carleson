@@ -9,8 +9,6 @@ open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
-lemma realD_nonneg : 0 ≤ (D:ℝ) := (realD_pos a).le
-
 lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
     (hY : Y ⊆ ball o (4 * D ^ (S : ℤ) - D ^ k)) (y : X) (hy : y ∈ Y) :
     ball o (4 * D ^ (S : ℤ)) ⊆ ball y (8 * D ^ (2 * S : ℤ) * D ^ k) := by
@@ -33,8 +31,6 @@ lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
         rw [← zpow_add₀ (realD_pos a).ne.symm]
         apply zpow_le_zpow_right₀ (one_le_realD a)
         linarith
-
--- lemma tsum_top_eq
 
 variable (X) in def J' : ℕ := 3 + 2 * S * 𝕔 * a ^ 2
 
@@ -893,7 +889,7 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
               ≤ D * D ^ k1 := by
                 gcongr
                 rw [← ENNReal.ofReal_ofNat,← ENNReal.ofReal_natCast,
-                  ENNReal.ofReal_le_ofReal_iff realD_nonneg]
+                  ENNReal.ofReal_le_ofReal_iff <| realD_nonneg a]
                 exact five_le_realD X
             _ ≤ D ^ k2 := by
               nth_rw 1 [← zpow_one (D : ℝ≥0∞)]
@@ -901,7 +897,7 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
               rw [← ENNReal.rpow_add _ _ hd_nzero (by finiteness),← Int.cast_add]
               apply ENNReal.rpow_le_rpow_of_exponent_le
               · rw [← ENNReal.ofReal_one,← ENNReal.ofReal_natCast]
-                rw [ENNReal.ofReal_le_ofReal_iff realD_nonneg]
+                rw [ENNReal.ofReal_le_ofReal_iff <| realD_nonneg a]
                 exact one_le_realD a
               simp only [Int.cast_le]
               linarith
@@ -1392,7 +1388,7 @@ lemma const_n_prop_3 (ht : t ∈ Ioo 0 1) :
   nth_rw 3 [← one_mul K']
   rw [← right_distrib]
   nth_rw 1 [← Real.rpow_logb (realD_pos a) (one_lt_realD X).ne.symm ht.left]
-  rw [← Real.rpow_neg (realD_nonneg), ← Real.rpow_natCast, Real.rpow_le_rpow_left_iff (one_lt_realD X)]
+  rw [← Real.rpow_neg (realD_nonneg a), ← Real.rpow_natCast, Real.rpow_le_rpow_left_iff (one_lt_realD X)]
   push_cast
   rw [← div_le_iff₀ (K_pos)]
   exact Nat.lt_floor_add_one (-Real.logb (↑D) t / ↑const_K) |>.le
@@ -1533,14 +1529,14 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
         _ = (D ^ ((Real.logb 2 D)⁻¹)) ^ (-const_n a ht : ℝ) := by
           rw [Real.inv_logb, Real.rpow_logb (realD_pos a) (one_lt_realD X).ne' (by norm_num)]
         _ = D ^ ((const_n a ht * K' : ℝ) * -(Real.logb 2 D * K' : ℝ)⁻¹) := by
-          rw [← Real.rpow_mul realD_nonneg]
+          rw [← Real.rpow_mul <| realD_nonneg a]
           congr 1
           rw [mul_neg, mul_neg]
           congr 1
           rw [mul_inv, mul_assoc, mul_comm (K' : ℝ), mul_assoc, inv_mul_cancel₀ K_pos.ne',
             mul_one, mul_comm]
         _ = (D ^ (const_n a ht * K' : ℝ) : ℝ)⁻¹ ^ (Real.logb 2 D * K' : ℝ)⁻¹ := by
-          rw [Real.rpow_mul (realD_nonneg), Real.rpow_neg (by positivity),
+          rw [Real.rpow_mul (realD_nonneg a), Real.rpow_neg (by positivity),
             Real.inv_rpow (by positivity)]
         _ ≤ (t * D ^(K' : ℝ)) ^ (Real.logb 2 D * K' : ℝ)⁻¹ := by
           rw [Real.rpow_le_rpow_iff]
@@ -1556,7 +1552,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
           · rw [inv_pos,mul_pos_iff_of_pos_right (K_pos)]
             exact Real.logb_pos (by norm_num) (one_lt_realD X)
         _ = 2 * t ^ (Real.logb 2 D * K' : ℝ)⁻¹ := by
-          rw [Real.mul_rpow,mul_comm, ← Real.rpow_mul (realD_nonneg), mul_comm (K' : ℝ)]
+          rw [Real.mul_rpow,mul_comm, ← Real.rpow_mul (realD_nonneg a), mul_comm (K' : ℝ)]
           · rw [mul_inv, mul_assoc, inv_mul_cancel₀ K_pos.ne', mul_one, Real.inv_logb,
               Real.rpow_logb (realD_pos a) (one_lt_realD X).ne' (by norm_num)]
           · exact ht.left.le
