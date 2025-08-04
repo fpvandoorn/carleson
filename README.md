@@ -1,16 +1,6 @@
 # Formalization of a generalized Carleson's theorem
 A formalized proof of a generalized Carleson's theorem in the [Lean interactive theorem prover](https://lean-lang.org/).
 
-## Links
-
-* [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/442935-Carleson) for coordination
-* [Webpage](https://florisvandoorn.com/carleson/)
-* [Blueprint](https://florisvandoorn.com/carleson/blueprint/)
-* [Blueprint as pdf](https://florisvandoorn.com/carleson/blueprint.pdf)
-* [Dependency graph](https://florisvandoorn.com/carleson/blueprint/dep_graph_document.html)
-* [Documentation pages for this repository](https://florisvandoorn.com/carleson/docs/)
-
-
 ## What is Carleson's theorem?
 
 Carleson's theorem is a statement about Fourier analysis: given a continuous periodic function $f\colon ℝ\to ℝ$, its Fourier converges to $f$ point-wise at almost every point.
@@ -55,28 +45,12 @@ When the process is complete, at the very end of the output, you will see a line
 This shows the proof is complete and correct. Had the build failed or the output included `sorryAx`, this would have indicated an error resp. an incomplete proof.
 (For the experts: this shows which axioms Lean used in the course of the proof. These three axioms are built into Lean's type theory.)
 
-## Contribute
+## Links
 
-### Locally
-
-1. Make sure you have [installed Lean](https://leanprover-community.github.io/get_started.html).
-2. Download the repository using `git clone https://github.com/fpvandoorn/carleson.git`.
-3. Run `lake exe cache get!` to download built dependencies (this speeds up the build process).
-4. Run `lake build` to build all files in this repository.
-
-See the README of [Floris van Doorn's course repository](https://github.com/fpvandoorn/LeanCourse24) for more detailed instructions.
-
-### In github codespaces
-
-If you prefer, you can use online development environment:
-
-<a href="https://codespaces.new/fpvandoorn/carleson"><img src="https://github.com/codespaces/badge.svg"/></a>
-
-To make changes to this repository, please make a pull request. There are more tips in the file [Contributing.md](https://github.com/fpvandoorn/carleson/blob/master/CONTRIBUTING.md). To push your changes, the easiest method is to use the `Source Control` panel in VSCode.
-Feel free to make pull requests with code that is work in progress, but make sure that the file(s)
-you've worked have no errors (having `sorry`'s is fine of course).
-
-## Build the blueprint
-
-To test the Blueprint locally, you can compile `print.tex` using XeLaTeX (i.e. `xelatex print.tex` in the folder `blueprint/src`). If you have the Python package `invoke` you can also run `inv bp` which puts the output in `blueprint/print/print.pdf`.
-If you want to build the web version of the blueprint locally, you need to install some packages by following the instructions [here](https://pypi.org/project/leanblueprint/). But if the pdf builds locally, you can also just make a pull request and use the online blueprint.
+* [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/442935-Carleson) for coordination
+* [Webpage](https://florisvandoorn.com/carleson/)
+* [Blueprint](https://florisvandoorn.com/carleson/blueprint/)
+* [Blueprint as pdf](https://florisvandoorn.com/carleson/blueprint.pdf)
+* [Dependency graph](https://florisvandoorn.com/carleson/blueprint/dep_graph_document.html)
+* [Documentation pages for this repository](https://florisvandoorn.com/carleson/docs/)
+* If you want instructions on building the html version of the blueprint, see [the README on Github](https://github.com/fpvandoorn/carleson).
