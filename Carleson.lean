@@ -5,7 +5,6 @@ import Carleson.Antichain.TileCorrelation
 import Carleson.Calculations
 import Carleson.Classical.Approximation
 import Carleson.Classical.Basic
-import Carleson.Classical.CarlesonHunt
 import Carleson.Classical.CarlesonOnTheRealLine
 import Carleson.Classical.CarlesonOperatorReal
 import Carleson.Classical.ClassicalCarleson
@@ -59,7 +58,6 @@ import Carleson.ToMathlib.Data.Real.ConjExponents
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.Interval
-import Carleson.ToMathlib.Lorentz
 import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
 import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
@@ -83,7 +81,6 @@ import Carleson.ToMathlib.MinLayer
 import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.Order.Chain
 import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
-import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
 import Carleson.ToMathlib.RealInterpolation.Main
 import Carleson.ToMathlib.RealInterpolation.Minkowski
 import Carleson.ToMathlib.RealInterpolation.Misc
@@ -93,5 +90,4 @@ import Carleson.ToMathlib.WeakType
 import Carleson.TwoSidedCarleson.Basic
 import Carleson.TwoSidedCarleson.MainTheorem
 import Carleson.TwoSidedCarleson.NontangentialOperator
-import Carleson.TwoSidedCarleson.RestrictedWeakType
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
