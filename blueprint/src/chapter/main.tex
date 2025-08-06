@@ -19,7 +19,7 @@
 \date{\today}
 
 \begin{abstract}
-This paper is the blueprint underlying the Lean formalization of the proof of Carleson's classical result \cite{carleson} asserting almost everywhere convergence of Fourier series of continuous functions. We break up the proof into two steps, a reduction of the classical result to a new theorem that appears in the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric} and a proof of this new theorem, which is also detailed as blueprint in this paper. An early version of this blueprint was used to initiate the Lean formalization. During the formalization, many contributors elaborated the blueprint with minor corrections, modifications and extensions.
+This paper is the blueprint underlying the Lean formalization of the proof of Carleson's classical result \cite{carleson} asserting almost everywhere convergence of Fourier series of continuous functions. We break up the proof into two steps, a reduction of the classical result to a new theorem that appears in a sibling communication (to be submitted) and a proof of this new theorem, which is also detailed as blueprint in this paper. An early version of this blueprint was used to initiate the Lean formalization. During the formalization, many contributors elaborated the blueprint with minor corrections, modifications and extensions.
 The final version is presented here as a guide through the accompanying Lean code.
 \end{abstract}
 
@@ -157,12 +157,12 @@ Surveys to Carleson's theorem can be found in \cite{MR2091007}, \cite{MR3334208}
 
 In this blueprint, we prove Theorem \ref{classical-carleson} as a corollary to a further generalization of the polynomial Carleson operator towards doubling metric measure spaces,
 Theorem \ref{metric-space-Carleson} below,
-which is new and appears in the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric}.
+which is new and appears in a sibling communication (to be submitted).
 Theorem \ref{metric-space-Carleson} is an axiomatic approach to
 Carleson type theorems on doubling metric measure spaces.
 This axiomatic approach is suitable for formalization and a good route towards the classical theorem.
 
-Early drafts of the sibling communication \cite{becker2024carlesonoperatorsdoublingmetric} existed in summer 2023.
+Early drafts of the sibling communication (to be submitted) existed in summer 2023.
 Based on this, the first draft of the present blueprint was written in the first half of 2024,
 containing a much more detailed proof, which involved increasing the size by a factor of four,
 and adding the derivation of Carleson's classical result.
