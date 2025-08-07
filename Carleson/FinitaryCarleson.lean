@@ -13,7 +13,7 @@ theorem integrable_tile_sum_operator
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {x : X} {s : ℤ} :
     Integrable fun y ↦ Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
   simp_rw [mul_assoc, mul_comm (Ks s x _)]
-  refine integrable_Ks_x (one_lt_D (X := X)) |>.bdd_mul ?_ ⟨1, fun y ↦ ?_⟩
+  refine integrable_Ks_x (one_lt_realD X) |>.bdd_mul ?_ ⟨1, fun y ↦ ?_⟩
   · exact hf.mul ((measurable_ofReal.comp (map_continuous (Q x)).measurable |>.sub
       measurable_const).const_mul I).cexp |>.aestronglyMeasurable
   · rw [norm_mul, ← one_mul 1]

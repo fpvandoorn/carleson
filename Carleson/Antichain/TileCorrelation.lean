@@ -97,7 +97,7 @@ private lemma e625 {s₁ s₂ : ℤ} {x₁ x₂ y y' : X} (hy' : y ≠ y') (hs :
         volume (ball x₂ (D ^ s₂))) * (2 * (edist y y' ^ τ / (D ^ s₁) ^ τ)) := by
       simp only [two_mul, defaultA, defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultτ]
       gcongr
-      exact_mod_cast one_le_D
+      exact_mod_cast one_le_realD _
     _ = 2 ^ ((2 * 𝕔 + 4 + 𝕔 / 4) * a ^ 3) * 2 / (volume (ball x₁ (D ^ s₁)) *
         volume (ball x₂ (D ^ s₂))) * (edist y y' ^ τ / (D ^ s₁) ^ τ) := by
       rw [← mul_assoc, mul_comm _ 2]
@@ -144,7 +144,7 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
       intro z hz z' hz' hzz'
       convert e625 hzz' hs
       rw [ENNReal.ofReal_mul zero_le_two, ENNReal.ofReal_ofNat, ← Real.rpow_intCast,
-        ← ENNReal.ofReal_rpow_of_pos (defaultD_pos _), ENNReal.ofReal_natCast,
+        ← ENNReal.ofReal_rpow_of_pos (realD_pos _), ENNReal.ofReal_natCast,
         ENNReal.rpow_intCast]
     _ ≤ _ := by
       rw [← ENNReal.add_div]
@@ -196,9 +196,9 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
   -- Inequalities 6.2.16.
   have hp₁ : dist_(p₁) (𝒬 p₁) (Q x₁) < 1 := by rw [dist_comm]; exact ineq_6_2_16 hx₁
   have hp₂ := ineq_6_2_16 hx₂
-  -- Needed for ineq. 6.2.17
-  have hss : ↑(𝓘 p₁) ⊆ ball (𝔠 p₂) (14 * D ^ 𝔰 p₂) := by
-    have h1D : 1 ≤ (D : ℝ) := one_le_defaultD a
+  --Needed for ineq. 6.2.17
+  have hss : ↑(𝓘 p₁) ⊆ ball (𝔠 p₂) (14 * D^𝔰 p₂) := by
+    have h1D : 1 ≤ (D : ℝ) := one_le_realD a
     have hdist : dist (𝔠 p₁) (𝔠 p₂) < 10 * D ^ 𝔰 p₂ := by
       have h5 : 10 * (D : ℝ) ^ 𝔰 p₂ = 5 * D ^ 𝔰 p₂ + 5 * D ^ 𝔰 p₂ := by ring
       obtain ⟨y, hy₁, hy₂⟩ := hinter
@@ -572,7 +572,7 @@ lemma boundedCompactSupport_aux_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
         calc
           _ ≤ (D : ℝ) ^ S / 2 := by
             rw [← zpow_natCast]
-            have : 1 ≤ (D : ℝ) := one_le_D
+            have : 1 ≤ (D : ℝ) := one_le_realD _
             have : 𝔰 p' ≤ S := (range_s_subset (X := X) (mem_range_self (𝓘 p'))).2
             gcongr
           _ ≤ D ^ S - D ^ S / 4 := by ring_nf; gcongr _ * ?_; norm_num
@@ -697,7 +697,7 @@ lemma correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {
       gcongr
       exact dist_lt_of_not_disjoint_ball
         (not_disjoint_iff.mpr ⟨_, range_support hy.1, range_support hy.2⟩)
-    _ ≤ 4 * D ^ 𝔰 p + (5 * D ^ 𝔰 p + 5 * D ^ 𝔰 p) := by gcongr <;> exact one_le_realD X
+    _ ≤ 4 * D ^ 𝔰 p + (5 * D ^ 𝔰 p + 5 * D ^ 𝔰 p) := by gcongr <;> exact one_le_realD a
     _ = _ := by ring
 
 end lemma_6_1_5

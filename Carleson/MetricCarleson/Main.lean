@@ -194,7 +194,7 @@ lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}
         apply le_iSup₂ _ this
       apply le_iSup₂ _ mx'
 
-/-- Theorem 1.0.2 -/
+/-- Theorem 1.1.1 -/
 theorem metric_carleson [IsCancellative X (defaultτ a)]
     (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
@@ -234,7 +234,9 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
         _ ≤ _ := by convert le_iSup₂ _ hq₁; rfl
     _ ≤ _ := iSup_le fun n ↦ linearized_metric_carleson hq hqq' mF mG mf nf (BST_LNT_of_BST_NT hT)
 
-/- Theorem 1.0.2, with an explicit value for the constant, corresponding to `𝕔 = 100` and following
+theorem metric_carleson_check : MetricSpaceCarleson := @metric_carleson
+
+/- Theorem 1.1.1, with an explicit value for the constant, corresponding to `𝕔 = 100` and following
 the blueprint. If one takes `𝕔 = 7`, one gets `2 ^ (44 * a ^ 3)` instead. -/
 theorem metric_carleson' [IsCancellative X (defaultτ a)]
     (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
