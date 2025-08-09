@@ -87,7 +87,6 @@ import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
 import Carleson.ToMathlib.RealInterpolation.Main
 import Carleson.ToMathlib.RealInterpolation.Minkowski
 import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Topology.Algebra.Support
 import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 import Carleson.ToMathlib.WeakType
 import Carleson.TwoSidedCarleson.Basic

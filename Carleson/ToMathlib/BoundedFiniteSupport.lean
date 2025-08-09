@@ -79,7 +79,7 @@ theorem indicator (bfs : BoundedFiniteSupport f μ) {s : Set X} (hs : Measurable
     exact bfs.measure_support_lt
 
 protected theorem neg (hf : BoundedFiniteSupport f μ) : BoundedFiniteSupport (-f) μ :=
-  ⟨memLp_neg_iff.mpr hf.memLp_top, support_neg' f ▸ hf.measure_support_lt⟩
+  ⟨memLp_neg_iff.mpr hf.memLp_top, support_neg f ▸ hf.measure_support_lt⟩
 
 protected theorem add (hf : BoundedFiniteSupport f μ) (hg : BoundedFiniteSupport g μ) :
     BoundedFiniteSupport (f + g) μ :=

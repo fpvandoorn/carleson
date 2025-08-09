@@ -187,7 +187,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
         use w
     _ ≤ ∫⁻ y, ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
       simp only [enorm_mul]
-      exact lintegral_mono_fn fun y ↦ (by simp [← Complex.ofReal_sub])
+      exact lintegral_mono fun y ↦ (by simp [← Complex.ofReal_sub])
     _ = ∫⁻ y in ball (𝔠 p) (8 * D ^ 𝔰 p.1), ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
         rw [setLIntegral_eq_of_support_subset]
         intro y hy
@@ -197,7 +197,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
         exact hdist_cpy y hy.1
     _ ≤ ∫⁻ y in ball (𝔠 p) (8 * D ^ 𝔰 p.1),
         2 ^ (6 * a + (𝕔 + 1) * a ^ 3) / volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) * ‖f y‖ₑ := by
-      refine lintegral_mono_fn fun y ↦ ?_
+      refine lintegral_mono fun y ↦ ?_
       rw [enorm_mul]; gcongr
       by_cases hy : Ks (𝔰 p.1) x y = 0
       · simp [hy]

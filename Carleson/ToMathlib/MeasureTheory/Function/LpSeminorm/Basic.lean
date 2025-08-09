@@ -62,7 +62,9 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
     _ ≤ ∑' i, μ {x | sInf {a | μ {x | a < f i x} = 0} < f i x} := by
       gcongr with i; apply le_iSup _ i
     _ ≤ ∑' i, μ {x | eLpNormEssSup (f i) μ < ‖f i x‖ₑ} := by
-      gcongr with i; rw [eLpNormEssSup, essSup_eq_sInf]; rfl
+      gcongr with i
+      · rw [eLpNormEssSup, essSup_eq_sInf]; rfl
+      · simp
     _ = ∑' i, 0 := by congr with i; exact meas_eLpNormEssSup_lt
     _ = 0 := by simp
 

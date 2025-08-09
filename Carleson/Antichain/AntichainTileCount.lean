@@ -1119,7 +1119,7 @@ lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (�
         (1 + edist_(p) (𝒬 p) ϑ.val) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
         (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume := by
       refine eLpNorm_sum_le (fun p mp ↦ ?_) ?_
-      · refine Finset.aestronglyMeasurable_sum _ fun p mp ↦ ?_
+      · refine Finset.aestronglyMeasurable_fun_sum _ fun p mp ↦ ?_
         simp_rw [mul_assoc, ← inter_indicator_mul]
         exact ((AEMeasurable.indicator (by simp)
           (measurableSet_E.inter measurableSet_G)).const_mul _).aestronglyMeasurable
@@ -1132,7 +1132,10 @@ lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (�
       · refine fun p mp ↦ mul_nonneg ?_ (indicator_nonneg (by simp) _)
         exact mul_nonneg (Real.rpow_nonneg zero_le_two _) (indicator_nonneg (by simp) _)
       refine Finset.sum_le_sum fun p mp ↦ ?_
-      simp_rw [enorm_mul, enorm_indicator_eq_indicator_enorm, Pi.one_apply, enorm_one]; gcongr
+      simp_rw [enorm_mul, enorm_indicator_eq_indicator_enorm, Pi.one_apply, enorm_one]
+      gcongr; rotate_left
+      · simp
+      · simp
       rw [Real.rpow_mul zero_le_two, Real.enorm_rpow_of_nonneg (by positivity) (by positivity),
         ENNReal.rpow_neg, ← ENNReal.inv_rpow]; gcongr
       rw [Real.rpow_neg zero_le_two, enorm_inv (by positivity), ENNReal.inv_le_inv, edist_dist,

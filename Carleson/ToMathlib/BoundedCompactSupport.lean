@@ -157,7 +157,7 @@ theorem comp_left_norm {F} [NormedAddCommGroup F] {g : E → F} (hf : BoundedCom
 
 protected theorem neg (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (- f) μ where
   memLp_top := hf.memLp_top.neg
-  hasCompactSupport := hf.hasCompactSupport.neg'
+  hasCompactSupport := hf.hasCompactSupport.neg
 
 variable {𝕜 : Type*} [RCLike 𝕜] {g : X → E}
 

@@ -1108,7 +1108,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         exact this.resolve_left hi
     _ ≤ 2 ^ ((𝕔 + 3) * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
         (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in ball (c J) (16 * D ^ k), ‖f x‖ₑ := by
-      gcongr with k mk; refine lintegral_mono_set (iUnion₂_subset fun p mp ↦ ?_)
+      gcongr with k mk; refine iUnion₂_subset fun p mp ↦ ?_
       rw [Finset.mem_filter_univ] at mp
       refine (E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball' ?_)
       obtain ⟨y, my₁, my₂⟩ := not_disjoint_iff.mp mp.2
@@ -2041,7 +2041,7 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
           P7_5_4_le_adjointBoundaryOperator_mul mx
     _ ≤ C7_4_5 a n * ∑ J ∈ 𝓙₅ t u₁ u₂, ∫⁻ x in J,
         adjointBoundaryOperator t u₁ f₁ x * adjointBoundaryOperator t u₂ f₂ x := by
-      gcongr with J mJ; refine lintegral_mono_set ((ball_subset_ball ?_).trans ball_subset_Grid)
+      gcongr with J mJ; refine (ball_subset_ball ?_).trans ball_subset_Grid
       change _ ≤ (D : ℝ) ^ s J / 4; rw [div_eq_inv_mul]; gcongr; norm_num
     _ = C7_4_5 a n * ∫⁻ x in 𝓘 u₁,
         adjointBoundaryOperator t u₁ f₁ x * adjointBoundaryOperator t u₂ f₂ x := by

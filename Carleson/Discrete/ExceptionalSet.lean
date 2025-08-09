@@ -928,7 +928,8 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
         ← ENNReal.mul_rpow_of_ne_top (by simp) (by simp), ENNReal.rpow_natCast]
       congr 2; norm_cast
     _ ≤ 2 ^ (9 * a + 5) * D ^ (1 - κ * Z) * volume G * ∑' k, 2⁻¹ ^ k := by
-      gcongr
+      gcongr _ * ∑' _, ?_
+      refine pow_le_pow_left' ?_ _
       calc
         _ ≤ 2 ^ 2 * (2 : ℝ≥0∞) ^ (-100 : ℝ) := mul_le_mul_left' (DκZ_le_two_rpow_100 (X := X)) _
         _ ≤ _ := by
@@ -956,7 +957,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       calc
       4 + (9 * a + 6)
       _ = 9 * a + 10 := by ring
-      _ ≤ 3 * 4 * a + 4 * 4 := by gcongr <;> norm_num
+      _ ≤ 3 * 4 * a + 4 * 4 := by omega
       _ ≤ 3 * a * a + a * a := by gcongr <;> linarith [four_le_a X]
       _ = 4 * a ^ 2 := by ring
       _ ≤ 𝕔 * a ^ 2 := by

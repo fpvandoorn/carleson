@@ -271,11 +271,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
     · rw [show (8 : ℝ≥0) = 2 ^ 3 by norm_num]
       simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA, ← zpow_natCast, ← zpow_mul,
         ← zpow_add₀ (show (2 : ℝ≥0) ≠ 0 by norm_num)]
-      -- #adaptation note(2024-11-02): this line was `gcongr`
-      -- This was probably broken by mathlib4#19626 and friends, see
-      -- https://leanprover.zulipchat.com/#narrow/channel/428973-nightly-testing/topic/.2319314.20adaptations.20for.20nightly-2024-11-20
-      -- for details.
-      refine zpow_le_zpow_right₀ ?ha ?hmn
+      gcongr
       · norm_num
       · simp only [Nat.cast_mul, Nat.cast_pow, mul_neg,
         le_add_neg_iff_add_le, ← mul_add]
@@ -474,7 +470,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ s J - 𝔰 p = k,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with J mJ
-      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_sum _ fun p mp ↦
+      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
         hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         volume (J : Set X) ^ (-2 : ℝ)⁻¹ * ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
@@ -544,7 +540,7 @@ lemma btp_integral_bound :
       · change (4 : ℝ) * D ^ s (𝓘 p) ≤ _
         rw [mp.2.2]; gcongr; norm_num
     _ ≤ _ := by
-      refine mul_le_mul_left' (lintegral_mono_fn fun y ↦ ?_) _
+      refine mul_le_mul_left' (lintegral_mono fun y ↦ ?_) _
       by_cases my : y ∈ ball (c I) (8 * D ^ s I)
       · refine mul_le_mul_left' ?_ _; rw [MB_def]
         have : (3, 0, I) ∈ 𝓑 := by simp [𝓑]
@@ -601,7 +597,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
-      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_sum _ fun p mp ↦
+      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
         hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
@@ -650,7 +646,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       gcongr _ * ∑ k ∈ _, (∑ J ∈ _, ?_) ^ _ with k mk J mJ
       rw [setLAverage_eq, ENNReal.div_eq_inv_mul, ← mul_assoc, mul_comm _ _⁻¹, mul_assoc]
       gcongr; apply ENNReal.sq_lintegral_mul_le_mul_lintegral_sq aem_MB.restrict -- Cauchy–Schwarz
-      exact Finset.aemeasurable_sum _ fun I mI ↦
+      exact Finset.aemeasurable_fun_sum _ fun I mI ↦
         measurable_const.aemeasurable.indicator measurableSet_ball
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset,
