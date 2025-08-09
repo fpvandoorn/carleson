@@ -104,7 +104,8 @@ def approxOnCube (C : Set (Grid X)) (f : X → E') (x : X) : E' :=
 
 lemma stronglyMeasurable_approxOnCube (C : Set (Grid X)) (f : X → E') :
     StronglyMeasurable (approxOnCube (X := X) (K := K) C f) :=
-  Finset.stronglyMeasurable_sum _ (fun _ _ ↦ stronglyMeasurable_const.indicator coeGrid_measurable)
+  Finset.stronglyMeasurable_fun_sum _
+    fun _ _ ↦ stronglyMeasurable_const.indicator coeGrid_measurable
 
 lemma integrable_approxOnCube (C : Set (Grid X)) {f : X → E'} : Integrable (approxOnCube C f) := by
   refine integrable_finset_sum _ (fun i hi ↦ ?_)
@@ -695,13 +696,13 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
         rw [neg_mul, zpow_neg, le_mul_inv_iff₀ (by positivity), mul_comm]
         convert le_cdist_iterate _ (𝒬 u) (Q x) (𝕔 * a) using 1
         · apply dist_congr rfl
-          rw [Nat.cast_npow, ← pow_mul, show a * (𝕔 * a) = 𝕔 * a ^ 2 by ring, ← Nat.cast_npow]
+          rw [Nat.cast_pow, ← pow_mul, show a * (𝕔 * a) = 𝕔 * a ^ 2 by ring, ← Nat.cast_pow]
           change _ = (D : ℝ) * _
           rw [← zpow_one_add₀ (realD_pos _).ne', add_sub_cancel]
         · unfold defaultD; positivity
       _ < 5 * defaultA a ^ 5 * 2 ^ (-𝕔 * a : ℤ) := by gcongr
       _ = 5 * (2 : ℝ) ^ (-(𝕔 - 5) * a : ℤ) := by
-        rw [Nat.cast_npow, ← pow_mul, ← zpow_natCast, show (2 : ℕ) = (2 : ℝ) by rfl, mul_assoc,
+        rw [Nat.cast_pow, ← pow_mul, ← zpow_natCast, show (2 : ℕ) = (2 : ℝ) by rfl, mul_assoc,
           ← zpow_add₀ two_ne_zero]
         congr
         simp

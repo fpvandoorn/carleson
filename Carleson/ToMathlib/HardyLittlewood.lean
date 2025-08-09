@@ -425,7 +425,7 @@ theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h�
     _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := by
           congr; simpa using (lintegral_iUnion (fun i ↦ measurableSet_ball) disj u).symm
     _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := by
-          gcongr; exact setLIntegral_le_lintegral (⋃ i ∈ B, ball (c i) (r i)) u
+          gcongr; exact Measure.restrict_le_self
 
 protected theorem Finset.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (𝓑 : Finset ι)
     (l : ℝ≥0∞) (u : X → ℝ≥0∞)
@@ -942,7 +942,6 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
       simp only [laverage, MeasurableSet.univ, Measure.restrict_apply, univ_inter,
         lintegral_smul_measure, smul_eq_mul]
       gcongr
-      exact lintegral_mono_set h_subset
     _ ≤ A ^ 2 * (μ (ball c (2 ^ m)))⁻¹ * ∫⁻ y in ball c (2 ^ m), ‖u y‖ₑ ∂μ := by
       gcongr
       rw [mul_comm, ← ENNReal.mul_le_iff_le_inv

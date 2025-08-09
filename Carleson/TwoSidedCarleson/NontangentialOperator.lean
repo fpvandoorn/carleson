@@ -158,7 +158,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
 
     trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
         ∫⁻ (y : X) in ball x (2 ^ (i + 2) * r), ‖g y‖ₑ
-    · gcongr
+    · gcongr _ * ?_
       apply lintegral_mono_set
       unfold dom_i
       rw [Annulus.co_eq]
@@ -439,7 +439,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       apply AEMeasurable.enorm
       exact hg.aemeasurable.restrict
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in (ball x (2 * R)), ‖g y‖ₑ := by
-      gcongr
+      gcongr _ * ?_
       apply lintegral_mono_set
       exact diff_subset
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * (volume (ball x (2 * R)) * globalMaximalFunction volume 1 g x) := by
@@ -586,13 +586,13 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
   trans ∫⁻ (y : X) in ball x (R / 4),
       {x' | 4 * MTrgx < ‖czOperator K r g x'‖ₑ}.indicator (fun x_1 ↦ ‖czOperator K r g y‖ₑ ) y
-  · apply lintegral_mono_fn
+  · apply lintegral_mono
     intro y
     apply indicator_le_indicator'
     rw [mem_setOf_eq]
     exact le_of_lt
   trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
-  · apply lintegral_mono_fn
+  · apply lintegral_mono
     intro y
     apply indicator_le_self
   nth_rw 2 [div_eq_mul_inv]
@@ -730,8 +730,9 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   rw [add_assoc, C10_1_3_def, C10_1_4_def, C10_1_5_def, ← add_mul]
   conv_rhs => rw [pow_succ, mul_two]
   push_cast
-  gcongr <;> simp
-
+  gcongr _ + (_ + 2 ^ ?_) * _
+  · exact one_le_two
+  · omega
 
 omit [IsTwoSidedKernel a K] in
 /-- Part of Lemma 10.1.6. -/
@@ -821,7 +822,9 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   apply add_le_add
   · ring_nf; gcongr <;> simp [Nat.one_le_pow]
   nth_rw 5 [pow_succ]; rw [mul_two]
-  gcongr <;> simp
+  gcongr _ + 2 ^ ?_
+  · exact one_le_two
+  · omega
 
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/

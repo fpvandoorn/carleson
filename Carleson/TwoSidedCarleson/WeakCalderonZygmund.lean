@@ -43,8 +43,7 @@ theorem maximal_theorem :
     unfold C_weakType_globalMaximalFunction C_weakType_maximalFunction
     split_ifs with h; swap; simp at h
     simp_rw [C10_2_1_def, defaultA, coe_pow, coe_ofNat, Nat.cast_pow, Nat.cast_ofNat,
-        NNReal.coe_one, div_one, rpow_ofNat, pow_mul', ← npow_add,
-        two_add_two_eq_four]; rfl
+      NNReal.coe_one, div_one, rpow_ofNat, pow_mul', ← pow_add, two_add_two_eq_four]; rfl
   rw [this]
   apply hasWeakType_globalMaximalFunction (μ := volume) (p₁ := 1) (p₂ := 1) (by norm_num) le_rfl
 
@@ -653,7 +652,9 @@ private lemma volume_czBall7_le (hX : GeneralCase f α) (i : ℕ) :
   _ ≤ volume (ball (czCenter hX i) (2 ^ 3 * czRadius hX i)) := measure_mono czBall_subset_czBall
   _ ≤ (defaultA a) ^ 3 * volume (ball (czCenter hX i) (czRadius hX i)) :=
     measure_ball_two_le_same_iterate _ _ 3
-  _ ≤ _ := by rw [Nat.cast_pow, ← pow_mul, mul_comm a 3]; gcongr; exact czBall_subset_czPartition
+  _ ≤ _ := by
+    rw [Nat.cast_pow, ← pow_mul, mul_comm a 3, Nat.cast_ofNat]
+    gcongr; exact czBall_subset_czPartition
 
 private lemma volume_czBall3_le (hX : GeneralCase f α) (i : ℕ) :
     volume (czBall3 hX i) ≤ 2 ^ (2 * a) * volume (czBall hX i) := calc
@@ -928,7 +929,7 @@ private lemma ineq_10_2_32 (hf : BoundedFiniteSupport f) {hX : GeneralCase f α}
     simp [czRemainder', eLpNorm, eLpNorm', enorm_indicator_eq_indicator_enorm,
       lintegral_indicator <| MeasurableSet.czPartition hX i]
   _ ≤ ∫⁻ x in czPartition hX i, ‖f x‖ₑ + ‖czApproximation f α x‖ₑ :=
-    lintegral_mono_fn (fun x ↦ enorm_sub_le)
+    lintegral_mono (fun x ↦ enorm_sub_le)
   _ = (∫⁻ x in _, ‖f x‖ₑ) + ∫⁻ x in _, ‖_‖ₑ := lintegral_add_left' hf.aemeasurable.enorm.restrict _
   _ ≤ 2 * (∫⁻ x in czPartition hX i, ‖f x‖ₑ) := by
     rw [two_mul]; exact add_le_add_left (lintegral_czPartition_le i) _
@@ -1509,7 +1510,7 @@ lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f (α' a α)) {i
         ENNReal.mul_comm_div]
     _ ≤ 2 ^ a * ∫⁻ x in ⋃ n, ball c (2 ^ (n + 1) * r) \ ball c (2 ^ n * r),
         (r.toNNReal / edist x c) ^ (a : ℝ)⁻¹ / volume (ball c (dist x c)) := by
-      gcongr; refine lintegral_mono_set fun x mx ↦ ?_
+      gcongr _ * ?_; refine lintegral_mono_set fun x mx ↦ ?_
       rw [czBall6, mem_compl_iff, mem_ball, not_lt, show (6 : ℝ) = 2 * 3 by norm_num,
         mul_assoc] at mx
       change 2 * r ≤ dist x c at mx
@@ -1681,7 +1682,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
       have op0 : czOperator K r f = 0 := by
         ext x; rw [czOperator, integral_eq_zero_of_ae]; swap
         · have := (EventuallyEq.rfl (f := (K x ·))).mul hf₂
-          simp only [Pi.zero_apply, mul_zero] at this; exact this.restrict
+          simp only [mul_zero] at this; exact this.restrict
         simp
       simp_rw [op0, distribution, Pi.zero_apply, enorm_zero, not_lt_zero', setOf_false,
         measure_empty, zero_le]
