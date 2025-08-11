@@ -1132,10 +1132,8 @@ lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (�
       · refine fun p mp ↦ mul_nonneg ?_ (indicator_nonneg (by simp) _)
         exact mul_nonneg (Real.rpow_nonneg zero_le_two _) (indicator_nonneg (by simp) _)
       refine Finset.sum_le_sum fun p mp ↦ ?_
-      simp_rw [enorm_mul, enorm_indicator_eq_indicator_enorm, Pi.one_apply, enorm_one]
-      gcongr; rotate_left
-      · simp
-      · simp
+      simp_rw [enorm_mul, enorm_indicator_eq_indicator_enorm, Pi.one_apply, enorm_one, Pi.one_def]
+      gcongr
       rw [Real.rpow_mul zero_le_two, Real.enorm_rpow_of_nonneg (by positivity) (by positivity),
         ENNReal.rpow_neg, ← ENNReal.inv_rpow]; gcongr
       rw [Real.rpow_neg zero_le_two, enorm_inv (by positivity), ENNReal.inv_le_inv, edist_dist,
