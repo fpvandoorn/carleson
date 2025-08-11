@@ -1053,13 +1053,13 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
   set g := approxOnCube (𝓙 (t u)) f
   -- Convert the sum over `p` into a sum over `s`.
   unfold carlesonSum carlesonOn
-  rw [p_sum_eq_s_sum fun s x ↦ ∫ (y : X), cexp (I * (Q x y - Q x x)) * K x y *
-    («ψ» D (D ^ (-s) * dist x y)) * (fun y ↦ cexp (I * -𝒬 u y) * f y) y]
+  rw [p_sum_eq_s_sum fun s x ↦ ∫ (y : X), cexp (I * (Q x y - Q x x)) * Ks s x y *
+        (fun y ↦ cexp (I * -𝒬 u y) * f y) y]
   -- Next introduce an extra factor of `‖cexp (I * 𝒬 u x)‖ₑ`, i.e., 1. Then simplify.
   have : 1 = ‖cexp (I * 𝒬 u x)‖ₑ := by simp
   rw [← one_mul ‖_‖ₑ, this, ← enorm_mul, Finset.mul_sum]
-  have : ∑ i ∈ t.σ u x, cexp (I * 𝒬 u x) * ∫ (y : X), (cexp (I * (Q x y - Q x x)) * K x y *
-            («ψ» D (D ^ (-i) * dist x y)) * (cexp (I * -𝒬 u y) * f y)) =
+  have : ∑ i ∈ t.σ u x, cexp (I * 𝒬 u x) * ∫ (y : X), (cexp (I * (Q x y - Q x x)) * Ks i x y *
+            (cexp (I * -𝒬 u y) * f y)) =
           ∑ i ∈ t.σ u x, ∫ (y : X),
             (f y * ((exp (I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y) +
             (f y - g y) * Ks i x y + g y * Ks i x y) := by
