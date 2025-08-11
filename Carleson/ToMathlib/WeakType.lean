@@ -632,7 +632,8 @@ lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
 lemma HasStrongType.const_smul [ContinuousConstSMul ℝ≥0 ε']
     {T : (α → ε) → (α' → ε')} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (k : ℝ≥0) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
-  refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le'.trans ?_⟩
+  refine fun f hf ↦
+    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_nnreal_smul_le.trans ?_⟩
   rw [mul_assoc]
   gcongr
   exact (h f hf).2
@@ -665,7 +666,7 @@ lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
     wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
   by_cases ptop : p = ⊤
   · simp only [ptop, wnorm_top]
-    apply eLpNormEssSup_const_smul_le'
+    apply eLpNormEssSup_const_nnreal_smul_le
   simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
   by_cases k_zero : k = 0
   · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero',

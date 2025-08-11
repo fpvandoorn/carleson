@@ -526,7 +526,7 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
     _ ≤ (∑ u ∈ U, ∫⁻ x in 𝓘 u,
         adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f) x ^ 2) ^ (2 : ℝ)⁻¹ := by
       simp_rw [← lintegral_indicator coeGrid_measurable]
-      gcongr with u mu; exact setLIntegral_le_lintegral _ _
+      gcongr with u mu; exact Measure.restrict_le_self
     _ ≤ (∑ u ∈ U, eLpNorm (adjointBoundaryOperator t u
         ((𝓘 u : Set X).indicator f)) 2 volume ^ 2) ^ (2 : ℝ)⁻¹ := by
       gcongr with u mu; rw [sq_eLpNorm_two]; simp_rw [enorm_eq_self]
