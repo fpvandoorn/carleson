@@ -35,7 +35,7 @@ lemma lintegral_set_mono_fn {α : Type*} {m : MeasurableSpace α} {μ : Measure 
     (hs : MeasurableSet s) ⦃f g : α → ℝ≥0∞⦄ (hfg : ∀ x ∈ s, f x ≤ g x) :
     ∫⁻ (a : α) in s, f a ∂μ ≤ ∫⁻ (a : α) in s, g a ∂μ := by
   rw [← lintegral_indicator hs, ← lintegral_indicator hs]
-  apply lintegral_mono_fn
+  apply lintegral_mono
   intro x
   unfold Set.indicator
   split

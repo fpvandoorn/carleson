@@ -210,7 +210,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       rw [fourier_coe_apply, fourier_coe_apply, fourier_coe_apply, ←exp_add]
       congr
       field_simp
-      rw [mul_sub, sub_eq_neg_add]
+      ring
 
 lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {x : ℝ}
     (h : IntervalIntegrable f volume 0 (2 * π)) :

@@ -75,7 +75,7 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X �
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonSum {ℭ : Set (𝔓 X)}
     {f : X → ℂ} (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonSum ℭ f) :=
-  Finset.aestronglyMeasurable_sum _ fun _ _ ↦ hf.carlesonOn
+  Finset.aestronglyMeasurable_fun_sum _ fun _ _ ↦ hf.carlesonOn
 
 lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
     indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by
@@ -275,11 +275,11 @@ lemma AEStronglyMeasurable.adjointCarleson (hf : AEStronglyMeasurable f) :
 
 lemma StronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)} (hf : StronglyMeasurable f) :
     StronglyMeasurable (adjointCarlesonSum ℭ f) :=
-  Finset.stronglyMeasurable_sum _ fun _ _ ↦ hf.adjointCarleson
+  Finset.stronglyMeasurable_fun_sum _ fun _ _ ↦ hf.adjointCarleson
 
 lemma AEStronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)} (hf : AEStronglyMeasurable f) :
     AEStronglyMeasurable (adjointCarlesonSum ℭ f) :=
-  Finset.aestronglyMeasurable_sum _ fun _ _ ↦ hf.adjointCarleson
+  Finset.aestronglyMeasurable_fun_sum _ fun _ _ ↦ hf.adjointCarleson
 
 variable (p) in
 theorem BoundedCompactSupport.bddAbove_norm_adjointCarleson (hf : BoundedCompactSupport f) :

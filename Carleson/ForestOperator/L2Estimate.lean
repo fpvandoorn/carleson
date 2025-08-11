@@ -46,7 +46,7 @@ private lemma integrableOn_mul_f {x' : X} (hf : BoundedCompactSupport f) {r : �
     (s₁ s₂ : ℤ) : IntegrableOn (fun y ↦ K' s₁ s₂ x' y * f y) (EAnnulus.ci x' r) := by
   simp_rw [K', Ks, mul_comm (K x' _) (ψ _), ← Finset.sum_mul, mul_assoc]
   apply Integrable.bdd_mul (integrableOn_K_mul_f hf hr)
-  · refine (Finset.aestronglyMeasurable_sum _ (fun i hi ↦ ?_)).restrict
+  · refine (Finset.aestronglyMeasurable_fun_sum _ (fun i hi ↦ ?_)).restrict
     apply continuous_ofReal.comp_aestronglyMeasurable ∘ continuous_ψ.comp_aestronglyMeasurable
     exact (continuous_const.dist continuous_id').aestronglyMeasurable.const_mul _
   · refine ⟨(s₂ + 1 - s₁).toNat, fun _ ↦ le_trans (norm_sum_le ..) ?_⟩
@@ -128,7 +128,7 @@ private lemma annulus_integral_bound {x : X} {g : X → ℂ} {r₁ r₂ r₃ r�
           · exact Or.inr ⟨hr₂₃ hr₂, hr₄⟩
           · exact Or.inl ⟨hr₁, le_of_not_gt hr₂⟩
         _ ≤ _ := lintegral_union_le _ _ _
-  _ ≤ _ := by gcongr; exact lintegral_mono_set (Annulus.oc_subset_cc le_rfl le_rfl)
+  _ ≤ _ := by gcongr; exact Annulus.oc_subset_cc le_rfl le_rfl
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -221,7 +221,7 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
   apply mul_left_mono
   calc
     _ ≤ (∫⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ) / volume (ball (c I) (16 * D ^ s I)) := by
-      gcongr
+      gcongr ?_ / _
       refine lintegral_mono' (Measure.le_iff.mpr (fun T hT ↦  ?_)) (le_refl _)
       rw [Measure.restrict_apply hT, Measure.restrict_apply hT]
       refine measure_mono (inter_subset_inter_right T (fun y ↦ ?_))
@@ -545,7 +545,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
     _ ≤ ∑ I : Grid X,
         ((volume (ball (c I) (16 * D ^ s I)))⁻¹ * ∫⁻ x in ball (c I) (16 * D ^ s I), ‖g x‖ₑ) *
         ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ := by
-      gcongr with I; refine lintegral_mono_set (Grid_subset_ball.trans <| ball_subset_ball ?_)
+      gcongr with I; refine Grid_subset_ball.trans <| ball_subset_ball ?_
       exact mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
     _ = ∑ I : Grid X, (⨍⁻ x in ball (c I) (16 * D ^ s I), ‖g x‖ₑ ∂volume) *
         ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ := by
@@ -573,7 +573,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
           MB volume 𝓑 c𝓑 r𝓑 g y * D ^ ((s J - s I) / (a : ℝ)) * ‖f y‖ₑ else 0 := by
       refine Finset.sum_le_sum fun J mJ ↦ setLIntegral_mono_ae ?_ ?_
-      · refine (Finset.aemeasurable_sum _ fun I _ ↦ ?_).restrict; split_ifs; swap; · simp
+      · refine (Finset.aemeasurable_fun_sum _ fun I _ ↦ ?_).restrict; split_ifs; swap; · simp
         refine (AEMeasurable.mul_const ?_ _).mul nfs
         exact (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
       · refine Eventually.of_forall fun y my ↦ Finset.sum_le_sum fun I _ ↦ ?_
@@ -691,7 +691,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
       · exact pairwiseDisjoint_𝓙
       · exact fun _ _ ↦ coeGrid_measurable
     _ ≤ 2 ^ (9 * a + 1) * ∫⁻ y, ‖f y‖ₑ * MB volume 𝓑 c𝓑 r𝓑 g y := by
-      gcongr; exact setLIntegral_le_lintegral _ _
+      gcongr; exact Measure.restrict_le_self
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 g) 2 volume := by
       rw [mul_assoc]; gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm ⟨by simpa using ENNReal.inv_two_add_inv_two⟩

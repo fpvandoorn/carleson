@@ -542,7 +542,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
   -- This is needed later but better fits in here.
   have conj_h_bound : ∀ (x : ℝ), ‖(star ∘ h) x‖ ≤ δ := by
     intro x
-    simp only [RCLike.star_def, Function.comp_apply, RingHomIsometric.is_iso]
+    simp only [RCLike.star_def, Function.comp_apply, RingHomIsometric.norm_map]
     exact h_bound x
 
   have le_operator_add : ∀ x ∈ E, ENNReal.ofReal ((ε' - π * δ) * (2 * π)) ≤ T h x + T (conj ∘ h) x := by

@@ -340,7 +340,7 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
       _ ≤ (defaultA a) ^ ⌊4 + Real.logb 2 l⌋₊ :=
         pow_le_pow_right₀ Nat.one_le_two_pow (ceil_log2_le_floor_four_add_log2 hl)
       _ ≤ ⌊(defaultA a : ℝ) ^ (4 + Real.logb 2 l)⌋₊ := by
-        apply Nat.le_floor; rw [Nat.cast_npow, ← Real.rpow_natCast]
+        apply Nat.le_floor; rw [Nat.cast_pow, ← Real.rpow_natCast]
         refine Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast Nat.one_le_two_pow)
           (Nat.floor_le ?_)
         calc
