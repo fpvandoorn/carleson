@@ -34,7 +34,7 @@ variable [TileStructure Q D κ S o] {p p' : 𝔓 X}
 /-- The operator `T_𝔭` defined in Proposition 2.0.2. -/
 def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
-    fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
+    fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * Ks (𝔰 p) x y * f y
 
 /- Deprecated for `AEStronglyMeasurable.carlesonOn`
 Used through `measurable_carlesonSum` in `Antichain.AntichainOperator` and `ForestOperator.Forests`
@@ -42,15 +42,11 @@ with nontrivial rework in order to move from `Measurable` to `AEStronglyMeasurab
 lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonOn p f) := by
   refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
-  refine (((Measurable.mul ?_ measurable_K).mul ?_).mul ?_).stronglyMeasurable
+  refine ((Measurable.mul ?_ measurable_Ks).mul ?_).stronglyMeasurable
   · have : Measurable fun (p : X × X) ↦ (p.1, p.1) := by fun_prop
     refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
     · exact measurable_Q₂
     · exact measurable_Q₂.comp this
-  · apply measurable_ofReal.comp
-    apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
-    · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
-    · exact measurable_dist.const_mul _
   · exact measf.comp measurable_snd
 
 open Classical in
@@ -68,19 +64,13 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X �
     (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonOn p f) := by
   refine .indicator ?_ measurableSet_E
   refine .integral_prod_right'
-    (f := fun z ↦ exp (Complex.I * (Q z.1 z.2 - Q z.1 z.1)) * K z.1 z.2 *
-      ψ (D ^ (- 𝔰 p) * dist z.1 z.2) * f z.2) ?_
-  refine (((AEStronglyMeasurable.mul ?_ aestronglyMeasurable_K).mul ?_).mul ?_)
+    (f := fun z ↦ exp (Complex.I * (Q z.1 z.2 - Q z.1 z.1)) * Ks (𝔰 p) z.1 z.2 * f z.2) ?_
+  refine (AEStronglyMeasurable.mul ?_ aestronglyMeasurable_Ks).mul ?_
   · apply Measurable.aestronglyMeasurable
     have : Measurable fun (p : X × X) ↦ (p.1, p.1) := by fun_prop
     refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
     · exact measurable_Q₂
     · exact measurable_Q₂.comp this
-  · apply Measurable.aestronglyMeasurable
-    apply measurable_ofReal.comp
-    apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
-    · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
-    · exact measurable_dist.const_mul _
   · exact hf.comp_snd
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonSum {ℭ : Set (𝔓 X)}
@@ -359,11 +349,11 @@ theorem BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
 end MeasureTheory
 
 /-- `MKD` is short for "modulated kernel times dilated bump". -/
-private abbrev MKD (s : ℤ) x y := exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (-s) * dist x y)
+private abbrev MKD (s : ℤ) x y := exp (I * (Q x y - Q x x)) * Ks s x y (K := K)
 
 omit [TileStructure Q D κ S o] in
 private lemma norm_MKD_le_norm_Ks {s : ℤ} {x y : X} : ‖MKD s x y‖ ≤ ‖Ks s x y‖ := by
-  unfold MKD; rw [mul_assoc, ← Ks_def]
+  unfold MKD
   apply (norm_mul_le ..).trans
   apply le_of_eq
   rw [norm_exp_I_mul_sub_ofReal, one_mul]
@@ -405,7 +395,6 @@ lemma adjointCarleson_adjoint
             .indicator aestronglyMeasurable_const measurableSet_E
           exact this.comp_fst
       · unfold MKD
-        simp_rw [mul_assoc, ← Ks_def]
         refine .mul ?_ aestronglyMeasurable_Ks
         apply Measurable.aestronglyMeasurable
         have : Measurable fun (p : X × X) ↦ (p.1, p.1) :=
@@ -441,7 +430,7 @@ lemma adjointCarleson_adjoint
         _ = ∫ x in E p, conj (MKD (𝔰 p) x y) * g x := by congr; funext; rw [mul_comm]
         _ = _ := by
           unfold adjointCarleson MKD
-          congr; funext; rw [mul_assoc, ← Ks_def, map_mul, ← exp_conj, mul_comm (cexp _)]
+          congr; funext; rw [map_mul, ← exp_conj, mul_comm (cexp _)]
           congr; simp; ring
 
 /-- `adjointCarlesonSum` is the adjoint of `carlesonSum`. -/
