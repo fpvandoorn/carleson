@@ -894,7 +894,8 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
         · simp_all
         · finiteness
     _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α, ‖f x‖ₑ ^ p.toReal ∂μ := by
-      gcongr; exact Measure.restrict_le_self
+      gcongr
+      exact Measure.restrict_le_self
     _ = _ := by
       congr
       rw [eLpNorm_eq_lintegral_rpow_enorm p_ne_zero p_ne_top, one_div, ENNReal.rpow_inv_rpow]
