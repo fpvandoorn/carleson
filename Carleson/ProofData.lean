@@ -49,7 +49,7 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
   obtain ⟨l₁, hl₁⟩ := bddBelow_def.mp (Finite.bddBelow (finite_range_σ₁ (X := X)))
   obtain ⟨u₂, hu₂⟩ := bddAbove_def.mp (Finite.bddAbove (finite_range_σ₂ (X := X)))
   simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hl₁ hu₂
-  have one_lt_D : (1 : ℝ) < defaultD a := by linarith [hundred_lt_realD X]
+  have one_lt_D := one_lt_realD X
   obtain ⟨rF, rFpos, hrF⟩ : ∃ r > 0, F ⊆ ball (cancelPt X) r := by
     obtain ⟨r, hr⟩ := isBounded_F.subset_ball (cancelPt X)
     rcases lt_or_ge 0 r with lr | lr
@@ -66,36 +66,29 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
   · simp only [Int.ofNat_toNat, ← min_neg_neg, neg_neg, min_le_iff, le_max_iff]
     exact ⟨.inl (.inl (.inl (hl₁ x))), .inl (.inl (.inr (hu₂ x)))⟩
   · refine hrF.trans (ball_subset_ball ?_)
-    calc
-      _ ≤ (defaultD a : ℝ) ^ nF / 4 := by
-        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
+    trans (defaultD a : ℝ) ^ nF / 4
+    · rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
           ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
-        exact Int.le_ceil _
-      _ ≤ (defaultD a : ℝ) ^ nF.toNat / 4 := by
-        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
-        · exact one_lt_D.le
-        · exact_mod_cast Int.self_le_toNat nF
-      _ ≤ _ := by
-        gcongr
-        · exact one_lt_D.le
-        · exact Int.toNat_le_toNat ((le_max_left ..).trans (le_max_right ..))
+      exact Int.le_ceil _
+    rw [← Real.rpow_natCast, ← Real.rpow_intCast]
+    gcongr
+    · exact one_lt_D.le
+    norm_cast
+    apply Int.self_le_toNat nF |>.trans
+    exact_mod_cast Int.toNat_le_toNat <| (le_max_left ..).trans <| le_max_right ..
   · refine hrG.trans (ball_subset_ball ?_)
-    calc
-      _ ≤ (defaultD a : ℝ) ^ nG / 4 := by
-        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
+    trans (defaultD a : ℝ) ^ nG / 4
+    · rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
           ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
-        exact Int.le_ceil _
-      _ ≤ (defaultD a : ℝ) ^ nG.toNat / 4 := by
-        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
-        · exact one_lt_D.le
-        · exact_mod_cast Int.self_le_toNat nG
-      _ ≤ _ := by
-        gcongr
-        · exact one_lt_D.le
-        · exact Int.toNat_le_toNat ((le_max_right ..).trans (le_max_right ..))
-  · exact Int.pos_iff_toNat_pos.mp (lt_of_lt_of_le
-      (lt_of_lt_of_le (Int.ceil_pos.mpr (Real.logb_pos one_lt_D (by linarith))) (le_max_right _ _))
-      (le_max_right _ _))
+      exact Int.le_ceil _
+    rw [← Real.rpow_natCast, ← Real.rpow_intCast]
+    gcongr
+    · exact one_lt_D.le
+    norm_cast
+    apply Int.self_le_toNat nG |>.trans
+    exact_mod_cast Int.toNat_le_toNat <| (le_max_right ..).trans <| le_max_right ..
+  · apply Int.pos_iff_toNat_pos.mp <| lt_of_lt_of_le _ <| (le_max_right ..).trans <| le_max_right ..
+    exact Int.ceil_pos.mpr (Real.logb_pos one_lt_D (by linarith))
 
 variable (X) in
 open Classical in
