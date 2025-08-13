@@ -71,6 +71,23 @@ lemma eLorentzNorm_zero_of_ae_zero {f : α → ε'} (h : f =ᵐ[μ] 0) : eLorent
     mul_zero]
   simp
 
+--TODO: Weaken to only assume the ineq ae
+lemma eLorentzNorm_mono {f g : α → ε'} (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) : eLorentzNorm f p r μ ≤ eLorentzNorm g p r μ := by
+  unfold eLorentzNorm
+  split_ifs
+  · trivial
+  · trivial
+  · exact eLpNormEssSup_mono_enorm_ae h
+  · gcongr
+    exact eLpNormEssSup_mono_enorm_ae h
+  · unfold eLorentzNorm'
+    gcongr
+    apply eLpNorm_mono_enorm
+    intro x
+    simp only [ENNReal.toReal_inv, enorm_eq_self]
+    gcongr
+    exact h
+
 /-
 /- Alternative definition. Not used at the moment. -/
 lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α} :
@@ -334,8 +351,8 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] 
 
 
 
-variable {α' ε₁ ε₂ : Type*} {m : MeasurableSpace α'} [TopologicalSpace ε₁] [ContinuousENorm ε₁]
-    [TopologicalSpace ε₂] [ContinuousENorm ε₂] {f : α → ε} {f₁ : α → ε₁}
+variable {α' ε₁ ε₂ : Type*} {m : MeasurableSpace α'} [TopologicalSpace ε₁] [ENorm ε₁]
+    [TopologicalSpace ε₂] [ENorm ε₂] {f : α → ε} {f₁ : α → ε₁}
 
 /-- An operator has Lorentz type `(p, r, q, s)` if it is bounded as a map
 from `L^{q, s}` to `L^{p, r}`. `HasLorentzType T p r q s μ ν c` means that
@@ -355,7 +372,9 @@ lemma HasLorentzType_p_infty_qs {T : (α → ε₁) → (α' → ε₂)} {p q s 
 
 --TODO: what exactly should be the requirements on 𝕂? Actually, we only need a 1 here.
 --TODO: This could be more general, it currently assumes T f ≥ 0
-variable {𝕂 : Type*} [TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
+variable {𝕂 : Type*} [TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂] [Field 𝕂]
+  --[TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
+  --[TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂] --TODO: Actually, these last arguments should probably be infered
 
 /-- Defines when an operator "has restricted weak type". This is an even weaker version
 of `HasBoundedWeakType`. -/
@@ -366,17 +385,93 @@ def HasRestrictedWeakType (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥
       eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
         ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
 
+--TODO: Could probably weaken assumption to (h : ∀ᶠ (x : β) in f, u x ≤ v x)
+theorem Filter.mono_limsup {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
+    {u v : β → α} (h : ∀ (x : β), u x ≤ v x) : Filter.limsup u f ≤ Filter.limsup v f := by
+  apply sInf_le_sInf
+  intro a ha
+  apply ha.mono
+  intro x hx
+  exact Preorder.le_trans (u x) (v x) a (h x) hx
+
+theorem Filter.limsup_le_of_le' {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
+    {u : β → α} {a : α} (h : ∀ᶠ (n : β) in f, u n ≤ a) :
+  Filter.limsup u f ≤ a := sInf_le h
+
+theorem MeasureTheory.HasRestrictedWeakType.hasLorentzType_helper
+  {T : (α → 𝕂) → α' → ε'} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+  (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p') (f : SimpleFunc α 𝕂) --(hf : MemLorentz f p 1 μ)
+  (G : Set α') (hG : MeasurableSet G) (hG' : ν G < ⊤) :
+    eLpNorm (T f) 1 (ν.restrict G) ≤ c * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
+  sorry
+
+def WeaklyContinuous (T : (α → 𝕂) → (α' → ε')) (μ : Measure α) (ν : Measure α') : Prop :=
+  ∀ {f : α → 𝕂} {fs : ℕ → SimpleFunc α 𝕂}
+  (hfs : ∀ (x : α), Filter.Tendsto (fun (n : ℕ) => (fs n) x) Filter.atTop (nhds (f x))) (G : Set α'),
+    eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T (fs n)) 1 (ν.restrict G)) Filter.atTop
+
+--TODO : generalize?
+--TODO : probably could even have a stronger version where the gs are pointwise bounded by g
+lemma approx_from_below (μ : Measure α) (p : ℝ≥0∞) {g : α → 𝕂} (hg : StronglyMeasurable g) : ∃ gs : ℕ → SimpleFunc α 𝕂,
+    (∀ (x : α), Filter.Tendsto (fun n ↦ (gs n) x) Filter.atTop (nhds (g x)))
+    ∧ Filter.limsup (fun n ↦ eLorentzNorm (gs n) p 1 μ) Filter.atTop ≤ eLorentzNorm g p 1 μ := by
+  /-
+  apply Filter.limsup_le_of_le'
+  apply Filter.Eventually.of_forall
+  intro n
+  gcongr
+  apply eLorentzNorm_mono
+  --TODO: continue here, ensure approximation from below for g or find better solution
+  --have := SimpleFunc.monotone_approx gs g
+  sorry --use : better def of gs?
+  -/
+  sorry
+
+--TODO: Show that the Carleson operator is weakly continuous in this sense via Fatou's lemma
+
 lemma HasRestrictedWeakType.hasLorentzType /- [MeasurableSpace ε'] [BorelSpace ε'] -/
+  --[ENormedAddMonoid ε']
   {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}
   {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
-  (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p') :
+  (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p')
+  (weakly_cont_T : WeaklyContinuous T μ ν) :
     --TODO: might have to adjust the constant
     HasLorentzType T p 1 p ∞ μ ν c := by
   intro f hf
+  by_cases c_ne_top : c = ⊤
+  · sorry
   have claim : ∀ (G : Set α'), (MeasurableSet G) → (ν G < ∞) → eLpNorm (T f) 1 (ν.restrict G)
     ≤ c * eLorentzNorm f p 1 μ * (ν G) ^ p'⁻¹.toReal := by
       -- Get this for simple functions first?
-      sorry
+      have hg := hf.1.choose_spec
+      set g := hf.1.choose
+      --have hgs := hg.1.choose_spec
+      --set gs := hg.1.choose
+      --have hgs := hg.1.tendsto_approx
+      --set gs := hg.1.approx
+      have hgs := (approx_from_below μ p hg.1).choose_spec
+      set gs := (approx_from_below μ p hg.1).choose
+      intro G measurable_G G_finite
+
+      calc _
+        _ = eLpNorm (T g) 1 (ν.restrict G) := by sorry --use : aeeq
+        _ ≤ Filter.limsup (fun n ↦ eLpNorm (T (gs n)) 1 (ν.restrict G)) Filter.atTop := by
+          apply weakly_cont_T hgs.1
+        _ ≤ Filter.limsup (fun n ↦ c * eLorentzNorm (gs n) p 1 μ * ν G ^ p'⁻¹.toReal) Filter.atTop := by
+          apply Filter.mono_limsup
+          intro n
+          apply MeasureTheory.HasRestrictedWeakType.hasLorentzType_helper hT hpp' (gs n) _ measurable_G G_finite
+        _ ≤ c * eLorentzNorm g p 1 μ * ν G ^ p'⁻¹.toReal := by
+          simp_rw [mul_assoc]
+          rw [ENNReal.limsup_const_mul_of_ne_top c_ne_top]
+          gcongr
+          simp_rw [mul_comm]
+          rw [ENNReal.limsup_const_mul_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) G_finite.ne)]
+          gcongr
+          exact hgs.2
+        _ = c * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by sorry --use : aeeq
+
+
   -- Apply claim to a special G
   --let G := {x | ‖T x‖ₑ > }
   constructor
