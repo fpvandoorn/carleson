@@ -1,4 +1,5 @@
 import Carleson.DoublingMeasure
+import Carleson.ToMathlib.HolderNorm
 import Mathlib.Topology.MetricSpace.Holder
 
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
@@ -195,16 +196,6 @@ lemma volume_F_ne_top : volume F ≠ ⊤ := volume_F_lt_top.ne
 lemma volume_G_lt_top : volume G < ⊤ := isBounded_G.measure_lt_top
 lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
 
-/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? Defined in ℝ≥0∞ to
-avoid sup-related issues. -/
-@[nolint unusedArguments]
-def iHolENorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
-  (⨆ (x ∈ ball x₀ R), ‖ϕ x‖ₑ) + (ENNReal.ofReal R) ^ τ *
-    ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ)
-
-def iHolNNNorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ≥0 :=
-  (iHolENorm ϕ x₀ R).toNNReal
-
 /-! Lemma 2.1.1 -/
 
 def C2_1_1 (k : ℕ) (a : ℕ) : ℕ := 2 ^ (k * a)
@@ -343,33 +334,33 @@ lemma continuous_of_iLipENorm_ne_top {z : X} {R : ℝ}
     isOpen_ball hϕ
 
 lemma enorm_le_iHolENorm_of_mem {z : X} {R : ℝ} (ϕ : X → ℂ) {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ₑ ≤ iHolENorm ϕ z R := by
+    ‖ϕ x‖ₑ ≤ iHolENorm ϕ z R τ := by
   apply le_trans _ le_self_add
   simp only [le_iSup_iff, iSup_le_iff]
   tauto
 
-lemma norm_le_iHolNNNorm_of_mem {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤)
+lemma norm_le_iHolNNNorm_of_mem {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R τ ≠ ⊤)
     {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ ≤ iHolNNNorm ϕ z R :=
+    ‖ϕ x‖ ≤ iHolNNNorm ϕ z R τ :=
   (ENNReal.toReal_le_toReal (by simp) hϕ).2 (enorm_le_iHolENorm_of_mem ϕ hx)
 
-lemma norm_le_iHolNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤)
-    {x : X} (h : support ϕ ⊆ ball z R) : ‖ϕ x‖ ≤ iHolNNNorm ϕ z R := by
+lemma norm_le_iHolNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R τ ≠ ⊤)
+    {x : X} (h : support ϕ ⊆ ball z R) : ‖ϕ x‖ ≤ iHolNNNorm ϕ z R τ := by
   by_cases hx : x ∈ ball z R
   · apply norm_le_iHolNNNorm_of_mem hϕ hx
   · have : x ∉ support ϕ := fun a ↦ hx (h a)
     simp [notMem_support.mp this]
 
 lemma HolderOnWith.of_iHolENorm_ne_top
-    {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤) :
-    HolderOnWith (iHolNNNorm ϕ z R / R.toNNReal ^ τ) nnτ ϕ (ball z R) := by
+    {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R τ ≠ ⊤) :
+    HolderOnWith (iHolNNNorm ϕ z R τ / R.toNNReal ^ τ) nnτ ϕ (ball z R) := by
   intro x hx y hy
   have hR : 0 < R := by
     simp only [mem_ball] at hx
     apply dist_nonneg.trans_lt hx
   rcases eq_or_ne x y with rfl | hne
   · simp
-  have : (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) ≤ iHolENorm ϕ z R := calc
+  have : (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) ≤ iHolENorm ϕ z R τ := calc
       (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ)
     _ ≤ (ENNReal.ofReal R) ^ τ *
         ⨆ (x ∈ ball z R) (y ∈ ball z R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) := by
@@ -391,13 +382,13 @@ lemma HolderOnWith.of_iHolENorm_ne_top
   rfl
 
 lemma continuous_of_iHolENorm_ne_top {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z R ≠ ∞) :
+    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z R τ ≠ ∞) :
     Continuous ϕ :=
   ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
     (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball hϕ
 
 lemma continuous_of_iHolENorm_ne_top' {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z (2 * R) ≠ ∞) :
+    {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z (2 * R) τ ≠ ∞) :
     Continuous ϕ := by
   rcases le_or_gt R 0 with hR | hR
   · have : support ϕ ⊆ ∅ := by rwa [ball_eq_empty.2 hR] at hϕ
