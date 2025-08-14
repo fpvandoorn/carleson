@@ -1,4 +1,5 @@
 import Carleson.TileStructure
+import Carleson.ToMathlib.HolderNorm
 import Carleson.ToMathlib.Topology.Algebra.Support
 
 /-! This should roughly contain the contents of chapter 8. -/
@@ -237,17 +238,19 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 
 
 lemma enorm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h't : t ≤ 1)
     {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (x : X) :
-    ‖ϕ x - holderApprox R t ϕ x‖ₑ ≤ ENNReal.ofReal (t/2) ^ τ * iHolENorm ϕ z (2 * R) := by
-  rcases eq_or_ne (iHolENorm ϕ z (2 * R)) ∞ with h | h
+    ‖ϕ x - holderApprox R t ϕ x‖ₑ ≤ ENNReal.ofReal (t/2) ^ τ * iHolENorm ϕ z (2 * R) τ := by
+  rcases eq_or_ne (iHolENorm ϕ z (2 * R) τ) ∞ with h | h
   · apply le_top.trans_eq
     symm
+    simp at h
     simp [h, ENNReal.mul_eq_top, ht]
-  have : iHolENorm ϕ z (2 * R) = ENNReal.ofReal (iHolNNNorm ϕ z (2 * R)) := by
+  have : iHolENorm ϕ z (2 * R) τ = ENNReal.ofReal (iHolNNNorm ϕ z (2 * R) τ) := by
     simp only [iHolNNNorm, ENNReal.ofReal_coe_nnreal, ENNReal.coe_toNNReal h]
   rw [ENNReal.ofReal_rpow_of_pos (by linarith), this, ← ENNReal.ofReal_mul (by positivity),
     ← ofReal_norm_eq_enorm, ← dist_eq_norm]
   apply ENNReal.ofReal_le_ofReal
-  apply (dist_holderApprox_le hR ht h't hϕ (HolderOnWith.of_iHolENorm_ne_top h) x).trans_eq
+  apply dist_holderApprox_le hR ht h't hϕ
+    (by simpa using HolderOnWith.of_iHolENorm_ne_top (τ_nonneg X) h) x |>.trans_eq
   field_simp [NNReal.coe_div, hR.le]
 
 /-- Part of Lemma 8.0.1: sup norm control in Equation (8.0.2). Note that it only uses the sup
@@ -471,14 +474,15 @@ lemma iLipENorm_holderApprox' {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
 lemma iLipENorm_holderApprox_le {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
     {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) :
     iLipENorm (holderApprox R t ϕ) z (2 * R) ≤
-      2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z (2 * R) := by
-  rcases eq_or_ne (iHolENorm ϕ z (2 * R)) ∞ with h'ϕ | h'ϕ
+      2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z (2 * R) τ := by
+  rcases eq_or_ne (iHolENorm ϕ z (2 * R) τ) ∞ with h'ϕ | h'ϕ
   · apply le_top.trans_eq
     rw [eq_comm]
+    simp at h'ϕ
     simp [h'ϕ, ht]
   rw [← ENNReal.coe_toNNReal h'ϕ]
   apply iLipENorm_holderApprox' ht h't
-  · apply continuous_of_iHolENorm_ne_top' hϕ h'ϕ
+  · apply continuous_of_iHolENorm_ne_top' (τ_pos X) hϕ h'ϕ
   · exact hϕ
   · apply fun x ↦ norm_le_iHolNNNorm_of_subset h'ϕ (hϕ.trans ?_)
     intro y hy
@@ -495,16 +499,17 @@ def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (7 * a)
 theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     (ϕ_supp : support ϕ ⊆ ball z R) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+    (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
       (1 + edist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
   have : 4 ≤ a := four_le_a X
   have : (4 : ℝ) ≤ a := mod_cast four_le_a X
   rcases le_or_gt R 0 with hR | hR
   · simp [ball_eq_empty.2 hR, subset_empty_iff, support_eq_empty_iff] at ϕ_supp
     simp [ϕ_supp]
-  rcases eq_or_ne (iHolENorm ϕ z (2 * R)) ∞ with h2ϕ | h2ϕ
+  rcases eq_or_ne (iHolENorm ϕ z (2 * R) τ) ∞ with h2ϕ | h2ϕ
   · apply le_top.trans_eq
     symm
+    simp at h2ϕ
     have : (0 : ℝ) < 2 * a ^ 2 + a ^ 3 := by positivity
     simp [h2ϕ, C2_0_5, (measure_ball_pos volume z hR).ne', this, edist_ne_top]
   let t : ℝ := (1 + nndist_{z, R} f g) ^ (- (τ / (2 + a)))
@@ -514,7 +519,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     · simp only [le_add_iff_nonneg_right,  NNReal.zero_le_coe]
     · simp only [defaultτ, Left.neg_nonpos_iff]
       positivity
-  have ϕ_cont : Continuous ϕ := continuous_of_iHolENorm_ne_top' ϕ_supp h2ϕ
+  have ϕ_cont : Continuous ϕ := continuous_of_iHolENorm_ne_top' (τ_pos X) ϕ_supp h2ϕ
   have ϕ_comp : HasCompactSupport ϕ := by
     apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall z R)
     exact ϕ_supp.trans ball_subset_closedBall
@@ -547,14 +552,14 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       rw [div_le_div_iff₀ (by positivity) (by positivity)]
       nlinarith
   have : ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ ≤ 2 ^ (6 * a) * volume (ball z R)
-        * iHolENorm ϕ z (2 * R) * (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
+        * iHolENorm ϕ z (2 * R) τ * (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
       ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ
     _ ≤ 2 ^ a * volume (ball z (2 * R))
       * iLipENorm ϕ' z (2 * R) * (1 + edist_{z, 2 * R} f g) ^ (- τ) := by
       simpa only [defaultA, Nat.cast_pow, Nat.cast_ofNat, t] using
         enorm_integral_exp_le (x := z) (r := 2 * R) (ϕ := ϕ') ϕ'_supp (f := f) (g := g)
     _ ≤ 2 ^ a * (2 ^ a * volume (ball z R))
-        * (2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z (2 * R))
+        * (2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z (2 * R) τ)
         * (1 + edist_{z, R} f g) ^ (- τ) := by
       gcongr 2 ^ a * ?_ * ?_ * ?_
       · exact iLipENorm_holderApprox_le t_pos t_one ϕ_supp
@@ -565,11 +570,11 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
         apply ENNReal.ofReal_le_ofReal
         apply CompatibleFunctions.cdist_mono
         apply ball_subset_ball (by linarith)
-    _ = 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+    _ = 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
         ((ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + edist_{z, R} f g) ^ (- τ)) := by
       rw [show 6 * a = 4 * a + a + a by ring, pow_add, pow_add]
       ring
-    _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+    _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
         (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr;
   /- Second step: control `‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ` using that `‖ϕ x - ϕ' x‖`
   is controlled pointwise, and vanishes outside of `B (z, 2R)`. -/
@@ -585,7 +590,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     congr
     ring
   have : ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ
-    ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+    ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
         (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
       ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ
     _ = ‖∫ x in ball z (2 * R), exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ := by
@@ -604,14 +609,14 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       enorm_integral_le_lintegral_enorm _
     _ = ∫⁻ x in ball z (2 * R), ‖ϕ x - ϕ' x‖ₑ := by
       simp only [enorm_mul, ← ofReal_sub, enorm_exp_I_mul_ofReal, one_mul]
-    _ ≤ ∫⁻ x in ball z (2 * R), ENNReal.ofReal (t/2) ^ τ * iHolENorm ϕ z (2 * R) :=
+    _ ≤ ∫⁻ x in ball z (2 * R), ENNReal.ofReal (t/2) ^ τ * iHolENorm ϕ z (2 * R) τ :=
       lintegral_mono (fun x ↦ enorm_holderApprox_sub_le hR t_pos t_one ϕ_supp x)
-    _ = volume (ball z (2 * R)) * ENNReal.ofReal (t/2) ^ τ * iHolENorm ϕ z (2 * R) := by
+    _ = volume (ball z (2 * R)) * ENNReal.ofReal (t/2) ^ τ * iHolENorm ϕ z (2 * R) τ := by
       simp; ring
-    _ ≤ (2 ^ a * volume (ball z R)) * ENNReal.ofReal (t/2) ^ τ * iHolENorm ϕ z (2 * R) := by
+    _ ≤ (2 ^ a * volume (ball z R)) * ENNReal.ofReal (t/2) ^ τ * iHolENorm ϕ z (2 * R) τ := by
       gcongr
-    _ = 2 ^ a * volume (ball z R) * iHolENorm ϕ z (2 * R) * ENNReal.ofReal (t/2) ^ τ := by ring
-    _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+    _ = 2 ^ a * volume (ball z R) * iHolENorm ϕ z (2 * R) τ * ENNReal.ofReal (t/2) ^ τ := by ring
+    _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
         (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
       gcongr
       · exact one_le_two
@@ -631,18 +636,18 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       exact ϕ'_comp.mul_left
   _ ≤ ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ + ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ :=
     enorm_add_le _ _
-  _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+  _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
         (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) +
-      2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+      2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
         (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr;
-  _ = 2 ^ (1 + 6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+  _ = 2 ^ (1 + 6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
         (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by rw [pow_add, pow_one]; ring
-  _ ≤ 2 ^ (7 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+  _ ≤ 2 ^ (7 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
         (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
     gcongr
     · exact one_le_two
     · linarith
-  _ = (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
+  _ = (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z (2 * R) τ *
       (1 + edist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
     congr
     · simp only [C2_0_5]

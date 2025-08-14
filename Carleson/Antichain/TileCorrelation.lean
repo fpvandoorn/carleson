@@ -126,7 +126,7 @@ private lemma e625 {s₁ s₂ : ℤ} {x₁ x₂ y y' : X} (hy' : y ≠ y') (hs :
 
 /-- Second part of Lemma 6.2.1 (eq. 6.2.3). -/
 lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ s₂) :
-    iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (2 * D ^ s₁) ≤
+    iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (2 * D ^ s₁) τ ≤
     C6_2_1 a / (volume (ball x₁ (D ^ s₁)) * volume (ball x₂ (D ^ s₂))) := by
   -- 6.2.4
   have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
@@ -346,7 +346,7 @@ lemma I12_le' {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (x1 : E
   gcongr
   · have hbdd := correlation_kernel_bound (a := a) (X := X) hle (x₁ := x1) (x₂ := x2)
     have hle : C2_0_5 a * volume (ball x1.1 (D ^ 𝔰 p')) *
-        iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) x1.1 x2.1) x1 (2 * D ^ 𝔰 p') ≤
+        iHolENorm (correlation (𝔰 p') (𝔰 p) x1.1 x2.1) x1 (2 * D ^ 𝔰 p') τ ≤
         C2_0_5 a * volume (ball x1.1 (D ^ 𝔰 p')) *
         (C6_2_1 a / (volume (ball x1.1 (D ^ 𝔰 p')) * volume (ball x2.1 (D ^ 𝔰 p)))) := by
       gcongr
