@@ -12,7 +12,7 @@ namespace Measure
 -- This is a generalization of `IsHaarMeasure.isInvInvariant_of_regular`, using the same proof.
 -- Now `IsHaarMeasure.isInvInvariant_of_regular` can be proven as a special case.
 /-- Any regular bi-invariant Haar measure is invariant under inversion. -/
-@[to_additive "Any regular bi-invariant additive Haar measure is invariant under negation."]
+@[to_additive /-- Any regular bi-invariant additive Haar measure is invariant under negation. -/]
 instance (priority := 100) IsHaarMeasure.isInvInvariant_of_isMulRightInvariant (μ : Measure G)
     [μ.IsHaarMeasure] [LocallyCompactSpace G] [μ.IsMulRightInvariant] [μ.Regular] :
     IsInvInvariant μ := by
@@ -41,7 +41,8 @@ variable {G : Type*} [CommGroup G] [TopologicalSpace G] [IsTopologicalGroup G]
 -- This is the new proof of `IsHaarMeasure.isInvInvariant_of_regular`; the prime is only used on
 -- the name temporarily to avoid a collision.
 /-- Any regular Haar measure is invariant under inversion in an abelian group. -/
-@[to_additive "Any regular additive Haar measure is invariant under negation in an abelian group."]
+@[to_additive /-- Any regular additive Haar measure is invariant under negation
+  in an abelian group. -/]
 instance (priority := 100) IsHaarMeasure.isInvInvariant_of_regular'
     [LocallyCompactSpace G] [μ.Regular] : μ.IsInvInvariant :=
   IsHaarMeasure.isInvInvariant_of_isMulRightInvariant μ

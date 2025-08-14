@@ -339,13 +339,14 @@ lemma integrable_bump_convolution {f g : ℝ → ℝ}
         rw [uIcc_of_le (by positivity)] at hx
         exact niceKernel_eq_inv ⟨hr0, hrπ⟩ hx
       · apply intervalIntegral.integral_mono_on hrπ.le h_integrable
-        · exact intervalIntegrable_const.add hbound_integrable
+        · exact IntervalIntegrable.add intervalIntegrable_const hbound_integrable
         · exact fun x hx ↦ niceKernel_upperBound hr0 hx
     _ ≤ 2 + (2 * π + 8 * r * (r⁻¹ - π⁻¹)) := by
       gcongr
       · simp [mul_inv_le_one]
       have (x : ℝ) : 4 * r / x ^ 2 = (4 * r) * (x ^ (-2 : ℤ)) := rfl
-      simp_rw [intervalIntegral.integral_add intervalIntegrable_const hbound_integrable,
+      rw [intervalIntegral.integral_add intervalIntegrable_const hbound_integrable]
+      simp_rw [
         intervalIntegral.integral_const, this, intervalIntegral.integral_const_mul, ge_iff_le,
         smul_eq_mul, mul_one, mul_add, ← mul_assoc, show 2 * 4 * r = 8 * r by group]
       gcongr
