@@ -397,7 +397,7 @@ lemma HasLorentzType_p_infty_qs {T : (α → ε₁) → (α' → ε₂)} {p q s 
 
 --TODO: what exactly should be the requirements on 𝕂? Actually, we only need a 1 here.
 --TODO: This could be more general, it currently assumes T f ≥ 0
-variable {𝕂 : Type*} [TopologicalSpace 𝕂] [NormedField 𝕂] --[ENormedAddMonoid 𝕂] [Field 𝕂]
+variable {𝕂 : Type*} [NormedField 𝕂] --[ENormedAddMonoid 𝕂] [Field 𝕂] --[TopologicalSpace 𝕂]
   --[TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
   --[TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂] --TODO: Actually, these last arguments should probably be infered
 
@@ -436,18 +436,34 @@ theorem Filter.mono_limsup {α : Type*} {β : Type*} [CompleteLattice α] {f : F
   intro x hx
   exact Preorder.le_trans (u x) (v x) a (h x) hx
 
+--TODO: move?
 theorem Filter.limsup_le_of_le' {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
     {u : β → α} {a : α} (h : ∀ᶠ (n : β) in f, u n ≤ a) :
   Filter.limsup u f ≤ a := sInf_le h
 
-theorem MeasureTheory.HasRestrictedWeakType.hasLorentzType_helper
-  {T : (α → 𝕂) → α' → ε'} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
-  (hT : HasRestrictedWeakType T p p' μ ν c) (T_zero : eLpNorm (T 0) 1 ν = 0)
-  (T_subadditive : ∀ (f g : α → 𝕂), eLpNorm (T (f + g)) 1 ν ≤ eLpNorm (T f) 1 ν + eLpNorm (T g) 1 ν)
+--TODO: move?
+theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ p) :
+    a ^ p + b ^ p ≤ (a + b) ^ p := by
+  calc
+    _ = ((a ^ p + b ^ p) ^ (1 / p)) ^ p := by
+      rw [one_div, ENNReal.rpow_inv_rpow]
+      linarith
+    _ ≤ (a + b) ^ p := by
+      gcongr
+      apply ENNReal.rpow_add_rpow_le_add _ _ hp1
+
+
+theorem HasRestrictedWeakType.hasLorentzType_helper --[TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂]
+  {T : (α → 𝕂) → α' → ε'} {p p' : ℝ≥0∞} (hp : 1 ≤ p) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+  (hT : HasRestrictedWeakType T p p' μ ν c) --(T_zero : eLpNorm (T 0) 1 ν = 0)
   (hpp' : p.HolderConjugate p') (f : SimpleFunc α 𝕂) --(hf : MemLorentz f p 1 μ)
-  (G : Set α') (hG : MeasurableSet G) (hG' : ν G < ⊤) :
+  (G : Set α') (hG : MeasurableSet G) (hG' : ν G < ⊤)
+  (T_subadditive : ∀ (f g : α → 𝕂), eLpNorm (T (f + g)) 1 (ν.restrict G) ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G)) :
     eLpNorm (T f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
-  rw [eLorentzNorm_eq_eLorentzNorm' sorry sorry]
+  by_cases p_ne_top : p = ∞
+  · sorry --TODO: check whether this works or whether it should be excluded
+  have p_ne_zero : p ≠ 0 := by sorry --TODO: easy
+  rw [eLorentzNorm_eq_eLorentzNorm' p_ne_zero p_ne_top] --TODO: assumptions on p
   --use: Finset.le_sum_of_subadditive
   --use SimpleFunc.induction instead?
   induction f using SimpleFunc.induction with | const a hs | add hfg hf hg
@@ -474,22 +490,38 @@ theorem MeasureTheory.HasRestrictedWeakType.hasLorentzType_helper
       _ = c * (‖a‖ₑ * (μ s) ^ p⁻¹.toReal) * (ν G) ^ p'⁻¹.toReal := by ring
       _ = (c / p) * eLorentzNorm' (s.indicator (Function.const α a)) p 1 μ * ν G ^ p'⁻¹.toReal := by
         rw [eLorentzNorm'_eq_integral_distribution_rpow]
-        rw [← mul_assoc (c / p), ENNReal.div_mul_cancel sorry sorry] --TODO: maybe we need more assumptions on p here, or do additional cases
+        rw [← mul_assoc (c / p), ENNReal.div_mul_cancel p_ne_zero p_ne_top]
         congr
-        --rw [distribution_indicator]
-        --simp only [inv_one, ENNReal.toReal_one, ENNReal.rpow_one, ENNReal.toReal_inv]
-        --TODO: add lemma concretely computing the distribution of a simple function
-        --TODO: look into whether we should directly split f into nonnegative parts with unit coefficients (see note from LB)
-        --simp only [ENNReal.toReal_inv]
-
-        sorry
-
+        simp_rw [distribution_indicator_const (ε := 𝕂) (μ := μ) (s := s) (a := a)]
+        calc ‖a‖ₑ * μ s ^ p⁻¹.toReal
+          _ = (∫⁻ (t : ℝ≥0), (Set.Iio ‖a‖ₑ.toNNReal).indicator (fun x ↦ μ s ^ p⁻¹.toReal) t) := by
+            rw [lintegral_indicator_const measurableSet_Iio, mul_comm]
+            congr
+            rw [NNReal.volume_Iio]
+            simp only [toNNReal_enorm]
+            rw [enorm_eq_nnnorm]
+        congr with t
+        unfold Set.indicator
+        simp only [toNNReal_enorm, Set.mem_Iio, ENNReal.toReal_inv, coe_lt_enorm, ite_pow]
+        rw [ENNReal.zero_rpow_of_pos (by rw [inv_pos]; exact ENNReal.toReal_pos p_ne_zero p_ne_top)]
   · --This is the harder part, need that the distribution of the sum of functions with disjoint support is their sum;
     -- then use convexity
-    sorry
-
-
-
+    rename_i f g
+    rw [SimpleFunc.coe_add]
+    calc _
+      _ ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G) := by apply T_subadditive f g
+      _ ≤ c / p * eLorentzNorm' f p 1 μ * ν G ^ p'⁻¹.toReal + c / p *  eLorentzNorm' g p 1 μ * ν G ^ p'⁻¹.toReal := by
+        gcongr
+      _ ≤ c / p * eLorentzNorm' (⇑f + ⇑g) p 1 μ * ν G ^ p'⁻¹.toReal := by
+        rw [← add_mul, ← mul_add]
+        gcongr
+        rw [eLorentzNorm'_eq_integral_distribution_rpow,
+          eLorentzNorm'_eq_integral_distribution_rpow, eLorentzNorm'_eq_integral_distribution_rpow]
+        rw [← mul_add, ← lintegral_add_left sorry] --TODO: measurability
+        gcongr with t
+        rw [distribution_add hfg (SimpleFunc.stronglyMeasurable g)]
+        apply ENNReal.rpow_add_rpow_le_add'
+        sorry --TODO: PROBLEM here: This is not true.
 
 
 def WeaklyContinuous (T : (α → 𝕂) → (α' → ε')) (μ : Measure α) (ν : Measure α') : Prop :=
@@ -548,7 +580,8 @@ lemma HasRestrictedWeakType.hasLorentzType /- [MeasurableSpace ε'] [BorelSpace 
         _ ≤ Filter.limsup (fun n ↦ (c / p) * eLorentzNorm (gs n) p 1 μ * ν G ^ p'⁻¹.toReal) Filter.atTop := by
           apply Filter.mono_limsup
           intro n
-          apply MeasureTheory.HasRestrictedWeakType.hasLorentzType_helper hT sorry sorry hpp' (gs n) _ measurable_G G_finite
+          --apply MeasureTheory.HasRestrictedWeakType.hasLorentzType_helper hT sorry sorry hpp' (gs n) _ measurable_G G_finite
+          sorry
         _ ≤ (c / p) * eLorentzNorm g p 1 μ * ν G ^ p'⁻¹.toReal := by
           simp_rw [mul_assoc]
           rw [ENNReal.limsup_const_mul_of_ne_top sorry] --use : c_ne_top

@@ -123,6 +123,26 @@ lemma map_restrict_Ioi_eq_volume :
   refine Measure.restrict_eq_self_of_ae_mem ?_
   filter_upwards [ae_in_Ioo_zero_top] with a ha using ha.1
 
+
+--TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
+lemma NNReal.toReal_Iio_eq_Ico {b : ℝ≥0} :
+    NNReal.toReal '' Set.Iio b = Set.Ico 0 b.toReal := by
+  ext x
+  simp only [mem_image, mem_Iio, mem_Ico]
+  constructor
+  · rintro ⟨y, hy, hyx⟩
+    rw [← hyx]
+    simpa
+  · rintro hx
+    use x.toNNReal, (Real.toNNReal_lt_iff_lt_coe hx.1).mpr hx.2
+    simp [hx.1]
+
+lemma NNReal.volume_Iio {b : ℝ≥0} : volume (Set.Iio b) = b := by
+  rw [NNReal.volume_val]
+  simp only [val_eq_coe]
+  rw [toReal_Iio_eq_Ico, Real.volume_Ico]
+  simp
+
 --TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) :
     ENNReal.toReal '' Set.Icc a b = Set.Icc a.toReal b.toReal := by
