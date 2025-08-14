@@ -1,4 +1,5 @@
-import Mathlib.Analysis.RCLike.Basic
+import Mathlib.Analysis.Normed.Field.Basic
+import Mathlib.Topology.EMetricSpace.Lipschitz
 
 open Metric Function ENNReal
 open scoped NNReal
@@ -9,21 +10,22 @@ open scoped NNReal
 This file defines the Lipschitz norm, which probably in some form should end up in Mathlib.
 Lemmas about this norm that are proven in Carleson are collected here.
 
+TODO: Assess Mathlib-readiness, complete basic results, optimize imports.
 -/
 
 noncomputable section
 
 section Def
 
-variable {𝕜 X : Type*} [_root_.RCLike 𝕜] [PseudoMetricSpace X]
+variable {𝕜 X : Type*} [NormedField 𝕜] [PseudoMetricSpace X]
 
 /-- The inhomogeneous Lipschitz norm on a ball. -/
-def iLipENorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
+def iLipENorm (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
   ENNReal.ofReal R * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), ‖ϕ x - ϕ y‖ₑ / edist x y
 
 /-- The `NNReal` version of the inhomogeneous Lipschitz norm on a ball, `iLipENorm`. -/
-def iLipNNNorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0 :=
+def iLipNNNorm (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0 :=
   (iLipENorm ϕ x₀ R).toNNReal
 
 end Def

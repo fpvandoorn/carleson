@@ -1,6 +1,4 @@
 import Carleson.DoublingMeasure
-import Carleson.ToMathlib.HolderNorm
-import Mathlib.Topology.MetricSpace.Holder
 
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
 open scoped NNReal
@@ -251,76 +249,3 @@ lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
   simpa using c𝓩
 
 end PseudoMetricSpace
-
-section MetricSpace
-
-variable [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-
-lemma enorm_le_iHolENorm_of_mem {z : X} {R : ℝ} (ϕ : X → ℂ) {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ₑ ≤ iHolENorm ϕ z R τ := by
-  apply le_trans _ le_self_add
-  simp only [le_iSup_iff, iSup_le_iff]
-  tauto
-
-lemma norm_le_iHolNNNorm_of_mem {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R τ ≠ ⊤)
-    {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ ≤ iHolNNNorm ϕ z R τ :=
-  (ENNReal.toReal_le_toReal (by simp) hϕ).2 (enorm_le_iHolENorm_of_mem ϕ hx)
-
-lemma norm_le_iHolNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R τ ≠ ⊤)
-    {x : X} (h : support ϕ ⊆ ball z R) : ‖ϕ x‖ ≤ iHolNNNorm ϕ z R τ := by
-  by_cases hx : x ∈ ball z R
-  · apply norm_le_iHolNNNorm_of_mem hϕ hx
-  · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [notMem_support.mp this]
-
-lemma HolderOnWith.of_iHolENorm_ne_top
-    {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R τ ≠ ⊤) :
-    HolderOnWith (iHolNNNorm ϕ z R τ / R.toNNReal ^ τ) nnτ ϕ (ball z R) := by
-  intro x hx y hy
-  have hR : 0 < R := by
-    simp only [mem_ball] at hx
-    apply dist_nonneg.trans_lt hx
-  rcases eq_or_ne x y with rfl | hne
-  · simp
-  have : (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) ≤ iHolENorm ϕ z R τ := calc
-      (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ)
-    _ ≤ (ENNReal.ofReal R) ^ τ *
-        ⨆ (x ∈ ball z R) (y ∈ ball z R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) := by
-      gcongr
-      simp only [ne_eq, le_iSup_iff, iSup_le_iff]
-      tauto
-    _ ≤ _ := le_add_self
-  rw [edist_eq_enorm_sub, ENNReal.coe_div (by simp [hR]), iHolNNNorm, coe_toNNReal hϕ]
-  rw [← ENNReal.div_le_iff_le_mul]; rotate_left
-  · have : edist x y ≠ 0 := by simp [hne]
-    simp [this]
-  · simp [edist_ne_top]
-  rw [ENNReal.le_div_iff_mul_le]; rotate_left
-  · simp [hR]
-  · simp
-  convert this using 1
-  rw [ENNReal.coe_rpow_of_ne_zero (by simp [hR])]
-  simp only [ENNReal.ofReal, mul_comm]
-  rfl
-
-lemma continuous_of_iHolENorm_ne_top {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z R τ ≠ ∞) :
-    Continuous ϕ :=
-  ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
-    (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball hϕ
-
-lemma continuous_of_iHolENorm_ne_top' {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z (2 * R) τ ≠ ∞) :
-    Continuous ϕ := by
-  rcases le_or_gt R 0 with hR | hR
-  · have : support ϕ ⊆ ∅ := by rwa [ball_eq_empty.2 hR] at hϕ
-    simp only [subset_empty_iff, support_eq_empty_iff] at this
-    simp only [this]
-    exact continuous_const
-  apply ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
-    (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball
-  apply (closure_mono hϕ).trans (closure_ball_subset_closedBall.trans ?_)
-  exact closedBall_subset_ball (by linarith)
-
-end MetricSpace
