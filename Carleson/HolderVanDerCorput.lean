@@ -241,7 +241,7 @@ lemma enorm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h
   rcases eq_or_ne (iHolENorm ϕ z (2 * R) τ) ∞ with h | h
   · apply le_top.trans_eq
     symm
-    simp at h
+    simp only [defaultτ] at h
     simp [h, ENNReal.mul_eq_top, ht]
   have : iHolENorm ϕ z (2 * R) τ = ENNReal.ofReal (iHolNNNorm ϕ z (2 * R) τ) := by
     simp only [iHolNNNorm, ENNReal.ofReal_coe_nnreal, ENNReal.coe_toNNReal h]
@@ -477,7 +477,7 @@ lemma iLipENorm_holderApprox_le {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
   rcases eq_or_ne (iHolENorm ϕ z (2 * R) τ) ∞ with h'ϕ | h'ϕ
   · apply le_top.trans_eq
     rw [eq_comm]
-    simp at h'ϕ
+    simp only [defaultτ] at h'ϕ
     simp [h'ϕ, ht]
   rw [← ENNReal.coe_toNNReal h'ϕ]
   apply iLipENorm_holderApprox' ht h't
