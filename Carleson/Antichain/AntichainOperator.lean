@@ -193,7 +193,7 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
       rw [mul_assoc]; gcongr; apply lintegral_mul_le_eLpNorm_mul_eLqNorm
       · exact Real.HolderConjugate.ennrealOfReal (holderConjugate_p₆ (four_le_a X)).symm
       · exact (hg.enorm.indicator measurableSet_ball).aemeasurable
-      · refine Finset.aemeasurable_sum _ fun p' mp' ↦ ?_
+      · refine Finset.aemeasurable_fun_sum _ fun p' mp' ↦ ?_
         simp_rw [mul_assoc, ← inter_indicator_mul]
         exact (AEMeasurable.indicator (by simp) (measurableSet_E.inter measurableSet_G)).const_mul _
     _ ≤ (volume B)⁻¹ * (volume B ^ (q₆ a)⁻¹ * M14 𝔄 (q₆ a) g x₀) *
@@ -273,7 +273,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
         simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at mp mp'
         exact not_not.mp ((tile_disjointness h𝔄 mp mp').mt hn)
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
-        ∫⁻ y, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by gcongr; exact setLIntegral_le_lintegral _ _
+        ∫⁻ y, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by gcongr; exact Measure.restrict_le_self
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (eLpNorm (M14 𝔄 (q₆ a) g) 2 * eLpNorm g 2) := by
       conv_rhs => enter [2, 2]; rw [← eLpNorm_enorm]
