@@ -1,5 +1,4 @@
 import Carleson.DoublingMeasure
-import Mathlib.Topology.MetricSpace.Holder
 
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
 open scoped NNReal
@@ -49,7 +48,7 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
   obtain ⟨l₁, hl₁⟩ := bddBelow_def.mp (Finite.bddBelow (finite_range_σ₁ (X := X)))
   obtain ⟨u₂, hu₂⟩ := bddAbove_def.mp (Finite.bddAbove (finite_range_σ₂ (X := X)))
   simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hl₁ hu₂
-  have one_lt_D : (1 : ℝ) < defaultD a := by linarith [hundred_lt_realD X]
+  have one_lt_D := one_lt_realD X
   obtain ⟨rF, rFpos, hrF⟩ : ∃ r > 0, F ⊆ ball (cancelPt X) r := by
     obtain ⟨r, hr⟩ := isBounded_F.subset_ball (cancelPt X)
     rcases lt_or_ge 0 r with lr | lr
@@ -66,36 +65,29 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
   · simp only [Int.ofNat_toNat, ← min_neg_neg, neg_neg, min_le_iff, le_max_iff]
     exact ⟨.inl (.inl (.inl (hl₁ x))), .inl (.inl (.inr (hu₂ x)))⟩
   · refine hrF.trans (ball_subset_ball ?_)
-    calc
-      _ ≤ (defaultD a : ℝ) ^ nF / 4 := by
-        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
+    trans (defaultD a : ℝ) ^ nF / 4
+    · rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
           ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
-        exact Int.le_ceil _
-      _ ≤ (defaultD a : ℝ) ^ nF.toNat / 4 := by
-        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
-        · exact one_lt_D.le
-        · exact_mod_cast Int.self_le_toNat nF
-      _ ≤ _ := by
-        gcongr
-        · exact one_lt_D.le
-        · exact Int.toNat_le_toNat ((le_max_left ..).trans (le_max_right ..))
+      exact Int.le_ceil _
+    rw [← Real.rpow_natCast, ← Real.rpow_intCast]
+    gcongr
+    · exact one_lt_D.le
+    norm_cast
+    apply Int.self_le_toNat nF |>.trans
+    exact_mod_cast Int.toNat_le_toNat <| (le_max_left ..).trans <| le_max_right ..
   · refine hrG.trans (ball_subset_ball ?_)
-    calc
-      _ ≤ (defaultD a : ℝ) ^ nG / 4 := by
-        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
+    trans (defaultD a : ℝ) ^ nG / 4
+    · rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
           ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
-        exact Int.le_ceil _
-      _ ≤ (defaultD a : ℝ) ^ nG.toNat / 4 := by
-        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
-        · exact one_lt_D.le
-        · exact_mod_cast Int.self_le_toNat nG
-      _ ≤ _ := by
-        gcongr
-        · exact one_lt_D.le
-        · exact Int.toNat_le_toNat ((le_max_right ..).trans (le_max_right ..))
-  · exact Int.pos_iff_toNat_pos.mp (lt_of_lt_of_le
-      (lt_of_lt_of_le (Int.ceil_pos.mpr (Real.logb_pos one_lt_D (by linarith))) (le_max_right _ _))
-      (le_max_right _ _))
+      exact Int.le_ceil _
+    rw [← Real.rpow_natCast, ← Real.rpow_intCast]
+    gcongr
+    · exact one_lt_D.le
+    norm_cast
+    apply Int.self_le_toNat nG |>.trans
+    exact_mod_cast Int.toNat_le_toNat <| (le_max_right ..).trans <| le_max_right ..
+  · apply Int.pos_iff_toNat_pos.mp <| lt_of_lt_of_le _ <| (le_max_right ..).trans <| le_max_right ..
+    exact Int.ceil_pos.mpr (Real.logb_pos one_lt_D (by linarith))
 
 variable (X) in
 open Classical in
@@ -202,16 +194,6 @@ lemma volume_F_ne_top : volume F ≠ ⊤ := volume_F_lt_top.ne
 lemma volume_G_lt_top : volume G < ⊤ := isBounded_G.measure_lt_top
 lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
 
-/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? Defined in ℝ≥0∞ to
-avoid sup-related issues. -/
-@[nolint unusedArguments]
-def iHolENorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
-  (⨆ (x ∈ ball x₀ R), ‖ϕ x‖ₑ) + (ENNReal.ofReal R) ^ τ *
-    ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ)
-
-def iHolNNNorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ≥0 :=
-  (iHolENorm ϕ x₀ R).toNNReal
-
 /-! Lemma 2.1.1 -/
 
 def C2_1_1 (k : ℕ) (a : ℕ) : ℕ := 2 ^ (k * a)
@@ -267,153 +249,3 @@ lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
   simpa using c𝓩
 
 end PseudoMetricSpace
-
-section MetricSpace
-
-variable [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-
-lemma iLipENorm_le_add {z : X} {R : ℝ} {C C' : ℝ≥0} {ϕ : X → ℂ}
-    (h : ∀ x ∈ ball z R, ‖ϕ x‖ ≤ C)
-    (h' : ∀ x ∈ ball z R, ∀ x' ∈ ball z R, x ≠ x' → ‖ϕ x - ϕ x'‖ ≤ C' * dist x x' / R) :
-    iLipENorm ϕ z R ≤ C + C' := by
-  apply add_le_add
-  · simp only [iSup_le_iff, enorm_le_coe]
-    exact h
-  · apply ENNReal.mul_le_of_le_div'
-    simp only [ne_eq, iSup_le_iff]
-    intro x hx x' hx' hne
-    have hR : 0 < R := pos_of_mem_ball hx
-    have W := h' x hx x' hx' hne
-    rw [ENNReal.div_le_iff (by simpa only [ne_eq, edist_eq_zero] using hne) (edist_ne_top x x')]
-    convert ENNReal.ofReal_le_ofReal W
-    · exact (ofReal_norm_eq_enorm (ϕ x - ϕ x')).symm
-    · rw [ENNReal.ofReal_div_of_pos hR, ENNReal.ofReal_mul NNReal.zero_le_coe, edist_dist,
-        ENNReal.mul_div_right_comm, ENNReal.ofReal_coe_nnreal]
-
-lemma iLipENorm_le {z : X} {R : ℝ} {C : ℝ≥0} {ϕ : X → ℂ}
-    (h : ∀ x ∈ ball z R, ‖ϕ x‖ ≤ 2⁻¹ * C)
-    (h' : ∀ x ∈ ball z R, ∀ x' ∈ ball z R, x ≠ x' → ‖ϕ x - ϕ x'‖ ≤ 2⁻¹ * C * dist x x' / R) :
-    iLipENorm ϕ z R ≤ C := by
-  apply (iLipENorm_le_add (C := 2⁻¹ * C) (C' := 2⁻¹ * C) h h').trans_eq
-  simp [← add_mul, ENNReal.inv_two_add_inv_two]
-
-lemma enorm_le_iLipENorm_of_mem {z : X} {R : ℝ} (ϕ : X → ℂ) {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ₑ ≤ iLipENorm ϕ z R := by
-  apply le_trans _ le_self_add
-  simp only [le_iSup_iff, iSup_le_iff]
-  tauto
-
-lemma norm_le_iLipNNNorm_of_mem {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤)
-    {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ ≤ iLipNNNorm ϕ z R :=
-  (ENNReal.toReal_le_toReal (by simp) hϕ).2 (enorm_le_iLipENorm_of_mem ϕ hx)
-
-lemma norm_le_iLipNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤)
-    {x : X} (h : support ϕ ⊆ ball z R) : ‖ϕ x‖ ≤ iLipNNNorm ϕ z R := by
-  by_cases hx : x ∈ ball z R
-  · apply norm_le_iLipNNNorm_of_mem hϕ hx
-  · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [notMem_support.mp this]
-
-lemma LipschitzOnWith.of_iLipENorm_ne_top
-    {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤) :
-    LipschitzOnWith (iLipNNNorm ϕ z R / R.toNNReal) ϕ (ball z R) := by
-  intro x hx y hy
-  have hR : 0 < R := by
-    simp only [mem_ball] at hx
-    apply dist_nonneg.trans_lt hx
-  rcases eq_or_ne x y with rfl | hne
-  · simp
-  have : (ENNReal.ofReal R) * (‖ϕ x - ϕ y‖ₑ / edist x y) ≤ iLipENorm ϕ z R := calc
-      (ENNReal.ofReal R) * (‖ϕ x - ϕ y‖ₑ / (edist x y))
-    _ ≤ (ENNReal.ofReal R) *
-        ⨆ (x ∈ ball z R) (y ∈ ball z R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / edist x y) := by
-      gcongr
-      simp only [ne_eq, le_iSup_iff, iSup_le_iff]
-      tauto
-    _ ≤ _ := le_add_self
-  rw [edist_eq_enorm_sub, ENNReal.coe_div (by simp [hR]), iLipNNNorm, coe_toNNReal hϕ]
-  rw [← ENNReal.div_le_iff_le_mul]; rotate_left
-  · have : edist x y ≠ 0 := by simp [hne]
-    simp [this]
-  · simp [edist_ne_top]
-  rw [ENNReal.le_div_iff_mul_le]; rotate_left
-  · simp [hR]
-  · simp
-  convert this using 1
-  simp only [ENNReal.ofReal, mul_comm]
-
-lemma continuous_of_iLipENorm_ne_top {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iLipENorm ϕ z R ≠ ⊤) :
-    Continuous ϕ :=
-  (LipschitzOnWith.of_iLipENorm_ne_top h'ϕ).continuousOn.continuous_of_tsupport_subset
-    isOpen_ball hϕ
-
-lemma enorm_le_iHolENorm_of_mem {z : X} {R : ℝ} (ϕ : X → ℂ) {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ₑ ≤ iHolENorm ϕ z R := by
-  apply le_trans _ le_self_add
-  simp only [le_iSup_iff, iSup_le_iff]
-  tauto
-
-lemma norm_le_iHolNNNorm_of_mem {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤)
-    {x : X} (hx : x ∈ ball z R) :
-    ‖ϕ x‖ ≤ iHolNNNorm ϕ z R :=
-  (ENNReal.toReal_le_toReal (by simp) hϕ).2 (enorm_le_iHolENorm_of_mem ϕ hx)
-
-lemma norm_le_iHolNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤)
-    {x : X} (h : support ϕ ⊆ ball z R) : ‖ϕ x‖ ≤ iHolNNNorm ϕ z R := by
-  by_cases hx : x ∈ ball z R
-  · apply norm_le_iHolNNNorm_of_mem hϕ hx
-  · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [notMem_support.mp this]
-
-lemma HolderOnWith.of_iHolENorm_ne_top
-    {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤) :
-    HolderOnWith (iHolNNNorm ϕ z R / R.toNNReal ^ τ) nnτ ϕ (ball z R) := by
-  intro x hx y hy
-  have hR : 0 < R := by
-    simp only [mem_ball] at hx
-    apply dist_nonneg.trans_lt hx
-  rcases eq_or_ne x y with rfl | hne
-  · simp
-  have : (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) ≤ iHolENorm ϕ z R := calc
-      (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ)
-    _ ≤ (ENNReal.ofReal R) ^ τ *
-        ⨆ (x ∈ ball z R) (y ∈ ball z R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) := by
-      gcongr
-      simp only [ne_eq, le_iSup_iff, iSup_le_iff]
-      tauto
-    _ ≤ _ := le_add_self
-  rw [edist_eq_enorm_sub, ENNReal.coe_div (by simp [hR]), iHolNNNorm, coe_toNNReal hϕ]
-  rw [← ENNReal.div_le_iff_le_mul]; rotate_left
-  · have : edist x y ≠ 0 := by simp [hne]
-    simp [this]
-  · simp [edist_ne_top]
-  rw [ENNReal.le_div_iff_mul_le]; rotate_left
-  · simp [hR]
-  · simp
-  convert this using 1
-  rw [ENNReal.coe_rpow_of_ne_zero (by simp [hR])]
-  simp only [ENNReal.ofReal, mul_comm]
-  rfl
-
-lemma continuous_of_iHolENorm_ne_top {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z R ≠ ∞) :
-    Continuous ϕ :=
-  ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
-    (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball hϕ
-
-lemma continuous_of_iHolENorm_ne_top' {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z (2 * R) ≠ ∞) :
-    Continuous ϕ := by
-  rcases le_or_gt R 0 with hR | hR
-  · have : support ϕ ⊆ ∅ := by rwa [ball_eq_empty.2 hR] at hϕ
-    simp only [subset_empty_iff, support_eq_empty_iff] at this
-    simp only [this]
-    exact continuous_const
-  apply ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
-    (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball
-  apply (closure_mono hϕ).trans (closure_ball_subset_closedBall.trans ?_)
-  exact closedBall_subset_ball (by linarith)
-
-end MetricSpace

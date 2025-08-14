@@ -103,12 +103,13 @@ lemma τ_pos : 0 < defaultτ a := inv_pos.mpr (cast_a_pos X)
 lemma τ_nonneg : 0 ≤ defaultτ a := (τ_pos X).le
 
 lemma τ_le_one : defaultτ a ≤ 1 := by
-
   rw [defaultτ, inv_le_one_iff₀]; right; norm_cast; linarith [four_le_a X]
 
 /-- `τ` as an element of `ℝ≥0`. -/
 def nnτ : ℝ≥0 := ⟨defaultτ a, τ_nonneg X⟩
 lemma nnτ_pos : 0 < nnτ X := τ_pos X
+@[simp]
+lemma nnτ_def : nnτ X = (defaultτ a).toNNReal := Real.toNNReal_of_nonneg (τ_nonneg X) |>.symm
 
 end KernelProofData
 
@@ -232,10 +233,6 @@ def cancelPt [CompatibleFunctions 𝕜 X A] : X :=
 
 lemma cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X) = 0 :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose_spec f
-
-/-- The `NNReal` version of the inhomogeneous Lipschitz norm on a ball, `iLipENorm`. -/
-def iLipNNNorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0 :=
-  (iLipENorm ϕ x₀ R).toNNReal
 
 variable [hXA : DoublingMeasure X A]
 
