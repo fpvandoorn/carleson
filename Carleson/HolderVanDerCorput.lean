@@ -1,6 +1,5 @@
 import Carleson.TileStructure
 import Carleson.ToMathlib.HolderNorm
-import Carleson.ToMathlib.Topology.Algebra.Support
 
 /-! This should roughly contain the contents of chapter 8. -/
 
