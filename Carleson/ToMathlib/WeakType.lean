@@ -534,10 +534,10 @@ end HasBoundedStrongType
 
 section distribution
 
-variable {f g : α → ε} [ENorm ε]
+variable {f g : α → ε}
 
 @[gcongr]
-lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
+lemma distribution_mono_left [ENorm ε] (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     distribution f t μ ≤ distribution g t μ := by
   have h₀ : {x | t < ‖f x‖ₑ} \ {x | t < ‖g x‖ₑ} ⊆ {x | ¬‖f x‖ₑ ≤ ‖g x‖ₑ} := fun x ↦ by
     simp_rw [mem_diff, mem_setOf_eq, not_lt, not_le, and_imp]
@@ -549,20 +549,20 @@ lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ)
     _ ≤ _ := by apply measure_mono; simp
 
 @[gcongr]
-lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h₂ : t ≤ s) :
+lemma distribution_mono [ENorm ε] (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h₂ : t ≤ s) :
     distribution f s μ ≤ distribution g t μ :=
   (distribution_mono_left h₁).trans (distribution_mono_right h₂)
 
-lemma distribution_snormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
+lemma distribution_snormEssSup [ENorm ε] : distribution f (eLpNormEssSup f μ) μ = 0 :=
   meas_essSup_lt -- meas_eLpNormEssSup_lt
 
-lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
+lemma distribution_add_le' [ENorm ε] {A : ℝ≥0∞} {g₁ g₂ : α → ε}
     (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ A * (‖g₁ x‖ₑ + ‖g₂ x‖ₑ)) :
     distribution f (A * (t + s)) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
   apply distribution_add_le_of_enorm
   simp [h]
 
-lemma distribution_add_le {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α → ε} :
+lemma distribution_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α → ε} :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
   calc
     _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := by
@@ -573,7 +573,7 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g 
     _ ≤ _ := measure_union_le _ _
 
 --TODO: make this an iff?
-lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+lemma distribution_zero [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   unfold distribution
   rw[← le_zero_iff]
@@ -592,6 +592,66 @@ lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α
       change enorm ∘ f =ᶠ[ae μ] 0
       unfold Filter.EventuallyEq
       simpa only [comp_apply, Pi.zero_apply, enorm_eq_zero]
+
+
+lemma distribution_indicator_const [TopologicalSpace ε] [ENormedAddMonoid ε] {s : Set α} {a : ε} :
+    distribution (s.indicator (Function.const α a)) t μ = (Set.Iio ‖a‖ₑ).indicator (fun _ ↦ μ s) t := by
+  unfold distribution indicator
+  split_ifs with h
+  · simp only [const_apply]
+    congr
+    ext x
+    simp only [mem_setOf_eq]
+    rw [apply_ite enorm]
+    rw [enorm_zero]
+    constructor
+    · split_ifs with h'
+      · intro _
+        exact h'
+      · intro h''
+        exfalso
+        exact ENNReal.not_lt_zero h''
+    · intro hx
+      rwa [ite_cond_eq_true]
+      simpa only [eq_iff_iff, iff_true]
+  · convert measure_empty (μ := μ)
+    apply eq_empty_of_subset_empty
+    intro x
+    simp only [const_apply, mem_setOf_eq, mem_empty_iff_false, imp_false, not_lt]
+    split_ifs
+    · simp only [mem_Iio, not_lt] at h
+      exact h
+    · simp
+
+--TODO: Can the measurability condition be weakened?
+lemma distribution_add [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α → ε}
+  (h : Disjoint (Function.support f) (Function.support g)) (hg : StronglyMeasurable g) :
+    distribution (f + g) t μ = distribution f t μ + distribution g t μ := by
+  unfold distribution
+  rw [← measure_union]
+  · congr
+    ext x
+    simp only [Pi.add_apply, mem_setOf_eq, mem_union]
+    rcases (@or_not (x ∈ support f)) with hxf | hxf
+    · have := disjoint_left.mp h hxf
+      simp only [mem_support, ne_eq, not_not] at this
+      rw [this]
+      simp
+    · simp only [mem_support, ne_eq, not_not] at hxf
+      rw [hxf]
+      simp
+  · apply disjoint_of_subset _ _ h
+    · intro x
+      simp only [mem_setOf_eq, mem_support, ne_eq]
+      intro h'
+      rw [← enorm_eq_zero, ← ENNReal.bot_eq_zero]
+      exact LT.lt.ne_bot h'
+    · intro x
+      simp only [mem_setOf_eq, mem_support, ne_eq]
+      intro h'
+      rw [← enorm_eq_zero, ← ENNReal.bot_eq_zero]
+      exact LT.lt.ne_bot h'
+  · exact measurableSet_lt measurable_const (StronglyMeasurable.enorm hg)
 
 end distribution
 
