@@ -397,20 +397,20 @@ lemma HasLorentzType_p_infty_qs {T : (α → ε₁) → (α' → ε₂)} {p q s 
 
 --TODO: what exactly should be the requirements on 𝕂? Actually, we only need a 1 here.
 --TODO: This could be more general, it currently assumes T f ≥ 0
-variable {𝕂 : Type*} [NormedField 𝕂] --[ENormedAddMonoid 𝕂] [Field 𝕂] --[TopologicalSpace 𝕂]
+variable {𝕂 : Type*} --[NormedField 𝕂] --[ENormedAddMonoid 𝕂] [Field 𝕂] --[TopologicalSpace 𝕂]
   --[TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
   --[TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂] --TODO: Actually, these last arguments should probably be infered
 
 /-- Defines when an operator "has restricted weak type". This is an even weaker version
 of `HasBoundedWeakType`. -/
-def HasRestrictedWeakType (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
+def HasRestrictedWeakType [Zero 𝕂] [One 𝕂] (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
   ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (μ F < ∞) → (MeasurableSet G) → (ν G < ∞) →
     AEStronglyMeasurable (T (F.indicator (fun _ ↦ 1))) ν ∧
       eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
         ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
 
-lemma HasRestrictedWeakType.without_finiteness {T : (α → 𝕂) → (α' → ε₂)} {p p' : ℝ≥0∞}
+lemma HasRestrictedWeakType.without_finiteness [NormedField 𝕂] {T : (α → 𝕂) → (α' → ε₂)} {p p' : ℝ≥0∞}
     {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasRestrictedWeakType T p p' μ ν c) :
   ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (MeasurableSet G) →
     eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
@@ -452,20 +452,106 @@ theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ 
       gcongr
       apply ENNReal.rpow_add_rpow_le_add _ _ hp1
 
+--TODO
+@[elab_as_elim]
+protected theorem SimpleFunc.induction'' {α : Type*} {γ : Type*} [MeasurableSpace α] [AddZeroClass γ]
+  {motive : (SimpleFunc α γ) → Prop}
+  (const : ∀ (c : γ) {s : Set α} (hs : MeasurableSet s), motive (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))
+  (add : ∀ ⦃f : SimpleFunc α γ⦄ (c : γ) ⦃s : Set α⦄ (hs : MeasurableSet s), (Function.support ⇑f) ⊆ s → motive f →
+    motive (f + (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))) (f : SimpleFunc α γ) :
+      motive f := by
+  sorry
+
+--modified from ennreal_induction
+@[elab_as_elim]
+protected theorem ennreal_induction' {α : Type*} {mα : MeasurableSpace α} {motive : (α → ℝ≥0∞) → Prop}
+    (simpleFunc : ∀ ⦃f : SimpleFunc α ℝ≥0∞⦄, motive f)
+    (iSup :
+      ∀ ⦃f : ℕ → (SimpleFunc α ℝ≥0∞)⦄,
+        Monotone f → (∀ (n : ℕ), motive (f n)) → motive fun x ↦ ⨆ n, f n x)
+    ⦃f : α → ℝ≥0∞⦄ (hf : Measurable f) : motive f := by
+  convert iSup (SimpleFunc.monotone_eapprox f) _ using 2
+  · rw [SimpleFunc.iSup_eapprox_apply hf]
+  · exact fun n =>
+      @simpleFunc (SimpleFunc.eapprox f n)
+
 
 theorem HasRestrictedWeakType.hasLorentzType_helper --[TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂]
-  {T : (α → 𝕂) → α' → ε'} {p p' : ℝ≥0∞} (hp : 1 ≤ p) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+  {T : (α → ℝ≥0∞) → α' → ε'} {p p' : ℝ≥0∞} (hp : 1 ≤ p) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
   (hT : HasRestrictedWeakType T p p' μ ν c) --(T_zero : eLpNorm (T 0) 1 ν = 0)
-  (hpp' : p.HolderConjugate p') (f : SimpleFunc α 𝕂) --(hf : MemLorentz f p 1 μ)
+  (hpp' : p.HolderConjugate p') (f : α → ℝ≥0∞) (hf : Measurable f) (hf' : MemLorentz f p 1 μ)
   (G : Set α') (hG : MeasurableSet G) (hG' : ν G < ⊤)
-  (T_subadditive : ∀ (f g : α → 𝕂), eLpNorm (T (f + g)) 1 (ν.restrict G) ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G)) :
-    eLpNorm (T f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
+  (T_subadditive : ∀ (f g : α → ℝ≥0∞), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
+    eLpNorm (T (f + g)) 1 (ν.restrict G) ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G)) :
+      eLpNorm (T f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
   by_cases p_ne_top : p = ∞
   · sorry --TODO: check whether this works or whether it should be excluded
   have p_ne_zero : p ≠ 0 := by sorry --TODO: easy
   rw [eLorentzNorm_eq_eLorentzNorm' p_ne_zero p_ne_top] --TODO: assumptions on p
-  --use: Finset.le_sum_of_subadditive
-  --use SimpleFunc.induction instead?
+  revert f
+  apply @Measurable.ennreal_induction _ m0
+  · intro a s hs hf
+    by_cases a_ne_top : a = ⊤
+    · sorry --TODO: add new lemma what eLorentzNorm does with indicator functions; could also be used for the other part
+      --alternative: use that f is bounded in the eLorentzNorm
+    calc _
+      _ = eLpNorm (T (a • (s.indicator (fun _ ↦ 1)))) 1 (ν.restrict G) := by
+        congr with x
+        congr with x
+        simp only [Pi.smul_apply, smul_eq_mul]
+        rw [← Set.indicator_const_mul, mul_one]
+      _ ≤ a * eLpNorm (T ((s.indicator (fun _ ↦ 1)))) 1 (ν.restrict G) := by
+        sorry --TODO: assume this property for T
+      _ ≤ a * (c * (μ s) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal) := by
+        gcongr
+        --exact hT.without_finiteness s G hs hG
+        sorry --TODO: fix this!
+      _ = c * (a * (μ s) ^ p⁻¹.toReal) * (ν G) ^ p'⁻¹.toReal := by ring
+      _ = (c / p) * eLorentzNorm' (s.indicator (Function.const α a)) p 1 μ * ν G ^ p'⁻¹.toReal := by
+        rw [eLorentzNorm'_eq_integral_distribution_rpow]
+        rw [← mul_assoc (c / p), ENNReal.div_mul_cancel p_ne_zero p_ne_top]
+        congr
+        simp_rw [distribution_indicator_const (ε := ℝ≥0∞) (μ := μ) (s := s) (a := a)]
+        calc ‖a‖ₑ * μ s ^ p⁻¹.toReal
+          _ = (∫⁻ (t : ℝ≥0), (Set.Iio ‖a‖ₑ.toNNReal).indicator (fun x ↦ μ s ^ p⁻¹.toReal) t) := by
+            rw [lintegral_indicator_const measurableSet_Iio, mul_comm]
+            congr 1
+            rw [NNReal.volume_Iio]
+            simp only [enorm_eq_self]
+            rw [ENNReal.coe_toNNReal a_ne_top]
+        congr with t
+        unfold Set.indicator
+        simp only [Set.mem_Iio, ENNReal.toReal_inv, ite_pow]
+        rw [ENNReal.zero_rpow_of_pos (by rw [inv_pos]; exact ENNReal.toReal_pos p_ne_zero p_ne_top)]
+        rw [enorm_eq_self]
+        congr 1
+        rw [← ENNReal.toNNReal_coe t, ENNReal.toNNReal_lt_toNNReal ENNReal.coe_ne_top a_ne_top]
+        simp only [ENNReal.toNNReal_coe]
+  · intro f g hfg hf hg ihf' ihg'
+    intro hfg'
+    have hf' : MemLorentz f p 1 μ := by sorry --TODO: get this from hfg' and measurability of f and g
+    have hg' : MemLorentz g p 1 μ := by sorry
+    --rename_i f g
+    --rw [SimpleFunc.coe_add]
+    calc _
+      _ ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G) := by
+        apply T_subadditive f g hf' hg'
+      _ ≤ c / p * eLorentzNorm' f p 1 μ * ν G ^ p'⁻¹.toReal + c / p *  eLorentzNorm' g p 1 μ * ν G ^ p'⁻¹.toReal := by
+        gcongr
+        · apply ihf' hf'
+        · apply ihg' hg'
+      _ ≤ c / p * eLorentzNorm' (f + g) p 1 μ * ν G ^ p'⁻¹.toReal := by
+        rw [← add_mul, ← mul_add]
+        gcongr
+        rw [eLorentzNorm'_eq_integral_distribution_rpow,
+          eLorentzNorm'_eq_integral_distribution_rpow, eLorentzNorm'_eq_integral_distribution_rpow]
+        rw [← mul_add, ← lintegral_add_left sorry] --TODO: measurability
+        gcongr with t
+        rw [distribution_add hfg hg.stronglyMeasurable]
+        apply ENNReal.rpow_add_rpow_le_add'
+        sorry --TODO: PROBLEM here: This is not true.
+  · sorry
+  /-
   induction f using SimpleFunc.induction with | const a hs | add hfg hf hg
   · rename_i s
     simp only [SimpleFunc.const_zero, SimpleFunc.coe_piecewise, SimpleFunc.coe_const,
@@ -522,9 +608,9 @@ theorem HasRestrictedWeakType.hasLorentzType_helper --[TopologicalSpace 𝕂] [E
         rw [distribution_add hfg (SimpleFunc.stronglyMeasurable g)]
         apply ENNReal.rpow_add_rpow_le_add'
         sorry --TODO: PROBLEM here: This is not true.
+    -/
 
-
-def WeaklyContinuous (T : (α → 𝕂) → (α' → ε')) (μ : Measure α) (ν : Measure α') : Prop :=
+def WeaklyContinuous [TopologicalSpace 𝕂] (T : (α → 𝕂) → (α' → ε')) (μ : Measure α) (ν : Measure α') : Prop :=
   ∀ {f : α → 𝕂} {fs : ℕ → SimpleFunc α 𝕂}
   (hfs : ∀ (x : α), Filter.Tendsto (fun (n : ℕ) => (fs n) x) Filter.atTop (nhds (f x))) (G : Set α'),
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T (fs n)) 1 (ν.restrict G)) Filter.atTop
@@ -532,7 +618,7 @@ def WeaklyContinuous (T : (α → 𝕂) → (α' → ε')) (μ : Measure α) (ν
 --TODO : generalize?
 --TODO : probably could even have a stronger version where the gs are pointwise bounded by g
 --circumvent this using Measurable.ennreal_induction ?
-lemma approx_from_below (μ : Measure α) (p : ℝ≥0∞) {g : α → 𝕂} (hg : StronglyMeasurable g) : ∃ gs : ℕ → SimpleFunc α 𝕂,
+lemma approx_from_below [NormedField 𝕂] (μ : Measure α) (p : ℝ≥0∞) {g : α → 𝕂} (hg : StronglyMeasurable g) : ∃ gs : ℕ → SimpleFunc α 𝕂,
     (∀ (x : α), Filter.Tendsto (fun n ↦ (gs n) x) Filter.atTop (nhds (g x)))
     ∧ Filter.limsup (fun n ↦ eLorentzNorm (gs n) p 1 μ) Filter.atTop ≤ eLorentzNorm g p 1 μ := by
   /-
@@ -551,6 +637,7 @@ lemma approx_from_below (μ : Measure α) (p : ℝ≥0∞) {g : α → 𝕂} (hg
 
 lemma HasRestrictedWeakType.hasLorentzType /- [MeasurableSpace ε'] [BorelSpace ε'] -/
   --[ENormedAddMonoid ε']
+  [NormedField 𝕂]
   {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}
   {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p')
