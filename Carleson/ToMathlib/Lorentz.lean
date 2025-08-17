@@ -187,13 +187,15 @@ lemma aeMeasurable_withDensity_inv {f : ℝ≥0 → ℝ≥0∞} (hf : AEMeasurab
   · exact measurable_inv.aemeasurable.coe_nnreal_ennreal
 
 
-lemma eLorentzNorm'_eq_integral_distribution_rpow :
+lemma eLorentzNorm'_eq_integral_distribution_rpow [TopologicalSpace ε] :
     eLorentzNorm' f p 1 μ = p * ∫⁻ (t : ℝ≥0), distribution f t μ ^ p.toReal⁻¹ := by
   unfold eLorentzNorm'
   simp only [inv_one, ENNReal.toReal_one, ENNReal.rpow_one, ENNReal.toReal_inv]
   congr
   rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
-  rw [lintegral_withDensity_eq_lintegral_mul₀' sorry sorry] --use: previous lemma
+  rw [lintegral_withDensity_eq_lintegral_mul₀' (by measurability)
+    (by apply aeMeasurable_withDensity_inv; apply AEMeasurable.pow_const; apply AEStronglyMeasurable.enorm; apply
+      aestronglyMeasurable_iff_aemeasurable.mpr; apply Measurable.aemeasurable; measurability)]
   simp only [enorm_eq_self, ENNReal.toReal_one, ENNReal.rpow_one, Pi.mul_apply, ne_eq, one_ne_zero,
     not_false_eq_true, div_self]
   rw [lintegral_nnreal_eq_lintegral_toNNReal_Ioi, lintegral_nnreal_eq_lintegral_toNNReal_Ioi]
@@ -422,7 +424,7 @@ lemma HasRestrictedWeakType.without_finiteness [NormedField 𝕂] {T : (α → �
     rcases hFG with hF | hG
     · simp only [not_lt, top_le_iff] at hF
       rw [hF]
-      --TODO: more special cases s.th. rhs is alway ⊤ here
+      --TODO: more special cases s.th. rhs is always ⊤ here
       sorry
     · sorry -- analogous to the first case
 
@@ -452,7 +454,8 @@ theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ 
       gcongr
       apply ENNReal.rpow_add_rpow_le_add _ _ hp1
 
---TODO
+--TODO: Find correct class for γ; should at least work for ℝ≥0∞; prove by induction on simple functions;
+--maybe another improved induction principle could be helpful
 @[elab_as_elim]
 protected theorem SimpleFunc.induction'' {α : Type*} {γ : Type*} [MeasurableSpace α] [AddZeroClass γ]
   {motive : (SimpleFunc α γ) → Prop}
@@ -484,6 +487,7 @@ theorem ENNReal.coe_lt_iff_lt_toNNReal {a : ℝ≥0∞} {t : ℝ≥0} (ha : a �
 --TODO: move, generalize?, probably need more assumptions
 lemma setLIntegral_Ici {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
     ∫⁻ (t : ℝ≥0) in Set.Ici a, f t = ∫⁻ (t : ℝ≥0), f (t + a) := by
+  --TODO: do something similar as in lintegral_add_right_Ioi
   sorry
 
 lemma eLorentzNorm'_indicator {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
@@ -524,20 +528,21 @@ def WeaklyContinuous [TopologicalSpace ε] (T : (α → ε) → (α' → ε')) (
 
 
 def WeaklyContinuous [TopologicalSpace ε] [SupSet ε] [Preorder ε] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
-  ∀ {fs : ℕ → SimpleFunc α ε} (monotone_fs : Monotone fs),
+  ∀ {fs : ℕ → SimpleFunc α ε} (_ : Monotone fs),
   let f := fun x ↦ ⨆ n, (fs n) x;
-  ∀ (hf : MemLorentz f p 1 μ) (G : Set α'),
+  ∀ (_ : MemLorentz f p 1 μ) (G : Set α'),
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T ⇑(fs n)) 1 (ν.restrict G)) Filter.atTop
 --TODO: Show that the Carleson operator is weakly continuous in this sense via Fatou's lemma
 
 theorem HasRestrictedWeakType.hasLorentzType_helper --[TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂]
-  {T : (α → ℝ≥0∞) → α' → ε'} {p p' : ℝ≥0∞} (hp : 1 ≤ p) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+  {p p' : ℝ≥0∞} (hp : 1 ≤ p) (hpp' : p.HolderConjugate p')
+  {T : (α → ℝ≥0∞) → α' → ε'} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
   (hT : HasRestrictedWeakType T p p' μ ν c) --(T_zero : eLpNorm (T 0) 1 ν = 0)
-  (hpp' : p.HolderConjugate p') (f : α → ℝ≥0∞) (hf : Measurable f) (hf' : MemLorentz f p 1 μ)
+  (weakly_cont_T : WeaklyContinuous T p μ ν)
   (G : Set α') (hG : MeasurableSet G) (hG' : ν G < ⊤)
   (T_subadditive : ∀ (f g : α → ℝ≥0∞), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
     eLpNorm (T (f + g)) 1 (ν.restrict G) ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G))
-  (weakly_cont_T : WeaklyContinuous T p μ ν) :
+  (f : α → ℝ≥0∞) (hf : Measurable f) (hf' : MemLorentz f p 1 μ) :
       eLpNorm (T f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
   by_cases p_ne_top : p = ∞
   · sorry --TODO: check whether this works or whether it should be excluded
@@ -686,15 +691,8 @@ lemma HasRestrictedWeakType.hasLorentzType /- [MeasurableSpace ε'] [BorelSpace 
   · sorry
   have claim : ∀ (G : Set α'), (MeasurableSet G) → (ν G < ∞) → eLpNorm (T f) 1 (ν.restrict G)
     ≤ (c / p) * eLorentzNorm f p 1 μ * (ν G) ^ p'⁻¹.toReal := by
-      -- Get this for simple functions first?
       have hg := hf.1.choose_spec
       set g := hf.1.choose
-      --have hgs := hg.1.choose_spec
-      --set gs := hg.1.choose
-      --have hgs := hg.1.tendsto_approx
-      --set gs := hg.1.approx
-      have hgs := (approx_from_below μ p hg.1).choose_spec
-      set gs := (approx_from_below μ p hg.1).choose
       intro G measurable_G G_finite
 
       calc _
