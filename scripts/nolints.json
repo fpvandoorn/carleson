@@ -40,8 +40,6 @@
  ["docBlame", "dirichletKernel'"],
  ["docBlame", "doublingMeasure_real_two"],
  ["docBlame", "forget_map"],
- ["docBlame", "iHolNNNorm"],
- ["docBlame", "iLipNNNorm"],
  ["docBlame", "instSizeOfElemYk"],
  ["docBlame", "integer_linear"],
  ["docBlame", "k"],

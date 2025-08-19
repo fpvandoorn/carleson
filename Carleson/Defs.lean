@@ -1,4 +1,5 @@
 import Carleson.ToMathlib.Annulus
+import Carleson.ToMathlib.LipschitzNorm
 import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 import Carleson.ToMathlib.WeakType
 import Mathlib.Analysis.CStarAlgebra.Classes
@@ -111,11 +112,6 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ
   /-- Every ball of radius `2R` can be covered by `A` balls of radius `R`. (1.1.8) -/
   allBallsCoverBalls {x : X} {r : ℝ} :
     AllBallsCoverBalls (WithFunctionDistance x r) 2 A
-
-/-- The inhomogeneous Lipschitz norm on a ball. -/
-def iLipENorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
-  (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
-  ENNReal.ofReal R * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), ‖ϕ x - ϕ y‖ₑ / edist x y
 
 variable [hXA : DoublingMeasure X A]
 
