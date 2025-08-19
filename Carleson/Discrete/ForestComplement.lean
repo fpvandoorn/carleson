@@ -371,7 +371,7 @@ lemma lt_quotient_rearrange :
     (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) < volume (E₂ l p') / volume (𝓘 p' : Set X) := by
   rw [mul_div_assoc] at qp'; convert ENNReal.div_lt_of_lt_mul' qp' using 1
   rw [ENNReal.div_eq_inv_mul,
-    ← ENNReal.zpow_neg (by exact_mod_cast (zero_lt_two.trans_le hl).ne') ENNReal.coe_ne_top,
+    ← ENNReal.zpow_neg,
     neg_neg, ENNReal.coe_mul, mul_rotate, mul_assoc, ENNReal.coe_pow, zpow_natCast]
   congr 1
   rw [ENNReal.coe_pow, ENNReal.coe_ofNat, ← zpow_natCast,
