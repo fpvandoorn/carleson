@@ -367,6 +367,7 @@ variable {p' : 𝔓 X} {l : ℝ≥0} (hl : 2 ≤ l)
   (qp' : 2 ^ (4 * a - n : ℤ) < l ^ (-a : ℤ) * volume (E₂ l p') / volume (𝓘 p' : Set X))
 include hl qp'
 
+omit hl in
 lemma lt_quotient_rearrange :
     (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) < volume (E₂ l p') / volume (𝓘 p' : Set X) := by
   rw [mul_div_assoc] at qp'; convert ENNReal.div_lt_of_lt_mul' qp' using 1
@@ -381,7 +382,7 @@ lemma lt_quotient_rearrange :
 lemma l_upper_bound : l < 2 ^ n := by
   have ql1 : volume (E₂ l p') / volume (𝓘 p' : Set X) ≤ 1 := by
     apply ENNReal.div_le_of_le_mul; rw [one_mul]; exact measure_mono (E₂_subset ..)
-  replace qp' := (lt_quotient_rearrange hl qp').trans_le ql1
+  replace qp' := (lt_quotient_rearrange qp').trans_le ql1
   rw [← ENNReal.mul_lt_mul_right (c := 2 ^ (n : ℤ)) (by simp) (by simp), one_mul, mul_assoc,
     ← ENNReal.zpow_add two_ne_zero ENNReal.ofNat_ne_top, neg_add_cancel, zpow_zero, mul_one,
     show (2 ^ (n : ℤ) : ℝ≥0∞) = (2 ^ (n : ℤ) : ℝ≥0) by simp, ENNReal.coe_lt_coe,
@@ -399,7 +400,7 @@ lemma exists_𝔒_with_le_quotient :
   have ltq : (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) <
       ∑ p'' ∈ 𝔒 p' l, volume (E₁ p'') / volume (𝓘 p'' : Set X) :=
     calc
-      _ < volume (E₂ l p') / volume (𝓘 p' : Set X) := lt_quotient_rearrange hl qp'
+      _ < volume (E₂ l p') / volume (𝓘 p' : Set X) := lt_quotient_rearrange qp'
       _ ≤ volume (⋃ p'' ∈ 𝔒 p' l, E₁ p'') / volume (𝓘 p' : Set X) := by
         gcongr; simp_rw [E₁, E₂, smul, toTileLike, TileLike.toSet]; intro x mx
         have rsub := biUnion_Ω (i := 𝓘 p'); rw [range_subset_iff] at rsub; specialize rsub x
