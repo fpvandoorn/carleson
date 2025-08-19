@@ -410,7 +410,7 @@ lemma lintegral_Ioc_layervol_one {l : ℕ} :
   calc
     _ = ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n (l + 1) := by
       refine setLIntegral_congr_fun measurableSet_Ioc fun t ht ↦ ?_
-      unfold layervol; congr with x; simp_rw [mem_setOf]; constructor <;> intro h
+      unfold layervol; congr with x; constructor <;> intro h
       · rw [indicator_sum_eq_natCast, ← Nat.cast_one, ← Nat.cast_add, Nat.cast_le]
         rw [indicator_sum_eq_natCast, ← Nat.ceil_le] at h; convert h; symm
         rwa [Nat.ceil_eq_iff (by omega), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]

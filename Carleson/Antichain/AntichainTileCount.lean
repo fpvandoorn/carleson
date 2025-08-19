@@ -188,7 +188,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
         _ ≤ 2^a * dens₁ (𝔄' : Set (𝔓 X)) * volume (L : Set X) := by
           have hIL : 𝓘 p = L := by simp_rw [← hp.2]
           have h2a : ((2 : ℝ≥0∞) ^ a)⁻¹ = 2^(-(a : ℤ)) := by
-            rw [← zpow_natCast, ENNReal.zpow_neg two_ne_zero ENNReal.ofNat_ne_top]
+            rw [← zpow_natCast, ENNReal.zpow_neg]
           rw [← ENNReal.div_le_iff (ne_of_gt (hIL ▸ volume_coeGrid_pos (defaultD_pos a)))
             (by finiteness), ← ENNReal.div_le_iff' (Ne.symm (NeZero.ne' (2 ^ a))) (by finiteness),
             ENNReal.div_eq_inv_mul, h2a, dens₁]

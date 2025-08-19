@@ -397,9 +397,15 @@ lemma ball_covering_finite (hO : IsOpen O ∧ O ≠ univ) {U : Set X} {r' : X �
   · calc
       _ = {i | ¬i < U.card ∧ x ∈ ball (c i) (3 * r i)}.encard +
           {i | i < U.card ∧ x ∈ ball (c i) (3 * r i)}.encard := by
-        rw [← encard_union_eq]; swap
+        have : {i | x ∈ ball (c i) (3 * r i)} =
+            {i | ¬ i < U.card ∧ x ∈ ball (c i) (3 * r i)} ∪
+                {i | i < U.card ∧ x ∈ ball (c i) (3 * r i)} := by
+          ext i; refine ⟨fun hx ↦ ?_, fun h ↦ ?_⟩
+          · by_cases hi : i < U.card; exact Or.inr ⟨hi, hx⟩; exact Or.inl ⟨hi, hx⟩
+          · rcases h with ⟨_, hx⟩ | ⟨_, hx⟩ <;> exact hx
+        rw [← encard_union_eq]
+        · congr
         · exact disjoint_left.mpr fun i mi₁ mi₂ ↦ mi₁.1 mi₂.1
-        congr; ext i; simp only [mem_setOf_eq, mem_union]; tauto
       _ = 0 + {u ∈ U.toSet | x ∈ ball u (3 * r' u)}.encard := by
         congr
         · simp_rw [encard_eq_zero, eq_empty_iff_forall_notMem, mem_setOf_eq, not_and]; intro i hi
