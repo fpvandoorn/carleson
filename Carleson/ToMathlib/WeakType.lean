@@ -653,50 +653,64 @@ lemma distribution_add [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α →
       exact LT.lt.ne_bot h'
   · exact measurableSet_lt measurable_const (StronglyMeasurable.enorm hg)
 
-lemma distribution_indicator_add_of_support_subset {f : α → ℝ≥0∞} {c : ℝ≥0∞} (hc : c ≠ ⊤) {s : Set α}
+lemma distribution_indicator_add_of_support_subset [TopologicalSpace ε] [ENormedAddMonoid ε]
+  (enorm_add : ∀ a b : ε, ‖a + b‖ₑ = ‖a‖ₑ + ‖b‖ₑ) --TODO: new type class for this property?
+  {f : α → ε} {c : ε} (hc : ‖c‖ₑ ≠ ⊤) {s : Set α}
   (hfs : Function.support f ⊆ s) :
-    distribution (f + s.indicator (Function.const α c)) t μ = if t < c then μ s else distribution f (t - c) μ := by
+    distribution (f + s.indicator (Function.const α c)) t μ = if t < ‖c‖ₑ then μ s else distribution f (t - ‖c‖ₑ) μ := by
   unfold distribution
   split_ifs with ht
   · congr with x
-    simp only [Pi.add_apply, enorm_eq_self, mem_setOf_eq]
+    simp only [Pi.add_apply, mem_setOf_eq]
     constructor
     · intro h
       contrapose! h
       have : x ∉ support f := by exact fun a ↦ h (hfs a)
-      simp only [mem_support, ne_eq, Decidable.not_not] at this
+      simp only [mem_support, ne_eq, not_not] at this
       rw [this]
       unfold indicator
       simp [h]
     · intro h
       unfold indicator
-      rw [add_comm]
+      rw [enorm_add, add_comm]
+      split_ifs
       apply lt_add_of_lt_of_nonneg _ (zero_le _)
       simpa [h]
   · push_neg at ht
     congr with x
-    simp only [Pi.add_apply, enorm_eq_self, mem_setOf_eq]
-    rw [ENNReal.sub_lt_iff_lt_right hc ht]
+    simp only [Pi.add_apply, mem_setOf_eq]
+    rw [enorm_add, ENNReal.sub_lt_iff_lt_right hc ht]
     constructor
     · intro h
       apply h.trans_le
       gcongr
-      apply indicator_le
-      intro a ha
-      simp only [const_apply, le_refl]
+      unfold indicator
+      split_ifs <;> simp
     · intro h
       apply h.trans_le
       gcongr
-      apply le_indicator_apply (by simp)
-      intro hxs
+      unfold indicator
+      split_ifs with hxs
+      · simp
       exfalso
       have : x ∉ support f := by exact fun a ↦ hxs (hfs a)
-      simp only [mem_support, ne_eq, Decidable.not_not] at this
-      rw [this, zero_add] at h
+      simp only [mem_support, ne_eq, not_not] at this
+      rw [this, enorm_zero, zero_add] at h
       exact (lt_self_iff_false _).mp (h.trans_le ht)
 
+/- ENNReal version of the previous lemma -/
+lemma distribution_indicator_add_of_support_subset_ennreal {f : α → ℝ≥0∞} {c : ℝ≥0∞} (hc : c ≠ ⊤)
+  {s : Set α} (hfs : Function.support f ⊆ s) :
+    distribution (f + s.indicator (Function.const α c)) t μ
+      = if t < c then μ s else distribution f (t - c) μ := by
+  convert distribution_indicator_add_of_support_subset (by simp) (by simpa) hfs
 
-
+/- NNReal version of the previous lemma -/
+lemma distribution_indicator_add_of_support_subset_nnreal {f : α → ℝ≥0} {c : ℝ≥0}
+  {s : Set α} (hfs : Function.support f ⊆ s) :
+    distribution (f + s.indicator (Function.const α c)) t μ
+      = if t < c then μ s else distribution f (t - c) μ := by
+  convert distribution_indicator_add_of_support_subset (by simp) (by simp) hfs
 
 
 end distribution
