@@ -1,4 +1,6 @@
+import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.RealInterpolation.Misc
 
@@ -71,7 +73,16 @@ lemma eLorentzNorm_zero_of_ae_zero {f : α → ε'} (h : f =ᵐ[μ] 0) : eLorent
     mul_zero]
   simp
 
---TODO: Weaken to only assume the ineq ae
+
+lemma eLorentzNorm'_mono {f g : α → ε'} (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) : eLorentzNorm' f p r μ ≤ eLorentzNorm' g p r μ := by
+  unfold eLorentzNorm'
+  gcongr
+  apply eLpNorm_mono_enorm
+  intro x
+  simp only [ENNReal.toReal_inv, enorm_eq_self]
+  gcongr
+  exact h
+
 lemma eLorentzNorm_mono {f g : α → ε'} (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) : eLorentzNorm f p r μ ≤ eLorentzNorm g p r μ := by
   unfold eLorentzNorm
   split_ifs
@@ -80,13 +91,7 @@ lemma eLorentzNorm_mono {f g : α → ε'} (h : ∀ᵐ (x : α) ∂μ, ‖f x‖
   · exact eLpNormEssSup_mono_enorm_ae h
   · gcongr
     exact eLpNormEssSup_mono_enorm_ae h
-  · unfold eLorentzNorm'
-    gcongr
-    apply eLpNorm_mono_enorm
-    intro x
-    simp only [ENNReal.toReal_inv, enorm_eq_self]
-    gcongr
-    exact h
+  · exact eLorentzNorm'_mono h
 
 /-
 /- Alternative definition. Not used at the moment. -/
@@ -186,7 +191,6 @@ lemma aeMeasurable_withDensity_inv {f : ℝ≥0 → ℝ≥0∞} (hf : AEMeasurab
     measurability
   · exact measurable_inv.aemeasurable.coe_nnreal_ennreal
 
-
 lemma eLorentzNorm'_eq_integral_distribution_rpow [TopologicalSpace ε] :
     eLorentzNorm' f p 1 μ = p * ∫⁻ (t : ℝ≥0), distribution f t μ ^ p.toReal⁻¹ := by
   unfold eLorentzNorm'
@@ -209,6 +213,30 @@ lemma eLorentzNorm'_eq_integral_distribution_rpow [TopologicalSpace ε] :
     rw [Real.toNNReal_pos]
     exact hx
   · exact ENNReal.coe_ne_top
+
+lemma eLorentzNorm'_indicator {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
+  {s : Set α} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) :
+    eLorentzNorm' (s.indicator (Function.const α a)) p 1 μ = p * (‖a‖ₑ * μ s ^ p⁻¹.toReal) := by
+  rw [eLorentzNorm'_eq_integral_distribution_rpow]
+  congr
+  simp_rw [distribution_indicator_const (ε := ε) (μ := μ) (s := s) (a := a)]
+  unfold Set.indicator
+  simp only [ENNReal.toReal_inv, ite_pow]
+  --rw [ENNReal.zero_rpow_of_pos (by simp only [inv_pos]; exact ENNReal.toReal_pos p_ne_zero p_ne_top)]
+  --rw [← Set.indicator_apply, lintegral_indicator_const measurableSet_Iio, mul_comm]
+  symm
+  calc ‖a‖ₑ * μ s ^ p.toReal⁻¹
+    _ = (∫⁻ (t : ℝ≥0), (Set.Iio ‖a‖ₑ.toNNReal).indicator (fun x ↦ μ s ^ p.toReal⁻¹) t) := by
+      rw [lintegral_indicator_const measurableSet_Iio, mul_comm]
+      congr 1
+      rw [NNReal.volume_Iio, ENNReal.coe_toNNReal ha]
+  congr with t
+  unfold Set.indicator
+  rw [ENNReal.zero_rpow_of_pos (by simp only [inv_pos]; exact ENNReal.toReal_pos p_ne_zero p_ne_top)]
+  congr 1
+  simp only [Set.mem_Iio, eq_iff_iff]
+  exact (ENNReal.coe_lt_iff_lt_toNNReal ha).symm
+
 
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
@@ -375,7 +403,7 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] 
       rw [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable r₁_pos.ne.symm] at norm_zero
       rwa [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable (r₁_pos.trans_le r₁_le_r₂).ne.symm]
 
-
+end Lorentz
 
 
 variable {α' ε₁ ε₂ : Type*} {m : MeasurableSpace α'} [TopologicalSpace ε₁] [ENorm ε₁]
@@ -399,20 +427,21 @@ lemma HasLorentzType_p_infty_qs {T : (α → ε₁) → (α' → ε₂)} {p q s 
 
 --TODO: what exactly should be the requirements on 𝕂? Actually, we only need a 1 here.
 --TODO: This could be more general, it currently assumes T f ≥ 0
-variable {𝕂 : Type*} --[NormedField 𝕂] --[ENormedAddMonoid 𝕂] [Field 𝕂] --[TopologicalSpace 𝕂]
+variable {β : Type*} [Zero β] [One β] --[NormedField 𝕂] --[ENormedAddMonoid 𝕂] [Field 𝕂] --[TopologicalSpace 𝕂]
   --[TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
   --[TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂] --TODO: Actually, these last arguments should probably be infered
 
 /-- Defines when an operator "has restricted weak type". This is an even weaker version
 of `HasBoundedWeakType`. -/
-def HasRestrictedWeakType [Zero 𝕂] [One 𝕂] (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
+def HasRestrictedWeakType (T : (α → β) → (α' → ε₂)) (p p' : ℝ≥0∞)
+  (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
   ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (μ F < ∞) → (MeasurableSet G) → (ν G < ∞) →
     AEStronglyMeasurable (T (F.indicator (fun _ ↦ 1))) ν ∧
       eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
         ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
 
-lemma HasRestrictedWeakType.without_finiteness [NormedField 𝕂] {T : (α → 𝕂) → (α' → ε₂)} {p p' : ℝ≥0∞}
+lemma HasRestrictedWeakType.without_finiteness {T : (α → β) → (α' → ε₂)} {p p' : ℝ≥0∞}
     {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasRestrictedWeakType T p p' μ ν c) :
   ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (MeasurableSet G) →
     eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
@@ -460,9 +489,10 @@ theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ 
 protected theorem SimpleFunc.induction'' {α : Type*} {γ : Type*} [MeasurableSpace α] [AddZeroClass γ]
   {motive : (SimpleFunc α γ) → Prop}
   (const : ∀ (c : γ) {s : Set α} (hs : MeasurableSet s), motive (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))
-  (add : ∀ ⦃f : SimpleFunc α γ⦄ (c : γ) ⦃s : Set α⦄ (hs : MeasurableSet s), (Function.support ⇑f) ⊆ s → motive f →
-    motive (f + (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))) (f : SimpleFunc α γ) :
-      motive f := by
+  (add : ∀ ⦃f : SimpleFunc α γ⦄ (c : γ) ⦃s : Set α⦄ (hs : MeasurableSet s), (Function.support ⇑f) ⊆ s →
+    motive f → motive (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)) →
+      motive (f + (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))) (f : SimpleFunc α γ) :
+        motive f := by
   sorry
 
 --modified from ennreal_induction
@@ -478,11 +508,6 @@ protected theorem Measurable.ennreal_induction' {α : Type*} {mα : MeasurableSp
   · exact fun n =>
       @simpleFunc (SimpleFunc.eapprox f n)
 
---TODO: to mathlib
-theorem ENNReal.coe_lt_iff_lt_toNNReal {a : ℝ≥0∞} {t : ℝ≥0} (ha : a ≠ ⊤) :
-    ↑t < a ↔ t < a.toNNReal := by
-  rw [← ENNReal.toNNReal_coe t, ENNReal.toNNReal_lt_toNNReal ENNReal.coe_ne_top ha]
-  simp only [ENNReal.toNNReal_coe]
 
 --TODO: move, generalize?, probably need more assumptions
 lemma setLIntegral_Ici {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
@@ -490,28 +515,7 @@ lemma setLIntegral_Ici {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
   --TODO: do something similar as in lintegral_add_right_Ioi
   sorry
 
-lemma eLorentzNorm'_indicator {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
-  {s : Set α} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) :
-    eLorentzNorm' (s.indicator (Function.const α a)) p 1 μ = p * (‖a‖ₑ * μ s ^ p⁻¹.toReal) := by
-  rw [eLorentzNorm'_eq_integral_distribution_rpow]
-  congr
-  simp_rw [distribution_indicator_const (ε := ε) (μ := μ) (s := s) (a := a)]
-  unfold Set.indicator
-  simp only [ENNReal.toReal_inv, ite_pow]
-  --rw [ENNReal.zero_rpow_of_pos (by simp only [inv_pos]; exact ENNReal.toReal_pos p_ne_zero p_ne_top)]
-  --rw [← Set.indicator_apply, lintegral_indicator_const measurableSet_Iio, mul_comm]
-  symm
-  calc ‖a‖ₑ * μ s ^ p.toReal⁻¹
-    _ = (∫⁻ (t : ℝ≥0), (Set.Iio ‖a‖ₑ.toNNReal).indicator (fun x ↦ μ s ^ p.toReal⁻¹) t) := by
-      rw [lintegral_indicator_const measurableSet_Iio, mul_comm]
-      congr 1
-      rw [NNReal.volume_Iio, ENNReal.coe_toNNReal ha]
-  congr with t
-  unfold Set.indicator
-  rw [ENNReal.zero_rpow_of_pos (by simp only [inv_pos]; exact ENNReal.toReal_pos p_ne_zero p_ne_top)]
-  congr 1
-  simp only [Set.mem_Iio, eq_iff_iff]
-  exact (ENNReal.coe_lt_iff_lt_toNNReal ha).symm
+--variable [ENorm ε] [TopologicalSpace ε'] [ENormedAddMonoid ε']
 
 --TODO: move
 theorem ENNReal.limsup_mul_const_of_ne_top {α : Type*} {f : Filter α} {u : α → ℝ≥0∞} {a : ℝ≥0∞} (ha_top : a ≠ ⊤) :
@@ -527,35 +531,38 @@ def WeaklyContinuous [TopologicalSpace ε] (T : (α → ε) → (α' → ε')) (
 -/
 
 
-def WeaklyContinuous [TopologicalSpace ε] [SupSet ε] [Preorder ε] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
+def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [ENorm ε'] [SupSet ε] [Preorder ε] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
   ∀ {fs : ℕ → SimpleFunc α ε} (_ : Monotone fs),
   let f := fun x ↦ ⨆ n, (fs n) x;
   ∀ (_ : MemLorentz f p 1 μ) (G : Set α'),
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T ⇑(fs n)) 1 (ν.restrict G)) Filter.atTop
 --TODO: Show that the Carleson operator is weakly continuous in this sense via Fatou's lemma
 
-theorem HasRestrictedWeakType.hasLorentzType_helper --[TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂]
+theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENormedSpace ε']
   {p p' : ℝ≥0∞} (hp : 1 ≤ p) (hpp' : p.HolderConjugate p')
-  {T : (α → ℝ≥0∞) → α' → ε'} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+  {T : (α → ℝ≥0) → α' → ε'} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
   (hT : HasRestrictedWeakType T p p' μ ν c) --(T_zero : eLpNorm (T 0) 1 ν = 0)
   (weakly_cont_T : WeaklyContinuous T p μ ν)
   (G : Set α') (hG : MeasurableSet G) (hG' : ν G < ⊤)
-  (T_subadditive : ∀ (f g : α → ℝ≥0∞), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
+  (T_subadditive : ∀ (f g : α → ℝ≥0), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
     eLpNorm (T (f + g)) 1 (ν.restrict G) ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G))
-  (f : α → ℝ≥0∞) (hf : Measurable f) (hf' : MemLorentz f p 1 μ) :
+  (T_submult : ∀ (f : α → ℝ≥0) (a : ℝ≥0), eLpNorm (T (a • f)) 1 (ν.restrict G) ≤ eLpNorm (a • T f) 1 (ν.restrict G))
+  (f : α → ℝ≥0) (hf : Measurable f) (hf' : MemLorentz f p 1 μ) :
       eLpNorm (T f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
   by_cases p_ne_top : p = ∞
   · sorry --TODO: check whether this works or whether it should be excluded
   have p_ne_zero : p ≠ 0 := by sorry --TODO: easy
   rw [eLorentzNorm_eq_eLorentzNorm' p_ne_zero p_ne_top] --TODO: assumptions on p
   revert f
-  apply @Measurable.ennreal_induction' _ m0
+  apply @Measurable.nnreal_induction _ m0
   · intro f
     induction f using SimpleFunc.induction''
     · rename_i a s hs
+      /-
       by_cases a_ne_top : a = ⊤
       · sorry --TODO: add new lemma what eLorentzNorm does with indicator functions; could also be used for the other part
         --alternative: use that f is bounded in the eLorentzNorm
+      -/
       simp only [SimpleFunc.const_zero, SimpleFunc.coe_piecewise, SimpleFunc.coe_const,
         SimpleFunc.coe_zero, Set.piecewise_eq_indicator]
       have : s.indicator (Function.const α a) = a • (s.indicator (fun _ ↦ 1)) := by
@@ -572,33 +579,35 @@ theorem HasRestrictedWeakType.hasLorentzType_helper --[TopologicalSpace 𝕂] [E
           ext x
           congr
         _ ≤ ‖a‖ₑ * eLpNorm (T ((s.indicator (fun _ ↦ 1)))) 1 (ν.restrict G) := by
-          sorry --TODO: assume this property for T
+          rw [← eLpNorm_const_smul']
+          --apply eLpNorm_mono_enorm_ae
+          apply T_submult
         _ ≤ ‖a‖ₑ * (c * (μ s) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal) := by
           gcongr
-          --exact hT.without_finiteness s G hs hG
-          --TODO: fix this
-          sorry
+          exact hT.without_finiteness s G hs hG
         _ = c * (‖a‖ₑ * μ s ^ p⁻¹.toReal) * (ν G) ^ p'⁻¹.toReal := by ring
         _ = (c / p) * eLorentzNorm' (s.indicator (Function.const α a)) p 1 μ * ν G ^ p'⁻¹.toReal := by
-          rw [eLorentzNorm'_indicator (by simpa only [enorm_eq_self]) p_ne_zero p_ne_top]
+          rw [eLorentzNorm'_indicator (by simp) p_ne_zero p_ne_top]
           rw [← mul_assoc (c / p), ENNReal.div_mul_cancel p_ne_zero p_ne_top]
-    · rename_i f a s hs hfs hf
+    · rename_i f a s hs hfs hf hg
+      /-
       by_cases a_ne_top : a = ⊤
       · sorry --TODO: add new lemma what eLorentzNorm does with indicator functions; could also be used for the other part
       --have hf' : MemLorentz f p 1 μ := by sorry --TODO: get this from hfg' and measurability of f and g
       --have hg' : MemLorentz g p 1 μ := by sorry
+      -/
       rw [SimpleFunc.coe_add]
       set g := SimpleFunc.piecewise s hs (SimpleFunc.const α a) (SimpleFunc.const α 0) with g_def
       intro hfg'
       have hf' : MemLorentz f p 1 μ := by sorry --TODO: get this from hfg' and measurability of f and g
+      have hg' : MemLorentz g p 1 μ := by sorry --TODO: use that g is an indicator function with finite value
       calc _
         _ ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G) := by
-          apply T_subadditive f g hf'--(s.indicator (Function.const α a))
-          sorry --TODO: use : a_ne_top
+          apply T_subadditive f g hf' hg'
         _ ≤ c / p * eLorentzNorm' f p 1 μ * ν G ^ p'⁻¹.toReal + c / p *  eLorentzNorm' g p 1 μ * ν G ^ p'⁻¹.toReal := by
           gcongr
-          · apply hf hf'
-          · sorry --TODO: This is the first part since g is an indicator function
+          · exact hf hf'
+          · exact hg hg'
         _ = c / p * eLorentzNorm' (f + g) p 1 μ * ν G ^ p'⁻¹.toReal := by
           rw [← add_mul, ← mul_add]
           congr
@@ -613,32 +622,56 @@ theorem HasRestrictedWeakType.hasLorentzType_helper --[TopologicalSpace 𝕂] [E
           calc _
             _ = ∫⁻ (t : ℝ≥0), (if t < a then μ s else distribution f (t - a) μ) ^ p.toReal⁻¹ := by
               congr with t
-              rw [distribution_indicator_add_of_support_subset (μ := μ) a_ne_top hfs] --TODO: additional case distinction on c
-            _ = ∫⁻ (t : ℝ≥0), if t < a.toNNReal then μ s ^ p.toReal⁻¹ else distribution f (t - a) μ ^ p.toReal⁻¹ := by
+              rw [distribution_indicator_add_of_support_subset_nnreal (μ := μ) hfs]
+              simp only [ENNReal.coe_lt_coe]
+            _ = ∫⁻ (t : ℝ≥0), if t < a then μ s ^ p.toReal⁻¹ else distribution f (t - a) μ ^ p.toReal⁻¹ := by
               simp only [ite_pow]
-              congr with t
-              congr 1
-              rw [eq_iff_iff]
-              exact ENNReal.coe_lt_iff_lt_toNNReal a_ne_top
-            _ = ∫⁻ (t : ℝ≥0), (Set.Iio a.toNNReal).indicator (fun _ ↦ μ s ^ p.toReal⁻¹) t
-                  + (Set.Ici a.toNNReal).indicator (fun t ↦ distribution f (t - a.toNNReal) μ ^ p.toReal⁻¹) t := by
+            _ = ∫⁻ (t : ℝ≥0), (Set.Iio a).indicator (fun _ ↦ μ s ^ p.toReal⁻¹) t
+                  + (Set.Ici a).indicator (fun t ↦ distribution f (t - a) μ ^ p.toReal⁻¹) t := by
               congr with t
               rw [← Set.compl_Iio, ← Pi.add_apply, Set.indicator_add_compl_eq_piecewise]
               unfold Set.piecewise
-              rw [ENNReal.coe_toNNReal a_ne_top]
               simp
             _ = a * μ s ^ p.toReal⁻¹ + ∫⁻ (t : ℝ≥0), distribution f t μ ^ p.toReal⁻¹ := by
               rw [lintegral_add_left (by measurability)]
               congr 1
-              · rw [lintegral_indicator_const measurableSet_Iio, NNReal.volume_Iio, ENNReal.coe_toNNReal a_ne_top, mul_comm]
+              · rw [lintegral_indicator_const measurableSet_Iio, NNReal.volume_Iio, mul_comm]
               · rw [lintegral_indicator measurableSet_Ici, setLIntegral_Ici]
                 simp
           rw [add_comm]
           congr
           apply (ENNReal.mul_right_inj p_ne_zero p_ne_top).mp
-          rw [← eLorentzNorm'_eq_integral_distribution_rpow, eLorentzNorm'_indicator (by simp [a_ne_top]) p_ne_zero p_ne_top]
+          rw [← eLorentzNorm'_eq_integral_distribution_rpow, eLorentzNorm'_indicator (by simp) p_ne_zero p_ne_top]
           simp
-  · intro fs monotone_fs hfs hf
+  · intro f hf h hf'
+    rw [← SimpleFunc.iSup_nnapprox hf] at hf'
+    --have
+    calc _
+      _ ≤ Filter.limsup (fun n ↦ eLpNorm (T (SimpleFunc.nnapprox f n)) 1 (ν.restrict G)) Filter.atTop := by
+        nth_rw 1 [← SimpleFunc.iSup_nnapprox hf]
+        apply weakly_cont_T SimpleFunc.monotone_nnapprox hf' G
+      _ ≤ Filter.limsup (fun n ↦ (c / p) * eLorentzNorm' (SimpleFunc.nnapprox f n) p 1 μ * ν G ^ p'⁻¹.toReal) Filter.atTop := by
+        apply Filter.mono_limsup
+        intro n
+        apply h n _
+        sorry --use : all of these functions are bounded (by a constant / by f and this is MemLorentz)
+      _ ≤ (c / p) * eLorentzNorm' f p 1 μ * ν G ^ p'⁻¹.toReal := by
+        simp_rw [mul_assoc]
+        rw [ENNReal.limsup_const_mul_of_ne_top sorry] --use : c_ne_top
+        gcongr
+        --simp_rw [mul_comm]
+        rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG'.ne)]
+        gcongr
+        apply Filter.limsup_le_of_le'
+        apply Filter.Eventually.of_forall
+        intro n
+        apply eLorentzNorm'_mono
+        apply Filter.Eventually.of_forall
+        simp only [enorm_NNReal, ENNReal.coe_le_coe]
+        intro x
+        exact SimpleFunc.approx_le hf bot_eq_zero'
+    /-
+    intro fs monotone_fs hfs hf
     set f := (fun x ↦ ⨆ n, (fs n) x)
     calc _
       _ ≤ Filter.limsup (fun n ↦ eLpNorm (T (fs n)) 1 (ν.restrict G)) Filter.atTop := by
@@ -656,30 +689,12 @@ theorem HasRestrictedWeakType.hasLorentzType_helper --[TopologicalSpace 𝕂] [E
         rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG'.ne)]
         gcongr
         sorry --use: monotonicity of fs / def. of f
+    -/
 
-/-
---TODO : generalize?
---TODO : probably could even have a stronger version where the gs are pointwise bounded by g
---circumvent this using Measurable.ennreal_induction ?
-lemma approx_from_below [NormedField 𝕂] (μ : Measure α) (p : ℝ≥0∞) {g : α → 𝕂} (hg : StronglyMeasurable g) : ∃ gs : ℕ → SimpleFunc α 𝕂,
-    (∀ (x : α), Filter.Tendsto (fun n ↦ (gs n) x) Filter.atTop (nhds (g x)))
-    ∧ Filter.limsup (fun n ↦ eLorentzNorm (gs n) p 1 μ) Filter.atTop ≤ eLorentzNorm g p 1 μ := by
-  /-
-  apply Filter.limsup_le_of_le'
-  apply Filter.Eventually.of_forall
-  intro n
-  gcongr
-  apply eLorentzNorm_mono
-  --TODO: continue here, ensure approximation from below for g or find better solution
-  --have := SimpleFunc.monotone_approx gs g
-  sorry --use : better def of gs?
-  -/
-  sorry
--/
 
-lemma HasRestrictedWeakType.hasLorentzType /- [MeasurableSpace ε'] [BorelSpace ε'] -/
+lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
   --[ENormedAddMonoid ε']
-  [NormedField 𝕂]
+  [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}
   {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p') :
@@ -689,8 +704,11 @@ lemma HasRestrictedWeakType.hasLorentzType /- [MeasurableSpace ε'] [BorelSpace 
   intro f hf
   by_cases c_ne_top : c = ⊤
   · sorry
+
   have claim : ∀ (G : Set α'), (MeasurableSet G) → (ν G < ∞) → eLpNorm (T f) 1 (ν.restrict G)
     ≤ (c / p) * eLorentzNorm f p 1 μ * (ν G) ^ p'⁻¹.toReal := by
+      --TODO: decompose f into 4 nonnegative parts with constant coefficients
+      --have f_decomposition : f =
       have hg := hf.1.choose_spec
       set g := hf.1.choose
       intro G measurable_G G_finite
