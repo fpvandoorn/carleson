@@ -218,22 +218,39 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     _ < _ := measure_ball_lt_top
 
 /-- The integrand of `carlesonOperatorIntegrand` is integrable over the `R₁, R₂` annulus. -/
-lemma integrableOn_coi_inner_annulus (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+lemma integrableOn_coi_inner_annulus' (nf : IntegrableOn f (Annulus.oo x R₁ R₂)) (hR₁ : 0 < R₁) :
     IntegrableOn (fun y ↦ K x y * f y * exp (I * θ y)) (Annulus.oo x R₁ R₂) := by
   simp_rw [mul_assoc]; refine integrableOn_K_mul ?_ _ hR₁ fun y my ↦ ?_
-  · refine Integrable.bdd_mul ?_ mf.aestronglyMeasurable.restrict ⟨_, nf⟩
-    apply Measure.integrableOn_of_bounded (M := 1)
-    · rw [← lt_top_iff_ne_top]
-      calc
-        _ ≤ volume (ball x R₂) := by
-          refine measure_mono fun y my ↦ ?_
-          rw [Annulus.oo, mem_setOf, mem_Ioo] at my; rw [mem_ball']; exact my.2
-        _ < _ := measure_ball_lt_top
+  · conv => congr; ext y; rw [mul_comm]
+    rw [IntegrableOn]
+    apply nf.bdd_mul
     · exact ((Complex.measurable_ofReal.comp (by fun_prop)).const_mul I).cexp.aestronglyMeasurable
-    · refine Eventually.of_forall fun y ↦ ?_
+    · use 1
+      intro x
       rw [mul_comm, norm_exp_ofReal_mul_I]
   · rw [Annulus.oo, mem_setOf, mem_Ioo] at my
     rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le
+
+/-- The integrand of `carlesonOperatorIntegrand` is integrable over the `R₁, R₂` annulus. -/
+lemma integrableOn_coi_inner_annulus₀ (mf : AEStronglyMeasurable f volume) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+    IntegrableOn (fun y ↦ K x y * f y * exp (I * θ y)) (Annulus.oo x R₁ R₂) := by
+  apply integrableOn_coi_inner_annulus' _ hR₁
+  apply Measure.integrableOn_of_bounded (M := 1)
+  · rw [← lt_top_iff_ne_top]
+    calc
+      _ ≤ volume (ball x R₂) := by
+        refine measure_mono fun y my ↦ ?_
+        rw [Annulus.oo, mem_setOf, mem_Ioo] at my; rw [mem_ball']; exact my.2
+      _ < _ := measure_ball_lt_top
+  · exact mf
+  · exact Eventually.of_forall nf
+
+/-- The integrand of `carlesonOperatorIntegrand` is integrable over the `R₁, R₂` annulus. -/
+-- (this is a weaker version assuming full measurability)
+-- TODO: remove this version and only keep the above?
+lemma integrableOn_coi_inner_annulus (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+    IntegrableOn (fun y ↦ K x y * f y * exp (I * θ y)) (Annulus.oo x R₁ R₂) :=
+  integrableOn_coi_inner_annulus₀ mf.aestronglyMeasurable nf hR₁
 
 lemma rightContinuous_carlesonOperatorIntegrand
     (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
@@ -397,3 +414,95 @@ lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖
       rw [← enorm_norm, ← enorm_one (G := ℝ)]; exact Real.enorm_le_enorm (norm_nonneg _) (nf y)
     _ ≤ C_K a * ↑((2 * R₂ / R₁) ^ a) := by gcongr; exact lintegral_inv_vol_le hR₁ hR₂
     _ = _ := by rw [← coe_mul, C3_0_1, C_K, ← Nat.cast_pow, NNReal.rpow_natCast]
+
+
+lemma tendsto_carlesonOperatorIntegrand_of_dominated_convergence
+  (hR₁ : 0 < R₁)
+  {l : Filter ℕ} [l.IsCountablyGenerated]
+  {F : ℕ → X → ℂ} (bound : X → ℝ)
+  (hF_meas : ∀ᶠ (n : ℕ) in l, AEStronglyMeasurable (F n))
+  (h_bound : ∀ᶠ (n : ℕ) in l, ∀ᵐ (a : X), ‖F n a‖ ≤ bound a)
+  (bound_integrable : IntegrableOn (fun y ↦ bound y) (Annulus.oo x R₁ R₂) volume)
+  (h_lim : ∀ᵐ (a : X), Filter.Tendsto (fun (n : ℕ) => F n a) l (nhds (f a))) :
+    Filter.Tendsto (fun (n : ℕ) => carlesonOperatorIntegrand K θ R₁ R₂ (F n) x) l
+      (nhds (carlesonOperatorIntegrand K θ R₁ R₂ f x)) := by
+  unfold carlesonOperatorIntegrand
+  set bound' := (fun y ↦ ‖K x y * bound y * exp (I * θ y)‖)
+  apply MeasureTheory.tendsto_integral_filter_of_dominated_convergence (fun y ↦ ‖K x y * bound y * exp (I * θ y)‖)
+  · apply hF_meas.mp
+    apply Filter.Eventually.of_forall
+    intro n hFn
+    apply AEStronglyMeasurable.mul
+    · exact AEStronglyMeasurable.mul ((measurable_K_right x).aestronglyMeasurable.restrict) hFn.restrict
+    · apply AEStronglyMeasurable.restrict
+      apply Measurable.aestronglyMeasurable
+      apply Measurable.cexp
+      apply (map_continuous θ).measurable.complex_ofReal.const_mul
+  · apply h_bound.mp
+    apply Eventually.of_forall
+    intro n hn
+    simp only [defaultA, Complex.norm_mul, norm_exp_I_mul_ofReal, mul_one, norm_real,
+      Real.norm_eq_abs]
+    apply ae_restrict_le
+    apply hn.mp
+    apply Eventually.of_forall
+    intro y hy
+    gcongr
+    exact le_trans hy (le_abs_self _)
+  · exact (integrableOn_coi_inner_annulus' bound_integrable.ofReal hR₁).norm
+  · apply ae_restrict_le
+    apply h_lim.mp
+    apply Eventually.of_forall
+    intro y hy
+    exact Filter.Tendsto.mul (Filter.Tendsto.mul tendsto_const_nhds hy) tendsto_const_nhds
+
+
+--TODO: move
+theorem Filter.iSup_liminf_le_liminf_iSup {α : Type*} {β : Type*} {ι : Sort*} [CompleteLattice α]
+  {f : Filter β} {u : ι → β → α} :
+    ⨆ (i : ι), Filter.liminf (u i) f ≤ Filter.liminf (fun b ↦ ⨆ (i : ι), u i b) f := by
+  simp only [iSup_le_iff]
+  intro i
+  rw [liminf_eq_iSup_iInf, liminf_eq_iSup_iInf]
+  gcongr with s hs b hb
+  apply le_iSup (fun i ↦ u i b)
+
+lemma linearizedCarlesonOperator_le_liminf_linearizedCarlesonOperator_of_tendsto
+  {Q : X → Θ X}
+  {l : Filter ℕ} [l.IsCountablyGenerated] [l.NeBot]
+  {F : ℕ → X → ℂ} (bound : X → ℝ)
+  (hF_meas : ∀ᶠ (n : ℕ) in l, AEStronglyMeasurable (F n))
+  (h_bound : ∀ᶠ (n : ℕ) in l, ∀ᵐ (a : X), ‖F n a‖ ≤ bound a)
+  (bound_integrable : LocallyIntegrable bound)
+  (h_lim : ∀ᵐ (a : X), Filter.Tendsto (fun (n : ℕ) => F n a) l (nhds (f a))) :
+      linearizedCarlesonOperator Q K f x ≤ Filter.liminf (fun n ↦ linearizedCarlesonOperator Q K (F n) x) l := by
+  unfold linearizedCarlesonOperator
+  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
+  gcongr with R₁
+  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
+  gcongr with R₂
+  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
+  gcongr with R₁_pos
+  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
+  gcongr with R₁_lt_R₂
+  apply le_of_eq
+  symm
+  apply Filter.Tendsto.liminf_eq
+  apply Filter.Tendsto.enorm
+  apply tendsto_carlesonOperatorIntegrand_of_dominated_convergence R₁_pos bound hF_meas h_bound _ h_lim
+  apply IntegrableOn.mono_set _ (Annulus.oo_subset_ball)
+  apply IntegrableOn.mono_set _ (ball_subset_closedBall)
+  apply bound_integrable.integrableOn_isCompact (isCompact_closedBall _ _)
+
+lemma carlesonOperator_le_liminf_carlesonOperator_of_tendsto
+  {l : Filter ℕ} [l.IsCountablyGenerated] [l.NeBot]
+  {F : ℕ → X → ℂ} (bound : X → ℝ)
+  (hF_meas : ∀ᶠ (n : ℕ) in l, AEStronglyMeasurable (F n))
+  (h_bound : ∀ᶠ (n : ℕ) in l, ∀ᵐ (a : X), ‖F n a‖ ≤ bound a)
+  (bound_integrable : LocallyIntegrable bound)
+  (h_lim : ∀ᵐ (a : X), Filter.Tendsto (fun (n : ℕ) => F n a) l (nhds (f a))) :
+    carlesonOperator K f x ≤ Filter.liminf (fun n ↦ carlesonOperator K (F n) x) l := by
+  unfold carlesonOperator
+  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
+  gcongr with θ
+  apply linearizedCarlesonOperator_le_liminf_linearizedCarlesonOperator_of_tendsto bound hF_meas h_bound bound_integrable h_lim
