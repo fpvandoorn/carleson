@@ -1,4 +1,5 @@
 import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
+import Carleson.Defs
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
@@ -264,7 +265,8 @@ lemma MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_top {α : Type*} {F : Type*} 
 
 
 -- TODO: could maybe be strengthened to ↔
-lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
+lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] [ContinuousENorm ε]
+  {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
   (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) (hf : MemLorentz f p r₁ μ) :
     MemLorentz f p r₂ μ := by
   unfold MemLorentz at *
@@ -418,6 +420,25 @@ def HasLorentzType (T : (α → ε₁) → (α' → ε₂))
   ∀ f : α → ε₁, MemLorentz f p r μ → AEStronglyMeasurable (T f) ν ∧
     eLorentzNorm (T f) q s ν ≤ c * eLorentzNorm f p r μ
 
+
+lemma hasStrongType_iff_hasLorentzType {ε₁ ε₂}
+  [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
+  {T : (α → ε₁) → (α' → ε₂)}
+  {p q : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} :
+    HasStrongType T p q μ ν c ↔ HasLorentzType T p p q q μ ν c := by
+  unfold HasStrongType HasLorentzType
+  constructor
+  · intro h f hf
+    unfold MemLp MemLorentz at *
+    rw [eLorentzNorm_eq_Lp hf.1] at *
+    have := h f hf
+    rwa [eLorentzNorm_eq_Lp this.1]
+  · intro h f hf
+    unfold MemLp MemLorentz at *
+    rw [← eLorentzNorm_eq_Lp hf.1] at *
+    have := h f hf
+    rwa [← eLorentzNorm_eq_Lp this.1]
+
 /-
 -- TODO: find better name
 lemma HasLorentzType_p_infty_qs {T : (α → ε₁) → (α' → ε₂)} {p q s : ℝ≥0∞}
@@ -539,10 +560,12 @@ def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [ENorm ε'] [SupSet ε] [P
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T ⇑(fs n)) 1 (ν.restrict G)) Filter.atTop
 --TODO: Show that the Carleson operator is weakly continuous in this sense via Fatou's lemma
 
+--lemma carlesonOperator_weaklyContinuous : WeaklyContinuous carlesonOperator
+
 theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENormedSpace ε']
-  {p p' : ℝ≥0∞} (hpp' : p.HolderConjugate p')
-  {T : (α → ℝ≥0) → α' → ε'} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+  {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} {T : (α → ℝ≥0) → α' → ε'}
   (hT : HasRestrictedWeakType T p p' μ ν c) --(T_zero : eLpNorm (T 0) 1 ν = 0)
+  (hpp' : p.HolderConjugate p')
   (weakly_cont_T : WeaklyContinuous T p μ ν)
   {G : Set α'} (hG : MeasurableSet G) (hG' : ν G < ⊤)
   (T_subadditive : ∀ (f g : α → ℝ≥0), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
@@ -708,7 +731,7 @@ lemma wlog_measurable {α : Type*} {β : Type*} {mα : MeasurableSpace α} [Topo
   set g := hf.choose
   apply ae_eq_implies hg.1 hg.2.symm (measurable hg.1)
 
-lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
+lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
   --[ENormedAddMonoid ε']
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}
@@ -716,7 +739,16 @@ lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*} /- [MeasurableSpace ε
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p')
   (T_subadd : ∀ (f g : α → 𝕂) (x : α'), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
     ‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
-  (T_submul : ∀ (a : 𝕂) (f : α → 𝕂) (x : α'), ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ • ‖T f x‖ₑ) :
+  (T_submul : ∀ (a : 𝕂) (f : α → 𝕂) (x : α'), ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ • ‖T f x‖ₑ)
+  (weakly_cont_T : ∀ {f : α → 𝕂} {fs : ℕ → α → 𝕂}
+                     (f_locInt : LocallyIntegrable f μ)
+                     (hF_meas : ∀ᶠ (n : ℕ) in Filter.atTop, AEStronglyMeasurable (fs n) μ)
+                     (h_lim : ∀ᵐ (a : α) ∂μ, Filter.Tendsto (fun (n : ℕ) => fs n a) Filter.atTop (nhds (f a)))
+                     (G : Set α'),
+    eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T (fs n)) 1 (ν.restrict G)) Filter.atTop)
+
+    :
+
   --(weakly_cont_T : WeaklyContinuous T μ ν) : --TODO: correct assumption with modified T
     --TODO: might have to adjust the constant
     HasLorentzType T p 1 p ∞ μ ν (4 * c / p) := by
@@ -754,8 +786,29 @@ lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*} /- [MeasurableSpace ε
         rw [algebraMap]
         sorry --TODO: simple algebra
       set T' := T ∘ (fun f ↦ algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ f)
+      --TODO: use properties for T to get those for T'
       have hT' : HasRestrictedWeakType T' p p' μ ν c := sorry
-      have weaklyCont_T' : WeaklyContinuous T' p μ ν := sorry
+      have weaklyCont_T' : WeaklyContinuous T' p μ ν := by
+        unfold WeaklyContinuous T'
+        intro fs hfs f hf G
+        simp only [Function.comp_apply]
+        apply weakly_cont_T
+        · --TODO: get this from (hf : MemLorentz f p 1 μ)
+          sorry
+        · apply Filter.Eventually.of_forall
+          intro n
+          apply Measurable.aestronglyMeasurable
+          apply RCLike.measurable_ofReal.comp
+          apply measurable_coe_nnreal_real.comp (SimpleFunc.measurable (fs n))
+        · apply Filter.Eventually.of_forall
+          intro x
+          --apply Filter.Tendsto.algebraMap
+          --apply Filter.Tendsto.comp _
+          --apply Filter.Tendsto.comp _
+          sorry --TODO: use that f is the supremum; maybe need to add a condition implying that
+          -- the (fs n) are really converging to f
+
+
       have T'_subadd : ∀ (f g : α → ℝ≥0),
         MemLorentz f p 1 μ →
           MemLorentz g p 1 μ →
@@ -768,7 +821,7 @@ lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*} /- [MeasurableSpace ε
       have helper : ∀ {f : α → ℝ≥0} (hf : Measurable f) (hf' : MemLorentz f p 1 μ),
           eLpNorm (T' f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
         intro f hf hf'
-        apply HasRestrictedWeakType.hasLorentzType_helper hpp' hT' weaklyCont_T' measurable_G G_finite
+        apply HasRestrictedWeakType.hasLorentzType_helper hT' hpp' weaklyCont_T' measurable_G G_finite
           T'_subadd T'_submul hf hf'
 
       calc _
