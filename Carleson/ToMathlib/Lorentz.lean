@@ -734,15 +734,6 @@ theorem RCLike.norm_I {K : Type u_1} [RCLike K] : ‖(RCLike.I : K)‖ = if RCLi
   · push_neg at h
     simpa
 
---TODO: move and find better name
-lemma wlog_measurable {α : Type*} {β : Type*} {mα : MeasurableSpace α} [TopologicalSpace β] [MeasurableSpace β] {μ : Measure α} {motive : (α → β) → Prop}
-  (ae_eq_implies : ∀ ⦃f g : α → β⦄ (_ : StronglyMeasurable f) (_ : f =ᶠ[ae μ] g), motive f → motive g)
-  (measurable : ∀ ⦃f : α → β⦄ (_ : StronglyMeasurable f), motive f)
-    ⦃f : α → β⦄ (hf : AEStronglyMeasurable f μ) : motive f := by
-  have hg := hf.choose_spec
-  set g := hf.choose
-  apply ae_eq_implies hg.1 hg.2.symm (measurable hg.1)
-
 lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
   --[ENormedAddMonoid ε']
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
@@ -774,7 +765,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
       intro G measurable_G G_finite
       rcases hf with ⟨aemeasurable_f, hf⟩
       revert f --TODO: go on here
-      apply wlog_measurable
+      apply wlog_stronglymeasurable
       · intro f g stronglyMeasurable_f hfg hf hg
         have : eLorentzNorm f p 1 μ < ⊤ := by
           sorry --use: hg
