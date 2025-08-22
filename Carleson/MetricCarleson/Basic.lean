@@ -1,4 +1,5 @@
 import Carleson.Defs
+import Carleson.ToMathlib.RealInterpolation.Misc
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Filter Topology ShortVariables Metric Complex
@@ -414,6 +415,73 @@ lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖
       rw [← enorm_norm, ← enorm_one (G := ℝ)]; exact Real.enorm_le_enorm (norm_nonneg _) (nf y)
     _ ≤ C_K a * ↑((2 * R₂ / R₁) ^ a) := by gcongr; exact lintegral_inv_vol_le hR₁ hR₂
     _ = _ := by rw [← coe_mul, C3_0_1, C_K, ← Nat.cast_pow, NNReal.rpow_natCast]
+
+
+theorem carlesonOperatorIntegrand_measurable {θ : Θ X} (mf : AEStronglyMeasurable f) :
+    Measurable (carlesonOperatorIntegrand K θ R₁ R₂ f) := by
+  unfold carlesonOperatorIntegrand
+  revert f
+  apply wlog_stronglymeasurable
+  · intro f g stronglyMeasurable_f hfg hf
+    have {x : X} : ∫ (y : X) in Annulus.oo x R₁ R₂, K x y * f y * cexp (I * ↑(θ y))
+                 = ∫ (y : X) in Annulus.oo x R₁ R₂, K x y * g y * cexp (I * ↑(θ y)) := by
+      apply integral_congr_ae
+      apply ae_restrict_le
+      simp only [mul_eq_mul_right_iff, mul_eq_mul_left_iff, exp_ne_zero, or_false]
+      apply Filter.mem_of_superset hfg
+      intro x
+      simp only [mem_setOf_eq]
+      intro h
+      left
+      exact h
+    simp_rw [← this]
+    exact hf
+
+  intro f mf
+  rw [← stronglyMeasurable_iff_measurable]
+  conv => congr; ext x; rw [← integral_indicator Annulus.measurableSet_oo]
+  apply StronglyMeasurable.integral_prod_right
+  rw [stronglyMeasurable_iff_measurable]
+  apply Measurable.indicator _ (measurable_dist measurableSet_Ioo)
+  apply (measurable_K.mul (mf.measurable.comp measurable_snd)).mul
+  apply ((Complex.measurable_ofReal.comp _).const_mul I).cexp
+  exact Measurable.comp (map_continuous θ).measurable measurable_snd
+
+theorem iSup_eq_iSup {α : Type*} {β γ : Type*} [CompleteLattice α] [MetricSpace α]
+  {f : β → α} {g : γ → α} (h : ∀ ε > 0, ∀ (i : β), ∃ (j : γ), dist (f i) (g j) < ε)
+  (h' : ∀ ε > 0, ∀ (j : γ), ∃ (i : β), dist (f i) (g j) < ε) :
+    ⨆ (i : β), f i = ⨆ (j : γ), g j := by
+  sorry --TODO: check whether this works
+
+theorem linearizedCarlesonOperator_measurable {θ : Θ X} (mf : AEStronglyMeasurable f) :
+    Measurable (linearizedCarlesonOperator (fun x ↦ θ) K f) := by
+  unfold linearizedCarlesonOperator
+  have {x : X} :
+      ⨆ R₁, ⨆ R₂, ⨆ (_ : 0 < R₁), ⨆ (_ : R₁ < R₂), ‖carlesonOperatorIntegrand K ((fun x ↦ θ) x) R₁ R₂ f x‖ₑ
+      = ⨆ (R₁ : ℚ), ⨆ (R₂ : ℚ), ⨆ (_ : 0 < R₁), ⨆ (_ : R₁ < R₂), ‖carlesonOperatorIntegrand K ((fun x ↦ θ) x) R₁ R₂ f x‖ₑ := by
+    --apply iSup_Prop
+    --conv => congr; congr; ext; congr; ext; simp_rw []
+    simp_rw [iSup_prod']
+    --apply iSup_eq_iSup
+    sorry --TODO: use exists_rat_near_carlesonOperatorIntegrand
+  simp_rw [this]
+  apply Measurable.iSup
+  intro R₁
+  apply Measurable.iSup
+  intro R₂
+  apply Measurable.iSup_Prop
+  apply Measurable.iSup_Prop
+  apply Measurable.enorm
+  apply carlesonOperatorIntegrand_measurable mf
+
+--TODO: get rid of the countability assumption
+theorem carlesonOperator_measurable (mf : AEStronglyMeasurable f) [Countable (Θ X)] :
+    Measurable (carlesonOperator K f) := by
+  unfold carlesonOperator
+  apply Measurable.iSup
+  intro θ
+  --extract_goal
+  apply linearizedCarlesonOperator_measurable mf
 
 
 --generalized from EReal.iSup_add_le_add_iSup
