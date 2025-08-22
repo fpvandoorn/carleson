@@ -20,15 +20,18 @@ variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a
 /-! ## Reformulations of Theorem 10.0.1 -/
 
 /- Theorem 10.0.1, reformulation -/
-theorem two_sided_metric_carleson_restricted_weak_type (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2)
+theorem two_sided_metric_carleson_restricted_weak_type [Countable (Θ X)] (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2)
   (hqq' : q.HolderConjugate q')
   (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
       HasRestrictedWeakType (carlesonOperator K) q q' volume volume (C10_0_1 a q) := by
   unfold HasRestrictedWeakType
   intro F G hF F_finite hG G_finite
   constructor
-  · sorry --TODO: hopefully, this is already done somewhere
-    -- or check if maybe this can be removed from the definition of HasRestrictedWeakType
+  · rename_i m d kernel cf cancel count
+    have : IsOneSidedKernel a K := by infer_instance
+    set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
+    apply (carlesonOperator_measurable _).aestronglyMeasurable
+    apply (locallyIntegrable_const _).indicator hF
   rw [eLpNorm_one_eq_lintegral_enorm, mul_assoc, mul_comm (volume _ ^ _), ← mul_assoc]
   simp_rw [enorm_eq_self]
   simp only [toReal_inv, coe_toReal]
@@ -39,12 +42,12 @@ theorem two_sided_metric_carleson_restricted_weak_type (ha : 4 ≤ a) (hq : q �
     split_ifs <;> simp
 
 
-theorem two_sided_metric_carleson_lorentz_type (ha : 4 ≤ a)
+theorem two_sided_metric_carleson_lorentz_type [Countable (Θ X)] (ha : 4 ≤ a)
   (hq : q ∈ Ioo 1 2)
   (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasLorentzType (carlesonOperator K) q 1 q ⊤ volume volume (4 * (C10_0_1 a q) / q) := by
   have hqq' := NNReal.HolderConjugate.conjExponent hq.1
-  rename_i m d kernel cf cancel
+  rename_i m d kernel cf cancel count
   have : IsOneSidedKernel a K := by infer_instance
   set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
   apply (two_sided_metric_carleson_restricted_weak_type ha (mem_Ioc_of_Ioo hq) hqq' hT).hasLorentzType
@@ -60,6 +63,12 @@ theorem two_sided_metric_carleson_lorentz_type (ha : 4 ≤ a)
     rw [carlesonOperator_const_smul']
     rfl
   · intro f fs f_locInt h_meas h_norm_monotone h_lim G
+    have bound {n : ℕ} : ∀ᵐ (a : X), ‖fs n a‖ ≤ ‖f a‖ := by
+      apply Filter.Eventually.of_forall
+      intro x
+      have h_lim := (h_lim x).norm
+      have h_norm_monotone := h_norm_monotone x
+      apply h_norm_monotone.ge_of_tendsto h_lim
     calc _
       _ ≤ eLpNorm (fun x ↦ Filter.liminf (fun n ↦ carlesonOperator K (fs n) x) Filter.atTop) 1 (volume.restrict G) := by
         apply eLpNorm_mono_enorm
@@ -68,20 +77,14 @@ theorem two_sided_metric_carleson_lorentz_type (ha : 4 ≤ a)
         apply carlesonOperator_le_liminf_carlesonOperator_of_tendsto (norm ∘ f)
           (Filter.Eventually.of_forall h_meas) _ f_locInt.norm (Filter.Eventually.of_forall h_lim)
         apply Filter.Eventually.of_forall
-        intro n
-        apply Filter.Eventually.of_forall
-        intro x
-        simp only [comp_apply]
-        have h_lim := (h_lim x).norm
-        have h_norm_monotone := h_norm_monotone x
-        apply h_norm_monotone.ge_of_tendsto h_lim
+        simpa only [comp_apply]
       _ ≤ Filter.liminf (fun n ↦ eLpNorm (carlesonOperator K (fs n)) 1 (volume.restrict G)) Filter.atTop := by
         rw [eLpNorm_one_eq_lintegral_enorm]
         simp_rw [eLpNorm_one_eq_lintegral_enorm, enorm_eq_self]
-        apply lintegral_liminf_le'
+        apply lintegral_liminf_le
         intro n
-        apply AEMeasurable.restrict
-        sorry --TODO: find / show lemma about measurability of the Carleson operator
+        apply (carlesonOperator_measurable _)
+        apply f_locInt.mono (h_meas _) bound
     apply Filter.liminf_le_limsup (by isBoundedDefault) (by isBoundedDefault)
 
 --TODO: move
@@ -109,7 +112,7 @@ lemma interpolation_param_mem_Ioo {t₀ t₁ t : ℝ} (h : t ∈ Ioo t₀ t₁) 
 
 
 /- Theorem 10.0.1, reformulation -/
-theorem two_sided_metric_carleson_strong_type (ha : 4 ≤ a) (hq : q ∈ Ioo 1 2)
+theorem two_sided_metric_carleson_strong_type [Countable (Θ X)] (ha : 4 ≤ a) (hq : q ∈ Ioo 1 2)
     --(hqq' : q.HolderConjugate q')
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
       let q₀ := (q + 2) / 2;
@@ -199,6 +202,9 @@ theorem two_sided_metric_carleson_strong_type (ha : 4 ≤ a) (hq : q ∈ Ioo 1 2
   rw [helper q₁_pos] at lorentzType_q₁
 
   -- use interpolation for Lorentz spaces
+  rename_i m d kernel cf cancel count
+  have : IsOneSidedKernel a K := by infer_instance
+  set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
   rw [hasStrongType_iff_hasLorentzType]
   convert exists_hasLorentzType_real_interpolation _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ lorentzType_q₀ lorentzType_q₁ _ _
   · simp [hq₀.1.le]
@@ -230,15 +236,14 @@ theorem two_sided_metric_carleson_strong_type (ha : 4 ≤ a) (hq : q ∈ Ioo 1 2
   · norm_cast
     rw [← ENNReal.coe_div q₀_pos.ne.symm, ← ENNReal.coe_div q₁_pos.ne.symm, ← ENNReal.coe_inv q_pos.ne.symm, ← ENNReal.coe_add]
     norm_cast
-  · sorry --TODO: get this from lemma about measurability of the carlesonOperator
+  · intro f hf
+    apply (carlesonOperator_measurable _).aestronglyMeasurable
+    apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le, q_pos]
   · unfold AESubadditiveOn
     intro f g hf hg
     simp only [enorm_eq_self, coe_one, one_mul]
     apply Filter.Eventually.of_forall
     intro x
-    rename_i m d kernel cf cancel
-    have : IsOneSidedKernel a K := by infer_instance
-    set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
     apply carlesonOperator_add_le_add_carlesonOperator
     · rcases hf with hf | hf
       · apply (hf.memLp _).locallyIntegrable <;> simp [hq₀.1.le]
