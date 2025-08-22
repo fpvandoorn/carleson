@@ -416,6 +416,59 @@ lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖
     _ = _ := by rw [← coe_mul, C3_0_1, C_K, ← Nat.cast_pow, NNReal.rpow_natCast]
 
 
+--generalized from EReal.iSup_add_le_add_iSup
+--TODO: move
+theorem iSup_add_le_add_iSup {ι : Sort*} {β : Type*} [CompleteLattice β] [Add β]
+  [AddLeftMono β] [AddRightMono β]
+  {u v : ι → β} :
+    ⨆ (x : ι), (fun x ↦ u x + v x) x ≤ (⨆ x, u x) + ⨆ x, v x := (iSup_le fun i ↦ add_le_add (le_iSup _ i) (le_iSup _ i))
+
+theorem enorm_carlesonOperatorIntegrand_add_le_add_enorm_carlesonOperatorIntegrand
+  {f g : X → ℂ} (hf : LocallyIntegrable f) (hg : LocallyIntegrable g)
+  {θ : Θ X} {R₁ R₂ : ℝ} (R₁_pos : 0 < R₁) :
+  ‖carlesonOperatorIntegrand K θ R₁ R₂ (f + g) x‖ₑ ≤
+    ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ + ‖carlesonOperatorIntegrand K θ R₁ R₂ g x‖ₑ := by
+  unfold carlesonOperatorIntegrand
+  apply le_trans _ (enorm_add_le _ _)
+  rw [← integral_add]
+  · apply le_of_eq
+    congr with y
+    simp only [Pi.add_apply]
+    ring
+  · apply integrableOn_coi_inner_annulus' _ R₁_pos
+    apply IntegrableOn.mono_set _ (Annulus.oo_subset_ball)
+    apply IntegrableOn.mono_set _ (ball_subset_closedBall)
+    apply hf.integrableOn_isCompact (isCompact_closedBall _ _)
+  · apply integrableOn_coi_inner_annulus' _ R₁_pos
+    apply IntegrableOn.mono_set _ (Annulus.oo_subset_ball)
+    apply IntegrableOn.mono_set _ (ball_subset_closedBall)
+    apply hg.integrableOn_isCompact (isCompact_closedBall _ _)
+
+theorem linearizedCarlesonOperator_add_le_add_linearizedCarlesonOperator
+  {f g : X → ℂ} (hf : LocallyIntegrable f) (hg : LocallyIntegrable g) {θ : Θ X} :
+  linearizedCarlesonOperator (fun _ ↦ θ) K (f + g) x ≤
+    linearizedCarlesonOperator (fun _ ↦ θ) K f x + linearizedCarlesonOperator (fun _ ↦ θ) K g x := by
+  unfold linearizedCarlesonOperator
+  apply le_trans _ iSup_add_le_add_iSup
+  gcongr with R₁
+  apply le_trans _ iSup_add_le_add_iSup
+  gcongr with R₂
+  apply le_trans _ iSup_add_le_add_iSup
+  gcongr with R₁_pos
+  apply le_trans _ iSup_add_le_add_iSup
+  gcongr with R₁_lt_R₂
+  simp only
+  apply enorm_carlesonOperatorIntegrand_add_le_add_enorm_carlesonOperatorIntegrand hf hg R₁_pos
+
+theorem carlesonOperator_add_le_add_carlesonOperator
+  {f g : X → ℂ} (hf : LocallyIntegrable f) (hg : LocallyIntegrable g) :
+    carlesonOperator K (f + g) x ≤ carlesonOperator K f x + carlesonOperator K g x := by
+  unfold carlesonOperator
+  apply le_trans _ iSup_add_le_add_iSup
+  gcongr with θ
+  apply linearizedCarlesonOperator_add_le_add_linearizedCarlesonOperator hf hg
+
+
 lemma tendsto_carlesonOperatorIntegrand_of_dominated_convergence
   (hR₁ : 0 < R₁)
   {l : Filter ℕ} [l.IsCountablyGenerated]
