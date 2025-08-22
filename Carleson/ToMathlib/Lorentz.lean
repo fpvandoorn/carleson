@@ -246,6 +246,15 @@ variable [TopologicalSpace ε] [ContinuousENorm ε]
 def MemLorentz (f : α → ε) (p r : ℝ≥0∞) (μ : Measure α) : Prop :=
   AEStronglyMeasurable f μ ∧ eLorentzNorm f p r μ < ∞
 
+lemma MemLorentz_iff_MemLp {f : α → ε'} :
+    MemLorentz f p p μ ↔ MemLp f p μ := by
+  unfold MemLorentz MemLp
+  constructor
+  · intro h
+    rwa [← eLorentzNorm_eq_Lp h.1]
+  · intro h
+    rwa [eLorentzNorm_eq_Lp h.1]
+
 /-
 lemma MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_top {α : Type*} {F : Type*} {m0 : MeasurableSpace α}
   {p q : ENNReal} {μ : Measure α} [NormedAddCommGroup F] {f : α → F} {C : ℝ}
@@ -260,9 +269,6 @@ lemma MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_top {α : Type*} {F : Type*} 
 -/
 
 --instance ENNReal.normedAddCommGroup : NormedAddCommGroup ℝ≥0∞ := ⟨fun _r _y => rfl⟩
-
-
-
 
 -- TODO: could maybe be strengthened to ↔
 lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] [ContinuousENorm ε]
@@ -405,6 +411,12 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] 
       right; right
       rw [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable r₁_pos.ne.symm] at norm_zero
       rwa [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable (r₁_pos.trans_le r₁_le_r₂).ne.symm]
+
+lemma MemLorentz.memLp {f : α → ε'} (hf : MemLorentz f p r μ) (h : r ∈ Set.Ioc 0 p) :
+    MemLp f p μ := by
+  rw [← MemLorentz_iff_MemLp]
+  apply MemLorentz_of_MemLorentz_ge h.1 h.2 hf
+
 
 end Lorentz
 
@@ -735,15 +747,16 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
   --[ENormedAddMonoid ε']
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}
-  {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+  {μ : Measure α} [IsLocallyFiniteMeasure μ] {ν : Measure α'} {c : ℝ≥0∞}
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p')
   (T_subadd : ∀ (f g : α → 𝕂) (x : α'), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
     ‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
   (T_submul : ∀ (a : 𝕂) (f : α → 𝕂) (x : α'), ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ • ‖T f x‖ₑ)
   (weakly_cont_T : ∀ {f : α → 𝕂} {fs : ℕ → α → 𝕂}
                      (f_locInt : LocallyIntegrable f μ)
-                     (hF_meas : ∀ᶠ (n : ℕ) in Filter.atTop, AEStronglyMeasurable (fs n) μ)
-                     (h_lim : ∀ᵐ (a : α) ∂μ, Filter.Tendsto (fun (n : ℕ) => fs n a) Filter.atTop (nhds (f a)))
+                     (hF_meas : ∀ (n : ℕ), AEStronglyMeasurable (fs n) μ)
+                     (h_norm_monotone : ∀ (a : α), Monotone (fun n ↦ ‖fs n a‖))
+                     (h_lim : ∀ (a : α), Filter.Tendsto (fun (n : ℕ) => fs n a) Filter.atTop (nhds (f a)))
                      (G : Set α'),
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T (fs n)) 1 (ν.restrict G)) Filter.atTop)
 
@@ -794,13 +807,21 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
         simp only [Function.comp_apply]
         apply weakly_cont_T
         · --TODO: get this from (hf : MemLorentz f p 1 μ)
+          --TODO: add lemmas for locallyIntegrable
+          --unfold LocallyIntegrable IntegrableAtFilter IntegrableOn
+
+          --have : LocallyIntegrable f μ :=
+          --apply (hf.memLp _).locallyIntegrable
           sorry
-        · apply Filter.Eventually.of_forall
+        · --apply Filter.Eventually.of_forall
           intro n
           apply Measurable.aestronglyMeasurable
           apply RCLike.measurable_ofReal.comp
           apply measurable_coe_nnreal_real.comp (SimpleFunc.measurable (fs n))
-        · apply Filter.Eventually.of_forall
+        · intro x
+          simp only [Function.comp_apply, norm_algebraMap', Real.norm_eq_abs, NNReal.abs_eq]
+          exact fun ⦃a b⦄ a_1 ↦ hfs a_1 x
+        · --apply Filter.Eventually.of_forall
           intro x
           --apply Filter.Tendsto.algebraMap
           --apply Filter.Tendsto.comp _
