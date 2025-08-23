@@ -155,19 +155,6 @@ lemma eLorentzNorm_eq_Lp {f : α → ε'} (hf : AEStronglyMeasurable f μ) :
     _ = eLpNorm f (.ofReal p.toReal) μ := (eLpNorm_eq_distribution hf (ENNReal.toReal_pos p_zero p_eq_top)).symm
     _ = eLpNorm f p μ := by congr; exact p_eq.symm
 
-lemma eLorentzNorm_eq_wnorm (hp : p ≠ 0) : eLorentzNorm f p ∞ μ = wnorm f p μ := by
-  by_cases p_eq_top : p = ∞
-  · rw [p_eq_top]
-    simp
-  rw [eLorentzNorm_eq_eLorentzNorm' hp p_eq_top, wnorm_ne_top p_eq_top]
-  unfold eLorentzNorm' wnorm'
-  simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv,
-    eLpNorm_exponent_top, one_mul]
-  unfold eLpNormEssSup
-  --rw [Continuous.essSup]
-  simp only [enorm_eq_self]
-  --TODO: somehow use continuity properties of the distribution function here
-  sorry
 
 --TODO: generalize this?
 lemma aeMeasurable_withDensity_inv {f : ℝ≥0 → ℝ≥0∞} (hf : AEMeasurable f) :
@@ -192,6 +179,215 @@ lemma aeMeasurable_withDensity_inv {f : ℝ≥0 → ℝ≥0∞} (hf : AEMeasurab
   · apply Measurable.aemeasurable
     measurability
   · exact measurable_inv.aemeasurable.coe_nnreal_ennreal
+
+
+--TODO: move to essSup.lean
+lemma essSup_le_iSup {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α} [CompleteLattice β]
+    (f : α → β) : essSup f μ ≤ ⨆ i, f i := by
+  apply essSup_le_of_ae_le
+  apply Filter.Eventually.of_forall
+  intro i
+  apply le_iSup
+
+--TODO: move
+lemma iSup_le_essSup {f : α → ℝ≥0∞}
+  (h : ∀ {x}, ∀ {a}, a < f x → μ {y | a < f y} ≠ 0) :
+    ⨆ x, f x ≤ essSup f μ := by
+  apply iSup_le
+  intro i
+  rw [essSup_eq_sInf]
+  apply le_sInf
+  intro b hb
+  simp only [Set.mem_setOf_eq] at hb
+  apply le_of_forall_lt
+  intro c hc
+  have := h hc
+  contrapose! this
+  rw [← ENNReal.bot_eq_zero, ← le_bot_iff] at *
+  apply le_trans _ hb
+  apply measure_mono
+  intro x
+  simp only [Set.mem_setOf_eq]
+  intro hc
+  exact lt_of_le_of_lt this hc
+
+lemma helper {f : ℝ≥0∞ → ℝ≥0∞} {x : ℝ≥0∞} (hx : x ≠ ⊤)
+  (hf : ContinuousWithinAt f (Set.Ioi x) x)
+  {a : ℝ≥0∞} (ha : a < f x) :
+    volume {y | a < f y} ≠ 0 := by
+  unfold ContinuousWithinAt at hf
+  set s := Set.Ioi a
+  have mem_nhds_s : s ∈ nhds (f x) := by
+    rw [IsOpen.mem_nhds_iff isOpen_Ioi]
+    simpa
+  have := hf mem_nhds_s
+  simp only [Filter.mem_map] at this
+  rw [← ENNReal.bot_eq_zero, ← bot_lt_iff_ne_bot]
+  rw [mem_nhdsWithin] at this
+  rcases this with ⟨u, u_open, x_in_u, u_inter_subset⟩
+  calc _
+    _ < volume (u ∩ Set.Ioi x) := by
+      rw [bot_lt_iff_ne_bot]
+      apply IsOpen.measure_ne_zero
+      · apply u_open.inter isOpen_Ioi
+      apply ENNReal.nonempty_open_inter_Ioi u_open hx x_in_u
+    _ ≤ volume (f ⁻¹' s) := by
+      apply measure_mono u_inter_subset
+    _ ≤ volume {y | a < f y} := by
+      apply measure_mono
+      unfold s Set.preimage
+      simp only [Set.mem_Ioi, Set.setOf_subset_setOf]
+      intro y h
+      exact h
+
+/-
+--TODO: move
+theorem NNReal.ball_eq_Ioo (x r : ℝ≥0) : Metric.ball x r = Set.Ioo (x - r) (x + r) :=
+  Set.ext fun y => by
+    rw [Metric.mem_ball, dist_comm, NNReal.dist_eq, abs_sub_lt_iff, Set.mem_Ioo]
+    constructor
+    · intro h
+      constructor
+      · rw [NNReal.coe_sub]
+-/
+
+/-
+lemma helper' {f : ℝ≥0 → ℝ≥0∞} (x : ℝ≥0)
+  (hf : ContinuousWithinAt f (Set.Ioi x) x)
+  {a : ℝ≥0∞} (ha : a < f x) :
+    volume {y | a < f y} ≠ 0 := by
+  unfold ContinuousWithinAt at hf
+  set s := Set.Ioi a
+  have mem_nhds_s : s ∈ nhds (f x) := by
+    rw [IsOpen.mem_nhds_iff isOpen_Ioi]
+    simpa
+  have := hf mem_nhds_s
+  simp only [Filter.mem_map] at this
+  rw [← ENNReal.bot_eq_zero, ← bot_lt_iff_ne_bot]
+  rw [mem_nhdsWithin] at this
+  rcases this with ⟨u, u_open, x_in_u, u_inter_subset⟩
+  calc _
+    _ < volume (u ∩ Set.Ioi x) := by
+      rw [bot_lt_iff_ne_bot]
+      apply IsOpen.measure_ne_zero
+      · apply u_open.inter isOpen_Ioi
+      rw [Metric.isOpen_iff] at u_open
+      rcases u_open _ x_in_u with ⟨ε, ε_pos, ball_subset⟩
+      use x + ε.toNNReal / 2
+      simp only [Set.mem_inter_iff, Set.mem_Ioi, lt_add_iff_pos_right, Nat.ofNat_pos,
+        div_pos_iff_of_pos_right, Real.toNNReal_pos]
+      use ?_, ε_pos
+      apply ball_subset
+      simp only [Metric.mem_ball]
+      rw [NNReal.dist_eq]
+      simp only [NNReal.coe_add, NNReal.coe_div, Real.coe_toNNReal', NNReal.coe_ofNat,
+        add_sub_cancel_left]
+      rw [abs_of_nonneg]
+      · rw [div_lt_iff₀ zero_lt_two]
+        simp [ε_pos]
+      apply div_nonneg (by simp) zero_lt_two.le
+    _ ≤ volume (f ⁻¹' s) := by
+      apply measure_mono u_inter_subset
+    _ ≤ volume {y | a < f y} := by
+      apply measure_mono
+      unfold s Set.preimage
+      simp only [Set.mem_Ioi, Set.setOf_subset_setOf]
+      intro y h
+      exact h
+-/
+
+--TODO: move
+theorem ContinuousWithinAt.ennreal_mul {X : Type*}
+  [TopologicalSpace X] {f g : X → ℝ≥0∞} {s : Set X} {t : X} (hf : ContinuousWithinAt f s t)
+  (hg : ContinuousWithinAt g s t)
+  (h₁ : f t ≠ 0 ∨ g t ≠ ∞)
+  (h₂ : g t ≠ 0 ∨ f t ≠ ∞) :
+    ContinuousWithinAt (fun x ↦ f x * g x) s t := fun _ hx =>
+  ENNReal.Tendsto.mul hf h₁ hg h₂ hx
+
+--TODO: move
+nonrec theorem ContinuousWithinAt.ennrpow_const [TopologicalSpace α] {f : α → ℝ≥0∞} {s : Set α} {x : α}
+  {p : ℝ}
+  (hf : ContinuousWithinAt f s x) :
+    ContinuousWithinAt (fun x => f x ^ p) s x := by
+  apply hf.ennrpow_const
+
+
+lemma eLorentzNorm_eq_wnorm (hp : p ≠ 0) : eLorentzNorm f p ∞ μ = wnorm f p μ := by
+  by_cases p_eq_top : p = ∞
+  · rw [p_eq_top]
+    simp
+  rw [eLorentzNorm_eq_eLorentzNorm' hp p_eq_top, wnorm_ne_top p_eq_top]
+  unfold eLorentzNorm' wnorm'
+  simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv,
+    eLpNorm_exponent_top, one_mul]
+  unfold eLpNormEssSup
+  simp only [enorm_eq_self]
+  apply le_antisymm
+  · apply essSup_le_iSup
+  · apply iSup_le_essSup
+    intro x a ha
+    rw [ne_eq, withDensity_apply_eq_zero' (by measurability)]
+    simp only [ne_eq, ENNReal.inv_eq_zero, ENNReal.coe_ne_top, not_false_eq_true, Set.setOf_true,
+      Set.univ_inter]
+    /-
+    have : {y : NNReal | a.toNNReal < (y * distribution f (↑y) μ ^ p.toReal⁻¹).toNNReal}
+        = {y : NNReal | a < y * distribution f y μ ^ p.toReal⁻¹} := by
+      sorry
+    rw [← ne_eq] --, NNReal.volume_eq_volume_ennreal
+    · rw [← this]
+      apply helper'
+      · apply ContinuousWithinAt.ennreal_mul continuous_id'.continuousWithinAt ((continuousWithinAt_distribution _).ennrpow_const _)
+        · rw [or_iff_not_imp_left]
+          push_neg
+          intro h
+          exfalso
+          rw [h] at ha
+          simp at ha
+        · right
+          simp
+      · exact ha
+    rw [this]
+    apply MeasurableSet.diff _ (measurableSet_singleton ⊤)
+    refine measurableSet_lt measurable_const ?_
+    measurability
+    -/
+
+    have : ENNReal.ofNNReal '' {y | a < ↑y * distribution f (↑y) μ ^ p.toReal⁻¹}
+        = {y | a < y * distribution f y μ ^ p.toReal⁻¹} \ {⊤}:= by
+      ext y
+      simp only [Set.mem_image, Set.mem_setOf_eq, Set.mem_diff, Set.mem_singleton_iff]
+      constructor
+      · rintro ⟨x, hx, hxy⟩
+        rw [← hxy]
+        use hx
+        simp
+      · intro hy
+        by_cases y_eq_top : y = ⊤
+        · exfalso
+          exact hy.2 y_eq_top
+        use y.toNNReal
+        rw [ENNReal.coe_toNNReal y_eq_top]
+        use hy.1
+    rw [← ne_eq, NNReal.volume_eq_volume_ennreal]
+    · rw [this, measure_diff_null (measure_singleton ⊤)]
+      apply @helper _ x
+      · simp
+      · apply ContinuousWithinAt.ennreal_mul continuous_id'.continuousWithinAt ((continuousWithinAt_distribution _).ennrpow_const _)
+        · rw [or_iff_not_imp_left]
+          push_neg
+          intro h
+          exfalso
+          rw [h] at ha
+          simp at ha
+        · right
+          simp
+      · exact ha
+    rw [this]
+    apply MeasurableSet.diff _ (measurableSet_singleton ⊤)
+    refine measurableSet_lt measurable_const ?_
+    measurability
+
 
 lemma eLorentzNorm'_eq_integral_distribution_rpow [TopologicalSpace ε] :
     eLorentzNorm' f p 1 μ = p * ∫⁻ (t : ℝ≥0), distribution f t μ ^ p.toReal⁻¹ := by
@@ -475,21 +671,58 @@ def HasRestrictedWeakType (T : (α → β) → (α' → ε₂)) (p p' : ℝ≥0�
       eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
         ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
 
-lemma HasRestrictedWeakType.without_finiteness {T : (α → β) → (α' → ε₂)} {p p' : ℝ≥0∞}
-    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasRestrictedWeakType T p p' μ ν c) :
+lemma HasRestrictedWeakType.without_finiteness {ε₂} [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
+    {T : (α → β) → (α' → ε₂)} {p p' : ℝ≥0∞}
+    (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (p'_ne_zero : p' ≠ 0) (p'_ne_top : p' ≠ ⊤)
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (c_pos : 0 < c) (hT : HasRestrictedWeakType T p p' μ ν c)
+    : --(h_zero : ∀ {f : α → β}, ) :
   ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (MeasurableSet G) →
     eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
       ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal := by
   intro F G hF hG
+  have p_inv_pos : 0 < p⁻¹.toReal := by
+    simp only [ENNReal.toReal_inv, inv_pos, ENNReal.toReal_pos p_ne_zero p_ne_top]
+  have p'_inv_pos : 0 < p'⁻¹.toReal := by
+    simp only [ENNReal.toReal_inv, inv_pos, ENNReal.toReal_pos p'_ne_zero p'_ne_top]
   by_cases hFG : μ F < ∞ ∧ ν G < ∞
-  · exact (h F G hF hFG.1 hG hFG.2).2
+  · exact (hT F G hF hFG.1 hG hFG.2).2
   · rw [not_and_or] at hFG
     rcases hFG with hF | hG
-    · simp only [not_lt, top_le_iff] at hF
+    · by_cases G_zero : ν G = 0
+      · rw [G_zero, ENNReal.zero_rpow_of_pos p'_inv_pos]
+        simp only [ENNReal.toReal_inv, mul_zero, nonpos_iff_eq_zero]
+        convert eLpNorm_measure_zero
+        simpa
+      simp only [not_lt, top_le_iff] at hF
       rw [hF]
-      --TODO: more special cases s.th. rhs is always ⊤ here
-      sorry
-    · sorry -- analogous to the first case
+      convert le_top
+      rw [ENNReal.mul_eq_top]
+      right
+      constructor
+      · rw [ENNReal.top_rpow_of_pos p_inv_pos, ENNReal.mul_top c_pos.ne.symm]
+      simp only [ENNReal.toReal_inv, ne_eq, ENNReal.rpow_eq_zero_iff, inv_pos, inv_neg'', not_or,
+        not_and, not_lt, ENNReal.toReal_nonneg, implies_true, and_true]
+      intro h
+      exfalso
+      exact G_zero h
+    · by_cases F_zero : μ F = 0
+      · rw [F_zero, ENNReal.zero_rpow_of_pos p_inv_pos]
+        simp only [mul_zero, ENNReal.toReal_inv, zero_mul, nonpos_iff_eq_zero]
+        apply eLpNorm_eq_zero_of_ae_zero
+        sorry --TODO: need additional assumption for this!
+      simp only [not_lt, top_le_iff] at hG
+      rw [hG]
+      convert le_top
+      rw [ENNReal.mul_eq_top]
+      left
+      constructor
+      · simp only [ENNReal.toReal_inv, ne_eq, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_pos,
+        inv_neg'', not_or, not_and, not_lt, ENNReal.toReal_nonneg, implies_true, and_true]
+        use c_pos.ne.symm
+        intro h
+        exfalso
+        exact F_zero h
+      rw [ENNReal.top_rpow_of_pos p'_inv_pos]
 
 
 --TODO: Could probably weaken assumption to (h : ∀ᶠ (x : β) in f, u x ≤ v x)
@@ -517,30 +750,6 @@ theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ 
       gcongr
       apply ENNReal.rpow_add_rpow_le_add _ _ hp1
 
---TODO: Find correct class for γ; should at least work for ℝ≥0∞; prove by induction on simple functions;
---maybe another improved induction principle could be helpful
-@[elab_as_elim]
-protected theorem SimpleFunc.induction'' {α : Type*} {γ : Type*} [MeasurableSpace α] [AddZeroClass γ]
-  {motive : (SimpleFunc α γ) → Prop}
-  (const : ∀ (c : γ) {s : Set α} (hs : MeasurableSet s), motive (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))
-  (add : ∀ ⦃f : SimpleFunc α γ⦄ (c : γ) ⦃s : Set α⦄ (hs : MeasurableSet s), (Function.support ⇑f) ⊆ s →
-    motive f → motive (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)) →
-      motive (f + (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))) (f : SimpleFunc α γ) :
-        motive f := by
-  sorry
-
---modified from ennreal_induction
-@[elab_as_elim]
-protected theorem Measurable.ennreal_induction' {α : Type*} {mα : MeasurableSpace α} {motive : (α → ℝ≥0∞) → Prop}
-    (simpleFunc : ∀ ⦃f : SimpleFunc α ℝ≥0∞⦄, motive f)
-    (iSup :
-      ∀ ⦃f : ℕ → (SimpleFunc α ℝ≥0∞)⦄,
-        Monotone f → (∀ (n : ℕ), motive (f n)) → motive fun x ↦ ⨆ n, f n x)
-    ⦃f : α → ℝ≥0∞⦄ (hf : Measurable f) : motive f := by
-  convert iSup (SimpleFunc.monotone_eapprox f) _ using 2
-  · rw [SimpleFunc.iSup_eapprox_apply hf]
-  · exact fun n =>
-      @simpleFunc (SimpleFunc.eapprox f n)
 
 
 --TODO: move, generalize?, probably need more assumptions
@@ -574,8 +783,8 @@ def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [ENorm ε'] [SupSet ε] [P
 
 --lemma carlesonOperator_weaklyContinuous : WeaklyContinuous carlesonOperator
 
-theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENormedSpace ε']
-  {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} {T : (α → ℝ≥0) → α' → ε'}
+theorem HasRestrictedWeakType.hasLorentzType_helper [Nonempty α] [TopologicalSpace ε'] [ENormedSpace ε']
+  {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'}
   (hT : HasRestrictedWeakType T p p' μ ν c) --(T_zero : eLpNorm (T 0) 1 ν = 0)
   (hpp' : p.HolderConjugate p')
   (weakly_cont_T : WeaklyContinuous T p μ ν)
@@ -587,8 +796,10 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENor
       eLpNorm (T f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
   by_cases p_ne_top : p = ∞
   · sorry --TODO: check whether this works or whether it should be excluded
-  have hp : 1 ≤ p := by sorry --use: should follow from hpp'
-  have p_ne_zero : p ≠ 0 := by sorry --TODO: easy
+  by_cases p'_ne_top : p' = ∞
+  · sorry --TODO: check whether this works or whether it should be excluded
+  have hp : 1 ≤ p := hpp'.one_le --use: should follow from hpp'
+  have p_ne_zero : p ≠ 0 := hpp'.ne_zero --TODO: easy
   rw [eLorentzNorm_eq_eLorentzNorm' p_ne_zero p_ne_top] --TODO: assumptions on p
   revert f
   apply @Measurable.nnreal_induction _ m0
@@ -621,7 +832,7 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENor
           apply T_submult
         _ ≤ ‖a‖ₑ * (c * (μ s) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal) := by
           gcongr
-          exact hT.without_finiteness s G hs hG
+          apply hT.without_finiteness p_ne_zero p_ne_top hpp'.symm.ne_zero p'_ne_top c_pos s G hs hG
         _ = c * (‖a‖ₑ * μ s ^ p⁻¹.toReal) * (ν G) ^ p'⁻¹.toReal := by ring
         _ = (c / p) * eLorentzNorm' (s.indicator (Function.const α a)) p 1 μ * ν G ^ p'⁻¹.toReal := by
           rw [eLorentzNorm'_indicator (by simp) p_ne_zero p_ne_top]
@@ -734,11 +945,11 @@ theorem RCLike.norm_I {K : Type u_1} [RCLike K] : ‖(RCLike.I : K)‖ = if RCLi
   · push_neg at h
     simpa
 
-lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
+lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] [Nonempty α] {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
   --[ENormedAddMonoid ε']
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}
-  {μ : Measure α} [IsLocallyFiniteMeasure μ] {ν : Measure α'} {c : ℝ≥0∞}
+  {μ : Measure α} [IsLocallyFiniteMeasure μ] {ν : Measure α'} {c : ℝ≥0∞} (c_pos : 0 < c)
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p')
   (T_subadd : ∀ (f g : α → 𝕂) (x : α'), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
     ‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
@@ -833,7 +1044,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
       have helper : ∀ {f : α → ℝ≥0} (hf : Measurable f) (hf' : MemLorentz f p 1 μ),
           eLpNorm (T' f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
         intro f hf hf'
-        apply HasRestrictedWeakType.hasLorentzType_helper hT' hpp' weaklyCont_T' measurable_G G_finite
+        apply HasRestrictedWeakType.hasLorentzType_helper c_pos hT' hpp' weaklyCont_T' measurable_G G_finite
           T'_subadd T'_submul hf hf'
 
       calc _
