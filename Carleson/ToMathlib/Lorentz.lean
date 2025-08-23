@@ -674,7 +674,7 @@ def HasRestrictedWeakType (T : (α → β) → (α' → ε₂)) (p p' : ℝ≥0�
 lemma HasRestrictedWeakType.without_finiteness {ε₂} [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
     {T : (α → β) → (α' → ε₂)} {p p' : ℝ≥0∞}
     (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (p'_ne_zero : p' ≠ 0) (p'_ne_top : p' ≠ ⊤)
-    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (c_pos : 0 < c) (hT : HasRestrictedWeakType T p p' μ ν c)
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (c_pos : 0 < c) (hT : HasRestrictedWeakType T p p' μ ν c)
     : --(h_zero : ∀ {f : α → β}, ) :
   ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (MeasurableSet G) →
     eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
@@ -699,7 +699,7 @@ lemma HasRestrictedWeakType.without_finiteness {ε₂} [TopologicalSpace ε₂] 
       rw [ENNReal.mul_eq_top]
       right
       constructor
-      · rw [ENNReal.top_rpow_of_pos p_inv_pos, ENNReal.mul_top c_pos.ne.symm]
+      · rw [ENNReal.top_rpow_of_pos p_inv_pos, ENNReal.mul_top (by simp [c_pos.ne.symm])]
       simp only [ENNReal.toReal_inv, ne_eq, ENNReal.rpow_eq_zero_iff, inv_pos, inv_neg'', not_or,
         not_and, not_lt, ENNReal.toReal_nonneg, implies_true, and_true]
       intro h
@@ -718,7 +718,7 @@ lemma HasRestrictedWeakType.without_finiteness {ε₂} [TopologicalSpace ε₂] 
       constructor
       · simp only [ENNReal.toReal_inv, ne_eq, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_pos,
         inv_neg'', not_or, not_and, not_lt, ENNReal.toReal_nonneg, implies_true, and_true]
-        use c_pos.ne.symm
+        use (by simp [c_pos.ne.symm])
         intro h
         exfalso
         exact F_zero h
@@ -784,7 +784,7 @@ def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [ENorm ε'] [SupSet ε] [P
 --lemma carlesonOperator_weaklyContinuous : WeaklyContinuous carlesonOperator
 
 theorem HasRestrictedWeakType.hasLorentzType_helper [Nonempty α] [TopologicalSpace ε'] [ENormedSpace ε']
-  {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'}
+  {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'}
   (hT : HasRestrictedWeakType T p p' μ ν c) --(T_zero : eLpNorm (T 0) 1 ν = 0)
   (hpp' : p.HolderConjugate p')
   (weakly_cont_T : WeaklyContinuous T p μ ν)
@@ -905,7 +905,7 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [Nonempty α] [TopologicalSp
         sorry --use : all of these functions are bounded (by a constant / by f and this is MemLorentz)
       _ ≤ (c / p) * eLorentzNorm' f p 1 μ * ν G ^ p'⁻¹.toReal := by
         simp_rw [mul_assoc]
-        rw [ENNReal.limsup_const_mul_of_ne_top sorry] --use : c_ne_top
+        rw [ENNReal.limsup_const_mul_of_ne_top (ENNReal.div_ne_top (by simp) p_ne_zero)]
         gcongr
         --simp_rw [mul_comm]
         rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG'.ne)]
@@ -949,7 +949,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] [Nonempty α] {
   --[ENormedAddMonoid ε']
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}
-  {μ : Measure α} [IsLocallyFiniteMeasure μ] {ν : Measure α'} {c : ℝ≥0∞} (c_pos : 0 < c)
+  {μ : Measure α} [IsLocallyFiniteMeasure μ] {ν : Measure α'} {c : ℝ≥0} (c_pos : 0 < c)
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p')
   (T_subadd : ∀ (f g : α → 𝕂) (x : α'), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
     ‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
@@ -968,8 +968,6 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] [Nonempty α] {
     --TODO: might have to adjust the constant
     HasLorentzType T p 1 p ∞ μ ν (4 * c / p) := by
   intro f hf
-  by_cases c_ne_top : c = ⊤
-  · sorry
   --have hp : 1 ≤ p := by sorry --use: should follow from hpp'
   have claim : ∀ (G : Set α'), (MeasurableSet G) → (ν G < ∞) → eLpNorm (T f) 1 (ν.restrict G)
     ≤ (4 * c / p) * eLorentzNorm f p 1 μ * (ν G) ^ p'⁻¹.toReal := by

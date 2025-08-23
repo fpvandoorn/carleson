@@ -51,8 +51,7 @@ theorem two_sided_metric_carleson_lorentz_type [Countable (Θ X)] (ha : 4 ≤ a)
   have : IsOneSidedKernel a K := by infer_instance
   set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
   apply (two_sided_metric_carleson_restricted_weak_type ha (mem_Ioc_of_Ioo hq) hqq' hT).hasLorentzType
-  · simp only [coe_pos]
-    apply C10_0_1_pos hq.1
+  · exact C10_0_1_pos hq.1
   · simpa
   · intro f g x hf hg
     simp only [enorm_eq_self]
