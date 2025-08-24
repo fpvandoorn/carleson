@@ -548,7 +548,7 @@ def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
           simp
       _ ≤ (∫⁻ x : α, g x ∂μ) / (1 / (n + 1)) := by
         gcongr
-        exact setLIntegral_le_lintegral _ _
+        exact Measure.restrict_le_self
       _ < ⊤ := div_lt_top hg_int.ne one_div_ne_zero
   spanning := by
     ext x

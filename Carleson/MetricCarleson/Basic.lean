@@ -1,4 +1,4 @@
-import Carleson.Defs
+import Carleson.DoublingMeasure
 import Carleson.ToMathlib.RealInterpolation.Misc
 
 open scoped NNReal

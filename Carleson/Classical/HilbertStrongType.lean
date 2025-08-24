@@ -29,8 +29,8 @@ lemma czOperator_comp_add {g : ℝ → ℂ} {k : ℝ → ℂ} {r a : ℝ} :
     (czOperator (fun x y ↦ k (x - y)) r g) ∘ (fun x ↦ x + a) =
     czOperator (fun x y ↦ k (x - y)) r (g ∘ (fun x ↦ x + a)) := by
   ext x
-  simp only [Nat.reducePow, comp_apply, czOperator, Nat.cast_ofNat,
-    ← integral_indicator measurableSet_ball.compl, indicator_mul_right]
+  simp only [comp_apply, czOperator, ← integral_indicator measurableSet_ball.compl,
+    indicator_mul_right]
   conv_lhs =>  rw [← integral_add_right_eq_self _ a]
   congr with y
   simp [add_sub_add_right_eq_sub, indicator]
@@ -339,13 +339,14 @@ lemma integrable_bump_convolution {f g : ℝ → ℝ}
         rw [uIcc_of_le (by positivity)] at hx
         exact niceKernel_eq_inv ⟨hr0, hrπ⟩ hx
       · apply intervalIntegral.integral_mono_on hrπ.le h_integrable
-        · exact intervalIntegrable_const.add hbound_integrable
+        · exact IntervalIntegrable.add intervalIntegrable_const hbound_integrable
         · exact fun x hx ↦ niceKernel_upperBound hr0 hx
     _ ≤ 2 + (2 * π + 8 * r * (r⁻¹ - π⁻¹)) := by
       gcongr
       · simp [mul_inv_le_one]
       have (x : ℝ) : 4 * r / x ^ 2 = (4 * r) * (x ^ (-2 : ℤ)) := rfl
-      simp_rw [intervalIntegral.integral_add intervalIntegrable_const hbound_integrable,
+      rw [intervalIntegral.integral_add intervalIntegrable_const hbound_integrable]
+      simp_rw [
         intervalIntegral.integral_const, this, intervalIntegral.integral_const_mul, ge_iff_le,
         smul_eq_mul, mul_one, mul_add, ← mul_assoc, show 2 * 4 * r = 8 * r by group]
       gcongr
@@ -937,7 +938,7 @@ lemma eLpNorm_czOperator {g : ℝ → ℂ} {r : ℝ} (hr : 0 < r) (hg : MemLp g 
   rcases le_or_gt 1 r with h'r | h'r
   · have : czOperator K r g = 0 := by
       ext x
-      simp only [czOperator, Nat.reducePow, Nat.cast_ofNat, K, Pi.zero_apply]
+      simp only [czOperator, K, Pi.zero_apply]
       apply setIntegral_eq_zero_of_forall_eq_zero
       intro y hy
       have : k (x - y) = 0 := by
@@ -949,7 +950,7 @@ lemma eLpNorm_czOperator {g : ℝ → ℂ} {r : ℝ} (hr : 0 < r) (hg : MemLp g 
   · have := ENNReal.rpow_le_rpow (z := 2⁻¹) (eLpNorm_czOperator_sq ⟨hr, h'r⟩ hg) (by norm_num)
     rw [ENNReal.mul_rpow_of_nonneg _ _ (by norm_num), ← ENNReal.rpow_ofNat, ← ENNReal.rpow_mul,
       ← ENNReal.rpow_ofNat, ← ENNReal.rpow_mul, ← ENNReal.rpow_ofNat, ← ENNReal.rpow_mul] at this
-    simp only [Nat.reducePow, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, mul_inv_cancel₀,
+    simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, mul_inv_cancel₀,
       ENNReal.rpow_one] at this
     convert this
     norm_num

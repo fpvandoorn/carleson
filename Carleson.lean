@@ -23,6 +23,7 @@ import Carleson.Discrete.ForestComplement
 import Carleson.Discrete.ForestUnion
 import Carleson.Discrete.MainTheorem
 import Carleson.Discrete.SumEstimates
+import Carleson.DoublingMeasure
 import Carleson.FinitaryCarleson
 import Carleson.Forest
 import Carleson.ForestOperator.AlmostOrthogonality
@@ -40,6 +41,7 @@ import Carleson.MetricCarleson.Main
 import Carleson.MetricCarleson.Truncation
 import Carleson.MinLayerTiles
 import Carleson.Operators
+import Carleson.ProofData
 import Carleson.Psi
 import Carleson.TileExistence
 import Carleson.TileStructure
@@ -54,7 +56,6 @@ import Carleson.ToMathlib.CoveredByBalls
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.Data.NNReal
 import Carleson.ToMathlib.Data.Real.ConjExponents
-import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.Interval
@@ -73,6 +74,7 @@ import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 import Carleson.ToMathlib.MeasureTheory.Measure.ENNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
+import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 import Carleson.ToMathlib.MeasureTheory.Measure.Restrict
@@ -85,7 +87,6 @@ import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
 import Carleson.ToMathlib.RealInterpolation.Main
 import Carleson.ToMathlib.RealInterpolation.Minkowski
 import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Topology.Algebra.Support
 import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 import Carleson.ToMathlib.WeakType
 import Carleson.TwoSidedCarleson.Basic
