@@ -951,8 +951,10 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] [Nonempty α] {
   {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}
   {μ : Measure α} [IsLocallyFiniteMeasure μ] {ν : Measure α'} {c : ℝ≥0} (c_pos : 0 < c)
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p')
+  (T_meas : ∀ {f : α → 𝕂}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
   (T_subadd : ∀ (f g : α → 𝕂) (x : α'), (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
-    ‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
+    --‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
+    ‖T (f + g) x‖ₑ ≤ ‖T f x + T g x‖ₑ)
   (T_submul : ∀ (a : 𝕂) (f : α → 𝕂) (x : α'), ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ • ‖T f x‖ₑ)
   (weakly_cont_T : ∀ {f : α → 𝕂} {fs : ℕ → α → 𝕂}
                      (f_locInt : LocallyIntegrable f μ)
@@ -998,7 +1000,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] [Nonempty α] {
         ring_nf
         rw [algebraMap]
         sorry --TODO: simple algebra
-      set T' := T ∘ (fun f ↦ algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ f)
+      set T' := T ∘ (fun f ↦ (@RCLike.ofReal 𝕂 _) ∘ NNReal.toReal ∘ f)
       --TODO: use properties for T to get those for T'
       have hT' : HasRestrictedWeakType T' p p' μ ν c := sorry
       have weaklyCont_T' : WeaklyContinuous T' p μ ν := by
@@ -1035,10 +1037,48 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] [Nonempty α] {
           MemLorentz g p 1 μ →
             eLpNorm (T' (f + g)) 1 (ν.restrict G)
               ≤ eLpNorm (T' f) 1 (ν.restrict G) + eLpNorm (T' g) 1 (ν.restrict G) := by
-        sorry
+        intro f g hf hg
+        unfold T'
+        simp only [Function.comp_apply]
+        have hf' : MemLorentz ((@RCLike.ofReal 𝕂 _) ∘ NNReal.toReal ∘ f) p 1 μ := by
+          constructor
+          · apply RCLike.measurable_ofReal.aestronglyMeasurable.comp_aemeasurable
+            refine aestronglyMeasurable_iff_aemeasurable.mp ?_
+            apply measurable_coe_nnreal_real.aestronglyMeasurable.comp_aemeasurable hf.1.aemeasurable
+          · sorry --TODO: get this from hf, maybe write additional lemma
+        have hg' : MemLorentz ((@RCLike.ofReal 𝕂 _) ∘ NNReal.toReal ∘ g) p 1 μ := by
+          constructor
+          · apply RCLike.measurable_ofReal.aestronglyMeasurable.comp_aemeasurable
+            refine aestronglyMeasurable_iff_aemeasurable.mp ?_
+            apply measurable_coe_nnreal_real.aestronglyMeasurable.comp_aemeasurable hg.1.aemeasurable
+          · sorry --TODO: get this from hf, maybe write additional lemma
+        apply le_trans _ (eLpNorm_add_le _ _ le_rfl)
+        · apply eLpNorm_mono_enorm
+          intro x
+          simp only [Pi.add_apply]
+          apply le_of_eq_of_le _ (T_subadd _ _ _ hf' hg')
+          congr with x
+          simp
+        · apply AEStronglyMeasurable.restrict
+          apply T_meas hf'
+        · apply AEStronglyMeasurable.restrict
+          apply T_meas hg'
       have T'_submul : ∀ (f : α → ℝ≥0) (a : ℝ≥0), eLpNorm (T' (a • f)) 1 (ν.restrict G)
           ≤ eLpNorm (a • T' f) 1 (ν.restrict G) := by
-        sorry
+        intro f a
+        apply eLpNorm_mono_enorm
+        intro x
+        unfold T'
+        simp only [Function.comp_apply, Pi.smul_apply, enorm_smul_eq_smul]
+        have : a • ‖T (RCLike.ofReal ∘ NNReal.toReal ∘ f) x‖ₑ
+          = ‖a‖ₑ • ‖T (RCLike.ofReal ∘ NNReal.toReal ∘ f) x‖ₑ := by
+          congr
+        rw [this]
+        convert T_submul (NNReal.toReal a) _ x
+        · ext x
+          simp
+        congr
+        simp
       have helper : ∀ {f : α → ℝ≥0} (hf : Measurable f) (hf' : MemLorentz f p 1 μ),
           eLpNorm (T' f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal := by
         intro f hf hf'
@@ -1118,59 +1158,59 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] [Nonempty α] {
           · sorry
   -- Apply claim to a special G
   --let G := {x | ‖T x‖ₑ > }
-  constructor
-  · sorry
-  · by_cases h : p = ⊤
-    · rw [h]
-      rw [eLorentzNorm_eq_Lp sorry]
-      by_cases h' : f =ᵐ[μ] 0
-      · sorry
-      · sorry
-    · rw [eLorentzNorm_eq_wnorm sorry, wnorm_ne_top h]
-      unfold wnorm'
-      apply iSup_le
-      intro l
-      unfold distribution
-      set G := {x | ↑l < ‖T f x‖ₑ}
+  --constructor
+  use T_meas hf
+  by_cases h : p = ⊤
+  · rw [h]
+    rw [eLorentzNorm_eq_Lp sorry]
+    by_cases h' : f =ᵐ[μ] 0
+    · sorry
+    · sorry
+  · rw [eLorentzNorm_eq_wnorm hpp'.ne_zero, wnorm_ne_top h]
+    unfold wnorm'
+    apply iSup_le
+    intro l
+    unfold distribution
+    set G := {x | ↑l < ‖T f x‖ₑ}
 --      set G'
-      --rw [div_le_div__right]
-      calc _
-        _ = ↑l * ν G / ν G ^ p'⁻¹.toReal := by
-          rw [mul_div_assoc]
-          congr
-          rw [ENNReal.holderConjugate_iff] at hpp'
-          rw [ENNReal.eq_div_iff sorry sorry, ← ENNReal.rpow_add, ← ENNReal.toReal_inv, ← ENNReal.toReal_add, add_comm, hpp']
-          · simp only [ENNReal.toReal_one, ENNReal.rpow_one]
-          · rw [ne_eq, ENNReal.inv_eq_top]
-            sorry
-          · rw [ne_eq, ENNReal.inv_eq_top]
-            sorry
-          · sorry
-          · sorry
-        _ ≤ (∫⁻ (x : α') in G, ‖T f x‖ₑ ∂ν) / ν G ^ p'⁻¹.toReal := by
-          gcongr
-          --rw [setLIntegral]
-          rw [← Measure.restrict_eq_self _ (subset_refl G)]
-          calc _
-            _ ≤ ↑l * (ν.restrict G) {x | ↑l ≤ ‖T f x‖ₑ} := by
-              gcongr
-              intro x hx
-              unfold G at hx
-              rw [Set.mem_setOf_eq] at hx ⊢; exact hx.le
-          apply mul_meas_ge_le_lintegral₀
+    --rw [div_le_div__right]
+    calc _
+      _ = ↑l * ν G / ν G ^ p'⁻¹.toReal := by
+        rw [mul_div_assoc]
+        congr
+        rw [ENNReal.holderConjugate_iff] at hpp'
+        rw [ENNReal.eq_div_iff sorry sorry, ← ENNReal.rpow_add, ← ENNReal.toReal_inv, ← ENNReal.toReal_add, add_comm, hpp']
+        · simp only [ENNReal.toReal_one, ENNReal.rpow_one]
+        · rw [ne_eq, ENNReal.inv_eq_top]
           sorry
-        _ = eLpNorm (T f) 1 (ν.restrict G) / ν G ^ p'⁻¹.toReal := by
-          rw [eLpNorm_one_eq_lintegral_enorm]
-        _ ≤ ((4 * c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal) / ν G ^ p'⁻¹.toReal := by
-          gcongr
-          apply claim
-          · sorry
-          · sorry
-        _ ≤ (4 * c / p) * eLorentzNorm f p 1 μ * 1 := by
-          rw [mul_div_assoc]
-          gcongr
-          exact ENNReal.div_self_le_one
-        _ = (4 * c / p) * eLorentzNorm f p 1 μ := by ring
+        · rw [ne_eq, ENNReal.inv_eq_top]
+          sorry
+        · sorry
+        · sorry
+      _ ≤ (∫⁻ (x : α') in G, ‖T f x‖ₑ ∂ν) / ν G ^ p'⁻¹.toReal := by
+        gcongr
+        --rw [setLIntegral]
+        rw [← Measure.restrict_eq_self _ (subset_refl G)]
+        calc _
+          _ ≤ ↑l * (ν.restrict G) {x | ↑l ≤ ‖T f x‖ₑ} := by
+            gcongr
+            intro x hx
+            unfold G at hx
+            rw [Set.mem_setOf_eq] at hx ⊢; exact hx.le
+        apply mul_meas_ge_le_lintegral₀
+        sorry
+      _ = eLpNorm (T f) 1 (ν.restrict G) / ν G ^ p'⁻¹.toReal := by
+        rw [eLpNorm_one_eq_lintegral_enorm]
+      _ ≤ ((4 * c / p) * eLorentzNorm f p 1 μ * ν G ^ p'⁻¹.toReal) / ν G ^ p'⁻¹.toReal := by
+        gcongr
+        apply claim
+        · sorry
+        · sorry
+      _ ≤ (4 * c / p) * eLorentzNorm f p 1 μ * 1 := by
+        rw [mul_div_assoc]
+        gcongr
+        exact ENNReal.div_self_le_one
+      _ = (4 * c / p) * eLorentzNorm f p 1 μ := by ring
 
 --end Lorentz
 
