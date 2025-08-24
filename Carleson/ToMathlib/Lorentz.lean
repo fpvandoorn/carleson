@@ -596,7 +596,7 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] 
         _ ≤ (∫⁻ (x : ℝ) in Set.Ioi 0, (↑x.toNNReal)⁻¹ * (↑x.toNNReal * distribution f (↑x.toNNReal) μ ^ p.toReal⁻¹) ^ r₁.toReal) ^
             r₁.toReal⁻¹ := by
           gcongr
-          exact lintegral_mono_set Set.Ioo_subset_Ioi_self
+          exact Set.Ioo_subset_Ioi_self
     · exfalso
       rw [ENNReal.rpow_eq_zero_iff] at p_zero
       rcases p_zero with ⟨p_zero, _⟩ | ⟨p_top, _⟩
@@ -818,12 +818,11 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [Nonempty α] [TopologicalSp
         simp only [Pi.smul_apply, smul_eq_mul]
         rw [← Set.indicator_const_mul]
         congr
-        ext x
         simp
       intro hf'
       calc _
         _ = eLpNorm (T (a • (s.indicator (fun _ ↦ 1)))) 1 (ν.restrict G) := by
-          congr
+          congr 1
           ext x
           congr
         _ ≤ ‖a‖ₑ * eLpNorm (T ((s.indicator (fun _ ↦ 1)))) 1 (ν.restrict G) := by

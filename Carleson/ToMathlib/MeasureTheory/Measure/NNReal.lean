@@ -88,7 +88,7 @@ lemma ENNReal.volume_val {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
 lemma NNReal.volume_eq_volume_ennreal {s : Set ℝ≥0} (hs : MeasurableSet (ofNNReal '' s)) :
     volume s = volume (ENNReal.ofNNReal '' s) := by
   rw [ENNReal.volume_val hs, NNReal.volume_val]
-  congr
+  congr 1
   exact Eq.symm (image_image ENNReal.toReal ofNNReal s)
 
 lemma ENNReal.volume_eq_volume_preimage {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
@@ -165,7 +165,7 @@ lemma NNReal.volume_Iio {b : ℝ≥0} : volume (Set.Iio b) = b := by
   rw [toReal_Iio_eq_Ico, Real.volume_Ico]
   simp
 
-lemma NNReal.volume_Ioo {a b : ℝ≥0} (h : a < b) : volume (Set.Ioo a b) = b - a:= by
+lemma NNReal.volume_Ioo {a b : ℝ≥0} : volume (Set.Ioo a b) = b - a:= by
   rw [NNReal.volume_val]
   simp only [val_eq_coe]
   rw [toReal_Ioo_eq_Ioo, Real.volume_Ioo, ENNReal.ofReal_sub] <;> simp
@@ -289,7 +289,7 @@ instance : Measure.IsOpenPosMeasure (@volume ℝ≥0 _) where
     rcases open_U.exists_Ioo_subset nonempty_U with ⟨a, b, a_lt_b, Ioo_subset⟩
     rw [← ENNReal.bot_eq_zero, ← bot_lt_iff_ne_bot]
     apply lt_of_lt_of_le _ (measure_mono Ioo_subset)
-    rw [NNReal.volume_Ioo a_lt_b]
+    rw [NNReal.volume_Ioo]
     simpa
 
 instance : NoAtoms (@volume ℝ≥0∞ _) where

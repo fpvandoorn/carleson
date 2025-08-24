@@ -627,7 +627,6 @@ lemma distribution_indicator_const [TopologicalSpace ε] [ENormedAddMonoid ε] {
   · simp only [const_apply]
     congr
     ext x
-    simp only [mem_setOf_eq]
     rw [apply_ite enorm]
     rw [enorm_zero]
     constructor
@@ -655,7 +654,7 @@ lemma distribution_add [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α →
     distribution (f + g) t μ = distribution f t μ + distribution g t μ := by
   unfold distribution
   rw [← measure_union]
-  · congr
+  · congr 1
     ext x
     simp only [Pi.add_apply, mem_setOf_eq, mem_union]
     rcases (@or_not (x ∈ support f)) with hxf | hxf
@@ -686,7 +685,7 @@ lemma distribution_indicator_add_of_support_subset [TopologicalSpace ε] [ENorme
     distribution (f + s.indicator (Function.const α c)) t μ = if t < ‖c‖ₑ then μ s else distribution f (t - ‖c‖ₑ) μ := by
   unfold distribution
   split_ifs with ht
-  · congr with x
+  · congr 1 with x
     simp only [Pi.add_apply, mem_setOf_eq]
     constructor
     · intro h
@@ -703,7 +702,7 @@ lemma distribution_indicator_add_of_support_subset [TopologicalSpace ε] [ENorme
       apply lt_add_of_lt_of_nonneg _ (zero_le _)
       simpa [h]
   · push_neg at ht
-    congr with x
+    congr 1 with x
     simp only [Pi.add_apply, mem_setOf_eq]
     rw [enorm_add, ENNReal.sub_lt_iff_lt_right hc ht]
     constructor
