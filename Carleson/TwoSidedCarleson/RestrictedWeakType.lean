@@ -20,7 +20,7 @@ variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a
 /-! ## Reformulations of Theorem 10.0.1 -/
 
 /- Theorem 10.0.1, reformulation -/
-theorem two_sided_metric_carleson_restricted_weak_type [Countable (Θ X)] (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2)
+theorem two_sided_metric_carleson_hasRestrictedWeakType [Countable (Θ X)] (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2)
   (hqq' : q.HolderConjugate q')
   (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
       HasRestrictedWeakType (carlesonOperator K) q q' volume volume (C10_0_1 a q) := by
@@ -42,7 +42,7 @@ theorem two_sided_metric_carleson_restricted_weak_type [Countable (Θ X)] (ha : 
     split_ifs <;> simp
 
 
-theorem two_sided_metric_carleson_lorentz_type [Countable (Θ X)] (ha : 4 ≤ a)
+theorem two_sided_metric_carleson_hasLorentzType [Countable (Θ X)] (ha : 4 ≤ a)
   (hq : q ∈ Ioo 1 2)
   (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasLorentzType (carlesonOperator K) q 1 q ⊤ volume volume (4 * (C10_0_1 a q) / q) := by
@@ -50,7 +50,7 @@ theorem two_sided_metric_carleson_lorentz_type [Countable (Θ X)] (ha : 4 ≤ a)
   rename_i m d kernel cf cancel count
   have : IsOneSidedKernel a K := by infer_instance
   set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
-  apply (two_sided_metric_carleson_restricted_weak_type ha (mem_Ioc_of_Ioo hq) hqq' hT).hasLorentzType
+  apply (two_sided_metric_carleson_hasRestrictedWeakType ha (mem_Ioc_of_Ioo hq) hqq' hT).hasLorentzType
   · exact C10_0_1_pos hq.1
   · simpa
   · intro f hf
@@ -115,15 +115,18 @@ lemma interpolation_param_mem_Ioo {t₀ t₁ t : ℝ} (h : t ∈ Ioo t₀ t₁) 
     simp [h.2]
 
 
+def C_carleson_hasStrongType (a : ℕ) (q : ℝ≥0) :=
+  let q₀ := (q + 2) / 2;
+  let q₁ := (q + 1) / 2;
+  let t := (interpolation_param q₀⁻¹ q₁⁻¹ q⁻¹).toNNReal;
+  (C_LorentzInterpolation q₀ q₁ q₀ q₁ q (4 * C10_0_1 a q₀ / q₀) (4 * C10_0_1 a q₁ / q₁) 1 t)
+
 /- Theorem 10.0.1, reformulation -/
-theorem two_sided_metric_carleson_strong_type [Countable (Θ X)] (ha : 4 ≤ a) (hq : q ∈ Ioo 1 2)
+theorem two_sided_metric_carleson_hasStrongType [Countable (Θ X)] (ha : 4 ≤ a) (hq : q ∈ Ioo 1 2)
     --(hqq' : q.HolderConjugate q')
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
-      let q₀ := (q + 2) / 2;
-      let q₁ := (q + 1) / 2;
-      let t := (interpolation_param q₀⁻¹ q₁⁻¹ q⁻¹).toNNReal;
       HasStrongType (carlesonOperator K) q q volume volume
-        ((C_LorentzInterpolation q₀ q₁ q₀ q₁ q (4 * C10_0_1 a q₀ / q₀) (4 * C10_0_1 a q₁ / q₁) 1 t)) := by
+        (C_carleson_hasStrongType a q) := by
   --TODO: change parameters of constant to something reasonable
   set q₀ := (q + 2) / 2
   set q₁ := (q + 1) / 2
@@ -194,10 +197,10 @@ theorem two_sided_metric_carleson_strong_type [Countable (Θ X)] (ha : 4 ≤ a) 
     positivity
   have lorentzType_q₀ :
       HasLorentzType (carlesonOperator K) q₀ 1 q₀ ⊤ volume volume (4 * (C10_0_1 a q₀) / q₀) := by
-    apply two_sided_metric_carleson_lorentz_type ha hq₀ hT
+    apply two_sided_metric_carleson_hasLorentzType ha hq₀ hT
   have lorentzType_q₁ :
       HasLorentzType (carlesonOperator K) q₁ 1 q₁ ⊤ volume volume (4 * (C10_0_1 a q₁) / q₁) := by
-    apply two_sided_metric_carleson_lorentz_type ha hq₁ hT
+    apply two_sided_metric_carleson_hasLorentzType ha hq₁ hT
 
   have helper {p : ℝ≥0} (hp : 0 < p): (4 * (C10_0_1 a p) / p) = ENNReal.ofNNReal (4 * (C10_0_1 a p) / p) := by
     norm_cast
@@ -210,6 +213,7 @@ theorem two_sided_metric_carleson_strong_type [Countable (Θ X)] (ha : 4 ≤ a) 
   have : IsOneSidedKernel a K := by infer_instance
   set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
   rw [hasStrongType_iff_hasLorentzType]
+  unfold C_carleson_hasStrongType
   convert exists_hasLorentzType_real_interpolation _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ lorentzType_q₀ lorentzType_q₁ _ _
   · simp [hq₀.1.le]
   · simp [hq₁.1.le]
