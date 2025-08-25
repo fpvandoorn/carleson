@@ -300,7 +300,7 @@ instance : NoAtoms (@volume ℝ≥0∞ _) where
 
 --TODO: move this general result to an appropriate place
 --TODO: maybe generalize further to general measures restricted to a subtype
-instance Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NoAtoms (volume : Measure δ)] {p : δ → Prop} (hp : MeasurableSet p) :
+lemma Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NoAtoms (volume : Measure δ)] {p : δ → Prop} (hp : MeasurableSet p) :
     NoAtoms (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
   measure_singleton := by
     intro x
@@ -314,7 +314,7 @@ instance : NoAtoms (@volume ℝ≥0 _) := Measure.Subtype.noAtoms measurableSet_
 
 --TODO: move this general result to an appropriate place
 --TODO: maybe generalize further to general measures restricted to a subtype
-instance Measure.Subtype.sigmaFinite {δ : Type*} [MeasureSpace δ] [sf : SigmaFinite (@volume δ _)] {p : δ → Prop} (hp : MeasurableSet p) :
+lemma Measure.Subtype.sigmaFinite {δ : Type*} [MeasureSpace δ] [sf : SigmaFinite (@volume δ _)] {p : δ → Prop} (hp : MeasurableSet p) :
     SigmaFinite (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
   out' := by
     refine Nonempty.intro ?_

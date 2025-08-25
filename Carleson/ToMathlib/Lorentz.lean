@@ -387,7 +387,7 @@ lemma eLorentzNorm_eq_wnorm (hp : p ≠ 0) : eLorentzNorm f p ∞ μ = wnorm f p
     measurability
 
 
-lemma eLorentzNorm'_eq_integral_distribution_rpow [TopologicalSpace ε] :
+lemma eLorentzNorm'_eq_integral_distribution_rpow :
     eLorentzNorm' f p 1 μ = p * ∫⁻ (t : ℝ≥0), distribution f t μ ^ p.toReal⁻¹ := by
   unfold eLorentzNorm'
   simp only [inv_one, ENNReal.toReal_one, ENNReal.rpow_one, ENNReal.toReal_inv]
@@ -465,7 +465,7 @@ lemma MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_top {α : Type*} {F : Type*} 
 --instance ENNReal.normedAddCommGroup : NormedAddCommGroup ℝ≥0∞ := ⟨fun _r _y => rfl⟩
 
 -- TODO: could maybe be strengthened to ↔
-lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] [ContinuousENorm ε]
+lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε]
   {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
   (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) (hf : MemLorentz f p r₁ μ) :
     MemLorentz f p r₂ μ := by
@@ -768,7 +768,7 @@ def WeaklyContinuous [TopologicalSpace ε] (T : (α → ε) → (α' → ε')) (
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T (fs n)) 1 (ν.restrict G)) Filter.atTop
 -/
 
-
+/-- The weak continuity assumption neede for `HasRestrictedWeakType.hasLorentzType_helper`. -/
 def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [ENorm ε'] [SupSet ε] [Preorder ε] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
   ∀ {fs : ℕ → SimpleFunc α ε} (_ : Monotone fs),
   let f := fun x ↦ ⨆ n, (fs n) x;
@@ -778,7 +778,7 @@ def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [ENorm ε'] [SupSet ε] [P
 
 --lemma carlesonOperator_weaklyContinuous : WeaklyContinuous carlesonOperator
 
-theorem HasRestrictedWeakType.hasLorentzType_helper [Nonempty α] [TopologicalSpace ε'] [ENormedSpace ε']
+theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENormedSpace ε']
   {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'}
   (hT : HasRestrictedWeakType T p p' μ ν c) --(T_zero : eLpNorm (T 0) 1 ν = 0)
   (hpp' : p.HolderConjugate p')
@@ -939,7 +939,7 @@ theorem RCLike.norm_I {K : Type u_1} [RCLike K] : ‖(RCLike.I : K)‖ = if RCLi
   · push_neg at h
     simpa
 
-lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] [Nonempty α] {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
+lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
   --[ENormedAddMonoid ε']
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} {p p' : ℝ≥0∞}

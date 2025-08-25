@@ -92,6 +92,7 @@ theorem two_sided_metric_carleson_hasLorentzType [Countable (Θ X)] (ha : 4 ≤ 
     apply Filter.liminf_le_limsup (by isBoundedDefault) (by isBoundedDefault)
 
 --TODO: move
+/-- The parameter where linear interpolation between `t₀` and `t₁` results in `t`. -/
 def interpolation_param (t₀ t₁ t : ℝ) := (t - t₀) / (t₁ - t₀)
 
 --TODO: move
@@ -114,7 +115,7 @@ lemma interpolation_param_mem_Ioo {t₀ t₁ t : ℝ} (h : t ∈ Ioo t₀ t₁) 
   · rw [div_lt_one (by simpa)]
     simp [h.2]
 
-
+/-- The constant used in `two_sided_metric_carleson_hasStrongType`. -/
 def C_carleson_hasStrongType (a : ℕ) (q : ℝ≥0) :=
   let q₀ := (q + 2) / 2;
   let q₁ := (q + 1) / 2;

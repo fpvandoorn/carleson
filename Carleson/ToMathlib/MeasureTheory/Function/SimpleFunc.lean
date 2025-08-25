@@ -159,7 +159,7 @@ private lemma helper [MeasurableSpace α] {f : SimpleFunc α ℝ≥0} (hs : (f.r
 
 --TODO: generalize this to not only work for ℝ≥0 ?
 @[elab_as_elim]
-protected theorem induction'' [MeasurableSpace α] [Nonempty α]
+protected theorem induction'' [MeasurableSpace α]
   {motive : (SimpleFunc α ℝ≥0) → Prop}
   (const : ∀ (c : ℝ≥0) {s : Set α} (hs : MeasurableSet s), motive (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))
   (add : ∀ ⦃f : SimpleFunc α ℝ≥0⦄ (c : ℝ≥0) ⦃s : Set α⦄ (hs : MeasurableSet s), (Function.support ⇑f) ⊆ s →
@@ -249,7 +249,7 @@ theorem approx_le {α : Type u_1} {β : Type u_2}
   · exact hb
   · simp only [bot_le]
 
-theorem iSup_approx_apply' [ConditionallyCompleteLinearOrderBot β] [Zero β] [TopologicalSpace β] [OrderClosedTopology β] [Zero β]
+theorem iSup_approx_apply' [ConditionallyCompleteLinearOrderBot β] [TopologicalSpace β] [OrderClosedTopology β] [Zero β]
     [MeasurableSpace β] [OpensMeasurableSpace β] (i : ℕ → β) (f : α → β) (a : α) (hf : Measurable f)
     (h_zero : (0 : β) = ⊥) : ⨆ n, (approx i f n : SimpleFunc α β) a = ⨆ (k) (_ : i k ≤ f a), i k := by
   refine le_antisymm (ciSup_le fun n => ?_) (ciSup_le ?_)
