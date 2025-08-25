@@ -298,6 +298,49 @@ instance : NoAtoms (@volume ℝ≥0∞ _) where
     rw [ENNReal.volume_val (measurableSet_singleton _), image_singleton]
     simp
 
+--TODO: move this general result to an appropriate place
+--TODO: maybe generalize further to general measures restricted to a subtype
+instance Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NoAtoms (volume : Measure δ)] {p : δ → Prop} (hp : MeasurableSet p) :
+    NoAtoms (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
+  measure_singleton := by
+    intro x
+    calc _
+      _ = volume (Subtype.val '' {x}) := by
+        apply comap_subtype_coe_apply hp volume
+      _ = 0 := by
+        simp
+
+instance : NoAtoms (@volume ℝ≥0 _) := Measure.Subtype.noAtoms measurableSet_Ici
+
+--TODO: move this general result to an appropriate place
+--TODO: maybe generalize further to general measures restricted to a subtype
+instance Measure.Subtype.sigmaFinite {δ : Type*} [MeasureSpace δ] [sf : SigmaFinite (@volume δ _)] {p : δ → Prop} (hp : MeasurableSet p) :
+    SigmaFinite (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
+  out' := by
+    refine Nonempty.intro ?_
+    rw [sigmaFinite_iff] at sf
+    rcases Classical.choice sf with ⟨set, set_mem, finite, spanning⟩
+    set set' := fun n ↦ (Subtype.val ⁻¹' (set n))
+    apply Measure.FiniteSpanningSetsIn.mk set'
+    · simp
+    · intro n
+      calc _
+        _ = volume (Subtype.val '' set' n) := by
+          apply comap_subtype_coe_apply hp volume (set' n)
+        _ ≤ volume (set n) := by
+          apply measure_mono
+          unfold set'
+          exact image_preimage_subset Subtype.val (set n)
+        _ < ⊤ := finite n
+    · unfold set'
+      rw [← preimage_iUnion]
+      refine preimage_eq_univ_iff.mpr ?_
+      rw [spanning]
+      exact fun ⦃a⦄ a ↦ trivial
+
+instance : SigmaFinite (@volume ℝ≥0 _) := Measure.Subtype.sigmaFinite measurableSet_Ici
+
+
 lemma lintegral_nnreal_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ici (0 : ℝ), f x.toNNReal := by
   change ∫⁻ (x : ℝ≥0), f x = ∫⁻ (x : ℝ) in Ici 0, (f ∘ Real.toNNReal) x
   rw [← lintegral_subtype_comap measurableSet_Ici]

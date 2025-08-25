@@ -164,8 +164,6 @@ lemma aeMeasurable_withDensity_inv {f : ℝ≥0 → ℝ≥0∞} (hf : AEMeasurab
     apply AEMeasurable.mul _ hf
     exact measurable_inv.aemeasurable.coe_nnreal_ennreal
   convert this using 1
-  have : SigmaFinite (@volume ℝ≥0 NNReal.MeasureSpace : Measure ℝ≥0) := sorry --TODO: should be infered
-  have : NoAtoms (@volume ℝ≥0 NNReal.MeasureSpace : Measure ℝ≥0) := sorry --TODO: should be infered
   rw [withDensity_eq_iff_of_sigmaFinite]
   · rw [Filter.eventuallyEq_iff_exists_mem]
     use {x | x ≠ 0}
@@ -728,11 +726,8 @@ lemma HasRestrictedWeakType.without_finiteness {ε₂} [TopologicalSpace ε₂] 
 --TODO: Could probably weaken assumption to (h : ∀ᶠ (x : β) in f, u x ≤ v x)
 theorem Filter.mono_limsup {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
     {u v : β → α} (h : ∀ (x : β), u x ≤ v x) : Filter.limsup u f ≤ Filter.limsup v f := by
-  apply sInf_le_sInf
-  intro a ha
-  apply ha.mono
-  intro x hx
-  exact Preorder.le_trans (u x) (v x) a (h x) hx
+  refine Filter.limsup_le_limsup ?_
+  apply Filter.Eventually.of_forall h
 
 --TODO: move?
 theorem Filter.limsup_le_of_le' {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
