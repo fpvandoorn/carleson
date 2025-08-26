@@ -463,11 +463,11 @@ lemma density_tree_bound1
   simpa using density_tree_bound_aux hf hc hg h2g hu
 
 omit [TileStructure Q D κ S o] in
--- move somewhere else
+-- TODO: move somewhere else
 lemma _root_.MeasureTheory.BoundedCompactSupport.const_smul (hf : BoundedCompactSupport f) (c : ℝ) :
-  BoundedCompactSupport (c • f) := by
-  simp_rw [Pi.smul_def,Complex.real_smul]
-  apply hf.const_mul
+    BoundedCompactSupport (c • f) := by
+  simp_rw [Pi.smul_def, Complex.real_smul]
+  fun_prop
 
 omit [TileStructure Q D κ S o] [MetricSpace X] in
 -- rename, move somewhere else

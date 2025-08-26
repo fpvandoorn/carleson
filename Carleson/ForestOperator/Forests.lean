@@ -895,7 +895,8 @@ lemma forest_operator_g_prelude
   calc
     _ = ‖∑ u with u ∈ t, ∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ := by
       congr; rw [← integral_finset_sum]; swap
-      · exact fun _ _ ↦ (bg.conj.mul bf.carlesonSum).integrable
+      · -- fun_prop fails because of conj vs star
+        exact fun _ _ ↦ (bg.conj.mul bf.carlesonSum).integrable
       simp_rw [Finset.mul_sum]
     _ = ‖∑ u with u ∈ t, ∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ := by
       congr! 2 with u mu; exact adjointCarlesonSum_adjoint bf bg _
@@ -911,7 +912,7 @@ lemma forest_operator_g_prelude
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
         bf.enorm.aestronglyMeasurable.aemeasurable
         (BoundedCompactSupport.finset_sum fun _ _ ↦
-          bg.adjointCarlesonSum).enorm.aestronglyMeasurable.aemeasurable
+          by fun_prop).enorm.aestronglyMeasurable.aemeasurable
 
 lemma adjointCarlesonRowSum_rowSupport :
     adjointCarlesonRowSum t j f = adjointCarlesonRowSum t j ((rowSupport t j).indicator f) := by
@@ -1271,7 +1272,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
   the sum to be controlled. -/
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
   rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
-  · exact (BoundedCompactSupport.finset_sum (fun i hi ↦ bf.carlesonSum.restrict)).integrable
+  · exact (BoundedCompactSupport.finset_sum (fun i hi ↦ by fun_prop)).integrable
   rw [← integral_indicator hA]
   simp_rw [indicator_mul_left, ← comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]

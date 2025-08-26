@@ -83,6 +83,7 @@ lemma _root_.isBounded_range_iff_forall_norm_le {α β} [SeminormedAddCommGroup 
 
 variable [TopologicalSpace E] [ENorm E] [Zero E]
 
+@[fun_prop]
 theorem aestronglyMeasurable (hf : BoundedCompactSupport f μ) : AEStronglyMeasurable f μ :=
   hf.memLp_top.aestronglyMeasurable
 
@@ -106,6 +107,7 @@ theorem mono_ac (hf : BoundedCompactSupport f μ) (h : ν ≪ μ) :
 theorem mono_measure (hf : BoundedCompactSupport f μ) (h : ν ≤ μ) : BoundedCompactSupport f ν :=
   hf.mono_ac h.absolutelyContinuous
 
+@[fun_prop]
 theorem restrict {s : Set X} (hf : BoundedCompactSupport f μ) :
     BoundedCompactSupport f (μ.restrict s) :=
   hf.mono_measure Measure.restrict_le_self
