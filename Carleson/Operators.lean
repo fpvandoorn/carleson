@@ -156,6 +156,7 @@ theorem BoundedCompactSupport.bddAbove_norm_carlesonOn
       _ = volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤ volume).toReal) :=
         integral_indicator_const _ measurableSet_closedBall
 
+@[fun_prop]
 theorem BoundedCompactSupport.carlesonOn {f : X → ℂ}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
   memLp_top := by
@@ -175,6 +176,7 @@ theorem BoundedCompactSupport.bddAbove_norm_carlesonSum
   apply BddAbove.range_mono _ fun _ ↦ norm_sum_le ..
   exact .range_finsetSum fun _ _ ↦ hf.bddAbove_norm_carlesonOn _
 
+@[fun_prop]
 theorem BoundedCompactSupport.carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonSum ℭ f) :=
   .finset_sum (fun _ _ ↦ hf.carlesonOn)
@@ -306,6 +308,7 @@ theorem BoundedCompactSupport.bddAbove_norm_adjointCarleson (hf : BoundedCompact
     · simp only [image_eq_zero_of_notMem_tsupport hy,
         norm_zero, mul_zero, eLpNorm_exponent_top]; positivity
 
+@[fun_prop]
 theorem BoundedCompactSupport.adjointCarleson (hf : BoundedCompactSupport f) :
     BoundedCompactSupport (adjointCarleson p f) where
   memLp_top := by
@@ -342,9 +345,11 @@ theorem BoundedCompactSupport.bddAbove_norm_adjointCarlesonSum
   apply BddAbove.range_mono _ fun _ ↦ norm_sum_le ..
   exact .range_finsetSum fun _ _ ↦ hf.bddAbove_norm_adjointCarleson _
 
+@[fun_prop]
 theorem BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) :=
-  BoundedCompactSupport.finset_sum fun _ _ ↦ hf.adjointCarleson
+  -- TODO: cannot seem to unfold adjointCarlesonSum, so fun_prop cannot apply fully
+  BoundedCompactSupport.finset_sum fun _ _ ↦ by fun_prop
 
 end MeasureTheory
 
@@ -442,17 +447,17 @@ lemma adjointCarlesonSum_adjoint
       unfold carlesonSum; simp_rw [Finset.mul_sum]
     _ = ∑ p with p ∈ ℭ, ∫ x, conj (g x) * carlesonOn p f x := by
       apply integral_finset_sum; intro p _
-      refine hg.conj.mul hf.carlesonOn |>.integrable
+      change Integrable (star g * carlesonOn p f) volume
+      fun_prop
     _ = ∑ p with p ∈ ℭ, ∫ y, conj (adjointCarleson p g y) * f y := by
       simp_rw [adjointCarleson_adjoint hf hg]
     _ = ∫ y, ∑ p with p ∈ ℭ, conj (adjointCarleson p g y) * f y := by
       symm; apply integral_finset_sum; intro p _
-      refine BoundedCompactSupport.mul ?_ hf |>.integrable
-      exact hg.adjointCarleson.conj
+      change Integrable (star (adjointCarleson p g) * f) volume
+      fun_prop
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
 
 lemma integrable_adjointCarlesonSum (s : Set (𝔓 X)) {f : X → ℂ} (hf : BoundedCompactSupport f) :
-    Integrable (adjointCarlesonSum s f ·) :=
-  integrable_finset_sum _ fun i _ ↦ hf.adjointCarleson (p := i).integrable
+    Integrable (adjointCarlesonSum s f ·) := by fun_prop
 
 end Adjoint
