@@ -613,7 +613,7 @@ lemma distribution_smul_left {f : α → ε'} {c : ℝ≥0} (hc : c ≠ 0) :
     exact ENNReal.coe_ne_zero.mpr hc
   unfold distribution
   congr with x
-  simp only [Pi.smul_apply, mem_setOf_eq]
+  simp only [Pi.smul_apply]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
     enorm_smul_eq_mul (c := c) _, ENNReal.div_mul_cancel h₀ coe_ne_top, mul_comm]
 
@@ -625,7 +625,7 @@ lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
   have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
   unfold distribution
   congr with x
-  simp only [Pi.smul_apply, mem_setOf_eq]
+  simp only [Pi.smul_apply]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
     enorm_smul _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
