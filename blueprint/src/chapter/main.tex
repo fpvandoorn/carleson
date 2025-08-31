@@ -42,13 +42,13 @@ Nowadays, Fourier analysis plays an important role in many areas of mathematics.
 
 With Euler's formula to represent pure frequencies in mind, a trigonometric polynomial can be expressed as
 \begin{equation}\label{eq:trig-series}
-    s_N(x):= \sum_{n=-N}^N c_n e^{inx} \ .
+    S_N(x):= \sum_{n=-N}^N c_n e^{inx} \ .
 \end{equation}
-The Fourier series is then defined as the limit $f$
-of such a sequence $s_N$ as $N$ tends to $\infty$.
-Fourier's vision to represent rather general functions raises two fundamental questions.
-The first question is to identify the appropriate choice of coefficients
-$c_n$ to use to represent a given $f$. The second question addresses the convergence of $s_N$ to $f$.
+The Fourier series is then defined as the limit $f$ of such a sequence $S_N$
+as $N$ tends to $\infty$. Fourier's vision to represent rather general
+functions raises two fundamental questions. The first question is to identify
+the appropriate choice of coefficients $c_n$ to use to represent a given $f$.
+The second question addresses the convergence of $S_N$ to $f$.
 
 The first question has a fairly canonical and standard answer, provided by the Fourier integral formula:
 \begin{equation}\label{eq:fourier-coefficients}
@@ -66,25 +66,32 @@ a trigonometric polynomial $f$ in the form
 \eqref{eq:trig-series}.
 
 
-The second question of convergence bifurcates into the question of pointwise convergence
-of the series \eqref{eq:trig-series} (with coefficients given by \eqref{eq:fourier-coefficients}) for a given $x$ on the one hand and convergence of the functions $s_N$ to the function $f$ in a suitable
-function space with corresponding topology on the other hand. There are at
-least as many function spaces for
-the question of convergence as there are different definitions of the integral elaborated earlier.
-There are some very
-canonical answers to the convergence question in function spaces, albeit not known at the time of Fourier and Dirichlet.
-One example is convergence in the Hilbert space sense for $f$ in $L^2(0,2\pi)$,
-as discovered in the first decade of the twentieth century
-as a consequence of the rapid development of Lebesgue integration theory.
-Another canonical example is convergence in the sense of distributions for general distributional $f$, as discovered a few decades after Lebesgue integration. For some other natural spaces, such as $L^1(0,2\pi)$, there is no guarantee of convergence in the
-norm of that space even if $f$ is in the space.
+The second question of convergence bifurcates into the question of pointwise
+convergence of the series \eqref{eq:trig-series} (with coefficients given by
+\eqref{eq:fourier-coefficients}) for a given $x$ on the one hand and
+convergence of the functions $S_N$ to the function $f$ in a suitable function
+space with corresponding topology on the other hand. There are at least as
+many function spaces for the question of convergence as there are different
+definitions of the integral elaborated earlier. There are some very canonical
+answers to the convergence question in function spaces, albeit not known at
+the time of Fourier and Dirichlet. One example is convergence in the Hilbert
+space sense for $f$ in $L^2(0,2\pi)$, as discovered in the first decade of
+the twentieth century as a consequence of the rapid development of Lebesgue
+integration theory. Another canonical example is convergence in the sense of
+distributions for general distributional $f$, as discovered a few decades
+after Lebesgue integration. For some other natural spaces, such as
+$L^1(0,2\pi)$, there is no guarantee of convergence in the norm of that space
+even if $f$ is in the space.
 
 
-In contrast to these examples of function spaces with a very natural theory of
-convergence of Fourier series in the topology of the function space, there are no similarly elegant solutions to the
-characterization of pointwise convergence.
-In particular, the space of functions $f$ such that the sequence $s_N(x)$ converges for every $x$ does not have a good characterization in terms of $f$ itself.
-Similarly, the space of all functions $f$ such that the sequence of coefficients $\widehat{f}_n$ is absolutely summable has also no good characterization.
+In contrast to these examples of function spaces with a very natural theory
+of convergence of Fourier series in the topology of the function space, there
+are no similarly elegant solutions to the characterization of pointwise
+convergence. In particular, the space of functions $f$ such that the sequence
+$S_N(x)$ converges for every $x$ does not have a good characterization in
+terms of $f$ itself. Similarly, the space of all functions $f$ such that the
+sequence of coefficients $\widehat{f}_n$ is absolutely summable has also no
+good characterization.
 
 When the Fourier integral is defined in the Lebesgue sense and
 $f\in L^1(0,2\pi)$, then the function
@@ -110,7 +117,7 @@ In particular, he had proven the more elementary statement
     Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
     Then for almost all $x \in \mathbb{R}$ we have
     \begin{equation}\label{eq:fourier-limit}
-      \lim_{N\to\infty}s_N f(x) = f(x),
+      \lim_{N\to\infty}S_N f(x) = f(x),
     \end{equation}
     where $S_N f$ is the $N$-th partial Fourier sum of $f$ defined in \eqref{eq:trig-series}
     with coefficients \eqref{eq:fourier-coefficients}.
@@ -186,7 +193,7 @@ Michel Alexis,
 Bolton Bailey,
 Julian Berman,
 Joachim Breitner,
-Martin Dvořák,
+Martin Dvoř\'ak,
 Georges Gonthier,
 Aaron Hill,
 Austin Letson,
@@ -367,9 +374,9 @@ One source of non-sharpness is our choice to write for readability most constant
 
 An a posteriori byproduct of the Lean formalization of this document is that Theorems~\ref{metric-space-Carleson}
 and~\ref{linearised-metric-Carleson} remain true with $2^{44a^3}$ instead of $2^{443a^3}$. This is obtained by
-changing the parameter $D$ introduced in~\eqref{defineD} from $2^{100a^3}$ to $2^{7a^3}$, checking that exactly the same
+changing the parameter $D$ introduced in~\eqref{defineD} from $2^{100a^2}$ to $2^{7a^2}$, checking that exactly the same
 proof goes through, tracking the constants, and getting $2^{44a^3}$ in the end. This value is again by no means sharp.
-In the formalization we define the parameter $D$ as $2^{\mathbb{c}a^3}$
+In the formalization we define the parameter $D$ as $2^{\mathbb{c}a^2}$
 and the constants in this blueprint are obtained by setting $\mathbb{c} = 100$.
 \end{remark}
 

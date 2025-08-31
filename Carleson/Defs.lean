@@ -244,7 +244,7 @@ def ClassicalCarleson : Prop :=
     ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x))
 
 /-- The constant used in `MetricSpaceCarleson` and `LinearizedMetricCarleson`.
-Has value `2 ^ (443 * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (443 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
 def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
 
 /-- Theorem 1.1.1.
