@@ -1,5 +1,6 @@
 import Mathlib.Analysis.Normed.Field.Basic
 import Mathlib.Topology.EMetricSpace.Lipschitz
+import Carleson.Defs
 
 open Metric Function ENNReal
 open scoped NNReal
@@ -19,10 +20,15 @@ section Def
 
 variable {𝕜 X : Type*} [NormedField 𝕜] [PseudoMetricSpace X]
 
+/-!
+TODO The iLipENorm should be properly generalized to Mathlib standards.
+Until then, it is defined in `Defs.lean` instead. See PR #493.
+
 /-- The inhomogeneous Lipschitz norm on a ball. -/
 def iLipENorm (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
   ENNReal.ofReal R * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), ‖ϕ x - ϕ y‖ₑ / edist x y
+-/
 
 /-- The `NNReal` version of the inhomogeneous Lipschitz norm on a ball, `iLipENorm`. -/
 def iLipNNNorm (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0 :=

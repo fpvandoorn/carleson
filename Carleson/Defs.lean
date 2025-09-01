@@ -1,5 +1,4 @@
 import Carleson.ToMathlib.Annulus
-import Carleson.ToMathlib.LipschitzNorm
 import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 import Carleson.ToMathlib.WeakType
 import Mathlib.Analysis.CStarAlgebra.Classes
@@ -114,6 +113,12 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ
     AllBallsCoverBalls (WithFunctionDistance x r) 2 A
 
 variable [hXA : DoublingMeasure X A]
+
+/-- The inhomogeneous Lipschitz norm on a ball. -/
+def iLipENorm {𝕜 X : Type*} [NormedField 𝕜] [PseudoMetricSpace X]
+  (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
+  (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
+  ENNReal.ofReal R * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), ‖ϕ x - ϕ y‖ₑ / edist x y
 
 variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/

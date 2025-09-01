@@ -34,7 +34,9 @@ import Carleson.ForestOperator.PointwiseEstimate
 import Carleson.ForestOperator.QuantativeEstimate
 import Carleson.ForestOperator.RemainingTiles
 import Carleson.GridStructure
+import Carleson.HolderNorm
 import Carleson.HolderVanDerCorput
+import Carleson.LipschitzNorm
 import Carleson.MetricCarleson.Basic
 import Carleson.MetricCarleson.Linearized
 import Carleson.MetricCarleson.Main
@@ -58,9 +60,7 @@ import Carleson.ToMathlib.Data.NNReal
 import Carleson.ToMathlib.Data.Real.ConjExponents
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.HolderNorm
 import Carleson.ToMathlib.Interval
-import Carleson.ToMathlib.LipschitzNorm
 import Carleson.ToMathlib.Lorentz
 import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
 import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable

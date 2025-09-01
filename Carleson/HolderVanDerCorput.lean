@@ -1,5 +1,5 @@
 import Carleson.TileStructure
-import Carleson.ToMathlib.HolderNorm
+import Carleson.HolderNorm
 
 /-! This should roughly contain the contents of chapter 8. -/
 
@@ -508,7 +508,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
   rcases eq_or_ne (iHolENorm ϕ z (2 * R) τ) ∞ with h2ϕ | h2ϕ
   · apply le_top.trans_eq
     symm
-    simp at h2ϕ
+    simp only [defaultτ] at h2ϕ
     have : (0 : ℝ) < 2 * a ^ 2 + a ^ 3 := by positivity
     simp [h2ϕ, C2_0_5, (measure_ball_pos volume z hR).ne', this, edist_ne_top]
   let t : ℝ := (1 + nndist_{z, R} f g) ^ (- (τ / (2 + a)))
