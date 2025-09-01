@@ -439,7 +439,7 @@ lemma bound_6_2_29 (ha : 4 ≤ a) {p p' : 𝔓 X} (x2 : E p) :
     _ = 2 ^ ((2 * 𝕔 + 6 + 𝕔 / 4) * a ^ 3 + 1) * 2 ^ (11 * a) /
         (2 ^ (3 * a) * volume (ball x2.1 (D ^ 𝔰 p))) := by
       rw [div_eq_mul_inv, div_eq_mul_inv, ENNReal.mul_inv (by left; positivity) (by left; simp),
-        ← mul_assoc, ← zpow_natCast _ (3 * a), ← ENNReal.zpow_neg two_ne_zero ENNReal.ofNat_ne_top]
+        ← mul_assoc, ← zpow_natCast _ (3 * a), ← ENNReal.zpow_neg]
       congr
     _ ≤ C6_1_5 a / (2 ^ (3 * a) * volume (ball x2.1 (D ^ 𝔰 p))) := by
       gcongr; exact ENNReal.coe_le_coe.mpr (C6_1_5_bound ha)

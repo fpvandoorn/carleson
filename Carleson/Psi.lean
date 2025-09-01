@@ -765,7 +765,7 @@ private lemma enorm_Ks_sub_Ks_le_far {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0
     trans 8 * ↑D * (D ^ (s - 1) / 8 / ↑D ^ s)
     on_goal 2 => gcongr
     apply le_of_eq
-    rw [ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul, ← ENNReal.zpow_neg (by simp) (by simp)]
+    rw [ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul, ← ENNReal.zpow_neg]
     suffices 1 = (8 * (8 : ℝ≥0∞)⁻¹) * (D ^ (1 : ℤ) * D ^ (-s) * D ^ (s - 1)) by
       apply this.trans
       rw [zpow_one]

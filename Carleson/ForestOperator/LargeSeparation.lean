@@ -1255,7 +1255,7 @@ lemma global_tree_control1_edist_part1
       rw [← mul_assoc, ← mul_div_assoc, mul_assoc _ _ ((D : ℝ≥0∞) ^ _), mul_comm _ (_ * _),
         mul_div_assoc, mul_comm (_ ^ _ * _)]; congr
       rw [div_eq_mul_inv, ENNReal.mul_rpow_of_nonneg _ _ (by positivity),
-        ← ENNReal.zpow_neg (by simp) (by simp), ← ENNReal.rpow_intCast, ← ENNReal.rpow_mul,
+        ← ENNReal.zpow_neg, ← ENNReal.rpow_intCast, ← ENNReal.rpow_mul,
         ← div_eq_mul_inv, Int.cast_neg]
     _ = C7_5_5 a * edist x x' ^ (a : ℝ)⁻¹ * ∑ k ∈ Finset.Icc (s J) S,
         ∑ p ∈ ℭ with ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (16 * D ^ s J)) ∧ 𝔰 p = k,

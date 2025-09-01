@@ -456,7 +456,6 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       rw [ENNReal.div_le_iff' (by simp) (by simp)]
       calc _
         _ = volume (ball x (2 ^ 3 * (R / 4))) := by
-          congr
           ring_nf
         _ ≤ (defaultA a) ^ 3 * volume (ball x (R / 4)) := by
           apply measure_ball_two_le_same_iterate
@@ -469,7 +468,6 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
           gcongr
           apply measure_ball_two_le_same
         _ = 2 ^ (4 * a) * volume (ball x' (R / 4)) := by
-          unfold defaultA
           push_cast
           ring_nf
     _= 2 ^ (a ^ 3 + 4 * a) := by
