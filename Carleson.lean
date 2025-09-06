@@ -34,7 +34,9 @@ import Carleson.ForestOperator.PointwiseEstimate
 import Carleson.ForestOperator.QuantativeEstimate
 import Carleson.ForestOperator.RemainingTiles
 import Carleson.GridStructure
+import Carleson.HolderNorm
 import Carleson.HolderVanDerCorput
+import Carleson.LipschitzNorm
 import Carleson.MetricCarleson.Basic
 import Carleson.MetricCarleson.Linearized
 import Carleson.MetricCarleson.Main

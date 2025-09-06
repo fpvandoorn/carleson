@@ -112,12 +112,13 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ
   allBallsCoverBalls {x : X} {r : ℝ} :
     AllBallsCoverBalls (WithFunctionDistance x r) 2 A
 
+variable [hXA : DoublingMeasure X A]
+
 /-- The inhomogeneous Lipschitz norm on a ball. -/
-def iLipENorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
+def iLipENorm {𝕜 X : Type*} [NormedField 𝕜] [PseudoMetricSpace X]
+  (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
   ENNReal.ofReal R * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), ‖ϕ x - ϕ y‖ₑ / edist x y
-
-variable [hXA : DoublingMeasure X A]
 
 variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
