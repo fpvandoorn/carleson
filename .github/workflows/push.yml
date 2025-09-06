@@ -46,7 +46,7 @@ jobs:
       - name: Upstreaming dashboard
         run: python3 scripts/upstreaming_dashboard.py
 
-      - uses: leanprover-community/docgen-action@b210116d3e6096c0c7146f7a96a6d56b6884fef5 # 2025-06-12
+      - uses: leanprover-community/docgen-action@56dff2bb89f3e9b8c1b6d5c8410362c19de2d904 # v1
         with:
           blueprint: true
           homepage: docs
