@@ -205,7 +205,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
   have : (a : ℝ) ≠ 0 := by norm_cast; linarith [four_le_a X]
   have rearr : (a : ℝ) * (𝕔 * a ^ 2 * (Z * n / ((2 * 𝕔 + 2) * a ^ 3) + 1) + 9) =
       Z * n / 2 * (𝕔 / (𝕔 + 1)) * a ^ 3 / a ^ 3 + 𝕔 * a ^ 3 + 9 * a := by
-        field_simp; ring
+        field_simp
   have fla := four_le_a X
   rw [rearr, mul_div_cancel_right₀ _ (by norm_cast; positivity), add_assoc,
     ← sub_lt_iff_lt_add', sub_right_comm, add_sub_right_comm, ← mul_one_sub, div_mul_comm,
