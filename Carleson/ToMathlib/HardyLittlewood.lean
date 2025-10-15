@@ -406,18 +406,18 @@ theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h�
     hB (Subtype.coe_prop i) (Subtype.coe_prop j) (Subtype.coe_ne_coe.mpr hij)
   calc
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := by
-          refine mul_left_mono (μ.mono fun x hx ↦ ?_)
+          refine mul_right_mono (μ.mono fun x hx ↦ ?_)
           simp only [mem_iUnion, mem_ball, exists_prop] at hx
           rcases hx with ⟨i, i𝓑, hi⟩
           obtain ⟨b, bB, hb⟩ := h2B i i𝓑
           refine mem_iUnion₂.mpr ⟨b, bB, hb <| mem_ball.mpr hi⟩
     _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) :=
-          mul_left_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
+          mul_right_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
     _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
-          refine mul_left_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
+          refine mul_right_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
           rw [sq, sq, mul_assoc, mul_assoc]
           apply (measure_ball_two_le_same (c i) (2 * r i)).trans
-          exact mul_left_mono (measure_ball_two_le_same (c i) (r i))
+          exact mul_right_mono (measure_ball_two_le_same (c i) (r i))
     _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
           rw [ENNReal.tsum_mul_left, ENNReal.tsum_mul_left, ← mul_assoc, ← mul_assoc, mul_comm l]
     _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
@@ -479,7 +479,7 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
   have hBₗ : (Bₗ t).Countable := h𝓑.mono (fun i hi ↦ mem_of_mem_inter_left hi)
   refine le_trans ?_ (hBₗ.measure_biUnion_le_lintegral (c := c) (r := r) (l := t)
     (u := fun x ↦ ‖f x‖ₑ) (R := R) ?_ ?_)
-  · refine mul_left_mono <| μ.mono (fun x hx ↦ mem_iUnion₂.mpr ?_)
+  · refine mul_right_mono <| μ.mono (fun x hx ↦ mem_iUnion₂.mpr ?_)
     -- We need a ball in `Bₗ t` containing `x`. Since `MB μ 𝓑 c r f x` is large, such a ball exists
     simp only [mem_setOf_eq] at hx
     -- replace hx := lt_of_lt_of_le hx coe_toNNReal_le_self
@@ -855,7 +855,7 @@ theorem hasWeakType_maximalFunction_equal_exponents
     intro hx
     by_contra! h₀
     refine (not_le_of_gt (lt_of_le_of_lt' ?_ hx)) (iSup_le h₀)
-    rw [maximalFunction_seq_eq _ hp]
+    rw [maximalFunction_seq_eq h𝓑 hp]
     rfl
   let f (k : ℕ) := fun x ↦ maximalFunction μ (tr h𝓑 k) c r (↑p) v x
   have f_mon : Monotone f := by
@@ -973,6 +973,7 @@ lemma C2_0_6'_defaultA_one_two_eq {a : ℕ} : C2_0_6' (defaultA a) 1 2 = 2 ^ (3 
   rw [← NNReal.rpow_add (by simp)]
   congr 1
   field_simp
+  simp
   ring
 
 lemma C2_0_6'_defaultA_one_le {a : ℕ} {q : ℝ≥0} (hq : 1 < q) :

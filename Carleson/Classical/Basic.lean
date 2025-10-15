@@ -197,7 +197,7 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
     _ ≤ (2 / π) * x := by gcongr
     _ = 1 - ((1 - (2 / π) * (x - π / 2)) * Real.cos (π / 2) + ((2 / π) * (x - π / 2)) * Real.cos (π)) := by
       field_simp -- a bit slow
-      ring
+      simp
     _ ≤ 1 - (Real.cos ((1 - (2 / π) * (x - π / 2)) * (π / 2) + (((2 / π) * (x - π / 2)) * (π)))) := by
       gcongr
       apply (strictConvexOn_cos_Icc.convexOn).2 (by simp [pi_nonneg])
@@ -253,7 +253,7 @@ lemma lower_secant_bound' {η : ℝ} {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le
         exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
       · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) x_nonneg
       · simp
-    _ = Real.sin x := by field_simp
+    _ = Real.sin x := by simp; field_simp
     _ ≤ Real.sqrt ((Real.sin x) ^ 2) := by
       rw [Real.sqrt_sq_eq_abs]
       apply le_abs_self
@@ -282,8 +282,7 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + �
     rw [mul_assoc]
     gcongr
     field_simp
-    rw [div_le_div_iff₀ (by norm_num) pi_pos]
-    linarith [pi_le_four]
+    norm_num [pi_le_four]
   _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
     apply lower_secant_bound' xAbs
     rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]
