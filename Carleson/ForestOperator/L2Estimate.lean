@@ -81,7 +81,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
         · apply inv_anti₀ (defaultD_pow_pos a b)
           exact zpow_right_mono₀ (one_le_realD _) (Finset.mem_Icc.mp hs).1
         · exact inv_nonneg.mpr (defaultD_pow_pos a b).le
-      _ = _ := by rw [zpow_sub₀ (realD_pos a).ne.symm]; field_simp; apply mul_comm
+      _ = _ := by rw [zpow_sub₀ (realD_pos a).ne.symm]; field_simp
 
 private lemma enorm_le_enorm_K (a : ℤ) (b : ℤ) (x y : X) : ‖K' a b x y‖ₑ ≤ ‖K x y‖ₑ := by
   unfold K' Ks
@@ -218,7 +218,7 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
   have := hf.aestronglyMeasurable.enorm
   rw [lintegral_const_mul'' _ (this.mul_const _).restrict, lintegral_mul_const'' _ this.restrict,
     ← div_eq_mul_inv]
-  apply mul_left_mono
+  apply mul_right_mono
   calc
     _ ≤ (∫⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ) / volume (ball (c I) (16 * D ^ s I)) := by
       gcongr ?_ / _
@@ -808,14 +808,14 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
       omega
   _ = 3 * 2 ^ (12 * a) * 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3) := by rw [add_comm, pow_add]; ring
   _ ≤ 2 ^ (a ^ 3) * 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3) := by
-    apply mul_right_mono; norm_cast
+    apply mul_left_mono; norm_cast
     calc
       _ ≤ 2 ^ 2 * 2 ^ (12 * a) := by gcongr; norm_num
       _ = 2 ^ (2 + 12 * a)     := by rw [pow_add]
       _ ≤ 2 ^ (a ^ 3)          := pow_le_pow_right₀ one_le_two <| calc 2 + 12 * a
         _ ≤ a + 12 * a := by apply add_le_add_right; linarith
         _ = 13 * a     := by ring
-        _ ≤ a ^ 2 * a  := by rw [mul_le_mul_right] <;> nlinarith
+        _ ≤ a ^ 2 * a  := by rw [mul_le_mul_iff_left₀] <;> nlinarith
         _ = a ^ 3      := rfl
   _ = _ := by rw [C7_2_1_def, ← pow_add]; norm_cast; ring
 
@@ -912,7 +912,7 @@ lemma tree_projection_estimate
         Complex.enorm_real]
     _ ≤ ∑ L ∈ 𝓛 (t u), ∫⁻ x in L, eaOC x * ‖cS_bound t u f x‖ₑ :=
       Finset.sum_le_sum fun L hL ↦
-        setLIntegral_mono' coeGrid_measurable (fun x hx ↦ mul_left_mono (biInf_le _ hx))
+        setLIntegral_mono' coeGrid_measurable (fun x hx ↦ mul_right_mono (biInf_le _ hx))
     _ = ∫⁻ x in (⋃ L ∈ 𝓛 (t u), (L : Set X)), eaOC x * ‖cS_bound t u f x‖ₑ := by
       rw [← lintegral_biUnion_finset (hm := fun _ _ ↦ coeGrid_measurable)]
       · simp only [mem_toFinset]
@@ -927,6 +927,6 @@ lemma tree_projection_estimate
         simp [eLpNorm, eLpNorm']
     _ = eLpNorm (cS_bound t u f) 2 volume * eLpNorm aOC 2 volume := by
       rw [mul_comm]; congr; ext; exact (Real.enorm_eq_ofReal aOC_nonneg).symm
-    _ ≤ _ := mul_right_mono eLpNorm_two_cS_bound_le
+    _ ≤ _ := mul_left_mono eLpNorm_two_cS_bound_le
 
 end TileStructure.Forest

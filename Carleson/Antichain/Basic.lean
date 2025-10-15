@@ -32,8 +32,9 @@ scoped notation "nnqt" => 2*nnq/(nnq + 1)
 end ShortVariables
 
 lemma inv_nnqt_eq : (nnqt : ℝ)⁻¹ = 2⁻¹ + 2⁻¹ * q⁻¹ := by
-  have : 2 * q ≠ 0 := mul_ne_zero (by norm_num) (by linarith only [(q_mem_Ioc X).1])
-  field_simp [show (nnq : ℝ) = q by rfl]
+  have : q ≠ 0 := by linarith only [(q_mem_Ioc X).1]
+  simp [show (nnq : ℝ) = q by rfl]
+  field_simp
 
 lemma inv_nnqt_mem_Ico : (nnqt : ℝ)⁻¹ ∈ Ico (3 / 4) 1 := by
   rw [inv_nnqt_eq]
@@ -375,13 +376,15 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
   have : 0 < 1 - iq := by linarith [inv_q_mem_Ico X |>.2]
   have hpdiv' : 2 / (p X) / (2 / (p X).toNNReal - 1).toReal = (2 - iq) * (1 - iq)⁻¹ := by
     simp only [div_eq_mul_inv, hp_coe', inv_p_eq', ← iq_eq]
-    field_simp [show 2 - iq - 1 = 1 - iq by ring]
+    field_simp
+    simp [show 2 - iq - 1 = 1 - iq by ring]
+    field_simp
   have : 2⁻¹ ≤ iq := inv_q_mem_Ico X |>.1
   have hiq1 : 2 ≤ (1 - iq)⁻¹ := by
     apply (le_inv_comm₀ (by positivity) (by positivity)).mp
     linarith only [inv_q_mem_Ico X |>.1]
   have : 1 < 2 - iq := by linarith only [inv_q_mem_Ico X |>.2]
-  have : 0 < (q - 1)⁻¹ := inv_pos_of_pos <| by linarith only [q_mem_Ioc X |>.1]
+  have : 0 < q - 1 := by linarith only [q_mem_Ioc X |>.1]
   have haux : 1 ≤ (2 - iq) * (1 - iq)⁻¹ * 2 ^ (2 * a) := by
     conv_lhs => rw [← one_mul 1, ← mul_one (1 * 1)]
     gcongr
@@ -405,7 +408,7 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
       · rw [mul_comm (2 ^ _)]
         gcongr ?_ * 2 ^ (2 * a)
         calc
-          _ = (2 * q - 1) * (q - 1)⁻¹ := by field_simp [hqiq]
+          _ = (2 * q - 1) * (q - 1)⁻¹ := by simp [hqiq]; field_simp
           _ ≤ _ := by gcongr; linarith only [q_mem_Ioc X |>.2]
   calc
     _ ≤ 2 ^ ((𝕔 + 2) * a ^ 3) * (2 ^ (2 * a + 4) * (q - 1)⁻¹) := by simp [C6_1_2, hc_le]

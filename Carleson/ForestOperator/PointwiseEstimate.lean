@@ -464,7 +464,7 @@ private lemma L7_1_4_sum (hσ : (t.σ u x).Nonempty) :
   suffices ∑ s ∈ t.σ u x, (2 : ℝ≥0∞) ^ s ≤ 2 ^ (t.σMax u x hσ + 1) by
     calc
       _ ≤ (2 : ℝ≥0∞) ^ (t.σMax u x hσ + 1) * 2 ^ (-t.σMax u x hσ) := by gcongr
-      _ = _ := by rw [← ENNReal.zpow_add two_ne_zero ENNReal.ofNat_ne_top]; field_simp
+      _ = _ := by rw [← ENNReal.zpow_add two_ne_zero ENNReal.ofNat_ne_top]; simp
   refine (Finset.sum_le_sum_of_subset ?_).trans (sum_pow_two_le (t.σMin u x hσ) (t.σMax u x hσ))
   exact fun s hs ↦ Finset.mem_Icc.mpr <| ⟨(t.σ u x).min'_le s hs, (t.σ u x).le_max' s hs⟩
 
@@ -639,7 +639,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
   _ ≤ _ := by
     gcongr ?_ * ?_
     · apply pow_right_mono₀ one_le_two
-      rw [pow_succ a 2, mul_le_mul_right (a_pos X)]
+      rw [pow_succ a 2, mul_le_mul_iff_left₀ (a_pos X)]
       nlinarith [four_le_a X]
     · refine le_trans ?_ (L7_1_4_laverage_le_MB hL hx hx' g pₛu xpₛ)
       rw [hpₛ]; gcongr ?_ / _
@@ -870,7 +870,7 @@ private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : �
     simpa [𝓙', hJ] using And.intro (Grid_subset_ball' hp hxp ⟨hJ, y, yJ, mem_ball'.mpr hy⟩)
       (s_le_s hp hxp ⟨hJ, ⟨y, ⟨yJ, mem_ball'.mpr hy⟩⟩⟩)
   _ = ‖∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), ∫ y in J, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t u)) f y)‖ₑ := by
-    refine congrArg _ (integral_finset_biUnion _ (fun _ _ ↦ coeGrid_measurable) ?_ ?_)
+    refine congrArg _ (integral_biUnion_finset _ (fun _ _ ↦ coeGrid_measurable) ?_ ?_)
     · exact fun i hi j hj hij ↦ pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hi) (mem_𝓙_of_mem_𝓙' hj) hij
     · intro i hi
       simp_rw [mul_comm (Ks (𝔰 p) x _)]
@@ -1084,9 +1084,9 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
     refine add_le_add_three ?_ ?_ (second_tree_pointwise hu hL hx hx')
     · simp_rw [mul_comm (Ks _ x _), mul_comm (f _)]
       have h : C7_1_3 a ≥ C7_1_4 a := C7_1_4_le_C7_1_3 (four_le_a X)
-      exact (first_tree_pointwise hu hL hx hx' hf).trans <| mul_right_mono (by exact_mod_cast h)
+      exact (first_tree_pointwise hu hL hx hx' hf).trans <| mul_left_mono (by exact_mod_cast h)
     · have h : C7_1_3 a ≥ C7_1_6 a := C7_1_6_le_C7_1_3
-      exact (third_tree_pointwise hu hL hx hx' hf).trans <| mul_right_mono (by exact_mod_cast h)
+      exact (third_tree_pointwise hu hL hx hx' hf).trans <| mul_left_mono (by exact_mod_cast h)
   -- In order to split the integral, we will first need some trivial integrability results
   have h1 {i : ℤ} : Integrable (fun y ↦ approxOnCube (𝓙 (t.𝔗 u)) f y * Ks i x y) := by
     apply (integrable_Ks_x <| one_lt_realD (K := K)).bdd_mul

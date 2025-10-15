@@ -373,7 +373,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
       have h : (GridStructure.coeGrid · ∩ s) ≤ GridStructure.coeGrid := fun _ ↦ inter_subset_left
       have hC : C = (Finset.univ.filter (· ∈ C) : Set (Grid X)) := by simp
       rw [← lintegral_biUnion_finset (hC ▸ disj_C.mono h) (fun _ _ ↦ coeGrid_measurable.inter hs)]
-      exact mul_left_mono <| lintegral_mono_set (subset_univ _)
+      exact mul_right_mono <| lintegral_mono_set (subset_univ _)
 
 lemma eLpNorm_approxOnCube_two_le_self (hf : BoundedCompactSupport f)
     {C : Set (Grid X)} (pdC : C.PairwiseDisjoint (fun I ↦ (I : Set X))) :
@@ -520,7 +520,7 @@ lemma density_tree_bound2
         ENNReal.coe_rpow_of_nonneg _ (by positivity), ENNReal.coe_rpow_of_nonneg _ (by positivity)]
       gcongr
       · norm_num
-      rw [← mul_le_mul_right zero_lt_two]
+      rw [← mul_le_mul_iff_left₀ zero_lt_two]
       simp only [add_mul, Nat.cast_add, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, mul_assoc,
         one_mul]
       simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, inv_mul_cancel₀, mul_one]
