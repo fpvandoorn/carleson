@@ -34,30 +34,8 @@ open ENNReal
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
   if hfin : s.Finite then
-    have hfin' : Finite s := hfin
-    rw [tsum_def]
-    simp only [ENNReal.summable, ↓reduceDIte]
-    have hsup: support (fun (_ : s) ↦ (1 : ℝ≥0∞)) = Set.univ := by
-      ext i
-      simp only [mem_support, ne_eq, one_ne_zero, not_false_eq_true, mem_univ]
-    have hsupfin: (Set.univ : Set s).Finite := finite_univ
-    rw [← hsup] at hsupfin
-    rw [if_pos hsupfin, hfin.encard_eq_coe_toFinset_card]
-    simp only [ENat.toENNReal_coe]
-    rw [Finset.card_eq_sum_ones]
-    rw [finsum_eq_sum (fun (_ : s) ↦ (1 :ℝ≥0∞)) hsupfin]
-    simp only [Finset.sum_const, nsmul_eq_mul, mul_one, smul_eq_mul, Nat.cast_inj]
-    apply Finset.card_bij (fun a _ => a.val)
-    · intro a
-      simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
-        Subtype.coe_prop, imp_self]
-    · intro a _ a' _ heq
-      ext
-      exact heq
-    · intro a ha
-      use ⟨a, by simpa [Finite.mem_toFinset] using ha⟩
-      simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
-        exists_const]
+    lift s to Finset α using hfin
+    simp
   else
   have : Infinite s := infinite_coe_iff.mpr hfin
   rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num), Set.encard_eq_top_iff.mpr hfin]
@@ -86,7 +64,7 @@ lemma ENNReal.sum_geometric_two_pow_toNNReal {k : ℕ} (hk : k > 0) :
   rw [← coe_inv this, coe_inj, Real.toNNReal_inv, one_div]
 
 lemma ENNReal.sum_geometric_two_pow_neg_one : ∑' (n : ℕ), (2 : ℝ≥0∞) ^ (-n : ℤ) = 2 := by
-  conv_lhs => enter [1, n]; rw [← one_mul (n : ℤ), ← neg_mul, ← Nat.cast_one]
+  conv_lhs => enter [1, n]; rw [← one_mul (n : ℤ), ← neg_mul, ← Nat.cast_one (R := ℤ)]
   rw [ENNReal.sum_geometric_two_pow_toNNReal zero_lt_one]; norm_num
 
 lemma ENNReal.sum_geometric_two_pow_neg_two :
