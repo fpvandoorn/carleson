@@ -83,7 +83,7 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
       ← sub_eq_add_neg, mul_comm _ ((2 : ℝ) ^ _)] at hle
     calc dist_{𝔠 p, 2^((2 : ℤ) - 5*a^2 - 2*a) * D^𝔰 p'} (𝒬 p') o'
       _ ≤ 2^(-(5 : ℤ)*a - 2) * dist_{𝔠 p, 4 * D^𝔰 p'} (𝒬 p') o' := hle
-      _ < 2^(-(5 : ℤ)*a - 2) * 2^(5*a + N + 2) := (mul_lt_mul_left (by positivity)).mpr hlt2
+      _ < 2^(-(5 : ℤ)*a - 2) * 2^(5*a + N + 2) := (mul_lt_mul_iff_right₀ (by positivity)).mpr hlt2
       _ = 2^N := by
         rw [← zpow_natCast, ← zpow_add₀ two_ne_zero]
         simp
@@ -111,7 +111,7 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
       _ = (4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a)) * (D * D ^ 𝔰 p) := by ring
       _ ≤ 4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a) * D ^ 𝔰 p' := by
         have h1D : 1 ≤ (D : ℝ) := one_le_realD _
-        nth_rewrite 1 [mul_le_mul_left (by positivity), ← zpow_one (D : ℝ),
+        nth_rewrite 1 [mul_le_mul_iff_right₀ (by positivity), ← zpow_one (D : ℝ),
           ← zpow_add₀ (ne_of_gt (realD_pos _))]
         gcongr
         rw [add_comm]

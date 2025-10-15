@@ -570,7 +570,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
   by_cases hMzero : MTrgx = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_notMem]
+    rw [measure_eq_zero_iff_ae_notMem]
     have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
     filter_upwards [czzero] with x' hx'
     simp [hx']
@@ -611,7 +611,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     volume (ball x (R / 4)) / 4 := by
   by_cases hMzero : globalMaximalFunction volume 1 g x = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_notMem]
+    rw [measure_eq_zero_iff_ae_notMem]
     have gzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 2)
         (by simp [lt_of_lt_of_le hr hR]) hg.aestronglyMeasurable hMzero
     have czzero : ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ = 0 := by
