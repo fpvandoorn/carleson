@@ -205,7 +205,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
   have : (a : ℝ) ≠ 0 := by norm_cast; linarith [four_le_a X]
   have rearr : (a : ℝ) * (𝕔 * a ^ 2 * (Z * n / ((2 * 𝕔 + 2) * a ^ 3) + 1) + 9) =
       Z * n / 2 * (𝕔 / (𝕔 + 1)) * a ^ 3 / a ^ 3 + 𝕔 * a ^ 3 + 9 * a := by
-        field_simp; ring
+        field_simp
   have fla := four_le_a X
   rw [rearr, mul_div_cancel_right₀ _ (by norm_cast; positivity), add_assoc,
     ← sub_lt_iff_lt_add', sub_right_comm, add_sub_right_comm, ← mul_one_sub, div_mul_comm,
@@ -580,7 +580,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       gcongr with k mk J mJ y
-      nth_rw 1 [← Finset.filter_True (@Finset.univ (Grid X) _) (h := fun _ ↦ instDecidableTrue)]
+      nth_rw 1 [← Finset.filter_true (@Finset.univ (Grid X) _) (h := fun _ ↦ instDecidableTrue)]
       simp_rw [Finset.sum_finset_product_filter_right]
       refine Finset.sum_le_sum_of_subset fun r hr ↦ ?_
       obtain ⟨I, p⟩ := r

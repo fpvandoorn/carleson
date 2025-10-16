@@ -1,8 +1,8 @@
 import Carleson.Antichain.AntichainOperator
 import Carleson.Discrete.Defs
 import Carleson.Discrete.SumEstimates
+import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Combinatorics.Enumerative.DoubleCounting
-import Mathlib.Data.Complex.ExponentialBounds
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -166,7 +166,7 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
   rcases B.eq_zero_or_pos with Bz | Bpos
   · simp_rw [B, filter_mem_univ_eq_toFinset, Finset.card_eq_zero, toFinset_eq_empty] at Bz
     exact Or.inl ⟨mp, Bz⟩
-  · right; use Nat.log 2 B; rw [Nat.lt_pow_iff_log_lt one_lt_two Bpos.ne'] at Blt
+  · right; use Nat.log 2 B; rw [← Nat.log_lt_iff_lt_pow one_lt_two Bpos.ne'] at Blt
     refine ⟨by omega, (?_ : _ ∧ _ ≤ B), (?_ : ¬(_ ∧ _ ≤ B))⟩
     · exact ⟨mp, Nat.pow_log_le_self 2 Bpos.ne'⟩
     · rw [not_and, not_le]; exact fun _ ↦ Nat.lt_pow_succ_log_self one_lt_two _
@@ -600,7 +600,7 @@ lemma carlesonSum_𝔓₁_compl_eq_𝔓pos_inter (f : X → ℂ) :
     ∀ᵐ x, x ∈ G \ G' → carlesonSum 𝔓₁ᶜ f x = carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ) f x := by
   have A p (hp : p ∈ (𝔓pos (X := X))ᶜ) : ∀ᵐ x, x ∈ G \ G' → x ∉ 𝓘 p := by
     simp only [𝔓pos, mem_compl_iff, mem_setOf_eq, not_lt, nonpos_iff_eq_zero] at hp
-    filter_upwards [measure_zero_iff_ae_notMem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
+    filter_upwards [measure_eq_zero_iff_ae_notMem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
     simp [h''x, h'x.1, h'x.2] at hx
   rw [← ae_ball_iff (to_countable 𝔓posᶜ)] at A
   filter_upwards [A] with x hx h'x
@@ -997,8 +997,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
       + ((q - 1) / (8 * a ^ 4)) ^ 2 * (38 * 1 + 40 * ↑Z)  / (Real.log 2) ^ 2
       + ((q - 1) / (8 * a ^ 4)) * (28 * 1 + 64 * ↑Z) / (Real.log 2) ^ 3
       + (48 * ↑Z) /  (Real.log 2) ^ 4) := by
-    field_simp only
-    ring
+    field_simp
   _ ≤ ((8 * a ^ 4) / (q - 1)) ^ 4 *
      (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (24 * (Z / 2 ^ 48) + 16 * ↑Z) / 0.69
       + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (38 * (Z / 2 ^ 48) + 40 * ↑Z)  / 0.69 ^ 2

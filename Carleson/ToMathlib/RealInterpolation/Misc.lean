@@ -124,12 +124,7 @@ def spf_to_tc (spf : ScaledPowerFunction) : StrictRangeToneCouple where
       intro s t hst
       beta_reduce
       gcongr
-      rw [ENNReal.div_lt_iff]
-      · rwa [ENNReal.div_mul_cancel spf.hd.ne' spf.hd']
-      · left
-        apply spf.hd.ne'
-      · left
-        apply spf.hd'
+      exact this
     · simp only [Bool.false_eq_true, ↓reduceIte]
       intro s t hst
       rcases spf.hσ with σ_pos | σ_neg

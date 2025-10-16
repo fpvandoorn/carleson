@@ -120,7 +120,7 @@ lemma lipschitzWith_ψ (hD : 1 ≤ D) : LipschitzWith (4 * D) (ψ D) := by
   have lw1 : LipschitzWith (4 * D) (fun (x : ℝ) ↦ 4 * D * x - 1) := by
     refine LipschitzWith.of_le_add_mul (4 * D) (fun x y ↦ ?_)
     suffices 4 * D * (x - y) ≤ 4 * D * dist x y by norm_cast at this ⊢; linarith
-    exact (mul_le_mul_left (by positivity)).2 <| sub_le_dist x y
+    exact (mul_le_mul_iff_right₀ (by positivity)).2 <| sub_le_dist x y
   have lw2 : LipschitzWith 4 (fun (x : ℝ) ↦ 2 - 4 * x) := by
     refine LipschitzWith.of_le_add_mul 4 (fun x y ↦ ?_)
     suffices 4 * (y - x) ≤ 4 * dist x y by norm_cast at this ⊢; linarith
@@ -202,14 +202,14 @@ private lemma endpoint_sub_one (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) < 1
   · apply sub_le_iff_le_add.2 ∘ Int.ceil_le.2
     suffices logb D (4 * x) ≤ logb D (2 * D * x) by
       exact_mod_cast (lt_of_le_of_lt this (Int.lt_floor_add_one _)).le
-    have : 4 * x ≤ 2 * D * x := (mul_le_mul_right hx).2 (by linarith [D2 hD])
+    have : 4 * x ≤ 2 * D * x := (mul_le_mul_iff_left₀ hx).2 (by linarith [D2 hD])
     refine (strictMonoOn_logb hD).monotoneOn ?_ ?_ this <;> exact mem_Ioi.2 (by positivity)
 
 -- Special case of `sum_ψ`, for the case where `nonzeroS D x` has one element.
 private lemma sum_ψ₁ (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) ≥ 1 / (2 * D * x)) :
     ∑ s ∈ nonzeroS D x, ψ D (D ^ (-s) * x) = 1 := by
   rw [nonzeroS, eq_endpoints hD hx h, Finset.Icc_self, Finset.sum_singleton]
-  refine ψ_formula₂ hD ⟨le_of_eq_of_le (by field_simp) ((mul_le_mul_right hx).2 h), ?_⟩
+  refine ψ_formula₂ hD ⟨le_of_eq_of_le (by field_simp) ((mul_le_mul_iff_left₀ hx).2 h), ?_⟩
   calc
     D ^ (-⌈logb D (4 * x)⌉) * x
       = D ^ (-⌈logb D (4 * x)⌉ : ℝ) * x := by norm_cast
@@ -233,7 +233,7 @@ private lemma sum_ψ₂ (hx : 0 < x)
   set s₀ := ⌈logb D (4 * x)⌉
   rw [this, Finset.sum_insert ((Finset.notMem_singleton).2 ne), Finset.sum_singleton]
   -- Now calculate the sum
-  have Ds₀x_lt := (mul_lt_mul_right hx).2 h
+  have Ds₀x_lt := (mul_lt_mul_iff_left₀ hx).2 h
   rw [← div_div, div_mul_cancel₀ _ (ne_of_gt hx)] at Ds₀x_lt
   have hs₀ := And.intro (le_div_ceil_mul hD hx) Ds₀x_lt.le
   suffices 1 / 4 ≤ D ^ (-(s₀ - 1)) * x ∧ D ^ (-(s₀ - 1)) * x ≤ 1 / 2 by
@@ -258,7 +258,7 @@ lemma sum_ψ (hx : 0 < x) : ∑ s ∈ nonzeroS D x, ψ D (D ^ (-s) * x) = 1 := b
 lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) :
     i ∈ nonzeroS D x ↔ (D ^ (-i) * x) ∈ Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
   rw [mem_Ioo, nonzeroS, Finset.mem_Icc, Int.floor_le_iff, Int.le_ceil_iff, mul_inv_rev,
-    add_comm _ 1, Real.add_lt_add_iff_left, ← lt_div_iff₀ hx, mul_comm (D : ℝ)⁻¹,
+    add_comm _ 1, add_lt_add_iff_left, ← lt_div_iff₀ hx, mul_comm (D : ℝ)⁻¹,
     ← div_lt_div_iff₀ hx (inv_pos.2 (D0 hD)), div_inv_eq_mul, ← zpow_add_one₀ ((D0 hD).ne.symm),
     zpow_neg, ← Real.rpow_intCast, ← Real.rpow_intCast, lt_logb_iff_rpow_lt hD (by positivity),
     logb_lt_iff_lt_rpow hD (mul_pos two_pos hx), ← sub_eq_neg_add, ← neg_sub i 1, ← inv_mul',
@@ -400,11 +400,13 @@ variable (s)
 /-- Apply `volume_ball_two_le_same` `n` times. -/
 private lemma DoublingMeasure.volume_real_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
     volume.real (ball x (2 ^ n * r)) ≤ (defaultA a) ^ n * volume.real (ball x r) := by
-  induction' n with d ih; · simp
+  induction n with
+  | zero => simp
+  | succ d ih =>
   rw [add_comm, pow_add, pow_one, mul_assoc]
   apply (measureReal_ball_two_le_same x _).trans
   have A_cast : (defaultA a : ℝ≥0).toReal = (defaultA a : ℝ) := rfl
-  rwa [A_cast, pow_add, mul_assoc, pow_one, mul_le_mul_left (by positivity)]
+  rwa [A_cast, pow_add, mul_assoc, pow_one, mul_le_mul_iff_right₀ (by positivity)]
 
 -- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le`
 private lemma DoublingMeasure.volume_real_ball_two_le_same_repeat' (x : X) (n : ℕ) :
@@ -413,12 +415,15 @@ private lemma DoublingMeasure.volume_real_ball_two_le_same_repeat' (x : X) (n : 
   convert volume_real_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + n + 𝕔 * a ^ 2) using 3
   rw [defaultD, zpow_sub₀ (by positivity), pow_add, pow_add]
   field_simp
+  simp
   ring
 
 /-- Apply `volume_ball_two_le_same` `n` times. -/
 lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
     volume (ball x (2 ^ n * r)) ≤ (defaultA a) ^ n * volume (ball x r) := by
-  induction' n with d ih; · simp
+  induction n with
+  | zero => simp
+  | succ d ih =>
   rw [add_comm, pow_add, pow_one, mul_assoc]
   apply (measure_ball_two_le_same x _).trans
   have A_cast : ((defaultA a : ℝ≥0) : ℝ≥0∞) = (defaultA a : ℝ≥0∞) := rfl
@@ -432,6 +437,7 @@ private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) 
   convert volume_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + n + 𝕔 * a ^ 2) using 3
   rw [defaultD, zpow_sub₀ (by positivity), pow_add, pow_add]
   field_simp
+  simp
   ring
 
 lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) :
@@ -455,7 +461,7 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
     ENNReal.toNNReal_mono measure_ball_ne_top (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
   rw [div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
-  apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
+  apply le_of_le_of_eq <| (mul_le_mul_iff_right₀ hc).2 <|
     DoublingMeasure.volume_real_ball_two_le_same_repeat' s x n
   simp_rw [defaultA, ← mul_assoc, mul_comm c]
   rw_mod_cast [← pow_mul]
@@ -554,7 +560,7 @@ private lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r�
     apply norm_Ks_le.trans
     calc
       _ ≤ C2_1_3 a / (C⁻¹ * volume.real (ball x₀ r₀)) := by gcongr
-      _ = _ := by unfold defaultA defaultD C; field_simp
+      _ = _ := by unfold defaultA defaultD C; field_simp; simp
   have : volume.real (ball x (2*r₀)) ≤ C * volume.real (ball x (D^s)) := by
     have : (0:ℝ) < D := realD_pos _
     refine measureReal_ball_le_same x (by positivity) ?_
@@ -563,7 +569,7 @@ private lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r�
     _ ≤ C⁻¹ * volume.real (ball x (2 * r₀)) := by
       gcongr; exacts [measure_ball_ne_top, ball_subset_ball_of_le (by linarith)]
     _ ≤ C⁻¹ * (C * volume.real (ball x (D ^ s))) := by gcongr
-    _ = _ := by field_simp
+    _ = _ := by field_simp; simp [ne_of_gt ‹0 < C›]
 
 /-- `‖Ks x y‖` is bounded if `x` is in a bounded set -/
 lemma _root_.Bornology.IsBounded.exists_bound_of_norm_Ks
@@ -696,7 +702,7 @@ private lemma enorm_Ks_sub_Ks_le_close_pt2 {s : ℤ} {x y y' : X} (hK : Ks s x y
     (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   apply le_of_le_of_eq _ <| show 2 ^ (2 * a + (𝕔 + 1) * a ^ 3) /
         volume (ball x (D ^ s)) * (4 * D * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹) = _ by
-    field_simp; rw [← mul_assoc, ← ENNReal.mul_div_right_comm]; congr; ring
+    field_simp; rw [← mul_assoc, ← ENNReal.mul_div_right_comm]; congr; simp; ring
   apply mul_le_mul' _ ψ_ineq
   apply le_trans <| enorm_K_le_vol_inv x y
   apply le_of_le_of_eq <| div_vol_le₀ hK

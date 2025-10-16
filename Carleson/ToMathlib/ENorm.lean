@@ -38,6 +38,7 @@ attribute [simp] ENormedSpace.enorm_smul_eq_smul
 
 instance : ENormedSpace ℝ≥0∞ where
   enorm := id
+  enorm_zero := by simp
   enorm_eq_zero := by simp
   -- enorm_neg := by simp
   enorm_add_le := by simp
@@ -49,6 +50,7 @@ instance : ENormedSpace ℝ≥0∞ where
 
 instance : ENormedSpace ℝ≥0 where
   enorm := ofNNReal
+  enorm_zero := by simp
   add_smul r s x := by
     simp only [smul_eq_mul]
     ring

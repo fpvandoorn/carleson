@@ -136,7 +136,7 @@ lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G
 lemma calculation_5 {dist_1 dist_2 : ℝ}
     (h : dist_1 ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_2) :
     2 ^ ((-𝕔 : ℝ) * a) * dist_1 ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * dist_2 := by
-  apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (𝕔 * (a : ℝ)) by positivity)).mp
+  apply (mul_le_mul_iff_right₀ (show 0 < (2 : ℝ) ^ (𝕔 * (a : ℝ)) by positivity)).mp
   rw [← mul_assoc, neg_mul,
     Real.rpow_neg (by positivity),
     mul_inv_cancel₀ (a := (2 : ℝ) ^ (𝕔 * (a : ℝ))) (by positivity),

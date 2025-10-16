@@ -152,7 +152,7 @@ variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 instance : ProperSpace X := by
   constructor
   intro x r
-  refine isCompact_of_totallyBounded_isClosed ?_ isClosed_closedBall
+  refine TotallyBounded.isCompact_of_isClosed ?_ isClosed_closedBall
   obtain ⟨r', hr'⟩ := exists_gt r
   apply TotallyBounded.subset (closedBall_subset_ball hr')
   refine Metric.totallyBounded_iff.mpr fun ε hε ↦ ?_
@@ -472,7 +472,7 @@ lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
   | succ k ih =>
     trans 2 * dist_{x, (defaultA a) ^ k * r} f g
     · rw [pow_succ', mul_assoc]
-      exact (_root_.mul_le_mul_left zero_lt_two).mpr ih
+      exact (mul_le_mul_iff_right₀ zero_lt_two).mpr ih
     · convert le_cdist (ball_subset_ball _) using 1
       · exact dist_congr rfl (by rw [← mul_assoc, pow_succ'])
       · nth_rw 1 [← one_mul ((defaultA a) ^ k * r)]; gcongr
@@ -487,7 +487,7 @@ lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
     · convert cdist_le _ using 1
       · exact dist_congr rfl (by ring)
       · rw [dist_self]; positivity
-    · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
+    · replace ih := (mul_le_mul_iff_right₀ (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
       rwa [← mul_assoc, ← pow_succ'] at ih
 
 lemma cdist_le_mul_cdist {x x' : X} {r r' : ℝ} (hr : 0 < r) (hr' : 0 < r') (f g : Θ X) :

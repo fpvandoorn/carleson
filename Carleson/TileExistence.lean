@@ -524,7 +524,7 @@ mutual
               simp only [tsub_le_iff_right]
               rw [sub_eq_add_neg,add_assoc]
               simp only [le_add_iff_nonneg_right, le_neg_add_iff_add_le, add_zero, Nat.ofNat_pos,
-                mul_le_mul_left]
+                mul_le_mul_iff_right₀]
               gcongr
               exacts [one_le_realD a, by linarith]
           _ ⊆ ⋃ y, I3 _ y := I3_prop_2 _
@@ -1367,7 +1367,7 @@ variable (X) in
 lemma const_n_prop_2 (ht : t ∈ Ioo 0 1) (k : ℤ) : t * D ^ k ≤ D ^ (k - const_n a ht * K') := by
   let _ : MulPosReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   rw [sub_eq_neg_add, zpow_add₀ (realD_pos a).ne.symm,
-    mul_le_mul_right (zpow_pos (realD_pos a) _), zpow_neg,
+    mul_le_mul_iff_left₀ (zpow_pos (realD_pos a) _), zpow_neg,
     le_inv_comm₀ ht.left (zpow_pos (realD_pos a) _)]
   exact const_n_prop_1 X ht
 
@@ -1425,7 +1425,7 @@ lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
         norm_num
         trans 4 * 2
         · norm_num
-        rw [mul_le_mul_left (by norm_num)]
+        rw [mul_le_mul_iff_right₀ (by norm_num)]
         exact Nat.ofNat_le_cast.mpr this
       · rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num), mul_comm]
         simp only [Nat.cast_ofNat, le_refl]
@@ -1558,7 +1558,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
           · exact ht.left.le
           positivity
         _ ≤ (2 * t ^ κ : ℝ) := by
-          rw [mul_le_mul_left (by linarith)]
+          rw [mul_le_mul_iff_right₀ (by linarith)]
           have : (t : ℝ) ∈ Ioo 0 1 := ht
           rw [mem_Ioo] at this
           rw [Real.rpow_le_rpow_left_iff_of_base_lt_one (this.left) (this.right)]

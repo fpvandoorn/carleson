@@ -63,10 +63,12 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) :
     ∃ C, ∀ n, ‖fourierCoeffOn Real.two_pi_pos f n‖ ≤ C := by
   obtain ⟨C, f_bounded⟩ := continuous_bounded f_continuous.continuousOn
   refine ⟨C, fun n ↦ ?_⟩
-  simp only [fourierCoeffOn_eq_integral, sub_zero, one_div, mul_inv_rev]
+  simp only [fourierCoeffOn_eq_integral, sub_zero, one_div, mul_inv_rev, Complex.real_smul,
+    Complex.norm_real, Complex.norm_mul, norm_eq_abs, abs_mul, abs_inv, Nat.abs_ofNat]
   field_simp
-  rw [abs_of_nonneg pi_pos.le, mul_comm π, div_le_iff₀ Real.two_pi_pos]
-  calc ‖∫ (x : ℝ) in (0 : ℝ)..(2 * π), (starRingEnd ℂ) (Complex.exp (2 * π * Complex.I * n * x / (2 * π))) * f x‖
+  rw [abs_of_nonneg pi_pos.le, mul_comm π]
+  calc
+    _ = ‖∫ (x : ℝ) in (0 : ℝ)..(2 * π), (starRingEnd ℂ) (Complex.exp (2 * π * Complex.I * n * x / (2 * π))) * f x‖ := by simp
     _ = ‖∫ (x : ℝ) in (0 : ℝ)..(2 * π), (starRingEnd ℂ) (Complex.exp (Complex.I * n * x)) * f x‖ := by
       congr with x
       congr
@@ -88,7 +90,7 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) :
       /-Could specify `aestronglyMeasurable` and `intervalIntegrable` intead of `f_continuous`. -/
       exact IntervalIntegrable.intervalIntegrable_norm_iff f_continuous.aestronglyMeasurable |>.mpr
         (f_continuous.intervalIntegrable ..)
-    _ = C * (2 * π) := by simp; ring
+    _ = _ := by simp
 
 /-TODO: Assumptions might be weakened. -/
 lemma periodic_deriv {𝕜 : Type} [NontriviallyNormedField 𝕜] {F : Type} [NormedAddCommGroup F] [NormedSpace 𝕜 F]
@@ -150,9 +152,10 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
   rw [←tendsto_add_atTop_iff_nat 1] at this
   convert this using 1
   ext N
-  induction' N with N ih
-  · simp
-  · have : Icc (- Int.ofNat (N.succ)) (N.succ) = insert (↑(N.succ)) (insert (-Int.ofNat (N.succ)) (Icc (-Int.ofNat N) N)) := by
+  induction N with
+  | zero => simp
+  | succ N ih =>
+    have : Icc (- Int.ofNat (N.succ)) (N.succ) = insert (↑(N.succ)) (insert (-Int.ofNat (N.succ)) (Icc (-Int.ofNat N) N)) := by
       rw [←Ico_insert_right, ←Ioo_insert_left]
       · congr 2 with n
         simp only [Int.ofNat_eq_coe, mem_Ioo, mem_Icc]
@@ -194,7 +197,7 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
     rw [summable_congr @fourierCoeff_correspondence, ←summable_norm_iff]
     apply summable_of_le_on_nonzero _ _ summable_maj <;> intro i
     · simp
-    · intro ine0; field_simp [maj_def, hC i ine0]
+    · intro ine0; simpa only [maj_def, one_div_mul_eq_div] using hC i ine0
   have := int_sum_nat function_sum
   rw [ContinuousMap.tendsto_iff_tendstoUniformly, Metric.tendstoUniformly_iff] at this
   have := this ε εpos

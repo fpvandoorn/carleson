@@ -209,6 +209,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       congr with n
       rw [fourier_coe_apply, fourier_coe_apply, fourier_coe_apply, ←exp_add]
       congr
+      simp
       field_simp
       ring
 

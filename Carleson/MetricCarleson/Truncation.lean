@@ -47,7 +47,7 @@ lemma measurable_T_lin (mf : Measurable f) (mσ₁ : Measurable σ₁) (mσ₂ :
   refine Finset.measurable_sum _ fun _ _ ↦ (measurable_T_inner_integral mf).indicator ?_
   rw [measurableSet_setOf]; apply (measurable_set_mem _).comp
   apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
-  · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
+  · exact measurable_from_prod_countable_left fun _ _ _ ↦ trivial
   · exact mσ₁.prodMk mσ₂
 
 section Linearised
@@ -326,11 +326,11 @@ lemma S_truncation
       rw [← measurableSet_setOf]; exact measurableSet_le mσ₁ measurable_const
     · rw [← measurableSet_setOf]; apply measurableSet_eq_fun'
       · apply Measurable.comp (f := fun x ↦ (x, σ₁ x)) (g := fun p ↦ T1' p.1 p.2)
-        · exact measurable_from_prod_countable fun _ ↦ mT1'
+        · exact measurable_from_prod_countable_left fun _ ↦ mT1'
         · exact measurable_id.prodMk mσ₁
       · apply Measurable.enorm
         apply (Measurable.comp (f := fun x ↦ (x, σ₁ x)) (g := fun p ↦ T_S Q p.2 n f p.1))
-        · exact measurable_from_prod_countable fun _ ↦ measurable_T_S mf
+        · exact measurable_from_prod_countable_left fun _ ↦ measurable_T_S mf
         · exact measurable_id.prodMk mσ₁
   -- Work analogously to prove `σ₂`'s properties
   let σ₂ (x : X) := (candσ₂ x).min' (necσ₂ x)

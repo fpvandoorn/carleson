@@ -798,7 +798,7 @@ private lemma one_sub_ioo_toReal {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) :
   have ht1 : t ≤ 1 := ht.2.le
   cases t
   · trivial
-  · field_simp
+  · rw [ENNReal.toReal_sub_of_le] <;> simp [*]
 
 lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :

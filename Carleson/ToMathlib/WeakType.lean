@@ -439,7 +439,7 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   obtain ⟨h1, h2⟩ := h f hf
   refine ⟨?_, by rwa [← wnorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
-  refine .of_null <| measure_zero_iff_ae_notMem.mpr ?_
+  refine .of_null <| measure_eq_zero_iff_ae_notMem.mpr ?_
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
@@ -495,7 +495,7 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   obtain ⟨h1, h2⟩ := h f hf
   refine ⟨?_, by rwa [← eLpNorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
-  refine .of_null <| measure_zero_iff_ae_notMem.mpr ?_
+  refine .of_null <| measure_eq_zero_iff_ae_notMem.mpr ?_
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
@@ -569,7 +569,7 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g 
       refine measure_mono fun x h ↦ ?_
       simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
       contrapose! h
-      exact (ENormedAddMonoid.enorm_add_le _ _).trans (add_le_add h.1 h.2)
+      exact (enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
 
 --TODO: make this an iff?
@@ -887,7 +887,8 @@ lemma lintegral_pow_mul_distribution {f : α → ε} (hf : AEStronglyMeasurable 
   have h2p : 0 < p + 1 := by linarith
   have h3p : 0 ≤ p + 1 := by linarith
   have h4p : p + 1 ≠ 0 := by linarith
-  simp [*, lintegral_norm_pow_eq_distribution, ← lintegral_const_mul', ← ofReal_mul, ← mul_assoc]
+  simp [*, -ofReal_inv_of_pos, lintegral_norm_pow_eq_distribution, ← lintegral_const_mul',
+    ← ofReal_mul, ← mul_assoc]
 
 end Layercake
 
