@@ -375,10 +375,7 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
   have hqiq : q = iq⁻¹ := by rw [iq_eq, inv_inv]
   have : 0 < 1 - iq := by linarith [inv_q_mem_Ico X |>.2]
   have hpdiv' : 2 / (p X) / (2 / (p X).toNNReal - 1).toReal = (2 - iq) * (1 - iq)⁻¹ := by
-    simp only [div_eq_mul_inv, hp_coe', inv_p_eq', ← iq_eq]
-    field_simp
-    simp [show 2 - iq - 1 = 1 - iq by ring]
-    field_simp
+    simp [div_eq_mul_inv, hp_coe', inv_p_eq', ← iq_eq, field, show 2 - iq - 1 = 1 - iq by ring]
   have : 2⁻¹ ≤ iq := inv_q_mem_Ico X |>.1
   have hiq1 : 2 ≤ (1 - iq)⁻¹ := by
     apply (le_inv_comm₀ (by positivity) (by positivity)).mp

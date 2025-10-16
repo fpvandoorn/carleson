@@ -247,9 +247,7 @@ lemma enorm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h
     ← ofReal_norm_eq_enorm, ← dist_eq_norm]
   apply ENNReal.ofReal_le_ofReal
   apply (dist_holderApprox_le hR ht h't hϕ (HolderOnWith.of_iHolENorm_ne_top h) x).trans_eq
-  simp only [defaultτ, NNReal.coe_div, NNReal.coe_rpow, Real.coe_toNNReal', Nat.ofNat_pos,
-    mul_nonneg_iff_of_pos_left, hR.le, sup_of_le_left]
-  field_simp
+  simp [field, NNReal.coe_div, hR.le]
 
 
 /-- Part of Lemma 8.0.1: sup norm control in Equation (8.0.2). Note that it only uses the sup

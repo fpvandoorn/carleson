@@ -197,7 +197,7 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
     rw [summable_congr @fourierCoeff_correspondence, ←summable_norm_iff]
     apply summable_of_le_on_nonzero _ _ summable_maj <;> intro i
     · simp
-    · intro ine0; simp only [maj_def, one_div_mul_eq_div]; exact hC i ine0
+    · intro ine0; simpa only [maj_def, one_div_mul_eq_div] using hC i ine0
   have := int_sum_nat function_sum
   rw [ContinuousMap.tendsto_iff_tendstoUniformly, Metric.tendstoUniformly_iff] at this
   have := this ε εpos
