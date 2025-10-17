@@ -208,6 +208,11 @@ theorem integrable_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g μ) 
   rw [← memLp_one_iff_integrable] at hg ⊢
   exact hg.mul hf.memLp_top
 
+@[fun_prop]
+theorem integrable_fun_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g μ) :
+    Integrable (fun x ↦ f x * g x) μ :=
+  hf.integrable_mul hg
+
 -- todo: extract 3-4 lemmas from this proof
 @[fun_prop]
 theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) μ where
@@ -220,6 +225,12 @@ theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) 
   hasCompactSupport := by
     simp_rw [star]
     exact (hasCompactSupport_comp_left (by simp)).2 hf.hasCompactSupport
+
+-- This lemma is defeq to `BoundedCompactSupport.conj`, but `starRingEnd` and `conj` are both
+-- simp normal forms, so a lemma for each is needed.
+@[fun_prop]
+theorem starRingEnd (hf : BoundedCompactSupport f μ) :
+  BoundedCompactSupport (fun x ↦ (starRingEnd 𝕜) (f x)) μ := hf.conj
 
 @[fun_prop]
 theorem const_mul (hf : BoundedCompactSupport f μ) (c : 𝕜) :

@@ -438,6 +438,9 @@ lemma adjointCarleson_adjoint
           congr; funext; rw [map_mul, ← exp_conj, mul_comm (cexp _)]
           congr; simp; ring
 
+-- Bug: why is `integrable_fun_mul` needed, despite `integrable_mul` existing?
+-- the fun_prop documentation implies it's superfluous. TODO ask on zulip!
+
 /-- `adjointCarlesonSum` is the adjoint of `carlesonSum`. -/
 lemma adjointCarlesonSum_adjoint
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (ℭ : Set (𝔓 X)) :
@@ -447,7 +450,6 @@ lemma adjointCarlesonSum_adjoint
       unfold carlesonSum; simp_rw [Finset.mul_sum]
     _ = ∑ p with p ∈ ℭ, ∫ x, conj (g x) * carlesonOn p f x := by
       apply integral_finset_sum; intro p _
-      change Integrable (star g * carlesonOn p f) volume
       fun_prop
     _ = ∑ p with p ∈ ℭ, ∫ y, conj (adjointCarleson p g y) * f y := by
       simp_rw [adjointCarleson_adjoint hf hg]
