@@ -840,6 +840,7 @@ lemma measurable_Ks {s : ℤ} : Measurable (fun x : X × X ↦ Ks s x.1 x.2) := 
   unfold Ks _root_.ψ
   exact measurable_K.mul (by fun_prop)
 
+@[fun_prop]
 lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) :=
   measurable_Ks.aestronglyMeasurable
 
@@ -850,7 +851,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
   rw [← integrableOn_iff_integrable_of_support_subset (s := (ball x r)ᶜ)]
   · refine integrableOn_K_mul ?_ x hr (subset_refl _)
     apply Continuous.integrable_of_hasCompactSupport
-    · exact continuous_ofReal.comp <| continuous_ψ.comp <| (by fun_prop)
+    · unfold «ψ»; fun_prop
     · apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall x (D ^ s / 2))
       intro y hy
       rw [mem_support, ne_eq, ofReal_eq_zero, ← ne_eq, ← mem_support, support_ψ (one_lt_realD X)] at hy
