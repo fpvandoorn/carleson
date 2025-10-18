@@ -350,6 +350,29 @@ lemma nontangentialOperator_const_smul (z : ℂ) {K : X → X → ℂ} :
   simp_rw [Pi.smul_apply, smul_eq_mul, mul_assoc, integral_const_mul, enorm_mul, ← ENNReal.mul_iSup]
   rfl
 
+private lemma carlesonOperatorIntegrand_const_smul' [FunctionDistances ℝ X] (K : X → X → ℂ)
+    (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperatorIntegrand K θ R₁ R₂ (z • f) = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
+  unfold carlesonOperatorIntegrand
+  ext x
+  simp_rw [Pi.smul_apply, smul_eq_mul, ← integral_const_mul]
+  congr with y
+  ring
+
+private lemma linearizedCarlesonOperator_const_smul' [FunctionDistances ℝ X] (Q : X → Θ X)
+    (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    linearizedCarlesonOperator Q K (z • f) = ‖z‖ₑ • linearizedCarlesonOperator Q K f := by
+  unfold linearizedCarlesonOperator
+  simp_rw [carlesonOperatorIntegrand_const_smul', Pi.smul_apply, smul_eq_mul, enorm_mul, ← mul_iSup]
+  rfl
+
+lemma carlesonOperator_const_smul' [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperator K (z • f) = ‖z‖ₑ • carlesonOperator K f := by
+  unfold carlesonOperator
+  simp_rw [linearizedCarlesonOperator_const_smul', Pi.smul_apply, ← smul_iSup]
+  rfl
+
+
 end DoublingMeasure
 
 section Kernel
