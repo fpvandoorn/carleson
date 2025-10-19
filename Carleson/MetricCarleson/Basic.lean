@@ -1,5 +1,6 @@
 import Carleson.DoublingMeasure
 import Carleson.ToMathlib.RealInterpolation.Misc
+import Carleson.ToMathlib.Order.LiminfLimsup
 import Mathlib.Order.CompleteLattice.Group
 
 open scoped NNReal
@@ -650,16 +651,6 @@ lemma tendsto_carlesonOperatorIntegrand_of_dominated_convergence
     intro y hy
     exact Filter.Tendsto.mul (Filter.Tendsto.mul tendsto_const_nhds hy) tendsto_const_nhds
 
-
---TODO: move
-theorem Filter.iSup_liminf_le_liminf_iSup {α : Type*} {β : Type*} {ι : Sort*} [CompleteLattice α]
-  {f : Filter β} {u : ι → β → α} :
-    ⨆ (i : ι), Filter.liminf (u i) f ≤ Filter.liminf (fun b ↦ ⨆ (i : ι), u i b) f := by
-  simp only [iSup_le_iff]
-  intro i
-  rw [liminf_eq_iSup_iInf, liminf_eq_iSup_iInf]
-  gcongr with s hs b hb
-  apply le_iSup (fun i ↦ u i b)
 
 lemma linearizedCarlesonOperator_le_liminf_linearizedCarlesonOperator_of_tendsto
   {Q : X → Θ X}
