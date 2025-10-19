@@ -591,6 +591,7 @@ theorem enorm_carlesonOperatorIntegrand_add_le_add_enorm_carlesonOperatorIntegra
     apply IntegrableOn.mono_set _ (ball_subset_closedBall)
     apply hg.integrableOn_isCompact (isCompact_closedBall _ _)
 
+-- TODO: this proof is a good target for automation
 theorem linearizedCarlesonOperator_add_le_add_linearizedCarlesonOperator
   {f g : X → ℂ} (hf : LocallyIntegrable f) (hg : LocallyIntegrable g) {θ : Θ X} :
   linearizedCarlesonOperator (fun _ ↦ θ) K (f + g) x ≤
