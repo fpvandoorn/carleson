@@ -1,5 +1,6 @@
 import Carleson.DoublingMeasure
 import Carleson.ToMathlib.RealInterpolation.Misc
+import Mathlib.Order.CompleteLattice.Group
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Filter Topology ShortVariables Metric Complex
@@ -562,14 +563,6 @@ theorem carlesonOperator_measurable (hf : LocallyIntegrable f) [Countable (Θ X)
   --extract_goal
   apply linearizedCarlesonOperator_measurable hf
 
-
---generalized from EReal.iSup_add_le_add_iSup
---TODO: move
-theorem iSup_add_le_add_iSup {ι : Sort*} {β : Type*} [CompleteLattice β] [Add β]
-  [AddLeftMono β] [AddRightMono β]
-  {u v : ι → β} :
-    ⨆ (x : ι), (fun x ↦ u x + v x) x ≤ (⨆ x, u x) + ⨆ x, v x := (iSup_le fun i ↦ add_le_add (le_iSup _ i) (le_iSup _ i))
-
 theorem enorm_carlesonOperatorIntegrand_add_le_add_enorm_carlesonOperatorIntegrand
   {f g : X → ℂ} (hf : LocallyIntegrable f) (hg : LocallyIntegrable g)
   {θ : Θ X} {R₁ R₂ : ℝ} (R₁_pos : 0 < R₁) :
@@ -597,13 +590,13 @@ theorem linearizedCarlesonOperator_add_le_add_linearizedCarlesonOperator
   linearizedCarlesonOperator (fun _ ↦ θ) K (f + g) x ≤
     linearizedCarlesonOperator (fun _ ↦ θ) K f x + linearizedCarlesonOperator (fun _ ↦ θ) K g x := by
   unfold linearizedCarlesonOperator
-  apply le_trans _ iSup_add_le_add_iSup
+  apply le_trans _ (iSup_add_le _ _)
   gcongr with R₁
-  apply le_trans _ iSup_add_le_add_iSup
+  apply le_trans _ (iSup_add_le _ _)
   gcongr with R₂
-  apply le_trans _ iSup_add_le_add_iSup
+  apply le_trans _ (iSup_add_le _ _)
   gcongr with R₁_pos
-  apply le_trans _ iSup_add_le_add_iSup
+  apply le_trans _ (iSup_add_le _ _)
   gcongr with R₁_lt_R₂
   simp only
   apply enorm_carlesonOperatorIntegrand_add_le_add_enorm_carlesonOperatorIntegrand hf hg R₁_pos
@@ -612,7 +605,7 @@ theorem carlesonOperator_add_le_add_carlesonOperator
   {f g : X → ℂ} (hf : LocallyIntegrable f) (hg : LocallyIntegrable g) :
     carlesonOperator K (f + g) x ≤ carlesonOperator K f x + carlesonOperator K g x := by
   unfold carlesonOperator
-  apply le_trans _ iSup_add_le_add_iSup
+  apply le_trans _ (iSup_add_le _ _)
   gcongr with θ
   apply linearizedCarlesonOperator_add_le_add_linearizedCarlesonOperator hf hg
 
