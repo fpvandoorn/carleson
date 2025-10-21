@@ -285,8 +285,6 @@ end Approx
 
 section NNApprox
 
---instance : ConditionallyCompleteLattice ℝ≥0 := inferInstance
-
 variable {f : α → ℝ≥0}
 
 /-- A sequence of `ℝ≥0`s such that its range is the set of non-negative rational numbers. -/

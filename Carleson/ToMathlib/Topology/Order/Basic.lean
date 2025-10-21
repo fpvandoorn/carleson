@@ -1,7 +1,7 @@
 import Mathlib.Topology.Order.Basic
 
 
-theorem nonempty_nhds_inter_Ioi {α : Type*} [LinearOrder α] [OrderTop α] [DenselyOrdered α]
+theorem nonempty_nhds_inter_Ioi {α : Type*} [LinearOrder α] [DenselyOrdered α]
     [TopologicalSpace α] [OrderTopology α]
     {x : α} {u : Set α} (hu : u ∈ nhds x) (hx : ¬ IsMax x) :
     (u ∩ Set.Ioi x).Nonempty := by
