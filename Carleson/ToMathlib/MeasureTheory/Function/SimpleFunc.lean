@@ -4,27 +4,6 @@ import Mathlib.MeasureTheory.Function.SimpleFunc
 
 noncomputable section
 
-/-
---TODO: use ConditionallyCompleteLattice instead?
-theorem iSup_le' {α : Type*} {ι : Sort*} [ConditionallyCompleteLattice α] [Nonempty ι] {f : ι → α}
-    {a : α} (h : ∀ (i : ι), f i ≤ a) :
-  iSup f ≤ a := csSup_le (Set.range_nonempty f) fun _ ⟨i, Eq⟩ => Eq ▸ h i
--/
-/-
-theorem isLUB_iSup' {α : Type*} {ι : Sort*} [ConditionallyCompleteLattice α] {f : ι → α} :
-    IsLUB (Set.range f) (⨆ j, f j) :=
-  isLUB_csSup _
-
-@[simp]
-theorem iSup_le_iff' {α : Type*} {ι : Sort*} [ConditionallyCompleteLattice α] {f : ι → α} {a : α} :
-    iSup f ≤ a ↔ ∀ i, f i ≤ a := by
-  --(isLUB_le_iff isLUB_iSup').trans Set.forall_mem_range
-  constructor
-  · intro h i
-    --apply le_of_iSup_le
-    apply csSup_le_iff'
--/
-
 open Set hiding restrict restrict_apply
 
 open Filter ENNReal
@@ -39,7 +18,7 @@ variable {α β γ δ : Type*}
 
 namespace SimpleFunc
 
-/- Proof stolen from the mathlib SimpleFunc.induction with a minor modification
+/- Proof stolen from the mathlib `SimpleFunc.induction` with a minor modification
    that is even suggested there. -/
 @[elab_as_elim]
 protected theorem induction₀ [MeasurableSpace α] [AddZeroClass γ]
