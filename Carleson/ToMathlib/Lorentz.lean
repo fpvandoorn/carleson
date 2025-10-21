@@ -108,7 +108,7 @@ lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Me
 lemma eLorentzNorm_top_top {f : α → ε} : eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
   simp [eLorentzNorm]
 
-lemma eLorentzNorm_eq_Lp {f : α → ε'} (hf : AEStronglyMeasurable f μ) :
+lemma eLorentzNorm_eq_eLpNorm {f : α → ε'} (hf : AEStronglyMeasurable f μ) :
   eLorentzNorm f p p μ = eLpNorm f p μ := by
   by_cases p_zero : p = 0
   · simp [p_zero]
@@ -239,62 +239,6 @@ lemma helper {f : ℝ≥0∞ → ℝ≥0∞} {x : ℝ≥0∞} (hx : x ≠ ⊤)
       intro y h
       exact h
 
-/-
---TODO: move
-theorem NNReal.ball_eq_Ioo (x r : ℝ≥0) : Metric.ball x r = Set.Ioo (x - r) (x + r) :=
-  Set.ext fun y => by
-    rw [Metric.mem_ball, dist_comm, NNReal.dist_eq, abs_sub_lt_iff, Set.mem_Ioo]
-    constructor
-    · intro h
-      constructor
-      · rw [NNReal.coe_sub]
--/
-
-/-
-lemma helper' {f : ℝ≥0 → ℝ≥0∞} (x : ℝ≥0)
-  (hf : ContinuousWithinAt f (Set.Ioi x) x)
-  {a : ℝ≥0∞} (ha : a < f x) :
-    volume {y | a < f y} ≠ 0 := by
-  unfold ContinuousWithinAt at hf
-  set s := Set.Ioi a
-  have mem_nhds_s : s ∈ nhds (f x) := by
-    rw [IsOpen.mem_nhds_iff isOpen_Ioi]
-    simpa
-  have := hf mem_nhds_s
-  simp only [Filter.mem_map] at this
-  rw [← ENNReal.bot_eq_zero, ← bot_lt_iff_ne_bot]
-  rw [mem_nhdsWithin] at this
-  rcases this with ⟨u, u_open, x_in_u, u_inter_subset⟩
-  calc _
-    _ < volume (u ∩ Set.Ioi x) := by
-      rw [bot_lt_iff_ne_bot]
-      apply IsOpen.measure_ne_zero
-      · apply u_open.inter isOpen_Ioi
-      rw [Metric.isOpen_iff] at u_open
-      rcases u_open _ x_in_u with ⟨ε, ε_pos, ball_subset⟩
-      use x + ε.toNNReal / 2
-      simp only [Set.mem_inter_iff, Set.mem_Ioi, lt_add_iff_pos_right, Nat.ofNat_pos,
-        div_pos_iff_of_pos_right, Real.toNNReal_pos]
-      use ?_, ε_pos
-      apply ball_subset
-      simp only [Metric.mem_ball]
-      rw [NNReal.dist_eq]
-      simp only [NNReal.coe_add, NNReal.coe_div, Real.coe_toNNReal', NNReal.coe_ofNat,
-        add_sub_cancel_left]
-      rw [abs_of_nonneg]
-      · rw [div_lt_iff₀ zero_lt_two]
-        simp [ε_pos]
-      apply div_nonneg (by simp) zero_lt_two.le
-    _ ≤ volume (f ⁻¹' s) := by
-      apply measure_mono u_inter_subset
-    _ ≤ volume {y | a < f y} := by
-      apply measure_mono
-      unfold s Set.preimage
-      simp only [Set.mem_Ioi, Set.setOf_subset_setOf]
-      intro y h
-      exact h
--/
-
 --TODO: move
 theorem ContinuousWithinAt.ennreal_mul {X : Type*}
   [TopologicalSpace X] {f g : X → ℝ≥0∞} {s : Set X} {t : X} (hf : ContinuousWithinAt f s t)
@@ -329,29 +273,6 @@ lemma eLorentzNorm_eq_wnorm (hp : p ≠ 0) : eLorentzNorm f p ∞ μ = wnorm f p
     rw [ne_eq, withDensity_apply_eq_zero' (by measurability)]
     simp only [ne_eq, ENNReal.inv_eq_zero, ENNReal.coe_ne_top, not_false_eq_true, Set.setOf_true,
       Set.univ_inter]
-    /-
-    have : {y : NNReal | a.toNNReal < (y * distribution f (↑y) μ ^ p.toReal⁻¹).toNNReal}
-        = {y : NNReal | a < y * distribution f y μ ^ p.toReal⁻¹} := by
-      sorry
-    rw [← ne_eq] --, NNReal.volume_eq_volume_ennreal
-    · rw [← this]
-      apply helper'
-      · apply ContinuousWithinAt.ennreal_mul continuous_id'.continuousWithinAt ((continuousWithinAt_distribution _).ennrpow_const _)
-        · rw [or_iff_not_imp_left]
-          push_neg
-          intro h
-          exfalso
-          rw [h] at ha
-          simp at ha
-        · right
-          simp
-      · exact ha
-    rw [this]
-    apply MeasurableSet.diff _ (measurableSet_singleton ⊤)
-    refine measurableSet_lt measurable_const ?_
-    measurability
-    -/
-
     have : ENNReal.ofNNReal '' {y | a < ↑y * distribution f (↑y) μ ^ p.toReal⁻¹}
         = {y | a < y * distribution f y μ ^ p.toReal⁻¹} \ {⊤}:= by
       ext y
@@ -446,24 +367,10 @@ lemma MemLorentz_iff_MemLp {f : α → ε'} :
   unfold MemLorentz MemLp
   constructor
   · intro h
-    rwa [← eLorentzNorm_eq_Lp h.1]
+    rwa [← eLorentzNorm_eq_eLpNorm h.1]
   · intro h
-    rwa [eLorentzNorm_eq_Lp h.1]
+    rwa [eLorentzNorm_eq_eLpNorm h.1]
 
-/-
-lemma MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_top {α : Type*} {F : Type*} {m0 : MeasurableSpace α}
-  {p q : ENNReal} {μ : Measure α} [NormedAddCommGroup F] {f : α → F} {C : ℝ}
-  (hp : 0 < p) (p_le_q : p ≤ q) :
-    eLpNorm f q μ ≤ eLpNorm f p μ ^ 1 * eLpNormEssSup f μ ^ 1 := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm sorry sorry]
-  /-calc _
-    _ = 1 := by
-      sorry
-  -/
-  sorry
--/
-
---instance ENNReal.normedAddCommGroup : NormedAddCommGroup ℝ≥0∞ := ⟨fun _r _y => rfl⟩
 
 -- TODO: could maybe be strengthened to ↔
 lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε]
@@ -637,14 +544,14 @@ lemma hasStrongType_iff_hasLorentzType {ε₁ ε₂}
   constructor
   · intro h f hf
     unfold MemLp MemLorentz at *
-    rw [eLorentzNorm_eq_Lp hf.1] at *
+    rw [eLorentzNorm_eq_eLpNorm hf.1] at *
     have := h f hf
-    rwa [eLorentzNorm_eq_Lp this.1]
+    rwa [eLorentzNorm_eq_eLpNorm this.1]
   · intro h f hf
     unfold MemLp MemLorentz at *
-    rw [← eLorentzNorm_eq_Lp hf.1] at *
+    rw [← eLorentzNorm_eq_eLpNorm hf.1] at *
     have := h f hf
-    rwa [← eLorentzNorm_eq_Lp this.1]
+    rwa [← eLorentzNorm_eq_eLpNorm this.1]
 
 /-
 -- TODO: find better name
@@ -1157,7 +1064,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
   use T_meas hf
   by_cases h : p = ⊤
   · rw [h]
-    rw [eLorentzNorm_eq_Lp sorry]
+    rw [eLorentzNorm_eq_eLpNorm sorry]
     by_cases h' : f =ᵐ[μ] 0
     · sorry
     · sorry
