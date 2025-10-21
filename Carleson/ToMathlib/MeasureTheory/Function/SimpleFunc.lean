@@ -289,7 +289,7 @@ section NNApprox
 
 variable {f : α → ℝ≥0}
 
-/-- A sequence of `ℝ≥0∞`s such that its range is the set of non-negative rational numbers. -/
+/-- A sequence of `ℝ≥0`s such that its range is the set of non-negative rational numbers. -/
 def nnrealRatEmbed (n : ℕ) : ℝ≥0 :=
   Real.toNNReal ((Encodable.decode (α := ℚ) n).getD (0 : ℚ))
 
@@ -297,7 +297,7 @@ theorem nnrealRatEmbed_encode (q : ℚ) :
     nnrealRatEmbed (Encodable.encode q) = Real.toNNReal q := by
   rw [nnrealRatEmbed, Encodable.encodek]; rfl
 
-/-- Approximate a function `α → ℝ≥0∞` by a sequence of simple functions. -/
+/-- Approximate a function `α → ℝ≥0` by a sequence of simple functions. -/
 def nnapprox : (α → ℝ≥0) → ℕ → SimpleFunc α ℝ≥0 :=
   approx nnrealRatEmbed
 
