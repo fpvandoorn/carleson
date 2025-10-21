@@ -220,31 +220,6 @@ lemma wnorm_toReal_eq {f : α → ℝ≥0∞} {p : ℝ≥0∞} (hf : ∀ᵐ x �
     wnorm (ENNReal.toReal ∘ f) p μ = wnorm f p μ := by
   simp_rw [wnorm, eLpNormEssSup_toReal_eq hf, wnorm'_toReal_eq hf]
 
-/-
---TODO: move
-theorem ENNReal.exists_pos_lt_mul {a : ℝ≥0∞} (h : 0 < a)
-    (b : ℝ≥0∞) : ∃ c, 0 < c ∧ b < c * a := by
-  sorry
-
-lemma wnorm_eq_top {f : α → ℝ≥0∞} {p : ℝ≥0∞} (ae_finite : distribution f ⊤ μ ≠ 0) :
-    wnorm f p μ = ⊤ := by
-  unfold wnorm
-  split_ifs
-  · sorry
-  unfold wnorm'
-  --rw [eq_top_iff]
-  --apply iSup_mul_le
-  rw [← ENNReal.bot_eq_zero, ← bot_lt_iff_ne_bot] at ae_finite
-  rw [iSup_eq_top]
-  intro b hb
-  rcases ENNReal.exists_pos_lt_mul ae_finite b with ⟨i, i_pos, hi⟩
-  use i.toNNReal
-  rw [coe_toNNReal]
-
-  --constructor
-  --· apply distribution_mono_right _ ae_finite
-  --sorry
--/
 
 /-- A function is in weak-L^p if it is (strongly a.e.)-measurable and has finite weak L^p norm. -/
 def MemWLp [TopologicalSpace ε] (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
