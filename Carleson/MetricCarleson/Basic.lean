@@ -455,7 +455,7 @@ theorem carlesonOperatorIntegrand_measurable {θ : Θ X} (mf : AEStronglyMeasura
     Measurable (carlesonOperatorIntegrand K θ R₁ R₂ f) := by
   unfold carlesonOperatorIntegrand
   revert f
-  apply wlog_stronglymeasurable
+  apply AEStronglyMeasurable.induction
   · intro f g stronglyMeasurable_f hfg hf
     have {x : X} : ∫ (y : X) in Annulus.oo x R₁ R₂, K x y * f y * cexp (I * ↑(θ y))
                  = ∫ (y : X) in Annulus.oo x R₁ R₂, K x y * g y * cexp (I * ↑(θ y)) := by

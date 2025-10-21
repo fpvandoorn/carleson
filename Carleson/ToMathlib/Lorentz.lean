@@ -971,7 +971,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
       intro G measurable_G G_finite
       rcases hf with ⟨aemeasurable_f, hf⟩
       revert f --TODO: go on here
-      apply wlog_stronglymeasurable
+      apply AEStronglyMeasurable.induction
       · intro f g stronglyMeasurable_f hfg hf hg
         have : eLorentzNorm f p 1 μ < ⊤ := by
           sorry --use: hg

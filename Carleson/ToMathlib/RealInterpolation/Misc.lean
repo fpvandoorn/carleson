@@ -1386,8 +1386,7 @@ lemma value_lintegral_res₂ {γ p' : ℝ} {spf : ScaledPowerFunction} (ht : 0 <
   simp [ht', top_rpow_of_pos hσp', mul_top (ENNReal.rpow_pos this spf.hd').ne',
       top_div_of_lt_top ofReal_lt_top]
 
---TODO: find better name
-lemma wlog_stronglymeasurable {α : Type*} {β : Type*} {mα : MeasurableSpace α} [TopologicalSpace β]
+lemma AEStronglyMeasurable.induction {α : Type*} {β : Type*} {mα : MeasurableSpace α} [TopologicalSpace β]
   {μ : Measure α} {motive : (α → β) → Prop}
   (ae_eq_implies : ∀ ⦃f g : α → β⦄ (_ : StronglyMeasurable f) (_ : f =ᶠ[ae μ] g), motive f → motive g)
   (measurable : ∀ ⦃f : α → β⦄ (_ : StronglyMeasurable f), motive f)
