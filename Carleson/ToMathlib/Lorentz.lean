@@ -5,6 +5,7 @@ import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.RealInterpolation.Misc
+import Carleson.ToMathlib.Topology.Order.Basic
 
 noncomputable section
 
@@ -228,7 +229,7 @@ lemma helper {f : ℝ≥0∞ → ℝ≥0∞} {x : ℝ≥0∞} (hx : x ≠ ⊤)
       rw [bot_lt_iff_ne_bot]
       apply IsOpen.measure_ne_zero
       · apply u_open.inter isOpen_Ioi
-      apply ENNReal.nonempty_open_inter_Ioi u_open hx x_in_u
+      apply nonempty_nhds_inter_Ioi (IsOpen.mem_nhds u_open x_in_u) (not_isMax_iff_ne_top.mpr hx)
     _ ≤ volume (f ⁻¹' s) := by
       apply measure_mono u_inter_subset
     _ ≤ volume {y | a < f y} := by

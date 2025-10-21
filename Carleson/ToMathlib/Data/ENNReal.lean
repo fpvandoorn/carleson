@@ -150,19 +150,6 @@ lemma biInf_enorm_sub_le {f g : ι → E} :
       add_le_add (by rwa [← tsub_le_iff_left]) (le_biSup (‖g ·‖ₑ) mx)
     _ = _ := by rw [add_rotate]
 
-theorem nonempty_open_inter_Ioi {x : ℝ≥0∞} {u : Set ℝ≥0∞} (isopen_u : IsOpen u) (hx : x ≠ ⊤)
-  (h : x ∈ u) :
-    (u ∩ Set.Ioi x).Nonempty := by
-  rw [← lt_top_iff_ne_top] at hx
-  have hu : u ∈ nhds x := isopen_u.mem_nhds h
-  rcases exists_Ico_subset_of_mem_nhds' hu hx with ⟨b, hb, Ico_sub⟩
-  rcases exists_between hb.1 with ⟨a, x_lt_a, a_lt_b⟩
-  use a
-  simp only [mem_inter_iff, mem_Ioi]
-  constructor
-  · apply Ico_sub
-    exact ⟨x_lt_a.le, a_lt_b⟩
-  · exact x_lt_a
 
 end ENNReal
 
