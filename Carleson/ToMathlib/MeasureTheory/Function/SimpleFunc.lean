@@ -249,10 +249,11 @@ theorem approx_le {α : Type u_1} {β : Type u_2}
   · exact hb
   · simp only [bot_le]
 
+/- Version of `iSup_approx_apply` for `ConditionallyCompleteLinearOrderBot`. -/
 theorem iSup_approx_apply' [ConditionallyCompleteLinearOrderBot β] [TopologicalSpace β] [OrderClosedTopology β] [Zero β]
     [MeasurableSpace β] [OpensMeasurableSpace β] (i : ℕ → β) (f : α → β) (a : α) (hf : Measurable f)
     (h_zero : (0 : β) = ⊥) : ⨆ n, (approx i f n : SimpleFunc α β) a = ⨆ (k) (_ : i k ≤ f a), i k := by
-  refine le_antisymm (ciSup_le fun n => ?_) (ciSup_le ?_)
+  refine le_antisymm (ciSup_le' fun n => ?_) (ciSup_le' fun k => ciSup_le' fun hk => ?_)
   · rw [approx_apply a hf, h_zero]
     refine Finset.sup_le fun k _ => ?_
     split_ifs with h
@@ -263,16 +264,14 @@ theorem iSup_approx_apply' [ConditionallyCompleteLinearOrderBot β] [Topological
       rw [ciSup_le_iff' (by rw [BddAbove, upperBounds]; use i k; simp)] at this
       exact this h
     · exact bot_le
-  · intro k
-    rw [le_ciSup_iff']
+  · rw [le_ciSup_iff']
     · intro b hb
       have := hb (k + 1)
       rw [approx_apply a hf, h_zero] at this
       apply le_trans _ this
       have : k ∈ Finset.range (k + 1) := Finset.mem_range.2 (Nat.lt_succ_self _)
       refine le_trans (le_of_eq ?_) (Finset.le_sup this)
-      rw [ciSup_eq_ite, csSup_empty]
-      simp only [dite_eq_ite, ite_eq_ite]
+      simp [hk]
     use f a
     rw [mem_upperBounds]
     simp only [Set.mem_range, forall_exists_index, forall_apply_eq_imp_iff]
