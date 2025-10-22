@@ -71,14 +71,6 @@ instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormedSpace E where
 
 namespace MeasureTheory
 
-section ContinuousENorm
-variable {α E : Type*} {m : MeasurableSpace α} [TopologicalSpace E] [ContinuousENorm E] {μ : Measure α}
-
-variable {ε ε' : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
-  [TopologicalSpace ε'] [ContinuousENorm ε']
-
-end ContinuousENorm
-
 lemma esub_zero [TopologicalSpace E] [ENormedAddCommSubMonoid E] {x : E} : x - 0 = x := by
   rw [← add_zero (x - 0)]
   apply sub_add_cancel_of_enorm_le

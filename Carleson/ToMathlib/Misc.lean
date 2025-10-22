@@ -209,6 +209,7 @@ attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.inv AEStronglyMeasurable.div
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 attribute [fun_prop] AEStronglyMeasurable.comp_measurable
+attribute [fun_prop] StronglyMeasurable.measurable
 
 lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
   apply measure_mono_ae
