@@ -667,9 +667,7 @@ lemma distribution_indicator_add_of_support_subset [TopologicalSpace ε] [ENorme
       contrapose! h
       have : x ∉ support f := by exact fun a ↦ h (hfs a)
       simp only [mem_support, ne_eq, not_not] at this
-      rw [this]
-      unfold indicator
-      simp [h]
+      simp [this, h]
     · intro h
       unfold indicator
       rw [enorm_add, add_comm]
