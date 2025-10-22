@@ -2,6 +2,9 @@ import Mathlib.MeasureTheory.Function.L1Space.Integrable
 
 /-
 This file defines BoundedFiniteSupport.
+
+Upstreaming status: looks good to go; might be useful to add further API
+(e.g. analogous to BoundedCompactSupport). TODO: can other proofs be golfed using fun_prop now?
 -/
 
 open MeasureTheory Function ENNReal TopologicalSpace

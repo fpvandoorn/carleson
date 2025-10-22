@@ -23,6 +23,10 @@ Todo: make `Mathlib.Tactic.FunProp` work for this
 
 This can be expanded as needed
 
+Upstreaming status: MR think this structure has proven useful, so should be upstreamed.
+Want to tag with fun_prop first and make these work smoothly before upstreaming.
+See #499 for that.
+
 -/
 
 open Bornology Function Set HasCompactSupport
