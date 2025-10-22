@@ -6,6 +6,10 @@ open MeasureTheory NNReal ENNReal Set
 noncomputable
 instance NNReal.MeasureSpace : MeasureSpace ℝ≥0 := ⟨Measure.Subtype.measureSpace.volume⟩
 
+-- Upstreaming status:
+-- The results in this file are generally worth having, but the proofs can be golfed
+-- and refactored more (e.g., helper lemmas split out).
+
 lemma NNReal.volume_val {s : Set ℝ≥0} : volume s = volume (Subtype.val '' s) := by
   apply comap_subtype_coe_apply measurableSet_Ici
 
@@ -104,9 +108,8 @@ lemma Ioo_zero_top_ae_eq_univ : Ioo 0 ∞ =ᶠ[ae volume] Set.univ := by
     rw [ENNReal.volume_val]
     · have : (Ioo 0 ⊤)ᶜ = {0, ∞} := by rw [@compl_def]; ext x; simp [pos_iff_ne_zero]; tauto
       rw [this]
-      have : ENNReal.toReal '' {0, ⊤} = { 0 } := by unfold image; simp
-      rw [this]
-      simp
+      have : ENNReal.toReal '' {0, ⊤} = { 0 } := by simp [image]
+      simp [this]
     · measurability
 
 lemma ae_in_Ioo_zero_top : ∀ᵐ x : ℝ≥0∞, x ∈ Ioo 0 ∞ := by
@@ -147,17 +150,12 @@ lemma NNReal.toReal_Ioo_eq_Ioo {a b : ℝ≥0} :
     NNReal.toReal '' Set.Ioo a b = Set.Ioo a.toReal b.toReal := by
   ext x
   simp only [mem_image, mem_Ioo]
-  constructor
-  · rintro ⟨y, hy, hyx⟩
-    rw [← hyx]
+  refine ⟨fun ⟨y, hy, hyx⟩ ↦ ?_, fun h ↦ ?_⟩
+  · rw [← hyx]
     simpa
-  · intro h
-    have x_nonneg : 0 ≤ x := by
-      apply le_trans _ h.1.le
-      simp
-    use x.toNNReal
-    rw [Real.lt_toNNReal_iff_coe_lt, Real.toNNReal_lt_iff_lt_coe x_nonneg]
-    use h, Real.coe_toNNReal x x_nonneg
+  · have x_nonneg : 0 ≤ x := zero_le_coe.trans h.1.le
+    refine ⟨x.toNNReal, ?_, Real.coe_toNNReal x (zero_le_coe.trans h.1.le)⟩
+    rwa [Real.lt_toNNReal_iff_coe_lt, Real.toNNReal_lt_iff_lt_coe x_nonneg]
 
 lemma NNReal.volume_Iio {b : ℝ≥0} : volume (Set.Iio b) = b := by
   rw [NNReal.volume_val]
@@ -170,16 +168,20 @@ lemma NNReal.volume_Ioo {a b : ℝ≥0} : volume (Set.Ioo a b) = b - a:= by
   simp only [val_eq_coe]
   rw [toReal_Ioo_eq_Ioo, Real.volume_Ioo, ENNReal.ofReal_sub] <;> simp
 
---TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
+-- TODO: the proof sin the next four lemmas feel quite repetitive
+-- extract helper lemma to re-use some of the argument!
+
+-- TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) :
     ENNReal.toReal '' Set.Icc a b = Set.Icc a.toReal b.toReal := by
   ext x
   simp only [mem_image, mem_Icc]
   constructor
-  · rintro ⟨y, hy, hyx⟩
-    rwa [← hyx,
-          toReal_le_toReal ha (lt_top_iff_ne_top.mp (hy.2.trans_lt (lt_top_iff_ne_top.mpr hb))),
-          toReal_le_toReal (lt_top_iff_ne_top.mp (hy.2.trans_lt (lt_top_iff_ne_top.mpr hb))) hb]
+  · rintro ⟨y, ⟨hy₁, hy₂⟩, hxy⟩
+    rw [← hxy]
+    constructor <;> gcongr
+    · exact ne_top_of_le_ne_top hb hy₂
+    · assumption
   · rintro hx
     use ENNReal.ofReal x
     constructor
@@ -187,16 +189,17 @@ lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ 
     · rw [toReal_ofReal_eq_iff]
       exact (le_trans toReal_nonneg hx.1)
 
---TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
+-- TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Ioo_eq_Ioo {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) :
     ENNReal.toReal '' Set.Ioo a b = Set.Ioo a.toReal b.toReal := by
   ext x
   simp only [mem_image, mem_Ioo]
   constructor
-  · rintro ⟨y, hy, hyx⟩
-    rwa [← hyx,
-          toReal_lt_toReal ha (lt_top_iff_ne_top.mp (hy.2.trans (lt_top_iff_ne_top.mpr hb))),
-          toReal_lt_toReal (lt_top_iff_ne_top.mp (hy.2.trans (lt_top_iff_ne_top.mpr hb))) hb]
+  · rintro ⟨y, ⟨hy₁, hy₂⟩, hyx⟩
+    rw [← hyx]
+    constructor <;> gcongr
+    · finiteness
+    · assumption
   · rintro hx
     use ENNReal.ofReal x
     constructor
@@ -204,7 +207,7 @@ lemma ENNReal.toReal_Ioo_eq_Ioo {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ 
     · rw [toReal_ofReal_eq_iff]
       exact (le_trans toReal_nonneg hx.1.le)
 
---TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
+-- TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Ioo_top_eq_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     ENNReal.toReal '' Set.Ioo a ⊤ = Set.Ioi a.toReal := by
   ext x
@@ -214,13 +217,12 @@ lemma ENNReal.toReal_Ioo_top_eq_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     rwa [← hyx, toReal_lt_toReal ha y_lt_top.ne]
   · rintro hax
     use ENNReal.ofReal x
-    constructor
-    · simp only [ofReal_lt_top, and_true]
-      rwa [lt_ofReal_iff_toReal_lt ha]
+    refine ⟨⟨?_, by finiteness⟩, ?_⟩
+    · rwa [lt_ofReal_iff_toReal_lt ha]
     · rw [toReal_ofReal_eq_iff]
-      exact (le_trans toReal_nonneg hax.le)
+      exact toReal_nonneg.trans hax.le
 
---TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
+-- TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Ioi_eq_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     ENNReal.toReal '' Set.Ioi a = Set.Ioi a.toReal ∪ {0} := by
   ext x
@@ -232,12 +234,9 @@ lemma ENNReal.toReal_Ioi_eq_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
       rw [← hyx, h, ENNReal.toReal_top]
     right
     rw [← hyx]
-    rwa [ENNReal.toReal_lt_toReal ha h]
+    gcongr; assumption
   · rintro (x_zero | hxa)
-    · use ⊤
-      rw [x_zero]
-      simp only [toReal_top, and_true]
-      exact Ne.lt_top' (id (Ne.symm ha))
+    · exact ⟨⊤, by finiteness, by simp [x_zero]⟩
     use ENNReal.ofReal x
     simp only [toReal_ofReal_eq_iff]
     constructor
@@ -246,12 +245,11 @@ lemma ENNReal.toReal_Ioi_eq_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
 
 lemma ENNReal.volume_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     volume (Set.Ioi a) = ⊤ := by
-  rw [ENNReal.volume_val measurableSet_Ioi, ENNReal.toReal_Ioi_eq_Ioi ha]
-  rw [measure_union_eq_top_iff]
+  rw [ENNReal.volume_val measurableSet_Ioi, ENNReal.toReal_Ioi_eq_Ioi ha, measure_union_eq_top_iff]
   left
   exact Real.volume_Ioi
 
---TODO: move somewhere else?
+-- TODO: move somewhere else?
 theorem ENNReal.Ioi_eq_Ioc_top {a : ℝ≥0∞} : Ioi a = Ioc a ⊤ := by
   unfold Ioi Ioc
   ext x
@@ -264,14 +262,13 @@ lemma ENNReal.volume_Ioo {a b : ℝ≥0∞} (ha : a ≠ ∞) :
   · have : ⊤ - ⊤ = (0 : ENNReal) := by simp only [tsub_self]
     rw [hb, ENNReal.top_sub ha, ENNReal.toReal_Ioo_top_eq_Ioi ha]
     apply Real.volume_Ioi
-  rw [ENNReal.toReal_Ioo_eq_Ioo ha hb]
-  rw [Real.volume_Ioo, ENNReal.ofReal_sub _ (by simp), ENNReal.ofReal_toReal hb, ENNReal.ofReal_toReal ha]
+  rw [toReal_Ioo_eq_Ioo ha hb, Real.volume_Ioo, ofReal_sub _ (by simp), ofReal_toReal hb, ofReal_toReal ha]
 
 -- sanity check: this measure is what you expect
 example : volume (Set.Icc (3 : ℝ≥0∞) 42) = 39 := by
-  rw [ENNReal.volume_val measurableSet_Icc]
-  rw [ENNReal.toReal_Icc_eq_Icc (Ne.symm top_ne_ofNat) (Ne.symm top_ne_ofNat)]
-  rw [toReal_ofNat, Real.volume_Icc, ofReal_eq_ofNat]
+  rw [volume_val measurableSet_Icc,
+    toReal_Icc_eq_Icc (by finiteness) (by finiteness),
+    toReal_ofNat, Real.volume_Icc, ofReal_eq_ofNat]
   norm_num
 
 instance : Measure.IsOpenPosMeasure (@volume ℝ≥0∞ _) where
@@ -298,8 +295,8 @@ instance : NoAtoms (@volume ℝ≥0∞ _) where
     rw [ENNReal.volume_val (measurableSet_singleton _), image_singleton]
     simp
 
---TODO: move this general result to an appropriate place
---TODO: maybe generalize further to general measures restricted to a subtype
+-- TODO: move this general result to an appropriate place
+-- TODO: maybe generalize further to general measures restricted to a subtype
 lemma Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NoAtoms (volume : Measure δ)] {p : δ → Prop} (hp : MeasurableSet p) :
     NoAtoms (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
   measure_singleton := by
