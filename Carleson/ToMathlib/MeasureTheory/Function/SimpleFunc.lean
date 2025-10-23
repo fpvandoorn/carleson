@@ -20,14 +20,15 @@ namespace SimpleFunc
 
 /- Proof stolen from the mathlib `SimpleFunc.induction` with a minor modification
    that is even suggested there. -/
+--TODO: update notation in mathlib version to match this one
 @[elab_as_elim]
 protected theorem induction₀ [MeasurableSpace α] [AddZeroClass γ]
     {motive : SimpleFunc α γ → Prop}
-    (const : ∀ (c) {s} (hs : MeasurableSet s),
-      motive (SimpleFunc.piecewise s hs (SimpleFunc.const _ c) (SimpleFunc.const _ 0)))
-    (add : ∀ ⦃f : SimpleFunc α γ⦄ (c : γ) ⦃s : Set α⦄ (hs : MeasurableSet s), Disjoint (Function.support ⇑f) s →
-      motive f → motive (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)) →
-        motive (f + (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0))))
+    (const : ∀ (c) {s} (_ : MeasurableSet s),
+      motive ((SimpleFunc.const _ c).restrict s))
+    (add : ∀ ⦃f : SimpleFunc α γ⦄ (c : γ) ⦃s : Set α⦄ (_ : MeasurableSet s), Disjoint (Function.support ⇑f) s →
+      motive f → motive ((SimpleFunc.const α c).restrict s) →
+        motive (f + ((SimpleFunc.const α c).restrict s)))
     (f : SimpleFunc α γ) : motive f := by
   classical
   generalize h : f.range \ {0} = s
@@ -50,8 +51,10 @@ protected theorem induction₀ [MeasurableSpace α] [AddZeroClass γ]
         convert Set.subset_univ _
         exact Set.preimage_const_of_mem (Set.mem_singleton _)
       · rwa [Finset.mem_coe]
-    convert add _ _ _ Pg (const x mx)
+    convert add _ mx _ Pg (const x mx)
     · ext1 y
+      simp only [coe_add, Pi.add_apply]
+      rw [SimpleFunc.restrict_apply _ mx]
       by_cases hy : y ∈ f ⁻¹' {x}
       · simpa [g, hy]
       · simp [g, hy]
