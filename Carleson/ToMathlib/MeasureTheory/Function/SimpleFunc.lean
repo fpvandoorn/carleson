@@ -140,10 +140,10 @@ private lemma helper [MeasurableSpace α] {f : SimpleFunc α ℝ≥0} (hs : (f.r
 @[elab_as_elim]
 protected theorem induction'' [MeasurableSpace α]
   {motive : (SimpleFunc α ℝ≥0) → Prop}
-  (const : ∀ (c : ℝ≥0) {s : Set α} (hs : MeasurableSet s), motive (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))
+  (const : ∀ (c : ℝ≥0) {s : Set α} (hs : MeasurableSet s), motive ((SimpleFunc.const α c).restrict s))
   (add : ∀ ⦃f : SimpleFunc α ℝ≥0⦄ (c : ℝ≥0) ⦃s : Set α⦄ (hs : MeasurableSet s), (Function.support ⇑f) ⊆ s →
-    motive f → motive (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)) →
-      motive (f + (SimpleFunc.piecewise s hs (SimpleFunc.const α c) (SimpleFunc.const α 0)))) (f : SimpleFunc α ℝ≥0) :
+    motive f → motive ((SimpleFunc.const α c).restrict s) →
+      motive (f + ((SimpleFunc.const α c).restrict s))) (f : SimpleFunc α ℝ≥0) :
         motive f := by
   classical
   generalize h : (f.range \ {0}).card = n
@@ -160,10 +160,10 @@ protected theorem induction'' [MeasurableSpace α]
       rw [← Finset.card_ne_zero]
       simp [h]
     have my := f.measurableSet_support
-    let g := piecewise _ my (SimpleFunc.const α (Finset.min' _ nonempty)) (SimpleFunc.const α 0)
+    let g := (SimpleFunc.const α (Finset.min' _ nonempty)).restrict (support ⇑f)
     let f' := f - g
     have Pg : motive g := by
-      apply const
+      apply const _ my
     have Pf' : motive f' := by
       let t := f'.range \ {0}
       apply ih _
@@ -177,14 +177,14 @@ protected theorem induction'' [MeasurableSpace α]
       rw [NNReal.coe_sub]
       · simp
       unfold g
-      simp only [const_zero, coe_piecewise, coe_const, coe_zero, piecewise_eq_indicator]
+      rw [restrict_apply _ my]
       apply indicator_le
-      simp only [Function.mem_support, ne_eq, Function.const_apply]
+      simp only [Function.mem_support, ne_eq]
       intro y hy
       apply Finset.min'_le
       simpa
     rw [f_eq]
-    apply add _ _ _ Pf' Pg
+    apply add _ my _ Pf' Pg
     intro x
     unfold f'
     simp only [coe_sub, Function.mem_support, Pi.sub_apply, ne_eq]
