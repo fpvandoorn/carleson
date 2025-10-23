@@ -717,8 +717,9 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENor
       · sorry --TODO: add new lemma what eLorentzNorm does with indicator functions; could also be used for the other part
         --alternative: use that f is bounded in the eLorentzNorm
       -/
-      simp only [SimpleFunc.const_zero, SimpleFunc.coe_piecewise, SimpleFunc.coe_const,
-        SimpleFunc.coe_zero, Set.piecewise_eq_indicator]
+      --simp only [SimpleFunc.const_zero, SimpleFunc.coe_piecewise, SimpleFunc.coe_const,
+      --  SimpleFunc.coe_zero, Set.piecewise_eq_indicator]
+      rw [SimpleFunc.coe_restrict _ hs]
       have : s.indicator (Function.const α a) = a • (s.indicator (fun _ ↦ 1)) := by
         ext x
         simp only [Pi.smul_apply, smul_eq_mul]
@@ -750,7 +751,7 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENor
       --have hg' : MemLorentz g p 1 μ := by sorry
       -/
       rw [SimpleFunc.coe_add]
-      set g := SimpleFunc.piecewise s hs (SimpleFunc.const α a) (SimpleFunc.const α 0) with g_def
+      set g := (SimpleFunc.const α a).restrict s with g_def
       intro hfg'
       have hf' : MemLorentz f p 1 μ := by sorry --TODO: get this from hfg' and measurability of f and g
       have hg' : MemLorentz g p 1 μ := by sorry --TODO: use that g is an indicator function with finite value
@@ -768,13 +769,12 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENor
             eLorentzNorm'_eq_integral_distribution_rpow, eLorentzNorm'_eq_integral_distribution_rpow]
           rw [← mul_add] --TODO: measurability --← lintegral_add_left sorry
           congr 1
-          rw [SimpleFunc.coe_add, g_def]
-          simp only [SimpleFunc.const_zero, SimpleFunc.coe_piecewise,
-            SimpleFunc.coe_const, SimpleFunc.coe_zero, Set.piecewise_eq_indicator]
+          rw [SimpleFunc.coe_add, g_def, SimpleFunc.coe_restrict _ hs, SimpleFunc.coe_const]
           symm
           calc _
             _ = ∫⁻ (t : ℝ≥0), (if t < a then μ s else distribution f (t - a) μ) ^ p.toReal⁻¹ := by
               congr with t
+              congr
               rw [distribution_indicator_add_of_support_subset_nnreal (μ := μ) hfs]
               simp only [ENNReal.coe_lt_coe]
             _ = ∫⁻ (t : ℝ≥0), if t < a then μ s ^ p.toReal⁻¹ else distribution f (t - a) μ ^ p.toReal⁻¹ := by
