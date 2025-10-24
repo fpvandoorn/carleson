@@ -1,4 +1,5 @@
 import Carleson.ProofData
+import Mathlib.Tactic.Field
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
 open scoped ENNReal
@@ -216,7 +217,7 @@ private lemma sum_ψ₁ (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) ≥ 1 / (2
     _ ≤ D ^ (-logb D (4 * x)) * x := by gcongr; exacts [hD.le, Int.le_ceil _]
     _ = 1 / (4 * x) * x := by
       rw [rpow_neg (D0 hD).le, inv_eq_one_div, rpow_logb (D0 hD) hD.ne.symm (by linarith)]
-    _ = 1 / 4 := by field_simp [mul_comm]
+    _ = 1 / 4 := by field_simp
 
 -- Special case of `sum_ψ`, for the case where `nonzeroS D x` has two elements.
 private lemma sum_ψ₂ (hx : 0 < x)
@@ -408,15 +409,15 @@ private lemma DoublingMeasure.volume_real_ball_two_le_same_repeat (x : X) (r : �
   have A_cast : (defaultA a : ℝ≥0).toReal = (defaultA a : ℝ) := rfl
   rwa [A_cast, pow_add, mul_assoc, pow_one, mul_le_mul_iff_right₀ (by positivity)]
 
+set_option linter.flexible false in -- linter bug; fix pending in mathlib
 -- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le`
 private lemma DoublingMeasure.volume_real_ball_two_le_same_repeat' (x : X) (n : ℕ) :
     volume.real (ball x (2 ^ n * D ^ s)) ≤
     (defaultA a) ^ (2 + n + 𝕔 * a ^ 2) * volume.real (ball x (D ^ (s - 1) / 4)) := by
   convert volume_real_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + n + 𝕔 * a ^ 2) using 3
   rw [defaultD, zpow_sub₀ (by positivity), pow_add, pow_add]
-  field_simp
   simp
-  ring
+  field
 
 /-- Apply `volume_ball_two_le_same` `n` times. -/
 lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
@@ -430,15 +431,15 @@ lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ)
   rw [A_cast, pow_add, mul_assoc, pow_one]
   gcongr
 
+set_option linter.flexible false in -- linter bug; fix pending in mathlib
 -- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le'`
 private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) :
     volume (ball x (2 ^ n * D ^ s)) ≤
     (defaultA a) ^ (2 + n + 𝕔 * a ^ 2) * volume (ball x (D ^ (s - 1) / 4)) := by
   convert volume_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + n + 𝕔 * a ^ 2) using 3
-  rw [defaultD, zpow_sub₀ (by positivity), pow_add, pow_add]
-  field_simp
+  rw [defaultD, zpow_sub₀ (by positivity)]
   simp
-  ring
+  field
 
 lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) :
     (volume (ball x r)).toNNReal > 0 :=
@@ -550,6 +551,7 @@ lemma enorm_Ks_le' {s : ℤ} {x y : X} :
   rw [show (𝕔 + 2) * a ^ 3 = a ^ 2 * a + (𝕔 + 1) * a ^ 3 by ring]
   gcongr; exacts [one_le_two, by nlinarith [four_le_a X]]
 
+set_option linter.flexible false in -- linter bug; fix pending in mathlib
 /-- `Ks` is bounded uniformly in `x`, `y` assuming `x` is in a fixed closed ball. -/
 private lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx : dist x x₀ ≤ r₀) (s : ℤ) :
     ‖Ks s x y‖ ≤ C2_1_3 a * (As (defaultA a) (2 * r₀ / D ^ s)) / volume.real (ball x₀ r₀) := by
@@ -560,7 +562,7 @@ private lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r�
     apply norm_Ks_le.trans
     calc
       _ ≤ C2_1_3 a / (C⁻¹ * volume.real (ball x₀ r₀)) := by gcongr
-      _ = _ := by unfold defaultA defaultD C; field_simp; simp
+      _ = _ := by unfold defaultA defaultD C; simp; field
   have : volume.real (ball x (2*r₀)) ≤ C * volume.real (ball x (D^s)) := by
     have : (0:ℝ) < D := realD_pos _
     refine measureReal_ball_le_same x (by positivity) ?_
@@ -569,7 +571,7 @@ private lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r�
     _ ≤ C⁻¹ * volume.real (ball x (2 * r₀)) := by
       gcongr; exacts [measure_ball_ne_top, ball_subset_ball_of_le (by linarith)]
     _ ≤ C⁻¹ * (C * volume.real (ball x (D ^ s))) := by gcongr
-    _ = _ := by field_simp; simp [ne_of_gt ‹0 < C›]
+    _ = _ := by simp [ne_of_gt ‹0 < C›]
 
 /-- `‖Ks x y‖` is bounded if `x` is in a bounded set -/
 lemma _root_.Bornology.IsBounded.exists_bound_of_norm_Ks
