@@ -886,6 +886,7 @@ theorem hasWeakType_maximalFunction_equal_exponents
 def C_weakType_maximalFunction (A p₁ p₂ : ℝ≥0) :=
   if p₁ = p₂ then (ofNNReal A) ^ (2 / p₁ : ℝ) else C2_0_6 A p₁ p₂
 
+@[aesop (rule_sets := [finiteness]) safe apply]
 lemma C_weakType_maximalFunction_lt_top {A p₁ p₂ : ℝ≥0} :
     C_weakType_maximalFunction A p₁ p₂ < ∞ := by
   unfold C_weakType_maximalFunction
@@ -940,9 +941,8 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
     _ ≤ A ^ 2 * (μ (ball c (2 ^ m)))⁻¹ * ∫⁻ y in ball c (2 ^ m), ‖u y‖ₑ ∂μ := by
       gcongr
       rw [mul_comm, ← ENNReal.mul_le_iff_le_inv
-        ((measure_ball_pos _ (zpow_pos zero_lt_two _) (μ := μ)).ne')
-          measure_ball_ne_top, ENNReal.mul_inv_le_iff
-            ((measure_ball_pos _ hr (μ := μ)).ne') measure_ball_ne_top]
+          ((measure_ball_pos _ (by positivity) (μ := μ)).ne') (by finiteness),
+        ENNReal.mul_inv_le_iff ((measure_ball_pos _ hr (μ := μ)).ne') (by finiteness)]
       exact (μ.mono h_subset').trans <| measure_ball_four_le_same z r
     _ ≤ _ := by
       rw [mul_assoc]
@@ -953,7 +953,7 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
 theorem lintegral_ball_le_volume_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
     {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
     ∫⁻ y in (ball z r), ‖u y‖ₑ ∂μ  ≤ μ (ball z r) * globalMaximalFunction μ 1 u x := by
-  have : IsFiniteMeasure (μ.restrict (ball z r)) := isFiniteMeasure_restrict.mpr measure_ball_ne_top
+  have : IsFiniteMeasure (μ.restrict (ball z r)) := isFiniteMeasure_restrict.mpr (by finiteness)
   rw [← measure_mul_laverage]
   simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
   gcongr
@@ -967,9 +967,8 @@ lemma C2_0_6'_defaultA_one_two_eq {a : ℕ} : C2_0_6' (defaultA a) 1 2 = 2 ^ (3 
     NNReal.coe_one, inv_one, NNReal.rpow_one, ← pow_mul, ← NNReal.rpow_natCast]
   rw [← NNReal.rpow_add (by simp)]
   congr 1
-  field_simp
-  simp
-  ring
+  simp only [Nat.cast_mul, Nat.cast_ofNat]
+  field_simp; ring
 
 lemma C2_0_6'_defaultA_one_le {a : ℕ} {q : ℝ≥0} (hq : 1 < q) :
     C2_0_6' (defaultA a) 1 q ≤ 2 ^ (4 * a + 1) * (q / (q - 1)) := by
@@ -998,7 +997,7 @@ def C_weakType_globalMaximalFunction (A p₁ p₂ : ℝ≥0) :=
 
 lemma C_weakType_globalMaximalFunction_lt_top {A p₁ p₂ : ℝ≥0} :
     C_weakType_globalMaximalFunction A p₁ p₂ < ∞ :=
-  mul_lt_top (by simp) C_weakType_maximalFunction_lt_top
+  mul_lt_top (by simp) (by finiteness)
 
 -- the constant here `A ^ 4` can be improved
 theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
