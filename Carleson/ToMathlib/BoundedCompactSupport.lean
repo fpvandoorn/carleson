@@ -23,9 +23,13 @@ Todo: make `Mathlib.Tactic.FunProp` work for this
 
 This can be expanded as needed
 
-Upstreaming status: MR think this structure has proven useful, so should be upstreamed.
-Want to tag with fun_prop first and make these work smoothly before upstreaming.
-See #499 for that.
+Upstreaming status: should be upstreamed, but need to clarify design questions first
+- want to tag this with fun_prop first and make it work smoothly (see #499)
+- this is similar to `BoundedFiniteSupport` (and in almost all cases, implies the latter)
+  TODO: are there any advantages of using this and not BoundedFiniteSupport? for instance, is
+  there any operation which preserves `BoundedCompactSupport` but not `BoundedFiniteSupport`?
+  Decide if we want both classes in mathlib or just one of them. If the latter, rewrite all of
+  Carleson/ToMathlib to use that one class.
 
 -/
 
