@@ -512,11 +512,7 @@ lemma norm_indicator_one_le {α E}
     ‖s.indicator (1 : α → E) x‖ ≤ 1 :=
   Trans.trans (norm_indicator_le_norm_self 1 x) norm_one
 
-@[simp] lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (I * x)‖ = 1 := by
-  rw [mul_comm, Complex.norm_exp_ofReal_mul_I]
-
-@[simp] lemma enorm_exp_I_mul_ofReal (x : ℝ) : ‖exp (I * x)‖ₑ = 1 := by
-  rw [← enorm_norm, mul_comm, Complex.norm_exp_ofReal_mul_I, enorm_one]
+-- TODO: which of these lemmas have been upstreamed to mathlib already?
 
 lemma norm_exp_I_mul_sub_ofReal (x y : ℝ) : ‖exp (I * (x - y))‖ = 1 := by
   rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
@@ -530,15 +526,6 @@ lemma norm_one_sub_exp_neg_I_mul_ofReal (x : ℝ) : ‖1 - exp (-(I * x))‖ = �
   have : 1 - exp (I * x) = - exp (I * x) * (1 - exp (I * (-x))) := by
     simp [mul_sub, ← exp_add]; ring
   simp [this]
-
-lemma norm_exp_I_mul_ofReal_sub_one {x : ℝ} : ‖exp (I * x) - 1‖ = ‖2 * Real.sin (x / 2)‖ := by
-  rw [show ‖2 * Real.sin (x / 2)‖ = ‖2 * sin (x / 2)‖ by norm_cast, two_sin]
-  nth_rw 2 [← one_mul (_ - _), ← exp_zero]
-  rw [← neg_add_cancel (x / 2 * I), exp_add, mul_assoc _ _ (_ - _), mul_sub, ← exp_add, ← exp_add,
-    ← add_mul, ← add_mul]; norm_cast
-  rw [add_neg_cancel, ofReal_zero, zero_mul, exp_zero, add_halves, ← neg_mul, norm_mul, norm_I,
-    mul_one, norm_mul, show -(ofReal (x / 2)) = ofReal (-x / 2) by norm_cast; exact neg_div' 2 x,
-    norm_exp_ofReal_mul_I, one_mul, ← norm_neg, neg_sub, mul_comm]
 
 lemma norm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ ≤ ‖x‖ := by
   rw [norm_exp_I_mul_ofReal_sub_one]
