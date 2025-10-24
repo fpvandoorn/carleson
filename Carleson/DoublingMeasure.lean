@@ -1,7 +1,8 @@
 import Carleson.Defs
 import Carleson.ToMathlib.Data.ENNReal
 
-open MeasureTheory Measure Metric Complex Set Bornology Function ENNReal
+open MeasureTheory Measure Metric Complex Set Bornology Function
+open ENNReal hiding one_lt_two
 open scoped NNReal
 
 noncomputable section
