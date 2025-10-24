@@ -81,26 +81,25 @@ variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
   {f : X → E} {x : X} {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ}
   -- feel free to assume `A ≥ 16` or similar
 
+open scoped Topology in
 -- unused in Carleson
 -- move to separate file (not sure where)
 lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStronglyMeasurable f μ) :
     LowerSemicontinuousOn (fun x : X × ℝ ↦ ∫⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) (univ ×ˢ Ioi 0) := by
   refine lowerSemicontinuousOn_iff_le_liminf.mpr fun x hx ↦ _root_.le_of_forall_pos_le_add ?_
   intro δ hδ
-  let M := liminf (fun x ↦ ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ)
-      (nhdsWithin x (univ ×ˢ Ioi 0)) + δ
-  by_cases htop : liminf (fun x ↦ ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ)
-      (nhdsWithin x (univ ×ˢ Ioi 0)) = ∞; · rw [htop]; simp
+  let M := liminf (fun x ↦ ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ) (𝓝[univ ×ˢ Ioi 0] x) + δ
+  by_cases htop : liminf (fun x ↦ ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ) (𝓝[univ ×ˢ Ioi 0] x) = ∞
+  · rw [htop]; simp
   have hM : liminf (fun x ↦ ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ)
-      (nhdsWithin x (univ ×ˢ Ioi 0)) < M := lt_add_right htop hδ.ne'
-  have : ∃ᶠ (z : X × ℝ) in nhdsWithin x (univ ×ˢ Ioi 0),
-      ∫⁻ (y : X) in ball z.1 z.2, ‖f y‖ₑ ∂μ < M := by
+      (𝓝[univ ×ˢ Ioi 0] x) < M := lt_add_right htop hδ.ne'
+  have : ∃ᶠ (z : X × ℝ) in 𝓝[univ ×ˢ Ioi 0] x, ∫⁻ (y : X) in ball z.1 z.2, ‖f y‖ₑ ∂μ < M := by
     refine frequently_lt_of_liminf_lt ?_ hM
     simp only [IsCoboundedUnder, Filter.IsCobounded, ge_iff_le, eventually_map]
     use ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ
     intro a ha; apply Eventually.self_of_nhdsWithin ha hx
   obtain ⟨ns, hns₀, hns₁⟩ :=
-    exists_seq_forall_of_frequently (l := nhdsWithin x (univ ×ˢ Ioi 0))
+    exists_seq_forall_of_frequently (l := 𝓝[univ ×ˢ Ioi 0] x)
         (p := fun z ↦ ∫⁻ (y : X) in ball z.1 z.2, ‖f y‖ₑ ∂μ < M) this
   let g (n : ℕ) := (ball (ns n).1 (ns n).2).indicator (fun y ↦ ‖f y‖ₑ)
   have (z : X) : (ball x.1 x.2).indicator (fun y ↦ ‖f y‖ₑ) z ≤
@@ -111,7 +110,7 @@ lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStro
     · have hz2 : ∀ᶠ n : ℕ in atTop, z ∈ ball (ns n).1 (ns n).2 := by
         let dist_sub (y : X × ℝ) := dist z y.1 - y.2
         have : ContinuousOn dist_sub (univ ×ˢ Ioi 0) := by fun_prop
-        have : Tendsto (dist_sub ∘ ns) atTop (nhds (dist_sub x)) := Tendsto.comp (this x hx) hns₀
+        have : Tendsto (dist_sub ∘ ns) atTop (𝓝 (dist_sub x)) := Tendsto.comp (this x hx) hns₀
         have : ∀ᶠ (n : ℕ) in atTop, dist z (ns n).1 - (ns n).2 < 0 := by
           rw [mem_ball, ← sub_lt_zero] at hz; exact Tendsto.eventually_lt_const hz this
         filter_upwards [this]; simp
@@ -174,13 +173,14 @@ lemma MeasureTheory.LocallyIntegrable.integrableOn_ball [ProperSpace X]
     {f : X → E} (hf : LocallyIntegrable f μ) {x : X} {r : ℝ} : IntegrableOn f (ball x r) μ :=
   hf.integrableOn_of_isBounded isBounded_ball
 
+open scoped Topology in
 lemma continuous_integral_ball [OpensMeasurableSpace X]
     (g : X → ℝ≥0∞) (hg : ∀ x : X, ∀ r > (0 : ℝ), ∫⁻ (y : X) in ball x r, g y ∂μ < ⊤)
     (hg2 : AEMeasurable g μ) (hμ : ∀ z : X, ∀ r > (0 : ℝ), μ (sphere z r) = 0 ):
     ContinuousOn (fun x : X × ℝ ↦ ∫⁻ y in ball x.1 x.2, g y ∂μ) (univ ×ˢ Ioi 0) := by
-  unfold ContinuousOn ContinuousWithinAt
   intro x hx
   have hx_pos : x.2 > 0 := by simp only [mem_prod, mem_univ, mem_Ioi, true_and] at hx; exact hx
+  unfold ContinuousWithinAt
   dsimp only
   have : (fun x : X × ℝ ↦ ∫⁻ (y : X) in ball x.1 x.2, g y ∂μ) =
       fun x : X × ℝ ↦ ∫⁻ (y : X), (ball x.1 x.2).indicator g y ∂μ := by
@@ -189,23 +189,20 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
   rw [this, ← lintegral_indicator measurableSet_ball]
   apply tendsto_of_seq_tendsto
   intro z hz
-  have hz' : Tendsto z atTop (nhds x) := tendsto_nhds_of_tendsto_nhdsWithin hz
+  have hz' : Tendsto z atTop (𝓝 x) := tendsto_nhds_of_tendsto_nhdsWithin hz
   have := isBounded_range_of_tendsto z hz'
   obtain ⟨r, hr⟩ := Bornology.IsBounded.subset_ball this x
   simp only [range, ball, setOf_subset_setOf, forall_exists_index, forall_apply_eq_imp_iff] at hr
   simp_rw [Prod.dist_eq] at hr
   have hsub (n : ℕ) : ball (z n).1 (z n).2 ⊆ ball x.1 (x.2 + 2 * r) := by
-    unfold ball
     intro y hy
-    simp only [mem_setOf_eq] at hy ⊢
-    calc
-    dist y x.1
-      ≤ dist y (z n).1 + dist (z n).1 x.1 := dist_triangle y (z n).1 x.1
+    simp only [ball, mem_setOf_eq] at hy ⊢
+    calc dist y x.1
+    _  ≤ dist y (z n).1 + dist (z n).1 x.1 := dist_triangle y (z n).1 x.1
     _ ≤ (z n).2 + dist (z n).1 x.1 := by gcongr
     _ ≤ |(z n).2| + dist (z n).1 x.1 := by gcongr; exact le_abs_self (z n).2
     _ = |(z n).2 - x.2 + x.2| + dist (z n).1 x.1 := by rw [sub_add_cancel]
-    _ ≤ |(z n).2 - x.2| + |x.2| + dist (z n).1 x.1 := by
-      gcongr; exact abs_add_le _ _
+    _ ≤ |(z n).2 - x.2| + |x.2| + dist (z n).1 x.1 := by gcongr; exact abs_add_le _ _
     _ < r + |x.2| + r := by
       gcongr
       · calc
@@ -243,8 +240,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
   · have : ∀ᵐ z : X ∂μ, dist z x.1 ≠ x.2 := by
       change (μ ({z | ¬ (dist z x.1 ≠ x.2)}) = 0)
       simpa only [ne_eq, Decidable.not_not] using hμ x.1 x.2 hx_pos
-    filter_upwards [this]
-    intro y hy
+    filter_upwards [this] with y hy
     by_cases hy2 : dist y x.1 < x.2
     · simp only [indicator, ball, mem_setOf_eq]
       split_ifs
@@ -252,7 +248,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
       have hz2 : ∀ᶠ n : ℕ in atTop, dist y (z n).1 < (z n).2 := by
         let dist_sub (a : X × ℝ) := dist y a.1 - a.2
         have : ContinuousOn dist_sub (univ ×ˢ Ioi 0) := by fun_prop
-        have : Tendsto (dist_sub ∘ z) atTop (nhds (dist_sub x)) := Tendsto.comp (this x hx) hz
+        have : Tendsto (dist_sub ∘ z) atTop (𝓝 (dist_sub x)) := Tendsto.comp (this x hx) hz
         have : ∀ᶠ (n : ℕ) in atTop, dist y (z n).1 - (z n).2 < 0 := by
           rw [← sub_lt_zero] at hy2; exact Tendsto.eventually_lt_const hy2 this
         filter_upwards [this]; simp
@@ -260,7 +256,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
     · have hz2 : ∀ᶠ n : ℕ in atTop, dist y (z n).1 > (z n).2 := by
         let dist_sub (a : X × ℝ) := dist y a.1 - a.2
         have : ContinuousOn dist_sub (univ ×ˢ Ioi 0) := by fun_prop
-        have hcmp : Tendsto (dist_sub ∘ z) atTop (nhds (dist_sub x)) := Tendsto.comp (this x hx) hz
+        have hcmp : Tendsto (dist_sub ∘ z) atTop (𝓝 (dist_sub x)) := Tendsto.comp (this x hx) hz
         have hy2 : dist y x.1 > x.2 := by order
         have hy2 : 0 < dist y x.1 - x.2 := sub_pos.mpr hy2
         have : ∀ᶠ (n : ℕ) in atTop, 0 < dist y (z n).1 - (z n).2 := Tendsto.eventually_const_lt hy2 hcmp
@@ -304,9 +300,8 @@ lemma continuous_average_ball [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts �
   · exact Or.inr (inv_ne_top.mpr (measure_ball_pos μ x.1 hx_pos).ne')
 
 -- probably unsuitable for Mathlib
-lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top [ProperSpace X]
-    {f : X → E} (hf : LocallyIntegrable f μ)
-    {x₀ : X} {r : ℝ} :
+lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top [ProperSpace X] {f : X → E}
+    (hf : LocallyIntegrable f μ) {x₀ : X} {r : ℝ} :
     ⨍⁻ x in ball x₀ r, ‖f x‖ₑ ∂μ < ⊤ :=
   laverage_lt_top hf.integrableOn_ball.2.ne
 
@@ -379,7 +374,7 @@ theorem Vitali.exists_disjoint_subfamily_covering_enlargement_ball {α} [MetricS
   · exact (hux hi hj hij).mono ball_subset_closedBall ball_subset_closedBall
   obtain ⟨b, hbu, hb⟩ := hu a ha
   refine ⟨b, hbu, ?_⟩
-  obtain h2a|h2a := le_or_gt (r a) 0
+  obtain h2a | h2a := le_or_gt (r a) 0
   · simp_rw [ball_eq_empty.mpr h2a, empty_subset]
   refine ball_subset_closedBall.trans hb.1 |>.trans <| closedBall_subset_ball ?_
   gcongr
@@ -419,7 +414,7 @@ theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h�
           refine mul_right_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
           rw [sq, sq, mul_assoc, mul_assoc]
           apply (measure_ball_two_le_same (c i) (2 * r i)).trans
-          exact mul_right_mono (measure_ball_two_le_same (c i) (r i))
+          gcongr; exact measure_ball_two_le_same (c i) (r i)
     _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
           rw [ENNReal.tsum_mul_left, ENNReal.tsum_mul_left, ← mul_assoc, ← mul_assoc, mul_comm l]
     _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
