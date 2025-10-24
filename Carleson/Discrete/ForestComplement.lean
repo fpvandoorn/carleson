@@ -920,7 +920,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
          · norm_cast
            linarith [four_le_a X]
          · exact q_le_two X
-      _ = 5 / (8 * a ^ 3) := by field_simp; ring
+      _ = 5 / (8 * a ^ 3) := by field_simp; norm_num
       _ ≤ 5 / (8 * (4 : ℝ) ^ 3) := by gcongr
       _ ≤ 2⁻¹ := by norm_num
     · calc

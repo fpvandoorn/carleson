@@ -6,6 +6,7 @@ import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 import Carleson.TwoSidedCarleson.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
 import Mathlib.Analysis.Real.Pi.Bounds
+import Mathlib.Tactic.Field
 
 /- This file contains the proof that the Hilbert kernel is a bounded operator. -/
 
@@ -160,9 +161,7 @@ lemma niceKernel_lowerBound {r x : ℝ} (hr : 0 < r) (h'r : r < 1) (hx : r ≤ x
     gcongr
     · apply le_inv_of_le_inv₀ hr (by simpa using h'r.le)
     · exact hx.1
-  _ = 5 * r ⁻¹ := by
-    field_simp
-    ring
+  _ = 5 * r ⁻¹ := by field_simp; norm_num
 
 lemma niceKernel_lowerBound' {r x : ℝ} (hr : 0 < r) (h'r : r < 1) (hx : r ≤ |x| ∧ |x| ≤ π) :
     1 + r / ‖1 - exp (I * x)‖ ^ 2 ≤ 5 * niceKernel r x := by

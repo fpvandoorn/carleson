@@ -2,6 +2,7 @@ import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.RealInterpolation.Main
 import Mathlib.MeasureTheory.Covering.Vitali
+import Mathlib.Tactic.Field
 
 open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter Pointwise
 open ENNReal hiding one_lt_two
@@ -968,7 +969,7 @@ lemma C2_0_6'_defaultA_one_two_eq {a : ℕ} : C2_0_6' (defaultA a) 1 2 = 2 ^ (3 
   rw [← NNReal.rpow_add (by simp)]
   congr 1
   simp only [Nat.cast_mul, Nat.cast_ofNat]
-  field_simp; ring
+  field
 
 lemma C2_0_6'_defaultA_one_le {a : ℕ} {q : ℝ≥0} (hq : 1 < q) :
     C2_0_6' (defaultA a) 1 q ≤ 2 ^ (4 * a + 1) * (q / (q - 1)) := by
