@@ -153,9 +153,12 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
   let B : ℕ := Finset.card { q | q ∈ 𝔅 k n p }
   have Blt : B < 2 ^ (2 * n + 4) := by
     calc
-      _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } :=
-        Finset.card_le_card (Finset.monotone_filter_right _ (Pi.le_def.mpr fun m ⟨m₁, m₂⟩ ↦
-          ⟨m₁, m₂.1.1 mx⟩))
+      _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } := by
+        apply Finset.card_le_card (Finset.monotone_filter_right _ ?_)
+        -- TODO: fix the proof; the next lines were just
+        -- (Pi.le_def.mpr fun m ⟨m₁, m₂⟩ ↦ ⟨m₁, m₂.1.1 mx⟩))
+        refine fun a _ha ha' ↦ ⟨mem_of_mem_inter_left ha', ?_⟩
+        sorry
       _ = stackSize (𝔐 k n) x := by
         simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
           Finset.filter_filter]; rfl
