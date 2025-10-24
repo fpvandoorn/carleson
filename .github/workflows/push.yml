@@ -46,6 +46,16 @@ jobs:
       - name: Upstreaming dashboard
         run: python3 scripts/upstreaming_dashboard.py
 
+      - name: Generate the paper PDF and add it to the website
+        uses: xu-cheng/texlive-action@8268537fedf1198f3ed7000c544bfdbddcbae3b7 # v3
+        with:
+          docker_image: ghcr.io/xu-cheng/texlive-full:20251002
+          run: |
+            cd paper
+            latexmk -pdf main.tex
+            cd ..
+            cp paper/main.pdf docs/paper.pdf
+
       - uses: leanprover-community/docgen-action@56dff2bb89f3e9b8c1b6d5c8410362c19de2d904 # v1
         with:
           blueprint: true
