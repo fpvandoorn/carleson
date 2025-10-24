@@ -2,6 +2,11 @@ import Mathlib.MeasureTheory.Function.L1Space.Integrable
 
 /-
 This file defines BoundedFiniteSupport.
+
+Upstreaming status: something like this is useful, but the precise form is not final yet
+- decide of this or BoundedCompactSupport is better (see comment there)
+  and possibly rewrite Carleson in favour of the one class we prefer
+- TODO: can other proofs be golfed using fun_prop now?
 -/
 
 open MeasureTheory Function ENNReal TopologicalSpace
@@ -44,6 +49,7 @@ theorem aemeasurable_restrict [MeasurableSpace E] [PseudoMetrizableSpace E]
     AEMeasurable f (μ.restrict s) :=
   bfs.aemeasurable.restrict
 
+@[aesop (rule_sets := [finiteness]) safe apply]
 theorem eLpNorm_lt_top :
     eLpNorm f ∞ μ < ∞ :=
   bfs.memLp_top.eLpNorm_lt_top
@@ -54,8 +60,7 @@ section  ENormedAddMonoid
 variable [TopologicalSpace E] [ENormedAddMonoid E]
 
 /-- Bounded finitely supported functions are in all `Lᵖ` spaces. -/
-theorem memLp (hf : BoundedFiniteSupport f μ) (p : ℝ≥0∞) :
-    MemLp f p μ :=
+theorem memLp (hf : BoundedFiniteSupport f μ) (p : ℝ≥0∞) : MemLp f p μ :=
   hf.memLp_top.mono_exponent_of_measure_support_ne_top
     (fun _ ↦ notMem_support.mp) hf.measure_support_lt.ne le_top
 
@@ -66,9 +71,11 @@ section NormedAddCommGroup
 variable [NormedAddCommGroup E]
 
 /-- Bounded finitely supported functions are integrable. -/
+@[fun_prop]
 theorem integrable (hf : BoundedFiniteSupport f μ) : Integrable f μ :=
   memLp_one_iff_integrable.mp <| hf.memLp 1
 
+@[fun_prop]
 theorem indicator (bfs : BoundedFiniteSupport f μ) {s : Set X} (hs : MeasurableSet s) :
     BoundedFiniteSupport (s.indicator f) μ := by
   constructor
@@ -78,15 +85,18 @@ theorem indicator (bfs : BoundedFiniteSupport f μ) {s : Set X} (hs : Measurable
     rw [← lt_top_iff_ne_top]
     exact bfs.measure_support_lt
 
+@[fun_prop]
 protected theorem neg (hf : BoundedFiniteSupport f μ) : BoundedFiniteSupport (-f) μ :=
   ⟨memLp_neg_iff.mpr hf.memLp_top, support_neg f ▸ hf.measure_support_lt⟩
 
+@[fun_prop]
 protected theorem add (hf : BoundedFiniteSupport f μ) (hg : BoundedFiniteSupport g μ) :
     BoundedFiniteSupport (f + g) μ :=
   ⟨hf.memLp_top.add hg.memLp_top,
     (measure_mono (support_add f g)).trans_lt <| (measure_union_le (support f) (support g)).trans_lt
       (add_lt_top.mpr ⟨hf.measure_support_lt, hg.measure_support_lt⟩)⟩
 
+@[fun_prop]
 protected theorem sub (hf : BoundedFiniteSupport f μ) (hg : BoundedFiniteSupport g μ) :
     BoundedFiniteSupport (f - g) μ :=
   sub_eq_add_neg f g ▸ hf.add hg.neg

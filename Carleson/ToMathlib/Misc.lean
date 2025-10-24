@@ -7,6 +7,9 @@ import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 /-
 * This file can import all ToMathlib files.
 * If adding more than a few results, please put them in a more appropriate file in ToMathlib.
+
+Upstreaming status: need to split up this file (according to the lemmas' future location)
+Most lemmas look ready to be upstreamed; some will require small tweaks.
 -/
 
 open Function Set
@@ -206,6 +209,7 @@ attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.inv AEStronglyMeasurable.div
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 attribute [fun_prop] AEStronglyMeasurable.comp_measurable
+attribute [fun_prop] StronglyMeasurable.measurable
 
 lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
   apply measure_mono_ae
@@ -506,6 +510,10 @@ section Norm
 
 open Complex
 
+-- TODO: add enorm analogues of these lemmas when not present yet;
+-- the first one will require a new class `ENormOneClass` (and maybe generalising much of
+-- mathlib's lemmas to that class, as appropriate).
+
 -- for mathlib?
 lemma norm_indicator_one_le {α E}
     [SeminormedAddCommGroup E] [One E] [NormOneClass E] {s : Set α} (x : α) :
@@ -587,6 +595,8 @@ theorem BddAbove.range_finsetSum {s : Finset ι} {f : ι → ι' → M}
     · exact hf _ (Finset.mem_insert_self j s)
     · exact IH fun _ hi ↦ hf _ (Finset.mem_insert_of_mem hi)
 
+-- TODO: should there be enorm versions of these lemmas?
+
 open Bornology
 @[to_additive isBounded_iff_bddAbove_norm]
 lemma isBounded_iff_bddAbove_norm' {E} [SeminormedCommGroup E] {s : Set E} :
@@ -610,6 +620,7 @@ namespace MeasureTheory
 open Metric Bornology
 variable {𝕜 : Type*} [RCLike 𝕜] {X α : Type*}
 
+-- TODO: can this be moved to HasCompactSupport? should it move there, when upstreaming?
 namespace HasCompactSupport
 
 variable [Zero α] {f : X → α}
