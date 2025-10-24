@@ -20,6 +20,7 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
   {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
 
+-- set_option trace.Meta.Tactic.fun_prop true in
 open Classical in
 lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
     eLpNorm (adjointCarlesonSum 𝔄 g) 2 ^ 2 ≤
@@ -36,8 +37,15 @@ lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
       congr 1
       rw [integral_finset_sum]
       · congr! with p mp
-        exact integral_finset_sum _ fun p' mp' ↦
-          (bg.adjointCarleson.mul bg.adjointCarleson.conj).integrable
+        exact integral_finset_sum _ fun p' mp' ↦ by
+          -- This smells like a fun_prop bug: removing the `change` makes fun_prop fail to prove
+          -- `fails` below, even though it knows about `BoundedCompactSupport.integrable` and
+          -- can prove that.
+          have : BoundedCompactSupport (fun x ↦ (starRingEnd ℂ) (adjointCarleson p' g x)) volume := by fun_prop
+          --have fails : Integrable (fun x ↦ (starRingEnd ℂ) (adjointCarleson p' g x)) volume := by
+          --  fun_prop
+          change Integrable (adjointCarleson p g * star (adjointCarleson p' g)) volume
+          fun_prop
       · exact fun p mp ↦ (BoundedCompactSupport.finset_sum fun p' mp' ↦
           bg.adjointCarleson.mul bg.adjointCarleson.conj).integrable
     _ ≤ ∑ p with p ∈ 𝔄, ‖∑ p' with p' ∈ 𝔄,
