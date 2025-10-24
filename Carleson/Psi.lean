@@ -318,7 +318,7 @@ section PseudoMetricSpace
 variable (X : Type*) {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X]
 variable {s : ℤ} {x y : X}
 
-private lemma zpow_realD_pos (s : ℤ) : 0 < (D : ℝ) ^ s := zpow_pos (realD_pos a) _
+private lemma zpow_realD_pos (s : ℤ) : 0 < (D : ℝ) ^ s := by positivity [realD_pos a]
 
 variable {X} [KernelProofData a K]
 
