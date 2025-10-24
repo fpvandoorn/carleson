@@ -1,0 +1,121 @@
+\documentclass[12pt]{amsart}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = blue,
+  citecolor  = blue,
+  urlcolor   = blue
+}
+
+
+\title{\textbf{Formalizing Carleson's Theorem in Lean}}
+\author{Authors}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present the formalization of Carleson's theorem in the proof assistant \emph{Lean}.
+This paper describes the mathematical content, organization of the project, the blueprint,
+and the main design decisions behind the formalization. It is the result of a large
+collaborative effort, written and developed in public.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+\begin{itemize}
+  \item Brief history of Carleson's theorem and significance.
+  \item Overview of the formalization project.
+  \item Related work:
+    \begin{itemize}
+      \item Other large-scale formalizations in Lean.
+      \item Other harmonic analysis formalizations.
+    \end{itemize}
+\end{itemize}
+
+\section{Mathematics}
+\begin{itemize}
+  \item Prerequisites: Fourier series, Real interpolation, Hardy--Littlewood maximal function, doubling measures (\texttt{IsDoubling}), \texttt{WeakType}, \texttt{wnorm}.
+  \item Statement of Theorem 1.0.2.
+  \item Main propositions in Chapter 2.
+  \item Level of mathematical detail to include.
+\end{itemize}
+
+\section{Organization}
+\begin{itemize}
+  \item Project structure and division of tasks.
+  \item Floris responsible for lemma statements (pros and cons).
+  \item Interaction with harmonic analysis group.
+  \item Contributors and roles.
+  \item ToMathlib directory and contribution standards.
+  \item Communication channels: Zulip, GitHub, Blueprint.
+\end{itemize}
+
+\section{Blueprint}
+\begin{itemize}
+  \item Blueprint writing process and finitary arguments.
+  \item Changes and refinements:
+    \begin{itemize}
+      \item $I \leq J$ vs.\ $I \subset J$.
+      \item Real interpolation theorem.
+      \item Hardy--Littlewood maximal function for finite vs.\ countable balls.
+      \item Just one top cube.
+      \item Constant tweaking.
+    \end{itemize}
+  \item Mistakes and lessons learned:
+    \begin{itemize}
+      \item Lemma 11.1.6.
+      \item Lemma 6.3.3/4.
+      \item Hölder cancellation (radius $R \to 2R$).
+      \item Lemma 6.2.3: additional hypothesis.
+    \end{itemize}
+  \item Impact of blueprint choices on errors.
+  \item Lack of definition environments $\Rightarrow$ absence from dependency graph.
+\end{itemize}
+
+\section{Design Decisions}
+\begin{itemize}
+  \item Use of \texttt{ENorm}.
+  \item Explicit constants \texttt{C\_a\_b\_c}.
+  \item \texttt{ProofData} pattern.
+  \item Working with \texttt{MemLp}, not functions on \texttt{Lp}.
+  \item \texttt{Real} vs.\ \texttt{NNReal} vs.\ \texttt{ENNReal}:
+    \begin{itemize}
+      \item Tactic support issues (\texttt{norm\_num}, \texttt{field\_simp}, \texttt{ring}).
+    \end{itemize}
+  \item \texttt{BoundedCompactSupport} and packaging conditions.
+  \item Ongoing experiments with \texttt{fun\_prop}.
+  \item Common pitfalls:
+    \begin{itemize}
+      \item Using \texttt{Real}.
+      \item \texttt{Set.indicator} vs.\ \texttt{Measure.restrict}.
+      \item \texttt{Finsets} vs.\ \texttt{Sets} in a \texttt{Fintype}.
+    \end{itemize}
+\end{itemize}
+
+\section{Conclusion}
+\begin{itemize}
+  \item Project statistics (e.g.\ size of ToMathlib and total project).
+  \item Summary of lessons learned:
+    \begin{itemize}
+      \item Refer to general results early on.
+      \item Generalize during blueprint writing.
+    \end{itemize}
+\end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
