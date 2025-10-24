@@ -1,7 +1,8 @@
 import Carleson.DoublingMeasure
 import Mathlib.Topology.MetricSpace.Holder
 
-open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
+open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function
+open ENNReal hiding one_lt_two
 open scoped NNReal
 noncomputable section
 

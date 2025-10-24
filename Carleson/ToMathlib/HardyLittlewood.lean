@@ -3,7 +3,8 @@ import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.RealInterpolation.Main
 import Mathlib.MeasureTheory.Covering.Vitali
 
-open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter ENNReal Pointwise
+open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter Pointwise
+open ENNReal hiding one_lt_two
 open scoped NNReal
 noncomputable section
 
