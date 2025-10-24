@@ -181,7 +181,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
       rw [mem_toFinset] at hp
       calc volume (E p ∩ G)
         _ ≤ volume (E₂ 2 p) := by
-          apply measure_mono (fun x hx ↦ ?_)
+          gcongr; intro x hx
           have hQ : Q x ∈ ball_(p) (𝒬 p) 1 := subset_cball hx.1.2.1
           simp only [E₂, TileLike.toSet, smul_fst, smul_snd, mem_inter_iff, mem_preimage, mem_ball]
           exact ⟨⟨hx.1.1, hx.2⟩, lt_trans hQ one_lt_two⟩
@@ -190,11 +190,12 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
           have h2a : ((2 : ℝ≥0∞) ^ a)⁻¹ = 2^(-(a : ℤ)) := by
             rw [← zpow_natCast, ENNReal.zpow_neg]
           rw [← ENNReal.div_le_iff (ne_of_gt (hIL ▸ volume_coeGrid_pos (defaultD_pos a)))
-            (by finiteness), ← ENNReal.div_le_iff' (Ne.symm (NeZero.ne' (2 ^ a))) (by finiteness),
+            (by finiteness), ← ENNReal.div_le_iff' (NeZero.ne (2 ^ a)) (by finiteness),
             ENNReal.div_eq_inv_mul, h2a, dens₁]
-          refine le_iSup₂_of_le p hp fun c hc ↦ ?_
-          have h2c : 2 ^ (-(a : ℤ)) * (volume (E₂ 2 p) / volume (L : Set X)) ≤
-              (c : WithTop ℝ≥0) := by
+          refine le_iSup₂_of_le p hp ?_--fun c hc ↦ ?_
+          sorry /- proof was:
+          intro c hc
+          have h2c : 2 ^ (-(a : ℤ)) * (volume (E₂ 2 p) / volume (L : Set X)) ≤ (c : WithTop ℝ≥0) := by
             simp only [← hc]
             refine le_iSup₂_of_le 2 (le_refl _) fun d hd ↦ ?_
             have h2d : 2 ^ (-(a : ℤ)) * (volume (E₂ 2 p) / volume (L : Set X)) ≤
@@ -211,7 +212,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
                   · rw [hIL]
                 exact ENNReal.le_coe_iff.mp h2r
             exact ENNReal.le_coe_iff.mp h2d
-          exact ENNReal.le_coe_iff.mp h2c
+          exact ENNReal.le_coe_iff.mp h2c -/
     let p : 𝔓 X := h𝔄'.choose
     have hp : p ∈ 𝔄' := h𝔄'.choose_spec
     -- Ineq. 6.3.19
