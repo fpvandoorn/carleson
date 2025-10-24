@@ -70,7 +70,7 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
         ENNReal.summable
     _ ≤ ∑' (y : Y), (As (2 ^ a) (2 ^ J' X)) * volume (ball (y : X) (D ^ k)) := by
       apply ENNReal.summable.tsum_le_tsum _ ENNReal.summable
-      intro y hy
+      intro y
       rw_mod_cast [← twopow_J]
       apply measure_ball_le_same _ (by positivity) (le_refl _)
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * ∑' (y : Y), volume (ball (y : X) (D ^ k)):= by

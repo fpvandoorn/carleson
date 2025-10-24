@@ -4,7 +4,8 @@ import Carleson.ToMathlib.Order.LiminfLimsup
 import Mathlib.Order.CompleteLattice.Group
 
 open scoped NNReal
-open MeasureTheory Set ENNReal Filter Topology ShortVariables Metric Complex
+open ENNReal hiding one_lt_two
+open MeasureTheory Set Filter Topology ShortVariables Metric Complex
 
 noncomputable section
 

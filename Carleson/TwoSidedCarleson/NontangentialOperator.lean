@@ -3,7 +3,8 @@ import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 
-open MeasureTheory Set Bornology Function ENNReal Metric
+open MeasureTheory Set Bornology Function Metric
+open ENNReal hiding one_lt_two
 open scoped NNReal
 
 noncomputable section

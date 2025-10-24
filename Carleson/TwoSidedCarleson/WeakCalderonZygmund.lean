@@ -2,7 +2,8 @@ import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.TwoSidedCarleson.Basic
 
-open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
+open MeasureTheory Set Bornology Function Metric Filter Topology
+open ENNReal hiding one_lt_two
 open scoped NNReal
 
 noncomputable section
