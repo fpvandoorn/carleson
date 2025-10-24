@@ -2,7 +2,7 @@ import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
 import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import Carleson.ToMathlib.Order.Chain
+import Mathlib.Data.Set.Pairwise.Chain
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -165,7 +165,7 @@ lemma rowDecomp_zornset_chain_Union_bound (s' : Set (𝔓 X)) {c : Set (Set (�
   simp_rw [mem_inter_iff,mem_setOf]
   repeat constructor
   · exact iUnion₂_subset_iff.mpr hc₁
-  · exact hc_chain.pairwiseDisjoint_iUnion₂ _ _ hc₂
+  · exact (hc_chain.pairwiseDisjoint_iUnion₂ _).mpr hc₂
   · exact iUnion₂_subset_iff.mpr hc₃
   · exact fun s hs ↦ subset_iUnion₂_of_subset s hs subset_rfl
 
