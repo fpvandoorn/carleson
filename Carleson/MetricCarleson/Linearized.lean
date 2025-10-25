@@ -2,7 +2,8 @@ import Carleson.MetricCarleson.Basic
 import Carleson.MetricCarleson.Truncation
 
 open scoped NNReal
-open MeasureTheory Set ENNReal
+open MeasureTheory Set
+open ENNReal hiding one_lt_two
 
 noncomputable section
 

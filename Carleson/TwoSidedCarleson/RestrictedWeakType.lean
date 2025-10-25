@@ -102,7 +102,7 @@ lemma interpolation_param_interpolation {t₀ t₁ t : ℝ} (h : t₀ ≠ t₁) 
   unfold interpolation_param
   rw [← div_self this, div_sub_div_same]
   symm
-  rw [div_mul_eq_mul_div, div_mul_eq_mul_div, div_add_div_same, div_eq_iff this]
+  rw [div_mul_eq_mul_div, div_mul_eq_mul_div, ← add_div, div_eq_iff this]
   ring
 
 --TODO: move

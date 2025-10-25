@@ -4,7 +4,8 @@ import Mathlib.Data.Real.StarOrdered
 import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
 import Mathlib.Order.CompletePartialOrder
 
-open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
+open MeasureTheory Measure NNReal Metric Filter Topology TopologicalSpace
+open ENNReal hiding one_lt_two
 noncomputable section
 
 section Doubling
@@ -420,7 +421,7 @@ end PseudoMetric
 
 section Normed
 
-open Module ENNReal
+open Module
 
 lemma Subsingleton.ball_eq {α} [PseudoMetricSpace α] [Subsingleton α] {x : α} {r : ℝ} :
     ball x r = if r > 0 then {x} else ∅ := by

@@ -2,6 +2,7 @@
 
 import Carleson.Classical.Basic
 import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
+import Mathlib.Tactic.Field
 
 open scoped Real
 open Finset Complex MeasureTheory
@@ -165,6 +166,7 @@ lemma norm_dirichletKernel'_le {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N 
     rw [dirichletKernel'_eq_zero h, norm_zero]
     linarith
 
+set_option linter.flexible false in -- linter bug; fix pending in mathlib
 /-- First part of lemma 11.1.8 (Dirichlet kernel) from the blueprint. -/
 lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
     (h : IntervalIntegrable f volume 0 (2 * π)) :
@@ -198,8 +200,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       rw [fourier_coe_apply, fourier_coe_apply, fourier_coe_apply, ←exp_add]
       congr
       simp
-      field_simp
-      ring
+      field
 
 lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {x : ℝ}
     (h : IntervalIntegrable f volume 0 (2 * π)) :

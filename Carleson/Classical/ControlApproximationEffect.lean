@@ -497,7 +497,8 @@ lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_con
   lt_trans' (lt_C_control_approximation_effect εpos) pi_pos
 
 lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) :
-    C_control_approximation_effect ε * δ = ((δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / π) + π * δ := by
+    C_control_approximation_effect ε * δ =
+      ((δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / π) + π * δ := by
   symm
   rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc,
     mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul, mul_comm _ (C10_0_1 4 2 : ℝ), mul_assoc]
@@ -507,10 +508,17 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
     ring_nf
     try rw [mul_assoc, mul_comm (2 ^ _), mul_assoc, mul_assoc, mul_assoc, mul_comm (4 ^ _), ← mul_assoc π⁻¹,
       ← Real.rpow_neg_one π, ← Real.rpow_add, mul_comm (π ^ _), ← mul_assoc (2 ^ _), ← Real.mul_rpow]
-  on_goal 1 => congr
-  · norm_num
-  on_goal 1 => ring_nf
-  on_goal 1 => rw [neg_div, Real.rpow_neg]
+  on_goal 1 =>
+    field_simp
+    ring_nf
+    calc _
+      _ = (π ^ (1 / (2 : ℝ))) ^ 2 * 2 ^ (1 / (2 : ℝ)) * (ε ^ (1 / (2 : ℝ)))⁻¹ * 2 := by ring
+      _ = π * 2 ^ (1 / (2 : ℝ)) * (ε ^ (1 / (2 : ℝ)))⁻¹ * 2 := by
+        congr
+        sorry -- obvious, right?
+      _ = π * 8 ^ (1 / (2 : ℝ)) * (ε ^ (1 / (2 : ℝ)))⁻¹  := by
+        sorry
+      _ = (ε ^ (1 / (2 : ℝ)))⁻¹ * π * 8 ^ (1 / (2 : ℝ)) := by ring
   all_goals linarith [pi_pos]
 
 
@@ -548,7 +556,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
   have le_operator_add : ∀ x ∈ E, ENNReal.ofReal ((ε' - π * δ) * (2 * π)) ≤ T h x + T (conj ∘ h) x := by
     intro x hx
     obtain ⟨xIcc, N, hN⟩ := hx
-    have : ENNReal.ofReal (π * δ * (2 * π)) ≠ ⊤ := ENNReal.ofReal_ne_top
+    have : ENNReal.ofReal (π * δ * (2 * π)) ≠ ⊤ := by finiteness
     rw [← (ENNReal.add_le_add_iff_right this)]
     calc ENNReal.ofReal ((ε' - π * δ) * (2 * π)) + ENNReal.ofReal (π * δ * (2 * π))
       _ = ENNReal.ofReal (2 * π) * ENNReal.ofReal ε' := by
@@ -565,8 +573,8 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       _ = (T h x + T (conj ∘ h) x) + ENNReal.ofReal (π * δ * (2 * π)) := by
         rw [mul_add]
         congr
-        · rw [ENNReal.mul_div_cancel (by simp [pi_pos]) ENNReal.ofReal_ne_top]
-        · rw [← ENNReal.ofReal_mul Real.two_pi_pos.le]
+        · rw [ENNReal.mul_div_cancel (by simp [pi_pos]) (by finiteness)]
+        · rw [← ENNReal.ofReal_mul (by positivity)]
           ring_nf
   --TODO: align this with paper version
   have Evolume : volume E < ⊤ := by
@@ -600,9 +608,9 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
   calc volume.real E
     _ ≤ 2 * volume.real E' := by
       --uses E'measure
-      rwa [measureReal_def, measureReal_def, ←@ENNReal.toReal_ofReal 2 (by norm_num),
-        ←ENNReal.toReal_mul, ENNReal.toReal_le_toReal Evolume.ne, ENNReal.ofReal_ofNat]
-      apply ENNReal.mul_ne_top ENNReal.ofReal_ne_top E'volume.ne
+      rwa [measureReal_def, measureReal_def, ← @ENNReal.toReal_ofReal 2 (by norm_num),
+        ← ENNReal.toReal_mul, ENNReal.toReal_le_toReal Evolume.ne, ENNReal.ofReal_ofNat]
+      finiteness
     _ = 2 * volume.real E' ^ ((1 + -(2 : ℝ)⁻¹) * 2) := by
       conv => lhs; rw [←Real.rpow_one (volume.real E')]
       norm_num

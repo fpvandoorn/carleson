@@ -48,10 +48,10 @@ lemma biSup_add_biSup {f g : ι → ℝ≥0∞} (h : ∀ i ∈ s, ∀ j ∈ s, �
     (⨆ i ∈ s, f i) + ⨆ i ∈ s, g i = ⨆ i ∈ s, f i + g i := by
   rcases s.eq_empty_or_nonempty with hs | hs
   · simp [hs]
-  · refine le_antisymm ?_ (iSup₂_le fun a ma => add_le_add (le_biSup _ ma) (le_biSup _ ma))
-    refine biSup_add_biSup_le hs hs fun i hi j hj => ?_
+  · refine le_antisymm ?_ (iSup₂_le fun a ma ↦ add_le_add (le_biSup _ ma) (le_biSup _ ma))
+    refine biSup_add_biSup_le hs hs fun i hi j hj ↦ ?_
     obtain ⟨k, mk, hk⟩ := h i hi j hj
-    exact hk.trans <| le_iSup₂_of_le k mk fun a za ↦ ⟨a, za, le_rfl⟩
+    exact hk.trans <| le_iSup₂_of_le k mk le_rfl
 
 -- unused
 lemma finsetSum_biSup {f : α → ι → ℝ≥0∞}

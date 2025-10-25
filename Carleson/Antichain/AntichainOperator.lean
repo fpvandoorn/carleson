@@ -65,7 +65,7 @@ lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
       exact enorm_integral_mul_starRingEnd_comm
     _ ≤ 2 * ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p,
         ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
-      rw [two_mul]; gcongr with p mp; exact fun _ ↦ And.imp_right Int.le_of_lt
+      rw [two_mul]; gcongr with p mp; intro h; apply h.le
     _ = _ := by congr! 3 with p mp p' mp'; exact enorm_integral_mul_starRingEnd_comm
 
 open Classical in
@@ -142,8 +142,8 @@ lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄) {x₀ : X} (hx : x₀ ∈ ba
   rw [mul_comm (_ ^ _), ← ENNReal.div_le_iff_le_mul]; rotate_left
   · left
     rw [← inv_ne_top, ← ENNReal.rpow_neg]
-    exact rpow_ne_top_of_ne_zero vpos.ne' measure_ball_ne_top
-  · exact Or.inl <| rpow_ne_top_of_ne_zero vpos.ne' measure_ball_ne_top
+    exact rpow_ne_top_of_ne_zero vpos.ne' (by finiteness)
+  · exact Or.inl <| rpow_ne_top_of_ne_zero vpos.ne' (by finiteness)
   rw [ENNReal.div_eq_inv_mul, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, mul_comm _ (-1),
     ENNReal.rpow_mul, ENNReal.rpow_neg_one,
     eLpNorm_eq_lintegral_rpow_enorm (by simpa) (by finiteness)]
@@ -211,8 +211,8 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
     _ = _ := by
       rw [mul_comm, mul_assoc]; congr 1
       have vpos : 0 < volume B := by apply measure_ball_pos; unfold defaultD; positivity
-      rw [← mul_assoc, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_add _ _ vpos.ne' measure_ball_ne_top,
-        ← mul_assoc, ← ENNReal.rpow_add _ _ vpos.ne' measure_ball_ne_top,
+      rw [← mul_assoc, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_add _ _ vpos.ne' (by finiteness),
+        ← mul_assoc, ← ENNReal.rpow_add _ _ vpos.ne' (by finiteness),
         ← add_rotate, (holderConjugate_p₆ (four_le_a X)).symm.inv_add_inv_eq_one,
         add_neg_cancel, ENNReal.rpow_zero, one_mul]
 

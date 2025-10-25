@@ -81,7 +81,6 @@ import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 import Carleson.ToMathlib.MinLayer
 import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.Order.Chain
 import Carleson.ToMathlib.Order.LiminfLimsup
 import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
