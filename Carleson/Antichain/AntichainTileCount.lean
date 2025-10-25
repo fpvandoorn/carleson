@@ -193,17 +193,21 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
             (by finiteness), ← ENNReal.div_le_iff' (NeZero.ne (2 ^ a)) (by finiteness),
             ENNReal.div_eq_inv_mul, h2a, dens₁]
           refine le_iSup₂_of_le p hp ?_--fun c hc ↦ ?_
-          sorry /- proof was:
+          rw [WithTop.le_iff_forall]
           intro c hc
           have h2c : 2 ^ (-(a : ℤ)) * (volume (E₂ 2 p) / volume (L : Set X)) ≤ (c : WithTop ℝ≥0) := by
             simp only [← hc]
-            refine le_iSup₂_of_le 2 (le_refl _) fun d hd ↦ ?_
+            refine le_iSup₂_of_le 2 (le_refl _) ?_
+            rw [WithTop.le_iff_forall]
+            intro d hd
             have h2d : 2 ^ (-(a : ℤ)) * (volume (E₂ 2 p) / volume (L : Set X)) ≤
                 (d : WithTop ℝ≥0)  := by
               rw [← hd]
               gcongr
               · norm_cast
-              · refine le_iSup₂_of_le p (mem_lowerCubes.mpr ⟨p, hp, le_refl _⟩) fun r hr ↦ ?_
+              · refine le_iSup₂_of_le p (mem_lowerCubes.mpr ⟨p, hp, le_refl _⟩) ?_
+                rw [WithTop.le_iff_forall]
+                intro r hr
                 have h2r : (volume (E₂ 2 p) / volume (L : Set X)) ≤ (r : WithTop ℝ≥0)  := by
                   rw [← hr]
                   refine le_iSup_of_le (le_refl _) ?_
@@ -212,7 +216,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
                   · rw [hIL]
                 exact ENNReal.le_coe_iff.mp h2r
             exact ENNReal.le_coe_iff.mp h2d
-          exact ENNReal.le_coe_iff.mp h2c -/
+          exact ENNReal.le_coe_iff.mp h2c
     let p : 𝔓 X := h𝔄'.choose
     have hp : p ∈ 𝔄' := h𝔄'.choose_spec
     -- Ineq. 6.3.19
