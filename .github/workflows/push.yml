@@ -56,7 +56,7 @@ jobs:
             cd ..
             cp paper/main.pdf docs/paper.pdf
 
-      - uses: leanprover-community/docgen-action@1417dc7f90338c875da5e5870c03a287d8348896 # docgen-action#11
+      - uses: leanprover-community/docgen-action@deed0cdc44dd8e5de07a300773eb751d33e32fc8 # 2025-10-26
         with:
           blueprint: true
           homepage: docs
