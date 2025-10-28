@@ -258,8 +258,7 @@ lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
   apply BoundedCompactSupport.mono_norm (g := fun x ↦ (ball (c J) (8 * D ^ s J)).indicator 1 x)
     ?_ ?_ (fun x ↦ ?_)
   · constructor
-    · refine memLp_top_of_bound (aestronglyMeasurable_one.indicator measurableSet_ball) 1
-        (.of_forall fun x ↦ ?_)
+    · refine memLp_top_of_bound (by fun_prop (discharger := measurability)) 1 (.of_forall fun x ↦ ?_)
       unfold indicator; split_ifs <;> simp
     · refine HasCompactSupport.intro (isCompact_closedBall (c J) (8 * D ^ s J)) fun x mx ↦ ?_
       apply indicator_of_notMem; contrapose! mx; exact ball_subset_closedBall mx

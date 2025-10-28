@@ -200,7 +200,7 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
           (E p').indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) := by
       rw [mul_assoc]; gcongr; apply lintegral_mul_le_eLpNorm_mul_eLqNorm
       · exact Real.HolderConjugate.ennrealOfReal (holderConjugate_p₆ (four_le_a X)).symm
-      · exact (hg.enorm.indicator measurableSet_ball).aemeasurable
+      · fun_prop (discharger := measurability)
       · refine Finset.aemeasurable_fun_sum _ fun p' mp' ↦ ?_
         simp_rw [mul_assoc, ← inter_indicator_mul]
         exact (AEMeasurable.indicator (by simp) (measurableSet_E.inter measurableSet_G)).const_mul _

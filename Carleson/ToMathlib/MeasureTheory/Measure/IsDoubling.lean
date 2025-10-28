@@ -309,7 +309,7 @@ lemma measureReal_ball_two_le_same (x : X) (r : ℝ) :
     μ.real (ball x (2 * r)) ≤ A * μ.real (ball x r) := by
   simp_rw [Measure.real, ← ENNReal.coe_toReal, ← toReal_mul]
   gcongr
-  · exact ENNReal.mul_ne_top coe_ne_top measure_ball_lt_top.ne
+  · finiteness
   · exact measure_ball_two_le_same x r
 
 lemma measureReal_ball_two_le_same_iterate (x : X) (r : ℝ) (n : ℕ) :
@@ -322,7 +322,7 @@ lemma measureReal_ball_two_le_same_iterate (x : X) (r : ℝ) (n : ℕ) :
 
 lemma measureReal_ball_pos [μ.IsOpenPosMeasure] (x : X) {r : ℝ} (hr : 0 < r) :
     0 < μ.real (ball x r) :=
-  toReal_pos ((measure_ball_pos μ x hr).ne.symm) (measure_ball_lt_top.ne)
+  toReal_pos ((measure_ball_pos μ x hr).ne') (measure_ball_lt_top.ne)
 
 variable (μ) in
 lemma one_le_A [Nonempty X] [μ.IsOpenPosMeasure] : 1 ≤ A := by
@@ -369,9 +369,9 @@ lemma measureReal_ball_four_le_same (x : X) (r : ℝ) :
 lemma measureReal_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     μ.real (ball x r') ≤ As A s * μ.real (ball x r) := by
   have hz := measure_ball_le_same (μ := μ) x hsp hs
-  have hbr': μ (ball x r') ≠ ⊤ := measure_ball_ne_top
-  have hbr: μ (ball x r) ≠ ⊤ := measure_ball_ne_top
-  have hAs : (As A s: ℝ≥0∞) ≠ ⊤ := coe_ne_top
+  have hbr': μ (ball x r') ≠ ⊤ := by finiteness
+  have hbr: μ (ball x r) ≠ ⊤ := by finiteness
+  have hAs : (As A s: ℝ≥0∞) ≠ ⊤ := by finiteness
   rw [← ENNReal.ofReal_toReal hbr, ← ENNReal.ofReal_toReal hbr',
     ← ENNReal.ofReal_toReal hAs, ← ENNReal.ofReal_mul] at hz
   · simp only [coe_toReal] at hz

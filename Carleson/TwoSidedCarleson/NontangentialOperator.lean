@@ -620,9 +620,9 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
       intro x'
       rw [le_bot_iff, bot_eq_zero, lintegral_eq_zero_iff' ?hf_ae]
       case hf_ae =>
+        have : AEMeasurable (K x') volume := (measurable_K_right x').aemeasurable
         apply (AEMeasurable.enorm _).restrict
-        apply AEMeasurable.mul (measurable_K_right x').aemeasurable
-        exact AEMeasurable.indicator (hg.aemeasurable) measurableSet_ball
+        fun_prop (discharger := measurability)
       simp_rw [← indicator_mul_right, enorm_indicator_eq_indicator_enorm]
       rw [indicator_ae_eq_zero, inter_comm, ← Measure.restrict_apply' measurableSet_ball,
         Measure.restrict_restrict measurableSet_ball, ← bot_eq_zero, ← le_bot_iff]

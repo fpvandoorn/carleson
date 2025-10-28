@@ -128,8 +128,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
         select_neighborhood_distribution _ _ (db_top ▸ coe_lt_top)
       rcases h₀ with ⟨n, wn⟩
       refine eventually_mem_set.mpr (mem_inf_iff_superset.mpr ⟨Iio (t₀ + (↑n)⁻¹), ?_, ?_⟩)
-      · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top
-          (ENNReal.inv_ne_zero.mpr (ENNReal.natCast_ne_top n)))
+      · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top (ENNReal.inv_ne_zero.mpr (by finiteness)))
       · exact ⟨Ioi t₀, by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩
     -- Case: distribution f t₀ μ < ⊤
     · refine (ENNReal.tendsto_nhds db_not_top.ne_top).mpr fun ε ε_gt_0 ↦
@@ -156,8 +155,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
               (ne_of_lt db_not_zero).symm (ne_of_lt ε_gt_0).symm)
         use Iio (t₀ + (↑n)⁻¹)
         constructor
-        · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top
-            (ENNReal.inv_ne_zero.mpr (ENNReal.natCast_ne_top n)))
+        · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top (ENNReal.inv_ne_zero.mpr (by finiteness)))
         · refine ⟨Ioi t₀, by simp, fun z h ↦ ⟨?_, ?_⟩⟩
           · calc
               distribution f t₀ μ - ε
@@ -243,8 +241,8 @@ lemma MemWLp.ennreal_toReal {f : α → ℝ≥0∞} (hf : MemWLp f p μ) :
   ⟨hf.aeStronglyMeasurable.ennreal_toReal, wnorm_toReal_le.trans_lt hf.2⟩
 
 /-- If a function `f` is `MemWLp`, then its norm is almost everywhere finite. -/
-theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) :
-    ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
+@[aesop (rule_sets := [finiteness]) safe apply]
+theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) : ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
   by_cases hp_inf : p = ∞
   · rw [hp_inf] at hf
     simp_rw [← lt_top_iff_ne_top]
@@ -317,7 +315,7 @@ lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (p0 : 0 < p)
   have p0' : 0 ≤ 1 / p := (div_pos one_pos p0).le
   have set_eq : {x | ofNNReal t < ‖f x‖ₑ} = {x | ofNNReal t ^ p < ‖f x‖ₑ ^ p} := by
     simp [ENNReal.rpow_lt_rpow_iff p0]
-  have : ofNNReal t = (ofNNReal t ^ p) ^ (1 / p) := by simp [p0.ne.symm]
+  have : ofNNReal t = (ofNNReal t ^ p) ^ (1 / p) := by simp [p0.ne']
   nth_rewrite 1 [inv_eq_one_div p, this, ← mul_rpow_of_nonneg _ _ p0', set_eq]
   refine rpow_le_rpow ?_ p0'
   refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.enorm.pow_const p) (ofNNReal t ^ p)
@@ -327,8 +325,8 @@ lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (p0 : 0 < p)
 lemma distribution_lt_top (hf : MemLp f p μ) (p_pos : 0 < p) (p_ne_top : p ≠ ∞)
     {t : ℝ≥0} (ht : 0 < t) :
     distribution f t μ < ∞ := by
-  have := wnorm'_le_eLpNorm' hf.1 (toReal_pos p_pos.ne.symm p_ne_top)
-  rw [← eLpNorm_eq_eLpNorm' p_pos.ne.symm p_ne_top] at this
+  have := wnorm'_le_eLpNorm' hf.1 (toReal_pos p_pos.ne' p_ne_top)
+  rw [← eLpNorm_eq_eLpNorm' p_pos.ne' p_ne_top] at this
   have := this.trans_lt hf.2
   rw [wnorm'] at this
   rw [iSup_lt_iff] at this
@@ -338,11 +336,11 @@ lemma distribution_lt_top (hf : MemLp f p μ) (p_pos : 0 < p) (p_ne_top : p ≠ 
   rcases this with ⟨t_lt_top, h⟩| (t_zero| h)
   · rwa [rpow_lt_top_iff_of_pos] at h
     simp only [inv_pos]
-    exact toReal_pos p_pos.ne.symm p_ne_top
+    exact toReal_pos p_pos.ne' p_ne_top
   · rw [ENNReal.coe_eq_zero] at t_zero
     exfalso
-    exact ht.ne.symm t_zero
-  · rw [ENNReal.rpow_eq_zero_iff_of_pos (by simp only [inv_pos]; exact toReal_pos p_pos.ne.symm p_ne_top)] at h
+    exact ht.ne' t_zero
+  · rw [ENNReal.rpow_eq_zero_iff_of_pos (by simp only [inv_pos]; exact toReal_pos p_pos.ne' p_ne_top)] at h
     rw [h]
     simp only [zero_lt_top]
 
@@ -351,8 +349,7 @@ lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0
     wnorm f p μ ≤ eLpNorm f p μ := by
   by_cases h : p = ⊤
   · simp [h, wnorm, eLpNorm]
-  · have p0 : p ≠ 0 := hp.ne.symm
-    simpa [h, wnorm, eLpNorm, p0] using wnorm'_le_eLpNorm' hf (toReal_pos p0 h)
+  · simpa [h, wnorm, eLpNorm, hp.ne'] using wnorm'_le_eLpNorm' hf (toReal_pos hp.ne' h)
 
 lemma MemLp.memWLp (hp : 0 < p) (hf : MemLp f p μ) : MemWLp f p μ :=
   ⟨hf.1, wnorm_le_eLpNorm hf.1 hp |>.trans_lt hf.2⟩
@@ -794,8 +791,8 @@ lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
   simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
   by_cases k_zero : k = 0
   · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero',
-    setOf_false, measure_empty, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero,
-    ENNReal.rpow_eq_zero_iff, inv_pos, true_and, zero_ne_top, inv_neg'', false_and, or_false]
+      setOf_false, measure_empty, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero,
+      ENNReal.rpow_eq_zero_iff, inv_pos, true_and, zero_ne_top, inv_neg'', false_and, or_false]
     intro _
     right
     exact toReal_pos hp ptop
@@ -930,7 +927,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
       use ae_finite
       intro x hx
       dsimp only
-      rw [toReal_rpow, ofReal_toReal (rpow_ne_top_of_nonneg hp.le hx)]
+      rw [toReal_rpow, ofReal_toReal (by finiteness)]
     apply setLIntegral_congr_fun measurableSet_Ioi
     intro t ht
     dsimp only
@@ -1000,9 +997,7 @@ lemma eLpNorm_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {
   · unfold eLpNorm'
     rw [toReal_ofReal hp.le, one_div]
     congr 1
-    rw [← lintegral_const_mul']
-    swap; · exact coe_ne_top
-    rw [lintegral_norm_pow_eq_distribution hf hp]
+    rw [← lintegral_const_mul' _ _ (by finiteness), lintegral_norm_pow_eq_distribution hf hp]
     congr 1 with x; rw [ofReal_mul] <;> [ring; positivity]
 
 lemma lintegral_pow_mul_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : -1 < p) :

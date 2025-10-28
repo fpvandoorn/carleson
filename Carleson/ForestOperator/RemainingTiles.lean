@@ -550,6 +550,8 @@ lemma btp_integral_bound :
         norm_num
       · rw [indicator_of_notMem my, zero_mul]; exact zero_le _
 
+attribute [fun_prop] AEMeasurable.restrict
+
 open Classical in
 /-- Equation (7.6.4) of Lemma 7.6.2 (before applying Cauchy–Schwarz). -/
 lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -635,8 +637,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
         (ball (c I) (8 * D ^ s I)).indicator 1 y) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
       rw [← lintegral_finset_sum']; swap
-      · exact fun I mI ↦
-          ((measurable_const.aemeasurable.indicator measurableSet_ball).mul aem_MB).restrict
+      · fun_prop (discharger := measurability)
       congr with y; rw [mul_comm, Finset.sum_mul]
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) *
@@ -646,8 +647,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       gcongr _ * ∑ k ∈ _, (∑ J ∈ _, ?_) ^ _ with k mk J mJ
       rw [setLAverage_eq, ENNReal.div_eq_inv_mul, ← mul_assoc, mul_comm _ _⁻¹, mul_assoc]
       gcongr; apply ENNReal.sq_lintegral_mul_le_mul_lintegral_sq aem_MB.restrict -- Cauchy–Schwarz
-      exact Finset.aemeasurable_fun_sum _ fun I mI ↦
-        measurable_const.aemeasurable.indicator measurableSet_ball
+      fun_prop (discharger := measurability)
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset,
         (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) * C7_6_4 a k) ^ (2 : ℝ)⁻¹ := by

@@ -123,15 +123,14 @@ lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStro
     rw [lintegral_indicator]; exact measurableSet_ball
   _ ≤ ∫⁻ y, liminf (fun n ↦ g n y) atTop ∂μ := by gcongr with y; exact this y
   _ ≤ liminf (fun n ↦ ∫⁻ y, g n y ∂μ) atTop := by
-    exact lintegral_liminf_le' fun n ↦ AEMeasurable.indicator (AEStronglyMeasurable.enorm
-        hf2) measurableSet_ball
+    apply lintegral_liminf_le' fun n ↦ by fun_prop (discharger := measurability)
   _ ≤ M := by
     apply liminf_le_of_le (f := atTop)
     intro b hb
     simp only [eventually_atTop, ge_iff_le] at hb
     obtain ⟨a, ha⟩ := hb
     exact le_of_lt <| lt_of_le_of_lt (ha a le_rfl) <|
-        by unfold g; rw [lintegral_indicator measurableSet_ball]; exact hns₁ a
+      by unfold g; rw [lintegral_indicator measurableSet_ball]; exact hns₁ a
 
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑.
 M_{𝓑, p} in the blueprint. -/
@@ -948,10 +947,10 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
       gcongr
     _ ≤ A ^ 2 * (μ (ball c (2 ^ m)))⁻¹ * ∫⁻ y in ball c (2 ^ m), ‖u y‖ₑ ∂μ := by
       gcongr
-      rw [mul_comm, ← ENNReal.mul_le_iff_le_inv
-        ((measure_ball_pos _ (zpow_pos zero_lt_two _) (μ := μ)).ne')
-          measure_ball_ne_top, ENNReal.mul_inv_le_iff
-            ((measure_ball_pos _ hr (μ := μ)).ne') measure_ball_ne_top]
+      rw [mul_comm,
+          ← ENNReal.mul_le_iff_le_inv
+            ((measure_ball_pos _ (by positivity) (μ := μ)).ne') (by finiteness),
+          ENNReal.mul_inv_le_iff ((measure_ball_pos _ hr (μ := μ)).ne') (by finiteness)]
       exact (μ.mono h_subset').trans <| measure_ball_four_le_same z r
     _ ≤ _ := by
       rw [mul_assoc]
@@ -962,7 +961,7 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
 theorem lintegral_ball_le_volume_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
     {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
     ∫⁻ y in (ball z r), ‖u y‖ₑ ∂μ  ≤ μ (ball z r) * globalMaximalFunction μ 1 u x := by
-  have : IsFiniteMeasure (μ.restrict (ball z r)) := isFiniteMeasure_restrict.mpr measure_ball_ne_top
+  have : IsFiniteMeasure (μ.restrict (ball z r)) := isFiniteMeasure_restrict.mpr (by finiteness)
   rw [← measure_mul_laverage]
   simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
   gcongr
