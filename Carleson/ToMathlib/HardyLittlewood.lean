@@ -9,6 +9,12 @@ noncomputable section
 
 /-! This should roughly contain the contents of chapter 9. -/
 
+-- Upstreaming status: aside from getting the real interpolation theorem merged,
+-- this file needs a bunch of clean-up before it can be upstreamed:
+-- moving preliminary lemmas to their appropriate homes (some of these lemmas do not belong in
+-- mathlib) and improving the code quality. Follow mathlib style (line length!), can use dot
+-- notation more, and the code can sometimes also be golfed.
+
 section Prelude
 
 variable {X : Type*} [PseudoMetricSpace X] [SeparableSpace X]
@@ -187,8 +193,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
   have hz' : Tendsto z atTop (nhds x) := tendsto_nhds_of_tendsto_nhdsWithin hz
   have := isBounded_range_of_tendsto z hz'
   obtain ⟨r, hr⟩ := Bornology.IsBounded.subset_ball this x
-  simp only [range, ball, setOf_subset_setOf, forall_exists_index,
-        forall_apply_eq_imp_iff] at hr
+  simp only [range, ball, setOf_subset_setOf, forall_exists_index, forall_apply_eq_imp_iff] at hr
   simp_rw [Prod.dist_eq] at hr
   have hsub (n : ℕ) : ball (z n).1 (z n).2 ⊆ ball x.1 (x.2 + 2 * r) := by
     unfold ball
@@ -199,7 +204,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
       ≤ dist y (z n).1 + dist (z n).1 x.1 := dist_triangle y (z n).1 x.1
     _ ≤ (z n).2 + dist (z n).1 x.1 := by gcongr
     _ ≤ |(z n).2| + dist (z n).1 x.1 := by gcongr; exact le_abs_self (z n).2
-    _ = |(z n).2 - x.2 + x.2| + dist (z n).1 x.1 := by rw [@sub_add_cancel]
+    _ = |(z n).2 - x.2 + x.2| + dist (z n).1 x.1 := by rw [sub_add_cancel]
     _ ≤ |(z n).2 - x.2| + |x.2| + dist (z n).1 x.1 := by
       gcongr; exact abs_add_le _ _
     _ < r + |x.2| + r := by
@@ -217,7 +222,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
     _ = x.2 + 2 * r := by linarith
   let bound := (ball x.1 (x.2 + 2 * r)).indicator g
   apply tendsto_lintegral_of_dominated_convergence' bound
-  · exact fun _ ↦ AEMeasurable.indicator hg2 measurableSet_ball
+  · exact fun _ ↦ hg2.indicator measurableSet_ball
   · intro n
     filter_upwards with a
     unfold bound indicator
@@ -234,12 +239,11 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
       calc
       0 ≤ dist (z 0).1 x.1 := dist_nonneg
       _ ≤ max (dist (z 0).1 x.1) (dist (z 0).2 x.2) := le_max_left _ _
-      _ < r := by exact hr _
+      _ < r := hr _
     linarith
   · have : ∀ᵐ z : X ∂μ, dist z x.1 ≠ x.2 := by
       change (μ ({z | ¬ (dist z x.1 ≠ x.2)}) = 0)
-      simp only [ne_eq, Decidable.not_not]
-      exact hμ x.1 x.2 hx_pos
+      simpa only [ne_eq, Decidable.not_not] using hμ x.1 x.2 hx_pos
     filter_upwards [this]
     intro y hy
     by_cases hy2 : dist y x.1 < x.2
@@ -260,8 +264,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
         have hcmp : Tendsto (dist_sub ∘ z) atTop (nhds (dist_sub x)) := Tendsto.comp (this x hx) hz
         have hy2 : dist y x.1 > x.2 := by order
         have hy2 : 0 < dist y x.1 - x.2 := sub_pos.mpr hy2
-        have : ∀ᶠ (n : ℕ) in atTop, 0 < dist y (z n).1 - (z n).2 := by
-          exact Tendsto.eventually_const_lt hy2 hcmp
+        have : ∀ᶠ (n : ℕ) in atTop, 0 < dist y (z n).1 - (z n).2 := Tendsto.eventually_const_lt hy2 hcmp
         filter_upwards [this]; simp
       simp only [indicator, ball, mem_setOf_eq]
       apply tendsto_nhds_of_eventually_eq
@@ -275,8 +278,7 @@ lemma continuous_average_ball [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts �
     [ProperSpace X] (hf : LocallyIntegrable f μ)
     (hμ : ∀ z : X, ∀ r > (0 : ℝ), μ (sphere z r) = 0) :
     ContinuousOn (fun x : X × ℝ ↦ ⨍⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) (univ ×ˢ Ioi 0) := by
-  have hopen : IsOpen ((univ : Set X) ×ˢ Ioi (0 : ℝ)) := IsOpen.prod isOpen_univ isOpen_Ioi
-  rw [IsOpen.continuousOn_iff hopen]
+  rw [(isOpen_univ.prod isOpen_Ioi).continuousOn_iff]
   intro x hx
   have hx_pos : 0 < x.2 := by simp only [mem_prod, mem_univ, mem_Ioi, true_and] at hx; exact hx
   have : (fun x : X × ℝ ↦ ⨍⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) =
@@ -287,19 +289,20 @@ lemma continuous_average_ball [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts �
   · apply Tendsto.inv
     have : (fun z : X × ℝ ↦ μ (ball z.1 z.2)) =
         (fun z : X × ℝ ↦ ∫⁻ (y : X) in ball z.1 z.2, (1 : ℝ≥0∞) ∂μ) := by simp
-    rw [this, Eq.symm (setLIntegral_one (ball x.1 x.2))]
+    rw [this, (setLIntegral_one (ball x.1 x.2)).symm]
     have : ContinuousOn (fun x : X × ℝ ↦ ∫⁻ y in ball x.1 x.2, (1 : ℝ≥0∞) ∂μ) (univ ×ˢ Ioi 0) := by
       apply continuous_integral_ball _ _ aemeasurable_const hμ
-      intro p r hr; rw [@setLIntegral_one]; exact measure_ball_lt_top
-    rw [IsOpen.continuousOn_iff hopen] at this
+      intro p r hr; rw [setLIntegral_one]; finiteness
+    rw [(isOpen_univ.prod isOpen_Ioi).continuousOn_iff] at this
     apply this hx
-  · exact Or.inr (LT.lt.ne (LocallyIntegrable.integrableOn_ball hf).right)
+  · exact Or.inr (hf.integrableOn_ball.right.ne)
   · have : ContinuousOn (fun x : X × ℝ ↦ ∫⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) (univ ×ˢ Ioi 0) := by
       apply continuous_integral_ball _ _ _ hμ
-      · intro x r hr; exact (LocallyIntegrable.integrableOn_ball hf).right
-      · exact AEStronglyMeasurable.enorm (LocallyIntegrable.aestronglyMeasurable hf)
-    rw [IsOpen.continuousOn_iff hopen] at this; exact this hx
-  · exact Or.inr (inv_ne_top.mpr (ne_of_gt (measure_ball_pos μ x.1 hx_pos)))
+      · exact fun x r hr ↦ hf.integrableOn_ball.right
+      · exact hf.aestronglyMeasurable.enorm
+    rw [(isOpen_univ.prod isOpen_Ioi).continuousOn_iff] at this
+    exact this hx
+  · exact Or.inr (inv_ne_top.mpr (measure_ball_pos μ x.1 hx_pos).ne')
 
 -- probably unsuitable for Mathlib
 lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top [ProperSpace X]
@@ -665,7 +668,8 @@ lemma maximalFunction_seq_mono {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ
   intro i Hi
   apply le_iSup₂ (f := fun j _ ↦ (ball (c j) (r j)).indicator
     (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ‖u y‖ₑ ^ (ofNNReal p).toReal ∂μ) x)
-  obtain ⟨w, hw⟩ := Hi; use w; exact ⟨hw.1.trans hmn, hw.2⟩
+  obtain ⟨w, hw⟩ := Hi
+  exact ⟨w, hw.1.trans hmn, hw.2⟩
 
 lemma maximalFunction_seq_eq {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (hp : 0 < p) (u : X → E) (x : X) :
     maximalFunction μ 𝓑 c r (↑p) u x =
@@ -719,7 +723,7 @@ theorem hasStrongType_maximalFunction
   constructor; · exact AEStronglyMeasurable.maximalFunction h𝓑
   have hp₂pos : (ofNNReal p₂).toReal > 0 :=
     toReal_pos (coe_ne_zero.mpr (ne_zero_of_lt hp₁₂)) coe_ne_top
-  have hp₂neq_zero : (ofNNReal p₂).toReal ≠ 0 := Ne.symm (ne_of_lt hp₂pos)
+  have hp₂neq_zero : (ofNNReal p₂).toReal ≠ 0 := hp₂pos.ne'
   have hp₂inv_pos : (ofNNReal p₂).toReal⁻¹ > 0 := inv_pos_of_pos hp₂pos
   have hestfin : ∀ k : ℕ, eLpNorm
       (fun x ↦ maximalFunction_seq μ h𝓑 c r (↑p₁) v k x) (↑p₂) μ ≤
@@ -1011,7 +1015,7 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
     HasWeakType (globalMaximalFunction μ p₁ (E := E))
       p₂ p₂ μ μ (C_weakType_globalMaximalFunction A p₁ p₂) := by
   convert HasWeakType.const_mul (c := C_weakType_maximalFunction A p₁ p₂) (e := A ^ 2)
-    (coe_ne_zero.mpr (hp₁.trans_le hp₁₂).ne.symm) _
+    (coe_ne_zero.mpr (hp₁.trans_le hp₁₂).ne') _
   exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
 
 /-- Use `lowerSemiContinuous_MB` -/
@@ -1043,7 +1047,7 @@ theorem globalMaximalFunction_ae_lt_top [BorelSpace X] [IsFiniteMeasureOnCompact
     ∀ᵐ x ∂μ, globalMaximalFunction μ p₁ u x < ∞ := by
   simp_rw [lt_top_iff_ne_top]
   conv => arg 1; intro x; rw [← enorm_eq_self (x := globalMaximalFunction μ p₁ u x)]
-  exact MemWLp.ae_ne_top (HasWeakType.memWLp (hasWeakType_globalMaximalFunction hp₁ hp₁₂.le) hu
+  exact MemWLp.ae_ne_top ((hasWeakType_globalMaximalFunction hp₁ hp₁₂.le).memWLp hu
     C_weakType_globalMaximalFunction_lt_top)
 
 theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 0 < p)
