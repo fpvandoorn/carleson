@@ -167,11 +167,11 @@ lemma rowDecomp_zornset_chain_Union_bound (s' : Set (𝔓 X)) {c : Set (Set (�
   · exact iUnion₂_subset_iff.mpr hc₁
   · exact hc_chain.pairwiseDisjoint_iUnion₂ _ _ hc₂
   · exact iUnion₂_subset_iff.mpr hc₃
-  · exact fun s a_1 ↦ subset_iUnion₂_of_subset s a_1 fun ⦃a_2⦄ a ↦ a
+  · exact fun s hs ↦ subset_iUnion₂_of_subset s hs subset_rfl
 
 def rowDecomp_𝔘 (t : Forest X n) (j : ℕ) : Set (𝔓 X) :=
   (zorn_subset (rowDecomp_zornset (t \ ⋃ i < j, rowDecomp_𝔘 t i))
-  (fun _ hc => Exists.intro _ ∘ rowDecomp_zornset_chain_Union_bound _ hc)).choose
+  (fun _ hc ↦ Exists.intro _ ∘ rowDecomp_zornset_chain_Union_bound _ hc)).choose
 
 lemma rowDecomp_𝔘_def (t : Forest X n) (j : ℕ) :
     Maximal (fun x ↦ x ∈ rowDecomp_zornset (t \ ⋃ i < j, rowDecomp_𝔘 t i)) (rowDecomp_𝔘 t j) := by
@@ -212,9 +212,7 @@ def rowDecomp (t : Forest X n) (j : ℕ) : Row X n where
   ordConnected' hu:= t.ordConnected' (rowDecomp_𝔘_subset_forest t j hu)
   𝓘_ne_𝓘' hu := t.𝓘_ne_𝓘' (rowDecomp_𝔘_subset_forest t j hu)
   smul_four_le' hu := t.smul_four_le' (rowDecomp_𝔘_subset_forest t j hu)
-  stackSize_le' := le_trans
-    (stackSize_mono (rowDecomp_𝔘_subset_forest t j))
-    t.stackSize_le'
+  stackSize_le' := le_trans (stackSize_mono (rowDecomp_𝔘_subset_forest t j)) t.stackSize_le'
   dens₁_𝔗_le' hu := t.dens₁_𝔗_le' (rowDecomp_𝔘_subset_forest t j hu)
   lt_dist' hu hu' := t.lt_dist' (rowDecomp_𝔘_subset_forest t j hu) (rowDecomp_𝔘_subset_forest t j hu')
   ball_subset' hu := t.ball_subset' (rowDecomp_𝔘_subset_forest t j hu)
@@ -230,19 +228,19 @@ lemma mem_rowDecomp_iff_mem_rowDecomp_𝔘 (t : Forest X n) (j : ℕ) : ∀ x,
   x ∈ t.rowDecomp j ↔ x ∈ t.rowDecomp_𝔘 j := by intros; rfl
 
 lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x : X)
-    (this : ∃ 𝔲' ∈ (t.rowDecomp j).𝔘, x ∈ 𝓘 𝔲') :
+    (hx : ∃ 𝔲' ∈ (t.rowDecomp j).𝔘, x ∈ 𝓘 𝔲') :
     1 ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j: Set _) x := by
   classical
-  obtain ⟨𝔲',h𝔲'⟩ := this
+  obtain ⟨𝔲', h𝔲'⟩ := hx
   dsimp [stackSize]
   rw [← Finset.sum_erase_add _ (a := 𝔲')]
-  · rw [indicator_apply,← Grid.mem_def,if_pos h𝔲'.right,Pi.one_apply]
-    simp only [le_add_iff_nonneg_left, zero_le]
+  · rw [indicator_apply, ← Grid.mem_def,if_pos h𝔲'.right, Pi.one_apply]
+    simp
   simp_rw [Finset.mem_filter_univ, mem_inter_iff]
   exact ⟨t.rowDecomp_𝔘_subset j h𝔲'.1, h𝔲'.1⟩
 
 lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) :
-  ∀ x:X, stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
+  ∀ x : X, stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
     intro x
     induction j with
     | zero =>
@@ -264,11 +262,11 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) :
         push_neg
         intro h
         apply this.elim
-        intro _ ⟨hmax,hz⟩
-        obtain ⟨u,hu,rfl⟩ := hmax.prop
+        intro _ ⟨hmax, hz⟩
+        obtain ⟨u, hu, rfl⟩ := hmax.prop
         use u
         rw [mem_𝔘]
-        refine ⟨?_,hz⟩
+        refine ⟨?_, hz⟩
         apply (t.rowDecomp_𝔘_def j).mem_of_prop_insert
         rw [mem_rowDecomp_zornset_iff]
         simp only [mem_insert_iff, forall_eq_or_imp]
@@ -285,16 +283,16 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) :
             intro heq
             rw [← heq] at h
             contradiction
-          obtain (h|h|h) := le_or_ge_or_disjoint (i := 𝓘 u) (j := 𝓘 k)
-          case inr.inr => exact h
+          obtain (h | h | h) := le_or_ge_or_disjoint (i := 𝓘 u) (j := 𝓘 k)
           · have heq : 𝓘 u = 𝓘 k := by
               apply le_antisymm h
-              exact hmax.le_of_ge ⟨k,rowDecomp_𝔘_subset t j hk,rfl⟩ h
+              exact hmax.le_of_ge ⟨k,rowDecomp_𝔘_subset t j hk, rfl⟩ h
             exact (hne (this heq)).elim
           · have heq : 𝓘 u = 𝓘 k := by
               apply le_antisymm _ h
-              exact (mem_rowDecomp_𝔘_maximal t j k hk).le_of_ge ⟨u,hu,rfl⟩ h
+              exact (mem_rowDecomp_𝔘_maximal t j k hk).le_of_ge ⟨u, hu, rfl⟩ h
             exact (hne (this heq)).elim
+          · exact h
         · exact ⟨hmax, mem_rowDecomp_𝔘_maximal t j⟩
       else
         dsimp [stackSize]
