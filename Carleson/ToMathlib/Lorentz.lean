@@ -9,6 +9,9 @@ import Carleson.ToMathlib.Topology.Order.Basic
 
 noncomputable section
 
+-- Upstreaming status: NOT READY yet (mostly); this file is being actively worked on.
+-- Needs significant clean-up (refactoring, code style, extracting lemmas etc.) first.
+
 open scoped NNReal ENNReal
 
 variable {α ε ε' : Type*} {m m0 : MeasurableSpace α}
@@ -439,14 +442,14 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε]
         exact (MeasureTheory.memLp_of_memLp_le_of_memLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ memLp_r₁ memLp_top).2
 
       /- Hardest part -/
-      rw [eLpNorm_eq_lintegral_rpow_enorm r₁_pos.ne.symm r₁_top,
+      rw [eLpNorm_eq_lintegral_rpow_enorm r₁_pos.ne' r₁_top,
           lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (measurable_mul_distribution_rpow.aestronglyMeasurable.enorm.pow_const r₁.toReal),
           lintegral_nnreal_eq_lintegral_toNNReal_Ioi] at norm_lt_top
       simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply, one_div] at norm_lt_top
       rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, eLorentzNorm_eq_wnorm h₀, wnorm_ne_top h₁, wnorm']
       rw [iSup_lt_iff]
 
-      have toReal_r₁_pos := ENNReal.toReal_pos r₁_pos.ne.symm r₁_top
+      have toReal_r₁_pos := ENNReal.toReal_pos r₁_pos.ne' r₁_top
       have : r₁ ^ r₁.toReal⁻¹ < ∞ := ENNReal.rpow_lt_top_of_nonneg (by simp) r₁_top
       have norm_lt_top' := ENNReal.mul_lt_top norm_lt_top this
       exists _, norm_lt_top'
@@ -456,17 +459,17 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε]
         rw [s_pos]
         simp
       push_neg at s_pos
-      rw [← ENNReal.div_le_iff_le_mul (by left; apply (ENNReal.rpow_pos r₁_pos r₁_top).ne.symm) (by left; exact this.ne)] --TODO: improve this
+      rw [← ENNReal.div_le_iff_le_mul (by left; apply (ENNReal.rpow_pos r₁_pos r₁_top).ne') (by left; exact this.ne)] --TODO: improve this
       calc _
         _ = distribution f (↑s) μ ^ p.toReal⁻¹ * (↑s / r₁ ^ r₁.toReal⁻¹) := by
           rw [mul_comm, mul_div_assoc]
         _ = distribution f (↑s) μ ^ p.toReal⁻¹ * (s ^ r₁.toReal / r₁) ^ r₁.toReal⁻¹ := by
           rw [ENNReal.div_rpow_of_nonneg,
-              ENNReal.rpow_rpow_inv (ENNReal.toReal_ne_zero.mpr ⟨r₁_pos.ne.symm, r₁_top⟩)]
+              ENNReal.rpow_rpow_inv (ENNReal.toReal_ne_zero.mpr ⟨r₁_pos.ne', r₁_top⟩)]
           simp only [inv_nonneg, ENNReal.toReal_nonneg]
         _ = (distribution f (↑s) μ ^ (p.toReal⁻¹ * r₁.toReal)) ^ r₁.toReal⁻¹ * (s ^ r₁.toReal / r₁) ^ r₁.toReal⁻¹ := by
           congr 1
-          · rw [ENNReal.rpow_mul, ENNReal.rpow_rpow_inv (ENNReal.toReal_ne_zero.mpr ⟨r₁_pos.ne.symm, r₁_top⟩)]
+          · rw [ENNReal.rpow_mul, ENNReal.rpow_rpow_inv (ENNReal.toReal_ne_zero.mpr ⟨r₁_pos.ne', r₁_top⟩)]
           --·
         _ = (distribution f (↑s) μ ^ (p.toReal⁻¹ * r₁.toReal)) ^ r₁.toReal⁻¹ * (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, ENNReal.ofReal (x ^ (r₁.toReal - 1))) ^ r₁.toReal⁻¹:= by
           congr
@@ -511,8 +514,8 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε]
     · unfold eLorentzNorm'
       rw [ENNReal.mul_lt_top_iff]
       right; right
-      rw [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable r₁_pos.ne.symm] at norm_zero
-      rwa [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable (r₁_pos.trans_le r₁_le_r₂).ne.symm]
+      rw [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable r₁_pos.ne'] at norm_zero
+      rwa [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable (r₁_pos.trans_le r₁_le_r₂).ne']
 
 lemma MemLorentz.memLp {f : α → ε'} (hf : MemLorentz f p r μ) (h : r ∈ Set.Ioc 0 p) :
     MemLp f p μ := by
@@ -605,7 +608,7 @@ lemma HasRestrictedWeakType.without_finiteness {ε₂} [TopologicalSpace ε₂] 
       rw [ENNReal.mul_eq_top]
       right
       constructor
-      · rw [ENNReal.top_rpow_of_pos p_inv_pos, ENNReal.mul_top (by simp [c_pos.ne.symm])]
+      · rw [ENNReal.top_rpow_of_pos p_inv_pos, ENNReal.mul_top (by simp [c_pos.ne'])]
       simp only [ENNReal.toReal_inv, ne_eq, ENNReal.rpow_eq_zero_iff, inv_pos, inv_neg'', not_or,
         not_and, not_lt, ENNReal.toReal_nonneg, implies_true, and_true]
       intro h
@@ -623,8 +626,8 @@ lemma HasRestrictedWeakType.without_finiteness {ε₂} [TopologicalSpace ε₂] 
       left
       constructor
       · simp only [ENNReal.toReal_inv, ne_eq, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_pos,
-        inv_neg'', not_or, not_and, not_lt, ENNReal.toReal_nonneg, implies_true, and_true]
-        use (by simp [c_pos.ne.symm])
+          inv_neg'', not_or, not_and, not_lt, ENNReal.toReal_nonneg, implies_true, and_true]
+        use (by simp [c_pos.ne'])
         intro h
         exfalso
         exact F_zero h
