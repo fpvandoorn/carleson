@@ -893,23 +893,21 @@ lemma forest_operator_g_prelude
   calc
     _ = ‖∑ u with u ∈ t, ∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ := by
       congr; rw [← integral_finset_sum]; swap
-      · exact fun _ _ ↦ (bg.conj.mul bf.carlesonSum).integrable
+      · fun_prop
       simp_rw [Finset.mul_sum]
     _ = ‖∑ u with u ∈ t, ∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ := by
       congr! 2 with u mu; exact adjointCarlesonSum_adjoint bf bg _
     _ = ‖∫ x, f x * ∑ u with u ∈ t, conj (adjointCarlesonSum (t u) g x)‖ₑ := by
       congr; rw [← integral_finset_sum]; swap
-      · exact fun _ _ ↦ (bg.adjointCarlesonSum.conj.mul bf).integrable
+      · intro _ _
+        fun_prop
       simp_rw [Finset.mul_sum, mul_comm (f _)]
     _ ≤ ∫⁻ x, ‖f x‖ₑ * ‖∑ u with u ∈ t, conj (adjointCarlesonSum (t u) g x)‖ₑ := by
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
     _ ≤ _ := by
       simp_rw [← map_sum, RCLike.enorm_conj]
       conv_rhs => rw [← eLpNorm_enorm]; enter [2]; rw [← eLpNorm_enorm]
-      exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
-        bf.enorm.aestronglyMeasurable.aemeasurable
-        (BoundedCompactSupport.finset_sum fun _ _ ↦
-          bg.adjointCarlesonSum).enorm.aestronglyMeasurable.aemeasurable
+      exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance (by fun_prop) (by fun_prop)
 
 lemma adjointCarlesonRowSum_rowSupport :
     adjointCarlesonRowSum t j f = adjointCarlesonRowSum t j ((rowSupport t j).indicator f) := by
@@ -952,9 +950,7 @@ lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.i
   let TR (j : ℕ) (x : X) := adjointCarlesonRowSum t j ((rowSupport t j).indicator g) x
   have bcsrsi (j : ℕ) : BoundedCompactSupport ((t.rowSupport j).indicator g) volume :=
     bg.indicator measurableSet_rowSupport
-  have bcsTR (j : ℕ) : BoundedCompactSupport (TR j) :=
-    BoundedCompactSupport.finset_sum fun _ _ ↦
-      BoundedCompactSupport.finset_sum fun _ _ ↦ (bcsrsi j).adjointCarleson
+  have bcsTR (j : ℕ) : BoundedCompactSupport (TR j) := by unfold TR adjointCarlesonRowSum; fun_prop
   calc
     _ = eLpNorm (∑ j ∈ Finset.range (2 ^ n), adjointCarlesonRowSum t j g ·) 2 ^ 2 := by
       congr; ext x
@@ -1061,8 +1057,7 @@ lemma forest_operator_f_prelude
         rw [indicator_of_notMem hx, norm_le_zero_iff] at h2g
         rw [h2g, zero_mul]
     _ ≤ _ :=
-      ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
-        bg.enorm.aestronglyMeasurable.aemeasurable
+      ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance (by fun_prop)
         ((BoundedCompactSupport.finset_sum fun _ _ ↦
           bf.carlesonSum).indicator measurableSet_G).enorm.aestronglyMeasurable.aemeasurable
 
@@ -1104,8 +1099,8 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
       apply ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
       · exact ((BoundedCompactSupport.finset_sum fun _ _ ↦ bIGTf.adjointCarlesonSum).indicator
           measurableSet_F).enorm.aestronglyMeasurable.aemeasurable
-      · exact bf.enorm.aestronglyMeasurable.aemeasurable
-    _ ≤ _ := by exact mul_le_mul_right' (indicator_row_bound bIGTf support_indicator_subset) _
+      · fun_prop
+    _ ≤ _ := by gcongr; exact indicator_row_bound bIGTf support_indicator_subset
 
 /-- The constant in the `f` side of Proposition 2.0.4.
 Has value `2 ^ (283 * a ^ 3)` in the blueprint. -/
@@ -1269,7 +1264,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
   the sum to be controlled. -/
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
   rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
-  · exact (BoundedCompactSupport.finset_sum (fun i hi ↦ bf.carlesonSum.restrict)).integrable
+  · exact (BoundedCompactSupport.finset_sum (fun i hi ↦ by fun_prop)).integrable
   rw [← integral_indicator hA]
   simp_rw [indicator_mul_left, ← comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
@@ -1281,10 +1276,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     · rw [hnorm]; norm_num
     · rw [div_self hnorm]
   apply (forest_operator 𝔉 hf h2f ?_ fun x ↦ ?_).trans; rotate_left
-  · refine Measurable.indicator ?_ hA
-    suffices Measurable (∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f ·) by
-      exact this.div (measurable_ofReal.comp this.norm)
-    exact Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonSum hf
+  · exact Measurable.indicator (by fun_prop) hA
   · exact (bAi _).trans (indicator_le_indicator_apply_of_subset sA (by simp))
   gcongr
   · simp only [sub_nonneg, inv_le_inv₀ zero_lt_two (q_pos X)]
@@ -1313,9 +1305,8 @@ theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} 
   apply (forest_operator' 𝔉 hf h2f hA sA).trans
   gcongr
   calc
-  _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
-    apply eLpNorm_mono (fun x ↦ ?_)
-    exact (h2f x).trans (le_abs_self _)
+  _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume :=
+    eLpNorm_mono (fun x ↦ (h2f x).trans (le_abs_self _))
   _ ≤ _ := by
     rw [eLpNorm_indicator_const measurableSet_F (by norm_num) (by norm_num)]
     simp
