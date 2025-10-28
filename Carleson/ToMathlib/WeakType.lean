@@ -3,6 +3,12 @@ import Carleson.ToMathlib.Misc
 import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
+-- Upstreaming status: all of this should go into mathlib, eventually.
+-- Most lemmas have the right form, but proofs can often be golfed.
+-- Some enorm lemmas require some mathlib refactoring first, so they can be unified with their
+-- analogue in current mathlib. Such refactorings include (1) adding a Weak(Pseudo)EMetricSpace
+-- class, (2) generalising all lemmas about enorms and • to this setting.
+
 noncomputable section
 
 open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function

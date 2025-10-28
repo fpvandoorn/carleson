@@ -450,8 +450,6 @@ lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖
     _ ≤ C_K a * ↑((2 * R₂ / R₁) ^ a) := by gcongr; exact lintegral_inv_vol_le hR₁ hR₂
     _ = _ := by rw [← coe_mul, C3_0_1, C_K, ← Nat.cast_pow, NNReal.rpow_natCast]
 
-attribute [fun_prop] StronglyMeasurable.measurable
-
 @[fun_prop]
 theorem carlesonOperatorIntegrand_measurable {θ : Θ X} (mf : AEStronglyMeasurable f) :
     Measurable (carlesonOperatorIntegrand K θ R₁ R₂ f) := by
