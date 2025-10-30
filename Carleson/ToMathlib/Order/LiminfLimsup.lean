@@ -1,7 +1,9 @@
 import Mathlib.Order.LiminfLimsup
 
-theorem Filter.iSup_liminf_le_liminf_iSup {α : Type*} {β : Type*} {ι : Sort*} [CompleteLattice α]
-  {f : Filter β} {u : ι → β → α} :
+-- Upstreaming status: seems like a useful lemma; no obvious clean-up opportunities
+
+theorem Filter.iSup_liminf_le_liminf_iSup {α β : Type*} {ι : Sort*} [CompleteLattice α]
+    {f : Filter β} {u : ι → β → α} :
     ⨆ (i : ι), Filter.liminf (u i) f ≤ Filter.liminf (fun b ↦ ⨆ (i : ι), u i b) f := by
   simp only [iSup_le_iff]
   intro i
