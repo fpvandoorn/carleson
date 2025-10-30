@@ -2,8 +2,10 @@ import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.RealInterpolation.Main
 import Mathlib.MeasureTheory.Covering.Vitali
+import Mathlib.Tactic.Field
 
-open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter ENNReal Pointwise
+open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter Pointwise
+open ENNReal hiding one_lt_two
 open scoped NNReal
 noncomputable section
 
@@ -889,6 +891,7 @@ theorem hasWeakType_maximalFunction_equal_exponents
 def C_weakType_maximalFunction (A p₁ p₂ : ℝ≥0) :=
   if p₁ = p₂ then (ofNNReal A) ^ (2 / p₁ : ℝ) else C2_0_6 A p₁ p₂
 
+@[aesop (rule_sets := [finiteness]) safe apply]
 lemma C_weakType_maximalFunction_lt_top {A p₁ p₂ : ℝ≥0} :
     C_weakType_maximalFunction A p₁ p₂ < ∞ := by
   unfold C_weakType_maximalFunction
@@ -970,9 +973,8 @@ lemma C2_0_6'_defaultA_one_two_eq {a : ℕ} : C2_0_6' (defaultA a) 1 2 = 2 ^ (3 
     NNReal.coe_one, inv_one, NNReal.rpow_one, ← pow_mul, ← NNReal.rpow_natCast]
   rw [← NNReal.rpow_add (by simp)]
   congr 1
-  field_simp
-  simp
-  ring
+  simp only [Nat.cast_mul, Nat.cast_ofNat]
+  field
 
 lemma C2_0_6'_defaultA_one_le {a : ℕ} {q : ℝ≥0} (hq : 1 < q) :
     C2_0_6' (defaultA a) 1 q ≤ 2 ^ (4 * a + 1) * (q / (q - 1)) := by
@@ -1001,7 +1003,7 @@ def C_weakType_globalMaximalFunction (A p₁ p₂ : ℝ≥0) :=
 
 lemma C_weakType_globalMaximalFunction_lt_top {A p₁ p₂ : ℝ≥0} :
     C_weakType_globalMaximalFunction A p₁ p₂ < ∞ :=
-  mul_lt_top (by simp) C_weakType_maximalFunction_lt_top
+  mul_lt_top (by simp) (by finiteness)
 
 -- the constant here `A ^ 4` can be improved
 theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]

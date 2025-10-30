@@ -73,7 +73,7 @@ lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
       exact enorm_integral_mul_starRingEnd_comm
     _ ≤ 2 * ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p,
         ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
-      rw [two_mul]; gcongr with p mp; exact fun _ ↦ And.imp_right Int.le_of_lt
+      rw [two_mul]; gcongr with p mp; exact fun h ↦ h.le
     _ = _ := by congr! 3 with p mp p' mp'; exact enorm_integral_mul_starRingEnd_comm
 
 open Classical in

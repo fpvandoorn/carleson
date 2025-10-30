@@ -182,10 +182,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
         rw [carlesonSum, Finset.sum_eq_single_of_mem p.1 hp hne_p]
     _ ≤ ∫⁻ y, ‖exp (I * (Q x y - Q x x)) * Ks (𝔰 p.1) x y * f y‖ₑ := by
         rw [carlesonOn, indicator, if_pos hxE]
-        refine le_trans (enorm_integral_le_lintegral_enorm _) (lintegral_mono fun z w h ↦ ?_)
-        simp only [nnnorm_mul, coe_mul, some_eq_coe', zpow_neg, Ks, mul_assoc,
-          enorm_eq_nnnorm] at h ⊢
-        use w
+        exact le_trans (enorm_integral_le_lintegral_enorm _) (lintegral_mono fun z ↦ le_rfl)
     _ ≤ ∫⁻ y, ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
       simp only [enorm_mul]
       exact lintegral_mono fun y ↦ (by simp [← Complex.ofReal_sub])

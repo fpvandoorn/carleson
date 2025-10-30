@@ -4,6 +4,7 @@ import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 import Mathlib.Analysis.Fourier.AddCircle
+import Mathlib.Tactic.Field
 
 /- This file contains basic definitions and lemmas. -/
 
@@ -196,7 +197,7 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
   calc (2 / π) * η
     _ ≤ (2 / π) * x := by gcongr
     _ = 1 - ((1 - (2 / π) * (x - π / 2)) * Real.cos (π / 2) + ((2 / π) * (x - π / 2)) * Real.cos (π)) := by
-      field_simp -- a bit slow
+      field_simp
       simp
     _ ≤ 1 - (Real.cos ((1 - (2 / π) * (x - π / 2)) * (π / 2) + (((2 / π) * (x - π / 2)) * (π)))) := by
       gcongr
@@ -207,7 +208,7 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
         exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
       · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) (by linarith [h])
       · simp
-    _ = 1 - Real.cos x := by congr; field_simp; ring -- slow
+    _ = 1 - Real.cos x := by congr; field
     _ ≤ Real.sqrt ((1 - Real.cos x) ^ 2) := by
       exact Real.sqrt_sq_eq_abs _ ▸ le_abs_self _
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by

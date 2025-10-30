@@ -1,7 +1,8 @@
 import Carleson.Defs
 import Carleson.ToMathlib.Data.ENNReal
 
-open MeasureTheory Measure Metric Complex Set Bornology Function ENNReal
+open MeasureTheory Measure Metric Complex Set Bornology Function
+open ENNReal hiding one_lt_two
 open scoped NNReal
 
 noncomputable section
@@ -55,8 +56,8 @@ lemma one_le_realD : 1 ≤ (defaultD a : ℝ) := by
   rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
   exact pow_le_pow_right₀ (one_le_two) (by omega)
 
-lemma defaultD_pow_pos (z : ℤ) : 0 < (defaultD a : ℝ) ^ z :=
-  zpow_pos (realD_pos _) _
+lemma defaultD_pow_pos (z : ℤ) : 0 < (defaultD a : ℝ) ^ z := by
+  positivity [realD_pos a]
 
 lemma mul_defaultD_pow_pos {r : ℝ} (hr : 0 < r) (z : ℤ) : 0 < r * (defaultD a : ℝ) ^ z :=
   mul_pos hr (defaultD_pow_pos a z)
