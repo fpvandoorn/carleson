@@ -100,7 +100,7 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
       ← ENNReal.ofReal_one, ← ENNReal.ofReal_sub, ← ENNReal.ofReal_inv_of_pos (by norm_num),
       ← ENNReal.ofReal_mul' (by norm_num)]
     conv => pattern ENNReal.ofReal _; ring_nf; rw [ENNReal.ofReal_one]
-    rw [one_mul]
+    · rw [one_mul]
     norm_num
 
   -- Main step: Apply exceptional_set_carleson to get a family of exceptional sets parameterized by ε.

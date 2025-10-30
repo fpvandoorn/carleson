@@ -1026,13 +1026,11 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
           + eLpNorm (T' g₃) 1 (ν.restrict G) + eLpNorm (T' g₄) 1 (ν.restrict G) := by
           apply (eLpNorm_add_le sorry sorry le_rfl).trans
           gcongr
-          apply (eLpNorm_add_le sorry sorry le_rfl).trans
-          gcongr
-          apply (eLpNorm_add_le sorry sorry le_rfl).trans
-          gcongr
-          · rw [Function.comp_def, eLpNorm_enorm]
-          · rw [Function.comp_def, eLpNorm_enorm]
-          · rw [Function.comp_def, eLpNorm_enorm]
+          · apply (eLpNorm_add_le sorry sorry le_rfl).trans
+            gcongr
+            · apply (eLpNorm_add_le sorry sorry le_rfl).trans
+              gcongr <;> rw [Function.comp_def, eLpNorm_enorm]
+            rw [Function.comp_def, eLpNorm_enorm]
           · rw [Function.comp_def, eLpNorm_enorm]
         _ ≤ (c / p) * eLorentzNorm g₁ p 1 μ * ν G ^ p'⁻¹.toReal
            +(c / p) * eLorentzNorm g₂ p 1 μ * ν G ^ p'⁻¹.toReal

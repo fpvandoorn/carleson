@@ -87,19 +87,19 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
       _ = cexp ((N + 1 / 2) * I * x) - cexp (-(N + 1 / 2) * I * x) := by
         rw [← sum_Ico_add_eq_sum_Icc, ← sum_Ioc_add_eq_sum_Icc, add_sub_add_comm,
           ← zero_add (cexp ((N + 1 / 2) * I * ↑x) - cexp (-(N + 1 / 2) * I * ↑x))]
-        congr 2
-        rw [sub_eq_zero]
-        conv => lhs; rw [← Int.add_sub_cancel (-(N : ℤ)) 1, sub_eq_add_neg,
-          ← Int.add_sub_cancel (Nat.cast N) 1, sub_eq_add_neg, ← sum_Ico_add']
-        congr 2 with n
-        · rw [mem_Ico, mem_Ioc, Int.lt_iff_add_one_le, add_le_add_iff_right,
-            ← mem_Icc, Int.lt_iff_add_one_le, ← mem_Icc]
-          simp
-        · simp only [Int.reduceNeg, Int.cast_add, Int.cast_neg, Int.cast_one, one_div, add_assoc,
-            sub_eq_add_neg]
-          norm_num
-        · rw [neg_add_rev, add_comm, Int.cast_neg, sub_eq_add_neg]
-          norm_cast
+        · congr 2
+          · rw [sub_eq_zero]
+            conv => lhs; rw [← Int.add_sub_cancel (-(N : ℤ)) 1, sub_eq_add_neg,
+              ← Int.add_sub_cancel (Nat.cast N) 1, sub_eq_add_neg, ← sum_Ico_add']
+            congr 2 with n
+            · rw [mem_Ico, mem_Ioc, Int.lt_iff_add_one_le, add_le_add_iff_right,
+              ← mem_Icc, Int.lt_iff_add_one_le, ← mem_Icc]
+              simp
+            · simp only [Int.reduceNeg, Int.cast_add, Int.cast_neg, Int.cast_one, one_div, add_assoc,
+                sub_eq_add_neg]
+              norm_num
+          · rw [neg_add_rev, add_comm, Int.cast_neg, sub_eq_add_neg]
+            norm_cast
         all_goals simp
   have h' : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) ≠ 0 := by
     contrapose! h
@@ -166,7 +166,6 @@ lemma norm_dirichletKernel'_le {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N 
     rw [dirichletKernel'_eq_zero h, norm_zero]
     linarith
 
-set_option linter.flexible false in -- linter bug; fix pending in mathlib
 /-- First part of lemma 11.1.8 (Dirichlet kernel) from the blueprint. -/
 lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
     (h : IntervalIntegrable f volume 0 (2 * π)) :

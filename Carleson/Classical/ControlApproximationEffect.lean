@@ -265,7 +265,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       simp only [one_div, Set.mem_Ioo, Set.mem_setOf_eq] at *
       refine ⟨lt_of_le_of_lt ?_ hy.1, hy.2⟩
       rw [inv_le_inv₀]
-      norm_cast
+      on_goal 1 => norm_cast
       all_goals linarith
     · rw [← hs]
       --uses that dirichletKernel' is bounded
@@ -380,16 +380,16 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
     calc S_ N g x
       _ = (∫ (y : ℝ) in (0 : ℝ)..(2 * π), g y * dirichletKernel' N (x - y)) / (2 * π) := by
         rw [partialFourierSum_eq_conv_dirichletKernel' (intervalIntegrable_g.mono_set _)]
-        ring
+        · ring
         rw [Set.uIcc_of_le, Set.uIcc_of_le]
-        apply Set.Icc_subset_Icc
+        on_goal 1 => apply Set.Icc_subset_Icc
         all_goals linarith [pi_pos]
       _ = (∫ (y : ℝ) in (x - π)..(x + π), g y * dirichletKernel' N (x - y)) / (2 * π) := by
         --Shift domain of integration using periodicity
         congr 1
         rw [← zero_add (2 * π), Function.Periodic.intervalIntegral_add_eq _ 0 (x - π)]
-        congr 1
-        ring
+        · congr 1
+          ring
         exact (periodic_g.mul (dirichletKernel'_periodic.const_sub x))
       _ = (  (∫ (y : ℝ) in (x - π)..(x + π), g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))
            + (∫ (y : ℝ) in (x - π)..(x + π), g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))) / (2 * π) := by

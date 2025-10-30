@@ -771,7 +771,7 @@ namespace MeasureTheory
 lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint
     {α ι F : Type*} [MeasurableSpace α] [NormedAddCommGroup F] {μ : Measure α}
     {s : Finset ι} {f : α → F} {t : ι → Set α} (meast : ∀ i, MeasurableSet (t i))
-    (hpd : s.toSet.PairwiseDisjoint t) :
+    (hpd : PairwiseDisjoint s t) :
     ∑ i ∈ s, eLpNorm ((t i).indicator f) 2 μ ^ 2 ≤ eLpNorm f 2 μ ^ 2 := by
   simp_rw [sq_eLpNorm_two]
   conv_lhs =>

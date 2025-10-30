@@ -76,7 +76,7 @@ lemma calculation_10 (h : (100 : ℝ) < D) :
   calc ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ)
   _ ≤ ((100 : ℝ) + 4 * 100 ^ (-2 : ℝ) + 8⁻¹ * 100 ^ (-3 : ℝ)) * 100 ^ (-1 : ℝ) := by
     gcongr (100 + 4 * ?_ + 8⁻¹ * ?_) * ?_ <;>
-    apply Real.rpow_le_rpow_of_exponent_nonpos (by norm_num) h.le (by norm_num)
+    apply Real.rpow_le_rpow_of_nonpos (by norm_num) h.le (by norm_num)
   _ < _ := by norm_num
 
 lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y : ℤ} (h : x + 3 < y) :
@@ -215,8 +215,8 @@ lemma calculation_12 (s : ℝ) :
       rw_mod_cast [fact]
     _ = 2 ^ (2 * 𝕔 * a^2 + 4  + (3 + 𝕔 * a ^ 2 * s)) := by
       nth_rw 2 [Real.rpow_add]
-      norm_cast
-      positivity
+      · norm_cast
+      · positivity
     _ = 2 ^ (7 + ((𝕔 * a^2 * s) + (𝕔 * a^2 * 2))) := by
       congrm 2 ^ ?_
       linarith
