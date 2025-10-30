@@ -248,7 +248,8 @@ lemma enorm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h
   rw [ENNReal.ofReal_rpow_of_pos (by linarith), this, ← ENNReal.ofReal_mul (by positivity),
     ← ofReal_norm_eq_enorm, ← dist_eq_norm]
   apply ENNReal.ofReal_le_ofReal
-  apply (dist_holderApprox_le hR ht h't hϕ (HolderOnWith.of_iHolENorm_ne_top h) x).trans_eq
+  apply dist_holderApprox_le hR ht h't hϕ
+    (by simpa [nnτ_def] using HolderOnWith.of_iHolENorm_ne_top (τ_nonneg X) h) x |>.trans_eq
   simp [field, NNReal.coe_div, hR.le]
 
 

@@ -393,8 +393,6 @@ lemma adjointCarlesonSum_adjoint
   unfold carlesonSum
   simp_rw [Finset.mul_sum]
   classical calc
-    _ = ∫ x, ∑ p with p ∈ ℭ, conj (g x) * carlesonOn p f x := by
-      unfold carlesonSum; simp_rw [Finset.mul_sum]
     _ = ∑ p with p ∈ ℭ, ∫ x, conj (g x) * carlesonOn p f x :=
       integral_finset_sum _ fun p _ ↦ by fun_prop
     _ = ∑ p with p ∈ ℭ, ∫ y, conj (adjointCarleson p g y) * f y := by
