@@ -2,7 +2,7 @@ import Carleson.Discrete.Defs
 import Carleson.Discrete.SumEstimates
 import Carleson.ForestOperator.Forests
 import Carleson.MinLayerTiles
-import Mathlib.Data.Complex.ExponentialBounds
+import Mathlib.Analysis.Complex.ExponentialBounds
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -895,7 +895,7 @@ lemma forest_union_sum_aux1 (M : ℕ) (q : ℝ) (hq : 1 < q) (h'q : q ≤ 2) :
     simp only [Nat.factorial, Nat.succ_eq_add_one, Nat.reduceAdd, zero_add, mul_one, Nat.reduceMul,
       Nat.cast_ofNat, mul_pow, div_pow, Nat.cast_one, pow_one, c]
     have : q - 1 ≠ 0 := by linarith
-    field_simp only
+    field_simp
     ring
   _ ≤ (2 ^ (1 : ℝ) * (48 * 2 ^ 4 / (Real.log 2) ^ 4 + 96 * 2 ^ 3 * 1 / (Real.log 2) ^ 3
       + 88 * 2 ^ 2 * 1 ^ 2 / (Real.log 2) ^ 2 + 48 * 2 * 1 ^ 3 / (Real.log 2))) / (q - 1) ^ 4 := by

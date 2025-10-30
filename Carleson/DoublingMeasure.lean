@@ -2,7 +2,8 @@ import Carleson.Defs
 import Carleson.LipschitzNorm
 import Carleson.ToMathlib.Data.ENNReal
 
-open MeasureTheory Measure Metric Complex Set Bornology Function ENNReal
+open MeasureTheory Measure Metric Complex Set Bornology Function
+open ENNReal hiding one_lt_two
 open scoped NNReal
 
 noncomputable section
@@ -56,8 +57,8 @@ lemma one_le_realD : 1 ≤ (defaultD a : ℝ) := by
   rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
   exact pow_le_pow_right₀ (one_le_two) (by omega)
 
-lemma defaultD_pow_pos (z : ℤ) : 0 < (defaultD a : ℝ) ^ z :=
-  zpow_pos (realD_pos _) _
+lemma defaultD_pow_pos (z : ℤ) : 0 < (defaultD a : ℝ) ^ z := by
+  positivity [realD_pos a]
 
 lemma mul_defaultD_pow_pos {r : ℝ} (hr : 0 < r) (z : ℤ) : 0 < r * (defaultD a : ℝ) ^ z :=
   mul_pos hr (defaultD_pow_pos a z)
@@ -154,7 +155,7 @@ variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 instance : ProperSpace X := by
   constructor
   intro x r
-  refine isCompact_of_totallyBounded_isClosed ?_ isClosed_closedBall
+  refine TotallyBounded.isCompact_of_isClosed ?_ isClosed_closedBall
   obtain ⟨r', hr'⟩ := exists_gt r
   apply TotallyBounded.subset (closedBall_subset_ball hr')
   refine Metric.totallyBounded_iff.mpr fun ε hε ↦ ?_
@@ -348,6 +349,29 @@ lemma nontangentialOperator_const_smul (z : ℂ) {K : X → X → ℂ} :
   simp_rw [Pi.smul_apply, smul_eq_mul, mul_assoc, integral_const_mul, enorm_mul, ← ENNReal.mul_iSup]
   rfl
 
+private lemma carlesonOperatorIntegrand_const_smul' [FunctionDistances ℝ X] (K : X → X → ℂ)
+    (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperatorIntegrand K θ R₁ R₂ (z • f) = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
+  unfold carlesonOperatorIntegrand
+  ext x
+  simp_rw [Pi.smul_apply, smul_eq_mul, ← integral_const_mul]
+  congr with y
+  ring
+
+private lemma linearizedCarlesonOperator_const_smul' [FunctionDistances ℝ X] (Q : X → Θ X)
+    (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    linearizedCarlesonOperator Q K (z • f) = ‖z‖ₑ • linearizedCarlesonOperator Q K f := by
+  unfold linearizedCarlesonOperator
+  simp_rw [carlesonOperatorIntegrand_const_smul', Pi.smul_apply, smul_eq_mul, enorm_mul, ← mul_iSup]
+  rfl
+
+lemma carlesonOperator_const_smul' [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (z : ℂ) :
+    carlesonOperator K (z • f) = ‖z‖ₑ • carlesonOperator K f := by
+  unfold carlesonOperator
+  simp_rw [linearizedCarlesonOperator_const_smul', Pi.smul_apply, ← smul_iSup]
+  rfl
+
+
 end DoublingMeasure
 
 section Kernel
@@ -470,7 +494,7 @@ lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
   | succ k ih =>
     trans 2 * dist_{x, (defaultA a) ^ k * r} f g
     · rw [pow_succ', mul_assoc]
-      exact (_root_.mul_le_mul_left zero_lt_two).mpr ih
+      exact (mul_le_mul_iff_right₀ zero_lt_two).mpr ih
     · convert le_cdist (ball_subset_ball _) using 1
       · exact dist_congr rfl (by rw [← mul_assoc, pow_succ'])
       · nth_rw 1 [← one_mul ((defaultA a) ^ k * r)]; gcongr
@@ -485,7 +509,7 @@ lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
     · convert cdist_le _ using 1
       · exact dist_congr rfl (by ring)
       · rw [dist_self]; positivity
-    · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
+    · replace ih := (mul_le_mul_iff_right₀ (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
       rwa [← mul_assoc, ← pow_succ'] at ih
 
 lemma cdist_le_mul_cdist {x x' : X} {r r' : ℝ} (hr : 0 < r) (hr' : 0 < r') (f g : Θ X) :

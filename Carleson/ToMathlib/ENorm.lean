@@ -1,5 +1,9 @@
 import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 
+-- Upstreaming status: can be upstreamed/being worked on
+-- Many remaining declarations require PRing a new enorm class to mathlib first,
+-- i.e. are not a good first target.
+
 noncomputable section
 
 open ENNReal NNReal Function Set
@@ -38,6 +42,7 @@ attribute [simp] ENormedSpace.enorm_smul_eq_smul
 
 instance : ENormedSpace ℝ≥0∞ where
   enorm := id
+  enorm_zero := by simp
   enorm_eq_zero := by simp
   -- enorm_neg := by simp
   enorm_add_le := by simp
@@ -49,6 +54,7 @@ instance : ENormedSpace ℝ≥0∞ where
 
 instance : ENormedSpace ℝ≥0 where
   enorm := ofNNReal
+  enorm_zero := by simp
   add_smul r s x := by
     simp only [smul_eq_mul]
     ring
@@ -65,14 +71,6 @@ instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormedSpace E where
 
 namespace MeasureTheory
 
-section ContinuousENorm
-variable {α E : Type*} {m : MeasurableSpace α} [TopologicalSpace E] [ContinuousENorm E] {μ : Measure α}
-
-variable {ε ε' : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
-  [TopologicalSpace ε'] [ContinuousENorm ε']
-
-end ContinuousENorm
-
 lemma esub_zero [TopologicalSpace E] [ENormedAddCommSubMonoid E] {x : E} : x - 0 = x := by
   rw [← add_zero (x - 0)]
   apply sub_add_cancel_of_enorm_le
@@ -83,9 +81,10 @@ section ENormedSpace
 variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
 
 -- TODO: this lemma and Mathlib's `enorm_smul` could be unified using a `ENormedDivisionSemiring`
--- typeclass
--- (which includes ENNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
+-- typeclass (which includes ENNReal and normed fields like ℝ and ℂ),
+-- i.e. assuming 𝕜 is a normed semifield.
 -- Investigate if this is worthwhile when upstreaming this to mathlib.
+-- Update: change this lemma to prove ENormSMulClass for ENormedSpace's.
 lemma enorm_smul_eq_mul {c : ℝ≥0} (z : ε) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
   ENormedSpace.enorm_smul_eq_smul _ _
 

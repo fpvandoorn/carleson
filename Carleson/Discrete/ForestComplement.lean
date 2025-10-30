@@ -1,8 +1,8 @@
 import Carleson.Antichain.AntichainOperator
 import Carleson.Discrete.Defs
 import Carleson.Discrete.SumEstimates
+import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Combinatorics.Enumerative.DoubleCounting
-import Mathlib.Data.Complex.ExponentialBounds
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -153,9 +153,11 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
   let B : ℕ := Finset.card { q | q ∈ 𝔅 k n p }
   have Blt : B < 2 ^ (2 * n + 4) := by
     calc
-      _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } :=
-        Finset.card_le_card (Finset.monotone_filter_right _ (Pi.le_def.mpr fun m ⟨m₁, m₂⟩ ↦
-          ⟨m₁, m₂.1.1 mx⟩))
+      _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } := by
+        apply Finset.card_le_card (Finset.monotone_filter_right _ ?_)
+        refine fun a _ha ha' ↦ ⟨mem_of_mem_inter_left ha', ?_⟩
+        obtain ⟨m₁, m₂⟩ := ha'
+        exact m₂.1.1 mx
       _ = stackSize (𝔐 k n) x := by
         simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
           Finset.filter_filter]; rfl
@@ -166,7 +168,7 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
   rcases B.eq_zero_or_pos with Bz | Bpos
   · simp_rw [B, filter_mem_univ_eq_toFinset, Finset.card_eq_zero, toFinset_eq_empty] at Bz
     exact Or.inl ⟨mp, Bz⟩
-  · right; use Nat.log 2 B; rw [Nat.lt_pow_iff_log_lt one_lt_two Bpos.ne'] at Blt
+  · right; use Nat.log 2 B; rw [← Nat.log_lt_iff_lt_pow one_lt_two Bpos.ne'] at Blt
     refine ⟨by omega, (?_ : _ ∧ _ ≤ B), (?_ : ¬(_ ∧ _ ≤ B))⟩
     · exact ⟨mp, Nat.pow_log_le_self 2 Bpos.ne'⟩
     · rw [not_and, not_le]; exact fun _ ↦ Nat.lt_pow_succ_log_self one_lt_two _
@@ -600,7 +602,7 @@ lemma carlesonSum_𝔓₁_compl_eq_𝔓pos_inter (f : X → ℂ) :
     ∀ᵐ x, x ∈ G \ G' → carlesonSum 𝔓₁ᶜ f x = carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ) f x := by
   have A p (hp : p ∈ (𝔓pos (X := X))ᶜ) : ∀ᵐ x, x ∈ G \ G' → x ∉ 𝓘 p := by
     simp only [𝔓pos, mem_compl_iff, mem_setOf_eq, not_lt, nonpos_iff_eq_zero] at hp
-    filter_upwards [measure_zero_iff_ae_notMem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
+    filter_upwards [measure_eq_zero_iff_ae_notMem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
     simp [h''x, h'x.1, h'x.2] at hx
   rw [← ae_ball_iff (to_countable 𝔓posᶜ)] at A
   filter_upwards [A] with x hx h'x
@@ -917,7 +919,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
          · norm_cast
            linarith [four_le_a X]
          · exact q_le_two X
-      _ = 5 / (8 * a ^ 3) := by field_simp; ring
+      _ = 5 / (8 * a ^ 3) := by field_simp; norm_num
       _ ≤ 5 / (8 * (4 : ℝ) ^ 3) := by gcongr
       _ ≤ 2⁻¹ := by norm_num
     · calc
@@ -997,8 +999,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
       + ((q - 1) / (8 * a ^ 4)) ^ 2 * (38 * 1 + 40 * ↑Z)  / (Real.log 2) ^ 2
       + ((q - 1) / (8 * a ^ 4)) * (28 * 1 + 64 * ↑Z) / (Real.log 2) ^ 3
       + (48 * ↑Z) /  (Real.log 2) ^ 4) := by
-    field_simp only
-    ring
+    field_simp
   _ ≤ ((8 * a ^ 4) / (q - 1)) ^ 4 *
      (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (24 * (Z / 2 ^ 48) + 16 * ↑Z) / 0.69
       + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (38 * (Z / 2 ^ 48) + 40 * ↑Z)  / 0.69 ^ 2

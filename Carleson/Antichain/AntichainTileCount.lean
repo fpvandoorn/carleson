@@ -83,7 +83,7 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
       ← sub_eq_add_neg, mul_comm _ ((2 : ℝ) ^ _)] at hle
     calc dist_{𝔠 p, 2^((2 : ℤ) - 5*a^2 - 2*a) * D^𝔰 p'} (𝒬 p') o'
       _ ≤ 2^(-(5 : ℤ)*a - 2) * dist_{𝔠 p, 4 * D^𝔰 p'} (𝒬 p') o' := hle
-      _ < 2^(-(5 : ℤ)*a - 2) * 2^(5*a + N + 2) := (mul_lt_mul_left (by positivity)).mpr hlt2
+      _ < 2^(-(5 : ℤ)*a - 2) * 2^(5*a + N + 2) := (mul_lt_mul_iff_right₀ (by positivity)).mpr hlt2
       _ = 2^N := by
         rw [← zpow_natCast, ← zpow_add₀ two_ne_zero]
         simp
@@ -111,7 +111,7 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
       _ = (4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a)) * (D * D ^ 𝔰 p) := by ring
       _ ≤ 4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a) * D ^ 𝔰 p' := by
         have h1D : 1 ≤ (D : ℝ) := one_le_realD _
-        nth_rewrite 1 [mul_le_mul_left (by positivity), ← zpow_one (D : ℝ),
+        nth_rewrite 1 [mul_le_mul_iff_right₀ (by positivity), ← zpow_one (D : ℝ),
           ← zpow_add₀ (ne_of_gt (realD_pos _))]
         gcongr
         rw [add_comm]
@@ -181,7 +181,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
       rw [mem_toFinset] at hp
       calc volume (E p ∩ G)
         _ ≤ volume (E₂ 2 p) := by
-          apply measure_mono (fun x hx ↦ ?_)
+          gcongr; intro x hx
           have hQ : Q x ∈ ball_(p) (𝒬 p) 1 := subset_cball hx.1.2.1
           simp only [E₂, TileLike.toSet, smul_fst, smul_snd, mem_inter_iff, mem_preimage, mem_ball]
           exact ⟨⟨hx.1.1, hx.2⟩, lt_trans hQ one_lt_two⟩
@@ -190,19 +190,24 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
           have h2a : ((2 : ℝ≥0∞) ^ a)⁻¹ = 2^(-(a : ℤ)) := by
             rw [← zpow_natCast, ENNReal.zpow_neg]
           rw [← ENNReal.div_le_iff (ne_of_gt (hIL ▸ volume_coeGrid_pos (defaultD_pos a)))
-            (by finiteness), ← ENNReal.div_le_iff' (Ne.symm (NeZero.ne' (2 ^ a))) (by finiteness),
+            (by finiteness), ← ENNReal.div_le_iff' (NeZero.ne (2 ^ a)) (by finiteness),
             ENNReal.div_eq_inv_mul, h2a, dens₁]
-          refine le_iSup₂_of_le p hp fun c hc ↦ ?_
-          have h2c : 2 ^ (-(a : ℤ)) * (volume (E₂ 2 p) / volume (L : Set X)) ≤
-              (c : WithTop ℝ≥0) := by
+          refine le_iSup₂_of_le p hp ?_--fun c hc ↦ ?_
+          rw [WithTop.le_iff_forall]
+          intro c hc
+          have h2c : 2 ^ (-(a : ℤ)) * (volume (E₂ 2 p) / volume (L : Set X)) ≤ (c : WithTop ℝ≥0) := by
             simp only [← hc]
-            refine le_iSup₂_of_le 2 (le_refl _) fun d hd ↦ ?_
+            refine le_iSup₂_of_le 2 (le_refl _) ?_
+            rw [WithTop.le_iff_forall]
+            intro d hd
             have h2d : 2 ^ (-(a : ℤ)) * (volume (E₂ 2 p) / volume (L : Set X)) ≤
                 (d : WithTop ℝ≥0)  := by
               rw [← hd]
               gcongr
               · norm_cast
-              · refine le_iSup₂_of_le p (mem_lowerCubes.mpr ⟨p, hp, le_refl _⟩) fun r hr ↦ ?_
+              · refine le_iSup₂_of_le p (mem_lowerCubes.mpr ⟨p, hp, le_refl _⟩) ?_
+                rw [WithTop.le_iff_forall]
+                intro r hr
                 have h2r : (volume (E₂ 2 p) / volume (L : Set X)) ≤ (r : WithTop ℝ≥0)  := by
                   rw [← hr]
                   refine le_iSup_of_le (le_refl _) ?_

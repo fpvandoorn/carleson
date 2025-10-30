@@ -140,7 +140,7 @@ lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   · simp_rw [← mem_preimage, ← measurableSet_setOf]; exact SimpleFunc.measurableSet_preimage ..
   · apply (measurable_set_mem _).comp
     apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
-    · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
+    · exact measurable_from_prod_countable_left fun _ _ _ ↦ trivial
     · exact measurable_σ₁.prodMk measurable_σ₂
 
 lemma volume_E_lt_top : volume (E p) < ⊤ := trans (measure_mono E_subset_𝓘) volume_coeGrid_lt_top

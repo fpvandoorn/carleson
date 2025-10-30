@@ -350,10 +350,10 @@ lemma I12_le' {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (x1 : E
         C2_0_5 a * volume (ball x1.1 (D ^ 𝔰 p')) *
         (C6_2_1 a / (volume (ball x1.1 (D ^ 𝔰 p')) * volume (ball x2.1 (D ^ 𝔰 p)))) := by
       gcongr
-    -- Note: simp, ring_nf, field_simp did not help.
+    -- Note: simp, ring_nf, field_simp did not help (because we work with ℝ≥0∞).
     have heq : C2_0_5 a * volume (ball x1.1 (D ^ 𝔰 p')) *
-      (C6_2_1 a / (volume (ball x1.1 (D ^ 𝔰 p')) * volume (ball x2.1 (D ^ 𝔰 p)))) =
-      C2_0_5 a * (C6_2_1 a / volume (ball x2.1 (D ^ 𝔰 p))) := by
+        (C6_2_1 a / (volume (ball x1.1 (D ^ 𝔰 p')) * volume (ball x2.1 (D ^ 𝔰 p)))) =
+        C2_0_5 a * (C6_2_1 a / volume (ball x2.1 (D ^ 𝔰 p))) := by
       simp only [mul_assoc]
       congr 1
       rw [ENNReal.div_eq_inv_mul, ENNReal.mul_inv (.inr measure_ball_ne_top)

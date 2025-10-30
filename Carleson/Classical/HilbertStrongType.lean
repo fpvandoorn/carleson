@@ -5,7 +5,8 @@ import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 import Carleson.TwoSidedCarleson.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
-import Mathlib.Data.Real.Pi.Bounds
+import Mathlib.Analysis.Real.Pi.Bounds
+import Mathlib.Tactic.Field
 
 /- This file contains the proof that the Hilbert kernel is a bounded operator. -/
 
@@ -160,9 +161,7 @@ lemma niceKernel_lowerBound {r x : ℝ} (hr : 0 < r) (h'r : r < 1) (hx : r ≤ x
     gcongr
     · apply le_inv_of_le_inv₀ hr (by simpa using h'r.le)
     · exact hx.1
-  _ = 5 * r ⁻¹ := by
-    field_simp
-    ring
+  _ = 5 * r ⁻¹ := by field_simp; norm_num
 
 lemma niceKernel_lowerBound' {r x : ℝ} (hr : 0 < r) (h'r : r < 1) (hx : r ≤ |x| ∧ |x| ≤ π) :
     1 + r / ‖1 - exp (I * x)‖ ^ 2 ≤ 5 * niceKernel r x := by
@@ -223,7 +222,7 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
     ← eLpNorm_liftIoc _ _ partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable,
     volume_eq_smul_haarAddCircle,
     eLpNorm_smul_measure_of_ne_top (by trivial), eLpNorm_smul_measure_of_ne_top (by trivial),
-    smul_eq_mul, smul_eq_mul, ENNReal.mul_le_mul_left (by simp [Real.pi_pos]) (by simp)]
+    smul_eq_mul, smul_eq_mul, ENNReal.mul_le_mul_left (by simp [Real.pi_pos]) (by finiteness)]
   have ae_eq_right : F =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 f := MemLp.coeFn_toLp _
   have ae_eq_left : partialFourierSumLp 2 n F =ᶠ[ae haarAddCircle]
       liftIoc (2 * π) 0 (partialFourierSum n f) :=
@@ -315,7 +314,7 @@ lemma integrable_bump_convolution {f g : ℝ → ℝ}
   have: eLpNorm g 1 (volume.restrict (Ioc 0 (2 * π))) ≠ ⊤ := by
     grw [← lt_top_iff_ne_top,
       eLpNorm_le_eLpNorm_mul_rpow_measure_univ (OrderTop.le_top 1) (hg.restrict _).1]
-    exact ENNReal.mul_lt_top (hg.restrict _).eLpNorm_lt_top (by norm_num)
+    exact ENNReal.mul_lt_top (hg.restrict _).eLpNorm_lt_top (by norm_num; simp [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_mul])
   rw [← ENNReal.toReal_le_toReal this (by norm_num)]
 
   calc

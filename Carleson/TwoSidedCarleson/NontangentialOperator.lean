@@ -3,7 +3,8 @@ import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 
-open MeasureTheory Set Bornology Function ENNReal Metric
+open MeasureTheory Set Bornology Function Metric
+open ENNReal hiding one_lt_two
 open scoped NNReal
 
 noncomputable section
@@ -570,7 +571,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
   by_cases hMzero : MTrgx = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_notMem]
+    rw [measure_eq_zero_iff_ae_notMem]
     have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
     filter_upwards [czzero] with x' hx'
     simp [hx']
@@ -611,7 +612,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     volume (ball x (R / 4)) / 4 := by
   by_cases hMzero : globalMaximalFunction volume 1 g x = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_notMem]
+    rw [measure_eq_zero_iff_ae_notMem]
     have gzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 2)
         (by simp [lt_of_lt_of_le hr hR]) hg.aestronglyMeasurable hMzero
     have czzero : ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ = 0 := by
@@ -620,9 +621,9 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
       intro x'
       rw [le_bot_iff, bot_eq_zero, lintegral_eq_zero_iff' ?hf_ae]
       case hf_ae =>
+        have : AEMeasurable (K x') volume := (measurable_K_right x').aemeasurable
         apply (AEMeasurable.enorm _).restrict
-        apply AEMeasurable.mul (measurable_K_right x').aemeasurable
-        exact AEMeasurable.indicator (hg.aemeasurable) measurableSet_ball
+        fun_prop (discharger := measurability)
       simp_rw [← indicator_mul_right, enorm_indicator_eq_indicator_enorm]
       rw [indicator_ae_eq_zero, inter_comm, ← Measure.restrict_apply' measurableSet_ball,
         Measure.restrict_restrict measurableSet_ball, ← bot_eq_zero, ← le_bot_iff]

@@ -205,7 +205,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
   have : (a : ℝ) ≠ 0 := by norm_cast; linarith [four_le_a X]
   have rearr : (a : ℝ) * (𝕔 * a ^ 2 * (Z * n / ((2 * 𝕔 + 2) * a ^ 3) + 1) + 9) =
       Z * n / 2 * (𝕔 / (𝕔 + 1)) * a ^ 3 / a ^ 3 + 𝕔 * a ^ 3 + 9 * a := by
-        field_simp; ring
+        field_simp
   have fla := four_le_a X
   rw [rearr, mul_div_cancel_right₀ _ (by norm_cast; positivity), add_assoc,
     ← sub_lt_iff_lt_add', sub_right_comm, add_sub_right_comm, ← mul_one_sub, div_mul_comm,
@@ -550,6 +550,8 @@ lemma btp_integral_bound :
         norm_num
       · rw [indicator_of_notMem my, zero_mul]; exact zero_le _
 
+attribute [fun_prop] AEMeasurable.restrict
+
 open Classical in
 /-- Equation (7.6.4) of Lemma 7.6.2 (before applying Cauchy–Schwarz). -/
 lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -580,7 +582,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       gcongr with k mk J mJ y
-      nth_rw 1 [← Finset.filter_True (@Finset.univ (Grid X) _) (h := fun _ ↦ instDecidableTrue)]
+      nth_rw 1 [← Finset.filter_true (@Finset.univ (Grid X) _) (h := fun _ ↦ instDecidableTrue)]
       simp_rw [Finset.sum_finset_product_filter_right]
       refine Finset.sum_le_sum_of_subset fun r hr ↦ ?_
       obtain ⟨I, p⟩ := r
@@ -635,8 +637,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
         (ball (c I) (8 * D ^ s I)).indicator 1 y) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
       rw [← lintegral_finset_sum']; swap
-      · exact fun I mI ↦
-          ((measurable_const.aemeasurable.indicator measurableSet_ball).mul aem_MB).restrict
+      · fun_prop (discharger := measurability)
       congr with y; rw [mul_comm, Finset.sum_mul]
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) *
@@ -646,8 +647,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       gcongr _ * ∑ k ∈ _, (∑ J ∈ _, ?_) ^ _ with k mk J mJ
       rw [setLAverage_eq, ENNReal.div_eq_inv_mul, ← mul_assoc, mul_comm _ _⁻¹, mul_assoc]
       gcongr; apply ENNReal.sq_lintegral_mul_le_mul_lintegral_sq aem_MB.restrict -- Cauchy–Schwarz
-      exact Finset.aemeasurable_fun_sum _ fun I mI ↦
-        measurable_const.aemeasurable.indicator measurableSet_ball
+      fun_prop (discharger := measurability)
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset,
         (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) * C7_6_4 a k) ^ (2 : ℝ)⁻¹ := by

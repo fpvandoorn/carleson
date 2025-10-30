@@ -833,7 +833,7 @@ lemma simplify_factor_aux₄ [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     have : (1 - t + t).toReal = 1 := by
       rw [toReal_eq_one_iff, add_comm, add_tsub_cancel_iff_le]
       exact ht.2.le
-    rw [mul_comm, ← mul_add, ← toReal_add, this, mul_one]
+    rw [mul_comm, ← toReal_add, this, one_mul]
     · finiteness
     · finiteness
   · exact hp' ▸ d_pos_aux₀ hF |>.ne'

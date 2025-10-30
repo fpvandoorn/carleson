@@ -124,12 +124,7 @@ def spf_to_tc (spf : ScaledPowerFunction) : StrictRangeToneCouple where
       intro s t hst
       beta_reduce
       gcongr
-      rw [ENNReal.div_lt_iff]
-      · rwa [ENNReal.div_mul_cancel spf.hd.ne' spf.hd']
-      · left
-        apply spf.hd.ne'
-      · left
-        apply spf.hd'
+      exact this
     · simp only [Bool.false_eq_true, ↓reduceIte]
       intro s t hst
       rcases spf.hσ with σ_pos | σ_neg
@@ -1386,6 +1381,14 @@ lemma value_lintegral_res₂ {γ p' : ℝ} {spf : ScaledPowerFunction} (ht : 0 <
   simp [ht', top_rpow_of_pos hσp', mul_top (ENNReal.rpow_pos this spf.hd').ne',
       top_div_of_lt_top ofReal_lt_top]
 
+lemma AEStronglyMeasurable.induction {α : Type*} {β : Type*} {mα : MeasurableSpace α} [TopologicalSpace β]
+  {μ : Measure α} {motive : (α → β) → Prop}
+  (ae_eq_implies : ∀ ⦃f g : α → β⦄ (_ : StronglyMeasurable f) (_ : f =ᶠ[ae μ] g), motive f → motive g)
+  (measurable : ∀ ⦃f : α → β⦄ (_ : StronglyMeasurable f), motive f)
+    ⦃f : α → β⦄ (hf : AEStronglyMeasurable f μ) : motive f := by
+  have hg := hf.choose_spec
+  set g := hf.choose
+  apply ae_eq_implies hg.1 hg.2.symm (measurable hg.1)
 
 end MeasureTheory
 

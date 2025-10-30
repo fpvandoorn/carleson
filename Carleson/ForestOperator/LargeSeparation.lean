@@ -84,11 +84,8 @@ def holderFunction (f₁ f₂ : X → ℂ) (J : Grid X) (x : X) : ℂ :=
 
 lemma IF_subset_THEN_not_disjoint {A B : Grid X} (h : (A : Set X) ⊆ B) :
     ¬ Disjoint (B : Set X) (A : Set X) := by
-  rw [disjoint_comm]
-  intro disjoint
-  have nonempty := Grid.nonempty A
-  rw [← Mathlib.Tactic.PushNeg.empty_ne_eq_nonempty] at nonempty
-  exact nonempty (Eq.symm ((Set.disjoint_of_subset_iff_left_eq_empty h).mp disjoint))
+  rw [disjoint_comm, Set.disjoint_of_subset_iff_left_eq_empty h, ← Ne, ← nonempty_iff_ne_empty]
+  exact Grid.nonempty A
 
 lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J : X} {r : ℝ} {pSet : Set X} {p : X}
     (belongs : p ∈ pSet) (h : Disjoint (Metric.ball J r) pSet) :
@@ -261,8 +258,7 @@ lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
   apply BoundedCompactSupport.mono_norm (g := fun x ↦ (ball (c J) (8 * D ^ s J)).indicator 1 x)
     ?_ ?_ (fun x ↦ ?_)
   · constructor
-    · refine memLp_top_of_bound (aestronglyMeasurable_one.indicator measurableSet_ball) 1
-        (.of_forall fun x ↦ ?_)
+    · refine memLp_top_of_bound (by fun_prop (discharger := measurability)) 1 (.of_forall fun x ↦ ?_)
       unfold indicator; split_ifs <;> simp
     · refine HasCompactSupport.intro (isCompact_closedBall (c J) (8 * D ^ s J)) fun x mx ↦ ?_
       apply indicator_of_notMem; contrapose! mx; exact ball_subset_closedBall mx

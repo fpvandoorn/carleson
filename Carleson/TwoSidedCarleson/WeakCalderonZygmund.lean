@@ -1,9 +1,9 @@
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.MeasureTheory.Measure.SumRestrict
 import Carleson.TwoSidedCarleson.Basic
 
-open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
+open MeasureTheory Set Bornology Function Metric Filter Topology
+open ENNReal hiding one_lt_two
 open scoped NNReal
 
 noncomputable section
@@ -1005,7 +1005,7 @@ lemma tsum_volume_czBall3_le (hf : BoundedFiniteSupport f)
   _ ≤ 2 ^ (2 * a) * volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α) := by
     simp_rw [← smul_eq_mul, ENNReal.tsum_const_smul]
     gcongr
-    rw [← measure_iUnion ?_ (fun i ↦ measurableSet_ball), ← iUnion_czPartition]
+    rw [← measure_iUnion ?_ (fun i ↦ measurableSet_ball), ← iUnion_czPartition (hX := hX)]
     · exact measure_mono <| iUnion_mono (fun i ↦ czBall_subset_czPartition)
     · refine (pairwise_disjoint_on (czBall hX)).mpr fun i j h ↦ ?_
       exact czBall_pairwiseDisjoint (mem_univ i) (mem_univ j) h.ne
@@ -1183,7 +1183,7 @@ private lemma lemma_10_2_7_bound' (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : Genera
   _ = _ := lintegral_const_mul'' _ g_aemeas.enorm
   _ ≤ (.ofReal (3 * czRadius hX j) / edist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
         (C_K a / vol x (czCenter hX j)) * (2 ^ (2 * a + 1) * (α' a α) * volume (czBall3 hX j)) :=
-    mul_left_mono hg
+    mul_right_mono hg
   _ = 2 ^ (2 * a + 1) * ((c10_0_3 a) * α) * volume (czBall3 hX j) * ((.ofReal (3 * czRadius hX j) /
         edist x (czCenter hX j)) ^ (a : ℝ)⁻¹ * C_K a) / vol x (czCenter hX j) := by
     unfold α'; rw [mul_div, mul_comm, mul_div]
@@ -1380,7 +1380,7 @@ private lemma A_subset (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α
 private lemma sum_volume_restrict_le (hX : GeneralCase f (α' a α)) :
     Measure.sum (fun (j : 𝒥₂ r x hX) ↦ volume.restrict (czBall3 hX j)) ≤
     2 ^ (6 * a) • volume.restrict (A r x hX) :=
-  Measure.sum_restrict_le _ (fun _ ↦ measurableSet_ball) <| fun y ↦
+  Measure.sum_restrict_le (fun _ ↦ measurableSet_ball) <| fun y ↦
     le_trans (encard_preimage_val_le_encard_right _ {i | y ∈ czBall3 hX i}) encard_czBall3_le
 
 -- Long calculation toward the end of Lemma 10.2.7

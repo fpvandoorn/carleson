@@ -443,7 +443,8 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpa
         ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀) ^ (p₀⁻¹ * q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
   apply lintegral_lintegral_pow_swap_rpow
   · apply le_of_mul_le_mul_left _ hp₀
-    field_simp [hp₀q₀]
+    field_simp
+    exact hp₀q₀
   · unfold Function.uncurry
     -- TODO: this is quite some effort, somehow the infrastructure may need to be better
     apply AEMeasurable.mul'

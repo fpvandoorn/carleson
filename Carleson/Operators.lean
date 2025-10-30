@@ -60,8 +60,8 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X �
   refine .indicator ?_ measurableSet_E
   refine .integral_prod_right'
     (f := fun z ↦ exp (Complex.I * (Q z.1 z.2 - Q z.1 z.1)) * Ks (𝔰 p) z.1 z.2 * f z.2) ?_
-  exact (show Measurable _ by fun_prop).aestronglyMeasurable.mul
-    aestronglyMeasurable_Ks |>.mul hf.comp_snd
+  refine (AEStronglyMeasurable.mul (by fun_prop) aestronglyMeasurable_Ks).mul ?_
+  exact hf.comp_snd
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonSum {ℭ : Set (𝔓 X)}
     {f : X → ℂ} (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonSum ℭ f) :=
@@ -137,6 +137,7 @@ theorem BoundedCompactSupport.bddAbove_norm_carlesonOn
       _ = volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤ volume).toReal) :=
         integral_indicator_const _ measurableSet_closedBall
 
+@[fun_prop]
 theorem BoundedCompactSupport.carlesonOn {f : X → ℂ}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
   memLp_top := by
@@ -155,6 +156,7 @@ theorem BoundedCompactSupport.bddAbove_norm_carlesonSum
   apply BddAbove.range_mono _ fun _ ↦ norm_sum_le ..
   exact .range_finsetSum fun _ _ ↦ hf.bddAbove_norm_carlesonOn _
 
+@[fun_prop]
 theorem BoundedCompactSupport.carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonSum ℭ f) :=
   .finset_sum (fun _ _ ↦ hf.carlesonOn)
@@ -227,16 +229,20 @@ lemma adjoint_eq_adjoint_indicator (h : E p ⊆ 𝓘 p') :
 
 namespace MeasureTheory
 
+attribute [fun_prop] continuous_exp -- not needed here, but clearly missing in mathlib
+
+@[fun_prop]
 lemma StronglyMeasurable.adjointCarleson (hf : StronglyMeasurable f) :
     StronglyMeasurable (adjointCarleson p f) := by
   refine .integral_prod_right'
     (f := fun z ↦ conj (Ks (𝔰 p) z.2 z.1) * exp (Complex.I * (Q z.2 z.2 - Q z.2 z.1)) * f z.2) ?_
-  refine .mul (.mul ?_ ?_) hf.comp_snd
-  · exact Complex.continuous_conj.comp_stronglyMeasurable stronglyMeasurable_Ks.prod_swap
+  refine .mul (.mul ?_ ?_) (by fun_prop)
+  · exact Complex.continuous_conj.comp_stronglyMeasurable (stronglyMeasurable_Ks.prod_swap)
   · refine Complex.continuous_exp.comp_stronglyMeasurable (.const_mul (.sub ?_ ?_) _)
     · exact Measurable.stronglyMeasurable (by fun_prop)
     · exact continuous_ofReal.comp_stronglyMeasurable stronglyMeasurable_Q₂.prod_swap
 
+@[fun_prop]
 lemma AEStronglyMeasurable.adjointCarleson (hf : AEStronglyMeasurable f) :
     AEStronglyMeasurable (adjointCarleson p f) := by
   refine .integral_prod_right'
@@ -249,12 +255,12 @@ lemma AEStronglyMeasurable.adjointCarleson (hf : AEStronglyMeasurable f) :
     · exact continuous_ofReal.comp_aestronglyMeasurable aestronglyMeasurable_Q₂.prod_swap
 
 lemma StronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)} (hf : StronglyMeasurable f) :
-    StronglyMeasurable (adjointCarlesonSum ℭ f) :=
-  Finset.stronglyMeasurable_fun_sum _ fun _ _ ↦ hf.adjointCarleson
+    StronglyMeasurable (adjointCarlesonSum ℭ f) := by
+  unfold _root_.adjointCarlesonSum; fun_prop
 
 lemma AEStronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)} (hf : AEStronglyMeasurable f) :
-    AEStronglyMeasurable (adjointCarlesonSum ℭ f) :=
-  Finset.aestronglyMeasurable_fun_sum _ fun _ _ ↦ hf.adjointCarleson
+    AEStronglyMeasurable (adjointCarlesonSum ℭ f) := by
+  unfold _root_.adjointCarlesonSum; fun_prop
 
 variable (p) in
 theorem BoundedCompactSupport.bddAbove_norm_adjointCarleson (hf : BoundedCompactSupport f) :
@@ -274,13 +280,13 @@ theorem BoundedCompactSupport.bddAbove_norm_adjointCarleson (hf : BoundedCompact
   · simp_rw [image_eq_zero_of_notMem_tsupport hy, norm_zero, mul_zero]
     positivity
 
+@[fun_prop]
 theorem BoundedCompactSupport.adjointCarleson (hf : BoundedCompactSupport f) :
     BoundedCompactSupport (adjointCarleson p f) where
   memLp_top := by
     obtain ⟨C, hC⟩ := hf.bddAbove_norm_adjointCarleson p
     simp only [mem_upperBounds, mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
-    apply MeasureTheory.memLp_top_of_bound hf.aestronglyMeasurable.adjointCarleson C
-      (.of_forall hC)
+    apply MeasureTheory.memLp_top_of_bound (by fun_prop) C (.of_forall hC)
   hasCompactSupport := by
     obtain x₀ : X := Classical.choice (by infer_instance)
     obtain ⟨r₀, h⟩ := hf.isBoundedSupport.subset_ball x₀
@@ -307,9 +313,10 @@ theorem BoundedCompactSupport.bddAbove_norm_adjointCarlesonSum
   apply BddAbove.range_mono _ fun _ ↦ norm_sum_le ..
   exact .range_finsetSum fun _ _ ↦ hf.bddAbove_norm_adjointCarleson _
 
+@[fun_prop]
 theorem BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
-    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) :=
-  BoundedCompactSupport.finset_sum fun _ _ ↦ hf.adjointCarleson
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) := by
+  unfold _root_.adjointCarlesonSum; fun_prop
 
 end MeasureTheory
 
@@ -346,7 +353,8 @@ lemma adjointCarleson_adjoint
       · refine .mul ?_ ?_
         · exact RCLike.continuous_conj.comp_aestronglyMeasurable hg.aestronglyMeasurable.comp_fst
         · exact aestronglyMeasurable_const.indicator measurableSet_E |>.comp_fst
-      · exact show Measurable _ by fun_prop |>.aestronglyMeasurable.mul aestronglyMeasurable_Ks
+      · unfold MKD
+        fun_prop
     · apply ae_of_all
       exact fun z ↦ (hHleH₀ z.1 z.2).trans <| Real.le_norm_self _
   calc
@@ -369,9 +377,14 @@ lemma adjointCarleson_adjoint
         _ = ∫ x, (E p).indicator (fun x ↦ g x * conj (MKD (𝔰 p) x y)) x := by
           congr with x; simp only [indicator]; split_ifs <;> simp
         _ = ∫ x in E p, g x * conj (MKD (𝔰 p) x y) := integral_indicator measurableSet_E
-      unfold adjointCarleson MKD
-      simp_rw [mul_comm (g _) _, mul_comm (cexp _) _, map_mul, ← exp_conj]
-      congr! 5 with x; simp; ring
+        _ = ∫ x in E p, conj (MKD (𝔰 p) x y) * g x := by congr; funext; rw [mul_comm]
+        _ = _ := by
+          unfold adjointCarleson MKD
+          congr; funext; rw [map_mul, ← exp_conj, mul_comm (cexp _)]
+          congr; simp; ring
+
+-- Bug: why is `integrable_fun_mul` needed, despite `integrable_mul` existing?
+-- the fun_prop documentation implies it's superfluous. TODO ask on zulip!
 
 /-- `adjointCarlesonSum` is the adjoint of `carlesonSum`. -/
 lemma adjointCarlesonSum_adjoint
@@ -380,16 +393,17 @@ lemma adjointCarlesonSum_adjoint
   unfold carlesonSum
   simp_rw [Finset.mul_sum]
   classical calc
+    _ = ∫ x, ∑ p with p ∈ ℭ, conj (g x) * carlesonOn p f x := by
+      unfold carlesonSum; simp_rw [Finset.mul_sum]
     _ = ∑ p with p ∈ ℭ, ∫ x, conj (g x) * carlesonOn p f x :=
-      integral_finset_sum _ <| fun _ _ ↦ hg.conj.mul hf.carlesonOn |>.integrable
+      integral_finset_sum _ fun p _ ↦ by fun_prop
     _ = ∑ p with p ∈ ℭ, ∫ y, conj (adjointCarleson p g y) * f y := by
       simp_rw [adjointCarleson_adjoint hf hg]
-    _ = ∫ y, ∑ p with p ∈ ℭ, conj (adjointCarleson p g y) * f y := by
-      symm; exact integral_finset_sum _ <| fun _ _ ↦ hg.adjointCarleson.conj.mul hf |>.integrable
+    _ = ∫ y, ∑ p with p ∈ ℭ, conj (adjointCarleson p g y) * f y :=
+      (integral_finset_sum _ fun p _ ↦ by fun_prop).symm
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
 
 lemma integrable_adjointCarlesonSum (s : Set (𝔓 X)) {f : X → ℂ} (hf : BoundedCompactSupport f) :
-    Integrable (adjointCarlesonSum s f ·) :=
-  integrable_finset_sum _ fun _ _ ↦ hf.adjointCarleson.integrable
+    Integrable (adjointCarlesonSum s f ·) := by fun_prop
 
 end Adjoint
