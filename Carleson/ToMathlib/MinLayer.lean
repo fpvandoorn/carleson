@@ -9,17 +9,20 @@ import Mathlib.Order.KrullDimension
 # Minimal and maximal layers of a set
 
 This file defines `Set.minLayer` and `Set.maxLayer` as the sets obtained from iterated application
-of `minimals`/`maximals` on a set, excluding earlier layers.
+of `Minimal`/`Maximal` on a set, excluding earlier layers.
 
 ## Main declarations
 
-* `Set.minLayer` (`Set.maxLayer`): The `n`th minimal (maximal) layer of the given set `A`.
+* `Set.minLayer` (`Set.maxLayer`): the `n`th minimal (maximal) layer of the given set `A`.
 * `Set.pairwiseDisjoint_minLayer` (`Set.pairwiseDisjoint_maxLayer`),
   `Set.isAntichain_minLayer` (`Set.isAntichain_maxLayer`):
   minimal (maximal) layers are pairwise disjoint antichains.
 * `Set.iUnion_minLayer_iff_bounded_series`: if the length of `LTSeries` in `A` is bounded,
   `A` equals the union of its `minLayer`s up to `n`.
 -/
+
+-- Upstreaming status: the file generally looks useful and should go into mathlib;
+-- the code can probably be polished and golfed more
 
 namespace Set
 
@@ -58,6 +61,7 @@ lemma layersAbove_subset : A.layersAbove n ⊆ A := diff_subset
 
 lemma layersBelow_subset : A.layersBelow n ⊆ A := diff_subset
 
+-- XXX(MR): should this and `maxLayer_zero` be simp?
 lemma minLayer_zero : A.minLayer 0 = {a | Minimal (· ∈ A) a} := by rw [minLayer]; simp
 
 lemma maxLayer_zero : A.maxLayer 0 = {a | Maximal (· ∈ A) a} := by rw [maxLayer_def]; simp
@@ -100,10 +104,7 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
       by_contra h
       have a'l : a' ∈ A \ ⋃ (l < n + 1), A.minLayer l := by
         have : ∀ l, l < n + 1 ↔ l < n ∨ l = n := by omega
-        simp_rw [this, iUnion_or, iUnion_union_distrib]
-        simp only [iUnion_iUnion_eq_left, mem_diff, mem_union, mem_iUnion, exists_prop, not_or,
-          not_exists, not_and] at ha' ⊢
-        tauto
+        simp_all [iUnion_or, iUnion_union_distrib]
       exact absurd (ha.2 a'l la.1) (ne_eq _ _ ▸ la.2)
     obtain ⟨c, mc, lc⟩ := ih ma'; use c, mc, lc.trans la.1
 
@@ -117,19 +118,12 @@ lemma subtype_mk_minimal_iff (α : Type*) [Preorder α]
     (s : Set α) (t : Set s) (x : α) (hx : x ∈ s) :
     Minimal (· ∈ t) (⟨x, hx⟩ : s) ↔ Minimal (fun y ↦ ∃ h, y ∈ s ∧ ⟨y, h⟩ ∈ t) x := by
   wlog hxt : (⟨x, hx⟩ : s) ∈ t
-  · clear this
-    have : ¬Minimal (· ∈ t) (⟨x, hx⟩ : s) := by contrapose! hxt; exact hxt.prop
+  · have : ¬Minimal (· ∈ t) (⟨x, hx⟩ : s) := by contrapose! hxt; exact hxt.prop
     simp_rw [this, false_iff, exists_and_left]; clear this; contrapose! hxt
     have : x ∈ {y | y ∈ s ∧ ∃ (x : y ∈ s), ⟨y, x⟩ ∈ t} := hxt.prop
     simp_all
-  change Minimal (· ∈ t) _ ↔ _
-  rw [← OrderEmbedding.minimal_mem_image_iff
+  simp +contextual [← OrderEmbedding.minimal_mem_image_iff
     (f := ⟨Function.Embedding.subtype (· ∈ s), by simp⟩) hxt]
-  simp_rw [RelEmbedding.coe_mk, Function.Embedding.coe_subtype, Set.mem_image, Subtype.exists,
-    exists_and_right, exists_eq_right, exists_and_left]
-  congr! 2
-  rw [iff_and_self, forall_exists_index]
-  exact fun h _ ↦ h
 
 /-- `A.minLayer n` comprises exactly `A`'s elements of height `n`. -/
 lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (⟨x, hx⟩ : A) = n} := by
@@ -143,7 +137,7 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
     simp only [hxs, exists_true_left]
     rw [minLayer]
     simp_rw [height_eq_coe_iff_minimal_le_height]
-    simp (config := {contextual := true}) only [ih]; clear ih
+    simp +contextual only [ih]; clear ih
     have : Minimal (n ≤ height ·) (⟨x, hxs⟩ : A) ↔
         Minimal (· ∈ {y | n ≤ height y}) (⟨x, hxs⟩ : A) := Eq.to_iff rfl
     rw [this, subtype_mk_minimal_iff, mem_setOf]
@@ -196,15 +190,10 @@ lemma exists_le_in_layersAbove_of_le (ha : a ∈ A.layersAbove n) (hm : m ≤ n)
   classical
   have ma : a ∈ A \ ⋃ (l' < n), A.minLayer l' := by
     simp only [layersAbove, mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at ha ⊢
-    exact ⟨ha.1, fun l' hl' h ↦ ha.2 l' (le_of_lt hl') h⟩
+    exact ⟨ha.1, fun l' hl' h ↦ ha.2 l' hl'.le h⟩
   let C : Finset α :=
     (A.toFinset \ (Finset.range n).biUnion fun l ↦ (A.minLayer l).toFinset).filter (· ≤ a)
-  have Cn : C.Nonempty := by
-    use a
-    simp_rw [C, Finset.mem_filter, le_rfl, and_true, Finset.mem_sdiff,
-      Finset.mem_biUnion, Finset.mem_range, not_exists, not_and, mem_toFinset]
-    simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at ma
-    exact ma
+  have Cn : C.Nonempty := by use a; simp_all [C]
   obtain ⟨a', ma', mina'⟩ := C.exists_minimal Cn
   simp_rw [C, Finset.mem_filter, Finset.mem_sdiff, Finset.mem_biUnion, Finset.mem_range, not_exists,
     not_and, mem_toFinset] at ma' mina'
