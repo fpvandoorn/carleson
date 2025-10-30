@@ -514,13 +514,21 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
     calc _
       _ = (π ^ (1 / (2 : ℝ))) ^ 2 * 2 ^ (1 / (2 : ℝ)) * (ε ^ (1 / (2 : ℝ)))⁻¹ * 2 := by ring
       _ = π * 2 ^ (1 / (2 : ℝ)) * (ε ^ (1 / (2 : ℝ)))⁻¹ * 2 := by
+        -- Golfing of this proof welcome!
         congr
-        sorry -- obvious, right?
+        rw [← Real.sqrt_eq_rpow π, Real.sq_sqrt', max_eq_left_iff]
+        positivity
+      _ = π * (2 ^ (1 / (2 : ℝ)) * 2) * (ε ^ (1 / (2 : ℝ)))⁻¹ := by ring
       _ = π * 8 ^ (1 / (2 : ℝ)) * (ε ^ (1 / (2 : ℝ)))⁻¹  := by
-        sorry
+        congr
+        -- Golfing of this computation is very welcome!
+        rw [← Real.sqrt_eq_rpow, ← Real.sqrt_eq_rpow]
+        have : Real.sqrt 4 = 2 := Real.sqrt_eq_cases.mpr <| Or.inl ⟨by norm_num, by positivity⟩
+        nth_rw 2 [← this]
+        rw [← Real.sqrt_mul (by positivity) 4]
+        norm_num
       _ = (ε ^ (1 / (2 : ℝ)))⁻¹ * π * 8 ^ (1 / (2 : ℝ)) := by ring
   all_goals linarith [pi_pos]
-
 
 /- This is Lemma 11.6.4 (partial Fourier sums of small) in the blueprint.-/
 lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ : 0 < δ)
