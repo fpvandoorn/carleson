@@ -309,12 +309,14 @@ lemma integrable_bump_convolution {f g : ℝ → ℝ}
     have (x) (hx : x ∈ Icc r π) : x ^ 2 ≠ 0 := pow_ne_zero 2 (by linarith [mem_Icc.mp hx])
     fun_prop (disch := assumption)
 
+
   grw [young_convolution hf.1.aemeasurable hg.1.aemeasurable periodic_g, mul_comm]
   gcongr
   have: eLpNorm g 1 (volume.restrict (Ioc 0 (2 * π))) ≠ ⊤ := by
     grw [← lt_top_iff_ne_top,
       eLpNorm_le_eLpNorm_mul_rpow_measure_univ (OrderTop.le_top 1) (hg.restrict _).1]
-    exact ENNReal.mul_lt_top (hg.restrict _).eLpNorm_lt_top (by norm_num; simp [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_mul])
+    exact ENNReal.mul_lt_top (hg.restrict _).eLpNorm_lt_top
+      (by norm_num; simp [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_mul])
   rw [← ENNReal.toReal_le_toReal this (by norm_num)]
 
   calc
