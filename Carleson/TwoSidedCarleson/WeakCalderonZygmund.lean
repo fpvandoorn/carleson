@@ -777,33 +777,36 @@ protected lemma AEMeasurable.czRemainder' {hf : AEMeasurable f} (hX : GeneralCas
   exact (hf.sub <| aemeasurable_czApproximation (hf := hf)).restrict
 
 /-- Part of Lemma 10.2.5 (both cases). -/
+@[fun_prop]
 protected lemma BoundedFiniteSupport.czApproximation {α : ℝ≥0∞} (hα : 0 < α)
     (hf : BoundedFiniteSupport f) : BoundedFiniteSupport (czApproximation f α) := by
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; constructor <;> simp
   constructor
   · use (aemeasurable_czApproximation (hf := aemeasurable hf)).aestronglyMeasurable
-    refine lt_of_le_of_lt ?_ (eLpNorm_lt_top hf)
+    refine lt_of_le_of_lt ?_ hf.eLpNorm_lt_top
     apply essSup_le_of_ae_le _ <| (ENNReal.ae_le_essSup (‖f ·‖ₑ)).mono (fun x h ↦ ?_)
     by_cases hX : GeneralCase f α
     · by_cases hx : ∃ j, x ∈ czPartition hX j
       · have ⟨j, hj⟩ := hx
         rw [czApproximation_def_of_mem hj]
-        exact le_trans (enorm_integral_le_lintegral_enorm _) (setLAverage_le_essSup _)
+        exact (enorm_integral_le_lintegral_enorm _).trans (setLAverage_le_essSup _)
       · simp [czApproximation, eLpNormEssSup, hX, hx, h]
     · simp only [czApproximation, hX, reduceDIte]
-      exact le_trans (enorm_integral_le_lintegral_enorm _) (laverage_le_essSup _)
+      exact (enorm_integral_le_lintegral_enorm _).trans (laverage_le_essSup _)
   · by_cases hX : GeneralCase f α; swap
     · exact lt_of_le_of_lt (measure_mono (subset_univ _)) <| volume_lt_of_not_GeneralCase hf hX hα
     calc volume (support (czApproximation f α))
       _ ≤ volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α ∪ support f) := by
-        refine measure_mono (fun x mem_supp ↦ ?_)
+        gcongr
+        intro x mem_supp
         by_cases hx : ∃ j, x ∈ czPartition hX j
         · left; rw [← iUnion_czPartition (hX := hX)]; exact (mem_iUnion.mpr hx)
         · right; simpa [czApproximation, hX, hx] using mem_supp
       _ ≤ volume _ + volume (support f) := measure_union_le _ _
       _ < ∞ := add_lt_top.mpr ⟨globalMaximalFunction_preimage_finite hα hf, hf.measure_support_lt⟩
 
+@[fun_prop]
 protected lemma BoundedFiniteSupport.czRemainder (hα : 0 < α) {hf : BoundedFiniteSupport f} :
     BoundedFiniteSupport (czRemainder f α) :=
   hf.sub (hf.czApproximation hα)
@@ -814,8 +817,8 @@ protected lemma BoundedFiniteSupport.czRemainder' (hα : 0 < α) {hf : BoundedFi
   (hf.sub (hf.czApproximation hα)).indicator (MeasurableSet.czPartition hX i)
 
 protected lemma AEMeasurable.czRemainder (hα : 0 < α) {hf : BoundedFiniteSupport f} :
-    AEMeasurable (czRemainder f α) :=
-  (hf.czRemainder hα).aemeasurable
+    AEMeasurable (czRemainder f α) := by
+  fun_prop (discharger := assumption)
 
 /-- Part of Lemma 10.2.5, equation (10.2.16) (both cases).
 This is true by definition, the work lies in `tsum_czRemainder'` -/

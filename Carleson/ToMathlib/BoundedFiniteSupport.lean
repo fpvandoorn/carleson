@@ -49,10 +49,8 @@ theorem aemeasurable_restrict [MeasurableSpace E] [PseudoMetrizableSpace E]
     AEMeasurable f (μ.restrict s) :=
   bfs.aemeasurable.restrict
 
-@[aesop (rule_sets := [finiteness]) safe apply]
-theorem eLpNorm_lt_top :
-    eLpNorm f ∞ μ < ∞ :=
-  bfs.memLp_top.eLpNorm_lt_top
+@[aesop (rule_sets := [finiteness]) unsafe 80% apply]
+theorem eLpNorm_lt_top : eLpNorm f ∞ μ < ∞ := bfs.memLp_top.eLpNorm_lt_top
 
 end Includebfs
 

@@ -228,7 +228,7 @@ theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) 
     refine ⟨RCLike.continuous_conj.comp_aestronglyMeasurable hf.aestronglyMeasurable, ?_⟩
     simp_rw [star]
     rw [MeasureTheory.eLpNorm_congr_enorm_ae (g := f)]
-    · exact hf.memLp_top.eLpNorm_lt_top
+    · have := hf.memLp_top; finiteness
     simp
   hasCompactSupport := by
     simp_rw [star]
