@@ -232,8 +232,8 @@ lemma IsDoubling.allBallsCoverBalls [OpensMeasurableSpace X] [NeZero μ]
     have : ∀ y ∈ s, (As A 9 : ℝ≥0∞)⁻¹ * μ (ball x R') ≤ μ (ball y (r / 2)) := by
       intro y hy
       rw [ENNReal.inv_mul_le_iff]
-      apply measure_ball_le_of_dist_le' (by norm_num)
-      · calc
+      · apply measure_ball_le_of_dist_le' (by norm_num)
+        calc
           dist y x + R' ≤ R + R' := by
             gcongr
             apply le_of_lt

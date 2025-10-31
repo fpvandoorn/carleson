@@ -41,7 +41,7 @@ theorem maximal_theorem :
   apply HasWeakType.hasBoundedWeakType
   have : C10_2_1 a = C_weakType_globalMaximalFunction (defaultA a) 1 1 := by
     unfold C_weakType_globalMaximalFunction C_weakType_maximalFunction
-    split_ifs with h; swap; simp at h
+    split_ifs with h; swap; · simp at h
     simp_rw [C10_2_1_def, defaultA, coe_pow, coe_ofNat, Nat.cast_pow, Nat.cast_ofNat,
       NNReal.coe_one, div_one, rpow_ofNat, pow_mul', ← pow_add, two_add_two_eq_four]; rfl
   rw [this]
@@ -401,7 +401,8 @@ lemma ball_covering_finite (hO : IsOpen O ∧ O ≠ univ) {U : Set X} {r' : X �
             {i | ¬ i < U.card ∧ x ∈ ball (c i) (3 * r i)} ∪
                 {i | i < U.card ∧ x ∈ ball (c i) (3 * r i)} := by
           ext i; refine ⟨fun hx ↦ ?_, fun h ↦ ?_⟩
-          · by_cases hi : i < U.card; exact Or.inr ⟨hi, hx⟩; exact Or.inl ⟨hi, hx⟩
+          · by_cases hi : i < U.card
+            exacts [Or.inr ⟨hi, hx⟩, Or.inl ⟨hi, hx⟩]
           · rcases h with ⟨_, hx⟩ | ⟨_, hx⟩ <;> exact hx
         rw [← encard_union_eq]
         · congr
@@ -1111,7 +1112,7 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
     _ ≤ 2^2/α^2 * ((C_Ts a) ^ 2 * ∫⁻ y, 2^(3*a) * c10_0_3 a * α * ‖czApproximation f _ y‖ₑ) := by
       gcongr _ * (_ * ?_)
       suffices ∀ᵐ x, ‖czApproximation f (α' a α) x‖ₑ ≤ 2 ^ (3 * a) * c10_0_3 a * α by
-        apply lintegral_mono_ae ∘ this.mono; intros; rw [sq]; gcongr
+        apply lintegral_mono_ae ∘ this.mono; intros; · rw [sq]; gcongr
       simp_rw [ENNReal.div_eq_inv_mul] at hα
       rw [← laverage_const_mul (inv_ne_top.mpr ne0), ← ENNReal.div_eq_inv_mul] at hα
       refine mul_assoc _ _ α ▸ enorm_czApproximation_le ?_ (hf := hf)

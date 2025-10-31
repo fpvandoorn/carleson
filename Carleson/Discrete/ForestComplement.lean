@@ -317,7 +317,7 @@ def 𝔒 (p' : 𝔓 X) (l : ℝ≥0) : Finset (𝔓 X) :=
   {p'' | 𝓘 p'' = 𝓘 p' ∧ ¬Disjoint (ball_(p') (𝒬 p') l) (Ω p'')}
 
 lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card ≤ ⌊2 ^ (4 * a) * l ^ a⌋₊ := by
-  have djO : (𝔒 p' l).toSet.PairwiseDisjoint fun p'' ↦ ball_(p') (𝒬 p'') 5⁻¹ :=
+  have djO : PairwiseDisjoint (𝔒 p' l).toSet fun p'' ↦ ball_(p') (𝒬 p'') 5⁻¹ :=
     fun p₁ mp₁ p₂ mp₂ hn ↦ by
       simp_rw [𝔒, Finset.coe_filter, mem_setOf, Finset.mem_univ, true_and] at mp₁ mp₂
       change Disjoint (ball_{𝓘 p'} (𝒬 p₁) 5⁻¹) (ball_{𝓘 p'} (𝒬 p₂) 5⁻¹)
@@ -353,8 +353,8 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
         rw [Nat.cast_pow, Nat.cast_ofNat, ← Real.rpow_natCast, ← Real.rpow_mul zero_le_two,
           mul_comm, add_mul, Real.rpow_add zero_lt_two, show (4 : ℝ) * a = (4 * a : ℕ) by simp,
           Real.rpow_natCast, Real.rpow_mul zero_le_two, Real.rpow_natCast,
-          Real.rpow_logb zero_lt_two one_lt_two.ne']
-        congr 1; exact zero_lt_two.trans_le hl
+          Real.rpow_logb zero_lt_two one_lt_two.ne' (by positivity)]
+        rfl
   obtain ⟨(T : Finset (Θ X)), cT, uT⟩ := vO
   refine (Finset.card_le_card_of_forall_subsingleton (fun p'' t ↦ 𝒬 p'' ∈ ball_(p') t 5⁻¹)
       (fun p'' mp'' ↦ ?_) (fun t _ o₁ mo₁ o₂ mo₂ ↦ ?_)).trans cT
@@ -423,8 +423,7 @@ lemma exists_𝔒_with_le_quotient :
   have : ∑ p'' ∈ 𝔒 p' l, volume (E₁ p'') / volume (𝓘 p'' : Set X) ≤
       (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) :=
     calc
-      _ ≤ ∑ _ ∈ 𝔒 p' l, (2 : ℝ≥0∞) ^ (-n : ℤ) := by
-        refine Finset.sum_le_sum h
+      _ ≤ ∑ _ ∈ 𝔒 p' l, (2 : ℝ≥0∞) ^ (-n : ℤ) := Finset.sum_le_sum h
       _ = (𝔒 p' l).card * (2 : ℝ≥0∞) ^ (-n : ℤ) := by rw [Finset.sum_const, nsmul_eq_mul]
       _ ≤ _ := by
         refine mul_le_mul_right' ?_ _
@@ -461,8 +460,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   constructor
   · have l1 : 𝓘 s₀.1 ≤ 𝓘 sl.1 := s.head_le_last.1
     have l2 : 𝓘 sl.1 ≤ 𝓘 b := 𝓘p'b ▸ sp'.1
-    have l3 : 𝓘 b ≤ 𝓘 m := lm.1
-    exact (l1.trans l2).trans l3
+    exact (l1.trans l2).trans lm.1
   change ball_(m) (𝒬 m) 1 ⊆ ball_(s₀.1) (𝒬 s₀.1) 100; intro (θ : Θ X) mθ; rw [@mem_ball] at mθ ⊢
   have aux : dist_(sl.1) (𝒬 sl.1) θ < 2 * l + 3 :=
     calc
