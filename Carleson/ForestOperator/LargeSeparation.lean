@@ -1765,7 +1765,7 @@ lemma le_C7_5_4 (ha : 4 ≤ a) :
 /-- Lemma 7.5.4. -/
 lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
-    iHolENorm (holderFunction t u₁ u₂ f₁ f₂ J) (c J) (16 * D ^ s J) ≤
+    iHolENorm (holderFunction t u₁ u₂ f₁ f₂ J) (c J) (16 * D ^ s J) τ ≤
     C7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J := by
   unfold iHolENorm
   calc
@@ -1935,7 +1935,7 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) f₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)‖ₑ ≤
     ∑ J ∈ 𝓙₅ t u₁ u₂, C2_0_5 a * volume (ball (c J) (8 * D ^ s J)) *
-      iHolENorm (holderFunction t u₁ u₂ f₁ f₂ J) (c J) (2 * (8 * D ^ s J)) *
+      iHolENorm (holderFunction t u₁ u₂ f₁ f₂ J) (c J) (2 * (8 * D ^ s J)) τ *
       (1 + edist_{c J, 8 * D ^ s J} (𝒬 u₂) (𝒬 u₁)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) := by
   classical
   have rearr : ∀ J x, t.χ u₁ u₂ J x *
