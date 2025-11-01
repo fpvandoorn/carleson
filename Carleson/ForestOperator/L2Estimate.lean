@@ -877,7 +877,7 @@ lemma tree_projection_estimate
     _ = ∫⁻ x in (⋃ p ∈ t u, 𝓘 p), ‖g x‖ₑ * ‖carlesonSum (t u) f x‖ₑ := by
       rw [← lintegral_indicator]; swap
       · exact MeasurableSet.biUnion (t u).to_countable (fun _ _ ↦ coeGrid_measurable)
-      simp_rw [enorm_eq_nnnorm, nnnorm_mul, ENNReal.coe_mul, RCLike.nnnorm_conj]
+      simp_rw [enorm_mul, RCLike.enorm_conj]
       refine lintegral_congr (fun x ↦ ?_)
       by_cases hx : x ∈ ⋃ p ∈ t u, 𝓘 p
       · rw [indicator_of_mem hx]

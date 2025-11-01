@@ -531,8 +531,8 @@ lemma holder_correlation_tile_one
     _ ≤ ∫⁻ y in E p, ‖conj (Ks (𝔰 p) y x)‖ₑ * ‖exp (I * (Q y y - Q y x))‖ₑ * ‖f y‖ₑ := by
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
     _ = ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
-      congr 1 with y; norm_cast; nth_rw 1 [mul_comm I]; nth_rw 2 [← enorm_norm]
-      rw [norm_exp_ofReal_mul_I, enorm_one, mul_one, ← enorm_norm, RCLike.norm_conj, enorm_norm]
+      congr 1 with y; norm_cast; nth_rw 1 [mul_comm I]
+      rw [enorm_exp_ofReal_mul_I, mul_one, RCLike.enorm_conj]
     _ ≤ ∫⁻ y in E p, C2_1_3 a / volume (ball y (D ^ 𝔰 p)) *
         ‖ψ (D ^ (-𝔰 p) * dist y x)‖ₑ * ‖f y‖ₑ := by gcongr; exact enorm_Ks_le'
     _ ≤ ∫⁻ y in E p, C2_1_3 a / (volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a)) *
@@ -649,8 +649,8 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
       exact Real.enorm_exp_I_mul_ofReal_sub_one_le
     _ = _ := by
       congr! 4
-      · congr 1; rw [← enorm_norm, RCLike.norm_conj, enorm_norm]
-      · rw [← map_sub, ← enorm_norm, RCLike.norm_conj, enorm_norm]
+      · congr 1; rw [RCLike.enorm_conj]
+      · rw [← map_sub, RCLike.enorm_conj]
 
 /-- Multiplicative factor for the bound on `‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ`. -/
 irreducible_def Q7_5_5 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (6 * a)
@@ -1022,8 +1022,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
       iSup₂_mono fun x mx ↦ enorm_integral_le_lintegral_enorm _
     _ = ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
       congr! with x mx y
-      rw [enorm_mul, enorm_mul, enorm_eq_nnnorm, RCLike.nnnorm_conj, ← ofReal_sub,
-        enorm_exp_I_mul_ofReal, mul_one, ← enorm_eq_nnnorm]
+      rw [enorm_mul, enorm_mul, RCLike.enorm_conj, ← ofReal_sub, enorm_exp_I_mul_ofReal, mul_one]
     _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ∫⁻ y in E p,
         C2_1_3 a / volume (ball y (D ^ 𝔰 p)) * ‖f y‖ₑ := by gcongr; exact enorm_Ks_le
     _ = ∫⁻ x in E p, C2_1_3 a / volume (ball x (D ^ 𝔰 p)) * ‖f x‖ₑ := by
