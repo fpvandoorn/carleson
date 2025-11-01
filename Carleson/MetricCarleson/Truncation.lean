@@ -47,7 +47,7 @@ lemma measurable_T_lin (mf : Measurable f) (mσ₁ : Measurable σ₁) (mσ₂ :
   refine Finset.measurable_sum _ fun _ _ ↦ (measurable_T_inner_integral mf).indicator ?_
   rw [measurableSet_setOf]; apply (measurable_set_mem _).comp
   apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
-  · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
+  · exact measurable_from_prod_countable_left fun _ _ _ ↦ trivial
   · exact mσ₁.prodMk mσ₂
 
 section Linearised
@@ -326,11 +326,11 @@ lemma S_truncation
       rw [← measurableSet_setOf]; exact measurableSet_le mσ₁ measurable_const
     · rw [← measurableSet_setOf]; apply measurableSet_eq_fun'
       · apply Measurable.comp (f := fun x ↦ (x, σ₁ x)) (g := fun p ↦ T1' p.1 p.2)
-        · exact measurable_from_prod_countable fun _ ↦ mT1'
+        · exact measurable_from_prod_countable_left fun _ ↦ mT1'
         · exact measurable_id.prodMk mσ₁
       · apply Measurable.enorm
         apply (Measurable.comp (f := fun x ↦ (x, σ₁ x)) (g := fun p ↦ T_S Q p.2 n f p.1))
-        · exact measurable_from_prod_countable fun _ ↦ measurable_T_S mf
+        · exact measurable_from_prod_countable_left fun _ ↦ measurable_T_S mf
         · exact measurable_id.prodMk mσ₁
   -- Work analogously to prove `σ₂`'s properties
   let σ₂ (x : X) := (candσ₂ x).min' (necσ₂ x)
@@ -375,13 +375,13 @@ lemma R₁_le_D_zpow_div_four {R₁ : ℝ} : R₁ ≤ D ^ (L302 a R₁ - 1) / 4 
   have Dg1 := one_lt_realD X
   calc
     _ = (2 : ℝ) * D ^ Real.logb D (2 * R₁) := by
-      rw [Real.rpow_logb (defaultD_pos a) Dg1.ne' (by linarith only [hR₁])]; ring
+      rw [Real.rpow_logb (realD_pos a) Dg1.ne' (by linarith only [hR₁])]; ring
     _ ≤ D * D ^ (⌊Real.logb D (2 * R₁)⌋ + 1) := by
       rw [← Real.rpow_intCast]; gcongr
       · linarith only [four_le_realD X]
       · exact Dg1.le
       · push_cast; exact (Int.lt_floor_add_one _).le
-    _ = _ := by rw [← zpow_one_add₀ (defaultD_pos a).ne']; congr 1; omega
+    _ = _ := by rw [← zpow_one_add₀ (realD_pos a).ne']; congr 1; omega
 
 include K in
 lemma D_zpow_div_two_le_R₂ {R₂ : ℝ} (hR₂ : 0 < R₂) : D ^ (U302 a R₂) / 2 ≤ R₂ := by
@@ -389,12 +389,12 @@ lemma D_zpow_div_two_le_R₂ {R₂ : ℝ} (hR₂ : 0 < R₂) : D ^ (U302 a R₂)
   have Dg1 := one_lt_realD X
   calc
     _ = (D : ℝ)⁻¹ * D ^ (⌈Real.logb D (4 * R₂)⌉ - 1) := by
-      conv_rhs => rw [mul_comm, ← zpow_sub_one₀ (defaultD_pos a).ne']
+      conv_rhs => rw [mul_comm, ← zpow_sub_one₀ (realD_pos a).ne']
       congr 1; omega
     _ ≤ 2⁻¹ * (4 * R₂) := by
       gcongr; · linarith only [four_le_realD X]
       have : 0 < 4 * R₂ := by positivity
-      nth_rw 2 [← Real.rpow_logb (defaultD_pos a) Dg1.ne' this]
+      nth_rw 2 [← Real.rpow_logb (realD_pos a) Dg1.ne' this]
       rw [← Real.rpow_intCast]; gcongr
       · exact Dg1.le
       · push_cast; rw [sub_le_iff_le_add]; exact (Int.ceil_lt_add_one _).le
@@ -562,10 +562,6 @@ lemma lintegral_globalMaximalFunction_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderCo
 /-- The operator T_{R₁, R₂, R} introduced in Lemma 3.0.2. -/
 def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
-
-/-- The constant used from `R_truncation` to `metric_carleson`.
-Has value `2 ^ (443 * a ^ 3)` in the blueprint. -/
-def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
 
 lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   rw [C1_0_2]

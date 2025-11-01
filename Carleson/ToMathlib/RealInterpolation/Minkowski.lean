@@ -122,7 +122,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     calc
     _ = ∫⁻ (z : α) in A n, g n z ^ p ∂μ := by
       unfold g trunc_cut
-      rw [← lintegral_indicator]; swap; exact measurableSet_spanningSets μ n
+      rw [← lintegral_indicator]; swap; · exact measurableSet_spanningSets μ n
       congr 1
       ext x
       dsimp only [indicator]
@@ -206,17 +206,17 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
       · rw [int_eq_zero]
         simp
       · rw [ENNReal.inv_rpow, ENNReal.rpow_inv_rpow]
-        apply le_of_eq
-        refine ENNReal.mul_inv_cancel int_ne_zero ?inr.a.ht
-        · apply ne_of_lt
-          calc
-          _ = ∫⁻ (z : α), g n z ^ p ∂μ := by
-            congr 1
-            ext z
-            rw [← ENNReal.rpow_mul]
-            congr
-            exact Real.HolderConjugate.sub_one_mul_conj hpq'
-          _ < ⊤ := g_fin n
+        · apply le_of_eq
+          refine ENNReal.mul_inv_cancel int_ne_zero ?inr.a.ht
+          · apply ne_of_lt
+            calc
+            _ = ∫⁻ (z : α), g n z ^ p ∂μ := by
+              congr 1
+              ext z
+              rw [← ENNReal.rpow_mul]
+              congr
+              exact Real.HolderConjugate.sub_one_mul_conj hpq'
+            _ < ⊤ := g_fin n
         · linarith
   apply eq_of_le_of_le
   · rw [int_fg, sup_rpow]
@@ -443,7 +443,8 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpa
         ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀) ^ (p₀⁻¹ * q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
   apply lintegral_lintegral_pow_swap_rpow
   · apply le_of_mul_le_mul_left _ hp₀
-    field_simp [hp₀q₀]
+    field_simp
+    exact hp₀q₀
   · unfold Function.uncurry
     -- TODO: this is quite some effort, somehow the infrastructure may need to be better
     apply AEMeasurable.mul'
@@ -721,7 +722,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       (∫⁻ (a : α), ‖f a‖ₑ ^ p.toReal ∂μ) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     gcongr
-    exact setLIntegral_le_lintegral _ _
+    exact Measure.restrict_le_self
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       (((∫⁻ (a : α), ‖f a‖ₑ ^ p.toReal ∂μ) ^ p.toReal⁻¹ ) ^ p.toReal) ^
@@ -988,10 +989,9 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
           (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
       calc
       _ ≤ ↑C₁ ^ p₁.toReal * (((a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal) := by
-        rw [ENNReal.mul_rpow_of_nonneg]
+        rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
         gcongr
-        · exact estimate_eLpNorm_trunc hp₁.ne_top ⟨hp, hp₁p.le⟩ hf.1
-        · exact toReal_nonneg
+        exact estimate_eLpNorm_trunc hp₁.ne_top ⟨hp, hp₁p.le⟩ hf.1
       _ = ↑C₁ ^ p₁.toReal * eLpNorm f p μ ^ p.toReal * (d ^ p₁.toReal)⁻¹ * (t ^ p₁.toReal) := by
         rw [ha, ← ENNReal.rpow_mul, div_mul_cancel₀]
         · rw [ENNReal.div_rpow_of_nonneg, div_eq_mul_inv] <;> try positivity

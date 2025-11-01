@@ -7,6 +7,9 @@ import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 /-
 * This file can import all ToMathlib files.
 * If adding more than a few results, please put them in a more appropriate file in ToMathlib.
+
+Upstreaming status: need to split up this file (according to the lemmas' future location)
+Most lemmas look ready to be upstreamed; some will require small tweaks.
 -/
 
 open Function Set
@@ -34,30 +37,8 @@ open ENNReal
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
   if hfin : s.Finite then
-    have hfin' : Finite s := hfin
-    rw [tsum_def]
-    simp only [ENNReal.summable, ↓reduceDIte]
-    have hsup: support (fun (_ : s) ↦ (1 : ℝ≥0∞)) = Set.univ := by
-      ext i
-      simp only [mem_support, ne_eq, one_ne_zero, not_false_eq_true, mem_univ]
-    have hsupfin: (Set.univ : Set s).Finite := finite_univ
-    rw [← hsup] at hsupfin
-    rw [if_pos hsupfin, hfin.encard_eq_coe_toFinset_card]
-    simp only [ENat.toENNReal_coe]
-    rw [Finset.card_eq_sum_ones]
-    rw [finsum_eq_sum (fun (_ : s) ↦ (1 :ℝ≥0∞)) hsupfin]
-    simp only [Finset.sum_const, nsmul_eq_mul, mul_one, smul_eq_mul, Nat.cast_inj]
-    apply Finset.card_bij (fun a _ => a.val)
-    · intro a
-      simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
-        Subtype.coe_prop, imp_self]
-    · intro a _ a' _ heq
-      ext
-      exact heq
-    · intro a ha
-      use ⟨a, by simpa [Finite.mem_toFinset] using ha⟩
-      simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
-        exists_const]
+    lift s to Finset α using hfin
+    simp
   else
   have : Infinite s := infinite_coe_iff.mpr hfin
   rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num), Set.encard_eq_top_iff.mpr hfin]
@@ -86,7 +67,7 @@ lemma ENNReal.sum_geometric_two_pow_toNNReal {k : ℕ} (hk : k > 0) :
   rw [← coe_inv this, coe_inj, Real.toNNReal_inv, one_div]
 
 lemma ENNReal.sum_geometric_two_pow_neg_one : ∑' (n : ℕ), (2 : ℝ≥0∞) ^ (-n : ℤ) = 2 := by
-  conv_lhs => enter [1, n]; rw [← one_mul (n : ℤ), ← neg_mul, ← Nat.cast_one]
+  conv_lhs => enter [1, n]; rw [← one_mul (n : ℤ), ← neg_mul, ← Nat.cast_one (R := ℤ)]
   rw [ENNReal.sum_geometric_two_pow_toNNReal zero_lt_one]; norm_num
 
 lemma ENNReal.sum_geometric_two_pow_neg_two :
@@ -228,6 +209,7 @@ attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.inv AEStronglyMeasurable.div
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 attribute [fun_prop] AEStronglyMeasurable.comp_measurable
+attribute [fun_prop] StronglyMeasurable.measurable
 
 lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
   apply measure_mono_ae
@@ -528,50 +510,22 @@ section Norm
 
 open Complex
 
+-- TODO: add enorm analogues of these lemmas when not present yet;
+-- the first one will require a new class `ENormOneClass` (and maybe generalising much of
+-- mathlib's lemmas to that class, as appropriate).
+
 -- for mathlib?
 lemma norm_indicator_one_le {α E}
     [SeminormedAddCommGroup E] [One E] [NormOneClass E] {s : Set α} (x : α) :
     ‖s.indicator (1 : α → E) x‖ ≤ 1 :=
   Trans.trans (norm_indicator_le_norm_self 1 x) norm_one
 
-@[simp] lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (I * x)‖ = 1 := by
-  rw [mul_comm, Complex.norm_exp_ofReal_mul_I]
-
-@[simp] lemma enorm_exp_I_mul_ofReal (x : ℝ) : ‖exp (I * x)‖ₑ = 1 := by
-  rw [← enorm_norm, mul_comm, Complex.norm_exp_ofReal_mul_I, enorm_one]
-
-lemma norm_exp_I_mul_sub_ofReal (x y : ℝ) : ‖exp (I * (x - y))‖ = 1 := by
-  rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
-
-@[simp] lemma norm_exp_neg_I_mul_ofReal (x : ℝ) : ‖exp (-(I * x))‖ = 1 := by
-  rw [exp_neg, norm_inv, norm_exp_I_mul_ofReal, inv_one]
-
-lemma norm_exp_neg_I_mul_ofReal' (x : ℝ) : ‖exp (-I * x)‖ = 1 := by simp
+-- TODO: which of these lemmas have been upstreamed to mathlib already?
 
 lemma norm_one_sub_exp_neg_I_mul_ofReal (x : ℝ) : ‖1 - exp (-(I * x))‖ = ‖1 - exp (I * x)‖ := by
   have : 1 - exp (I * x) = - exp (I * x) * (1 - exp (I * (-x))) := by
     simp [mul_sub, ← exp_add]; ring
   simp [this]
-
-lemma norm_exp_I_mul_ofReal_sub_one {x : ℝ} : ‖exp (I * x) - 1‖ = ‖2 * Real.sin (x / 2)‖ := by
-  rw [show ‖2 * Real.sin (x / 2)‖ = ‖2 * sin (x / 2)‖ by norm_cast, two_sin]
-  nth_rw 2 [← one_mul (_ - _), ← exp_zero]
-  rw [← neg_add_cancel (x / 2 * I), exp_add, mul_assoc _ _ (_ - _), mul_sub, ← exp_add, ← exp_add,
-    ← add_mul, ← add_mul]; norm_cast
-  rw [add_neg_cancel, ofReal_zero, zero_mul, exp_zero, add_halves, ← neg_mul, norm_mul, norm_I,
-    mul_one, norm_mul, show -(ofReal (x / 2)) = ofReal (-x / 2) by norm_cast; exact neg_div' 2 x,
-    norm_exp_ofReal_mul_I, one_mul, ← norm_neg, neg_sub, mul_comm]
-
-lemma norm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ ≤ ‖x‖ := by
-  rw [norm_exp_I_mul_ofReal_sub_one]
-  calc
-    _ = 2 * |Real.sin (x / 2)| := by simp
-    _ ≤ 2 * |x / 2| := (mul_le_mul_iff_of_pos_left zero_lt_two).mpr Real.abs_sin_le_abs
-    _ = _ := by rw [abs_div, Nat.abs_ofNat, Real.norm_eq_abs]; ring
-
-lemma enorm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ₑ ≤ ‖x‖ₑ := by
-  iterate 2 rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg _)]
-  exact ENNReal.ofReal_le_ofReal norm_exp_I_mul_ofReal_sub_one_le
 
 open Real in
 lemma exp_I_mul_eq_one_iff_of_lt_of_lt (x : ℝ) (hx : -(2 * π) < x) (h'x : x < 2 * π) :
@@ -609,6 +563,8 @@ theorem BddAbove.range_finsetSum {s : Finset ι} {f : ι → ι' → M}
     · exact hf _ (Finset.mem_insert_self j s)
     · exact IH fun _ hi ↦ hf _ (Finset.mem_insert_of_mem hi)
 
+-- TODO: should there be enorm versions of these lemmas?
+
 open Bornology
 @[to_additive isBounded_iff_bddAbove_norm]
 lemma isBounded_iff_bddAbove_norm' {E} [SeminormedCommGroup E] {s : Set E} :
@@ -632,6 +588,7 @@ namespace MeasureTheory
 open Metric Bornology
 variable {𝕜 : Type*} [RCLike 𝕜] {X α : Type*}
 
+-- TODO: can this be moved to HasCompactSupport? should it move there, when upstreaming?
 namespace HasCompactSupport
 
 variable [Zero α] {f : X → α}
@@ -795,7 +752,7 @@ namespace MeasureTheory
 lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint
     {α ι F : Type*} [MeasurableSpace α] [NormedAddCommGroup F] {μ : Measure α}
     {s : Finset ι} {f : α → F} {t : ι → Set α} (meast : ∀ i, MeasurableSet (t i))
-    (hpd : s.toSet.PairwiseDisjoint t) :
+    (hpd : PairwiseDisjoint s t) :
     ∑ i ∈ s, eLpNorm ((t i).indicator f) 2 μ ^ 2 ≤ eLpNorm f 2 μ ^ 2 := by
   simp_rw [sq_eLpNorm_two]
   conv_lhs =>

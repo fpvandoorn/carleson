@@ -32,8 +32,9 @@ scoped notation "nnqt" => 2*nnq/(nnq + 1)
 end ShortVariables
 
 lemma inv_nnqt_eq : (nnqt : ℝ)⁻¹ = 2⁻¹ + 2⁻¹ * q⁻¹ := by
-  have : 2 * q ≠ 0 := mul_ne_zero (by norm_num) (by linarith only [(q_mem_Ioc X).1])
-  field_simp [show (nnq : ℝ) = q by rfl]
+  have : q ≠ 0 := by linarith only [(q_mem_Ioc X).1]
+  simp [show (nnq : ℝ) = q by rfl]
+  field_simp
 
 lemma inv_nnqt_mem_Ico : (nnqt : ℝ)⁻¹ ∈ Ico (3 / 4) 1 := by
   rw [inv_nnqt_eq]
@@ -110,7 +111,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           have hD : (D : ℝ) = 2 ^ (𝕔 * a^2) := by simp
           rw [← hD]
           ring_nf
-          rw [mul_inv_cancel₀ (defaultD_pos _).ne', one_mul]
+          rw [mul_inv_cancel₀ (realD_pos _).ne', one_mul]
         convert measure_ball_two_le_same_iterate (μ := volume) x
           (1 / (D * 32) * (8 * D ^ 𝔰 p.1)) (𝕔*a^2 + 5) using 2
         · conv_lhs => rw [← heq, ← pow_add]
@@ -181,13 +182,10 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
         rw [carlesonSum, Finset.sum_eq_single_of_mem p.1 hp hne_p]
     _ ≤ ∫⁻ y, ‖exp (I * (Q x y - Q x x)) * Ks (𝔰 p.1) x y * f y‖ₑ := by
         rw [carlesonOn, indicator, if_pos hxE]
-        refine le_trans (enorm_integral_le_lintegral_enorm _) (lintegral_mono fun z w h ↦ ?_)
-        simp only [nnnorm_mul, coe_mul, some_eq_coe', zpow_neg, Ks, mul_assoc,
-          enorm_eq_nnnorm] at h ⊢
-        use w
+        exact le_trans (enorm_integral_le_lintegral_enorm _) (lintegral_mono fun z ↦ le_rfl)
     _ ≤ ∫⁻ y, ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
       simp only [enorm_mul]
-      exact lintegral_mono_fn fun y ↦ (by simp [← Complex.ofReal_sub])
+      exact lintegral_mono fun y ↦ (by simp [← Complex.ofReal_sub])
     _ = ∫⁻ y in ball (𝔠 p) (8 * D ^ 𝔰 p.1), ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
         rw [setLIntegral_eq_of_support_subset]
         intro y hy
@@ -197,7 +195,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
         exact hdist_cpy y hy.1
     _ ≤ ∫⁻ y in ball (𝔠 p) (8 * D ^ 𝔰 p.1),
         2 ^ (6 * a + (𝕔 + 1) * a ^ 3) / volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) * ‖f y‖ₑ := by
-      refine lintegral_mono_fn fun y ↦ ?_
+      refine lintegral_mono fun y ↦ ?_
       rw [enorm_mul]; gcongr
       by_cases hy : Ks (𝔰 p.1) x y = 0
       · simp [hy]
@@ -374,14 +372,13 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
   have hqiq : q = iq⁻¹ := by rw [iq_eq, inv_inv]
   have : 0 < 1 - iq := by linarith [inv_q_mem_Ico X |>.2]
   have hpdiv' : 2 / (p X) / (2 / (p X).toNNReal - 1).toReal = (2 - iq) * (1 - iq)⁻¹ := by
-    simp only [div_eq_mul_inv, hp_coe', inv_p_eq', ← iq_eq]
-    field_simp [show 2 - iq - 1 = 1 - iq by ring]
+    simp [div_eq_mul_inv, hp_coe', inv_p_eq', ← iq_eq, field, show 2 - iq - 1 = 1 - iq by ring]
   have : 2⁻¹ ≤ iq := inv_q_mem_Ico X |>.1
   have hiq1 : 2 ≤ (1 - iq)⁻¹ := by
     apply (le_inv_comm₀ (by positivity) (by positivity)).mp
     linarith only [inv_q_mem_Ico X |>.1]
   have : 1 < 2 - iq := by linarith only [inv_q_mem_Ico X |>.2]
-  have : 0 < (q - 1)⁻¹ := inv_pos_of_pos <| by linarith only [q_mem_Ioc X |>.1]
+  have : 0 < q - 1 := by linarith only [q_mem_Ioc X |>.1]
   have haux : 1 ≤ (2 - iq) * (1 - iq)⁻¹ * 2 ^ (2 * a) := by
     conv_lhs => rw [← one_mul 1, ← mul_one (1 * 1)]
     gcongr
@@ -405,7 +402,7 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
       · rw [mul_comm (2 ^ _)]
         gcongr ?_ * 2 ^ (2 * a)
         calc
-          _ = (2 * q - 1) * (q - 1)⁻¹ := by field_simp [hqiq]
+          _ = (2 * q - 1) * (q - 1)⁻¹ := by simp [hqiq]; field_simp
           _ ≤ _ := by gcongr; linarith only [q_mem_Ioc X |>.2]
   calc
     _ ≤ 2 ^ ((𝕔 + 2) * a ^ 3) * (2 ^ (2 * a + 4) * (q - 1)⁻¹) := by simp [C6_1_2, hc_le]

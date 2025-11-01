@@ -2,6 +2,9 @@ import Mathlib.Data.Set.Lattice
 import Mathlib.Order.SuccPred.Basic
 import Mathlib.Tactic.Common
 
+-- Upstreaming status: results seem useful in general, some should be generalised
+-- Proofs can probaby be polished and golfed significantly
+
 open Function Order Set
 
 namespace Set
@@ -30,47 +33,39 @@ section LinearOrder
 
 variable [LinearOrder α]
 
+-- TODO: can or should these lemmas take a more general indexing type?
+-- TODO: the proofs below can probably be golfed significantly, do so!
 theorem iUnion_Ico_eq_Ici {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), Ico (f i) (f (i+1)) = Ici (f 0) := by
   apply subset_antisymm
   · exact iUnion_subset fun i ↦ Ico_subset_Ici (hf i)
   · intro a ha
-    rw [mem_iUnion]
     by_contra! hcontra
     apply h2f
     rw [bddAbove_def]
     use a
     suffices ∀ i, f i ≤ a by simp [this]
     intro i
-    induction i
-    case zero => exact ha
-    case succ i hind =>
-      let this := hcontra i
-      rw [mem_Ico, not_and, not_lt] at this
-      exact this hind
+    induction i with
+    | zero => exact ha
+    | succ i hind => simp_all
 
 theorem iUnion_Ioc_eq_Ioi {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), Ioc (f i) (f (i+1)) = Ioi (f 0) := by
   apply subset_antisymm
   · exact iUnion_subset fun i ↦ Ioc_subset_Ioi (hf i)
   · intro a ha
-    rw [mem_iUnion]
     by_contra! hcontra
     apply h2f
-    rw [bddAbove_def]
     use a
     suffices ∀ i, f i < a by
       intro y hy
-      obtain ⟨i, hi⟩ := hy
-      rw [← hi]
-      exact le_of_lt (this i)
+      obtain ⟨i, rfl⟩ := hy
+      exact (this i).le
     intro i
-    induction i
-    case zero => exact ha
-    case succ i hind =>
-      let this := hcontra i
-      rw [mem_Ioc, not_and, not_le] at this
-      exact this hind
+    induction i with
+      | zero => exact ha
+      | succ i hind => simp_all
 
 variable {ι : Type*} [LinearOrder ι] [SuccOrder ι]
 

@@ -45,9 +45,9 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
       _ ≤ eLpNorm (f i₀) (p i₀) μ * ∫⁻ (a : α), ∏ i ∈ s.erase i₀, f i a ∂μ := by
         rw [← lintegral_const_mul'', pi₀_eq_top]
         · exact lintegral_mono_ae <| (ae_le_essSup (f i₀)).mono (fun a ha ↦ mul_le_mul_right' ha _)
-        · exact Finset.aemeasurable_prod _ (fun i hi ↦ hf i (Finset.mem_of_mem_erase hi))
+        · exact Finset.aemeasurable_fun_prod _ (fun i hi ↦ hf i (Finset.mem_of_mem_erase hi))
       _ ≤ eLpNorm (f i₀) (p i₀) μ * ∏ i ∈ s.erase i₀, eLpNorm (f i) (p i) μ := by
-        apply mul_left_mono
+        apply mul_right_mono
         apply hs (s.erase i₀) (s.erase_ssubset hi₀) (fun i hi ↦ hf i (s.erase_subset i₀ hi))
         simpa [← Finset.add_sum_erase s _ hi₀, pi₀_eq_top] using hp
       _ = _ := Finset.mul_prod_erase s (fun i ↦ eLpNorm (f i) (p i) μ) hi₀
@@ -76,7 +76,7 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderC
   · wlog hp : p = ∞
     · have hq := pq_top.resolve_left hp
       simpa only [mul_comm] using this hpq.symm hg hf (Or.inl hq) hq
-    apply le_of_le_of_eq <| lintegral_mono_ae ((ae_le_essSup f).mono (fun a ha ↦ mul_right_mono ha))
+    apply le_of_le_of_eq <| lintegral_mono_ae ((ae_le_essSup f).mono (fun a ha ↦ mul_left_mono ha))
     simp [eLpNorm, eLpNorm', eLpNormEssSup, hp, hpq.conj_eq, lintegral_const_mul'' _ hg]
   push_neg at pq_top
   have hp : p ≠ 0 := HolderConjugate.ne_zero p q
@@ -132,8 +132,9 @@ private lemma eLpNorm_eq_eLpNorm_rpow (h : G → E) {r e : ℝ} (r0 : 0 < r) (e0
     div_lt_top ofReal_ne_top <| (not_iff_not.mpr ofReal_eq_zero).mpr r_sub_e_pos.not_ge
   simp only [eLpNorm, eLpNorm', reduceIte, div_eq_zero_iff, ofReal_eq_zero, ofReal_ne_top,
     lt_top.ne, er_pos.not_ge, e0.not_ge, or_self, enorm_eq_self, ← rpow_mul]
+  simp only [e0.le, ofReal_mul, toReal_div, toReal_mul, toReal_ofReal, r0.le, re0, one_div, inv_div]
   congr
-  · ext; congr; field_simp; ring
+  · ext; congr; field_simp
   · field_simp
 
 variable [NontriviallyNormedField 𝕜]
@@ -173,7 +174,7 @@ private theorem eLpNorm_top_convolution_le_aux [AddGroup G] {p q : ℝ≥0∞}
       exact ENNReal.ofReal_le_ofReal <| hL y (x - y)
     _ ≤ _ := by
       simp_rw [mul_assoc, lintegral_const_mul' _ _ ofReal_ne_top]
-      simpa [hg' x] using mul_left_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf (hg x))
+      simpa [hg' x] using mul_right_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf (hg x))
 
 variable [AddGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G] [BorelSpace G]
   [μ.IsAddHaarMeasure] [LocallyCompactSpace G] [SecondCountableTopology G]

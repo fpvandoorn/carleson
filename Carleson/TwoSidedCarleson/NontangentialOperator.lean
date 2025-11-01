@@ -3,7 +3,8 @@ import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 
-open MeasureTheory Set Bornology Function ENNReal Metric
+open MeasureTheory Set Bornology Function Metric
+open ENNReal hiding one_lt_two
 open scoped NNReal
 
 noncomputable section
@@ -158,7 +159,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
 
     trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
         ∫⁻ (y : X) in ball x (2 ^ (i + 2) * r), ‖g y‖ₑ
-    · gcongr
+    · gcongr _ * ?_
       apply lintegral_mono_set
       unfold dom_i
       rw [Annulus.co_eq]
@@ -439,7 +440,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       apply AEMeasurable.enorm
       exact hg.aemeasurable.restrict
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in (ball x (2 * R)), ‖g y‖ₑ := by
-      gcongr
+      gcongr _ * ?_
       apply lintegral_mono_set
       exact diff_subset
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * (volume (ball x (2 * R)) * globalMaximalFunction volume 1 g x) := by
@@ -456,7 +457,6 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       rw [ENNReal.div_le_iff' (by simp) (by simp)]
       calc _
         _ = volume (ball x (2 ^ 3 * (R / 4))) := by
-          congr
           ring_nf
         _ ≤ (defaultA a) ^ 3 * volume (ball x (R / 4)) := by
           apply measure_ball_two_le_same_iterate
@@ -469,7 +469,6 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
           gcongr
           apply measure_ball_two_le_same
         _ = 2 ^ (4 * a) * volume (ball x' (R / 4)) := by
-          unfold defaultA
           push_cast
           ring_nf
     _= 2 ^ (a ^ 3 + 4 * a) := by
@@ -572,7 +571,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
   by_cases hMzero : MTrgx = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_notMem]
+    rw [measure_eq_zero_iff_ae_notMem]
     have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
     filter_upwards [czzero] with x' hx'
     simp [hx']
@@ -586,13 +585,13 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
   trans ∫⁻ (y : X) in ball x (R / 4),
       {x' | 4 * MTrgx < ‖czOperator K r g x'‖ₑ}.indicator (fun x_1 ↦ ‖czOperator K r g y‖ₑ ) y
-  · apply lintegral_mono_fn
+  · apply lintegral_mono
     intro y
     apply indicator_le_indicator'
     rw [mem_setOf_eq]
     exact le_of_lt
   trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
-  · apply lintegral_mono_fn
+  · apply lintegral_mono
     intro y
     apply indicator_le_self
   nth_rw 2 [div_eq_mul_inv]
@@ -613,7 +612,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     volume (ball x (R / 4)) / 4 := by
   by_cases hMzero : globalMaximalFunction volume 1 g x = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_notMem]
+    rw [measure_eq_zero_iff_ae_notMem]
     have gzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 2)
         (by simp [lt_of_lt_of_le hr hR]) hg.aestronglyMeasurable hMzero
     have czzero : ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ = 0 := by
@@ -622,9 +621,9 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
       intro x'
       rw [le_bot_iff, bot_eq_zero, lintegral_eq_zero_iff' ?hf_ae]
       case hf_ae =>
+        have : AEMeasurable (K x') volume := (measurable_K_right x').aemeasurable
         apply (AEMeasurable.enorm _).restrict
-        apply AEMeasurable.mul (measurable_K_right x').aemeasurable
-        exact AEMeasurable.indicator (hg.aemeasurable) measurableSet_ball
+        fun_prop (discharger := measurability)
       simp_rw [← indicator_mul_right, enorm_indicator_eq_indicator_enorm]
       rw [indicator_ae_eq_zero, inter_comm, ← Measure.restrict_apply' measurableSet_ball,
         Measure.restrict_restrict measurableSet_ball, ← bot_eq_zero, ← le_bot_iff]
@@ -730,8 +729,9 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   rw [add_assoc, C10_1_3_def, C10_1_4_def, C10_1_5_def, ← add_mul]
   conv_rhs => rw [pow_succ, mul_two]
   push_cast
-  gcongr <;> simp
-
+  gcongr _ + (_ + 2 ^ ?_) * _
+  · exact one_le_two
+  · omega
 
 omit [IsTwoSidedKernel a K] in
 /-- Part of Lemma 10.1.6. -/
@@ -821,7 +821,9 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   apply add_le_add
   · ring_nf; gcongr <;> simp [Nat.one_le_pow]
   nth_rw 5 [pow_succ]; rw [mul_two]
-  gcongr <;> simp
+  gcongr _ + 2 ^ ?_
+  · exact one_le_two
+  · omega
 
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/

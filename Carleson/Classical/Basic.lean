@@ -1,8 +1,10 @@
 import Carleson.Classical.Helper
+import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 import Mathlib.Analysis.Fourier.AddCircle
+import Mathlib.Tactic.Field
 
 /- This file contains basic definitions and lemmas. -/
 
@@ -24,16 +26,11 @@ theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : 
   congr 1
   rwa [AEEqFun.mk_eq_mk]
 
-
-def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ := ∑ n ∈ Icc (-(N : ℤ)) N,
-    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * π))
-
 def partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) : C(AddCircle T, ℂ) :=
     ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourier n
 
 def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) : Lp ℂ p (@haarAddCircle T hT) :=
     ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
-
 
 lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N : ℕ) (f : ℝ → ℂ) :
     liftIoc (2 * Real.pi) 0 (partialFourierSum N f) = partialFourierSum' N (liftIoc (2 * Real.pi) 0 f) := by
@@ -200,8 +197,8 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
   calc (2 / π) * η
     _ ≤ (2 / π) * x := by gcongr
     _ = 1 - ((1 - (2 / π) * (x - π / 2)) * Real.cos (π / 2) + ((2 / π) * (x - π / 2)) * Real.cos (π)) := by
-      field_simp -- a bit slow
-      ring
+      field_simp
+      simp
     _ ≤ 1 - (Real.cos ((1 - (2 / π) * (x - π / 2)) * (π / 2) + (((2 / π) * (x - π / 2)) * (π)))) := by
       gcongr
       apply (strictConvexOn_cos_Icc.convexOn).2 (by simp [pi_nonneg])
@@ -211,7 +208,7 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
         exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
       · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) (by linarith [h])
       · simp
-    _ = 1 - Real.cos x := by congr; field_simp; ring -- slow
+    _ = 1 - Real.cos x := by congr; field
     _ ≤ Real.sqrt ((1 - Real.cos x) ^ 2) := by
       exact Real.sqrt_sq_eq_abs _ ▸ le_abs_self _
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
@@ -257,7 +254,7 @@ lemma lower_secant_bound' {η : ℝ} {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le
         exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
       · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) x_nonneg
       · simp
-    _ = Real.sin x := by field_simp
+    _ = Real.sin x := by simp; field_simp
     _ ≤ Real.sqrt ((Real.sin x) ^ 2) := by
       rw [Real.sqrt_sq_eq_abs]
       apply le_abs_self
@@ -286,8 +283,7 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + �
     rw [mul_assoc]
     gcongr
     field_simp
-    rw [div_le_div_iff₀ (by norm_num) pi_pos]
-    linarith [pi_le_four]
+    norm_num [pi_le_four]
   _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
     apply lower_secant_bound' xAbs
     rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]

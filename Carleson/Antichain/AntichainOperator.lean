@@ -20,6 +20,7 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
   {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
 
+-- set_option trace.Meta.Tactic.fun_prop true in
 open Classical in
 lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
     eLpNorm (adjointCarlesonSum 𝔄 g) 2 ^ 2 ≤
@@ -36,8 +37,15 @@ lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
       congr 1
       rw [integral_finset_sum]
       · congr! with p mp
-        exact integral_finset_sum _ fun p' mp' ↦
-          (bg.adjointCarleson.mul bg.adjointCarleson.conj).integrable
+        exact integral_finset_sum _ fun p' mp' ↦ by
+          -- This smells like a fun_prop bug: removing the `change` makes fun_prop fail to prove
+          -- `fails` below, even though it knows about `BoundedCompactSupport.integrable` and
+          -- can prove that.
+          have : BoundedCompactSupport (fun x ↦ (starRingEnd ℂ) (adjointCarleson p' g x)) volume := by fun_prop
+          --have fails : Integrable (fun x ↦ (starRingEnd ℂ) (adjointCarleson p' g x)) volume := by
+          --  fun_prop
+          change Integrable (adjointCarleson p g * star (adjointCarleson p' g)) volume
+          fun_prop
       · exact fun p mp ↦ (BoundedCompactSupport.finset_sum fun p' mp' ↦
           bg.adjointCarleson.mul bg.adjointCarleson.conj).integrable
     _ ≤ ∑ p with p ∈ 𝔄, ‖∑ p' with p' ∈ 𝔄,
@@ -65,7 +73,7 @@ lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
       exact enorm_integral_mul_starRingEnd_comm
     _ ≤ 2 * ∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p,
         ‖∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
-      rw [two_mul]; gcongr with p mp; exact fun _ ↦ And.imp_right Int.le_of_lt
+      rw [two_mul]; gcongr with p mp; exact fun h ↦ h.le
     _ = _ := by congr! 3 with p mp p' mp'; exact enorm_integral_mul_starRingEnd_comm
 
 open Classical in
@@ -142,8 +150,8 @@ lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄) {x₀ : X} (hx : x₀ ∈ ba
   rw [mul_comm (_ ^ _), ← ENNReal.div_le_iff_le_mul]; rotate_left
   · left
     rw [← inv_ne_top, ← ENNReal.rpow_neg]
-    exact rpow_ne_top_of_ne_zero vpos.ne' measure_ball_ne_top
-  · exact Or.inl <| rpow_ne_top_of_ne_zero vpos.ne' measure_ball_ne_top
+    finiteness
+  · exact Or.inl <| (by finiteness)
   rw [ENNReal.div_eq_inv_mul, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, mul_comm _ (-1),
     ENNReal.rpow_mul, ENNReal.rpow_neg_one,
     eLpNorm_eq_lintegral_rpow_enorm (by simpa) (by finiteness)]
@@ -192,8 +200,8 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
           (E p').indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) := by
       rw [mul_assoc]; gcongr; apply lintegral_mul_le_eLpNorm_mul_eLqNorm
       · exact Real.HolderConjugate.ennrealOfReal (holderConjugate_p₆ (four_le_a X)).symm
-      · exact (hg.enorm.indicator measurableSet_ball).aemeasurable
-      · refine Finset.aemeasurable_sum _ fun p' mp' ↦ ?_
+      · fun_prop (discharger := measurability)
+      · refine Finset.aemeasurable_fun_sum _ fun p' mp' ↦ ?_
         simp_rw [mul_assoc, ← inter_indicator_mul]
         exact (AEMeasurable.indicator (by simp) (measurableSet_E.inter measurableSet_G)).const_mul _
     _ ≤ (volume B)⁻¹ * (volume B ^ (q₆ a)⁻¹ * M14 𝔄 (q₆ a) g x₀) *
@@ -211,8 +219,8 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
     _ = _ := by
       rw [mul_comm, mul_assoc]; congr 1
       have vpos : 0 < volume B := by apply measure_ball_pos; unfold defaultD; positivity
-      rw [← mul_assoc, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_add _ _ vpos.ne' measure_ball_ne_top,
-        ← mul_assoc, ← ENNReal.rpow_add _ _ vpos.ne' measure_ball_ne_top,
+      rw [← mul_assoc, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_add _ _ vpos.ne' (by finiteness),
+        ← mul_assoc, ← ENNReal.rpow_add _ _ vpos.ne' (by finiteness),
         ← add_rotate, (holderConjugate_p₆ (four_le_a X)).symm.inv_add_inv_eq_one,
         add_neg_cancel, ENNReal.rpow_zero, one_mul]
 
@@ -273,7 +281,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
         simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at mp mp'
         exact not_not.mp ((tile_disjointness h𝔄 mp mp').mt hn)
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
-        ∫⁻ y, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by gcongr; exact setLIntegral_le_lintegral _ _
+        ∫⁻ y, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by gcongr; exact Measure.restrict_le_self
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (eLpNorm (M14 𝔄 (q₆ a) g) 2 * eLpNorm g 2) := by
       conv_rhs => enter [2, 2]; rw [← eLpNorm_enorm]

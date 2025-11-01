@@ -29,7 +29,7 @@ def χtilde (J : Grid X) (u₁ : 𝔓 X) : X → ℝ≥0 :=
   (𝓘 u₁ : Set X).indicator fun x ↦ (8 - D ^ (- s J) * dist x (c J)).toNNReal
 
 lemma χtilde_pos_iff : 0 < χtilde J u₁ x ↔ x ∈ 𝓘 u₁ ∧ x ∈ ball (c J) (8 * D ^ s J) := by
-  have := @one_le_D a; rw [χtilde]
+  have := @one_le_realD a; rw [χtilde]
   by_cases h : x ∈ 𝓘 u₁
   · rw [indicator_of_mem h, Real.toNNReal_pos, sub_pos, zpow_neg, inv_mul_lt_iff₀' (by positivity)]
     simp [h]
@@ -41,7 +41,7 @@ lemma χtilde_le_eight : χtilde J u₁ x ≤ 8 := by
   positivity
 
 lemma four_lt_χtilde (xJ : x ∈ J) (xu : x ∈ 𝓘 u₁) : 4 < χtilde J u₁ x := by
-  have := @one_le_D a
+  have := one_le_realD a
   simp_rw [χtilde, indicator_of_mem xu, Real.ofNat_lt_toNNReal, lt_sub_comm, Nat.cast_ofNat]
   rw [show (8 : ℝ) - 4 = 4 by norm_num, zpow_neg, inv_mul_lt_iff₀' (by positivity)]
   exact mem_ball.mp (Grid_subset_ball xJ)
@@ -84,11 +84,8 @@ def holderFunction (f₁ f₂ : X → ℂ) (J : Grid X) (x : X) : ℂ :=
 
 lemma IF_subset_THEN_not_disjoint {A B : Grid X} (h : (A : Set X) ⊆ B) :
     ¬ Disjoint (B : Set X) (A : Set X) := by
-  rw [disjoint_comm]
-  intro disjoint
-  have nonempty := Grid.nonempty A
-  rw [← Mathlib.Tactic.PushNeg.empty_ne_eq_nonempty] at nonempty
-  exact nonempty (Eq.symm ((Set.disjoint_of_subset_iff_left_eq_empty h).mp disjoint))
+  rw [disjoint_comm, Set.disjoint_of_subset_iff_left_eq_empty h, ← Ne, ← nonempty_iff_ne_empty]
+  exact Grid.nonempty A
 
 lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J : X} {r : ℝ} {pSet : Set X} {p : X}
     (belongs : p ∈ pSet) (h : Disjoint (Metric.ball J r) pSet) :
@@ -218,7 +215,7 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
       · exact (mem_ball'.mp (Grid_subset_ball (lJ''.1 Grid.c_mem_Grid))).le
       · exact (dist_lt_of_not_disjoint_ball hd).le
     _ ≤ 100 * D ^ s J + (4 * D ^ s J + 8 * D ^ s J + 8 * D ^ s J) := by
-      gcongr; exacts [one_le_D, by omega, one_le_D, by omega, one_le_D, by omega]
+      gcongr; exacts [one_le_realD a, by omega, one_le_realD a, by omega, one_le_realD a, by omega]
     _ ≤ _ := by
       rw [← add_mul, ← add_mul, ← add_mul, zpow_add_one₀ (by simp), mul_comm _ (D : ℝ), ← mul_assoc]
       gcongr; trans 100 * 4
@@ -261,8 +258,7 @@ lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
   apply BoundedCompactSupport.mono_norm (g := fun x ↦ (ball (c J) (8 * D ^ s J)).indicator 1 x)
     ?_ ?_ (fun x ↦ ?_)
   · constructor
-    · refine memLp_top_of_bound (aestronglyMeasurable_one.indicator measurableSet_ball) 1
-        (.of_forall fun x ↦ ?_)
+    · refine memLp_top_of_bound (by fun_prop (discharger := measurability)) 1 (.of_forall fun x ↦ ?_)
       unfold indicator; split_ifs <;> simp
     · refine HasCompactSupport.intro (isCompact_closedBall (c J) (8 * D ^ s J)) fun x mx ↦ ?_
       apply indicator_of_notMem; contrapose! mx; exact ball_subset_closedBall mx
@@ -325,12 +321,12 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
             _ ≤ 8 * (D : ℝ) ^ s J' + 8 * D ^ s J + 9 * D ^ (s J + 1) := by
               gcongr; exact (dist_lt_of_not_disjoint_ball mJ'.2).le
             _ ≤ 8 * (D : ℝ) ^ (s J + 1) + D ^ (s J + 1) + 9 * D ^ (s J + 1) := by
-              gcongr; exacts [one_le_D, by omega, by
+              gcongr; exacts [one_le_realD a, by omega, by
                 rw [zpow_add_one₀ (by simp), mul_comm 8]; gcongr; exact eight_le_realD X]
             _ ≤ _ := by
               rw [← add_one_mul, ← add_mul, ← mul_assoc, ← mul_rotate, ← zpow_natCast,
                 ← zpow_add₀ (by simp), mul_comm _ 18, show (8 : ℝ) + 1 + 9 = 18 by norm_num]
-              gcongr 18 * (D : ℝ) ^ ?_; exacts [one_le_D, by omega]
+              gcongr 18 * (D : ℝ) ^ ?_; exacts [one_le_realD a, by omega]
         convert measure_ball_le_of_dist_le' (μ := volume) (by simp) db
         simp_rw [As, defaultA, defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul, Real.logb_pow,
           Real.logb_self_eq_one one_lt_two, mul_one, Nat.ceil_natCast, ENNReal.coe_pow,
@@ -364,7 +360,7 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
           _ ≤ (D : ℝ) ^ (s J + 1) / 4 + (8 * D ^ (s J + 1) + (8 * D / 25) * D ^ s J) := by
             have : (8 : ℝ) ≤ 8 * D / 25 := by
               rw [le_div_iff₀ (by norm_num)]; gcongr; exact twentyfive_le_realD X
-            gcongr; exacts [one_le_D, by omega, one_le_D, by omega]
+            gcongr; exacts [one_le_realD a, by omega, one_le_realD a, by omega]
           _ ≤ _ := by
             rw [show 8 * (D : ℝ) / 25 * D ^ s J = 8 / 25 * (D ^ s J * D) by ring,
               ← zpow_add_one₀ (by simp), ← add_mul, div_eq_inv_mul, ← add_mul]
@@ -453,7 +449,7 @@ lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       gcongr with J' mJ'; trans dist x x' / D ^ (s J')
       · exact dist_χtilde_le mx mx'
       · rw [div_eq_mul_inv, ← zpow_neg]; gcongr
-        · exact one_le_D
+        · exact one_le_realD a
         · rw [Finset.mem_filter, mem_toFinset] at mJ'
           rw [neg_le, neg_sub]; exact moderate_scale_change hJ mJ'.1 mJ'.2
     _ = dist x x' / (D : ℝ) ^ s J *
@@ -478,7 +474,7 @@ lemma ψ_le_max [ProofData a q K σ₁ σ₂ F G] {x : ℝ} : ψ x ≤ max 0 ((2
   · exact (ψ_le_one ..).trans ((Real.one_le_rpow (by linarith) (by simp)).trans (le_max_right ..))
   by_cases h₂ : 1 / 2 ≤ x
   · rw [ψ_formula₄ h₂]; exact le_max_left ..
-  push_neg at h₁ h₂; rw [ψ_formula₃ (one_lt_D (X := X)) ⟨h₁.le, h₂.le⟩]
+  push_neg at h₁ h₂; rw [ψ_formula₃ (one_lt_realD X) ⟨h₁.le, h₂.le⟩]
   refine le_trans ?_ (le_max_right ..)
   set y := 2 - 4 * x; apply Real.self_le_rpow_of_le_one
   · unfold y; linarith
@@ -487,7 +483,7 @@ lemma ψ_le_max [ProofData a q K σ₁ σ₂ F G] {x : ℝ} : ψ x ≤ max 0 ((2
 
 lemma le_of_mem_E {y : X} (hy : y ∈ E p) (hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
     2 - 4 * ((D : ℝ) ^ (-𝔰 p) * dist y x) ≤ dist x x' / D ^ (𝔰 p) * 4 := by
-  have := one_le_D (a := a)
+  have := one_le_realD a
   calc
     _ ≤ 2 - 4 * (D : ℝ) ^ (-𝔰 p) * (dist x (𝔠 p) - dist y (𝔠 p)) := by
       rw [mul_assoc]; gcongr; rw [sub_le_iff_le_add]; exact dist_triangle_left ..
@@ -535,8 +531,8 @@ lemma holder_correlation_tile_one
     _ ≤ ∫⁻ y in E p, ‖conj (Ks (𝔰 p) y x)‖ₑ * ‖exp (I * (Q y y - Q y x))‖ₑ * ‖f y‖ₑ := by
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
     _ = ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
-      congr 1 with y; norm_cast; nth_rw 1 [mul_comm I]; nth_rw 2 [← enorm_norm]
-      rw [norm_exp_ofReal_mul_I, enorm_one, mul_one, ← enorm_norm, RCLike.norm_conj, enorm_norm]
+      congr 1 with y; norm_cast; nth_rw 1 [mul_comm I]
+      rw [enorm_exp_ofReal_mul_I, mul_one, RCLike.enorm_conj]
     _ ≤ ∫⁻ y in E p, C2_1_3 a / volume (ball y (D ^ 𝔰 p)) *
         ‖ψ (D ^ (-𝔰 p) * dist y x)‖ₑ * ‖f y‖ₑ := by gcongr; exact enorm_Ks_le'
     _ ≤ ∫⁻ y in E p, C2_1_3 a / (volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a)) *
@@ -650,11 +646,11 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     _ ≤ (∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x)‖ₑ * ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ) +
         ∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ := by
       simp_rw [mul_assoc]; gcongr with y; rw [enorm_mul]; gcongr
-      exact enorm_exp_I_mul_ofReal_sub_one_le
+      exact Real.enorm_exp_I_mul_ofReal_sub_one_le
     _ = _ := by
       congr! 4
-      · congr 1; rw [← enorm_norm, RCLike.norm_conj, enorm_norm]
-      · rw [← map_sub, ← enorm_norm, RCLike.norm_conj, enorm_norm]
+      · congr 1; rw [RCLike.enorm_conj]
+      · rw [← map_sub, RCLike.enorm_conj]
 
 /-- Multiplicative factor for the bound on `‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ`. -/
 irreducible_def Q7_5_5 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (6 * a)
@@ -860,7 +856,7 @@ lemma limited_scale_impact_first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈
   rify
   apply lt_of_le_of_lt (hbc := calculation_logD_64 (X := X))
   apply tsub_le_iff_left.mpr
-  have DIsOne := one_lt_D (X := X)
+  have DIsOne := one_lt_realD X
   rw [
     ← Real.logb_rpow (b := D) (x := 𝔰 p) (by positivity) (by linarith),
     ← Real.logb_mul (by positivity) (by positivity),
@@ -918,7 +914,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
     exact J'Touches𝔖₀.right
   apply calculation_9 (X := X)
   apply one_le_of_le_mul_right₀ (b := 2 ^ ((Z : ℝ) * n / 2)) (by positivity)
-  have DIsPos := defaultD_pos a
+  have DIsPos := realD_pos a
   calc 2 ^ ((Z : ℝ) * (n : ℝ) / 2)
     _ ≤ dist_{𝓘 p'} (𝒬 u₁) (𝒬 u₂) := by
       exact distance
@@ -1026,12 +1022,11 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
       iSup₂_mono fun x mx ↦ enorm_integral_le_lintegral_enorm _
     _ = ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
       congr! with x mx y
-      rw [enorm_mul, enorm_mul, enorm_eq_nnnorm, RCLike.nnnorm_conj]
-      nth_rw 1 [← enorm_norm, norm_exp_I_mul_sub_ofReal, enorm_one, mul_one, ← enorm_eq_nnnorm]
+      rw [enorm_mul, enorm_mul, RCLike.enorm_conj, ← ofReal_sub, enorm_exp_I_mul_ofReal, mul_one]
     _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ∫⁻ y in E p,
         C2_1_3 a / volume (ball y (D ^ 𝔰 p)) * ‖f y‖ₑ := by gcongr; exact enorm_Ks_le
     _ = ∫⁻ x in E p, C2_1_3 a / volume (ball x (D ^ 𝔰 p)) * ‖f x‖ₑ := by
-      have := one_le_D (a := a)
+      have := one_le_realD a
       exact biSup_const (nonempty_ball.mpr (by positivity))
     _ ≤ ∫⁻ x in E p,
         C2_1_3 a / (volume (ball (c J) (16 * D ^ 𝔰 p)) / 2 ^ (5 * a)) * ‖f x‖ₑ := by
@@ -1044,7 +1039,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
           _ ≤ dist y (c J) + dist y (𝔠 p) := dist_triangle_left ..
           _ < 8⁻¹ * D ^ s J + 8 * D ^ 𝔰 p := by gcongr
           _ ≤ _ := by
-            rw [Finset.mem_Icc, ← mp.1] at mk; rw [add_mul]; gcongr; exacts [one_le_D, mk.1]
+            rw [Finset.mem_Icc, ← mp.1] at mk; rw [add_mul]; gcongr; exacts [one_le_realD a, mk.1]
       have inc : ball (c J) (16 * D ^ 𝔰 p) ⊆ ball x (32 * D ^ 𝔰 p) := fun y my ↦ by
         rw [mem_ball] at my ⊢
         calc
@@ -1108,7 +1103,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         exact this.resolve_left hi
     _ ≤ 2 ^ ((𝕔 + 3) * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
         (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in ball (c J) (16 * D ^ k), ‖f x‖ₑ := by
-      gcongr with k mk; refine lintegral_mono_set (iUnion₂_subset fun p mp ↦ ?_)
+      gcongr with k mk; refine iUnion₂_subset fun p mp ↦ ?_
       rw [Finset.mem_filter_univ] at mp
       refine (E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball' ?_)
       obtain ⟨y, my₁, my₂⟩ := not_disjoint_iff.mp mp.2
@@ -1117,7 +1112,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         _ ≤ 4 * D ^ 𝔰 p + (dist y (𝔠 p) + dist y (c J)) := by gcongr; exact dist_triangle_left ..
         _ ≤ 4 * D ^ 𝔰 p + 8 * D ^ 𝔰 p + 8⁻¹ * D ^ s J := by rw [add_assoc]; gcongr
         _ ≤ (4 + 8 + 8⁻¹) * D ^ k := by
-          rw [Finset.mem_Icc] at mk; simp_rw [add_mul, mp.1]; gcongr; exacts [one_le_D, mk.1]
+          rw [Finset.mem_Icc] at mk; simp_rw [add_mul, mp.1]; gcongr; exacts [one_le_realD a, mk.1]
         _ ≤ _ := by gcongr; norm_num
     _ = 2 ^ ((𝕔 + 3) * a ^ 3) *
         ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨍⁻ x in ball (c J) (16 * D ^ k), ‖f x‖ₑ ∂volume := by
@@ -1126,7 +1121,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
       gcongr with k mk; rw [Finset.mem_Icc] at mk
       apply laverage_le_biInf_MB
-      · gcongr; exacts [by norm_num, one_le_D, mk.1]
+      · gcongr; exacts [by norm_num, one_le_realD a, mk.1]
       · use ⟨4, (k - s J).toNat, J⟩
         simp only [𝓑, c𝓑, r𝓑, mem_prod, mem_Iic, mem_univ, le_add_iff_nonneg_left, zero_le,
           and_true, true_and]
@@ -1167,13 +1162,13 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
         rw [add_assoc]; gcongr
         · exact mem_ball.mp (Grid_subset_ball xInTile)
         · exact dist_lt_of_not_disjoint_ball h
-      _ ≤ 4 * D ^ s J + 8 * D ^ s J + 16 * D ^ s J := by gcongr <;> exact one_le_D
+      _ ≤ 4 * D ^ s J + 8 * D ^ s J + 16 * D ^ s J := by gcongr <;> exact one_le_realD a
       _ ≤ _ := by
-        rw [← add_mul, ← add_mul, zpow_add_one₀ (defaultD_pos a).ne', mul_comm _ (D : ℝ),
+        rw [← add_mul, ← add_mul, zpow_add_one₀ (realD_pos a).ne', mul_comm _ (D : ℝ),
           ← mul_assoc]; gcongr
         calc
           _ ≤ 100 * (1 : ℝ) := by norm_num
-          _ ≤ _ := by gcongr; exact one_le_D
+          _ ≤ _ := by gcongr; exact one_le_realD a
 
 lemma volume_cpDsp_bound {J : Grid X}
     (hd : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (16 * D ^ s J))) (hs : s J ≤ 𝔰 p) :
@@ -1184,7 +1179,7 @@ lemma volume_cpDsp_bound {J : Grid X}
       _ ≤ 8 * (D : ℝ) ^ 𝔰 p + 16 * D ^ s J + 32 * D ^ 𝔰 p := by
         gcongr; exact (dist_lt_of_not_disjoint_ball hd).le
       _ ≤ 8 * (D : ℝ) ^ 𝔰 p + 16 * D ^ 𝔰 p + 32 * D ^ 𝔰 p := by
-        gcongr; exact one_le_D
+        gcongr; exact one_le_realD a
       _ ≤ _ := by rw [← add_mul, ← add_mul, ← mul_assoc]; gcongr; norm_num
   convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
   unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
@@ -1218,7 +1213,7 @@ lemma gtc_integral_bound {k : ℤ} {ℭ : Set (𝔓 X)}
       calc
         _ ≤ (4 : ℝ) * D ^ 𝔰 p + 8 * D ^ 𝔰 p + 16 * D ^ s J := by
           rw [add_assoc]; gcongr; exact (dist_lt_of_not_disjoint_ball mp.2.1).le
-        _ ≤ (4 : ℝ) * D ^ 𝔰 p + 8 * D ^ 𝔰 p + 16 * D ^ 𝔰 p := by gcongr; exact one_le_D
+        _ ≤ (4 : ℝ) * D ^ 𝔰 p + 8 * D ^ 𝔰 p + 16 * D ^ 𝔰 p := by gcongr; exact one_le_realD a
         _ ≤ _ := by rw [← add_mul, ← add_mul]; gcongr; norm_num
 
 /-- Part 1 of equation (7.5.18) of Lemma 7.5.9. -/
@@ -1255,7 +1250,7 @@ lemma global_tree_control1_edist_part1
       rw [← mul_assoc, ← mul_div_assoc, mul_assoc _ _ ((D : ℝ≥0∞) ^ _), mul_comm _ (_ * _),
         mul_div_assoc, mul_comm (_ ^ _ * _)]; congr
       rw [div_eq_mul_inv, ENNReal.mul_rpow_of_nonneg _ _ (by positivity),
-        ← ENNReal.zpow_neg (by simp) (by simp), ← ENNReal.rpow_intCast, ← ENNReal.rpow_mul,
+        ← ENNReal.zpow_neg, ← ENNReal.rpow_intCast, ← ENNReal.rpow_mul,
         ← div_eq_mul_inv, Int.cast_neg]
     _ = C7_5_5 a * edist x x' ^ (a : ℝ)⁻¹ * ∑ k ∈ Finset.Icc (s J) S,
         ∑ p ∈ ℭ with ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (16 * D ^ s J)) ∧ 𝔰 p = k,
@@ -1334,7 +1329,7 @@ lemma global_tree_control1_edist_part2
         D ^ (-k / (a : ℝ)) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
       gcongr with k mk; rw [Finset.mem_Icc] at mk
       apply laverage_le_biInf_MB
-      · gcongr; exacts [by norm_num, one_le_D, mk.1]
+      · gcongr; exacts [by norm_num, one_le_realD a, mk.1]
       · use ⟨5, (k - s J).toNat, J⟩
         simp only [𝓑, c𝓑, r𝓑, mem_prod, mem_Iic, mem_univ, le_add_iff_nonneg_left, zero_le,
           and_true, true_and]
@@ -1602,7 +1597,7 @@ lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     _ = _ := by
       rw [mul_div_assoc, ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_coe_nnreal,
         ENNReal.ofReal_div_of_pos (by unfold defaultD; positivity), ← edist_dist x x',
-        ← Real.rpow_intCast, ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a), ENNReal.rpow_intCast,
+        ← Real.rpow_intCast, ← ENNReal.ofReal_rpow_of_pos (realD_pos a), ENNReal.rpow_intCast,
         ENNReal.ofReal_natCast]
       ring
 
@@ -1729,7 +1724,7 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         refine mul_le_mul' (ENNReal.div_le_of_le_mul ?_) (ENNReal.rpow_le_rpow h.le (by positivity))
         have hc : 32 * (D : ℝ≥0∞) ^ s J = ENNReal.ofReal (32 * D ^ s J) := by
           rw [ENNReal.ofReal_mul (by norm_num), ← Real.rpow_intCast,
-            ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a), ENNReal.rpow_intCast,
+            ← ENNReal.ofReal_rpow_of_pos (realD_pos a), ENNReal.rpow_intCast,
             ENNReal.ofReal_natCast, ENNReal.ofReal_ofNat]
         rw [edist_dist, hc]; apply ENNReal.ofReal_le_ofReal
         calc
@@ -1802,7 +1797,7 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         exact ENNReal.zpow_lt_top (by unfold defaultD; positivity) (ENNReal.natCast_ne_top _) _
       rw [add_mul, ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat,
         ENNReal.mul_rpow_of_nonneg _ _ (τ_nonneg X), ← Real.rpow_intCast,
-        ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a), ENNReal.rpow_intCast, ENNReal.ofReal_natCast,
+        ← ENNReal.ofReal_rpow_of_pos (realD_pos a), ENNReal.rpow_intCast, ENNReal.ofReal_natCast,
         ← mul_assoc, ← mul_rotate _ (_ ^ _), mul_assoc _ (_ ^ τ), defaultτ, ENNReal.inv_rpow,
         ENNReal.mul_inv_cancel dn0 dnt, mul_one, mul_rotate (_ ^ _)]
     _ ≤ _ := by
@@ -1928,7 +1923,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         by exact_mod_cast calculation_12 (s := s J)]
       rw [calculation_13]
       apply cdist_le_iterate
-      have := defaultD_pos a
+      have := realD_pos a
       positivity
   rw [C7_5_11]
   push_cast
@@ -2041,7 +2036,7 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
           P7_5_4_le_adjointBoundaryOperator_mul mx
     _ ≤ C7_4_5 a n * ∑ J ∈ 𝓙₅ t u₁ u₂, ∫⁻ x in J,
         adjointBoundaryOperator t u₁ f₁ x * adjointBoundaryOperator t u₂ f₂ x := by
-      gcongr with J mJ; refine lintegral_mono_set ((ball_subset_ball ?_).trans ball_subset_Grid)
+      gcongr with J mJ; refine (ball_subset_ball ?_).trans ball_subset_Grid
       change _ ≤ (D : ℝ) ^ s J / 4; rw [div_eq_inv_mul]; gcongr; norm_num
     _ = C7_4_5 a n * ∫⁻ x in 𝓘 u₁,
         adjointBoundaryOperator t u₁ f₁ x * adjointBoundaryOperator t u₂ f₂ x := by

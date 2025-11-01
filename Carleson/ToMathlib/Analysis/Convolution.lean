@@ -26,22 +26,22 @@ theorem convolution_symm {f : G → E} {g : G → E} (L : E →L[𝕜] E →L[�
   suffices L.flip = L by rw [← convolution_flip, this]
   aesop
 
+variable [AddGroup G] [MeasurableAdd₂ G] [MeasurableNeg G] {μ : Measure G} [SigmaFinite μ]
+
 /-- The convolution of two a.e. strongly measurable functions is a.e. strongly measurable. -/
-protected theorem AEStronglyMeasurable.convolution [NormedSpace ℝ F] [AddGroup G]
-    [MeasurableAdd₂ G] [MeasurableNeg G] {μ : Measure G} [SigmaFinite μ] [μ.IsAddRightInvariant]
+@[fun_prop]
+protected theorem AEStronglyMeasurable.convolution [NormedSpace ℝ F] [μ.IsAddRightInvariant]
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
     AEStronglyMeasurable (f ⋆[L, μ] g) μ := by
   suffices AEStronglyMeasurable (fun ⟨x, t⟩ ↦ g (x - t)) (μ.prod μ) from
     (L.aestronglyMeasurable_comp₂ hf.comp_snd this).integral_prod_right'
   refine hg.comp_quasiMeasurePreserving <| QuasiMeasurePreserving.prod_of_left measurable_sub ?_
-  apply Filter.Eventually.of_forall (fun x ↦ ?_)
-  exact ⟨measurable_sub_const x, by rw [map_sub_right_eq_self μ x]⟩
+  filter_upwards with x using ⟨measurable_sub_const x, by rw [map_sub_right_eq_self μ x]⟩
 
 /-- This implies both of the following theorems `convolutionExists_of_memLp_memLp` and
 `enorm_convolution_le_eLpNorm_mul_eLpNorm`. -/
-lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [AddGroup G]
-    [MeasurableAdd₂ G] [MeasurableNeg G] {μ : Measure G} [SFinite μ] [μ.IsNegInvariant]
-    [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.HolderConjugate q)
+lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm
+    [μ.IsNegInvariant] [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.HolderConjugate q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
     ∫⁻ a, ‖L (f a) (g (x₀ - a))‖ₑ ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
@@ -55,23 +55,24 @@ lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [AddGroup G]
     simpa using Filter.Eventually.of_forall (fun x ↦ hL x (x₀ - x))
   simpa [eLpNorm, eLpNorm'] using eLpNorm_le_eLpNorm_mul_eLpNorm'_of_norm hf hg' (L ·) _ hL' (hpqr := hpq)
 
+attribute [aesop (rule_sets := [finiteness]) safe apply] MeasureTheory.MemLp.eLpNorm_lt_top
+
 /-- If `MemLp f p μ` and `MemLp g q μ`, where `p` and `q` are Hölder conjugates, then the
 convolution of `f` and `g` exists everywhere. -/
-theorem ConvolutionExists.of_memLp_memLp [AddGroup G] [MeasurableAdd₂ G]
-    [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant] [μ.IsAddLeftInvariant]
-    [μ.IsAddRightInvariant] {p q : ENNReal} (hpq : p.HolderConjugate q)
+theorem ConvolutionExists.of_memLp_memLp
+    [μ.IsNegInvariant] [μ.IsAddLeftInvariant] [μ.IsAddRightInvariant]
+    {p q : ENNReal} (hpq : p.HolderConjugate q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖) (hf : AEStronglyMeasurable f μ)
     (hg : AEStronglyMeasurable g μ) (hfp : MemLp f p μ) (hgq : MemLp g q μ) :
     ConvolutionExists f g L μ := by
-  refine fun x ↦ ⟨AEStronglyMeasurable.convolution_integrand_snd L hf hg x, ?_⟩
+  refine fun x ↦ ⟨hf.convolution_integrand_snd L hg x, ?_⟩
   apply lt_of_le_of_lt (lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm hpq hL hf hg x)
-  exact ENNReal.mul_lt_top hfp.eLpNorm_lt_top hgq.eLpNorm_lt_top
+  finiteness
 
 /-- If `p` and `q` are Hölder conjugates, then the convolution of `f` and `g` is bounded everywhere
 by `eLpNorm f p μ * eLpNorm g q μ`. -/
-theorem enorm_convolution_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F] [AddGroup G]
-    [MeasurableAdd₂ G] [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant]
-    [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.HolderConjugate q)
+theorem enorm_convolution_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F]
+    [μ.IsNegInvariant] [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.HolderConjugate q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
     ‖(f ⋆[L, μ] g) x₀‖ₑ ≤ eLpNorm f p μ * eLpNorm g q μ :=

@@ -2,6 +2,7 @@
 
 import Carleson.Classical.Basic
 import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
+import Mathlib.Tactic.Field
 
 open scoped Real
 open Finset Complex MeasureTheory
@@ -86,19 +87,19 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
       _ = cexp ((N + 1 / 2) * I * x) - cexp (-(N + 1 / 2) * I * x) := by
         rw [← sum_Ico_add_eq_sum_Icc, ← sum_Ioc_add_eq_sum_Icc, add_sub_add_comm,
           ← zero_add (cexp ((N + 1 / 2) * I * ↑x) - cexp (-(N + 1 / 2) * I * ↑x))]
-        congr 2
-        rw [sub_eq_zero]
-        conv => lhs; rw [← Int.add_sub_cancel (-(N : ℤ)) 1, sub_eq_add_neg,
-          ← Int.add_sub_cancel (Nat.cast N) 1, sub_eq_add_neg, ← sum_Ico_add']
-        congr 2 with n
-        · rw [mem_Ico, mem_Ioc, Int.lt_iff_add_one_le, add_le_add_iff_right,
-            ← mem_Icc, Int.lt_iff_add_one_le, ← mem_Icc]
-          simp
-        · simp only [Int.reduceNeg, Int.cast_add, Int.cast_neg, Int.cast_one, one_div, add_assoc,
-            sub_eq_add_neg]
-          norm_num
-        · rw [neg_add_rev, add_comm, Int.cast_neg, sub_eq_add_neg]
-          norm_cast
+        · congr 2
+          · rw [sub_eq_zero]
+            conv => lhs; rw [← Int.add_sub_cancel (-(N : ℤ)) 1, sub_eq_add_neg,
+              ← Int.add_sub_cancel (Nat.cast N) 1, sub_eq_add_neg, ← sum_Ico_add']
+            congr 2 with n
+            · rw [mem_Ico, mem_Ioc, Int.lt_iff_add_one_le, add_le_add_iff_right,
+              ← mem_Icc, Int.lt_iff_add_one_le, ← mem_Icc]
+              simp
+            · simp only [Int.reduceNeg, Int.cast_add, Int.cast_neg, Int.cast_one, one_div, add_assoc,
+                sub_eq_add_neg]
+              norm_num
+          · rw [neg_add_rev, add_comm, Int.cast_neg, sub_eq_add_neg]
+            norm_cast
         all_goals simp
   have h' : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) ≠ 0 := by
     contrapose! h
@@ -124,9 +125,7 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
     rw [← exp_add, ← exp_add, ← exp_add]
     congr 2 <;> ring
   · rw [mul_div]
-    apply eq_div_of_mul_eq
-    · contrapose! h
-      rwa [sub_eq_zero, eq_comm] at h
+    apply eq_div_of_mul_eq (sub_ne_zero_of_ne h.symm)
     ring_nf
     rw [← exp_add, ← exp_add, ← exp_add, neg_add_eq_sub]
     congr 2 <;> ring
@@ -136,25 +135,15 @@ lemma dirichletKernel'_eq_zero {x : ℝ} (h : cexp (I * x) = 1) : dirichletKerne
 
 /- "a.e." version of previous lemma. -/
 lemma dirichletKernel_eq_ae : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
-  have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ {x | ∃ n : ℤ, n * (2 * π) = x} := by
+  have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ Set.range (fun (n : ℤ) ↦ n * (2 * π)) := by
     intro x hx
-    simp only [Set.mem_setOf_eq]
-    by_contra h
-    apply hx (dirichletKernel_eq _)
-    rw [ne_eq, Complex.exp_eq_one_iff]
-    push_neg at *
-    ring_nf at *
-    intro n
-    rw [ne_eq, mul_assoc, mul_assoc, mul_eq_mul_left_iff]
-    simp only [I_ne_zero, or_false]
-    norm_cast
-    ring_nf
-    exact (h n).symm
+    simp only [Set.mem_setOf_eq] at hx ⊢
+    contrapose! hx
+    apply dirichletKernel_eq ?_
+    simpa [← ofReal_injective.ne_iff, Complex.exp_eq_one_iff, mul_comm I, ← mul_assoc, eq_comm] using hx
   rw [ae_iff]
   apply measure_mono_null this
-  apply Set.Countable.measure_zero
-  let f : ℤ → ℝ := fun n ↦ n * (2 * π)
-  apply Set.countable_range f
+  apply (Set.countable_range _).measure_zero
 
 lemma norm_dirichletKernel_le {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 1 := by
   rw [dirichletKernel]
@@ -209,8 +198,8 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       congr with n
       rw [fourier_coe_apply, fourier_coe_apply, fourier_coe_apply, ←exp_add]
       congr
-      field_simp
-      rw [mul_sub, sub_eq_neg_add]
+      simp
+      field
 
 lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {x : ℝ}
     (h : IntervalIntegrable f volume 0 (2 * π)) :
@@ -227,13 +216,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {x : ℝ}
       apply intervalIntegral.integral_congr_ae (ae_imp_of_ae_restrict
         (ae_restrict_of_ae _))
       have : {a | ¬f (x - a) * dirichletKernel N a = f (x - a) * dirichletKernel' N a} ⊆ {a | ¬dirichletKernel N a = dirichletKernel' N a} := by
-        intro a ha
-        contrapose! ha
-        simp only [ne_eq, Set.mem_setOf_eq, Decidable.not_not, mul_eq_mul_left_iff, not_or,
-          not_and] at *
-        intro h
-        exfalso
-        exact h ha
+        simp_all
       apply measure_mono_null this dirichletKernel_eq_ae
     _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel' N (x - y) := by
       congr 1

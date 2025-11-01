@@ -24,7 +24,7 @@ jobs:
     name: Build project
     steps:
       - name: Checkout project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -46,7 +46,17 @@ jobs:
       - name: Upstreaming dashboard
         run: python3 scripts/upstreaming_dashboard.py
 
-      - uses: leanprover-community/docgen-action@b210116d3e6096c0c7146f7a96a6d56b6884fef5 # 2025-06-12
+      - name: Generate the paper PDF and add it to the website
+        uses: xu-cheng/texlive-action@8268537fedf1198f3ed7000c544bfdbddcbae3b7 # v3
+        with:
+          docker_image: ghcr.io/xu-cheng/texlive-full:20251002
+          run: |
+            cd paper
+            latexmk -pdf main.tex
+            cd ..
+            cp paper/main.pdf docs/paper.pdf
+
+      - uses: leanprover-community/docgen-action@deed0cdc44dd8e5de07a300773eb751d33e32fc8 # 2025-10-26
         with:
           blueprint: true
           homepage: docs

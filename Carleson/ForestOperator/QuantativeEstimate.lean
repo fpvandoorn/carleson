@@ -187,7 +187,7 @@ private lemma local_dens2_tree_bound_aux {p : 𝔓 X} (hpu : p ∈ t u) {r : ℝ
   rw [mul_comm (C7_3_3 a : ℝ≥0∞), mul_assoc, ← ENNReal.div_le_iff]
   · apply le_trans <| ENNReal.div_le_div (measure_mono (inter_subset_inter_right F h₁)) h₂
     exact le_dens₂ (t u) hpu hr
-  · refine mul_ne_zero ?_ (volume_coeGrid_pos (defaultD_pos' a)).ne.symm
+  · refine mul_ne_zero ?_ (volume_coeGrid_pos (defaultD_pos a)).ne.symm
     rw [C7_3_3]
     exact_mod_cast (pow_pos two_pos _).ne.symm
   · exact ENNReal.mul_ne_top ENNReal.coe_ne_top (volume_coeGrid_lt_top).ne
@@ -222,7 +222,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   rw [𝓙₀, mem_setOf_eq] at this
   push_neg at this
   obtain ⟨p, hpu, hp⟩ := this.2
-  have d0 := defaultD_pos a
+  have d0 := realD_pos a
   have volume_le : volume (ball (c J') (204 * D ^ (s J' + 1))) ≤
                      2 ^ (2 * 𝕔 * a ^ 3 + 10 * a) * volume (J : Set X) := calc
     _ ≤ volume (ball (c J) ((204 * D + 4) * D ^ (s J'))) := by
@@ -233,7 +233,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
       rw [hsJ', zpow_add₀ d0.ne.symm, mul_comm ((D : ℝ) ^ (s J)), ← mul_assoc, zpow_one]
       refine measure_mono (ball_subset_ball <| mul_le_mul_of_nonneg_right ?_ (zpow_pos d0 (s J)).le)
       calc
-          _ ≤ 2 ^ 8 * (D : ℝ) ^ 2   := by nlinarith [one_lt_D (X := X)]
+          _ ≤ 2 ^ 8 * (D : ℝ) ^ 2   := by nlinarith [one_lt_realD X]
           _ = 2 ^ (2 * 𝕔 * a ^ 2 + 8) := by norm_cast; rw [pow_add, defaultD, ← pow_mul]; ring_nf
     _ ≤ (defaultA a) ^ (2 * 𝕔 * a ^ 2 + 10) * volume (ball (c J) (D ^ (s J) / 4)) := by
         rw [show 2 ^ (2 * 𝕔 * a^2 + 8) * (D : ℝ) ^ s J = 2 ^ (2 * 𝕔 * a^2 + 10) * (D ^ s J / 4) by ring]
@@ -252,7 +252,8 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   have hJp : (J : Set X) ⊆ ball (𝔠 p) (104 * D ^ (s J' + 1)) := by
     rw [show (104 : ℝ) = 4 + 100 by norm_num, add_mul]
     refine (hJJ'.1.trans Grid_subset_ball).trans <| ball_subset_ball' <| add_le_add ?_ hcJ'.le
-    exact mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ one_le_D (Int.le.intro 1 rfl)) four_pos.le
+    exact mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ (one_le_realD _) (Int.le.intro 1 rfl))
+      four_pos.le
   apply local_dens2_tree_bound_aux hpu (le_of_not_ge (hJB <| hJp.trans <| ball_subset_ball ·)) hJp
   have B_subset : ball (𝔠 p) (104 * D ^ (s J' + 1)) ⊆ ball (c J') (204 * D ^ (s J' + 1)) := by
     apply ball_subset_ball'
@@ -365,14 +366,14 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
       exact mul_le_mul_left' (hc J (Finset.mem_filter.mp hJ).2) (∫⁻ (y : X) in ↑J ∩ s, ‖f y‖ₑ ^ 2)
     _ = c * ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ (y : X) in J ∩ s, ‖f y‖ₑ ^ 2) := by
       simp_rw [mul_div_assoc,
-        ENNReal.div_self ((volume_coeGrid_pos (defaultD_pos' a)).ne.symm) volume_coeGrid_lt_top.ne]
+        ENNReal.div_self ((volume_coeGrid_pos (defaultD_pos a)).ne.symm) volume_coeGrid_lt_top.ne]
       rw [mul_one, ← Finset.sum_mul, mul_comm]
     _ ≤ _ := by
       rw [← setLIntegral_univ]
       have h : (GridStructure.coeGrid · ∩ s) ≤ GridStructure.coeGrid := fun _ ↦ inter_subset_left
       have hC : C = (Finset.univ.filter (· ∈ C) : Set (Grid X)) := by simp
       rw [← lintegral_biUnion_finset (hC ▸ disj_C.mono h) (fun _ _ ↦ coeGrid_measurable.inter hs)]
-      exact mul_left_mono <| lintegral_mono_set (subset_univ _)
+      exact mul_right_mono <| lintegral_mono_set (subset_univ _)
 
 lemma eLpNorm_approxOnCube_two_le_self (hf : BoundedCompactSupport f)
     {C : Set (Grid X)} (pdC : C.PairwiseDisjoint (fun I ↦ (I : Set X))) :
@@ -486,7 +487,7 @@ lemma density_tree_bound2
         ENNReal.coe_rpow_of_nonneg _ (by positivity), ENNReal.coe_rpow_of_nonneg _ (by positivity)]
       gcongr
       · norm_num
-      rw [← mul_le_mul_right zero_lt_two]
+      rw [← mul_le_mul_iff_left₀ zero_lt_two]
       simp only [add_mul, Nat.cast_add, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, mul_assoc,
         one_mul]
       simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, inv_mul_cancel₀, mul_one]
@@ -500,11 +501,11 @@ end TileStructure.Forest
 section Extras
 
 omit [TileStructure Q D κ S o] in
--- move somewhere else
+-- TODO: move somewhere else
 lemma _root_.MeasureTheory.BoundedCompactSupport.const_smul (hf : BoundedCompactSupport f) (c : ℝ) :
-  BoundedCompactSupport (c • f) := by
-  simp_rw [Pi.smul_def,Complex.real_smul]
-  apply hf.const_mul
+    BoundedCompactSupport (c • f) := by
+  simp_rw [Pi.smul_def, Complex.real_smul]
+  fun_prop
 
 omit [TileStructure Q D κ S o] [MetricSpace X] in
 -- rename, move somewhere else

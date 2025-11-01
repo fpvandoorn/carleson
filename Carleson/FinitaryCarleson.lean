@@ -13,7 +13,7 @@ theorem integrable_tile_sum_operator
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {x : X} {s : ℤ} :
     Integrable fun y ↦ Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
   simp_rw [mul_assoc, mul_comm (Ks s x _)]
-  refine integrable_Ks_x (one_lt_D (X := X)) |>.bdd_mul ?_ ⟨1, fun y ↦ ?_⟩
+  refine integrable_Ks_x (one_lt_realD X) |>.bdd_mul ?_ ⟨1, fun y ↦ ?_⟩
   · exact hf.mul ((measurable_ofReal.comp (map_continuous (Q x)).measurable |>.sub
       measurable_const).const_mul I).cexp |>.aestronglyMeasurable
   · rw [norm_mul, ← one_mul 1]
@@ -113,8 +113,8 @@ theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volum
   rcases discrete_carleson X with ⟨G', hG', h2G', hfG'⟩
   refine ⟨G', hG', h2G', fun f meas_f h2f ↦ le_of_eq_of_le ?_ (hfG' f meas_f h2f)⟩
   refine setLIntegral_congr_fun (measurableSet_G.diff hG') fun x hx ↦ ?_
-  simp_rw [carlesonSum, mem_univ, Finset.filter_True, tile_sum_operator hx, mul_sub, exp_sub,
+  simp_rw [carlesonSum, mem_univ, Finset.filter_true, tile_sum_operator hx, mul_sub, exp_sub,
     mul_div, div_eq_mul_inv,
     ← smul_eq_mul, integral_smul_const, ← Finset.sum_smul, _root_.enorm_smul]
   suffices ‖(cexp (I • ((Q x) x : ℂ)))⁻¹‖ₑ = 1 by rw [this, mul_one]
-  simp [← coe_eq_one, mul_comm I, enorm_eq_nnnorm]
+  simp [mul_comm I, enorm_eq_nnnorm]

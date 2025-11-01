@@ -25,8 +25,7 @@ def 𝓙₆ : Set (Grid X) := 𝓙 (t u₁) ∩ Iic (𝓘 u₁)
 
 /-- Part of Lemma 7.6.1. -/
 -- Very similar to Lemma 7.5.1. Todo: simplify
-lemma union_𝓙₆ (hu₁ : u₁ ∈ t) :
-    ⋃ J ∈ 𝓙₆ t u₁, (J : Set X) = 𝓘 u₁ := by
+lemma union_𝓙₆ (hu₁ : u₁ ∈ t) : ⋃ J ∈ 𝓙₆ t u₁, (J : Set X) = 𝓘 u₁ := by
   refine subset_antisymm ?_ fun x hx ↦ ?_
   · refine iUnion₂_subset_iff.mpr <| fun _ hJ ↦ hJ.2.1
   · have existsCube : x ∈ ⋃ J ∈ 𝓙 (t u₁), (J : Set X) := by
@@ -72,9 +71,9 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) :
           rw [mem_setOf_eq] at xy ⊢
           have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
             gcongr
-            linarith
-            exact one_lt_D (X := X)
-            linarith
+            · linarith
+            · exact one_lt_realD X
+            · linarith
           exact gt_trans numbers xy
       have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
         refine east p belongs
@@ -105,9 +104,9 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
       _ < 8 * (D : ℝ) ^ 𝔰 p + 8 * D ^ s J := dist_lt_of_not_disjoint_ball hd
       _ ≤ 8 * D ^ (𝔰 p + C7_6_3 a n + 2) + 8 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
         simp_rw [← Real.rpow_intCast]; gcongr (8 : ℝ) * D ^ ?_ + 8 * D ^ ?_
-        · exact one_le_D
+        · exact one_le_realD _
         · rw [add_assoc, le_add_iff_nonneg_right]; exact nonneg_C7_6_3_add_two
-        · exact one_le_D
+        · exact one_le_realD _
         · linarith
       _ ≤ _ := by rw [← two_mul, ← mul_assoc]; norm_num
   obtain ⟨q, mq⟩ := t.nonempty hu₁
@@ -118,7 +117,7 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
     refine ⟨(scale_mem_Icc.1.trans_lt qlt.2).ne',
       ⟨q, mq, qlt.1.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩⟩
     change 4 * (D : ℝ) ^ (𝔰 u₁) ≤ 100 * D ^ (𝔰 u₁ + 1); gcongr
-    exacts [by norm_num, one_le_D, by omega]
+    exacts [by norm_num, one_le_realD _, by omega]
   have Jlt : J < 𝓘 u₁ := by apply lt_of_le_of_ne hJ.2; by_contra hh; subst hh; exact u₁nm hJ
   rw [Grid.lt_def] at Jlt; obtain ⟨J', lJ', sJ'⟩ := Grid.exists_scale_succ Jlt.2
   replace lJ' : J < J' := Grid.lt_def.mpr ⟨lJ'.1, by omega⟩
@@ -162,7 +161,7 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
           rw [← sJ', Int.cast_sub, Int.cast_one, sub_lt_iff_lt_add, sub_lt_iff_lt_add] at h
           simp_rw [← Real.rpow_intCast, Int.cast_add, Int.cast_one]
           gcongr 100 * (D : ℝ) ^ ?_ + 4 * D ^ ?_ + _
-          exacts [one_le_D, by linarith only [h], one_le_D, by linarith only [h]]
+          exacts [one_le_realD _, by linarith only [h], one_le_realD _, by linarith only [h]]
         _ ≤ _ := by rw [← add_mul, ← add_mul]; gcongr; norm_num
     _ ≤ dist_{𝔠 p, 2 ^ (𝕔 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
       refine cdist_mono (ball_subset_ball ?_)
@@ -205,7 +204,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
   have : (a : ℝ) ≠ 0 := by norm_cast; linarith [four_le_a X]
   have rearr : (a : ℝ) * (𝕔 * a ^ 2 * (Z * n / ((2 * 𝕔 + 2) * a ^ 3) + 1) + 9) =
       Z * n / 2 * (𝕔 / (𝕔 + 1)) * a ^ 3 / a ^ 3 + 𝕔 * a ^ 3 + 9 * a := by
-        field_simp; ring
+        field_simp
   have fla := four_le_a X
   rw [rearr, mul_div_cancel_right₀ _ (by norm_cast; positivity), add_assoc,
     ← sub_lt_iff_lt_add', sub_right_comm, add_sub_right_comm, ← mul_one_sub, div_mul_comm,
@@ -271,11 +270,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
     · rw [show (8 : ℝ≥0) = 2 ^ 3 by norm_num]
       simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA, ← zpow_natCast, ← zpow_mul,
         ← zpow_add₀ (show (2 : ℝ≥0) ≠ 0 by norm_num)]
-      -- #adaptation note(2024-11-02): this line was `gcongr`
-      -- This was probably broken by mathlib4#19626 and friends, see
-      -- https://leanprover.zulipchat.com/#narrow/channel/428973-nightly-testing/topic/.2319314.20adaptations.20for.20nightly-2024-11-20
-      -- for details.
-      refine zpow_le_zpow_right₀ ?ha ?hmn
+      gcongr
       · norm_num
       · simp only [Nat.cast_mul, Nat.cast_pow, mul_neg,
         le_add_neg_iff_add_le, ← mul_add]
@@ -386,7 +381,7 @@ lemma btp_expansion (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume =
     (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
     (∫⁻ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
-  have Vpos {J : Grid X} : 0 < volume (J : Set X) := volume_coeGrid_pos (defaultD_pos' a)
+  have Vpos {J : Grid X} : 0 < volume (J : Set X) := volume_coeGrid_pos (defaultD_pos a)
   have Vlt {J : Grid X} : volume (J : Set X) < ⊤ := volume_coeGrid_lt_top
   calc
     _ = (∫⁻ x, ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (fun _ ↦
@@ -474,7 +469,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ s J - 𝔰 p = k,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with J mJ
-      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_sum _ fun p mp ↦
+      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
         hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         volume (J : Set X) ^ (-2 : ℝ)⁻¹ * ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
@@ -544,7 +539,7 @@ lemma btp_integral_bound :
       · change (4 : ℝ) * D ^ s (𝓘 p) ≤ _
         rw [mp.2.2]; gcongr; norm_num
     _ ≤ _ := by
-      refine mul_le_mul_left' (lintegral_mono_fn fun y ↦ ?_) _
+      refine mul_le_mul_left' (lintegral_mono fun y ↦ ?_) _
       by_cases my : y ∈ ball (c I) (8 * D ^ s I)
       · refine mul_le_mul_left' ?_ _; rw [MB_def]
         have : (3, 0, I) ∈ 𝓑 := by simp [𝓑]
@@ -553,6 +548,8 @@ lemma btp_integral_bound :
         simp_rw [c𝓑, r𝓑, Nat.cast_zero, add_zero, indicator_of_mem this, enorm_eq_nnnorm]
         norm_num
       · rw [indicator_of_notMem my, zero_mul]; exact zero_le _
+
+attribute [fun_prop] AEMeasurable.restrict
 
 open Classical in
 /-- Equation (7.6.4) of Lemma 7.6.2 (before applying Cauchy–Schwarz). -/
@@ -584,7 +581,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       gcongr with k mk J mJ y
-      nth_rw 1 [← Finset.filter_True (@Finset.univ (Grid X) _) (h := fun _ ↦ instDecidableTrue)]
+      nth_rw 1 [← Finset.filter_true (@Finset.univ (Grid X) _) (h := fun _ ↦ instDecidableTrue)]
       simp_rw [Finset.sum_finset_product_filter_right]
       refine Finset.sum_le_sum_of_subset fun r hr ↦ ?_
       obtain ⟨I, p⟩ := r
@@ -601,7 +598,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
-      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_sum _ fun p mp ↦
+      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
         hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
@@ -639,8 +636,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
         (ball (c I) (8 * D ^ s I)).indicator 1 y) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
       rw [← lintegral_finset_sum']; swap
-      · exact fun I mI ↦
-          ((measurable_const.aemeasurable.indicator measurableSet_ball).mul aem_MB).restrict
+      · fun_prop (discharger := measurability)
       congr with y; rw [mul_comm, Finset.sum_mul]
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) *
@@ -650,8 +646,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       gcongr _ * ∑ k ∈ _, (∑ J ∈ _, ?_) ^ _ with k mk J mJ
       rw [setLAverage_eq, ENNReal.div_eq_inv_mul, ← mul_assoc, mul_comm _ _⁻¹, mul_assoc]
       gcongr; apply ENNReal.sq_lintegral_mul_le_mul_lintegral_sq aem_MB.restrict -- Cauchy–Schwarz
-      exact Finset.aemeasurable_sum _ fun I mI ↦
-        measurable_const.aemeasurable.indicator measurableSet_ball
+      fun_prop (discharger := measurability)
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset,
         (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) * C7_6_4 a k) ^ (2 : ℝ)⁻¹ := by

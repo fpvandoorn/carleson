@@ -83,7 +83,7 @@ lemma enorm_adjointCarleson_le {x : X} :
       rw [enorm_mul, enorm_mul, ← ofReal_sub, enorm_exp_I_mul_ofReal, RCLike.enorm_conj, mul_one]
     _ ≤ C2_1_3 a * ∫⁻ y in E p, (volume (ball y (D ^ 𝔰 p)))⁻¹ * ‖f y‖ₑ := by
       rw [← lintegral_const_mul' _ _ (by simp)]
-      refine lintegral_mono_fn fun y ↦ ?_
+      refine lintegral_mono fun y ↦ ?_
       rw [← mul_assoc, mul_comm _ _⁻¹, ← ENNReal.div_eq_inv_mul]
       exact mul_le_mul_right' enorm_Ks_le _
     _ ≤ _ := by

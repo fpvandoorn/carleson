@@ -4,7 +4,8 @@ import Mathlib.Data.Real.StarOrdered
 import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
 import Mathlib.Order.CompletePartialOrder
 
-open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
+open MeasureTheory Measure NNReal Metric Filter Topology TopologicalSpace
+open ENNReal hiding one_lt_two
 noncomputable section
 
 section Doubling
@@ -231,8 +232,8 @@ lemma IsDoubling.allBallsCoverBalls [OpensMeasurableSpace X] [NeZero μ]
     have : ∀ y ∈ s, (As A 9 : ℝ≥0∞)⁻¹ * μ (ball x R') ≤ μ (ball y (r / 2)) := by
       intro y hy
       rw [ENNReal.inv_mul_le_iff]
-      apply measure_ball_le_of_dist_le' (by norm_num)
-      · calc
+      · apply measure_ball_le_of_dist_le' (by norm_num)
+        calc
           dist y x + R' ≤ R + R' := by
             gcongr
             apply le_of_lt
@@ -309,7 +310,7 @@ lemma measureReal_ball_two_le_same (x : X) (r : ℝ) :
     μ.real (ball x (2 * r)) ≤ A * μ.real (ball x r) := by
   simp_rw [Measure.real, ← ENNReal.coe_toReal, ← toReal_mul]
   gcongr
-  · exact ENNReal.mul_ne_top coe_ne_top measure_ball_lt_top.ne
+  · finiteness
   · exact measure_ball_two_le_same x r
 
 lemma measureReal_ball_two_le_same_iterate (x : X) (r : ℝ) (n : ℕ) :
@@ -322,7 +323,7 @@ lemma measureReal_ball_two_le_same_iterate (x : X) (r : ℝ) (n : ℕ) :
 
 lemma measureReal_ball_pos [μ.IsOpenPosMeasure] (x : X) {r : ℝ} (hr : 0 < r) :
     0 < μ.real (ball x r) :=
-  toReal_pos ((measure_ball_pos μ x hr).ne.symm) (measure_ball_lt_top.ne)
+  toReal_pos ((measure_ball_pos μ x hr).ne') (measure_ball_lt_top.ne)
 
 variable (μ) in
 lemma one_le_A [Nonempty X] [μ.IsOpenPosMeasure] : 1 ≤ A := by
@@ -369,9 +370,9 @@ lemma measureReal_ball_four_le_same (x : X) (r : ℝ) :
 lemma measureReal_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     μ.real (ball x r') ≤ As A s * μ.real (ball x r) := by
   have hz := measure_ball_le_same (μ := μ) x hsp hs
-  have hbr': μ (ball x r') ≠ ⊤ := measure_ball_ne_top
-  have hbr: μ (ball x r) ≠ ⊤ := measure_ball_ne_top
-  have hAs : (As A s: ℝ≥0∞) ≠ ⊤ := coe_ne_top
+  have hbr': μ (ball x r') ≠ ⊤ := by finiteness
+  have hbr: μ (ball x r) ≠ ⊤ := by finiteness
+  have hAs : (As A s: ℝ≥0∞) ≠ ⊤ := by finiteness
   rw [← ENNReal.ofReal_toReal hbr, ← ENNReal.ofReal_toReal hbr',
     ← ENNReal.ofReal_toReal hAs, ← ENNReal.ofReal_mul] at hz
   · simp only [coe_toReal] at hz
@@ -420,7 +421,7 @@ end PseudoMetric
 
 section Normed
 
-open Module ENNReal
+open Module
 
 lemma Subsingleton.ball_eq {α} [PseudoMetricSpace α] [Subsingleton α] {x : α} {r : ℝ} :
     ball x r = if r > 0 then {x} else ∅ := by
@@ -437,46 +438,5 @@ instance InnerProductSpace.IsDoubling {E : Type*} [NormedAddCommGroup E]
     simp
 
 end Normed
-
-
-/- # Doubling metric measure spaces -/
-
-/-- A metric space with a measure with some nice propreties, including a doubling condition.
-This is called a "doubling metric measure space" in the blueprint.
-`A` will usually be `2 ^ a`.
-
-This class is not Mathlib-ready code, and should not be used in the `ToMathlib` folder.
--/
-class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
-    CompleteSpace X, LocallyCompactSpace X,
-    MeasureSpace X, BorelSpace X,
-    IsLocallyFiniteMeasure (volume : Measure X),
-    IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
-
-variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
-
-instance : ProperSpace X := by
-  constructor
-  intro x r
-  refine isCompact_of_totallyBounded_isClosed ?_ isClosed_closedBall
-  obtain ⟨r', hr'⟩ := exists_gt r
-  apply TotallyBounded.subset (closedBall_subset_ball hr')
-  refine Metric.totallyBounded_iff.mpr fun ε hε ↦ ?_
-  obtain ⟨s, _, h2s⟩ := IsDoubling.allBallsCoverBalls volume |>.ballsCoverBalls (by norm_num) hε x
-  use s, s.finite_toSet, by simpa using h2s
-
-instance : IsOpenPosMeasure (volume : Measure X) := isOpenPosMeasure_of_isDoubling _
-
-/-- Monotonicity of doubling measure metric spaces in `A`. -/
-@[reducible]
-def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
-  toIsDoubling := IsDoubling.mono h
-
-open Module
-
-instance InnerProductSpace.DoublingMeasure
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
-    [MeasurableSpace E] [BorelSpace E] [FiniteDimensional ℝ E] :
-    DoublingMeasure E (2 ^ finrank ℝ E) where
 
 end MeasureTheory

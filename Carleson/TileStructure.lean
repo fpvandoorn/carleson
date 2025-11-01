@@ -140,7 +140,7 @@ lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   · simp_rw [← mem_preimage, ← measurableSet_setOf]; exact SimpleFunc.measurableSet_preimage ..
   · apply (measurable_set_mem _).comp
     apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
-    · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
+    · exact measurable_from_prod_countable_left fun _ _ _ ↦ trivial
     · exact measurable_σ₁.prodMk measurable_σ₂
 
 lemma volume_E_lt_top : volume (E p) < ⊤ := trans (measure_mono E_subset_𝓘) volume_coeGrid_lt_top
@@ -389,7 +389,7 @@ lemma dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
 lemma volume_E₂_le_dens₁_mul_volume {𝔓' : Set (𝔓 X)} (mp : p ∈ lowerCubes 𝔓') (mp' : p' ∈ 𝔓')
     {l : ℝ≥0} (hl : 2 ≤ l) (sp : smul l p' ≤ smul l p) :
     volume (E₂ l p) ≤ l ^ a * dens₁ 𝔓' * volume (𝓘 p : Set X) := by
-  have vpos : volume (𝓘 p : Set X) ≠ 0 := (volume_coeGrid_pos (defaultD_pos' a)).ne'
+  have vpos : volume (𝓘 p : Set X) ≠ 0 := (volume_coeGrid_pos (defaultD_pos a)).ne'
   rw [← ENNReal.div_le_iff_le_mul (.inl vpos) (.inl volume_coeGrid_lt_top.ne),
     ← ENNReal.rpow_natCast, ← neg_neg (a : ℝ), ENNReal.rpow_neg, ← ENNReal.div_eq_inv_mul]
   have plt : (l : ℝ≥0∞) ^ (-(a : ℝ)) ≠ ⊤ := by finiteness

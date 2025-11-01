@@ -26,17 +26,20 @@ s_Nf(x):=\sum_{n=-N}^N \widehat{f}_n e^{i nx}.
 Then Carleson's theorem states $\lim_{N\to\infty} s_N f(x) = f(x)$ for almost all $x\in\mathbb{R}$.
 
 Despite being simple to state, its proof is very hard. (It is also quite subtle: for instance, asking for point-wise convergence *everywhere* makes this false.)
-The detailed statement can be found [here](https://florisvandoorn.com/carleson/blueprint/sect0001.html#classical-carleson),
-the corresponding Lean statement is here. TODO: link to it after re-organising the main files!
+The precise English statement statement can be found [as Theorem 1.0.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#classical-carleson),
+the corresponding Lean statement is [here](https://florisvandoorn.com/carleson/docs/find/?pattern=ClassicalCarleson#doc),
+and the Lean proof [here](https://florisvandoorn.com/carleson/docs/find/?pattern=classical_carleson#doc).
 
-## How do we prove it?
+### Metric space Carleson theorem
 
 In this project, we deduce this statement from the boundedness of a certain linear operator, the so-called *Carleson operator*.
-This boundedness holds in much greater generality: we formalise a new generalisation (due to the harmonic analysis group in Bonn) to [doubling metric measure spaces](https://florisvandoorn.com/carleson/docs/Carleson/ToMathlib/DoublingMeasure.html#MeasureTheory.DoublingMeasure).
-The precise technical result we prove is the **metric spaces Carleson theorem** ([precise statement](https://florisvandoorn.com/carleson/blueprint/sect0001.html#metric-space-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/Carleson/MetricCarleson/Main.html#metric_carleson)).
+This boundedness holds in much greater generality: we formalise a new generalisation (due to the harmonic analysis group in Bonn) to [doubling metric measure spaces](Carleson/Defs.lean#L40).
+The precise technical result we prove is the **metric spaces Carleson theorem** ([Theorem 1.1.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#metric-space-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/find/?pattern=MetricSpaceCarleson#doc), [Lean proof](https://florisvandoorn.com/carleson/docs/find/?pattern=metric_carleson#doc)).
 
-We also prove a **linearised metric space Carleson theorem** ([precise statement](https://florisvandoorn.com/carleson/blueprint/sect0001.html#linearised-metric-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/Carleson/MetricCarleson/Linearized.html#linearized_metric_carleson)),
+We also prove a **linearised metric space Carleson theorem** ([Theorem 1.1.2](https://florisvandoorn.com/carleson/blueprint/sect0001.html#linearised-metric-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/find/?pattern=LinearizedMetricCarleson#doc), [Lean proof](https://florisvandoorn.com/carleson/docs/find/?pattern=linearized_metric_carleson#doc)),
 which allows proving a generalisation of Carleson's theorem to [Walsh functions](https://en.wikipedia.org/wiki/Walsh_function).
+
+The new definitions needed to verify the *statements* of these theorems are in the file [`Carleson.Defs`](Carleson/Defs.lean)
 
 ## Verifying the formalisation
 
@@ -50,7 +53,7 @@ Open the file `Carleson.lean` in a text editor of your choice. Add the end of th
 5. In the terminal from step 3, run `lake build` to build all files in this repository. This will likely take 5-30 minutes.
 When the process is complete, at the very end of the output, you will see a line `'linearized_metric_carleson' depends on axioms: [propext, Classical.choice, Quot.sound]` (followed by `Build completed successfully`).
 This shows the proof is complete and correct. Had the build failed or the output included `sorryAx`, this would have indicated an error resp. an incomplete proof.
-(For the experts: this shows which axioms Lean used in the course of the proof. `propext` and `Quot.sound` are built into Lean's type theory, `Classical.choice` tells you that Lean's version of the axiom of choice was used.)
+(For the experts: this shows which axioms Lean used in the course of the proof. These three axioms are built into Lean's type theory.)
 
 ## Contribute
 

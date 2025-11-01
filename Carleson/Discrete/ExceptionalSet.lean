@@ -79,7 +79,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     rcases hp with ⟨p, rfl, r, hr, h⟩
     use r, hr
     refine ENNReal.lt_div_iff_mul_lt ?_ (Or.inl measure_ball_ne_top) |>.mp h |>.le
-    have r0 : r > 0 := lt_of_lt_of_le (by have := defaultD_pos a; positivity) hr
+    have r0 : r > 0 := lt_of_lt_of_le (by have := realD_pos a; positivity) hr
     exact Or.inl <| (measure_ball_pos volume (𝔠 p) r0).ne.symm
   let r (p : 𝔓 X) := dite (p ∈ highDensityTiles) (fun hp ↦ Classical.choose (this p hp)) (fun _ ↦ 0)
   have hr {p : 𝔓 X} (hp : p ∈ highDensityTiles) := Classical.choose_spec (this p hp)
@@ -396,7 +396,7 @@ lemma indicator_sum_eq_natCast {s : Finset (𝔓 X)} :
 open scoped Classical in
 lemma layervol_eq_zero_of_lt {t : ℝ} (ht : (𝔐 (X := X) k n).toFinset.card < t) :
     layervol (X := X) k n t = 0 := by
-  rw [layervol, measure_zero_iff_ae_notMem]
+  rw [layervol, measure_eq_zero_iff_ae_notMem]
   refine ae_of_all volume fun x ↦ ?_; rw [mem_setOf, not_le]
   calc
     _ ≤ ((𝔐 (X := X) k n).toFinset.card : ℝ) := by
@@ -410,7 +410,7 @@ lemma lintegral_Ioc_layervol_one {l : ℕ} :
   calc
     _ = ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n (l + 1) := by
       refine setLIntegral_congr_fun measurableSet_Ioc fun t ht ↦ ?_
-      unfold layervol; congr with x; simp_rw [mem_setOf]; constructor <;> intro h
+      unfold layervol; congr with x; constructor <;> intro h
       · rw [indicator_sum_eq_natCast, ← Nat.cast_one, ← Nat.cast_add, Nat.cast_le]
         rw [indicator_sum_eq_natCast, ← Nat.ceil_le] at h; convert h; symm
         rwa [Nat.ceil_eq_iff (by omega), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]
@@ -577,7 +577,7 @@ variable (m) (u : 𝔓 X) in
 private lemma balls_cover_big_ball : CoveredByBalls (big_ball m u) (defaultA a ^ 9) 0.2 :=
   ballsCoverBalls_iterate_nat (𝒬 m)
 
-private lemma 𝒬_injOn_𝔘m : InjOn 𝒬 (𝔘 k n j x m).toSet :=
+private lemma 𝒬_injOn_𝔘m : InjOn 𝒬 (SetLike.coe (𝔘 k n j x m)) :=
   fun _ hu _ hu' h ↦ 𝒬_inj h (𝓘_eq_𝓘 hu hu')
 
 private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
@@ -658,7 +658,7 @@ lemma tree_count :
   simp_rw [← mul_sum, stackSize_real, mem_coe, filter_univ_mem, interchange, sum_const]
   let _ : PosMulReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   -- Replace the cardinality of `𝔘` with the upper bound proven in `card_𝔘m_le`, and simplify.
-  apply le_of_le_of_eq <| (mul_le_mul_left (zpow_pos two_pos _)).mpr <| sum_le_sum <|
+  apply le_of_le_of_eq <| (mul_le_mul_iff_right₀ (zpow_pos two_pos _)).mpr <| sum_le_sum <|
     fun _ _ ↦ smul_le_smul_of_nonneg_right card_𝔘m_le <| Set.indicator_apply_nonneg (by simp)
   simp_rw [← smul_sum, nsmul_eq_mul, ← mul_assoc, filter_mem_univ_eq_toFinset (𝔐 k n), defaultA]
   rw [sub_eq_add_neg, zpow_add₀ two_ne_zero, ← pow_mul, mul_comm 9, mul_comm (2 ^ _)]
@@ -729,7 +729,7 @@ lemma boundary_exception {u : 𝔓 X} :
             -- small boundary property assumption for 𝓘 u
             have small_boundary_h : D ^ ((- S - s (𝓘 u)) : ℤ) ≤ t := by
               have one_le_nnreal_D : 1 ≤ (D : ℝ≥0) := by
-                have h1 : 1 ≤ (D : ℝ) := one_le_D
+                have h1 : 1 ≤ (D : ℝ) := one_le_realD _
                 assumption_mod_cast
               have small_boundary_h_intermediate : D ^ (- S : ℤ) ≤ t * D ^ (𝔰 u: ℤ) := by
                 rw [ht, D_pow_algebra,
@@ -786,11 +786,11 @@ lemma boundary_exception {u : 𝔓 X} :
             have two_le_D : 2 ≤ D := by linarith
             have : 2 * (12 / D) ^ κ ≤ (2 : ℝ≥0) := by
               apply (MulLECancellable.mul_le_iff_le_one_right ?_).mpr
-              apply NNReal.rpow_le_one
-              apply div_le_one_of_le₀ <| by norm_cast
-              simp only [zero_le]
-              apply κ_nonneg
-              simp [MulLECancellable]
+              · apply NNReal.rpow_le_one
+                · apply div_le_one_of_le₀ <| by norm_cast
+                  simp only [zero_le]
+                · apply κ_nonneg
+              · simp [MulLECancellable]
             exact this.trans <| by norm_cast
           have two_times_twelve_k_D_minus_k_le_D : 2 * 12 ^ κ * D ^ (-κ) ≤ (D : ℝ≥0) := by
             rwa [← inv_mul_eq_div, NNReal.mul_rpow, NNReal.inv_rpow,
@@ -928,7 +928,8 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
         ← ENNReal.mul_rpow_of_ne_top (by simp) (by simp), ENNReal.rpow_natCast]
       congr 2; norm_cast
     _ ≤ 2 ^ (9 * a + 5) * D ^ (1 - κ * Z) * volume G * ∑' k, 2⁻¹ ^ k := by
-      gcongr
+      gcongr _ * ∑' _, ?_
+      refine pow_le_pow_left' ?_ _
       calc
         _ ≤ 2 ^ 2 * (2 : ℝ≥0∞) ^ (-100 : ℝ) := mul_le_mul_left' (DκZ_le_two_rpow_100 (X := X)) _
         _ ≤ _ := by
@@ -941,7 +942,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
         ← ENNReal.inv_pow, ENNReal.rpow_natCast]
     _ ≤ 2 ^ (9 * a + 5) * D ^ (-1 : ℝ) * volume G * 2 := by
       gcongr
-      · exact_mod_cast one_le_D
+      · exact_mod_cast one_le_realD _
       · linarith [two_le_κZ (X := X)]
     _ = 2 ^ (9 * a + 6 - 𝕔 * a ^ 2 : ℤ) * volume G := by
       rw [← mul_rotate, ← mul_assoc, ← pow_succ', defaultD, Nat.cast_pow,
@@ -956,7 +957,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       calc
       4 + (9 * a + 6)
       _ = 9 * a + 10 := by ring
-      _ ≤ 3 * 4 * a + 4 * 4 := by gcongr <;> norm_num
+      _ ≤ 3 * 4 * a + 4 * 4 := by omega
       _ ≤ 3 * a * a + a * a := by gcongr <;> linarith [four_le_a X]
       _ = 4 * a ^ 2 := by ring
       _ ≤ 𝕔 * a ^ 2 := by

@@ -7,8 +7,9 @@ Roughly speaking, if a lemma is in this file, it should be purely calculational/
 e.g. `lemma calculation_1 : 2 + 2 = 4`.
 All lemmas are prepended with a prefix `calculation_`.
 -/
-import Carleson.Defs
+import Carleson.ProofData
 import Mathlib.Tactic.Rify
+
 open ShortVariables
 open scoped NNReal ENNReal
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -46,7 +47,7 @@ lemma add_le_pow_two_add_cube {R : Type*} [Semiring R] [PartialOrder R] [IsOrder
 
 lemma calculation_1 (s : ℤ) :
     4 * (D : ℝ) ^ (-2 : ℝ) * D ^ (s + 3) = 4 * D ^ (s + 1) := by
-  have D_pos : (0 : ℝ) < D := defaultD_pos a
+  have D_pos : (0 : ℝ) < D := realD_pos a
   calc 4 * (D : ℝ) ^ (-2 : ℝ) * D ^ (s + 3)
   _ = 4 * (D ^ (-2 : ℝ) * D ^ (s + 3)) := by
     ring
@@ -59,7 +60,7 @@ lemma calculation_1 (s : ℤ) :
 
 lemma calculation_2 (s : ℤ) :
     ((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s + 3) = 8⁻¹ * D ^ s := by
-  have D_pos : (0 : ℝ) < D := defaultD_pos a
+  have D_pos : (0 : ℝ) < D := realD_pos a
   calc (8 : ℝ)⁻¹ * (D : ℝ) ^ (-3 : ℝ) * D ^ (s + 3)
   _ = (8 : ℝ)⁻¹ * (D ^ (-3 : ℝ) * D ^ (s + 3)) := by
     ring
@@ -75,7 +76,7 @@ lemma calculation_10 (h : (100 : ℝ) < D) :
   calc ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ)
   _ ≤ ((100 : ℝ) + 4 * 100 ^ (-2 : ℝ) + 8⁻¹ * 100 ^ (-3 : ℝ)) * 100 ^ (-1 : ℝ) := by
     gcongr (100 + 4 * ?_ + 8⁻¹ * ?_) * ?_ <;>
-    apply Real.rpow_le_rpow_of_exponent_nonpos (by norm_num) h.le (by norm_num)
+    apply Real.rpow_le_rpow_of_nonpos (by norm_num) h.le (by norm_num)
   _ < _ := by norm_num
 
 lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y : ℤ} (h : x + 3 < y) :
@@ -90,11 +91,11 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y
     linarith [four_le_realD X]
   _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * (D ^ (y) * D ^ (- 1 : ℝ)) := by
     congr
-    exact_mod_cast Real.rpow_add (y := y) (z:= (-1)) (hx := defaultD_pos a)
+    exact_mod_cast Real.rpow_add (y := y) (z:= (-1)) (hx := realD_pos a)
   _ < 2 * D ^ y := by
     nth_rw 4 [mul_comm ..]
     rw [← mul_assoc ..]
-    have D_pos : (0 : ℝ) < D := defaultD_pos a
+    have D_pos : (0 : ℝ) < D := realD_pos a
     gcongr
     exact calculation_10 (hundred_lt_realD X)
 
@@ -135,7 +136,7 @@ lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G
 lemma calculation_5 {dist_1 dist_2 : ℝ}
     (h : dist_1 ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_2) :
     2 ^ ((-𝕔 : ℝ) * a) * dist_1 ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * dist_2 := by
-  apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (𝕔 * (a : ℝ)) by positivity)).mp
+  apply (mul_le_mul_iff_right₀ (show 0 < (2 : ℝ) ^ (𝕔 * (a : ℝ)) by positivity)).mp
   rw [← mul_assoc, neg_mul,
     Real.rpow_neg (by positivity),
     mul_inv_cancel₀ (a := (2 : ℝ) ^ (𝕔 * (a : ℝ))) (by positivity),
@@ -146,8 +147,8 @@ lemma calculation_5 {dist_1 dist_2 : ℝ}
 
 lemma calculation_6 (a : ℕ) (s : ℤ) :
     (D : ℝ) ^ (s + 3) = (D : ℝ) ^ (s + 2) * (D : ℝ) := by
-  rw [zpow_add₀ (by linarith [defaultD_pos a]) s 3,
-    zpow_add₀ (by linarith [defaultD_pos a]) s 2, mul_assoc]
+  rw [zpow_add₀ (by linarith [realD_pos a]) s 3,
+    zpow_add₀ (by linarith [realD_pos a]) s 2, mul_assoc]
   congr
 
 lemma calculation_7 (a : ℕ) (s : ℤ) :
@@ -184,7 +185,7 @@ lemma calculation_11 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s 
   rw [right_distrib]
   gcongr
   · linarith
-  · exact one_lt_D (X := X)
+  · exact one_lt_realD (X := X)
   · linarith
 
 lemma calculation_12 (s : ℝ) :
@@ -214,8 +215,8 @@ lemma calculation_12 (s : ℝ) :
       rw_mod_cast [fact]
     _ = 2 ^ (2 * 𝕔 * a^2 + 4  + (3 + 𝕔 * a ^ 2 * s)) := by
       nth_rw 2 [Real.rpow_add]
-      norm_cast
-      positivity
+      · norm_cast
+      · positivity
     _ = 2 ^ (7 + ((𝕔 * a^2 * s) + (𝕔 * a^2 * 2))) := by
       congrm 2 ^ ?_
       linarith
@@ -254,7 +255,7 @@ lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s 
     4 * (D : ℝ) ^ s < 100 * D ^ (s + 1) := by
   gcongr
   · linarith
-  · exact one_lt_D (X := X)
+  · exact one_lt_realD (X := X)
   · linarith
 
 lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {n : ℕ} :

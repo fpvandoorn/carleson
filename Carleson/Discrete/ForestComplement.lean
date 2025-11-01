@@ -1,8 +1,8 @@
 import Carleson.Antichain.AntichainOperator
 import Carleson.Discrete.Defs
 import Carleson.Discrete.SumEstimates
+import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Combinatorics.Enumerative.DoubleCounting
-import Mathlib.Data.Complex.ExponentialBounds
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -153,9 +153,11 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
   let B : ℕ := Finset.card { q | q ∈ 𝔅 k n p }
   have Blt : B < 2 ^ (2 * n + 4) := by
     calc
-      _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } :=
-        Finset.card_le_card (Finset.monotone_filter_right _ (Pi.le_def.mpr fun m ⟨m₁, m₂⟩ ↦
-          ⟨m₁, m₂.1.1 mx⟩))
+      _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } := by
+        apply Finset.card_le_card (Finset.monotone_filter_right _ ?_)
+        refine fun a _ha ha' ↦ ⟨mem_of_mem_inter_left ha', ?_⟩
+        obtain ⟨m₁, m₂⟩ := ha'
+        exact m₂.1.1 mx
       _ = stackSize (𝔐 k n) x := by
         simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
           Finset.filter_filter]; rfl
@@ -166,7 +168,7 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
   rcases B.eq_zero_or_pos with Bz | Bpos
   · simp_rw [B, filter_mem_univ_eq_toFinset, Finset.card_eq_zero, toFinset_eq_empty] at Bz
     exact Or.inl ⟨mp, Bz⟩
-  · right; use Nat.log 2 B; rw [Nat.lt_pow_iff_log_lt one_lt_two Bpos.ne'] at Blt
+  · right; use Nat.log 2 B; rw [← Nat.log_lt_iff_lt_pow one_lt_two Bpos.ne'] at Blt
     refine ⟨by omega, (?_ : _ ∧ _ ≤ B), (?_ : ¬(_ ∧ _ ≤ B))⟩
     · exact ⟨mp, Nat.pow_log_le_self 2 Bpos.ne'⟩
     · rw [not_and, not_le]; exact fun _ ↦ Nat.lt_pow_succ_log_self one_lt_two _
@@ -315,7 +317,7 @@ def 𝔒 (p' : 𝔓 X) (l : ℝ≥0) : Finset (𝔓 X) :=
   {p'' | 𝓘 p'' = 𝓘 p' ∧ ¬Disjoint (ball_(p') (𝒬 p') l) (Ω p'')}
 
 lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card ≤ ⌊2 ^ (4 * a) * l ^ a⌋₊ := by
-  have djO : (𝔒 p' l).toSet.PairwiseDisjoint fun p'' ↦ ball_(p') (𝒬 p'') 5⁻¹ :=
+  have djO : PairwiseDisjoint (SetLike.coe (𝔒 p' l)) fun p'' ↦ ball_(p') (𝒬 p'') 5⁻¹ :=
     fun p₁ mp₁ p₂ mp₂ hn ↦ by
       simp_rw [𝔒, Finset.coe_filter, mem_setOf, Finset.mem_univ, true_and] at mp₁ mp₂
       change Disjoint (ball_{𝓘 p'} (𝒬 p₁) 5⁻¹) (ball_{𝓘 p'} (𝒬 p₂) 5⁻¹)
@@ -340,7 +342,7 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
       _ ≤ (defaultA a) ^ ⌊4 + Real.logb 2 l⌋₊ :=
         pow_le_pow_right₀ Nat.one_le_two_pow (ceil_log2_le_floor_four_add_log2 hl)
       _ ≤ ⌊(defaultA a : ℝ) ^ (4 + Real.logb 2 l)⌋₊ := by
-        apply Nat.le_floor; rw [Nat.cast_npow, ← Real.rpow_natCast]
+        apply Nat.le_floor; rw [Nat.cast_pow, ← Real.rpow_natCast]
         refine Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast Nat.one_le_two_pow)
           (Nat.floor_le ?_)
         calc
@@ -351,8 +353,8 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
         rw [Nat.cast_pow, Nat.cast_ofNat, ← Real.rpow_natCast, ← Real.rpow_mul zero_le_two,
           mul_comm, add_mul, Real.rpow_add zero_lt_two, show (4 : ℝ) * a = (4 * a : ℕ) by simp,
           Real.rpow_natCast, Real.rpow_mul zero_le_two, Real.rpow_natCast,
-          Real.rpow_logb zero_lt_two one_lt_two.ne']
-        congr 1; exact zero_lt_two.trans_le hl
+          Real.rpow_logb zero_lt_two one_lt_two.ne' (by positivity)]
+        rfl
   obtain ⟨(T : Finset (Θ X)), cT, uT⟩ := vO
   refine (Finset.card_le_card_of_forall_subsingleton (fun p'' t ↦ 𝒬 p'' ∈ ball_(p') t 5⁻¹)
       (fun p'' mp'' ↦ ?_) (fun t _ o₁ mo₁ o₂ mo₂ ↦ ?_)).trans cT
@@ -367,11 +369,12 @@ variable {p' : 𝔓 X} {l : ℝ≥0} (hl : 2 ≤ l)
   (qp' : 2 ^ (4 * a - n : ℤ) < l ^ (-a : ℤ) * volume (E₂ l p') / volume (𝓘 p' : Set X))
 include hl qp'
 
+omit hl in
 lemma lt_quotient_rearrange :
     (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) < volume (E₂ l p') / volume (𝓘 p' : Set X) := by
   rw [mul_div_assoc] at qp'; convert ENNReal.div_lt_of_lt_mul' qp' using 1
   rw [ENNReal.div_eq_inv_mul,
-    ← ENNReal.zpow_neg (by exact_mod_cast (zero_lt_two.trans_le hl).ne') ENNReal.coe_ne_top,
+    ← ENNReal.zpow_neg,
     neg_neg, ENNReal.coe_mul, mul_rotate, mul_assoc, ENNReal.coe_pow, zpow_natCast]
   congr 1
   rw [ENNReal.coe_pow, ENNReal.coe_ofNat, ← zpow_natCast,
@@ -381,7 +384,7 @@ lemma lt_quotient_rearrange :
 lemma l_upper_bound : l < 2 ^ n := by
   have ql1 : volume (E₂ l p') / volume (𝓘 p' : Set X) ≤ 1 := by
     apply ENNReal.div_le_of_le_mul; rw [one_mul]; exact measure_mono (E₂_subset ..)
-  replace qp' := (lt_quotient_rearrange hl qp').trans_le ql1
+  replace qp' := (lt_quotient_rearrange qp').trans_le ql1
   rw [← ENNReal.mul_lt_mul_right (c := 2 ^ (n : ℤ)) (by simp) (by simp), one_mul, mul_assoc,
     ← ENNReal.zpow_add two_ne_zero ENNReal.ofNat_ne_top, neg_add_cancel, zpow_zero, mul_one,
     show (2 ^ (n : ℤ) : ℝ≥0∞) = (2 ^ (n : ℤ) : ℝ≥0) by simp, ENNReal.coe_lt_coe,
@@ -399,7 +402,7 @@ lemma exists_𝔒_with_le_quotient :
   have ltq : (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) <
       ∑ p'' ∈ 𝔒 p' l, volume (E₁ p'') / volume (𝓘 p'' : Set X) :=
     calc
-      _ < volume (E₂ l p') / volume (𝓘 p' : Set X) := lt_quotient_rearrange hl qp'
+      _ < volume (E₂ l p') / volume (𝓘 p' : Set X) := lt_quotient_rearrange qp'
       _ ≤ volume (⋃ p'' ∈ 𝔒 p' l, E₁ p'') / volume (𝓘 p' : Set X) := by
         gcongr; simp_rw [E₁, E₂, smul, toTileLike, TileLike.toSet]; intro x mx
         have rsub := biUnion_Ω (i := 𝓘 p'); rw [range_subset_iff] at rsub; specialize rsub x
@@ -420,8 +423,7 @@ lemma exists_𝔒_with_le_quotient :
   have : ∑ p'' ∈ 𝔒 p' l, volume (E₁ p'') / volume (𝓘 p'' : Set X) ≤
       (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) :=
     calc
-      _ ≤ ∑ _ ∈ 𝔒 p' l, (2 : ℝ≥0∞) ^ (-n : ℤ) := by
-        refine Finset.sum_le_sum h
+      _ ≤ ∑ _ ∈ 𝔒 p' l, (2 : ℝ≥0∞) ^ (-n : ℤ) := Finset.sum_le_sum h
       _ = (𝔒 p' l).card * (2 : ℝ≥0∞) ^ (-n : ℤ) := by rw [Finset.sum_const, nsmul_eq_mul]
       _ ≤ _ := by
         refine mul_le_mul_right' ?_ _
@@ -458,8 +460,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   constructor
   · have l1 : 𝓘 s₀.1 ≤ 𝓘 sl.1 := s.head_le_last.1
     have l2 : 𝓘 sl.1 ≤ 𝓘 b := 𝓘p'b ▸ sp'.1
-    have l3 : 𝓘 b ≤ 𝓘 m := lm.1
-    exact (l1.trans l2).trans l3
+    exact (l1.trans l2).trans lm.1
   change ball_(m) (𝒬 m) 1 ⊆ ball_(s₀.1) (𝒬 s₀.1) 100; intro (θ : Θ X) mθ; rw [@mem_ball] at mθ ⊢
   have aux : dist_(sl.1) (𝒬 sl.1) θ < 2 * l + 3 :=
     calc
@@ -599,7 +600,7 @@ lemma carlesonSum_𝔓₁_compl_eq_𝔓pos_inter (f : X → ℂ) :
     ∀ᵐ x, x ∈ G \ G' → carlesonSum 𝔓₁ᶜ f x = carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ) f x := by
   have A p (hp : p ∈ (𝔓pos (X := X))ᶜ) : ∀ᵐ x, x ∈ G \ G' → x ∉ 𝓘 p := by
     simp only [𝔓pos, mem_compl_iff, mem_setOf_eq, not_lt, nonpos_iff_eq_zero] at hp
-    filter_upwards [measure_zero_iff_ae_notMem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
+    filter_upwards [measure_eq_zero_iff_ae_notMem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
     simp [h''x, h'x.1, h'x.2] at hx
   rw [← ae_ball_iff (to_countable 𝔓posᶜ)] at A
   filter_upwards [A] with x hx h'x
@@ -916,7 +917,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
          · norm_cast
            linarith [four_le_a X]
          · exact q_le_two X
-      _ = 5 / (8 * a ^ 3) := by field_simp; ring
+      _ = 5 / (8 * a ^ 3) := by field_simp; norm_num
       _ ≤ 5 / (8 * (4 : ℝ) ^ 3) := by gcongr
       _ ≤ 2⁻¹ := by norm_num
     · calc
@@ -996,8 +997,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
       + ((q - 1) / (8 * a ^ 4)) ^ 2 * (38 * 1 + 40 * ↑Z)  / (Real.log 2) ^ 2
       + ((q - 1) / (8 * a ^ 4)) * (28 * 1 + 64 * ↑Z) / (Real.log 2) ^ 3
       + (48 * ↑Z) /  (Real.log 2) ^ 4) := by
-    field_simp only
-    ring
+    field_simp
   _ ≤ ((8 * a ^ 4) / (q - 1)) ^ 4 *
      (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (24 * (Z / 2 ^ 48) + 16 * ↑Z) / 0.69
       + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (38 * (Z / 2 ^ 48) + 40 * ↑Z)  / 0.69 ^ 2

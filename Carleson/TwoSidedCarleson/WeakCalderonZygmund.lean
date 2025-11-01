@@ -1,12 +1,22 @@
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.MeasureTheory.Measure.SumRestrict
 import Carleson.TwoSidedCarleson.Basic
 
-open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
+open MeasureTheory Set Bornology Function Metric Filter Topology
+open ENNReal hiding one_lt_two
 open scoped NNReal
 
 noncomputable section
+
+/-- `K` is a two-sided Calderon-Zygmund kernel.
+In the formalization `K x y` is defined everywhere, even for `x = y`.
+The assumptions on `K` show that `K x x = 0`. -/
+class IsTwoSidedKernel {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (a : outParam ℕ)
+    (K : X → X → ℂ) extends IsOneSidedKernel a K where
+  enorm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
+    ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+
+export IsTwoSidedKernel (enorm_K_sub_le')
 
 variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : ℕ)]
 variable {τ C r R : ℝ} {q q' : ℝ≥0}
@@ -31,10 +41,9 @@ theorem maximal_theorem :
   apply HasWeakType.hasBoundedWeakType
   have : C10_2_1 a = C_weakType_globalMaximalFunction (defaultA a) 1 1 := by
     unfold C_weakType_globalMaximalFunction C_weakType_maximalFunction
-    split_ifs with h; swap; simp at h
+    split_ifs with h; swap; · simp at h
     simp_rw [C10_2_1_def, defaultA, coe_pow, coe_ofNat, Nat.cast_pow, Nat.cast_ofNat,
-        NNReal.coe_one, div_one, rpow_ofNat, pow_mul', ← npow_add,
-        two_add_two_eq_four]; rfl
+      NNReal.coe_one, div_one, rpow_ofNat, pow_mul', ← pow_add, two_add_two_eq_four]; rfl
   rw [this]
   apply hasWeakType_globalMaximalFunction (μ := volume) (p₁ := 1) (p₂ := 1) (by norm_num) le_rfl
 
@@ -363,10 +372,10 @@ lemma ball_covering_finite (hO : IsOpen O ∧ O ≠ univ) {U : Set X} {r' : X �
   · change Disjoint (ball _ _) (ball _ _)
     by_cases hi : i < U.card; swap
     · simp_rw [r, hi, dite_false, ball_zero, empty_disjoint]
-    have hic : c i ∈ U.toSet := by simp [c, hi]
+    have hic : c i ∈ U := by simp [c, hi]
     by_cases hj : j < U.card; swap
     · simp_rw [r, hj, dite_false, ball_zero, disjoint_empty]
-    have hjc : c j ∈ U.toSet := by simp [c, hj]
+    have hjc : c j ∈ U := by simp [c, hj]
     simp_rw [r, hi, hj, dite_true]; apply pdU hic hjc
     simp_rw [c, hi, hj, dite_true]; contrapose! hn
     rwa [SetCoe.ext_iff, e.symm.apply_eq_iff_eq, Fin.mk.injEq] at hn
@@ -388,15 +397,22 @@ lemma ball_covering_finite (hO : IsOpen O ∧ O ≠ univ) {U : Set X} {r' : X �
   · calc
       _ = {i | ¬i < U.card ∧ x ∈ ball (c i) (3 * r i)}.encard +
           {i | i < U.card ∧ x ∈ ball (c i) (3 * r i)}.encard := by
-        rw [← encard_union_eq]; swap
+        have : {i | x ∈ ball (c i) (3 * r i)} =
+            {i | ¬ i < U.card ∧ x ∈ ball (c i) (3 * r i)} ∪
+                {i | i < U.card ∧ x ∈ ball (c i) (3 * r i)} := by
+          ext i; refine ⟨fun hx ↦ ?_, fun h ↦ ?_⟩
+          · by_cases hi : i < U.card
+            exacts [Or.inr ⟨hi, hx⟩, Or.inl ⟨hi, hx⟩]
+          · rcases h with ⟨_, hx⟩ | ⟨_, hx⟩ <;> exact hx
+        rw [← encard_union_eq]
+        · congr
         · exact disjoint_left.mpr fun i mi₁ mi₂ ↦ mi₁.1 mi₂.1
-        congr; ext i; simp only [mem_setOf_eq, mem_union]; tauto
-      _ = 0 + {u ∈ U.toSet | x ∈ ball u (3 * r' u)}.encard := by
+      _ = 0 + {u ∈ SetLike.coe U | x ∈ ball u (3 * r' u)}.encard := by
         congr
         · simp_rw [encard_eq_zero, eq_empty_iff_forall_notMem, mem_setOf_eq, not_and]; intro i hi
           simp [r, hi]
         · set A := {i | i < U.card ∧ x ∈ ball (c i) (3 * r i)}
-          set B := {u ∈ U.toSet | x ∈ ball u (3 * r' u)}
+          set B := {u ∈ SetLike.coe U | x ∈ ball u (3 * r' u)}
           let f (i : A) : B := ⟨e.symm ⟨i.1, i.2.1⟩, by
             refine ⟨Subtype.coe_prop _, ?_⟩
             have := i.2.2; simp_rw [r, c, i.2.1, dite_true] at this; exact this⟩
@@ -643,7 +659,9 @@ private lemma volume_czBall7_le (hX : GeneralCase f α) (i : ℕ) :
   _ ≤ volume (ball (czCenter hX i) (2 ^ 3 * czRadius hX i)) := measure_mono czBall_subset_czBall
   _ ≤ (defaultA a) ^ 3 * volume (ball (czCenter hX i) (czRadius hX i)) :=
     measure_ball_two_le_same_iterate _ _ 3
-  _ ≤ _ := by rw [Nat.cast_pow, ← pow_mul, mul_comm a 3]; gcongr; exact czBall_subset_czPartition
+  _ ≤ _ := by
+    rw [Nat.cast_pow, ← pow_mul, mul_comm a 3, Nat.cast_ofNat]
+    gcongr; exact czBall_subset_czPartition
 
 private lemma volume_czBall3_le (hX : GeneralCase f α) (i : ℕ) :
     volume (czBall3 hX i) ≤ 2 ^ (2 * a) * volume (czBall hX i) := calc
@@ -918,7 +936,7 @@ private lemma ineq_10_2_32 (hf : BoundedFiniteSupport f) {hX : GeneralCase f α}
     simp [czRemainder', eLpNorm, eLpNorm', enorm_indicator_eq_indicator_enorm,
       lintegral_indicator <| MeasurableSet.czPartition hX i]
   _ ≤ ∫⁻ x in czPartition hX i, ‖f x‖ₑ + ‖czApproximation f α x‖ₑ :=
-    lintegral_mono_fn (fun x ↦ enorm_sub_le)
+    lintegral_mono (fun x ↦ enorm_sub_le)
   _ = (∫⁻ x in _, ‖f x‖ₑ) + ∫⁻ x in _, ‖_‖ₑ := lintegral_add_left' hf.aemeasurable.enorm.restrict _
   _ ≤ 2 * (∫⁻ x in czPartition hX i, ‖f x‖ₑ) := by
     rw [two_mul]; exact add_le_add_left (lintegral_czPartition_le i) _
@@ -988,7 +1006,7 @@ lemma tsum_volume_czBall3_le (hf : BoundedFiniteSupport f)
   _ ≤ 2 ^ (2 * a) * volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α) := by
     simp_rw [← smul_eq_mul, ENNReal.tsum_const_smul]
     gcongr
-    rw [← measure_iUnion ?_ (fun i ↦ measurableSet_ball), ← iUnion_czPartition]
+    rw [← measure_iUnion ?_ (fun i ↦ measurableSet_ball), ← iUnion_czPartition (hX := hX)]
     · exact measure_mono <| iUnion_mono (fun i ↦ czBall_subset_czPartition)
     · refine (pairwise_disjoint_on (czBall hX)).mpr fun i j h ↦ ?_
       exact czBall_pairwiseDisjoint (mem_univ i) (mem_univ j) h.ne
@@ -1094,7 +1112,7 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
     _ ≤ 2^2/α^2 * ((C_Ts a) ^ 2 * ∫⁻ y, 2^(3*a) * c10_0_3 a * α * ‖czApproximation f _ y‖ₑ) := by
       gcongr _ * (_ * ?_)
       suffices ∀ᵐ x, ‖czApproximation f (α' a α) x‖ₑ ≤ 2 ^ (3 * a) * c10_0_3 a * α by
-        apply lintegral_mono_ae ∘ this.mono; intros; rw [sq]; gcongr
+        apply lintegral_mono_ae ∘ this.mono; intros; · rw [sq]; gcongr
       simp_rw [ENNReal.div_eq_inv_mul] at hα
       rw [← laverage_const_mul (inv_ne_top.mpr ne0), ← ENNReal.div_eq_inv_mul] at hα
       refine mul_assoc _ _ α ▸ enorm_czApproximation_le ?_ (hf := hf)
@@ -1166,7 +1184,7 @@ private lemma lemma_10_2_7_bound' (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : Genera
   _ = _ := lintegral_const_mul'' _ g_aemeas.enorm
   _ ≤ (.ofReal (3 * czRadius hX j) / edist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
         (C_K a / vol x (czCenter hX j)) * (2 ^ (2 * a + 1) * (α' a α) * volume (czBall3 hX j)) :=
-    mul_left_mono hg
+    mul_right_mono hg
   _ = 2 ^ (2 * a + 1) * ((c10_0_3 a) * α) * volume (czBall3 hX j) * ((.ofReal (3 * czRadius hX j) /
         edist x (czCenter hX j)) ^ (a : ℝ)⁻¹ * C_K a) / vol x (czCenter hX j) := by
     unfold α'; rw [mul_div, mul_comm, mul_div]
@@ -1363,7 +1381,7 @@ private lemma A_subset (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α
 private lemma sum_volume_restrict_le (hX : GeneralCase f (α' a α)) :
     Measure.sum (fun (j : 𝒥₂ r x hX) ↦ volume.restrict (czBall3 hX j)) ≤
     2 ^ (6 * a) • volume.restrict (A r x hX) :=
-  Measure.sum_restrict_le _ (fun _ ↦ measurableSet_ball) <| fun y ↦
+  Measure.sum_restrict_le (fun _ ↦ measurableSet_ball) <| fun y ↦
     le_trans (encard_preimage_val_le_encard_right _ {i | y ∈ czBall3 hX i}) encard_czBall3_le
 
 -- Long calculation toward the end of Lemma 10.2.7
@@ -1499,7 +1517,7 @@ lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f (α' a α)) {i
         ENNReal.mul_comm_div]
     _ ≤ 2 ^ a * ∫⁻ x in ⋃ n, ball c (2 ^ (n + 1) * r) \ ball c (2 ^ n * r),
         (r.toNNReal / edist x c) ^ (a : ℝ)⁻¹ / volume (ball c (dist x c)) := by
-      gcongr; refine lintegral_mono_set fun x mx ↦ ?_
+      gcongr _ * ?_; refine lintegral_mono_set fun x mx ↦ ?_
       rw [czBall6, mem_compl_iff, mem_ball, not_lt, show (6 : ℝ) = 2 * 3 by norm_num,
         mul_assoc] at mx
       change 2 * r ≤ dist x c at mx
@@ -1671,7 +1689,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
       have op0 : czOperator K r f = 0 := by
         ext x; rw [czOperator, integral_eq_zero_of_ae]; swap
         · have := (EventuallyEq.rfl (f := (K x ·))).mul hf₂
-          simp only [Pi.zero_apply, mul_zero] at this; exact this.restrict
+          simp only [mul_zero] at this; exact this.restrict
         simp
       simp_rw [op0, distribution, Pi.zero_apply, enorm_zero, not_lt_zero', setOf_false,
         measure_empty, zero_le]
