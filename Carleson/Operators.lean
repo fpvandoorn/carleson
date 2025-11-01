@@ -99,7 +99,7 @@ theorem BoundedCompactSupport.bddAbove_norm_carlesonOn
     apply indicator_apply_ne_zero.mp at hx
     replace hx := hx.2
     simp only [mem_support] at hx
-    have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x))) ≠ 0 := by
+    have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (Q x y - Q x x)) ≠ 0 := by
       -- mathlib lemma: if integral ne zero, then integrand ne zero at a point
       by_contra hc
       push_neg at hc
@@ -124,13 +124,13 @@ theorem BoundedCompactSupport.bddAbove_norm_carlesonOn
   · simp_rw [carlesonOn_def']
     refine (norm_indicator_le_norm_self _ _).trans ?_
     let g := (closedBall x₀ r₀).indicator (fun _ ↦ CK * (eLpNorm f ⊤).toReal)
-    have hK : ∀ᵐ y, ‖Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ ≤ g y := by
+    have hK : ∀ᵐ y, ‖Ks (𝔰 p) x y * f y * cexp (I * (Q x y - Q x x))‖ ≤ g y := by
       filter_upwards [hf.memLp_top.ae_norm_le] with y hy
       by_cases hy' : y ∈ support f
       · have := hfr₀ (subset_tsupport _ hy')
         calc
-          _ ≤ ‖Ks (𝔰 p) x y * f y‖ * ‖cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ := norm_mul_le ..
-          _ = ‖Ks (𝔰 p) x y * f y‖ := by rw [norm_exp_I_mul_sub_ofReal, mul_one]
+          _ ≤ ‖Ks (𝔰 p) x y * f y‖ * ‖cexp (I * (Q x y - Q x x))‖ := norm_mul_le ..
+          _ = ‖Ks (𝔰 p) x y * f y‖ := by rw [← ofReal_sub, norm_exp_I_mul_ofReal, mul_one]
           _ ≤ ‖Ks (𝔰 p) x y‖ * ‖f y‖ := norm_mul_le ..
           _ ≤ CK * (eLpNorm f ⊤).toReal := by gcongr; exact hCK x y (hcf hx)
           _ = g y := by simp_all only [indicator_of_mem, g]
@@ -290,10 +290,9 @@ theorem BoundedCompactSupport.bddAbove_norm_adjointCarleson (hf : BoundedCompact
     filter_upwards [hf.memLp_top.ae_norm_le] with y hy
     suffices ‖Ks (𝔰 p) y x‖ * ‖f y‖ ≤ ?C by
       calc
-        _ ≤ ‖conj (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x)))‖ * ‖f y‖ :=
-          norm_mul_le ..
+        _ ≤ ‖conj (Ks (𝔰 p) y x) * cexp (I * (Q y y - Q y x))‖ * ‖f y‖ := norm_mul_le ..
         _ ≤ ‖conj (Ks (𝔰 p) y x)‖ * 1 * ‖f y‖ := by
-          gcongr; convert norm_mul_le _ _; exact (norm_exp_I_mul_sub_ofReal ..).symm
+          gcongr; convert norm_mul_le _ _; exact_mod_cast (norm_exp_I_mul_ofReal ..).symm
         _ = ‖Ks (𝔰 p) y x‖ * ‖f y‖ := by rw [mul_one, RCLike.norm_conj]
         _ ≤ _ := by convert this
     by_cases hy : y ∈ tsupport f
@@ -349,10 +348,8 @@ private abbrev MKD (s : ℤ) x y := exp (I * (Q x y - Q x x)) * Ks s x y (K := K
 
 omit [TileStructure Q D κ S o] in
 private lemma norm_MKD_le_norm_Ks {s : ℤ} {x y : X} : ‖MKD s x y‖ ≤ ‖Ks s x y‖ := by
-  unfold MKD
-  apply (norm_mul_le ..).trans
-  apply le_of_eq
-  rw [norm_exp_I_mul_sub_ofReal, one_mul]
+  refine (norm_mul_le ..).trans (le_of_eq ?_)
+  rw [← ofReal_sub, norm_exp_I_mul_ofReal, one_mul]
 
 /-- `adjointCarleson` is the adjoint of `carlesonOn`. -/
 lemma adjointCarleson_adjoint

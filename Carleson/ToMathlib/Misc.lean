@@ -522,9 +522,6 @@ lemma norm_indicator_one_le {α E}
 
 -- TODO: which of these lemmas have been upstreamed to mathlib already?
 
-lemma norm_exp_I_mul_sub_ofReal (x y : ℝ) : ‖exp (I * (x - y))‖ = 1 :=
-  mod_cast norm_exp_I_mul_ofReal _
-
 lemma norm_one_sub_exp_neg_I_mul_ofReal (x : ℝ) : ‖1 - exp (-(I * x))‖ = ‖1 - exp (I * x)‖ := by
   have : 1 - exp (I * x) = - exp (I * x) * (1 - exp (I * (-x))) := by
     simp [mul_sub, ← exp_add]; ring
