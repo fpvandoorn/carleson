@@ -646,7 +646,7 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     _ ≤ (∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x)‖ₑ * ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ) +
         ∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ := by
       simp_rw [mul_assoc]; gcongr with y; rw [enorm_mul]; gcongr
-      exact enorm_exp_I_mul_ofReal_sub_one_le
+      exact Real.enorm_exp_I_mul_ofReal_sub_one_le
     _ = _ := by
       congr! 4
       · congr 1; rw [← enorm_norm, RCLike.norm_conj, enorm_norm]

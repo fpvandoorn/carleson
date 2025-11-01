@@ -430,7 +430,8 @@ lemma volume_le_of_kissing (h : J ∈ kissing I) :
   exact (measure_mono this).trans double
 
 lemma pairwiseDisjoint_of_kissing :
-    (kissing I).toSet.PairwiseDisjoint fun i ↦ ball (c i) (D ^ s i / 4) := fun j mj k mk hn ↦ by
+    (SetLike.coe (kissing I)).PairwiseDisjoint
+    fun i ↦ ball (c i) (D ^ s i / 4) := fun j mj k mk hn ↦ by
   apply disjoint_of_subset ball_subset_Grid ball_subset_Grid
   simp_rw [Finset.mem_coe, kissing, Finset.mem_filter] at mj mk
   exact (eq_or_disjoint (mj.2.1.trans mk.2.1.symm)).resolve_left hn

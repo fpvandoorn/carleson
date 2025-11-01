@@ -1723,7 +1723,7 @@ variable (I)
 
 open scoped Classical in
 def 𝓩_cands : Finset (Finset (Θ X)) :=
-  Q.range.powerset.filter fun z ↦ z.toSet.PairwiseDisjoint (ball_{I} · C𝓩)
+  Q.range.powerset.filter fun z ↦ (SetLike.coe z).PairwiseDisjoint (ball_{I} · C𝓩)
 
 lemma exists_𝓩_max_card : ∃ zmax ∈ 𝓩_cands I, ∀ z ∈ 𝓩_cands I, z.card ≤ zmax.card :=
   (𝓩_cands I).exists_max_image Finset.card ⟨∅, by simp [𝓩_cands]⟩
@@ -1733,14 +1733,14 @@ def 𝓩 : Finset (Θ X) := (exists_𝓩_max_card I).choose
 
 end
 
-lemma 𝓩_spec : 𝓩 I ⊆ Q.range ∧ (𝓩 I).toSet.PairwiseDisjoint (ball_{I} · C𝓩) ∧
+lemma 𝓩_spec : 𝓩 I ⊆ Q.range ∧ (SetLike.coe (𝓩 I)).PairwiseDisjoint (ball_{I} · C𝓩) ∧
     ∀ z ∈ 𝓩_cands I, z.card ≤ (𝓩 I).card := by
   classical
   rw [← and_assoc]; convert (exists_𝓩_max_card I).choose_spec; change _ ↔ 𝓩 I ∈ _
   rw [𝓩_cands, Finset.mem_filter, Finset.mem_powerset]
 
 lemma 𝓩_subset : 𝓩 I ⊆ Q.range := 𝓩_spec.1
-lemma 𝓩_pairwiseDisjoint : (𝓩 I).toSet.PairwiseDisjoint (ball_{I} · C𝓩) := 𝓩_spec.2.1
+lemma 𝓩_pairwiseDisjoint : (SetLike.coe (𝓩 I)).PairwiseDisjoint (ball_{I} · C𝓩) := 𝓩_spec.2.1
 lemma 𝓩_max_card : ∀ z ∈ 𝓩_cands I, z.card ≤ (𝓩 I).card := 𝓩_spec.2.2
 
 lemma 𝓩_nonempty : (𝓩 I).Nonempty := by
@@ -1757,7 +1757,7 @@ instance : Inhabited (𝓩 I) := ⟨⟨_, 𝓩_nonempty.choose_spec⟩⟩
 @[simp] def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
 
 /-- Equation (4.2.3), Lemma 4.2.1 -/
-lemma frequency_ball_cover : Q.range.toSet ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
+lemma frequency_ball_cover : (SetLike.coe Q.range) ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
   intro θ hθ
   classical
   obtain ⟨z, hz, hz'⟩ : ∃ z, z ∈ 𝓩 I ∧ ¬Disjoint (ball_{I} z C𝓩) (ball_{I} θ C𝓩) := by
@@ -1787,7 +1787,7 @@ namespace Construction
 def Ω₁_aux (I : Grid X) (k : ℕ) : Set (Θ X) :=
   if hk : k < Nat.card (𝓩 I) then
     let z : Θ X := (Finite.equivFin (𝓩 I) |>.symm ⟨k, hk⟩).1
-    ball_{I} z C4_2_1 \ (⋃ i ∈ (𝓩 I).toSet \ {z}, ball_{I} i C𝓩) \ ⋃ i < k, Ω₁_aux I i
+    ball_{I} z C4_2_1 \ (⋃ i ∈ SetLike.coe (𝓩 I) \ {z}, ball_{I} i C𝓩) \ ⋃ i < k, Ω₁_aux I i
   else ∅
 
 lemma Ω₁_aux_disjoint (I : Grid X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
@@ -1806,7 +1806,7 @@ lemma disjoint_ball_Ω₁_aux (I : Grid X) {z z' : Θ X} (hz : z ∈ 𝓩 I) (hz
   simp only [(Finite.equivFin (𝓩 I) ⟨z, hz⟩).2, dite_true, Fin.eta, Equiv.symm_apply_apply]
   rw [sdiff_sdiff_comm, ← disjoint_sdiff_comm, diff_eq_empty.mpr]
   · exact empty_disjoint _
-  · apply subset_biUnion_of_mem (show z' ∈ (𝓩 I).toSet \ {z} by tauto)
+  · apply subset_biUnion_of_mem (show z' ∈ SetLike.coe (𝓩 I) \ {z} by tauto)
 
 def Ω₁ (p : 𝔓 X) : Set (Θ X) := Ω₁_aux p.1 (Finite.equivFin (𝓩 p.1) p.2)
 
@@ -1875,7 +1875,7 @@ open scoped Classical in
 def Ω (p : 𝔓 X) : Set (Θ X) :=
   if h : IsMax p.1 then Ω₁ p else
   have := Grid.opSize_succ_lt h
-  ball_(p) (𝒬 p) CΩ ∪ ⋃ (z : Θ X) (hz : z ∈ (𝓩 p.1.succ).toSet ∩ Ω₁ p), Ω ⟨p.1.succ, ⟨z, hz.1⟩⟩
+  ball_(p) (𝒬 p) CΩ ∪ ⋃ (z : Θ X) (hz : z ∈ SetLike.coe (𝓩 p.1.succ) ∩ Ω₁ p), Ω ⟨p.1.succ, ⟨z, hz.1⟩⟩
 termination_by p.1.opSize
 
 lemma 𝔓_induction (P : 𝔓 X → Prop) (base : ∀ p, IsMax p.1 → P p)
@@ -1927,8 +1927,8 @@ lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
       _ < _ := by norm_num
 
 lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y ≠ z) :
-    Disjoint (ball_{I} y.1 CΩ) (⋃ z', ⋃ (x : z' ∈ (𝓩 I.succ).toSet ∩ Ω₁ ⟨I, z⟩),
-      Ω ⟨I.succ, ⟨z', x.1⟩⟩) := by
+    Disjoint (ball_{I} y.1 CΩ)
+      (⋃ z', ⋃ (x : z' ∈ SetLike.coe (𝓩 I.succ) ∩ Ω₁ ⟨I, z⟩), Ω ⟨I.succ, ⟨z', x.1⟩⟩) := by
   have dj := (disjoint_frequency_cubes (f := y) (g := z)).mt hn
   rw [← not_disjoint_iff_nonempty_inter, not_not] at dj
   contrapose! hn; rw [not_disjoint_iff] at hn
@@ -1984,7 +1984,7 @@ lemma Ω_disjoint {p p' : 𝔓 X} (hn : p ≠ p') (h𝓘 : 𝓘 p = 𝓘 p') : D
       rw [disjoint_iUnion₂_right]; intro b ⟨mb₁, mb₂⟩
       exact ih ⟨a, ma₁⟩ ⟨b, mb₁⟩ (by simp [dj.ne_of_mem ma₂ mb₂])
 
-lemma Ω_biUnion {I : Grid X} : Q.range.toSet ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (Grid X)), Ω p := by
+lemma Ω_biUnion {I : Grid X} : SetLike.coe Q.range ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (Grid X)), Ω p := by
   induction I using Grid.induction with
   | base I maxI =>
     intro ϑ mϑ; simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop]

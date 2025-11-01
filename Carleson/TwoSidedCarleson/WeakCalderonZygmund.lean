@@ -372,10 +372,10 @@ lemma ball_covering_finite (hO : IsOpen O ∧ O ≠ univ) {U : Set X} {r' : X �
   · change Disjoint (ball _ _) (ball _ _)
     by_cases hi : i < U.card; swap
     · simp_rw [r, hi, dite_false, ball_zero, empty_disjoint]
-    have hic : c i ∈ U.toSet := by simp [c, hi]
+    have hic : c i ∈ U := by simp [c, hi]
     by_cases hj : j < U.card; swap
     · simp_rw [r, hj, dite_false, ball_zero, disjoint_empty]
-    have hjc : c j ∈ U.toSet := by simp [c, hj]
+    have hjc : c j ∈ U := by simp [c, hj]
     simp_rw [r, hi, hj, dite_true]; apply pdU hic hjc
     simp_rw [c, hi, hj, dite_true]; contrapose! hn
     rwa [SetCoe.ext_iff, e.symm.apply_eq_iff_eq, Fin.mk.injEq] at hn
@@ -407,12 +407,12 @@ lemma ball_covering_finite (hO : IsOpen O ∧ O ≠ univ) {U : Set X} {r' : X �
         rw [← encard_union_eq]
         · congr
         · exact disjoint_left.mpr fun i mi₁ mi₂ ↦ mi₁.1 mi₂.1
-      _ = 0 + {u ∈ U.toSet | x ∈ ball u (3 * r' u)}.encard := by
+      _ = 0 + {u ∈ SetLike.coe U | x ∈ ball u (3 * r' u)}.encard := by
         congr
         · simp_rw [encard_eq_zero, eq_empty_iff_forall_notMem, mem_setOf_eq, not_and]; intro i hi
           simp [r, hi]
         · set A := {i | i < U.card ∧ x ∈ ball (c i) (3 * r i)}
-          set B := {u ∈ U.toSet | x ∈ ball u (3 * r' u)}
+          set B := {u ∈ SetLike.coe U | x ∈ ball u (3 * r' u)}
           let f (i : A) : B := ⟨e.symm ⟨i.1, i.2.1⟩, by
             refine ⟨Subtype.coe_prop _, ?_⟩
             have := i.2.2; simp_rw [r, c, i.2.1, dite_true] at this; exact this⟩

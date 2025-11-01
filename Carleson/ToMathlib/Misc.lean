@@ -522,29 +522,13 @@ lemma norm_indicator_one_le {α E}
 
 -- TODO: which of these lemmas have been upstreamed to mathlib already?
 
-lemma norm_exp_I_mul_sub_ofReal (x y : ℝ) : ‖exp (I * (x - y))‖ = 1 := by
-  rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
-
-@[simp] lemma norm_exp_neg_I_mul_ofReal (x : ℝ) : ‖exp (-(I * x))‖ = 1 := by
-  rw [exp_neg, norm_inv, norm_exp_I_mul_ofReal, inv_one]
-
-lemma norm_exp_neg_I_mul_ofReal' (x : ℝ) : ‖exp (-I * x)‖ = 1 := by simp
+lemma norm_exp_I_mul_sub_ofReal (x y : ℝ) : ‖exp (I * (x - y))‖ = 1 :=
+  mod_cast norm_exp_I_mul_ofReal _
 
 lemma norm_one_sub_exp_neg_I_mul_ofReal (x : ℝ) : ‖1 - exp (-(I * x))‖ = ‖1 - exp (I * x)‖ := by
   have : 1 - exp (I * x) = - exp (I * x) * (1 - exp (I * (-x))) := by
     simp [mul_sub, ← exp_add]; ring
   simp [this]
-
-lemma norm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ ≤ ‖x‖ := by
-  rw [norm_exp_I_mul_ofReal_sub_one]
-  calc
-    _ = 2 * |Real.sin (x / 2)| := by simp
-    _ ≤ 2 * |x / 2| := (mul_le_mul_iff_of_pos_left zero_lt_two).mpr Real.abs_sin_le_abs
-    _ = _ := by rw [abs_div, Nat.abs_ofNat, Real.norm_eq_abs]; ring
-
-lemma enorm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ₑ ≤ ‖x‖ₑ := by
-  iterate 2 rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg _)]
-  exact ENNReal.ofReal_le_ofReal norm_exp_I_mul_ofReal_sub_one_le
 
 open Real in
 lemma exp_I_mul_eq_one_iff_of_lt_of_lt (x : ℝ) (hx : -(2 * π) < x) (h'x : x < 2 * π) :
