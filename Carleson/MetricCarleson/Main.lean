@@ -133,8 +133,7 @@ def QΘ' (n : ℕ) : SimpleFunc X (Θ X) where
     · exact measurableSet_lt (mg _) (mg _)
   finite_range' := by
     classical
-    have fbs : ((Finset.range (n + 1)).image fun i ↦ (enumΘ' nΘ' i).1).toSet.Finite :=
-      Finset.finite_toSet _
+    have fbs := Finset.finite_toSet ((Finset.range (n + 1)).image fun i ↦ (enumΘ' nΘ' i).1)
     refine fbs.subset fun θ mθ ↦ ?_
     simp only [mem_range, Finset.coe_image, Finset.coe_range, mem_image, mem_Iio] at mθ ⊢
     obtain ⟨x, hx⟩ := mθ

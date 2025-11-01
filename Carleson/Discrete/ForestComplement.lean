@@ -317,7 +317,7 @@ def 𝔒 (p' : 𝔓 X) (l : ℝ≥0) : Finset (𝔓 X) :=
   {p'' | 𝓘 p'' = 𝓘 p' ∧ ¬Disjoint (ball_(p') (𝒬 p') l) (Ω p'')}
 
 lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card ≤ ⌊2 ^ (4 * a) * l ^ a⌋₊ := by
-  have djO : PairwiseDisjoint (𝔒 p' l).toSet fun p'' ↦ ball_(p') (𝒬 p'') 5⁻¹ :=
+  have djO : PairwiseDisjoint (SetLike.coe (𝔒 p' l)) fun p'' ↦ ball_(p') (𝒬 p'') 5⁻¹ :=
     fun p₁ mp₁ p₂ mp₂ hn ↦ by
       simp_rw [𝔒, Finset.coe_filter, mem_setOf, Finset.mem_univ, true_and] at mp₁ mp₂
       change Disjoint (ball_{𝓘 p'} (𝒬 p₁) 5⁻¹) (ball_{𝓘 p'} (𝒬 p₂) 5⁻¹)

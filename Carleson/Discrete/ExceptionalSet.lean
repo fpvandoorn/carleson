@@ -577,7 +577,7 @@ variable (m) (u : 𝔓 X) in
 private lemma balls_cover_big_ball : CoveredByBalls (big_ball m u) (defaultA a ^ 9) 0.2 :=
   ballsCoverBalls_iterate_nat (𝒬 m)
 
-private lemma 𝒬_injOn_𝔘m : InjOn 𝒬 (𝔘 k n j x m).toSet :=
+private lemma 𝒬_injOn_𝔘m : InjOn 𝒬 (SetLike.coe (𝔘 k n j x m)) :=
   fun _ hu _ hu' h ↦ 𝒬_inj h (𝓘_eq_𝓘 hu hu')
 
 private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
@@ -786,11 +786,11 @@ lemma boundary_exception {u : 𝔓 X} :
             have two_le_D : 2 ≤ D := by linarith
             have : 2 * (12 / D) ^ κ ≤ (2 : ℝ≥0) := by
               apply (MulLECancellable.mul_le_iff_le_one_right ?_).mpr
-              apply NNReal.rpow_le_one
-              apply div_le_one_of_le₀ <| by norm_cast
-              simp only [zero_le]
-              apply κ_nonneg
-              simp [MulLECancellable]
+              · apply NNReal.rpow_le_one
+                · apply div_le_one_of_le₀ <| by norm_cast
+                  simp only [zero_le]
+                · apply κ_nonneg
+              · simp [MulLECancellable]
             exact this.trans <| by norm_cast
           have two_times_twelve_k_D_minus_k_le_D : 2 * 12 ^ κ * D ^ (-κ) ≤ (D : ℝ≥0) := by
             rwa [← inv_mul_eq_div, NNReal.mul_rpow, NNReal.inv_rpow,

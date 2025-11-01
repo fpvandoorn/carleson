@@ -430,7 +430,8 @@ lemma volume_le_of_kissing (h : J ∈ kissing I) :
   exact (measure_mono this).trans double
 
 lemma pairwiseDisjoint_of_kissing :
-    (kissing I).toSet.PairwiseDisjoint fun i ↦ ball (c i) (D ^ s i / 4) := fun j mj k mk hn ↦ by
+    (SetLike.coe (kissing I)).PairwiseDisjoint
+    fun i ↦ ball (c i) (D ^ s i / 4) := fun j mj k mk hn ↦ by
   apply disjoint_of_subset ball_subset_Grid ball_subset_Grid
   simp_rw [Finset.mem_coe, kissing, Finset.mem_filter] at mj mk
   exact (eq_or_disjoint (mj.2.1.trans mk.2.1.symm)).resolve_left hn
@@ -876,7 +877,7 @@ lemma tree_projection_estimate
     _ = ∫⁻ x in (⋃ p ∈ t u, 𝓘 p), ‖g x‖ₑ * ‖carlesonSum (t u) f x‖ₑ := by
       rw [← lintegral_indicator]; swap
       · exact MeasurableSet.biUnion (t u).to_countable (fun _ _ ↦ coeGrid_measurable)
-      simp_rw [enorm_eq_nnnorm, nnnorm_mul, ENNReal.coe_mul, RCLike.nnnorm_conj]
+      simp_rw [enorm_mul, RCLike.enorm_conj]
       refine lintegral_congr (fun x ↦ ?_)
       by_cases hx : x ∈ ⋃ p ∈ t u, 𝓘 p
       · rw [indicator_of_mem hx]
