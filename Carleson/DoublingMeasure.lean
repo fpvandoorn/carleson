@@ -239,9 +239,9 @@ lemma cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X
 variable [hXA : DoublingMeasure X A]
 
 lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancellative X τ]
-    {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
-    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ) := by
+    {x : X} {r : ℝ} {φ : X → ℂ} (h2 : support φ ⊆ ball x r) {f g : Θ X} :
+    ‖∫ x, exp (I * (f x - g x)) * φ x‖ₑ ≤
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm φ x r * (1 + edist_{x, r} f g) ^ (- τ) := by
   rcases le_or_gt r 0 with hr | hr
   · simp only [ball_eq_empty.2 hr, subset_empty_iff, support_eq_empty_iff] at h2
     simp [h2]
@@ -251,7 +251,7 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
       simp at this
       apply eq_zero_of_isDoubling_zero
     simp [this]
-  rcases eq_or_ne (iLipENorm ϕ x r) ∞ with h1 | h1
+  rcases eq_or_ne (iLipENorm φ x r) ∞ with h1 | h1
   · apply le_top.trans_eq
     symm
     simp [h1, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
@@ -259,18 +259,18 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
 
 /-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
 lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ X A]
-    (h : ∀ {x : X} {r : ℝ} {ϕ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm ϕ x r ≠ ∞)
-    (_h2 : support ϕ ⊆ ball x r) {f g : Θ X},
-      ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
-      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (-τ)) :
+    (h : ∀ {x : X} {r : ℝ} {φ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm φ x r ≠ ∞)
+    (_h2 : support φ ⊆ ball x r) {f g : Θ X},
+      ‖∫ x in ball x r, exp (I * (f x - g x)) * φ x‖ ≤
+      A * volume.real (ball x r) * iLipNNNorm φ x r * (1 + dist_{x, r} f g) ^ (-τ)) :
     IsCancellative X τ := by
   constructor
-  intro x r ϕ hr h1 h2 f g
-  convert ENNReal.ofReal_le_ofReal (h (x := x) (r := r) (ϕ := ϕ) hr h1 h2 (f := f) (g := g))
+  intro x r φ hr h1 h2 f g
+  convert ENNReal.ofReal_le_ofReal (h (x := x) (r := r) (φ := φ) hr h1 h2 (f := f) (g := g))
   · rw [ofReal_norm_eq_enorm]
     congr 1
     rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
-    have : ϕ y = 0 := by
+    have : φ y = 0 := by
       apply notMem_support.1
       contrapose! hy
       exact h2 hy
