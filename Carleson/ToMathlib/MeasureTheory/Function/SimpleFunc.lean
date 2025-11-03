@@ -82,13 +82,13 @@ private lemma helper [MeasurableSpace α] {f : SimpleFunc α ℝ≥0} (hs : (f.r
       intro hx
       have : s.min' hs < x := by
         apply lt_of_le_of_ne
-        rw [← hfyx]
-        apply Finset.min'_le
-        unfold s
-        rw [← hfyx] at x_ne_zero
-        simpa
-        symm
-        simpa
+        · rw [← hfyx]
+          apply Finset.min'_le
+          unfold s
+          rw [← hfyx] at x_ne_zero
+          simpa
+        · symm
+          simpa
       use x - s.min' hs
       constructor
       · constructor
@@ -282,6 +282,7 @@ def nnapprox : (α → ℝ≥0) → ℕ → SimpleFunc α ℝ≥0 :=
 theorem monotone_nnapprox {f : α → ℝ≥0} : Monotone (nnapprox f) :=
   monotone_approx _ f
 
+set_option linter.style.multiGoal false in
 lemma iSup_nnapprox_apply (hf : Measurable f) (a : α) : ⨆ n, (nnapprox f n : SimpleFunc α ℝ≥0) a = f a := by
   rw [nnapprox]
   apply le_antisymm

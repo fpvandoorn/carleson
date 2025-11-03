@@ -219,7 +219,7 @@ lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     have : z ≠ z' → Disjoint (g z) (g z') := g_pd hz hz'
     rw [← e, Finset.disjoint_self_iff_empty] at this
     exact not_ne_iff.mp <| this.mt <| Finset.nonempty_iff_ne_empty.mp (g_ne z hz)
-  have g_subset : g '' 𝓩 ⊆ 𝓩'.powerset.toSet := fun gz hgz ↦ by
+  have g_subset : g '' 𝓩 ⊆ SetLike.coe 𝓩'.powerset := fun gz hgz ↦ by
     rw [mem_image] at hgz
     obtain ⟨z, hz⟩ := hgz
     simp_rw [Finset.coe_powerset, mem_preimage, mem_powerset_iff, Finset.coe_subset, ← hz.2, g,

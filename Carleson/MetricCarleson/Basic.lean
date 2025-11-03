@@ -390,7 +390,7 @@ lemma edist_carlesonOperatorIntegrand_le
             rw [cancelPt_eq_zero, sub_zero, cancelPt_eq_zero, add_zero, Complex.ofReal_sub,
               ← mul_one ‖_ - 1‖, ← norm_exp_I_mul_ofReal (ϑ y), ← norm_mul, sub_one_mul,
               ← Complex.exp_add, ← mul_add, sub_add_cancel]
-          _ ≤ ‖θ y - ϑ y - θ o + ϑ o‖ := norm_exp_I_mul_ofReal_sub_one_le
+          _ ≤ ‖θ y - ϑ y - θ o + ϑ o‖ := Real.norm_exp_I_mul_ofReal_sub_one_le
           _ ≤ _ := by
             rw [Annulus.oo, mem_setOf, mem_Ioo] at my
             apply oscillation_le_cdist

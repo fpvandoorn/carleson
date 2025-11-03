@@ -25,8 +25,7 @@ def 𝓙₆ : Set (Grid X) := 𝓙 (t u₁) ∩ Iic (𝓘 u₁)
 
 /-- Part of Lemma 7.6.1. -/
 -- Very similar to Lemma 7.5.1. Todo: simplify
-lemma union_𝓙₆ (hu₁ : u₁ ∈ t) :
-    ⋃ J ∈ 𝓙₆ t u₁, (J : Set X) = 𝓘 u₁ := by
+lemma union_𝓙₆ (hu₁ : u₁ ∈ t) : ⋃ J ∈ 𝓙₆ t u₁, (J : Set X) = 𝓘 u₁ := by
   refine subset_antisymm ?_ fun x hx ↦ ?_
   · refine iUnion₂_subset_iff.mpr <| fun _ hJ ↦ hJ.2.1
   · have existsCube : x ∈ ⋃ J ∈ 𝓙 (t u₁), (J : Set X) := by
@@ -72,9 +71,9 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) :
           rw [mem_setOf_eq] at xy ⊢
           have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
             gcongr
-            linarith
-            exact one_lt_realD X
-            linarith
+            · linarith
+            · exact one_lt_realD X
+            · linarith
           exact gt_trans numbers xy
       have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
         refine east p belongs

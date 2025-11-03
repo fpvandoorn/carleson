@@ -98,7 +98,7 @@ theorem BoundedCompactSupport.bddAbove_norm_carlesonOn
     apply indicator_apply_ne_zero.mp at hx
     replace hx := hx.2
     simp only [mem_support] at hx
-    have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x))) ≠ 0 := by
+    have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (Q x y - Q x x)) ≠ 0 := by
       by_contra! hc
       apply hx
       simp [hc]
@@ -120,10 +120,10 @@ theorem BoundedCompactSupport.bddAbove_norm_carlesonOn
   · simp_rw [carlesonOn_def']
     apply le_trans <| norm_indicator_le_norm_self ..
     let g := (closedBall x₀ r₀).indicator (fun _ ↦ CK * (eLpNorm f ⊤).toReal)
-    have hK : ∀ᵐ y, ‖Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ ≤ g y := by
+    have hK : ∀ᵐ y, ‖Ks (𝔰 p) x y * f y * cexp (I * (Q x y - Q x x))‖ ≤ g y := by
       filter_upwards [hf.memLp_top.ae_norm_le] with y hy
       by_cases hy' : y ∈ support f
-      · simp_rw [norm_mul, norm_exp_I_mul_sub_ofReal, mul_one, g,
+      · simp_rw [norm_mul, ← ofReal_sub, norm_exp_I_mul_ofReal, mul_one, g,
           indicator_of_mem (hfr₀ <|subset_tsupport _ hy' ) _]
         gcongr
         exact hCK x y (hcf hx)
@@ -273,7 +273,7 @@ theorem BoundedCompactSupport.bddAbove_norm_adjointCarleson (hf : BoundedCompact
   apply norm_setIntegral_le_of_norm_le_const_ae volume_E_lt_top <| ae_restrict_of_ae _
   filter_upwards [hf.memLp_top.ae_norm_le] with y hy
   suffices ‖Ks (𝔰 p) y x‖ * ‖f y‖ ≤ ?C by
-    simp_rw [norm_mul, norm_exp_I_mul_sub_ofReal, mul_one, RCLike.norm_conj]
+    simp_rw [norm_mul, ← ofReal_sub, norm_exp_I_mul_ofReal, mul_one, RCLike.norm_conj]
     exact this
   by_cases hy : y ∈ tsupport f
   · specialize hCKf y x hy; gcongr
@@ -325,7 +325,7 @@ private abbrev MKD (s : ℤ) x y := exp (I * (Q x y - Q x x)) * Ks s x y (K := K
 
 omit [TileStructure Q D κ S o] in
 private lemma norm_MKD_le_norm_Ks {s : ℤ} {x y : X} : ‖MKD s x y‖ ≤ ‖Ks s x y‖ := by
-  rw [norm_mul, norm_exp_I_mul_sub_ofReal, one_mul]
+  rw [norm_mul, ← ofReal_sub, norm_exp_I_mul_ofReal, one_mul]
 
 /-- `adjointCarleson` is the adjoint of `carlesonOn`. -/
 lemma adjointCarleson_adjoint

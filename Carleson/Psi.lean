@@ -409,7 +409,6 @@ private lemma DoublingMeasure.volume_real_ball_two_le_same_repeat (x : X) (r : �
   have A_cast : (defaultA a : ℝ≥0).toReal = (defaultA a : ℝ) := rfl
   rwa [A_cast, pow_add, mul_assoc, pow_one, mul_le_mul_iff_right₀ (by positivity)]
 
-set_option linter.flexible false in -- linter bug; fix pending in mathlib
 -- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le`
 private lemma DoublingMeasure.volume_real_ball_two_le_same_repeat' (x : X) (n : ℕ) :
     volume.real (ball x (2 ^ n * D ^ s)) ≤
@@ -431,7 +430,6 @@ lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ)
   rw [A_cast, pow_add, mul_assoc, pow_one]
   gcongr
 
-set_option linter.flexible false in -- linter bug; fix pending in mathlib
 -- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le'`
 private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) :
     volume (ball x (2 ^ n * D ^ s)) ≤
@@ -551,7 +549,6 @@ lemma enorm_Ks_le' {s : ℤ} {x y : X} :
   rw [show (𝕔 + 2) * a ^ 3 = a ^ 2 * a + (𝕔 + 1) * a ^ 3 by ring]
   gcongr; exacts [one_le_two, by nlinarith [four_le_a X]]
 
-set_option linter.flexible false in -- linter bug; fix pending in mathlib
 /-- `Ks` is bounded uniformly in `x`, `y` assuming `x` is in a fixed closed ball. -/
 private lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx : dist x x₀ ≤ r₀) (s : ℤ) :
     ‖Ks s x y‖ ≤ C2_1_3 a * (As (defaultA a) (2 * r₀ / D ^ s)) / volume.real (ball x₀ r₀) := by
@@ -688,9 +685,9 @@ private lemma enorm_Ks_sub_Ks_le_close_pt1 {s : ℤ} {x y y' : X} (hK : Ks s x y
     · have := four_D_rpow_a_inv (X := X)
       norm_cast
       rw [← ENNReal.coe_natCast, ← ENNReal.coe_rpow_of_nonneg, ← ENNReal.coe_natCast]
-      exact_mod_cast this
-      rw [inv_nonneg]
-      linarith
+      · exact_mod_cast this
+      · rw [inv_nonneg]
+        linarith
     · unfold C_K; norm_cast
   apply le_of_eq_of_le _ <| le_of_le_of_eq this (by ring)
   rw [mul_assoc, defaultD]

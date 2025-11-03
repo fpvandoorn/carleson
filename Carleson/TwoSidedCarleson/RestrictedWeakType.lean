@@ -190,9 +190,8 @@ theorem two_sided_metric_carleson_hasStrongType [Countable (Θ X)] (ha : 4 ≤ a
       unfold t
       rw [Real.coe_toNNReal _ h.1.le]
       exact this
-    rwa [← Real.toNNReal_eq_toNNReal_iff, Real.toNNReal_coe, Real.toNNReal_coe] at this
-    simp
-    positivity
+    rwa [← Real.toNNReal_eq_toNNReal_iff (by simp) (by positivity),
+      Real.toNNReal_coe, Real.toNNReal_coe] at this
   have lorentzType_q₀ :
       HasLorentzType (carlesonOperator K) q₀ 1 q₀ ⊤ volume volume (4 * (C10_0_1 a q₀) / q₀) := by
     apply two_sided_metric_carleson_hasLorentzType ha hq₀ hT
@@ -202,7 +201,7 @@ theorem two_sided_metric_carleson_hasStrongType [Countable (Θ X)] (ha : 4 ≤ a
 
   have helper {p : ℝ≥0} (hp : 0 < p): (4 * (C10_0_1 a p) / p) = ENNReal.ofNNReal (4 * (C10_0_1 a p) / p) := by
     norm_cast
-    rw [ENNReal.coe_div hp.ne.symm]
+    rw [ENNReal.coe_div hp.ne']
   rw [helper q₀_pos] at lorentzType_q₀
   rw [helper q₁_pos] at lorentzType_q₁
 
@@ -228,19 +227,19 @@ theorem two_sided_metric_carleson_hasStrongType [Countable (Θ X)] (ha : 4 ≤ a
   · exact zero_lt_one' ℝ≥0
   · exact ht
   · apply div_pos _ q₀_pos
-    apply @_root_.mul_pos
+    apply _root_.mul_pos
     · norm_num
     apply C10_0_1_pos hq₀.1
   · apply div_pos _ q₁_pos
-    apply @_root_.mul_pos
+    apply _root_.mul_pos
     · norm_num
     apply C10_0_1_pos hq₁.1
   · norm_cast
-    rw [← ENNReal.coe_div q₁_pos.ne.symm, ← ENNReal.coe_div q₀_pos.ne.symm,
-        ← ENNReal.coe_inv q_pos.ne.symm, ← ENNReal.coe_add]
+    rw [← ENNReal.coe_div q₁_pos.ne', ← ENNReal.coe_div q₀_pos.ne',
+        ← ENNReal.coe_inv q_pos.ne', ← ENNReal.coe_add]
     norm_cast
   · norm_cast
-    rw [← ENNReal.coe_div q₀_pos.ne.symm, ← ENNReal.coe_div q₁_pos.ne.symm, ← ENNReal.coe_inv q_pos.ne.symm, ← ENNReal.coe_add]
+    rw [← ENNReal.coe_div q₀_pos.ne', ← ENNReal.coe_div q₁_pos.ne', ← ENNReal.coe_inv q_pos.ne', ← ENNReal.coe_add]
     norm_cast
   · intro f hf
     apply (carlesonOperator_measurable _).aestronglyMeasurable
