@@ -8,6 +8,9 @@ open MeasureTheory Measure NNReal Metric Filter Topology TopologicalSpace
 open ENNReal hiding one_lt_two
 noncomputable section
 
+-- Upstreaming status: we want this in mathlib in principle, but a fair amount of polish is
+-- possible and needed. Move one lemma, streamline proofs (and perhaps add further documentation).
+
 section Doubling
 
 /-- The blow-up factor of repeatedly increasing the size of balls. -/
@@ -99,21 +102,18 @@ lemma measure_ball_four_le_same (x : X) (r : ℝ) :
 
 lemma measure_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     μ (ball x r') ≤ As A s * μ (ball x r) := by
-  /-If the large ball is empty, then they all are-/
-  if hr: r < 0 then
-    have hr' : r' < 0 := by
+  /- If the large ball is empty, all balls are -/
+  by_cases hr : r < 0
+  · have hr' : r' < 0 := by
       calc r' ≤ s * r := hs
       _ < 0 := mul_neg_of_pos_of_neg hsp hr
-    rw [ball_eq_empty.mpr hr.le, ball_eq_empty.mpr hr'.le]
-    simp only [measure_empty, mul_zero, le_refl]
-  else
+    simp [ball_eq_empty.mpr hr.le, ball_eq_empty.mpr hr'.le]
   push_neg at hr
   /- Show inclusion in larger ball -/
   have haux : s * r ≤ 2 ^ ⌈Real.logb 2 s⌉₊ * r := by
     gcongr
     apply Real.le_pow_natCeil_logb (by norm_num) hsp
-  have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.logb 2 s⌉₊ * r) :=
-    ball_subset_ball <| hs.trans haux
+  have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.logb 2 s⌉₊ * r) := ball_subset_ball <| hs.trans haux
   /- Apply result for power of two to slightly larger ball -/
   calc μ (ball x r')
       ≤ μ (ball x (2 ^ ⌈Real.logb 2 s⌉₊ * r)) := by gcongr
@@ -130,10 +130,8 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
 include A in
 variable (μ) in
 lemma isOpenPosMeasure_of_isDoubling [NeZero μ] : IsOpenPosMeasure μ := by
-  refine ⟨fun U hU h2U h3U ↦ ?_⟩
-  obtain ⟨x, hx⟩ := h2U
+  refine ⟨fun U hU ⟨x, hx⟩ h3U ↦ ?_⟩
   obtain ⟨r, hr, hx⟩ := Metric.isOpen_iff.mp hU x hx
-  replace h3U := measure_mono_null hx h3U
   obtain ⟨r', h⟩ : ∃ r', μ (ball x r') ≠ 0 := by
     have hμ := NeZero.ne μ
     rw [← measure_univ_ne_zero, ← Metric.iUnion_ball_nat x, ne_eq,
@@ -147,12 +145,11 @@ lemma isOpenPosMeasure_of_isDoubling [NeZero μ] : IsOpenPosMeasure μ := by
   calc
     μ (ball x r') ≤ As A (r' / r) * μ (ball x r) := by -- error if not in tactic mode
         exact measure_ball_le_same x (by positivity) (div_mul_cancel₀ _ hr.ne').ge
-      _ = 0 := by rw [h3U, mul_zero]
+      _ = 0 := by rw [measure_mono_null hx h3U, mul_zero]
 
 instance : IsUnifLocDoublingMeasure (μ : Measure X) where
   exists_measure_closedBall_le_mul'' := by
-    use max 1 A^2, Set.univ, by simp
-    use Set.univ
+    use max 1 A^2, Set.univ, by simp, Set.univ
     simp only [mem_principal, Set.subset_univ, Set.inter_self, true_and]
     ext r
     simp only [ENNReal.coe_pow, Set.mem_setOf_eq, Set.mem_univ, iff_true]
@@ -193,7 +190,7 @@ lemma Nat.exists_max_image {α : Type*} {s : Set α} (hs : s.Nonempty)
 include A in
 lemma IsDoubling.measure_ball_lt_top [IsLocallyFiniteMeasure μ] {x : X} {r : ℝ} :
     μ (ball x r) < ∞ := by
-  obtain hr|hr := le_or_gt r 0
+  obtain hr | hr := le_or_gt r 0
   · simp [Metric.ball_eq_empty.mpr hr]
   obtain ⟨U, hxU, hU, h2U⟩ := exists_isOpen_measure_lt_top μ x
   obtain ⟨ε, hε, hx⟩ := Metric.isOpen_iff.mp hU x hxU
@@ -202,7 +199,7 @@ lemma IsDoubling.measure_ball_lt_top [IsLocallyFiniteMeasure μ] {x : X} {r : �
     μ (ball x r) ≤ As A (r / ε) * μ (ball x ε) := by
         apply measure_ball_le_same x (by positivity)
         rw [div_mul_cancel₀ _ hε.ne']
-    _ < ∞ := mul_lt_top (by simp) this
+    _ < ∞ := by finiteness
 
 include μ in
 variable (μ) in
@@ -293,7 +290,7 @@ lemma IsDoubling.allBallsCoverBalls [OpensMeasurableSpace X] [NeZero μ]
     · simp at huv
     · exact h2y v hv
     · rw [dist_comm]; exact h2y u hu
-    · exact hs.2 u v hu hv huv
+    · exact h2s u v hu hv huv
   specialize s_max (insert y s) h2
   simp [hys] at s_max
 
