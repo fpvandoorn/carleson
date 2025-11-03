@@ -185,7 +185,7 @@ lemma four_lt_sum_χtilde
 lemma bigger_than_𝓙_is_not_in_𝓙₀ {𝔖 : Set (𝔓 X)} {A B : Grid X}
     (le : A ≤ B) (sle : s A < s B) (A_in : A ∈ 𝓙 𝔖) :
     B ∉ 𝓙₀ 𝔖 := by
-  apply And.right at A_in
+  replace A_in := A_in.2
   simp only [Grid.le_def, and_imp] at A_in
   intro contr
   apply Lean.Omega.Int.le_lt_asymm (x := s A) (y := s B)

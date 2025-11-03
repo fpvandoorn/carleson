@@ -982,6 +982,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
     · exact (NeZero.ne (2 ^ (4 * a)))
     · finiteness
   letI : Countable (Yk X (k - K')) := (Yk_countable X (k - K')).to_subtype
+  classical
   calc
     K' * ∑' (z : ↑(Yk X (k - K'))), volume (⋃ (_ : clProp(hk_mK,z|hk,y)), I3 hk_mK z)
       = ∑ (_ : Ioc (k - K') k),
@@ -995,6 +996,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
       intro x
       simp only [Finset.mem_univ, true_implies]
       symm
+      classical
       refine measure_iUnion ?_ ?_
       · intro i i' hneq
         simp only [disjoint_iUnion_right, disjoint_iUnion_left]
@@ -1004,8 +1006,6 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
         apply hneq
         exact I3_prop_1 hk_mK hx
       · intro i
-        letI : Decidable (clProp(hk_mK,i|hk,y)):=
-          Classical.propDecidable _
         rw [Set.iUnion_eq_if]
         if h:(clProp(hk_mK,i|hk,y)) then
           rw [if_pos h]
@@ -1048,9 +1048,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
         intro _ _
         rw [Set.disjoint_iff]
         intro x hx
-        apply hneq
-        apply I3_prop_1
-        exact hx
+        exact hneq <| I3_prop_1 _ hx
       intro i
       apply MeasurableSet.iUnion
       intro _
@@ -1062,7 +1060,6 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
       simp only [Finset.mem_univ, true_implies]
       apply ENNReal.summable.tsum_le_tsum _ (ENNReal.summable)
       intro z
-      letI : Decidable (clProp(le_s hk_mK k',z|hk,y)) := Classical.propDecidable _
       simp_rw [iUnion_eq_if,apply_ite volume,measure_empty, mul_ite, mul_zero]
       if h : clProp(le_s hk_mK k',z|hk,y) then
         simp_rw [if_pos h]
@@ -1104,9 +1101,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
         linarith
       rw [Set.disjoint_iff]
       intro x hx
-      apply hneq
-      apply I3_prop_1
-      exact hx
+      exact hneq <| I3_prop_1 _ hx
     _ ≤ C4_1_7 X * ∑' (k' : Ioc (k - K') k),
           volume (⋃ (z : Yk X k'), ⋃ (_:clProp((le_s hk_mK k'),z|hk,y)),
             ball (z : X) (4⁻¹ * D ^ (k' : ℤ))) := by
@@ -1185,15 +1180,13 @@ lemma small_boundary (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk X
   calc
     ∑' (z : Yk X (k - K')), ∑ᶠ (_ : clProp(hk_mK,z|hk,y)), volume (I3 hk_mK z)
     _ = ∑' (z : Yk X (k - K')), volume (⋃ (_ : clProp(hk_mK,z|hk,y)), I3 hk_mK z) := by
-      apply tsum_congr
-      intro z
-      letI : Decidable clProp(hk_mK,z|hk,y):= Classical.propDecidable _
+      congr with z
+      classical
       rw [finsum_eq_if, iUnion_eq_if]
-      if h : clProp(hk_mK,z|hk,y) then
+      if h : clProp(hk_mK, z | hk, y) then
         simp_rw [if_pos h]
       else
-        simp_rw [if_neg h]
-        rw [measure_empty]
+        simp_rw [if_neg h, measure_empty]
     _ ≤ 2⁻¹ * volume (I3 hk y) := small_boundary' k hk hk_mK y
 
 lemma le_s_1' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n + 1 : ℕ) * K') : (-S ≤ (k - K') - n * K') := by
@@ -1201,25 +1194,19 @@ lemma le_s_1' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n + 1 : ℕ) * K') : (-
   linarith
 
 lemma le_s_2' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n + 1 : ℕ) * K') : (-S ≤ k - K') := by
-  simp only [Nat.cast_add, Nat.cast_one] at hk_mn1K
-  rw [right_distrib] at hk_mn1K
+  simp only [Nat.cast_add, Nat.cast_one, right_distrib] at hk_mn1K
   apply hk_mn1K.trans
-  simp only [one_mul, tsub_le_iff_right, sub_add_add_cancel, le_add_iff_nonneg_right]
-  positivity
+  simpa using by positivity
 
 lemma boundary_sum_eq {k : ℤ} (hk : -S ≤ k) {k' : ℤ} (hk' : -S ≤ k') (y : Yk X k) :
     ∑'(y' : Yk X k'), ∑ᶠ (_ : clProp(hk',y'|hk,y)), volume (I3 hk' y') =
       volume (⋃ (y' : Yk X k'), ⋃ (_ : clProp(hk',y'|hk,y)), I3 hk' y') := by
-  letI := (Yk_countable X k').to_subtype
+  have := (Yk_countable X k').to_subtype
   rw [measure_iUnion]
-  · apply tsum_congr
-    intro y'
-    letI : Decidable clProp(hk',y'|hk,y) := Classical.propDecidable _
-    rw [finsum_eq_if,iUnion_eq_if]
-    if h : clProp(hk',y'|hk,y) then
-      simp_rw [if_pos h]
-    else
-      simp_rw [if_neg h, measure_empty]
+  · congr with y'
+    classical
+    rw [finsum_eq_if, iUnion_eq_if]
+    by_cases h: clProp(hk', y' | hk, y) <;> simp [h]
   · intro i i' hneq
     simp only [disjoint_iUnion_right, disjoint_iUnion_left]
     rw [Set.disjoint_iff]
@@ -1231,14 +1218,15 @@ lemma smaller_boundary (n : ℕ) :
     ∀ {k : ℤ}, (hk : -S ≤ k) → (hk_mnK : -S ≤ k - n * K') → ∀ (y : Yk X k),
       ∑' (y' : Yk X (k - n * K')), ∑ᶠ (_ : clProp(hk_mnK,y'|hk,y)), volume (I3 hk_mnK y') ≤
         2⁻¹ ^ n * volume (I3 hk y) := by
-  induction n
-  · intro k hk hk_mnK y
+  induction n with
+  | zero =>
+    intro k hk hk_mnK y
     rw [boundary_sum_eq hk hk_mnK y]
     simp only [Int.cast_ofNat_Int, defaultA, pow_zero, one_mul]
     gcongr
     simp only [iUnion_subset_iff]
     exact fun _ hy' => hy'.I3_subset
-  rename_i n hinduction
+  | succ n hinduction =>
   intro k hk hk_mnK y
   rw [boundary_sum_eq hk hk_mnK y]
   calc
@@ -1273,14 +1261,9 @@ lemma smaller_boundary (n : ℕ) :
             ⋃ (_ : clProp(hk_mnK,y''|le_s_2' n hk_mnK,y')), I3 hk_mnK y'') := by
       letI := (Yk_countable X (k - K')).to_subtype
       rw [measure_iUnion]
-      · apply tsum_congr
-        intro y'
-        letI : Decidable clProp(le_s_2' n hk_mnK,y'|hk,y) := Classical.propDecidable _
-        rw [iUnion_eq_if, finsum_eq_if]
-        if h : clProp(le_s_2' n hk_mnK,y'|hk,y) then
-          simp_rw [if_pos h]
-        else
-          simp_rw [if_neg h, measure_empty]
+      · congr with y'
+        classical
+        by_cases h : clProp(le_s_2' n hk_mnK , y' | hk, y) <;> simp [h]
       · intro i i' hneq
         simp only [disjoint_iUnion_right, disjoint_iUnion_left]
         intro _ y1 hy1i _ y2 hy2i'
@@ -1299,10 +1282,8 @@ lemma smaller_boundary (n : ℕ) :
     _ = ∑' (y' : Yk X (k - K')), ∑ᶠ (_ : clProp(le_s_2' n hk_mnK,y'|hk,y)),
           ∑' (y'': Yk X (k - (n + 1 : ℕ) * K')), ∑ᶠ (_ : clProp(hk_mnK,y''|le_s_2' n hk_mnK,y')),
             volume (I3 hk_mnK y'') := by
-      apply tsum_congr
-      intro y'
-      apply finsum_congr
-      intro hcly'
+      congr with y'
+      congr with hcly'
       rw [boundary_sum_eq (le_s_2' n hk_mnK) hk_mnK y']
     _ = ∑' (y' : Yk X (k - K')), ∑ᶠ (_ : clProp(le_s_2' n hk_mnK,y'|hk,y)),
           ∑' (y'' : Yk X ((k - K') - n * K')), ∑ᶠ (_ : clProp(le_s_1' n hk_mnK,y''|le_s_2' n hk_mnK,y')),
@@ -1314,25 +1295,18 @@ lemma smaller_boundary (n : ℕ) :
           2⁻¹ ^ n * volume (I3 (le_s_2' n hk_mnK) y') := by
       apply ENNReal.summable.tsum_le_tsum _ (ENNReal.summable)
       intro y'
-      letI : Decidable clProp(le_s_2' n hk_mnK,y'|hk,y) := Classical.propDecidable _
-      rw [finsum_eq_if, finsum_eq_if]
-      if h : clProp(le_s_2' n hk_mnK,y'|hk,y) then
+      classical
+      by_cases h : clProp(le_s_2' n hk_mnK , y' | hk, y)
+      · rw [finsum_eq_if, finsum_eq_if]
         simp_rw [if_pos h]
         apply hinduction
-      else
-        simp_rw [if_neg h]
-        exact le_refl _
+      · simp_all
     _ = 2⁻¹ ^ n * ∑' (y' : Yk X (k - K')), ∑ᶠ (_ : clProp(le_s_2' n hk_mnK,y'|hk,y)),
           volume (I3 (le_s_2' n hk_mnK) y') := by
       rw [← ENNReal.tsum_mul_left]
-      apply tsum_congr
-      intro y'
-      letI : Decidable clProp(le_s_2' n hk_mnK,y'|hk,y) := Classical.propDecidable _
-      rw [finsum_eq_if,finsum_eq_if]
-      if h : clProp(le_s_2' n hk_mnK,y'|hk,y) then
-        simp_rw [if_pos h]
-      else
-        simp_rw [if_neg h, mul_zero]
+      congr with y'
+      classical
+      by_cases h : clProp(le_s_2' n hk_mnK , y' | hk, y) <;> simp [h]
     _ ≤ 2⁻¹ ^ n * (2⁻¹ * volume (I3 hk y)) := by
       gcongr
       apply _root_.small_boundary
