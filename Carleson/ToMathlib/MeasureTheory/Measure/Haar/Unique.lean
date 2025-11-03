@@ -3,11 +3,12 @@ import Mathlib.MeasureTheory.Measure.Haar.Unique
 open MeasureTheory Measure
 open scoped ENNReal
 
+-- Upstreaming status: ready to be PRed, perhaps after golfing the proof a bit
+
 variable {G : Type*} [TopologicalSpace G] [Group G] [IsTopologicalGroup G]
   [MeasurableSpace G] [BorelSpace G]
 
-namespace MeasureTheory
-namespace Measure
+namespace MeasureTheory.Measure
 
 -- This is a generalization of `IsHaarMeasure.isInvInvariant_of_regular`, using the same proof.
 -- Now `IsHaarMeasure.isInvInvariant_of_regular` can be proven as a special case.
@@ -29,7 +30,7 @@ instance (priority := 100) IsHaarMeasure.isInvInvariant_of_isMulRightInvariant (
     simp
   have : c ^ 2 = 1 ^ 2 :=
     (ENNReal.mul_left_inj (measure_pos_of_nonempty_interior _ K.interior_nonempty).ne'
-          K.isCompact.measure_lt_top.ne).1 this
+      K.isCompact.measure_lt_top.ne).1 this
   have : c = 1 := (ENNReal.pow_right_strictMono two_ne_zero).injective this
   rw [hc, this, one_smul]
 
@@ -49,5 +50,4 @@ instance (priority := 100) IsHaarMeasure.isInvInvariant_of_regular'
 
 end CommGroup
 
-end Measure
-end MeasureTheory
+end MeasureTheory.Measure

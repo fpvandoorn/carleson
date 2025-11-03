@@ -74,7 +74,7 @@ lemma eq_zero_of_isDoubling_lt_one [ProperSpace X] [IsFiniteMeasureOnCompacts μ
       apply I.trans_lt (ENNReal.mul_lt_mul_right' H measure_ball_lt_top.ne (mod_cast hA))
     simp at this
   rw [← measure_univ_eq_zero, ← iUnion_ball_nat x]
-  exact measure_iUnion_null_iff.mpr fun i ↦ M ↑i (Nat.cast_nonneg' i)
+  exact measure_iUnion_null_iff.mpr fun i ↦ M i (by positivity)
 
 lemma IsDoubling.mono {A'} (h : A ≤ A') : IsDoubling μ A' where
   measure_ball_two_le_same := by
@@ -151,40 +151,33 @@ lemma isOpenPosMeasure_of_isDoubling [NeZero μ] : IsOpenPosMeasure μ := by
 
 instance : IsUnifLocDoublingMeasure (μ : Measure X) where
   exists_measure_closedBall_le_mul'' := by
-    use max 1 A^2, Set.univ, by simp only [univ_mem]
-    simp only [mem_principal]
+    use max 1 A^2, Set.univ, by simp
     use Set.univ
-    simp only [Set.subset_univ, Set.inter_self, true_and]
+    simp only [mem_principal, Set.subset_univ, Set.inter_self, true_and]
     ext r
     simp only [ENNReal.coe_pow, Set.mem_setOf_eq, Set.mem_univ, iff_true]
     intro x
     letI : Nonempty X := ⟨x⟩
     by_cases hr : r ≤ 0
     · have cball_eq : closedBall x (2 * r) = closedBall x r:= by
-        if hr' : r < 0 then
-          have : 2 * r < 0 := by linarith
-          rw [closedBall_eq_empty.mpr hr', closedBall_eq_empty.mpr this]
-        else
-          push_neg at hr'
-          have : r = 0 := le_antisymm hr hr'
-          rw [this]
-          simp only [mul_zero]
+        by_cases hr' : r < 0
+        · have : 2 * r < 0 := by linarith
+          simp [*]
+        · push_neg at hr'
+          simp [le_antisymm hr hr']
       rw [cball_eq]
       nth_rw 1 [← one_mul (μ (closedBall x r))]
       gcongr
-      have : (1 : ℝ≥0∞) ≤ (max 1 A : ℝ≥0) := by
-        simp
+      have : (1 : ℝ≥0∞) ≤ (max 1 A : ℝ≥0) := by simp
       rw [← one_mul 1, pow_two]
       gcongr
     · calc
         μ (closedBall x (2 * r))
           ≤ μ (ball x (2 * (2 * r))) := μ.mono (closedBall_subset_ball (by linarith))
         _ ≤ A * μ (ball x (2 * r)) := measure_ball_two_le_same x (2 * r)
-        _ ≤ A * (A * μ (ball x r)) := mul_le_mul_of_nonneg_left
-          (measure_ball_two_le_same x r) (zero_le _)
+        _ ≤ A * (A * μ (ball x r)) := by gcongr; exact measure_ball_two_le_same x r
         _ = ↑(A ^ 2) * μ (ball x r) := by simp only [pow_two, coe_mul, mul_assoc]
-        _ ≤ ↑(A ^ 2) * μ (closedBall x r) := mul_le_mul_of_nonneg_left
-          (μ.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
+        _ ≤ ↑(A ^ 2) * μ (closedBall x r) := by gcongr; exact ball_subset_closedBall
         _ ≤ ↑(max 1 A ^ 2) * μ (closedBall x r) := by gcongr; exact le_max_right 1 A
 
 -- todo: move
@@ -363,8 +356,7 @@ lemma measureReal_ball_four_le_same (x : X) (r : ℝ) :
   calc μ.real (ball x (4 * r))
       = μ.real (ball x (2 * (2 * r))) := by ring_nf
     _ ≤ A * μ.real (ball x (2 * r)) := measureReal_ball_two_le_same ..
-    _ ≤ A * (A * μ.real (ball x r)) := mul_le_mul_of_nonneg_left
-      (measureReal_ball_two_le_same ..) (zero_le_coe)
+    _ ≤ A * (A * μ.real (ball x r)) := by gcongr; exact measureReal_ball_two_le_same ..
     _ = A ^ 2 * μ.real (ball x r) := by ring_nf
 
 lemma measureReal_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
