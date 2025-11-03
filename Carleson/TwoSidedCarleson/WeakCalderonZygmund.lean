@@ -309,7 +309,7 @@ lemma ball_covering_bounded_intersection
     _ ≤ 2 ^ (3 * a) * volume (ball x (8 * (depth O x).toReal / 6)) := by
       gcongr; exact iUnion_subset fun ⟨u, mu, xu⟩ ↦ ball_subset_ball' (depth_bound_3 hO.2 xu)
     _ ≤ _ := by
-      rw [show 6 * a = 3 * a + 3 * a by omega, pow_add, mul_assoc]; gcongr
+      rw [show 6 * a = 3 * a + 3 * a by cutsat, pow_add, mul_assoc]; gcongr
       rw [mul_div_assoc, show (8 : ℝ) = 2 ^ 3 by norm_num, Aeq]
       apply measure_ball_two_le_same_iterate
 
@@ -600,7 +600,7 @@ lemma czPartition_pairwiseDisjoint {hX : GeneralCase f α} :
     rw [czPartition]
     exact notMem_diff_of_mem <| mem_union_left _ (this hx)
   have : _ ∧ _ := ⟨this i k hxi |>.mt (· hxk), this k i hxk |>.mt (· hxi)⟩
-  omega
+  cutsat
 
 lemma czPartition_pairwiseDisjoint' {hX : GeneralCase f α}
     {x : X} {i j : ℕ} (hi : x ∈ czPartition hX i) (hj : x ∈ czPartition hX j) :
@@ -1565,7 +1565,7 @@ lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f (α' a α)) {i
           unfold defaultA; norm_cast
     _ ≤ 2 ^ a * 2 ^ a * 2 ^ a := by
       rw [ENNReal.tsum_mul_right, ← mul_assoc]; gcongr
-      rw [← rpow_natCast]; exact geometric_series_estimate (by norm_cast; omega)
+      rw [← rpow_natCast]; exact geometric_series_estimate (by norm_cast; cutsat)
     _ = _ := by norm_cast; ring
 
 /-- The constant used in `distribution_czOperatorBound`. -/
@@ -1706,7 +1706,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
       right; finiteness
     rw [mul_comm, ENNReal.mul_div_right_comm] at hα
     refine (measure_mono (subset_univ _)).trans (hα.trans ?_)
-    rw [C10_0_3, add_assoc]; gcongr; exacts [one_le_two, by omega]
+    rw [C10_0_3, add_assoc]; gcongr; exacts [one_le_two, by cutsat]
   rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero'] at hα
   have α'pos : 0 < c10_0_3 a * α := by rw [c10_0_3]; positivity
   calc
@@ -1734,7 +1734,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
         _ ≤ 2 ^ a ^ 3 + 2 ^ (7 * a) * 2 ^ (a ^ 3 + 12 * a + 4) + 2 ^ (a ^ 3 + 11 * a + 4) := by
           rw [C10_2_9, ← add_assoc, c10_0_3, div_inv_eq_mul, C10_2_8]; gcongr
           rw [← zpow_natCast, Nat.cast_pow]
-          exact zpow_le_zpow_right₀ one_le_two (by omega)
+          exact zpow_le_zpow_right₀ one_le_two (by cutsat)
         _ ≤ 3 * 2 ^ (a ^ 3 + 19 * a + 4) := by
           rw [← pow_add, show 7 * a + (a ^ 3 + 12 * a + 4) = a ^ 3 + 19 * a + 4 by ring,
             show (3 : ℝ≥0) = 1 + 1 + 1 by norm_num]
@@ -1746,7 +1746,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
         _ ≤ 2 ^ (a ^ 3 + 19 * a + 6) := by
           rw [show a ^ 3 + 19 * a + 6 = 2 + (a ^ 3 + 19 * a + 4) by ring, pow_add _ 2]
           gcongr; norm_num
-        _ ≤ _ := by rw [C10_0_3, add_assoc]; gcongr; exacts [one_le_two, by omega]
+        _ ≤ _ := by rw [C10_0_3, add_assoc]; gcongr; exacts [one_le_two, by cutsat]
 
 /-- Lemma 10.0.3, formulated differently. The blueprint version is basically this after
 unfolding `HasBoundedWeakType`, `wnorm` and `wnorm'`. -/

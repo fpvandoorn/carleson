@@ -296,23 +296,23 @@ lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i 
   have := mem_of_mem_of_subset hx ((le_topCube (i := i)).1.trans ts)
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
   obtain ⟨j, (sj : s j = l), mj⟩ := this; use j, sj
-  exact le_of_mem_of_mem (by omega) hx mj
+  exact le_of_mem_of_mem (by cutsat) hx mj
 
 lemma exists_sandwiched (h : i ≤ j) (l : ℤ) (hl : l ∈ Icc (s i) (s j)) :
     ∃ k, s k = l ∧ i ≤ k ∧ k ≤ j := by
   have bound_q : -S ≤ s j ∧ s j ≤ S := scale_mem_Icc
   rw [mem_Icc] at hl
-  obtain ⟨K, sK, lbK⟩ := exists_supercube l (by change s i ≤ _ ∧ _; omega)
+  obtain ⟨K, sK, lbK⟩ := exists_supercube l (by change s i ≤ _ ∧ _; cutsat)
   use K, sK, lbK
-  exact le_dyadic (by omega) lbK h
+  exact le_dyadic (by cutsat) lbK h
 
 lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
   obtain ⟨h₁, h₂⟩ := succ_spec h
-  rw [lt_def] at h₁; apply le_antisymm _ (by omega)
+  rw [lt_def] at h₁; apply le_antisymm _ (by cutsat)
   by_contra! h₀
   obtain ⟨z, hz₁, hz₂, hz₃⟩ :=
-    exists_sandwiched (le_succ (i := i)) (s i + 1) (by rw [mem_Icc]; omega)
-  have l := (lt_def.mpr ⟨hz₃.1, hz₁.symm ▸ h₀⟩).trans_le (h₂ z (lt_def.mpr ⟨hz₂.1, by omega⟩))
+    exists_sandwiched (le_succ (i := i)) (s i + 1) (by rw [mem_Icc]; cutsat)
+  have l := (lt_def.mpr ⟨hz₃.1, hz₁.symm ▸ h₀⟩).trans_le (h₂ z (lt_def.mpr ⟨hz₂.1, by cutsat⟩))
   rwa [lt_self_iff_false] at l
 
 lemma exists_scale_succ {j W : Grid X} (h : s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
@@ -324,9 +324,9 @@ lemma exists_scale_succ {j W : Grid X} (h : s j < s W) : ∃ J, j ≤ J ∧ s J 
 lemma opSize_succ_lt (h : ¬IsMax i) : i.succ.opSize < i.opSize := by
   simp only [opSize, Int.lt_toNat]
   have : s i.succ ≤ S := (mem_Icc.mp scale_mem_Icc).2
-  replace : 0 ≤ S - s i.succ := by omega
+  replace : 0 ≤ S - s i.succ := by cutsat
   rw [Int.toNat_of_nonneg this, scale_succ h]
-  omega
+  cutsat
 
 @[elab_as_elim]
 lemma induction (P : Grid X → Prop) (base : ∀ i, IsMax i → P i)
@@ -339,10 +339,10 @@ termination_by i => i.opSize
 
 lemma succ_def (h : ¬IsMax i) : i.succ = j ↔ i ≤ j ∧ s j = s i + 1 := by
   refine ⟨fun k ↦ by subst k; exact ⟨le_succ, scale_succ h⟩, fun ⟨h₁, _⟩ ↦ ?_⟩
-  replace h₁ : i < j := lt_def.mpr ⟨h₁.1, by omega⟩
+  replace h₁ : i < j := lt_def.mpr ⟨h₁.1, by cutsat⟩
   refine succ_unique h h₁ fun j' hj' ↦ ?_
   have : s i < s j' := (lt_def.mp hj').2
-  exact le_dyadic (by omega) h₁.le hj'.le
+  exact le_dyadic (by cutsat) h₁.le hj'.le
 
 /-! ## Maximal elements of finsets of dyadic cubes -/
 
@@ -406,7 +406,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       gcongr
       have : s I < s J := (Grid.lt_def.mp hpq).2
       exact cdist_mono (ball_subset_ball (mul_le_mul_of_nonneg_left
-        (zpow_le_zpow_right₀ (one_le_realD _) (by omega)) zero_le_four))
+        (zpow_le_zpow_right₀ (one_le_realD _) (by cutsat)) zero_le_four))
     _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
       gcongr
       have : c I ∈ ball (c J) (4 * D ^ s J) :=
@@ -433,8 +433,8 @@ lemma dist_strictMono_iterate {I J : Grid X} {d : ℕ} (hij : I ≤ J) (hs : s I
   induction d generalizing I J with
   | zero => simpa using dist_mono hij
   | succ d ih =>
-    obtain ⟨K, sK, IK, KJ⟩ := exists_sandwiched hij (s I + d) (by rw [mem_Icc]; omega)
-    replace KJ : K < J := by rw [Grid.lt_def]; exact ⟨KJ.1, by omega⟩
+    obtain ⟨K, sK, IK, KJ⟩ := exists_sandwiched hij (s I + d) (by rw [mem_Icc]; cutsat)
+    replace KJ : K < J := by rw [Grid.lt_def]; exact ⟨KJ.1, by cutsat⟩
     calc
       _ ≤ C2_1_2 a ^ d * dist_{K} f g := ih IK sK.symm
       _ ≤ C2_1_2 a ^ d * (C2_1_2 a * dist_{J} f g) := by

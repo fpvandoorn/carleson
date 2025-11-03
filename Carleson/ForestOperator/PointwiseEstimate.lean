@@ -915,13 +915,13 @@ lemma le_C7_1_6 (a4 : 4 ≤ a) :
       refine mul_le_mul_left' ?_ _
       conv_rhs => rw [← ENNReal.rpow_one 2]
       refine ENNReal.rpow_le_rpow_of_exponent_le one_le_two ?_
-      rw [div_le_one (by norm_cast; omega)]; norm_cast; omega
+      rw [div_le_one (by norm_cast; cutsat)]; norm_cast; cutsat
     _ ≤ _ := by
       rw [← pow_succ, add_assoc,
         show (𝕔 + 3 + 𝕔 / 4) * a ^ 3 = (𝕔 + 2 + 𝕔 / 4) * a ^ 3 + a ^ 3 by ring]
       gcongr; · exact one_le_two
       calc
-        _ ≤ 4 * 4 * a := by omega
+        _ ≤ 4 * 4 * a := by cutsat
         _ ≤ a * a * a := by gcongr
         _ = _ := by ring
 
@@ -1028,7 +1028,7 @@ lemma C7_1_6_le_C7_1_3 {a : ℕ} : C7_1_6 a ≤ C7_1_3 a := by
   rw [C7_1_6_def, C7_1_3_def]
   gcongr
   · norm_num
-  · omega
+  · cutsat
 
 lemma C7_1_4_le_C7_1_3 {a : ℕ} (ha : 4 ≤ a) : C7_1_4 a ≤ C7_1_3 a := by
   have : (10 : ℝ≥0) ≤ 2 ^ 4 := by norm_num

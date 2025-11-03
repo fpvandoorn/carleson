@@ -248,7 +248,7 @@ lemma le_C6_1_4 (a4 : 4 ≤ a) :
   simp_rw [Tile.C6_1_5, Antichain.C6_1_6, C6_1_4, ← pow_add, ← pow_mul]
   gcongr
   · exact one_le_two
-  · have : 𝕔 / 4 ≤ 2 * (𝕔 / 8) + 1 := by omega
+  · have : 𝕔 / 4 ≤ 2 * (𝕔 / 8) + 1 := by cutsat
     have : (𝕔 / 4) * a ^ 3 ≤ 2 * (𝕔 / 8) * a ^ 3 + a ^ 3 :=
       (mul_le_mul_of_nonneg_right this (Nat.zero_le _)).trans_eq (by ring)
     ring_nf

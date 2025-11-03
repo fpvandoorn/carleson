@@ -117,15 +117,15 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       have minT_mem := wfT.min_mem neT; simp_rw [T, mem_setOf] at minT_mem
       have minT_pos : wfT.min neT ≠ 0 := by
         by_contra! h'; rw [h'] at minT_mem; exact absurd h.2 (not_le.mpr minT_mem)
-      nth_rw 1 [← Nat.add_sub_assoc (by omega), Nat.sub_add_cancel (by omega), ← not_lt]
+      nth_rw 1 [← Nat.add_sub_assoc (by cutsat), Nat.sub_add_cancel (by cutsat), ← not_lt]
       refine ⟨minT_mem, ?_⟩; change wfT.min neT - 1 ∉ T; contrapose! minT_pos
-      replace minT_pos := wfT.min_le neT minT_pos; omega
+      replace minT_pos := wfT.min_le neT minT_pos; cutsat
   have ds (k : ℕ) : Pairwise (Function.onFun Disjoint fun n ↦ s (k + n)) := fun i j hn ↦ by
     change Disjoint (s (k + i)) (s (k + j))
-    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by omega)).symm
+    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by cutsat)).symm
     simp_rw [s, disjoint_left, oc, mem_setOf, mem_Ioc]; intro y my
     rw [not_and_or, not_le]; right
-    exact (sau.antitone (show k + i + 1 ≤ k + j by omega)).trans_lt my.1
+    exact (sau.antitone (show k + i + 1 ≤ k + j by cutsat)).trans_lt my.1
   -- ...and appeal to `ENNReal.tendsto_sum_nat_add`
   conv =>
     enter [1, n]; rw [← us, measure_iUnion (ds n) (fun _ ↦ measurableSet_oc)]
@@ -200,15 +200,15 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       have minT_mem := wfT.min_mem neT; simp_rw [T, mem_setOf] at minT_mem
       have minT_pos : wfT.min neT ≠ 0 := by
         by_contra! h'; rw [h'] at minT_mem; exact absurd h.1 (not_le.mpr minT_mem)
-      nth_rw 2 [← Nat.add_sub_assoc (by omega)]; rw [Nat.sub_add_cancel (by omega), ← not_lt]
+      nth_rw 2 [← Nat.add_sub_assoc (by cutsat)]; rw [Nat.sub_add_cancel (by cutsat), ← not_lt]
       refine ⟨?_, minT_mem⟩; change wfT.min neT - 1 ∉ T; contrapose! minT_pos
-      replace minT_pos := wfT.min_le neT minT_pos; omega
+      replace minT_pos := wfT.min_le neT minT_pos; cutsat
   have ds (k : ℕ) : Pairwise (Function.onFun Disjoint fun n ↦ s (k + n)) := fun i j hn ↦ by
     change Disjoint (s (k + i)) (s (k + j))
-    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by omega)).symm
+    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by cutsat)).symm
     simp_rw [s, disjoint_left, co, mem_setOf, mem_Ico]; intro y my
     rw [not_and_or, not_le]; left
-    exact my.2.trans_le (smu.monotone (show k + i + 1 ≤ k + j by omega))
+    exact my.2.trans_le (smu.monotone (show k + i + 1 ≤ k + j by cutsat))
   -- ...and appeal to `ENNReal.tendsto_sum_nat_add`
   conv =>
     enter [1, n]; rw [← us, measure_iUnion (ds n) (fun _ ↦ measurableSet_co)]

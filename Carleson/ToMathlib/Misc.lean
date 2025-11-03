@@ -137,14 +137,14 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
     ∫⁻ t in Ioc (a * c) (b * c), f t =
     ∑ l ∈ Finset.Ico a b, ∫⁻ t in Ioc (l * c) ((l + 1 : ℕ) * c), f t := by
   rcases lt_or_ge b a with h | h
-  · rw [Finset.Ico_eq_empty (by omega), Ioc_eq_empty (by rw [not_lt]; gcongr),
+  · rw [Finset.Ico_eq_empty (by cutsat), Ioc_eq_empty (by rw [not_lt]; gcongr),
       setLIntegral_empty, Finset.sum_empty]
   induction b, h using Nat.le_induction with
   | base =>
     rw [Finset.Ico_self, Ioc_self, setLIntegral_empty, Finset.sum_empty]
   | succ b h ih =>
     have li : a * c ≤ b * c := by gcongr
-    rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; omega),
+    rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; cutsat),
       lintegral_union measurableSet_Ioc (Ioc_disjoint_Ioc_of_le le_rfl),
       ← Order.succ_eq_add_one, ← Finset.insert_Ico_right_eq_Ico_succ h,
       Finset.sum_insert Finset.right_notMem_Ico,
@@ -744,7 +744,7 @@ lemma Finset.pow_sum_comm {ι R : Type*} [Semiring R] {s : Finset ι} {f : ι �
     simp_rw [pow_succ, ih, sum_mul, mul_sum]
     congr! 1 with x mx
     refine Finset.sum_eq_single _ (fun y my hn ↦ ?_) (fun _ ↦ by contradiction)
-    rw [← Nat.sub_one_add_one (show n ≠ 0 by omega), pow_succ, mul_assoc, hf _ mx _ my hn.symm,
+    rw [← Nat.sub_one_add_one (show n ≠ 0 by cutsat), pow_succ, mul_assoc, hf _ mx _ my hn.symm,
       mul_zero]
 
 namespace MeasureTheory

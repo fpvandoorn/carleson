@@ -209,7 +209,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     rw [neg_div, neg_le_neg_iff, div_le_div_iff_of_pos_right (by positivity)]
     simp only [le_add_iff_nonneg_right, zero_le_one]
   rw [← rpow_natCast]
-  exact geometric_series_estimate (by norm_cast; omega)
+  exact geometric_series_estimate (by norm_cast; cutsat)
 
 lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
     (∫⁻ (y : X) in (ball x' r)ᶜ ∩ ball x (2*r), ‖K x' y * g y‖ₑ) ≤
@@ -731,7 +731,7 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   push_cast
   gcongr _ + (_ + 2 ^ ?_) * _
   · exact one_le_two
-  · omega
+  · cutsat
 
 omit [IsTwoSidedKernel a K] in
 /-- Part of Lemma 10.1.6. -/
@@ -823,7 +823,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   nth_rw 5 [pow_succ]; rw [mul_two]
   gcongr _ + 2 ^ ?_
   · exact one_le_two
-  · omega
+  · cutsat
 
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/
@@ -1118,7 +1118,7 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
     exact add_le_add (this hR₁.1 hx') (this (hR₁.1.trans hR₁.2) (hx'.trans hR₁.2))
   · rw [C10_1_6, C10_0_2, ← pow_succ']; gcongr; · exact one_le_two
     calc
-      _ ≤ a ^ 3 + 2 * 4 * 4 * a := by omega
+      _ ≤ a ^ 3 + 2 * 4 * 4 * a := by cutsat
       _ ≤ a ^ 3 + 2 * a * a * a := by gcongr
       _ = _ := by ring
 

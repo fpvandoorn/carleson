@@ -133,11 +133,11 @@ lemma pairwiseDisjoint_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
     univ.PairwiseDisjoint (fun N ↦ (𝔄_aux 𝔄 ϑ N).toFinset) := fun i mi j mj hn ↦ by
   change Disjoint (𝔄_aux _ _ _).toFinset ((𝔄_aux _ _ _).toFinset)
   wlog hl : i < j generalizing i j
-  · exact (this _ mj _ mi hn.symm (by omega)).symm
+  · exact (this _ mj _ mi hn.symm (by cutsat)).symm
   simp_rw [Finset.disjoint_left, 𝔄_aux, mem_toFinset, mem_setOf_eq, not_and, and_imp]
   refine fun p mp md _ ↦ ?_
   rw [mem_Ico, not_and_or, not_le]
-  exact Or.inl <| md.2.trans_le (pow_le_pow_right₀ one_le_two (by omega))
+  exact Or.inl <| md.2.trans_le (pow_le_pow_right₀ one_le_two (by cutsat))
 
 open Classical in
 lemma biUnion_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
@@ -894,7 +894,7 @@ private lemma le_C6_3_4 (ha : 4 ≤ a) :
     (((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (𝕔 * a ^ 3 + 5 * a)) +
       2 ^ (a * (N + 5)) ≤ C6_3_4 a N := by
   simp only [add_mul, ← pow_add, C6_3_4, one_mul, ENNReal.coe_pow, ENNReal.coe_ofNat]
-  apply add_le_pow_two₃ le_rfl (by linarith) (by omega) ?_
+  apply add_le_pow_two₃ le_rfl (by linarith) (by cutsat) ?_
   ring_nf
   linarith [sixteen_times_le_cube ha]
 
@@ -1038,7 +1038,7 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
       · refine fun p mp ↦ pow_nonneg (mul_nonneg ?_ (indicator_nonneg (by simp) _)) _
         exact mul_nonneg (Real.rpow_nonneg zero_le_two _) (indicator_nonneg (by simp) _)
       simp_rw [enorm_pow, enorm_mul, mul_pow]
-      have an0 : a ≠ 0 := by omega
+      have an0 : a ≠ 0 := by cutsat
       congr! 3 with p mp
       · rw [Real.rpow_mul zero_le_two, ENNReal.rpow_mul,
           Real.enorm_rpow_of_nonneg (by positivity) (by positivity), Real.rpow_neg zero_le_two,
@@ -1063,13 +1063,13 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
       · rw [neg_sub_left, ← mul_one_add, neg_mul, neg_mul, neg_le_neg_iff, mul_assoc]
         gcongr; push_cast
         calc
-          _ ≤ 3⁻¹ * (4 * a : ℝ) := by rw [le_inv_mul_iff₀ zero_lt_three]; norm_cast; omega
+          _ ≤ 3⁻¹ * (4 * a : ℝ) := by rw [le_inv_mul_iff₀ zero_lt_three]; norm_cast; cutsat
           _ = (3 * a ^ 3 : ℝ)⁻¹ * (4 * a ^ 4) := by
             rw [pow_succ' _ 3, ← mul_assoc 4, ← div_eq_inv_mul, ← div_eq_inv_mul,
               mul_div_mul_right _ _ (by positivity)]
           _ ≤ _ := by
             rw [show (3 * a ^ 3 : ℝ) = 2 * a ^ 3 + a ^ 3 by ring]; gcongr
-            · norm_cast; omega
+            · norm_cast; cutsat
             · norm_num
       · exact global_antichain_density h𝔄 ϑ n
     _ = _ := by
@@ -1104,7 +1104,7 @@ lemma le_C6_1_6 (a4 : 4 ≤ a) :
     _ ≤ _ := by
       rw [C6_1_6]; norm_cast; rw [← pow_add]; gcongr
       · exact one_le_two
-      · omega
+      · cutsat
 
 open Classical in
 /-- Lemma 6.1.6. -/

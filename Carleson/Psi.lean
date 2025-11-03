@@ -803,7 +803,7 @@ private lemma enorm_Ks_sub_Ks_le_far {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0
     _ ≤ 2 * a ^ 2 * 𝕔 := by nlinarith
     _ ≤ (2 * a ^ 2) * (2 * a * (𝕔 / 4)) := by
       gcongr; rw [mul_assoc]
-      apply le_trans (b := (4 + 4) * (𝕔 / 4)) (by omega) (by rw [← mul_assoc, two_mul]; gcongr)
+      apply le_trans (b := (4 + 4) * (𝕔 / 4)) (by cutsat) (by rw [← mul_assoc, two_mul]; gcongr)
     _ = 4 * a ^ 3 * (𝕔 / 4) := by ring
     _ ≤ a * a ^ 3 * (𝕔 / 4) := by gcongr
   linarith

@@ -201,7 +201,7 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
     hJ.1.1.resolve_left (by linarith [(scale_mem_Icc (i := J')).1])
   apply absurd fa; push_neg
   obtain ⟨J'', sJ'', lJ''⟩ : ∃ J'', s J'' = s J' + 1 ∧ J' ≤ J'' := by
-    refine Grid.exists_supercube (s J' + 1) ⟨by omega, ?_⟩
+    refine Grid.exists_supercube (s J' + 1) ⟨by cutsat, ?_⟩
     rw [lt_sub_iff_add_lt] at hs; exact hs.le.trans scale_mem_Icc.2
   obtain ⟨p, mp, sp⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * D ^ (s J' + 1 + 1)) := by
     have : J'' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ lJ'' (by linarith) hJ'.1
@@ -215,7 +215,7 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
       · exact (mem_ball'.mp (Grid_subset_ball (lJ''.1 Grid.c_mem_Grid))).le
       · exact (dist_lt_of_not_disjoint_ball hd).le
     _ ≤ 100 * D ^ s J + (4 * D ^ s J + 8 * D ^ s J + 8 * D ^ s J) := by
-      gcongr; exacts [one_le_realD a, by omega, one_le_realD a, by omega, one_le_realD a, by omega]
+      gcongr; exacts [one_le_realD a, by cutsat, one_le_realD a, by cutsat, one_le_realD a, by cutsat]
     _ ≤ _ := by
       rw [← add_mul, ← add_mul, ← add_mul, zpow_add_one₀ (by simp), mul_comm _ (D : ℝ), ← mul_assoc]
       gcongr; trans 100 * 4
@@ -300,7 +300,7 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
         calc
           _ ≤ (4 * (𝕔 / 4) + 3) * a ^ 2 + 7 * a + a := by
             gcongr
-            · omega
+            · cutsat
             · linarith
           _ = (𝕔 / 4) * 4 * a ^ 2 + 3 * a ^ 2 + 2 * 4 * a := by ring
           _ ≤ (𝕔 / 4) * a * a ^ 2 + 3 * a ^ 2 + 2 * a * a := by gcongr
@@ -321,12 +321,12 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
             _ ≤ 8 * (D : ℝ) ^ s J' + 8 * D ^ s J + 9 * D ^ (s J + 1) := by
               gcongr; exact (dist_lt_of_not_disjoint_ball mJ'.2).le
             _ ≤ 8 * (D : ℝ) ^ (s J + 1) + D ^ (s J + 1) + 9 * D ^ (s J + 1) := by
-              gcongr; exacts [one_le_realD a, by omega, by
+              gcongr; exacts [one_le_realD a, by cutsat, by
                 rw [zpow_add_one₀ (by simp), mul_comm 8]; gcongr; exact eight_le_realD X]
             _ ≤ _ := by
               rw [← add_one_mul, ← add_mul, ← mul_assoc, ← mul_rotate, ← zpow_natCast,
                 ← zpow_add₀ (by simp), mul_comm _ 18, show (8 : ℝ) + 1 + 9 = 18 by norm_num]
-              gcongr 18 * (D : ℝ) ^ ?_; exacts [one_le_realD a, by omega]
+              gcongr 18 * (D : ℝ) ^ ?_; exacts [one_le_realD a, by cutsat]
         convert measure_ball_le_of_dist_le' (μ := volume) (by simp) db
         simp_rw [As, defaultA, defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul, Real.logb_pow,
           Real.logb_self_eq_one one_lt_two, mul_one, Nat.ceil_natCast, ENNReal.coe_pow,
@@ -360,7 +360,7 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
           _ ≤ (D : ℝ) ^ (s J + 1) / 4 + (8 * D ^ (s J + 1) + (8 * D / 25) * D ^ s J) := by
             have : (8 : ℝ) ≤ 8 * D / 25 := by
               rw [le_div_iff₀ (by norm_num)]; gcongr; exact twentyfive_le_realD X
-            gcongr; exacts [one_le_realD a, by omega, one_le_realD a, by omega]
+            gcongr; exacts [one_le_realD a, by cutsat, one_le_realD a, by cutsat]
           _ ≤ _ := by
             rw [show 8 * (D : ℝ) / 25 * D ^ s J = 8 / 25 * (D ^ s J * D) by ring,
               ← zpow_add_one₀ (by simp), ← add_mul, div_eq_inv_mul, ← add_mul]
@@ -809,7 +809,7 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
             _ = (𝕔 + 2) * a ^ 3 + 1 * 4 * a ^ 2 := by ring
             _ ≤ (𝕔 + 2) * a ^ 3 + (𝕔 / 4) * a * a ^ 2 := by
               gcongr
-              · have := seven_le_c; omega
+              · have := seven_le_c; cutsat
               · exact four_le_a X
             _ = _ := by ring
         _ = 2 ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3 + (3 * a + 1)) := by
@@ -1125,11 +1125,11 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
       · use ⟨4, (k - s J).toNat, J⟩
         simp only [𝓑, c𝓑, r𝓑, mem_prod, mem_Iic, mem_univ, le_add_iff_nonneg_left, zero_le,
           and_true, true_and]
-        rw [show s J + (k - s J).toNat = k by omega, Int.toNat_le, Nat.cast_add, Nat.cast_mul,
+        rw [show s J + (k - s J).toNat = k by cutsat, Int.toNat_le, Nat.cast_add, Nat.cast_mul,
           Nat.cast_ofNat]
-        exact ⟨by omega, by norm_num⟩
+        exact ⟨by cutsat, by norm_num⟩
     _ = 2 ^ ((𝕔 + 3) * a ^ 3) * 2 ^ 2 * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
-      rw [Finset.sum_const, Int.card_Icc, show s J + 3 + 1 - s J = 4 by omega, nsmul_eq_mul,
+      rw [Finset.sum_const, Int.card_Icc, show s J + 3 + 1 - s J = 4 by cutsat, nsmul_eq_mul,
         show (Int.toNat 4 : ℝ≥0∞) = 2 ^ 2 by simp; norm_num, mul_assoc]
     _ ≤ _ := by
       gcongr; rw [C7_5_7, ← pow_add]; norm_cast
@@ -1304,7 +1304,7 @@ lemma gtc_sum_Icc_le_two : ∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s 
       apply Finset.sum_nbij' (fun (k : ℤ) ↦ (k - s J).toNat) (· + s J) <;> intro k hk
       pick_goal -1
       · rw [Finset.mem_Icc] at hk
-        rw [Int.toNat_of_nonneg (by omega), neg_sub]
+        rw [Int.toNat_of_nonneg (by cutsat), neg_sub]
       all_goals simp at hk ⊢; try omega
     _ ≤ ∑' k : ℕ, 2 ^ (-k : ℤ) := ENNReal.sum_le_tsum _
     _ = _ := ENNReal.sum_geometric_two_pow_neg_one
@@ -1333,10 +1333,10 @@ lemma global_tree_control1_edist_part2
       · use ⟨5, (k - s J).toNat, J⟩
         simp only [𝓑, c𝓑, r𝓑, mem_prod, mem_Iic, mem_univ, le_add_iff_nonneg_left, zero_le,
           and_true, true_and]
-        rw [show s J + (k - s J).toNat = k by omega, Int.toNat_le, Nat.cast_add, Nat.cast_mul,
+        rw [show s J + (k - s J).toNat = k by cutsat, Int.toNat_le, Nat.cast_add, Nat.cast_mul,
           Nat.cast_ofNat]
         have : -S ≤ s J := scale_mem_Icc.1
-        exact ⟨by omega, by norm_num⟩
+        exact ⟨by cutsat, by norm_num⟩
     _ = C7_5_5 a * 2 ^ (4 * a) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ *
         (∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s J - k) / (a : ℝ))) *
         ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
@@ -1465,7 +1465,7 @@ lemma le_C7_5_10 (ha : 4 ≤ a) : C7_5_7 a + C7_5_9s a ≤ C7_5_10 a := by
   · suffices 1 * a ^ 3 ≤ (𝕔 / 4) * a ^ 3 by linarith
     gcongr
     have := seven_le_c
-    omega
+    cutsat
   · have : 4 * (4 * a) ≤ a ^ 3 := by rw [pow_three]; gcongr
     linarith
 
@@ -1676,9 +1676,9 @@ lemma le_I7_5_4 (ha : 4 ≤ a) :
   · ring_nf
     linarith
   · ring_nf
-    omega
+    cutsat
   · ring_nf
-    omega
+    cutsat
   · linarith [sixteen_times_le_cube ha]
 
 lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -1751,12 +1751,12 @@ lemma le_C7_5_4 (ha : 4 ≤ a) :
     apply NNReal.rpow_le_rpow_of_exponent_le one_le_two
     rw [div_le_one_iff]
     norm_cast
-    omega
+    cutsat
   grw [this]
   simp only [C7_5_9s, C7_5_5, C7_5_10, I7_5_4, C7_5_4, ← pow_add]
   apply add_le_pow_two ?_ le_rfl ?_
   · ring_nf
-    suffices 2 + a * 4 ≤ a ^ 3 by omega
+    suffices 2 + a * 4 ≤ a ^ 3 by cutsat
     linarith [sixteen_times_le_cube ha]
   · ring_nf
     linarith [sixteen_times_le_cube ha]
@@ -1839,7 +1839,7 @@ lemma C7_5_11_binomial_bound (a4 : 4 ≤ a) :
       gcongr 2 ^ ?_ * _
       · exact one_le_two
       · calc
-          _ ≤ 2 * (4 * (𝕔 / 4) + 3) + 1 := by omega
+          _ ≤ 2 * (4 * (𝕔 / 4) + 3) + 1 := by cutsat
           _ = 2 * 4 * 1 * (𝕔 / 4) + 7 := by ring
           _ ≤ a * a * a * (𝕔 / 4) + 7 := by gcongr <;> linarith
           _ = (𝕔 / 4) * a ^ 3 + 7 := by ring

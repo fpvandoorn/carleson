@@ -389,10 +389,10 @@ lemma norm_dirichletApprox_le {n : ℕ} {x : ℝ} :
     have : (i : ℕ) < 2 * n := by
       simp only [Finset.mem_Ico] at hi
       exact hi.2
-    have : 2 * i + 1 ≤ 4 * n := by omega
+    have : 2 * i + 1 ≤ 4 * n := by cutsat
     exact_mod_cast this
   _ ≤ _ := by
-    simp only [Finset.sum_const, Nat.card_Ico, show 2 * n - n = n by omega, nsmul_eq_mul,
+    simp only [Finset.sum_const, Nat.card_Ico, show 2 * n - n = n by cutsat, nsmul_eq_mul,
       ← mul_assoc]
     rcases eq_zero_or_pos n with rfl | hn
     · simp

@@ -29,7 +29,7 @@ lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
     rw [le_div_iff₀ (by positivity), defaultZ]; norm_cast
     calc
       _ = 8 * a * a * (a + 2) := by ring
-      _ ≤ 8 * a * a * (a + a) := by gcongr; omega
+      _ ≤ 8 * a * a * (a + a) := by gcongr; cutsat
       _ = 2 ^ 4 * a * a * a := by ring
       _ ≤ 2 ^ a * 2 ^ a * 2 ^ a * 2 ^ a := by
         gcongr; · exact one_le_two
@@ -83,7 +83,7 @@ lemma le_C7_4_4 (ha : 4 ≤ a) : C7_4_5 a n + C7_4_6 a n ≤ C7_4_4 a n := by
   gcongr
   apply (add_le_pow_two_add_cube ha le_rfl ?_).trans_eq (by ring)
   ring_nf
-  omega
+  cutsat
 
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) :
@@ -322,7 +322,7 @@ lemma pairwiseDisjoint_rowDecomp :
   wlog hij : i < j
   · rw [Set.inter_comm]
     apply this hj hi hne.symm
-    omega
+    cutsat
   intro x hx
   obtain ⟨hx₁,hx₂⟩ := hx
   revert hx₁
@@ -932,13 +932,13 @@ lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2
   simp only [← mul_assoc, ← mul_assoc, ← mul_assoc, ← add_mul, ge_iff_le]
   gcongr
   rw [← pow_add]
-  apply (add_le_pow_two_add_cube a4 (by omega) le_rfl).trans ?_
+  apply (add_le_pow_two_add_cube a4 (by cutsat) le_rfl).trans ?_
   gcongr
   · norm_num
-  have : 𝕔 / 2 ≤ 2 * (𝕔 / 4) + 1 := by omega
+  have : 𝕔 / 2 ≤ 2 * (𝕔 / 4) + 1 := by cutsat
   grw [this]
   ring_nf
-  omega
+  cutsat
 
 open Classical in
 lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
@@ -1239,10 +1239,10 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
       simp only [ENNReal.coe_pow, ENNReal.coe_ofNat]
       gcongr _ * (2 ^ ?_) ^ _
       · norm_num
-      have : 𝕔 / 2 ≤ 2 * (𝕔 / 4) + 1 := by omega
+      have : 𝕔 / 2 ≤ 2 * (𝕔 / 4) + 1 := by cutsat
       grw [this]
       ring_nf
-      omega
+      cutsat
     _ = _ := by
       rw [← mul_rotate, ← ENNReal.rpow_add_of_nonneg _ _ efpos.le egpos.le, add_comm (2/q - 1),
         esum, ENNReal.rpow_one, ← ENNReal.rpow_mul, C2_0_4, C2_0_4_base, ENNReal.coe_mul,

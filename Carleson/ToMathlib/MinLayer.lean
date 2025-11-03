@@ -67,7 +67,7 @@ lemma minLayer_zero : A.minLayer 0 = {a | Minimal (· ∈ A) a} := by rw [minLay
 lemma maxLayer_zero : A.maxLayer 0 = {a | Maximal (· ∈ A) a} := by rw [maxLayer_def]; simp
 
 lemma disjoint_minLayer_of_ne (h : m ≠ n) : Disjoint (A.minLayer m) (A.minLayer n) := by
-  wlog hl : m < n generalizing m n; · exact (this h.symm (by omega)).symm
+  wlog hl : m < n generalizing m n; · exact (this h.symm (by cutsat)).symm
   rw [disjoint_right]; intro p hp
   rw [minLayer] at hp; replace hp := hp.1.2; contrapose! hp
   exact mem_iUnion₂_of_mem hl hp
@@ -93,7 +93,7 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
   | base => use a
   | succ n _ ih =>
     have nma : a ∉ A.minLayer n :=
-      disjoint_right.mp (disjoint_minLayer_of_ne (by omega)) ha
+      disjoint_right.mp (disjoint_minLayer_of_ne (by cutsat)) ha
     rw [minLayer, mem_setOf, minimal_iff] at ha nma
     have al : a ∈ A \ ⋃ (l < n), A.minLayer l := by
       have : a ∈ A \ ⋃ (k < n + 1), A.minLayer k := ha.1
@@ -103,7 +103,7 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
     have ma' : a' ∈ A.minLayer n := by
       by_contra h
       have a'l : a' ∈ A \ ⋃ (l < n + 1), A.minLayer l := by
-        have : ∀ l, l < n + 1 ↔ l < n ∨ l = n := by omega
+        have : ∀ l, l < n + 1 ↔ l < n ∨ l = n := by cutsat
         simp_all [iUnion_or, iUnion_union_distrib]
       exact absurd (ha.2 a'l la.1) (ne_eq _ _ ▸ la.2)
     obtain ⟨c, mc, lc⟩ := ih ma'; use c, mc, lc.trans la.1
@@ -149,7 +149,7 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
     cases height (⟨y, hys⟩ : A)
     · simp
     · simp only [Nat.cast_inj, Nat.cast_le]
-      exact ⟨fun h ↦ by contrapose! h; simp [h], fun h m hm ↦ by omega⟩
+      exact ⟨fun h ↦ by contrapose! h; simp [h], fun h m hm ↦ by cutsat⟩
 
 lemma iUnion_lt_minLayer_iff_bounded_series :
     ⋃ (k < n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length < n := by

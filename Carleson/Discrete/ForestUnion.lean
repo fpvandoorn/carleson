@@ -386,7 +386,7 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
         nth_rw 3 [dist_comm]; apply dist_triangle4
   have Znpos : 0 < Z * (n + 1) := by rw [defaultZ]; positivity
   let d : ℕ := (𝔰 p - 𝔰 p').toNat
-  have sd : 𝔰 p' + d = 𝔰 p := by simp_rw [d]; rw [Int.toNat_sub_of_le] <;> omega
+  have sd : 𝔰 p' + d = 𝔰 p := by simp_rw [d]; rw [Int.toNat_sub_of_le] <;> cutsat
   have d1 : dist_(p') (𝒬 p) (𝒬 u) ≤ C2_1_2 a ^ d * dist_(p) (𝒬 p) (𝒬 u) :=
     Grid.dist_strictMono_iterate lp'.1 sd
   have Cdpos : 0 < C2_1_2 a ^ d := by rw [C2_1_2]; positivity
@@ -402,7 +402,7 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
       have : 7 * a ≤ 𝕔 * a := by gcongr; exact seven_le_c
       linarith [four_le_a X]
     _ ≤ (C2_1_2 a)⁻¹ ^ d := by
-      refine pow_le_pow_right₀ ?_ (by omega)
+      refine pow_le_pow_right₀ ?_ (by cutsat)
       simp_rw [one_le_inv_iff₀, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity
     _ ≤ (C2_1_2 a)⁻¹ ^ d * 8 := by nth_rw 1 [← mul_one (_ ^ d)]; gcongr; norm_num
     _ < (C2_1_2 a)⁻¹ ^ d * dist_(p') (𝒬 p) (𝒬 u) := by gcongr
@@ -431,18 +431,18 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
   have ru'' : URel k n j u u'' := equivalenceOn_urel.trans (𝔘₃_subset_𝔘₂ hu) mu' hu'' ru' ur
   have qlu : 𝓘 q < 𝓘 u := URel.eq (𝔘₃_subset_𝔘₂ hu) hu'' ru'' ▸ nu''
   have squ : 𝔰 q < 𝔰 u := (Grid.lt_def.mp qlu).2
-  have spu : 𝔰 p ≤ 𝔰 u - (Z * (n + 1) : ℕ) - 1 := by omega
+  have spu : 𝔰 p ≤ 𝔰 u - (Z * (n + 1) : ℕ) - 1 := by cutsat
   have ⟨I, sI, plI, Ilu⟩ : ∃ I, s I = 𝔰 u - (Z * (n + 1) : ℕ) - 1 ∧ 𝓘 p ≤ I ∧ I ≤ 𝓘 u := by
     apply Grid.exists_sandwiched (lq.1.trans qlu.le) (𝔰 u - (Z * (n + 1) : ℕ) - 1)
     refine ⟨spu, ?_⟩
     change _ ≤ 𝔰 u
-    omega
+    cutsat
   have bI : I ∉ 𝓛 n u := by
     have p₅ := ℭ₆_subset_ℭ₅ p₆
     rw [ℭ₅_def] at p₅; replace p₅ := p₅.2; contrapose! p₅
     use u, (𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁) hu, plI.1.trans (subset_biUnion_of_mem p₅)
   rw [𝓛, mem_setOf, not_and] at bI; specialize bI Ilu
-  rw [not_and, not_not] at bI; specialize bI (by omega); rw [← sI] at spu
+  rw [not_and, not_not] at bI; specialize bI (by cutsat); rw [← sI] at spu
   rcases spu.eq_or_lt with h | h
   · have hI : 𝓘 p = I := by
       apply eq_of_le_of_not_lt plI; rw [Grid.lt_def, not_and_or, not_lt]; exact Or.inr h.symm.le
@@ -460,7 +460,7 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
       _ ≤ 4 * D ^ s I + 4 * D ^ s I := by
         gcongr
         · exact one_le_realD a
-        · omega
+        · cutsat
       _ = _ := by ring
 
 /-- The multiplicity appearing in Lemma 5.4.8. -/
@@ -575,8 +575,8 @@ lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X :=
       intro l i hi hl h'i
       apply subset_biUnion_of_mem
       change i + 1 ≤ (4 * n + 12) * 2 ^ n
-      suffices i < (4 * n + 12) * 2 ^ n by omega
-      exact h'i.trans_le (mul_le_mul' (by omega) le_rfl)
+      suffices i < (4 * n + 12) * 2 ^ n by cutsat
+      exact h'i.trans_le (mul_le_mul' (by cutsat) le_rfl)
     · simp only [𝔘₄, iUnion_subset_iff]
       intro i hi
       let l := i / 2 ^ n

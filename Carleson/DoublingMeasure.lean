@@ -55,7 +55,7 @@ lemma realD_nonneg : 0 ≤ (defaultD a : ℝ) := le_of_lt (realD_pos a)
 
 lemma one_le_realD : 1 ≤ (defaultD a : ℝ) := by
   rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
-  exact pow_le_pow_right₀ (one_le_two) (by omega)
+  exact pow_le_pow_right₀ (one_le_two) (by cutsat)
 
 lemma defaultD_pow_pos (z : ℤ) : 0 < (defaultD a : ℝ) ^ z := by
   positivity [realD_pos a]
