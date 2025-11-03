@@ -11,6 +11,7 @@ variable {X : Type*} [TopologicalSpace X] [MeasurableSpace X]
 
 namespace MeasureTheory
 
+-- Upstreaming status: seems ready for PRing
 -- not actually used in the project, but we want to upstream this and similar lemmas.
 
 /-- A bounded measurable function with compact support is in L^p. -/

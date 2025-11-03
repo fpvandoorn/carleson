@@ -1,6 +1,9 @@
 import Mathlib.MeasureTheory.Function.L1Space.Integrable
 import Carleson.ToMathlib.BoundedCompactSupport
 
+-- Upstreaming status: both lemmas are useful, but need moving or comparing with other lemmas
+-- Do upstream, but only after putting in that work.
+
 open MeasureTheory Complex
 
 variable {X : Type*} [MeasureSpace X]
@@ -8,13 +11,10 @@ variable {X : Type*} [MeasureSpace X]
 open scoped ComplexConjugate
 
 -- move to Function/L1/Integrable.lean
+@[fun_prop]
 lemma _root_.MeasureTheory.Integrable.conj {f : X → ℂ} (hf : Integrable f) :
-    Integrable (fun x ↦ conj (f x)) := by
-  have := hf.1
-  -- XXX: (by fun_prop) worked in Forests, but doesn't work here
-  apply Integrable.congr' hf (Continuous.comp_aestronglyMeasurable continuous_conj this)
-  filter_upwards with x
-  exact (norm_conj (f x)).symm
+    Integrable (fun x ↦ conj (f x)) :=
+  Integrable.congr' hf (by fun_prop) (by simp)
 
 -- TODO: compare with mul and conj in BoundedCompactSupport
 @[fun_prop]

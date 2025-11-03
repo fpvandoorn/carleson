@@ -221,18 +221,30 @@ theorem integrable_fun_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g 
     Integrable (fun x ↦ f x * g x) μ :=
   hf.integrable_mul hg
 
--- todo: extract 3-4 lemmas from this proof
+-- TODO: move the next three lemmas to their proper homes!
+omit [MeasurableSpace X] in
+lemma _root_.HasCompactSupport.star (hf : HasCompactSupport f) :
+    HasCompactSupport fun i ↦ star (f i) :=
+  (hasCompactSupport_comp_left (by simp)).2 hf
+
+omit [TopologicalSpace X] in
+lemma _root_.AEStronglyMeasurable.star (hf : AEStronglyMeasurable f μ) :
+    AEStronglyMeasurable (star f) μ :=
+  RCLike.continuous_conj.comp_aestronglyMeasurable hf
+
+omit [TopologicalSpace X] in
+lemma eLpNorm_star : eLpNorm (star f) ⊤ μ = eLpNorm f ⊤ μ := by
+  simp_rw [Star.star]
+  rw [MeasureTheory.eLpNorm_congr_enorm_ae (g := f)]
+  simp
+
 @[fun_prop]
 theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) μ where
   memLp_top := by
-    refine ⟨RCLike.continuous_conj.comp_aestronglyMeasurable hf.aestronglyMeasurable, ?_⟩
-    simp_rw [star]
-    rw [MeasureTheory.eLpNorm_congr_enorm_ae (g := f)]
-    · have := hf.memLp_top; finiteness
-    simp
-  hasCompactSupport := by
-    simp_rw [star]
-    exact (hasCompactSupport_comp_left (by simp)).2 hf.hasCompactSupport
+    refine ⟨hf.aestronglyMeasurable.star, ?_⟩
+    rw [eLpNorm_star]
+    have := hf.memLp_top; finiteness
+  hasCompactSupport := by simpa using hf.hasCompactSupport.star
 
 -- This lemma is defeq to `BoundedCompactSupport.conj`, but `starRingEnd` and `conj` are both
 -- simp normal forms, so a lemma for each is needed.
