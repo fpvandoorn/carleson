@@ -391,21 +391,21 @@ open scoped NNReal
 
 instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) := by
   apply isCancellative_of_norm_integral_exp_le
-  intro x r ϕ r_pos hK hϕ f g
+  intro x r φ r_pos hK hφ f g
   rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball,
     ENNReal.toReal_ofReal (by linarith [r_pos]), Real.ball_eq_Ioo, ← integral_Ioc_eq_integral_Ioo,
     ← intervalIntegral.integral_of_le (by linarith [r_pos]), dist_integer_linear_eq,
     max_eq_left r_pos.le]
-  calc ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * (↑(f x) - ↑(g x))).exp * ϕ x‖
-    _ = ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * ((↑f - ↑g) : ℤ) * x).exp * ϕ x‖ := by
+  calc ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * (↑(f x) - ↑(g x))).exp * φ x‖
+    _ = ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * ((↑f - ↑g) : ℤ) * x).exp * φ x‖ := by
       congr with x
       rw [mul_assoc]
       congr
       push_cast
       rw [_root_.sub_mul]
       norm_cast
-    _ ≤ 2 * π * ((x + r) - (x - r)) * (iLipNNNorm ϕ x r +
-          (iLipNNNorm ϕ x r / r.toNNReal : ℝ≥0) * ((x + r) - (x - r)) / 2) *
+    _ ≤ 2 * π * ((x + r) - (x - r)) * (iLipNNNorm φ x r +
+          (iLipNNNorm φ x r / r.toNNReal : ℝ≥0) * ((x + r) - (x - r)) / 2) *
       (1 + |((↑f - ↑g) : ℤ)| * ((x + r) - (x - r)))⁻¹ := by
       apply van_der_Corput (by linarith)
       · rw [Ioo_eq_ball]
@@ -414,15 +414,15 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) := by
       · intro y hy
         apply norm_le_iLipNNNorm_of_mem hK
         rwa [Real.ball_eq_Ioo]
-    _ = 2 * π * (2 * r) * (iLipNNNorm ϕ x r + r * (iLipNNNorm ϕ x r / r.toNNReal : ℝ≥0))
+    _ = 2 * π * (2 * r) * (iLipNNNorm φ x r + r * (iLipNNNorm φ x r / r.toNNReal : ℝ≥0))
           * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
       ring
-    _ = 2 * π * (2 * r) * (iLipNNNorm ϕ x r + iLipNNNorm ϕ x r)
+    _ = 2 * π * (2 * r) * (iLipNNNorm φ x r + iLipNNNorm φ x r)
           * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
       congr
       rw [NNReal.coe_div, Real.coe_toNNReal _ r_pos.le, mul_div_cancel₀ _ r_pos.ne']
-    _ = 4 * π * (2 * r) * iLipNNNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|)⁻¹ := by ring
-    _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNNNorm ϕ x r *
+    _ = 4 * π * (2 * r) * iLipNNNorm φ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|)⁻¹ := by ring
+    _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNNNorm φ x r *
       (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / (4 : ℝ))) := by
       gcongr
       · norm_num
