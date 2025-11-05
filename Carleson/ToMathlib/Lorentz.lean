@@ -886,6 +886,59 @@ theorem weakly_cont_implies_ae_eq [TopologicalSpace α] {𝕂 : Type*} [Topologi
   --  := @weakly_cont_T _ (fun n ↦ g) f_locInt
   sorry
 -/
+/-
+inductive RCLike.Component
+  | pos_re
+  | neg_re
+  | pos_im
+  | neg_im
+
+
+instance : Fintype RCLike.Component where
+  elems := sorry
+  /-
+  {RCLike.Component.pos_re,
+    RCLike.Component.neg_re,
+    RCLike.Component.pos_im,
+    RCLike.Component.neg_im}
+  -/
+  complete := sorry
+-/
+
+def RCLike.Components {𝕂 : Type*} [RCLike 𝕂] : Finset 𝕂 := {1, -1, RCLike.I, -RCLike.I}
+
+open ComplexConjugate
+
+def RCLike.component {𝕂 : Type*} [RCLike 𝕂] (c : 𝕂) (a : 𝕂) : ℝ≥0 :=
+  Real.toNNReal (RCLike.re (a * conj c))
+
+  /-
+  (match c with
+  | Component.pos_re => RCLike.re a
+  | Component.neg_re => - RCLike.re a
+  | Component.pos_im => RCLike.im a
+  | Component.neg_im => - RCLike.im a)
+  -/
+
+/-
+def RCLike.coeff {𝕂 : Type*} [RCLike 𝕂] (c : Component) : 𝕂 :=
+  match c with
+  | Component.pos_re => 1
+  | Component.neg_re => -1
+  | Component.pos_im => RCLike.I
+  | Component.neg_im => -RCLike.I
+-/
+
+lemma RCLike.decomposition {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
+  a = ∑ c ∈ RCLike.Components, (RCLike.component c a).toReal • c := by
+  unfold RCLike.Components component
+  rw [Finset.sum_insert sorry, Finset.sum_insert sorry, Finset.sum_insert sorry, Finset.sum_singleton]
+  simp only [map_one, mul_one, Real.coe_toNNReal', map_neg, mul_neg, smul_neg, RCLike.conj_I,
+    RCLike.mul_re, RCLike.I_re, mul_zero, RCLike.I_im, zero_sub, neg_neg]
+  rw [← sub_eq_add_neg, ← sub_smul, ← add_assoc, ← sub_eq_add_neg, ← sub_smul]
+  rw [max_zero_sub_eq_self, max_zero_sub_eq_self]
+  rw [RCLike.real_smul_eq_coe_mul, mul_one, RCLike.real_smul_eq_coe_mul]
+  exact Eq.symm (RCLike.re_add_im_ax a)
 
 
 theorem RCLike.nnnorm_ofReal
