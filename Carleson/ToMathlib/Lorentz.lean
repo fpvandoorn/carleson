@@ -657,13 +657,6 @@ theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ 
       apply ENNReal.rpow_add_rpow_le_add _ _ hp1
 
 
-
---TODO: move, generalize?, probably need more assumptions
-lemma setLIntegral_Ici {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
-    ∫⁻ (t : ℝ≥0) in Set.Ici a, f t = ∫⁻ (t : ℝ≥0), f (t + a) := by
-  --TODO: do something similar as in lintegral_add_right_Ioi
-  sorry
-
 --variable [ENorm ε] [TopologicalSpace ε'] [ENormedAddMonoid ε']
 
 --TODO: move
@@ -789,7 +782,7 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENor
               rw [lintegral_add_left (by measurability)]
               congr 1
               · rw [lintegral_indicator_const measurableSet_Iio, NNReal.volume_Iio, mul_comm]
-              · rw [lintegral_indicator measurableSet_Ici, setLIntegral_Ici]
+              · rw [lintegral_indicator measurableSet_Ici, setLIntegral_nnreal_Ici]
                 simp
           rw [add_comm]
           congr

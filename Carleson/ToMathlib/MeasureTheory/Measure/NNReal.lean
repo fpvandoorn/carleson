@@ -1,5 +1,6 @@
 import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 
 open MeasureTheory NNReal ENNReal Set
 
@@ -156,6 +157,19 @@ lemma NNReal.toReal_Ioo_eq_Ioo {a b : ℝ≥0} :
   · have x_nonneg : 0 ≤ x := zero_le_coe.trans h.1.le
     refine ⟨x.toNNReal, ?_, Real.coe_toNNReal x (zero_le_coe.trans h.1.le)⟩
     rwa [Real.lt_toNNReal_iff_coe_lt, Real.toNNReal_lt_iff_lt_coe x_nonneg]
+
+theorem NNReal.Ici_eq {a : ℝ≥0} :
+  Ici (↑a) = (Real.toNNReal ⁻¹' Ici a ∩ Ici 0) := by
+  ext x
+  constructor
+  · intro hx
+    constructor
+    · simp only [mem_preimage, mem_Ici]
+      exact le_toNNReal_of_coe_le hx
+    · apply zero_le_coe.trans hx
+  · rintro ⟨hx1, hx2⟩
+    simp only [mem_preimage, mem_Ici] at *
+    rwa [← Real.le_toNNReal_iff_coe_le hx2]
 
 lemma NNReal.volume_Iio {b : ℝ≥0} : volume (Set.Iio b) = b := by
   rw [NNReal.volume_val]
@@ -344,6 +358,15 @@ lemma lintegral_nnreal_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} : �
   simp
   rfl
 
+lemma lintegral_nnreal_Ici_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
+    ∫⁻ x in Ici a, f x = ∫⁻ x in Ici (a : ℝ), f x.toNNReal := by
+  rw [← lintegral_indicator measurableSet_Ici, lintegral_nnreal_eq_lintegral_Ici_ofReal]
+  simp_rw [← indicator_comp_right]
+  rw [setLIntegral_indicator (MeasurableSet.preimage measurableSet_Ici measurable_real_toNNReal)]
+  simp only [Function.comp_apply]
+  apply setLIntegral_congr
+  rw [NNReal.Ici_eq]
+
 lemma lintegral_nnreal_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) := by
   rw [lintegral_nnreal_eq_lintegral_Ici_ofReal]
   exact setLIntegral_congr Ioi_ae_eq_Ici.symm
@@ -377,5 +400,22 @@ lemma lintegral_nnreal_toReal_eq_lintegral_Ici (f : ℝ → ℝ≥0∞) :
     ∫⁻ x : ℝ≥0, f (x.toReal) = ∫⁻ x in Ici (0 : ℝ), f x := by
   rw [lintegral_nnreal_toReal_eq_lintegral_Ioi]
   exact setLIntegral_congr Ioi_ae_eq_Ici
+
+lemma setLIntegral_nnreal_Ici {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
+    ∫⁻ (t : ℝ≥0) in Set.Ici a, f t = ∫⁻ (t : ℝ≥0), f (t + a) := by
+  rw [lintegral_nnreal_eq_lintegral_Ici_ofReal, ← lintegral_shift' (a := -a)]
+  simp only [preimage_add_const_Ici, sub_neg_eq_add, zero_add]
+  rw [lintegral_nnreal_Ici_eq_lintegral_Ici_ofReal]
+  apply setLIntegral_congr_fun measurableSet_Ici
+  intro x hx
+  simp only
+  congr
+  have : (a : ℝ).toNNReal = a := by exact Real.toNNReal_coe
+  nth_rw 2 [← this]
+  rw [← Real.toNNReal_add]
+  · simp only [neg_add_cancel_right]
+  · simpa
+  · exact zero_le_coe
+
 
 -- TODO: lemmas about interaction with the Bochner integral
