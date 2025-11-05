@@ -539,10 +539,10 @@ end HasBoundedStrongType
 
 section distribution
 
-variable {f g : α → ε}
+variable {ε' : Type*} {f : α → ε} {g : α → ε'}
 
 @[gcongr]
-lemma distribution_mono_left [ENorm ε] (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
+lemma distribution_mono_left [ENorm ε] [ENorm ε'] (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     distribution f t μ ≤ distribution g t μ := by
   have h₀ : {x | t < ‖f x‖ₑ} \ {x | t < ‖g x‖ₑ} ⊆ {x | ¬‖f x‖ₑ ≤ ‖g x‖ₑ} := fun x ↦ by
     simp_rw [mem_diff, mem_setOf_eq, not_lt, not_le, and_imp]
@@ -554,7 +554,7 @@ lemma distribution_mono_left [ENorm ε] (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ �
     _ ≤ _ := by apply measure_mono; simp
 
 @[gcongr]
-lemma distribution_mono [ENorm ε] (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h₂ : t ≤ s) :
+lemma distribution_mono [ENorm ε] [ENorm ε'] (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h₂ : t ≤ s) :
     distribution f s μ ≤ distribution g t μ :=
   (distribution_mono_left h₁).trans (distribution_mono_right h₂)
 
