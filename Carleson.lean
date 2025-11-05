@@ -56,6 +56,7 @@ import Carleson.ToMathlib.BoundedCompactSupport
 import Carleson.ToMathlib.BoundedFiniteSupport
 import Carleson.ToMathlib.CoveredByBalls
 import Carleson.ToMathlib.Data.ENNReal
+import Carleson.ToMathlib.Data.Finset.Lattice.Fold
 import Carleson.ToMathlib.Data.NNReal
 import Carleson.ToMathlib.Data.Real.ConjExponents
 import Carleson.ToMathlib.ENorm
@@ -83,6 +84,8 @@ import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 import Carleson.ToMathlib.MinLayer
 import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.Order.CompleteLattice.Basic
+import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
 import Carleson.ToMathlib.Order.LiminfLimsup
 import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
