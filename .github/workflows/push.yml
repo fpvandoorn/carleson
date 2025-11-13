@@ -23,6 +23,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Build project
     steps:
+      - name: Free disk space on runner
+        run: |
+          echo "Before cleanup"
+          df -h
+          # Remove large preinstalled components we do not need
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/graalvm
+          sudo rm -rf /usr/local/.ghcup || true
+          echo "After cleanup"
+          df -h
+
       - name: Checkout project
         uses: actions/checkout@v5
         with:
@@ -53,6 +65,7 @@ jobs:
           run: |
             cd paper
             latexmk -pdf main.tex
+            latexmk -c
             cd ..
             cp paper/main.pdf docs/paper.pdf
 
