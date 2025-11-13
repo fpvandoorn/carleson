@@ -23,6 +23,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Build project
     steps:
+      - name: Free disk space on runner
+        run: |
+          echo "Before cleanup"
+          df -h
+          # Remove large preinstalled components we do not need
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/graalvm
+          sudo rm -rf /usr/local/.ghcup || true
+          echo "After cleanup"
+          df -h
+
       - name: Checkout project
         uses: actions/checkout@v5
         with:
@@ -47,9 +59,9 @@ jobs:
         run: python3 scripts/upstreaming_dashboard.py
 
       - name: Generate the paper PDF and add it to the website
-        uses: xu-cheng/texlive-action@475ab07999e9709e524c3708488c8c170d3a6611 # v3
+        uses: xu-cheng/texlive-action@8268537fedf1198f3ed7000c544bfdbddcbae3b7 # v3
         with:
-          docker_image: ghcr.io/xu-cheng/texlive-full:20250401
+          docker_image: ghcr.io/xu-cheng/texlive-full:20251002
           run: |
             cd paper
             latexmk -pdf main.tex
