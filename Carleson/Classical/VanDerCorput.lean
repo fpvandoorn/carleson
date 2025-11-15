@@ -235,7 +235,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
           apply le_trans (h1.dist_le_mul ..)
           · simp only [dist_self_sub_right, norm_div, Real.norm_eq_abs]
             rw [_root_.abs_of_nonneg Real.pi_pos.le, _root_.abs_of_nonneg
-              (by simp only [Int.cast_nonneg]; linarith [n_pos])]
+              (by simp only [Int.cast_nonneg_iff]; linarith [n_pos])]
             apply le_of_eq
             ring
           · exact ⟨by linarith [hx.1, hx.2], by linarith [hx.1, hx.2]⟩
