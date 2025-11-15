@@ -896,8 +896,11 @@ private lemma eLpNorm_czApproximation_le_infinite (hX : GeneralCase f α) :
   have := union_univ _ ▸ @union_diff_self X (⋃ i, czPartition hX i) univ
   repeat rw [← setLIntegral_univ (μ := volume), ← this, lintegral_union hmeas disjoint_sdiff_right,
     lintegral_iUnion (MeasurableSet.czPartition hX) <| czPartition_pairwise_disjoint_on]
-  gcongr tsum ?_ + ?_
-  · apply lintegral_czPartition_le
+  -- gcongr tsum ?_ + ?_
+  apply add_le_add
+  · apply ENNReal.tsum_le_tsum
+    intro _
+    apply lintegral_czPartition_le
   · simp only [union_diff_self, union_univ]
     apply le_of_eq ∘ setLIntegral_congr_fun_ae (by measurability)
     exact Eventually.of_forall (fun x hx ↦ by simp_all [czApproximation])

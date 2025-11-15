@@ -450,6 +450,6 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) �
     _ ≤ eLpNorm g 2 * (C6_1_2 a * ((dens₂ 𝔄) ^ (p'⁻¹) * (C2_0_6' * eLpNorm f 2))) := by gcongr
     _ = (C6_1_2 a * C2_0_6') * (dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm f 2 * eLpNorm g 2 := by ring
     _ ≤ _ := by
-      gcongr ?_ * ?_ * eLpNorm f 2 * eLpNorm g 2
+      gcongr ?_ * ?_ * eLpNorm f 2 _ * eLpNorm g 2 _
       · exact_mod_cast const_check
       · rw [hp'_inv, inv_nnqt_eq]; simp
