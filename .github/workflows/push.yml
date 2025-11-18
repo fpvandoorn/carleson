@@ -23,17 +23,16 @@ jobs:
     runs-on: ubuntu-latest
     name: Build project
     steps:
-      - name: Free disk space on runner
-        run: |
-          echo "Before cleanup"
-          df -h
-          # Remove large preinstalled components we do not need
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/graalvm
-          sudo rm -rf /usr/local/.ghcup || true
-          echo "After cleanup"
-          df -h
+      - name: Cleanup to free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: false
+          haskell: false
+          large-packages: false
+          docker-images: false
+          swap-storage: false
 
       - name: Checkout project
         uses: actions/checkout@v5
