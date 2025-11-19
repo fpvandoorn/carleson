@@ -23,13 +23,13 @@ namespace MeasureTheory
 section decreasing_rearrangement
 variable [ENorm ε] [ENorm ε']
 
-def decreasing_rearrangement (f : α → ε) (μ : Measure α) (t : ℝ≥0) : ℝ≥0 :=
+def decreasing_rearrangement (f : α → ε) (μ : Measure α) (t : ℝ≥0∞) : ℝ≥0∞ :=
   sInf {σ | distribution f σ μ ≤ t}
 
 lemma decreasing_rearrangement_antitone {f : α → ε} {μ : Measure α} :
     Antitone (decreasing_rearrangement f μ) := sorry
 
-lemma distribution_decreasing_rearrangement (f : α → ε) (μ : Measure α) (t : ℝ≥0):
+lemma distribution_decreasing_rearrangement (f : α → ε) (μ : Measure α) (t : ℝ≥0) :
   distribution f t μ = distribution (decreasing_rearrangement f μ) t volume := sorry
 
 end decreasing_rearrangement
@@ -626,11 +626,12 @@ lemma eLorentzNorm_add_lt_top {α : Type*} {ε : Type*} {m : MeasurableSpace α}
   [ESeminormedAddMonoid ε] {p : ℝ≥0∞} {μ : Measure α} {f g : α → ε} (hf : MemLorentz f p r μ) (hg : MemLorentz g p r μ) :
     eLorentzNorm (f + g) p r μ < ⊤ := by
   calc
-    eLorentzNorm (f + g) p r μ ≤ LpAddConst p * (eLorentzNorm f p r μ + eLorentzNorm g p r μ) :=
+    eLorentzNorm (f + g) p r μ ≤ LorentzAddConst p r * (eLorentzNorm f p r μ + eLorentzNorm g p r μ) :=
       eLorentzNorm_add_le' hf.1 hg.1 p r
     _ < ∞ := by
-      apply ENNReal.mul_lt_top (LpAddConst_lt_top p)
-      exact ENNReal.add_lt_top.2 ⟨hf.2, hg.2⟩
+      --apply ENNReal.mul_lt_top (LpAddConst_lt_top p)
+      --exact ENNReal.add_lt_top.2 ⟨hf.2, hg.2⟩
+      sorry
 
 lemma MemLorentz.add {α : Type u_1} {ε : Type u_3} {m : MeasurableSpace α} [TopologicalSpace ε]
   [ESeminormedAddMonoid ε] {μ : Measure α} {f g : α → ε} [ContinuousAdd ε] (hf : MemLorentz f p r μ)
