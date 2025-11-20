@@ -1101,6 +1101,15 @@ theorem add_induction {β γ} [DecidableEq α] [AddCommMonoid β] [AddCommMonoid
     apply motive_add_left ih
 
 
+--TODO: move / generalize or find existing version
+theorem vector_valued_induction {β γ} [DecidableEq α] [AddCommMonoid β] [AddCommMonoid γ]
+  {M : Type*} [AddCommMonoid M] [Module ℝ M]
+  {Q : (α → M) → Prop} {motive : ℕ → (α → M) → Prop}
+  {f : α → M} (hf : Q f)
+  :
+  motive 1 f := sorry
+
+
 
 lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
   --[ENormedAddMonoid ε']
