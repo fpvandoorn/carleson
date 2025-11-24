@@ -35,7 +35,7 @@ jobs:
           swap-storage: false
 
       - name: Checkout project
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
