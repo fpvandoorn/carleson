@@ -1,5 +1,6 @@
 name = "carleson"
 defaultTargets = ["Carleson"]
+lintDriver = "batteries/runLinter"
 
 [leanOptions]
 relaxedAutoImplicit = false
