@@ -3,6 +3,9 @@ import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 
+-- Upstreaming status: results seems useful; proofs may need polish
+-- Needs dependencies to be upstreamed first.
+
 open NNReal ENNReal MeasureTheory Finset
 
 variable {α : Type*} [MeasurableSpace α] {μ : Measure α}

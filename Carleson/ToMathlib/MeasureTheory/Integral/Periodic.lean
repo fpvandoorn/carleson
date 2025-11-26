@@ -2,6 +2,10 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 import Mathlib.Analysis.Convolution
 import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 
+-- Upstreaming status: looks nice and clean
+-- First lemmas augment mathlib ones (or replace some proofs),
+-- remaining ones are new (and can perhaps be a new file indeed).
+
 open Set Function MeasureTheory MeasureTheory.Measure TopologicalSpace AddSubgroup intervalIntegral
 
 open scoped MeasureTheory NNReal ENNReal

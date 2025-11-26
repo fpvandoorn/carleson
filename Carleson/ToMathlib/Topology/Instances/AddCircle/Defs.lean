@@ -1,5 +1,8 @@
 import Mathlib.Topology.Instances.AddCircle.Defs
 
+-- Upstreaming status: seems ready to go; lemmas are usually analogues of existing mathlib lemmas
+-- Sometimes, mathlib lemmas need to be renamed along with upstreaming this.
+
 noncomputable section
 
 open AddCommGroup Set Function AddSubgroup TopologicalSpace

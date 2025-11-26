@@ -1,5 +1,6 @@
 import Mathlib.MeasureTheory.Function.LocallyIntegrable
 
+-- Upstreaming status: easy and useful; good to go
 
 theorem MeasureTheory.LocallyIntegrable.norm {X : Type*} {E : Type*} [MeasurableSpace X]
   [TopologicalSpace X] [NormedAddCommGroup E] {f : X → E} {μ : Measure X}

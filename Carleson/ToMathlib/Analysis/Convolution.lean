@@ -1,5 +1,7 @@
 import Mathlib.Analysis.Convolution
 
+-- Upstreaming status: seems ready to go
+
 open scoped Convolution
 
 namespace MeasureTheory
