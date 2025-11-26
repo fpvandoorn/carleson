@@ -3,6 +3,9 @@ import Mathlib.Order.ConditionallyCompleteLattice.Defs
 import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 import Mathlib.Data.Set.Finite.Lattice
 
+-- Upstreaming status: under active development by @ldiedering
+-- Wait for the file to stabilise first.
+
 -- currently unused
 -- proof could probably be simplified if there were more mathlib lemmas about `ciSup` (in `ConditionallyCompleteLinearOrderBot`)
 theorem Finset.sup_eq_iSup' {α : Type*} {β : Type*} [ConditionallyCompleteLinearOrderBot β] (s : Finset α) (f : α → β) :
@@ -29,22 +32,19 @@ theorem Finset.sup_eq_iSup' {α : Type*} {β : Type*} [ConditionallyCompleteLine
       apply BddAbove.insert
       exact Finset.bddAbove (image f s)
     refine le_ciSup_of_le ?_ ha (le_refl (f a))
-    by_cases ha : Nonempty (a ∈ s)
+    by_cases! ha : Nonempty (a ∈ s)
     · rw [Set.range_const]
       exact bddAbove_singleton
-    · rw [not_nonempty_iff] at ha
-      rw [Set.range_eq_empty]
+    · rw [Set.range_eq_empty]
       exact bddAbove_empty
-  · by_cases h : Nonempty α
+  · by_cases! h : Nonempty α
     · apply ciSup_le
       intro a
-      by_cases ha : Nonempty (a ∈ s)
+      by_cases! ha : Nonempty (a ∈ s)
       · apply ciSup_le
         simp only [nonempty_prop] at ha
         apply Finset.le_sup
-      · rw [not_nonempty_iff] at ha
-        rw [ciSup_of_empty]
+      · rw [ciSup_of_empty]
         exact bot_le
-    · rw [not_nonempty_iff] at h
-      rw [ciSup_of_empty]
+    · rw [ciSup_of_empty]
       exact bot_le

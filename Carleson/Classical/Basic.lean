@@ -63,20 +63,21 @@ lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0
 
 
 lemma partialFourierSum'_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) :
-    partialFourierSumLp p N f = MemLp.toLp (partialFourierSum' N f) ((partialFourierSum' N f).MemLp haarAddCircle ℂ)  := by
+    partialFourierSumLp p N f = MemLp.toLp (partialFourierSum' N f) ((partialFourierSum' N f).memLp haarAddCircle ℂ)  := by
   unfold partialFourierSumLp partialFourierSum'
   unfold fourierLp
   simp_rw [ContinuousMap.coe_sum, ContinuousMap.coe_smul]
-  rw [MemLp.toLp_sum _ (by intro n hn; apply MemLp.const_smul (ContinuousMap.MemLp haarAddCircle ℂ (fourier n)))]
-  rw [Finset.univ_eq_attach]
-  rw [← Finset.sum_attach]
+  rw [MemLp.toLp_sum _ (by
+      intro n hn; apply MemLp.const_smul (ContinuousMap.memLp haarAddCircle ℂ (fourier n))),
+    Finset.univ_eq_attach, ← Finset.sum_attach]
   rfl
 
 
 lemma partialFourierSum_aeeq_partialFourierSumLp [hT : Fact (0 < 2 * Real.pi)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_Lp : MemLp (liftIoc (2 * Real.pi) 0 f) 2 haarAddCircle) :
     liftIoc (2 * Real.pi) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (MemLp.toLp (liftIoc (2 * Real.pi) 0 f) h_mem_Lp)) := by
-  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Lp.aestronglyMeasurable _) h_mem_Lp.aestronglyMeasurable (MemLp.coeFn_toLp h_mem_Lp)]
-  rw [partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
+  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Lp.aestronglyMeasurable _)
+      h_mem_Lp.aestronglyMeasurable (MemLp.coeFn_toLp h_mem_Lp),
+    partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
   symm
   apply MemLp.coeFn_toLp
 
@@ -86,7 +87,7 @@ local notation "S_" => partialFourierSum
 
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {c : ℂ} {n : ℤ} :
-  fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n):= by
+    fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n):= by
   simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
     fourier_coe_apply', mul_comm, Complex.ofReal_sub, smul_eq_mul, mul_assoc,
     intervalIntegral.integral_const_mul, Complex.real_smul, Complex.ofReal_inv]
@@ -94,7 +95,7 @@ lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {c : ℂ} {
 
 @[simp]
 lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {n : ℤ} :
-  fourierCoeffOn hab (-f) n = - (fourierCoeffOn hab f n):= by
+    fourierCoeffOn hab (-f) n = - (fourierCoeffOn hab f n):= by
   simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
     fourier_coe_apply', Complex.ofReal_sub, Pi.neg_apply, smul_eq_mul, mul_neg,
     intervalIntegral.integral_neg, smul_neg, Complex.real_smul, Complex.ofReal_inv]
@@ -109,10 +110,8 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     Complex.ofReal_inv]
   rw [← mul_add, ← intervalIntegral.integral_add]
   · ring_nf
-    apply hf.continuousOn_mul (Continuous.continuousOn _)
-    exact Complex.continuous_conj.comp' (by fun_prop)
-  · apply hg.continuousOn_mul (Continuous.continuousOn _)
-    exact Complex.continuous_conj.comp' (by fun_prop)
+    exact hf.continuousOn_mul (Continuous.continuousOn (by fun_prop))
+  · exact hg.continuousOn_mul (Continuous.continuousOn (by fun_prop))
 
 @[simp]
 lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
