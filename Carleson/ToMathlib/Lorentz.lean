@@ -4,35 +4,21 @@ import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
-import Carleson.ToMathlib.WeakType
+import Carleson.ToMathlib.Rearrangement
 import Carleson.ToMathlib.RealInterpolation.Misc
 import Carleson.ToMathlib.Topology.Order.Basic
 
-noncomputable section
 
 -- Upstreaming status: NOT READY yet (mostly); this file is being actively worked on.
 -- Needs significant clean-up (refactoring, code style, extracting lemmas etc.) first.
+
+noncomputable section
 
 open scoped NNReal ENNReal
 
 variable {α ε ε' : Type*} {m m0 : MeasurableSpace α}
 
 namespace MeasureTheory
-
-
-section decreasing_rearrangement
-variable [ENorm ε] [ENorm ε']
-
-def decreasing_rearrangement (f : α → ε) (μ : Measure α) (t : ℝ≥0∞) : ℝ≥0∞ :=
-  sInf {σ | distribution f σ μ ≤ t}
-
-lemma decreasing_rearrangement_antitone {f : α → ε} {μ : Measure α} :
-    Antitone (decreasing_rearrangement f μ) := sorry
-
-lemma distribution_decreasing_rearrangement (f : α → ε) (μ : Measure α) (t : ℝ≥0) :
-  distribution f t μ = distribution (decreasing_rearrangement f μ) t volume := sorry
-
-end decreasing_rearrangement
 
 
 section Lorentz
@@ -50,9 +36,9 @@ def eLorentzNorm (f : α → ε) (p r : ℝ≥0∞) (μ : Measure α) : ℝ≥0�
   else eLorentzNorm' f p r μ
 
 
-lemma e_LorentzNorm_eq {f : α → ε} {p r : ℝ≥0∞} (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {μ : Measure α} :
+lemma eLorentzNorm_eq {f : α → ε} {p r : ℝ≥0∞} (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {μ : Measure α} :
   eLorentzNorm f p r μ
-    = eLpNorm (fun (t : ℝ≥0) ↦ t ^ p⁻¹.toReal * decreasing_rearrangement f μ t) r
+    = eLpNorm (fun (t : ℝ≥0) ↦ t ^ p⁻¹.toReal * rearrangement f t μ) r
         (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
   unfold eLorentzNorm
   split_ifs with hp0
