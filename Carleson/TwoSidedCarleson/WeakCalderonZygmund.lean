@@ -218,7 +218,7 @@ lemma depth_bound_1 (hO : O ≠ univ)
       _ ≤ edist x y + depth O y := depth_le_edist_add_depth
       _ ≤ ENNReal.ofReal ((depth O x).toReal / 6 + (depth O y).toReal / 6) + depth O y := by
         rw [edist_dist]
-        exact add_le_add_right (ofReal_le_ofReal (dist_lt_of_not_disjoint_ball h).le) _
+        exact add_le_add_left (ofReal_le_ofReal (dist_lt_of_not_disjoint_ball h).le) _
       _ ≤ depth O x / 6 + depth O y / 6 + depth O y := by
         rw [ofReal_add (by positivity) (by positivity)]
         iterate 2 rw [ofReal_div_of_pos (by norm_num), ofReal_ofNat, ofReal_toReal dnt]
@@ -287,7 +287,7 @@ lemma ball_covering_bounded_intersection
     rw [toReal_pos_iff, depth_pos_iff_mem hO.1, depth_lt_top_iff_ne_univ]; exact ⟨mx, hO.2⟩
   have vbnt : volume (ball x ((depth O x).toReal / 6)) ≠ ⊤ := by finiteness
   rw [← ENat.toENNReal_le, Nat.cast_pow, Nat.cast_ofNat, ENat.toENNReal_pow, ENat.toENNReal_ofNat,
-    ← ENNReal.mul_le_mul_right vbpos.ne' vbnt]
+    ← ENNReal.mul_le_mul_iff_left vbpos.ne' vbnt]
   have Aeq : (2 : ℝ≥0∞) ^ (3 * a) = defaultA a ^ 3 := by
     rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul, mul_comm]
   calc
@@ -352,7 +352,7 @@ lemma ball_covering' (hO : IsOpen O ∧ O ≠ univ) :
     nth_rw 1 [← one_mul (depth O _)]
     have dpos := (depth_pos_iff_mem hO.1).mpr (maxU.1.1 mc)
     have dlt := (depth_lt_top_iff_ne_univ (x := c)).mpr hO.2
-    exact ENNReal.mul_lt_mul_right' dpos.ne' dlt.ne (by norm_num)
+    exact ENNReal.mul_lt_mul_left dpos.ne' dlt.ne (by norm_num)
   · exact ball_covering_bounded_intersection hO countU maxU.1.2 mx
 
 omit [DoublingMeasure X (defaultA a)] in
@@ -711,7 +711,7 @@ private lemma lintegral_czPartition_le {hX : GeneralCase f α} (i : ℕ) :
     exact Eventually.of_forall fun x hx ↦ by rw [czApproximation_def_of_mem hx]
   _ = ‖⨍ y in czPartition hX i, f y‖ₑ * volume (czPartition hX i) := setLIntegral_const _ _
   _ ≤ (⨍⁻ y in czPartition hX i, ‖f y‖ₑ ∂volume) * volume (czPartition hX i) :=
-    mul_le_mul_right' (enorm_integral_le_lintegral_enorm f) _
+    mul_le_mul_left (enorm_integral_le_lintegral_enorm f) _
   _ = _ := by rw [mul_comm, measure_mul_setLAverage _ (volume_czPartition_lt_top hX i).ne]
 
 /-- The function `b_i` in Lemma 10.2.5 (general case). -/
@@ -849,11 +849,11 @@ lemma enorm_czApproximation_le_infinite {hf : BoundedFiniteSupport f} (hX : Gene
       _ ≤ (volume (czPartition hX i))⁻¹ * ∫⁻ x in czPartition hX i, ‖f x‖ₑ := by
         simp [laverage]
       _ ≤ 2 ^ (3 * a) * (volume (czBall7 hX i))⁻¹ * ∫⁻ x in czPartition hX i, ‖f x‖ₑ := by
-        apply mul_le_mul_right'
+        apply mul_le_mul_left
         have := (ENNReal.inv_mul_le_iff (by simp) (by simp)).mpr <| volume_czBall7_le hX i
         rwa [← ENNReal.inv_le_inv, ENNReal.mul_inv (by simp) (by simp), inv_inv] at this
       _ ≤ 2 ^ (3 * a) * (volume (czBall7 hX i))⁻¹ * ∫⁻ x in czBall7 hX i, ‖f x‖ₑ :=
-        mul_le_mul_left' (lintegral_mono_set czPartition_subset_czBall7) _
+        mul_le_mul_right (lintegral_mono_set czPartition_subset_czBall7) _
       _ ≤ 2 ^ (3 * a) * α := by
         rw [mul_assoc]; gcongr; simpa [laverage] using laverage_czBall7_le hX i
   have h₂ : ∀ᵐ x, ¬(∃ i, x ∈ czPartition hX i) → ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α :=
@@ -882,7 +882,7 @@ private lemma eLpNorm_czApproximation_le_finite
     _ = ‖⨍ x, f x‖ₑ * volume univ := by
       unfold czApproximation; simp [hX, eLpNorm_const _ one_pos.ne' (NeZero.ne volume)]
     _ ≤ (⨍⁻ x, ‖f x‖ₑ ∂volume) * volume (univ : Set X) :=
-      mul_le_mul_right' (enorm_integral_le_lintegral_enorm f) _
+      mul_le_mul_left (enorm_integral_le_lintegral_enorm f) _
     _ = eLpNorm f 1 volume := by
       simp [mul_comm _ (volume univ), eLpNorm, eLpNorm', laverage, ← mul_assoc,
         ENNReal.mul_inv_cancel (NeZero.ne (volume univ)) (volume_lt_of_not_GeneralCase hf hX hα).ne]
@@ -945,7 +945,7 @@ private lemma ineq_10_2_32 (hf : BoundedFiniteSupport f) {hX : GeneralCase f α}
     lintegral_mono (fun x ↦ enorm_sub_le)
   _ = (∫⁻ x in _, ‖f x‖ₑ) + ∫⁻ x in _, ‖_‖ₑ := lintegral_add_left' hf.aemeasurable.enorm.restrict _
   _ ≤ 2 * (∫⁻ x in czPartition hX i, ‖f x‖ₑ) := by
-    rw [two_mul]; exact add_le_add_left (lintegral_czPartition_le i) _
+    rw [two_mul]; exact add_le_add_right (lintegral_czPartition_le i) _
 
 /-- Part of Lemma 10.2.5, equation (10.2.21) (general case). -/
 lemma eLpNorm_czRemainder'_le {hf : BoundedFiniteSupport f} {hX : GeneralCase f α}
@@ -956,7 +956,7 @@ lemma eLpNorm_czRemainder'_le {hf : BoundedFiniteSupport f} {hX : GeneralCase f 
   calc
     _ ≤ 2 * (∫⁻ x in czPartition hX i, ‖f x‖ₑ) := ineq_10_2_32 hf
     _ ≤ 2 * (volume (czBall7 hX i) * α) := by
-      apply mul_le_mul_left' ∘ (le_trans <| lintegral_mono_set czPartition_subset_czBall7)
+      apply mul_le_mul_right ∘ (le_trans <| lintegral_mono_set czPartition_subset_czBall7)
       have h : volume (czBall7 hX i) ≠ 0 :=
         measure_ball_pos _ _ (mul_pos Nat.ofNat_pos (lt_of_not_ge hi)) |>.ne'
       simpa [laverage, ENNReal.inv_mul_le_iff h measure_ball_ne_top] using laverage_czBall7_le hX i
@@ -999,7 +999,7 @@ lemma eLpNorm_czRemainder_le {hf : BoundedFiniteSupport f}
     _ ≤ 2 * ∫⁻ x, ‖f x‖ₑ := eLpNorm_czRemainder_le' hf hX hα
     _ ≤ 2 * (α * volume (univ : Set X)) := by
       rw [laverage_eq] at hα
-      exact mul_le_mul_left' (a := 2) <| ENNReal.div_lt_iff (Or.inl (NeZero.ne _))
+      exact mul_le_mul_right (a := 2) <| ENNReal.div_lt_iff (Or.inl (NeZero.ne _))
         (Or.inl this.measure_univ_lt_top.ne) |>.mp hα |>.le
     _ ≤ 2 ^ (2 * a + 1) * α * volume (univ : Set X) := by
       rw [← mul_assoc]; gcongr; simpa using pow_le_pow_right' one_le_two (Nat.le_add_left 1 (2 * a))
@@ -1017,7 +1017,7 @@ lemma tsum_volume_czBall3_le (hf : BoundedFiniteSupport f)
     · refine (pairwise_disjoint_on (czBall hX)).mpr fun i j h ↦ ?_
       exact czBall_pairwiseDisjoint (mem_univ i) (mem_univ j) h.ne
   _ ≤ 2 ^ (2 * a) * ((C10_2_1 a) * eLpNorm f 1 volume / α) :=
-    mul_le_mul_left' (maximal_theorem'' hα hf) _
+    mul_le_mul_right (maximal_theorem'' hα hf) _
   _ = 2 ^ (6 * a) / α * eLpNorm f 1 volume := by
     rw [C10_2_1_def, mul_div_assoc', mul_comm (_ / α), mul_div, ← mul_assoc]; norm_cast; ring_nf
 
@@ -1111,7 +1111,7 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
       · simp [α']
     _ ≤ 2 ^ 2 / α ^ 2 * ((C_Ts a) ^ 2 * ∫⁻ y, ‖czApproximation f (α' a α) y‖ₑ ^ 2) := by
       have half_pos : 0 < (2 : ℝ)⁻¹ := by norm_num
-      refine mul_le_mul_left' (ENNReal.le_of_rpow_le half_pos ?_) (2 ^ 2 / α ^ 2)
+      refine mul_le_mul_right (ENNReal.le_of_rpow_le half_pos ?_) (2 ^ 2 / α ^ 2)
       rw [ENNReal.mul_rpow_of_nonneg _ _ half_pos.le, ← ENNReal.rpow_natCast_mul]
       convert hT _ (hf.czApproximation hα') |>.2
       all_goals simp [eLpNorm, eLpNorm', α']
@@ -1177,14 +1177,14 @@ private lemma lemma_10_2_7_bound' (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : Genera
     czOperatorBoundSummand hX j x := calc
   _ ≤ ∫⁻ y in czBall3 hX j, (edist (czCenter hX j) y / edist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
         (C_K a / vol x (czCenter hX j)) * ‖g y‖ₑ := by
-    refine setLIntegral_mono' measurableSet_ball fun y hy ↦ mul_le_mul_right' ?_ _
+    refine setLIntegral_mono' measurableSet_ball fun y hy ↦ mul_le_mul_left ?_ _
     rw [enorm_sub_rev]
     exact enorm_K_sub_le <| calc 2 * dist (czCenter hX j) y
       _ ≤ 2 * (3 * czRadius hX j) := (mul_le_mul_iff_of_pos_left two_pos).mpr (mem_ball'.mp hy).le
       _ ≤ dist x (czCenter hX j)  := le_of_eq_of_le (by ring) (six_mul_czRadius_le_of_mem_Ω hx hX j)
   _ ≤ ∫⁻ y in czBall3 hX j, (.ofReal (3 * czRadius hX j) / edist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
         (C_K a / vol x (czCenter hX j)) * ‖g y‖ₑ := by
-    refine setLIntegral_mono' measurableSet_ball fun y hy ↦ mul_le_mul_right' ?_ _
+    refine setLIntegral_mono' measurableSet_ball fun y hy ↦ mul_le_mul_left ?_ _
     gcongr
     exact edist_dist (czCenter hX j) y ▸ ENNReal.ofReal_le_ofReal (mem_ball'.mp hy).le
   _ = _ := lintegral_const_mul'' _ g_aemeas.enorm
@@ -1266,7 +1266,7 @@ private lemma enorm_d_le (hf : BoundedFiniteSupport f) (hX : GeneralCase f (α' 
     _ ≤ (volume (czBall3 hX j))⁻¹ * ∫⁻ y in czBall3 hX j, ‖czRemainder' hX j y‖ₑ := by
       gcongr; exact indicator_enorm_le_enorm_self _ _
     _ ≤ (volume (czBall3 hX j))⁻¹ * (2 ^ (2 * a + 1) * (α' a α) * volume (czBall3 hX j)) :=
-      mul_le_mul_left' (eLpNorm_restrict_czRemainder'_le (hf := hf) ) _
+      mul_le_mul_right (eLpNorm_restrict_czRemainder'_le (hf := hf) ) _
     _ ≤ _ := by
       rw [mul_comm (volume _)⁻¹, mul_assoc]
       have : volume (czBall3 hX j) ≠ 0 :=
@@ -1366,7 +1366,7 @@ private lemma 𝒥₂_bound (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x
       · apply lintegral_enorm_half_g hf hα hX
     · apply le_trans (enorm_integral_le_lintegral_enorm _)
       simp_rw [enorm_mul, lintegral_mul_const _ (measurable_K_right x).enorm, ← mul_comm ‖_‖ₑ]
-      exact mul_le_mul_right' (enorm_d_le hf hX j) _
+      exact mul_le_mul_left (enorm_d_le hf hX j) _
 
 -- The set `A` defined between (10.2.51) and (10.2.52)
 variable (r) (x) in
@@ -1399,10 +1399,10 @@ private lemma tsum_integral_K_le (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : General
   _ = 2 ^ (6 * a) * ∫⁻ y in A r x hX, ‖K x y‖ₑ := by
     simp only [lintegral_smul_measure, nsmul_eq_mul, Nat.cast_pow, Nat.cast_ofNat]
   _ ≤ 2 ^ (6 * a) * ∫⁻ y in Annulus.co x (r / 3) (3 * r), ‖K x y‖ₑ :=
-    mul_le_mul_left' (lintegral_mono_set (A_subset hx hX)) _
+    mul_le_mul_right (lintegral_mono_set (A_subset hx hX)) _
   _ ≤ 2 ^ (6 * a) * ∫⁻ y in Annulus.co x (r / 3) (3 * r),
         2 ^ (a ^ 3) / volume (ball x (r / 3)) := by
-    refine mul_le_mul_left' (setLIntegral_mono' Annulus.measurableSet_co (fun y hy ↦ ?_)) _
+    refine mul_le_mul_right (setLIntegral_mono' Annulus.measurableSet_co (fun y hy ↦ ?_)) _
     trans 2 ^ (a ^ 3) / volume (ball x (dist x y))
     · have := enorm_K_le_vol_inv (K := K) x y; unfold C_K at this; exact_mod_cast this
     · gcongr; exact hy.1
@@ -1434,11 +1434,11 @@ private lemma tsum_𝒥₂ (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x 
   _ ≤ _ := by
     refine add_le_add ?_ ?_
     · rw [ENNReal.tsum_mul_left, czOperatorBound_eq, ← tsum_univ (β := ℕ)]
-      apply mul_le_mul_left'
+      apply mul_le_mul_right
       exact ENNReal.tsum_mono_subtype (czOperatorBoundSummand hX · x) (subset_univ _)
     · calc
         _ = _ * ∑' (j : 𝒥₂ r x hX), _ := by rw [ENNReal.tsum_mul_left]
-        _ ≤ _ * 2 ^ (a^3 + 10*a) := mul_le_mul_left' (tsum_integral_K_le hx hX) _
+        _ ≤ _ * 2 ^ (a^3 + 10*a) := mul_le_mul_right (tsum_integral_K_le hx hX) _
         _ = 2 ^ (2*a + 1 : ℝ) * ((2 ^ (a^3 + 12*a + 4 : ℝ))⁻¹ * α) * 2 ^ (a^3 + 10*a : ℝ) := by
           simp only [α', c10_0_3]; rw [coe_inv (by norm_num)]; norm_cast
         _ = 2 ^ (2*a + 1 : ℝ) * 2 ^ (- (a^3 + 12*a + 4 : ℝ)) * 2 ^ (a^3 + 10*a : ℝ) * α := by

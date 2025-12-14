@@ -105,8 +105,8 @@ lemma volume_xDsp_bound {x : X} (hx : x ∈ 𝓘 p) :
         gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
       _ = _ := by rw [← add_mul]; norm_num
   convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
-  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
-  rw [show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.clog_pow]; norm_num
+  unfold As defaultA; norm_cast
+  rw [← pow_mul', show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.clog_pow]; norm_num
 
 /-- A bound used in Lemma 7.6.2. -/
 lemma volume_xDsp_bound_4 {x : X} (hx : x ∈ 𝓘 p) :
@@ -118,8 +118,8 @@ lemma volume_xDsp_bound_4 {x : X} (hx : x ∈ 𝓘 p) :
         gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
       _ ≤ _ := by rw [← add_mul]; gcongr; norm_num
   convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
-  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
-  rw [show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow]; norm_num
+  unfold As defaultA; norm_cast
+  rw [← pow_mul', show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow]; norm_num
 
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
