@@ -240,10 +240,9 @@ lemma integrableOn_coi_inner_annulus' (nf : IntegrableOn f (Annulus.oo x R₁ R�
   simp_rw [mul_assoc]; refine integrableOn_K_mul ?_ _ hR₁ fun y my ↦ ?_
   · conv => congr; ext y; rw [mul_comm]
     rw [IntegrableOn]
-    apply nf.bdd_mul
+    apply nf.bdd_mul (c := 1)
     · exact ((Complex.measurable_ofReal.comp (by fun_prop)).const_mul I).cexp.aestronglyMeasurable
-    · use 1
-      intro x
+    · intro x
       rw [mul_comm, norm_exp_ofReal_mul_I]
   · rw [Annulus.oo, mem_setOf, mem_Ioo] at my
     rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le

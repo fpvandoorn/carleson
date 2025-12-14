@@ -47,7 +47,7 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
         lintegral_congr (fun a ↦ (Finset.mul_prod_erase s (f · a) hi₀).symm)
       _ ≤ eLpNorm (f i₀) (p i₀) μ * ∫⁻ (a : α), ∏ i ∈ s.erase i₀, f i a ∂μ := by
         rw [← lintegral_const_mul'', pi₀_eq_top]
-        · exact lintegral_mono_ae <| (ae_le_essSup (f i₀)).mono (fun a ha ↦ mul_le_mul_right' ha _)
+        · exact lintegral_mono_ae <| (ae_le_essSup (f i₀)).mono (fun a ha ↦ mul_le_mul_left ha _)
         · exact Finset.aemeasurable_fun_prod _ (fun i hi ↦ hf i (Finset.mem_of_mem_erase hi))
       _ ≤ eLpNorm (f i₀) (p i₀) μ * ∏ i ∈ s.erase i₀, eLpNorm (f i) (p i) μ := by
         apply mul_right_mono
@@ -109,7 +109,7 @@ open scoped Convolution
 private lemma r_sub_p_nonneg {p q r : ℝ} (p0 : 0 < p) (hq : 1 ≤ q) (r0 : 0 < r)
     (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1) : 0 ≤ r - p := by
   rw [sub_nonneg, ← inv_le_inv₀ r0 p0, ← add_le_add_iff_right, hpqr]
-  exact add_le_add_left ((inv_le_one₀ (lt_of_lt_of_le one_pos hq)).mpr hq) r⁻¹
+  exact add_le_add_right ((inv_le_one₀ (lt_of_lt_of_le one_pos hq)).mpr hq) r⁻¹
 
 namespace ENNReal
 

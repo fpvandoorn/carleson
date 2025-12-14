@@ -102,7 +102,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     · refine le_trans (b := (min (f x) ↑n) * min (f x) ↑n ^ (p - 1)) ?_ ?_
       · nth_rewrite 1 [← add_sub_cancel 1 p]
         rw [rpow_add_of_pos, ENNReal.rpow_one] <;> try linarith
-      · exact mul_le_mul_right' (min_le_left (f x) ↑n) (min (f x) ↑n ^ (p - 1))
+      · exact mul_le_mul_left (min_le_left (f x) ↑n) (min (f x) ↑n ^ (p - 1))
     · rw [ENNReal.zero_rpow_of_pos] <;> positivity
   have g_lim : ∀ x : α, Filter.Tendsto (fun n ↦ g n x) Filter.atTop (nhds (f x)) := by
     intro x
