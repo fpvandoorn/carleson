@@ -470,7 +470,7 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
 private lemma div_vol_le' {x y : X} {c : ℝ≥0∞} (hxy : dist x y ≥ D ^ (s - 1) / 4) (n : ℕ) :
     c / vol x y ≤ (2 ^ ((2 + n) * a + 𝕔 * a ^ 3)) * c / volume (ball x (2 ^ n * D ^ s)) := by
   rw [ENNReal.div_eq_inv_mul, ENNReal.mul_div_right_comm]
-  apply mul_le_mul_right'
+  apply mul_le_mul_left
   rw [ENNReal.inv_le_iff_inv_le, ENNReal.inv_div (by left; finiteness) (by right; positivity)]
   unfold vol
   apply le_trans _ <| measure_mono <| ball_subset_ball <| hxy
@@ -483,7 +483,7 @@ private lemma div_vol_le' {x y : X} {c : ℝ≥0∞} (hxy : dist x y ≥ D ^ (s 
 private lemma div_vol_le₀ {x y : X} {c : ℝ≥0∞} (hK : Ks s x y ≠ 0) :
     c / vol x y ≤ (2 ^ (2 * a + 𝕔 * a ^ 3)) * c / volume (ball x (D ^ s)) := by
   rw [ENNReal.div_eq_inv_mul, ENNReal.mul_div_right_comm]
-  apply mul_le_mul_right'
+  apply mul_le_mul_left
   rw [ENNReal.inv_le_iff_inv_le, ENNReal.inv_div (by left; finiteness) (by right; positivity)]
   unfold vol
   apply le_trans _ <| measure_mono <| ball_subset_ball <| dist_mem_Icc_of_Ks_ne_zero hK |>.1
@@ -610,7 +610,7 @@ private lemma ψ_ineq {x y y' : X} :
   simp_rw [zpow_neg, ← smul_eq_mul, edist_smul₀, ENNReal.smul_def, ← enorm_eq_nnnorm, smul_eq_mul]
   calc _
     _ ≤ ‖((D : ℝ) ^ s)⁻¹‖ₑ * edist y y' := by
-      apply mul_le_mul_left'
+      apply mul_le_mul_right
       rw [edist_dist, edist_dist, ENNReal.ofReal_le_ofReal_iff (by positivity)]
       exact dist_dist_dist_le_right ..
     _ = (edist y y' / D ^ s) ^ (1 : ℝ) := by
@@ -652,7 +652,7 @@ private lemma enorm_Ks_sub_Ks_le_close_pt1 {s : ℤ} {x y y' : X} (hK : Ks s x y
     2 ^ (1 + (𝕔 + 2) * a + (𝕔 + 1) * a ^ 3) / volume (ball x (D ^ s)) *
     (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   have D0 : (D : ℝ≥0∞) ≠ 0 := by unfold defaultD; positivity
-  apply le_trans <| mul_le_mul_left' (enorm_ψ_le_one D _) _
+  apply le_trans <| mul_le_mul_right (enorm_ψ_le_one D _) _
   rw [mul_one]
   have : 2 * dist y y' ≤ dist x y := by
     simp_rw [dist_edist, ← ENNReal.toReal_ofNat, ← ENNReal.toReal_mul]
@@ -670,7 +670,7 @@ private lemma enorm_Ks_sub_Ks_le_close_pt1 {s : ℤ} {x y y' : X} (hK : Ks s x y
     rw [ENNReal.zpow_sub D0 (by finiteness), zpow_one, ENNReal.mul_inv (by simp) (by simp),
       ENNReal.mul_inv (by simp) (by simp), mul_comm, mul_assoc]
     congr; simp; ring
-  apply le_trans <| mul_le_mul_left' (div_vol_le₀ hK) _
+  apply le_trans <| mul_le_mul_right (div_vol_le₀ hK) _
   rw [this]
   nth_rw 2 [mul_comm]
   rw [mul_assoc, ← ENNReal.mul_comm_div]
@@ -740,7 +740,7 @@ private lemma enorm_Ks_sub_Ks_le_close {s : ℤ} {x y y' : X} (hK : Ks s x y ≠
         conv_rhs => rw [add_assoc, ← Nat.add_mul, Nat.add_sub_cancel' (by linarith)]
     apply add_le_add (by nlinarith)
     trans (𝕔 / 4 * 4) * a ^ 2
-    · rw [Nat.div_mul_self_eq_mod_sub_self]; gcongr; rw [← Nat.lt_succ]; simp [Nat.mod_lt]
+    · rw [Nat.div_mul_self_eq_mod_sub_self]; gcongr; rw [← Nat.lt_succ_iff]; simp [Nat.mod_lt]
     rw [mul_assoc]; gcongr; nlinarith
   linarith
 

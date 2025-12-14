@@ -739,7 +739,7 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     eLpNorm_toReal_eq (Eventually.of_forall fun _ ↦ (boundaryOperator_lt_top hf).ne)
   by_cases hv : eLpNorm (t.boundaryOperator u f) 2 volume = 0; · simp [hv]
   have hv' : eLpNorm (t.boundaryOperator u f) 2 volume < ⊤ := elpn_eq ▸ (bcs.memLp 2).2
-  rw [← ENNReal.mul_le_mul_right hv hv'.ne, ← sq, ← ENNReal.rpow_natCast]
+  rw [← ENNReal.mul_le_mul_iff_left hv hv'.ne, ← sq, ← ENNReal.rpow_natCast]
   nth_rw 1 [show ((2 : ℕ) : ℝ) = (2 : ℝ≥0) by rfl, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
     eLpNorm_nnreal_pow_eq_lintegral two_ne_zero]
   convert boundary_operator_bound_aux (t := t) (u := u) hf bcs.toComplex using 2

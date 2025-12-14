@@ -28,7 +28,6 @@ lemma czOperator_bound {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r
       trans M1 * M2
       · apply mul_le_mul hy.left hy.right
         case b0 | c0 => simp only [norm_nonneg, NNReal.zero_le_coe]
-
       apply le_of_eq
       norm_cast
       rw [← toNNReal_mul]
@@ -86,7 +85,6 @@ lemma czOperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
   have mKxg : AEStronglyMeasurable Kxg := by
     have : Measurable (K x) := measurable_K_right x
     fun_prop
-
   have tmp_Kxg {M : ℝ≥0} : ∀ y, ¬‖Kxg y‖ ≤ M → y ∈ support Kxg := by
     intro y
     contrapose!
@@ -94,7 +92,6 @@ lemma czOperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     intro hy
     rw [hy, norm_zero]
     simp only [NNReal.zero_le_coe]
-
   have bdd_Kxg : ∃ (M : ℝ), ∀ᵐ y ∂(volume.restrict ((ball x r)ᶜ ∩ support Kxg)), ‖Kxg y‖ ≤ M := by
     obtain ⟨M, hM⟩ := czOperator_bound (K := K) hg hr x
     use M
@@ -111,9 +108,7 @@ lemma czOperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     · apply NullMeasurableSet.inter
       · exact measurableSet_ball.compl.nullMeasurableSet
       · exact mKxg.nullMeasurableSet_support
-
   obtain ⟨M, hM⟩ := bdd_Kxg
-
   apply integrableOn_of_integrableOn_inter_support measurableSet_ball.compl
   apply Measure.integrableOn_of_bounded
   · apply ne_top_of_le_ne_top
