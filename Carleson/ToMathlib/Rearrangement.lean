@@ -29,11 +29,16 @@ def rearrangement (f : α → ε) (t : ℝ≥0∞) (μ : Measure α) : ℝ≥0�
 
 variable {f : α → ε} {g : α → ε'} {μ : Measure α} {x y : ℝ≥0∞}
 
-lemma distribution_decreasing_rearrangement :
-  distribution f x μ = distribution (rearrangement f · μ) x volume := sorry
-
 @[gcongr] lemma rearrangement_mono_right (h : x ≤ y) :
-  rearrangement f y μ ≤ rearrangement f x μ := sorry
+    rearrangement f y μ ≤ rearrangement f x μ := by
+  apply csInf_le_csInf
+  · use 0
+    intro σ hσ
+    exact zero_le _
+  · use ⊤
+    simp
+  · intro x hx
+    exact hx.out.trans h
 
 @[gcongr] lemma rearrangement_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
   rearrangement f x μ ≤ rearrangement g x μ := sorry
@@ -56,6 +61,32 @@ lemma rearrangement_distribution_le : rearrangement f (distribution f x μ) μ �
 
 -- this should also hold if `rearrangement f x μ = ∞`.
 lemma distribution_rearrangement_le : distribution f (rearrangement f x μ) μ ≤ x := sorry
+
+lemma rearrangement_lt_iff {f : α → ε} {μ : Measure α} {t : ℝ≥0∞} {y : ℝ≥0∞} :
+    y < rearrangement f t μ ↔ t < distribution f y μ := by
+  constructor
+  · unfold rearrangement
+    intro h
+    --rw [lt_sInf]
+    contrapose! h
+    apply sInf_le
+    simpa
+  · intro h
+    contrapose! h
+    calc _
+      _ ≤ distribution f (rearrangement f t μ) μ := distribution_mono_right h
+      _ ≤ t := distribution_rearrangement_le
+
+lemma distribution_rearrangement {f : α → ε} {μ : Measure α} {t : ℝ≥0} :
+    distribution f t μ = distribution (rearrangement f · μ) t volume := by
+  unfold distribution
+  simp only [enorm_eq_self]
+  have : {x | t < rearrangement f x μ} = Set.Iio (distribution f t μ) := by
+    ext x
+    simp only [Set.mem_setOf_eq, Set.mem_Iio]
+    exact rearrangement_lt_iff
+  rw [this, ENNReal.volume_Iio]
+  rfl
 
 lemma rearrangement_add_le [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g : α → ε} :
   rearrangement (f + g) (x + y) μ ≤ rearrangement f x μ + rearrangement g y μ := sorry

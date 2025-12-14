@@ -182,8 +182,37 @@ lemma NNReal.volume_Ioo {a b : ℝ≥0} : volume (Set.Ioo a b) = b - a:= by
   simp only [val_eq_coe]
   rw [toReal_Ioo_eq_Ioo, Real.volume_Ioo, ENNReal.ofReal_sub] <;> simp
 
--- TODO: the proof sin the next four lemmas feel quite repetitive
+-- TODO: the proofs in the next four lemmas feel quite repetitive
 -- extract helper lemma to re-use some of the argument!
+
+-- TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
+lemma ENNReal.toReal_Iio_eq_Ico {a : ℝ≥0∞} (ha : a ≠ ∞) :
+    ENNReal.toReal '' Set.Iio a = Set.Ico 0 a.toReal := by
+  ext x
+  simp only [mem_image, mem_Iio, mem_Ico]
+  constructor
+  · rintro ⟨y, ⟨hy₁, hy₂⟩⟩
+    rw [← hy₂]
+    constructor
+    · simp
+    · exact (ENNReal.toReal_lt_toReal hy₁.ne_top ha).mpr hy₁
+  · rintro ⟨zero_le_x, x_lt⟩
+    use ENNReal.ofReal x
+    constructor
+    · exact (ENNReal.ofReal_lt_iff_lt_toReal zero_le_x ha).mpr x_lt
+    · simpa
+
+lemma ENNReal.toReal_Iio_top_eq_Ici :
+    ENNReal.toReal '' Set.Iio ⊤ = Set.Ici 0 := by
+  ext x
+  simp only [mem_image, mem_Iio, mem_Ici]
+  constructor
+  · rintro ⟨y, ⟨hy₁, hy₂⟩⟩
+    rw [← hy₂]
+    simp
+  · rintro zero_le_x
+    use ENNReal.ofReal x
+    simpa
 
 -- TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) :
@@ -268,6 +297,14 @@ theorem ENNReal.Ioi_eq_Ioc_top {a : ℝ≥0∞} : Ioi a = Ioc a ⊤ := by
   unfold Ioi Ioc
   ext x
   simp
+
+lemma ENNReal.volume_Iio {a : ℝ≥0∞} :
+    volume (Set.Iio a) = a := by
+  rw [ENNReal.volume_val measurableSet_Iio]
+  by_cases ha : a = ⊤
+  · rw [ha, ENNReal.toReal_Iio_top_eq_Ici, Real.volume_Ici]
+  · rw [ENNReal.toReal_Iio_eq_Ico ha, Real.volume_Ico]
+    simpa
 
 lemma ENNReal.volume_Ioo {a b : ℝ≥0∞} (ha : a ≠ ∞) :
     volume (Set.Ioo a b) = b - a := by
