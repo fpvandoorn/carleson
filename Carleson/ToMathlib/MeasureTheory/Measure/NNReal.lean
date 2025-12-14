@@ -417,5 +417,18 @@ lemma setLIntegral_nnreal_Ici {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
   · simpa
   · exact zero_le_coe
 
+lemma lintegral_nnreal_scale_constant' {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} (h : a ≠ 0) :
+    a * ∫⁻ x : ℝ≥0, f (a*x) = ∫⁻ x, f x := by
+  rw [lintegral_nnreal_eq_lintegral_toNNReal_Ioi, lintegral_nnreal_eq_lintegral_toNNReal_Ioi]
+  symm
+  rw [← lintegral_scale_constant_halfspace' (a:=a) (by rw [NNReal.coe_pos, pos_iff_ne_zero]; exact h)]
+  congr 1
+  · simp
+  apply setLIntegral_congr_fun measurableSet_Ioi
+  intro x hx
+  dsimp only
+  congr
+  rw [Real.toNNReal_mul (by simp)]
+  simp
 
 -- TODO: lemmas about interaction with the Bochner integral

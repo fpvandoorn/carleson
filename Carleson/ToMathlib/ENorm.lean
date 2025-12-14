@@ -1,4 +1,5 @@
 import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
+import Carleson.ToMathlib.Data.ENNReal
 
 -- Upstreaming status: can be upstreamed/being worked on
 -- Many remaining declarations require PRing a new enorm class to mathlib first,
@@ -107,6 +108,68 @@ theorem eLpNorm_const_smul' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0�
   · simp
   refine le_antisymm eLpNorm_const_nnreal_smul_le <| ENNReal.mul_le_of_le_div' ?_
   simpa [ENNReal.div_eq_inv_mul, hc] using eLpNorm_const_nnreal_smul_le (c := c⁻¹) (f := c • f)
+
+theorem eLpNorm_top_smul {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
+  {μ : Measure α} {f : α → ℝ≥0∞} (hf : AEStronglyMeasurable f μ) : eLpNorm (∞ • f) p μ = ⊤ * eLpNorm f p μ := by
+  --extract_goal
+  by_cases hp : p = 0
+  · simp [hp]
+  by_cases h : f =ᶠ[ae μ] 0
+  · rw [eLpNorm_eq_zero_of_ae_zero h, mul_zero]
+    apply eLpNorm_eq_zero_of_ae_zero
+    filter_upwards [h] with x hx
+    simpa
+  · have : ¬ eLpNorm f p μ = 0 := by
+      rwa [eLpNorm_eq_zero_iff hf hp]
+    by_cases h' : eLpNorm f p μ = ⊤
+    · simp only [h', ne_eq, top_ne_zero, not_false_eq_true, mul_top]
+      rw [eq_top_iff] at *
+      apply h'.trans
+      apply eLpNorm_mono_enorm
+      intro x
+      simp only [enorm_eq_self, Pi.smul_apply, smul_eq_mul]
+      exact ENNReal.le_mul_top_self
+    rw [top_mul this]
+    apply eq_top_of_forall_nnreal_le
+    intro r
+    calc _
+      _ = r / eLpNorm f p μ * eLpNorm f p μ := by
+        rw [mul_comm, ENNReal.mul_div_cancel this h']
+      _ = eLpNorm ((r / eLpNorm f p μ).toNNReal • f) p μ := by
+        rw [eLpNorm_const_smul']
+        congr
+        simp only [toNNReal_div, toNNReal_coe, enorm_NNReal]
+        rw [ENNReal.coe_div (by apply toNNReal_ne_zero.mpr; use this, h')]
+        congr
+        exact Eq.symm (coe_toNNReal h')
+      _ ≤ eLpNorm (∞ • f) p μ := by
+        apply eLpNorm_mono_enorm
+        intro x
+        simp only [toNNReal_div, toNNReal_coe, Pi.smul_apply, enorm_smul_eq_smul, enorm_eq_self,
+          smul_eq_mul]
+        rw [ENNReal.smul_def, smul_eq_mul]
+        gcongr
+        exact le_top
+
+-- TODO: put next to eLpNorm_const_smul
+theorem eLpNorm_const_smul'' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
+  {μ : Measure α} {c : ℝ≥0∞} (hc : c ≠ ⊤) {f : α → ℝ≥0∞} :
+    eLpNorm (c • f) p μ = c * eLpNorm f p μ := by
+  have : c • f = c.toNNReal • f := by
+    ext x
+    simp [ENNReal.smul_def, hc]
+  rw [this, eLpNorm_const_smul' (c := c.toNNReal)]
+  congr
+  simp [hc]
+
+-- TODO: put next to eLpNorm_const_smul
+theorem eLpNorm_const_smul''' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
+  {μ : Measure α} {c : ℝ≥0∞} {f : α → ℝ≥0∞} (hf : AEStronglyMeasurable f μ) :
+    eLpNorm (c • f) p μ = c * eLpNorm f p μ := by
+  by_cases hc : c = ⊤
+  · simp only [hc]
+    exact MeasureTheory.eLpNorm_top_smul hf
+  exact eLpNorm_const_smul'' hc
 
 -- TODO: put next to the unprimed version; perhaps both should stay
 lemma eLpNormEssSup_const_nnreal_smul_le {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}

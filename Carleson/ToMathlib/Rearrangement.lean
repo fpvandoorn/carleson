@@ -3,9 +3,9 @@ import Carleson.ToMathlib.WeakType
 
 noncomputable section
 
--- Upstreaming status: NOT READY yet (mostly); this file is being actively worked on.
+-- Upstreaming status: NOT READY; this file is being actively worked on.
 -- Needs significant clean-up (refactoring, code style, extracting lemmas etc.) first.
-
+-- Warning: Lemmas might have missing assumptions.
 open scoped NNReal ENNReal
 
 variable {α ε ε' : Type*} {m : MeasurableSpace α}
@@ -33,22 +33,22 @@ lemma distribution_decreasing_rearrangement :
   distribution f x μ = distribution (rearrangement f · μ) x volume := sorry
 
 @[gcongr] lemma rearrangement_mono_right (h : x ≤ y) :
-    rearrangement f y μ ≤ rearrangement f x μ := sorry
+  rearrangement f y μ ≤ rearrangement f x μ := sorry
 
 @[gcongr] lemma rearrangement_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
-    rearrangement f x μ ≤ rearrangement g x μ := sorry
+  rearrangement f x μ ≤ rearrangement g x μ := sorry
 
 /-
 lemma rearrangement_antitone {f : α → ε} {μ : Measure α} :
-    Antitone (rearrangement f · μ) := sorry
+  Antitone (rearrangement f · μ) := sorry
 -/
 
 @[gcongr] lemma rearrangement_mono (h1 : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h2 : x ≤ y) :
-    rearrangement f y μ ≤ rearrangement g x μ := sorry
+  rearrangement f y μ ≤ rearrangement g x μ := sorry
 
 /-
 lemma rearrangement_smul_left (c : 𝕜) :
-    rearrangement (c • f) x μ = ‖c‖ₑ * rearrangement f x μ := sorry
+  rearrangement (c • f) x μ = ‖c‖ₑ * rearrangement f x μ := sorry
 -/
 
 -- this should also hold if `distribution f t μ = ∞`.
@@ -57,8 +57,8 @@ lemma rearrangement_distribution_le : rearrangement f (distribution f x μ) μ �
 -- this should also hold if `rearrangement f x μ = ∞`.
 lemma distribution_rearrangement_le : distribution f (rearrangement f x μ) μ ≤ x := sorry
 
-lemma rearrangement_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α → ε} :
-    rearrangement (f + g) (x + y) μ ≤ rearrangement f x μ + rearrangement g y μ := sorry
+lemma rearrangement_add_le [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g : α → ε} :
+  rearrangement (f + g) (x + y) μ ≤ rearrangement f x μ + rearrangement g y μ := sorry
 
 /-
 lemma _root_.ContinuousLinearMap.rearrangement_le {f : α → E₁} {g : α → E₂} :
@@ -67,51 +67,54 @@ lemma _root_.ContinuousLinearMap.rearrangement_le {f : α → E₁} {g : α → 
 -/
 
 -- Lemma 1.1.22 of [Ian Tice]
-lemma lt_rearrangement_iff [MeasurableSpace ε] (hf : Measurable f) :
-    y < rearrangement f x μ ↔ x < distribution f y μ := sorry
+lemma lt_rearrangement_iff [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ) :
+  y < rearrangement f x μ ↔ x < distribution f y μ := sorry
 
 -- Lemma 1.1.22 of [Ian Tice]
-lemma continuousWithinAt_rearrangement [MeasurableSpace ε] (hf : Measurable f) (x : ℝ≥0∞) :
+lemma continuousWithinAt_rearrangement [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ)
+  (x : ℝ≥0∞) :
     ContinuousWithinAt (rearrangement f · μ) (Set.Ici x) x := sorry
 
 -- Lemma 1.1.22 of [Ian Tice]
-lemma volume_lt_rearrangement [MeasurableSpace ε] (hf : Measurable f) (s : ℝ≥0∞) :
-    volume { x | s < rearrangement f (.ofReal x) μ } = distribution f s μ := sorry
+lemma volume_lt_rearrangement [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ) (s : ℝ≥0∞) :
+  volume { x | s < rearrangement f (.ofReal x) μ } = distribution f s μ := sorry
 
 -- Lemma 1.1.22 of [Ian Tice]
-lemma lintegral_rearrangement_pow [MeasurableSpace ε] (hf : Measurable f) {p : ℝ} (hp : 1 ≤ p) :
-    ∫⁻ t, (rearrangement f (.ofReal t) μ) ^ p = ∫⁻ x, ‖f x‖ₑ ∂μ := sorry
+lemma lintegral_rearrangement_pow [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
+  ∫⁻ t, (rearrangement f (.ofReal t) μ) ^ p = ∫⁻ x, ‖f x‖ₑ ∂μ := sorry
 
 -- Lemma 1.1.22 of [Ian Tice]
-lemma sSup_rearrangement [MeasurableSpace ε] (hf : Measurable f) :
-    ⨆ t > 0, rearrangement f t μ = rearrangement f 0 μ := sorry
+lemma sSup_rearrangement [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ) :
+  ⨆ t > 0, rearrangement f t μ = rearrangement f 0 μ := sorry
 
 -- Lemma 1.1.22 of [Ian Tice]
-lemma essSup_nnnorm_eq_rearrangement_zero [MeasurableSpace ε] (hf : Measurable f) :
-    essSup (‖f ·‖ₑ) μ = rearrangement f 0 μ  := sorry
+lemma essSup_nnnorm_eq_rearrangement_zero [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ) :
+  essSup (‖f ·‖ₑ) μ = rearrangement f 0 μ  := sorry
 
 
 open Filter Topology
 
 -- Lemma 1.1.23 of [Ian Tice]
-lemma tendsto_rearrangement [TopologicalSpace ε] [MeasurableSpace ε] {s : ℕ → α → ε} (hs : ∀ᶠ i in atTop, Measurable (s i))
-    (hf : Measurable f) (h2s : ∀ᵐ x ∂μ, Monotone (fun n ↦ ‖s n x‖ₑ))
-    (h : ∀ᵐ x ∂μ, Tendsto (‖s · x‖ₑ) atTop (𝓝 ‖f x‖ₑ)) :
-    Tendsto s atTop (𝓝 f) := sorry
+lemma tendsto_rearrangement [TopologicalSpace ε] {s : ℕ → α → ε}
+  (hs : ∀ᶠ i in atTop, AEStronglyMeasurable (s i) μ) (hf : AEStronglyMeasurable f μ)
+    (h2s : ∀ᵐ x ∂μ, Monotone (fun n ↦ ‖s n x‖ₑ))
+      (h : ∀ᵐ x ∂μ, Tendsto (‖s · x‖ₑ) atTop (𝓝 ‖f x‖ₑ)) :
+        Tendsto s atTop (𝓝 f) := sorry
 
 -- Lemma 1.1.23 of [Ian Tice]
-lemma liminf_rearrangement [MeasurableSpace ε] {s : ℕ → α → ε} (hs : ∀ᶠ i in atTop, Measurable (s i))
-    (hf : Measurable f) (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ liminf (‖s · x‖ₑ) atTop) :
-    rearrangement f x μ ≤ liminf (fun i ↦ rearrangement (s i) x μ) atTop := sorry
+lemma liminf_rearrangement [TopologicalSpace ε] {s : ℕ → α → ε}
+  (hs : ∀ᶠ i in atTop, AEStronglyMeasurable (s i) μ) (hf : AEStronglyMeasurable f μ)
+    (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ liminf (‖s · x‖ₑ) atTop) :
+      rearrangement f x μ ≤ liminf (fun i ↦ rearrangement (s i) x μ) atTop := sorry
 
 -- Lemma 1.1.24 of [Ian Tice]
-lemma distribution_indicator_le_distribution [MeasurableSpace ε] [Zero ε] {f : α → ε} (hf : Measurable f)
-    {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
+lemma distribution_indicator_le_distribution [TopologicalSpace ε] [Zero ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
     distribution (X.indicator f) t μ ≤ distribution f t μ := sorry
 
 -- Lemma 1.1.24 of [Ian Tice]
-lemma distribution_indicator_le_measure [MeasurableSpace ε] [Zero ε] {f : α → ε} (hf : Measurable f)
-    {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
+lemma distribution_indicator_le_measure [TopologicalSpace ε] [Zero ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
     distribution (X.indicator f) t μ ≤ μ X := sorry
 
 /- The interval `[0, a) ⊆ ℝ` for `a : ℝ≥0∞`, if useful. -/
@@ -121,22 +124,37 @@ protected def _root_.ENNReal.Ico (a : ℝ≥0∞) : Set ℝ :=
 /- to do: some computation rules for this set. -/
 
 /-- Version of `rearrangement_indicator_le` for `t : ℝ≥0∞` -/
-lemma rearrangement_indicator_le' [MeasurableSpace ε] [Zero ε] {f : α → ε} (hf : Measurable f)
-    {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
+lemma rearrangement_indicator_le' [TopologicalSpace ε] [Zero ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
     rearrangement (X.indicator f) t μ ≤
-    Set.indicator (Set.Iio (μ X)) (rearrangement f · μ) t := sorry
+      Set.indicator (Set.Iio (μ X)) (rearrangement f · μ) t := sorry
 
 -- Lemma 1.1.24 of [Ian Tice]
-lemma rearrangement_indicator_le [MeasurableSpace ε] [Zero ε] {f : α → ε} (hf : Measurable f)
-    {X : Set α} (hX : MeasurableSet X) (t : ℝ) (μ : Measure α) :
+lemma rearrangement_indicator_le [TopologicalSpace ε] [Zero ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ) :
     rearrangement (X.indicator f) (.ofReal t) μ ≤
-    Set.indicator (μ X).Ico (fun x ↦ rearrangement f (.ofReal x) μ) t := sorry
+      Set.indicator (μ X).Ico (fun x ↦ rearrangement f (.ofReal x) μ) t := sorry
 
 -- Lemma 1.1.24 of [Ian Tice]
-lemma integral_norm_le_integral_rearrangement [MeasurableSpace ε] {f : α → ε} (hf : Measurable f)
-    {X : Set α} (hX : MeasurableSet X) (μ : Measure α) :
+lemma integral_norm_le_integral_rearrangement [TopologicalSpace ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) :
     ∫⁻ x, ‖f x‖ₑ ∂μ ≤
-    ∫⁻ t in (μ X).Ico, rearrangement f (ENNReal.ofReal t) μ := sorry
+      ∫⁻ t in (μ X).Ico, rearrangement f (ENNReal.ofReal t) μ := sorry
+
+--Theorem 4.17 of https://doi.org/10.1007/978-3-319-30034-4
+lemma lintegral_rearrangement_eq [TopologicalSpace ε] [NoAtoms μ] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) {t : ℝ≥0} :
+    ∫⁻ (s : ℝ≥0) in Set.Iio t, rearrangement f s μ = ⨆ (E : Set α) (_ : μ E ≤ t), ∫⁻ x in E, ‖f x‖ₑ ∂μ := by
+  sorry
+
+--Remark 4.18 of https://doi.org/10.1007/978-3-319-30034-4
+lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral
+  [TopologicalSpace ε] [ESeminormedAddMonoid ε] [NoAtoms μ] {f g : α → ε}
+    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) {t : ℝ≥0} :
+      ∫⁻ (s : ℝ≥0) in Set.Iio t, rearrangement (f + g) s μ
+        ≤ (∫⁻ (s : ℝ≥0) in Set.Iio t, rearrangement f s μ)
+          + ∫⁻ (s : ℝ≥0) in Set.Iio t, rearrangement g s μ := by
+  sorry --use: lintegral_rearrangement_eq
 
 /-
 

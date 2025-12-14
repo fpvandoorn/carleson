@@ -567,7 +567,7 @@ lemma distribution_add_le' [ENorm ε] {A : ℝ≥0∞} {g₁ g₂ : α → ε}
   apply distribution_add_le_of_enorm
   simp [h]
 
-lemma distribution_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α → ε} :
+lemma distribution_add_le [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g : α → ε} :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
   calc
     _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := by
@@ -578,7 +578,7 @@ lemma distribution_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α 
     _ ≤ _ := measure_union_le _ _
 
 --TODO: make this an iff?
-lemma distribution_zero [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+lemma distribution_zero' [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   unfold distribution
   rw[← le_zero_iff]
@@ -591,15 +591,17 @@ lemma distribution_zero [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → 
     _ = μ {x | ‖f x‖ₑ ≠ 0} := by
       congr
       ext x
-      simp
+      apply bot_lt_iff_ne_bot
     _ = 0 := by
-      refine ae_iff.mp ?_
-      change enorm ∘ f =ᶠ[ae μ] 0
-      unfold Filter.EventuallyEq
-      simpa only [comp_apply, Pi.zero_apply, enorm_eq_zero]
+      exact ae_iff.mp h
 
+lemma distribution_zero [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+    distribution f t μ = 0 := by
+  apply distribution_zero'
+  unfold Filter.EventuallyEq
+  simpa only [comp_apply, Pi.zero_apply, enorm_eq_zero]
 
-lemma distribution_indicator_const [TopologicalSpace ε] [ENormedAddMonoid ε] {s : Set α} {a : ε} :
+lemma distribution_indicator_const [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
     distribution (s.indicator (Function.const α a)) t μ = (Set.Iio ‖a‖ₑ).indicator (fun _ ↦ μ s) t := by
   unfold distribution indicator
   split_ifs with h
@@ -657,7 +659,7 @@ lemma distribution_add [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α →
       exact LT.lt.ne_bot h'
   · exact measurableSet_lt measurable_const (StronglyMeasurable.enorm hg)
 
-lemma distribution_indicator_add_of_support_subset [TopologicalSpace ε] [ENormedAddMonoid ε]
+lemma distribution_indicator_add_of_support_subset [TopologicalSpace ε] [ESeminormedAddMonoid ε]
   (enorm_add : ∀ a b : ε, ‖a + b‖ₑ = ‖a‖ₑ + ‖b‖ₑ) --TODO: new type class for this property?
   {f : α → ε} {c : ε} (hc : ‖c‖ₑ ≠ ⊤) {s : Set α}
   (hfs : Function.support f ⊆ s) :
