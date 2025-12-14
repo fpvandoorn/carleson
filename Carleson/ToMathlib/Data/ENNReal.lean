@@ -3,6 +3,9 @@ import Mathlib.Analysis.Normed.Group.Uniform
 import Mathlib.Analysis.Normed.Ring.Basic
 import Mathlib.Order.CompletePartialOrder
 
+-- Upstreaming status: lemmas seem useful; proofs may need some polish
+-- At least three or four distinct PRs.
+
 /-! ## `ENNReal` manipulation lemmas -/
 
 open Function Set Bornology

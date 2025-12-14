@@ -71,6 +71,8 @@ lemma lintegral_scale_constant' {f : ℝ → ENNReal} {a : ℝ} (h : a ≠ 0) :
 
 open SimpleFunc
 
+-- Upstreaming status: useful and good to go. Easy generalisations of mathlib lemmas.
+
 /-- Generalization of `MeasureTheory.lintegral_eq_iSup_eapprox_lintegral` assuming a.e.
 measurability of `f` -/
 theorem lintegral_eq_iSup_eapprox_lintegral' {α : Type*} {m : MeasurableSpace α} {μ : Measure α}

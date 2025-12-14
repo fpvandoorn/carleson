@@ -1,5 +1,7 @@
 import Carleson.ToMathlib.Misc
-import Mathlib.Analysis.SpecialFunctions.Log.Base
+
+-- Upstreaming status: ready to go; two lemmas need to move to different files
+-- and the remainder could go into a new file
 
 open Metric Finset
 open scoped NNReal
@@ -15,33 +17,35 @@ class inductive CoveredByBalls (s : Set X) (n : ℕ) (r : ℝ) : Prop where
     (card_balls : balls.card ≤ n)
     (union_balls : s ⊆ ⋃ x ∈ balls, ball x r) : CoveredByBalls s n r
 
+namespace CoveredByBalls
+
 /- Good first project: prove the following basic properties about `CoveredByBalls`.
 Feel free to state some more properties. -/
 
-lemma CoveredByBalls.mono_set (h : CoveredByBalls t n r) (h2 : s ⊆ t) : CoveredByBalls s n r := by
+lemma mono_set (h : CoveredByBalls t n r) (h2 : s ⊆ t) : CoveredByBalls s n r := by
   obtain ⟨b, hn, ht⟩ := h
   exact ⟨b, hn, fun x hx ↦ ht (h2 hx)⟩
 
-lemma CoveredByBalls.mono_nat (h : CoveredByBalls s n r) (h2 : n ≤ m) : CoveredByBalls s m r := by
+lemma mono_nat (h : CoveredByBalls s n r) (h2 : n ≤ m) : CoveredByBalls s m r := by
   obtain ⟨b, hn, hs⟩ := h
   exact ⟨b, hn.trans h2, hs⟩
 
-lemma CoveredByBalls.mono_real (h : CoveredByBalls s n r) (h2 : r ≤ r') :
+lemma mono_real (h : CoveredByBalls s n r) (h2 : r ≤ r') :
     CoveredByBalls s n r' := by
   obtain ⟨b, hn, hs⟩ := h
   exact ⟨b, hn, hs.trans (by gcongr)⟩
 
 @[simp]
-protected lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r :=
+protected lemma empty : CoveredByBalls (∅ : Set X) n r :=
   ⟨∅, by simp, by simp⟩
 
 @[simp]
-lemma CoveredByBalls.zero_left : CoveredByBalls s 0 r ↔ s = ∅ := by
+lemma zero_left : CoveredByBalls s 0 r ↔ s = ∅ := by
   refine ⟨fun ⟨b, hn, hs⟩ ↦ ?_, by rintro rfl; exact CoveredByBalls.empty⟩
   simp only [nonpos_iff_eq_zero, card_eq_zero] at hn; subst hn; simpa using hs
 
 @[simp]
-lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
+lemma zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
   refine ⟨fun ⟨_, _, hs⟩ ↦ ?_, fun hs ↦ ?_⟩
   · simpa using hs
   · have h22 : s ⊆ ⋃ x ∈ (∅ : Finset X), ball x 0 := by
@@ -49,11 +53,13 @@ lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
       exact Set.subset_empty_iff.mpr hs
     use ∅, tsub_add_cancel_iff_le.mp rfl, h22
 
-protected lemma CoveredByBalls.ball (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
+protected lemma ball (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
   let a : Finset X := singleton x
   have h : a.card ≤ 1 := by rfl
   have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by simp [a]
   exact ⟨a, h, h2⟩
+
+end CoveredByBalls
 
 variable (X) in
 /-- Balls of radius `r` in `X` are covered by `n` balls of radius `r'` -/
@@ -79,33 +85,41 @@ lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
       obtain ⟨c, _, hc⟩ := tmp
       use c, (by rw [mem_biUnion]; use b), hc
 
-lemma BallsCoverBalls.mono (h : BallsCoverBalls X r₂ r₃ n) (h2 : r₁ ≤ r₂) :
-    BallsCoverBalls X r₁ r₃ n := fun x ↦ (h x).mono_set (ball_subset_ball h2)
+namespace BallsCoverBalls
 
-lemma BallsCoverBalls.trans (h1 : BallsCoverBalls X r₁ r₂ n) (h2 : BallsCoverBalls X r₂ r₃ m) :
-    BallsCoverBalls X r₁ r₃ (n * m) := fun x ↦ (h1 x).trans h2
+lemma mono (h : BallsCoverBalls X r₂ r₃ n) (h2 : r₁ ≤ r₂) :
+    BallsCoverBalls X r₁ r₃ n :=
+  fun x ↦ (h x).mono_set (ball_subset_ball h2)
 
-lemma BallsCoverBalls.zero : BallsCoverBalls X 0 r n := by
+lemma trans (h1 : BallsCoverBalls X r₁ r₂ n) (h2 : BallsCoverBalls X r₂ r₃ m) :
+    BallsCoverBalls X r₁ r₃ (n * m) :=
+  fun x ↦ (h1 x).trans h2
+
+lemma zero : BallsCoverBalls X 0 r n := by
   intro x
   convert CoveredByBalls.empty
   simp
 
-lemma BallsCoverBalls.nonpos (hr' : r' ≤ 0) : BallsCoverBalls X r' r n :=
+lemma nonpos (hr' : r' ≤ 0) : BallsCoverBalls X r' r n :=
   BallsCoverBalls.zero.mono hr'
+
+end BallsCoverBalls
 
 variable (X) in
 /-- For all `r`, balls of radius `r` in `X` are covered by `n` balls of radius `a * r` -/
 def AllBallsCoverBalls (a : ℝ) (n : ℕ) : Prop := ∀ r : ℝ, BallsCoverBalls X (a * r) r n
 
+namespace AllBallsCoverBalls
+
 /-- Prove `AllBallsCoverBalls` only for balls of positive radius. -/
-lemma AllBallsCoverBalls.mk {a : ℝ} (ha : 0 ≤ a) (h : ∀ r > 0, BallsCoverBalls X (a * r) r n) :
+lemma mk {a : ℝ} (ha : 0 ≤ a) (h : ∀ r > 0, BallsCoverBalls X (a * r) r n) :
     AllBallsCoverBalls X a n := by
   intro r
   obtain hr|hr := lt_or_ge 0 r
   · exact h r hr
   exact .nonpos (mul_nonpos_of_nonneg_of_nonpos ha hr)
 
-lemma AllBallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) :
+lemma pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) :
     AllBallsCoverBalls X (a ^ k) (n ^ k) := by
   intro r
   induction k with
@@ -117,12 +131,12 @@ lemma AllBallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) 
     rw [mul_comm] at h2
     exact h.trans h2
 
-lemma AllBallsCoverBalls.ballsCoverBalls_pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) :
+lemma ballsCoverBalls_pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) :
     BallsCoverBalls X (a ^ k) 1 (n ^ k) := by
   apply h.pow _ |>.mono
   rw [mul_one]
 
-lemma AllBallsCoverBalls.ballsCoverBalls {a : ℝ} (h : AllBallsCoverBalls X a n)
+lemma ballsCoverBalls {a : ℝ} (h : AllBallsCoverBalls X a n)
     (h2 : 1 < a) (hr : 0 < r) :
     BallsCoverBalls X r' r (n ^ ⌈Real.logb a (r' / r)⌉₊) := by
   obtain hr'|hr' := le_or_gt r' 0
@@ -135,10 +149,11 @@ lemma AllBallsCoverBalls.ballsCoverBalls {a : ℝ} (h : AllBallsCoverBalls X a n
       apply Real.le_pow_natCeil_logb h2
       positivity
 
+end AllBallsCoverBalls
 
 -- todo: move near `secondCountable_of_almost_dense_set`
 /-- A pseudometric space is second countable if, for every `ε > 0` and every ball `B`
-with natural number radius around a fiven point `x₀`,
+with natural number radius around a given point `x₀`,
 there is a countable set which is `ε`-dense in `B`. -/
 theorem Metric.secondCountableTopology_of_almost_dense_set_balls_nat
     {α} [PseudoMetricSpace α] (x₀ : α)

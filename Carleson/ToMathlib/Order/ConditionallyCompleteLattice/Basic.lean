@@ -1,6 +1,9 @@
 import Mathlib.Order.ConditionallyCompleteLattice.Basic
 import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 
+-- Upstreaming status: under active development by @ldiedering
+-- Wait for the file to stabilise first.
+
 theorem ciSup_le_ciSup {α : Type*} {ι ι' : Sort*} [Nonempty ι] [ConditionallyCompleteLattice α]
   {f : ι → α} {g : ι' → α} (h₀ : ∀ i, ∃ j, f i ≤ g j) (hg : BddAbove (Set.range g)) :
     ⨆ i, f i ≤ ⨆ j, g j := by
@@ -47,9 +50,8 @@ theorem ciSup_eq_ciSup {α : Type*} {ι ι' : Sort*} [ConditionallyCompleteLinea
     rcases h₀ i with ⟨j, _⟩
     exact hι' ⟨j⟩
   have hι' : ¬ Nonempty ι' := by
-    intro hι'
-    rcases hι' with ⟨j⟩
+    intro ⟨j⟩
     rcases h₁ j with ⟨i, _⟩
     exact hι ⟨i⟩
-  simp at hι hι'
+  push_neg at hι hι'
   rw [iSup_of_empty', iSup_of_empty']

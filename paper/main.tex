@@ -34,26 +34,59 @@ collaborative effort, written and developed in public.
 
 \tableofcontents
 
-\section{Introduction}
+\section{Introduction}\label{sec:intro}
+
+\subsection{Brief history of Carleson's theorem and significance}\label{subsec:history}
+
+\subsection{Overview of the formalization project}\label{subsec:overview}
+
+\subsection{Related work}\label{subsec:rel_work}
 \begin{itemize}
-  \item Brief history of Carleson's theorem and significance.
-  \item Overview of the formalization project.
-  \item Related work:
-    \begin{itemize}
-      \item Other large-scale formalizations in Lean.
-      \item Other harmonic analysis formalizations.
-    \end{itemize}
+ 	\item Other large-scale formalizations in Lean.
+	\item Other harmonic analysis formalizations.
 \end{itemize}
 
-\section{Mathematics}
+\noindent \textit{Acknowledgement.}
+The authors acknowledge contributions in the form of small formalization additions,
+pointing out corrections to the blueprint,
+or supplying ideas to the Lean efforts by the following people:
+Michel Alexis,
+Bolton Bailey,
+Julian Berman,
+Joachim Breitner,
+Martin Dvoř\'ak,
+Georges Gonthier,
+Aaron Hill,
+Austin Letson,
+Bhavik Mehta,
+Eric Paul,
+Clara Torres,
+Dennis Tsar,
+Andrew Yang, and
+Ruben van de Velde.
+
+L.B., M.I.d.F.F., L.D., F.v.D., M.R., R.S., and C.T. were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
+L.B., R.S., and C.T. were also supported by SFB 1060.
+A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
+J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the Fall 2024 trimester program in Bonn.
+
+\section{The Metric Space Carleson theorem}\label{sec:main_thm}
+
+\subsection{Mathematical background}\label{subsec:background}
 \begin{itemize}
   \item Prerequisites: Fourier series, Real interpolation, Hardy--Littlewood maximal function, doubling measures (\texttt{IsDoubling}), \texttt{WeakType}, \texttt{wnorm}.
-  \item Statement of Theorem 1.0.2.
-  \item Main propositions in Chapter 2.
-  \item Level of mathematical detail to include.
 \end{itemize}
 
-\section{Organization}
+\subsection{Statement of the main results}\label{subsec:main_results}
+
+\begin{itemize}
+	\item Statement of Theorem 1.0.2.
+	\item Main propositions in Chapter 2.
+
+\end{itemize}
+%\item Level of mathematical detail to include.
+
+\section{Project organization}\label{sec:org}
 \begin{itemize}
   \item Project structure and division of tasks.
   \item Floris responsible for lemma statements (pros and cons).
@@ -63,49 +96,70 @@ collaborative effort, written and developed in public.
   \item Communication channels: Zulip, GitHub, Blueprint.
 \end{itemize}
 
-\section{Blueprint}
+\section{Working with a blueprint}\label{sec:blueprint}
+\subsection{The blueprint writing process}\label{subsec:blueprint_writing}
 \begin{itemize}
-  \item Blueprint writing process and finitary arguments.
-  \item Changes and refinements:
-    \begin{itemize}
-      \item $I \leq J$ vs.\ $I \subset J$.
-      \item Real interpolation theorem.
-      \item Hardy--Littlewood maximal function for finite vs.\ countable balls.
-      \item Just one top cube.
-      \item Constant tweaking.
-    \end{itemize}
-  \item Mistakes and lessons learned:
-    \begin{itemize}
-      \item Lemma 11.1.6.
-      \item Lemma 6.3.3/4.
-      \item Hölder cancellation (radius $R \to 2R$).
-      \item Lemma 6.2.3: additional hypothesis.
-    \end{itemize}
-  \item Impact of blueprint choices on errors.
-  \item Lack of definition environments $\Rightarrow$ absence from dependency graph.
+	\item Blueprint writing process and finitary arguments.
 \end{itemize}
 
-\section{Design Decisions}
+\subsection{Changes and refinements}\label{subsec:blueprint_changes}
 \begin{itemize}
-  \item Use of \texttt{ENorm}.
-  \item Explicit constants \texttt{C\_a\_b\_c}.
-  \item \texttt{ProofData} pattern.
-  \item Working with \texttt{MemLp}, not functions on \texttt{Lp}.
-  \item \texttt{Real} vs.\ \texttt{NNReal} vs.\ \texttt{ENNReal}:
-    \begin{itemize}
-      \item Tactic support issues (\texttt{norm\_num}, \texttt{field\_simp}, \texttt{ring}).
-    \end{itemize}
-  \item \texttt{BoundedCompactSupport} and packaging conditions.
-  \item Ongoing experiments with \texttt{fun\_prop}.
-  \item Common pitfalls:
-    \begin{itemize}
-      \item Using \texttt{Real}.
-      \item \texttt{Set.indicator} vs.\ \texttt{Measure.restrict}.
-      \item \texttt{Finsets} vs.\ \texttt{Sets} in a \texttt{Fintype}.
-    \end{itemize}
+	\item $I \leq J$ vs.\ $I \subset J$.
+	\item Real interpolation theorem.
+	\item Hardy--Littlewood maximal function for finite vs.\ countable balls.
+	\item Just one top cube.
+	\item Constant tweaking.
 \end{itemize}
 
-\section{Conclusion}
+\subsection{Dealing with mistakes}\label{subsec:blueprint_mistakes}
+\begin{itemize}
+  \item Lemma 11.1.6.
+  \item Lemma 6.3.3/4.
+  \item Hölder cancellation (radius $R \to 2R$).
+  \item Lemma 6.2.3: additional hypothesis.
+\end{itemize}
+
+\subsection{Lessons learned}\label{subsec:blueprint_lessons}
+\begin{itemize}
+	\item Impact of blueprint choices on errors.
+	\item Lack of definition environments $\Rightarrow$ absence from dependency graph.
+\end{itemize}
+
+\section{Design decisions}\label{sec:design}
+\subsection{Treatment of constants}\label{subsec:constants}
+
+\subsection{The \texttt{ProofData} pattern}\label{subsec:proof_data}
+
+\subsection{Working with real numbers}\label{subsec:real}
+\begin{itemize}
+	\item \texttt{Real} vs.\ \texttt{NNReal} vs.\ \texttt{ENNReal}:
+	\begin{itemize}
+		\item Tactic support issues (\texttt{norm\_num}, \texttt{field\_simp}, \texttt{ring}).
+	\end{itemize}
+\end{itemize}
+
+\subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
+
+\subsection{Working with $L^p$ functions}\label{subsec:Lp}
+\begin{itemize}
+	\item Working with \texttt{MemLp}, not functions on \texttt{Lp}.
+\end{itemize}
+
+\subsection{The \texttt{BoundedCompactSupport} structure}\label{subsec:bdd_comp_supp}
+\begin{itemize}
+	\item \texttt{BoundedCompactSupport} and packaging conditions.
+	\item Ongoing experiments with \texttt{fun\_prop}. TODO: consider whether this should be a separate subsection.
+\end{itemize}
+
+\subsection{Common pitfalls}\label{subsec:pitfalls}
+\begin{itemize}
+  \item Using \texttt{Real}.
+  \item \texttt{Set.indicator} vs.\ \texttt{Measure.restrict}.
+  \item \texttt{Finsets} vs.\ \texttt{Sets} in a \texttt{Fintype}.
+\end{itemize}
+
+
+\section{Conclusion}\label{sec:conclusion}
 \begin{itemize}
   \item Project statistics (e.g.\ size of ToMathlib and total project).
   \item Summary of lessons learned:

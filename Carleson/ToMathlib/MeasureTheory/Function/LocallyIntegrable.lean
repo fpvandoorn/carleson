@@ -1,6 +1,8 @@
 import Mathlib.MeasureTheory.Function.LocallyIntegrable
 import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
 
+-- Upstreaming status: easy and useful; good to go
+
 namespace MeasureTheory
 
 theorem LocallyIntegrable.norm {X : Type*} {E : Type*} [MeasurableSpace X]

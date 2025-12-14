@@ -1,5 +1,7 @@
 import Mathlib.MeasureTheory.Integral.Average
 
+-- Upstreaming status: useful and good to go
+
 open MeasureTheory MeasureTheory.Measure Filter Set
 
 open scoped ENNReal

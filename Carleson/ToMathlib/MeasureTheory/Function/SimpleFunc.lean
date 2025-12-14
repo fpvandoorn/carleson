@@ -2,6 +2,9 @@ import Mathlib.Algebra.Order.Pi
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
 import Mathlib.MeasureTheory.Function.SimpleFunc
 
+-- Upstreaming status: under active development by @ldiedering.
+-- Wait for the file to stabilise first.
+
 noncomputable section
 
 open Set hiding restrict restrict_apply

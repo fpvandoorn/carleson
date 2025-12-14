@@ -3,6 +3,9 @@ import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 import Mathlib.Analysis.Normed.Group.Basic
 import Carleson.ToMathlib.Misc -- for iSup_rpow
 
+-- Upstreaming status: lemmas seem useful (mostly minor modifications of mathlib),
+-- a lot is ready to go already
+
 open MeasureTheory Set
 open scoped ENNReal
 
@@ -15,11 +18,13 @@ section MapMeasure
 
 variable {β : Type*} {mβ : MeasurableSpace β} {f : α → β} {g : β → E}
 
+-- replace the unprimed mathlib version
 theorem eLpNormEssSup_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
     (hg : AEMeasurable g (Measure.map f μ)) (hf : AEMeasurable f μ) :
     eLpNormEssSup g (Measure.map f μ) = eLpNormEssSup (g ∘ f) μ :=
   essSup_map_measure hg.enorm hf
 
+-- replace the unprimed mathlib version
 theorem eLpNorm_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
     (hg : AEMeasurable g (Measure.map f μ)) (hf : AEMeasurable f μ) :
     eLpNorm g p (Measure.map f μ) = eLpNorm (g ∘ f) p μ := by
@@ -32,6 +37,7 @@ theorem eLpNorm_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
   rw [lintegral_map' (hg.enorm.pow_const p.toReal) hf]
   rfl
 
+-- replace the unprimed version
 theorem eLpNorm_comp_measurePreserving' {ν : Measure β} [MeasurableSpace E]
     [OpensMeasurableSpace E] (hg : AEMeasurable g ν) (hf : MeasurePreserving f μ ν) :
     eLpNorm (g ∘ f) p μ = eLpNorm g p ν :=
@@ -68,6 +74,8 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
     _ = ∑' i, 0 := by congr with i; exact meas_eLpNormEssSup_lt
     _ = 0 := by simp
 
+-- XXX: why does the lemma before assume a countable indexing type and this work with ℕ?
+-- make consistent!
 /-- Monotone convergence applied to eLpNorms. AEMeasurable variant.
   Possibly imperfect hypotheses, particularly on `p`. Note that for `p = ∞` the stronger
   statement in `eLpNormEssSup_iSup` holds. -/

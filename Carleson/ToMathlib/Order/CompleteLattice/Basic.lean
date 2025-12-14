@@ -1,6 +1,8 @@
 import Mathlib.Order.CompleteLattice.Basic
 import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
 
+-- Upstreaming status: under active development by @ldiedering
+-- Wait for the file to stabilise first.
 
 --currently unused
 theorem iSup_eq_iSup {α : Type*} {ι ι' : Sort*} [CompleteLattice α] {f : ι → α} {g : ι' → α}

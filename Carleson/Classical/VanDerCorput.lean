@@ -46,9 +46,9 @@ lemma intervalIntegrable_continuous_mul_lipschitzOnWith
     apply mem_image_of_mem
     exact Ioo_subset_Icc_self hx
 
-lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B K : ℝ≥0}
-    (h1 : LipschitzOnWith K ϕ (Ioo a b)) (h2 : ∀ x ∈ Ioo a b, ‖ϕ x‖ ≤ B) :
-    ‖∫ x in a..b, exp (I * n * x) * ϕ x‖ ≤
+lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B K : ℝ≥0}
+    (h1 : LipschitzOnWith K φ (Ioo a b)) (h2 : ∀ x ∈ Ioo a b, ‖φ x‖ ≤ B) :
+    ‖∫ x in a..b, exp (I * n * x) * φ x‖ ≤
      2 * π * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by
   have hK : 0 ≤ K * (b - a) / 2 := by
     apply mul_nonneg (mul_nonneg (by simp) (by linarith)) (by norm_num)
@@ -56,8 +56,8 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
   · rw [n_nonzero]
     simp only [Int.cast_zero, mul_zero, zero_mul, exp_zero, one_mul, abs_zero,
       add_zero, inv_one, mul_one]
-    calc ‖∫ x in a..b, ϕ x‖
-      _ = ‖∫ x in Set.Ioo a b, ϕ x‖ := by
+    calc ‖∫ x in a..b, φ x‖
+      _ = ‖∫ x in Set.Ioo a b, φ x‖ := by
         rw [intervalIntegral.integral_of_le, ← integral_Ioc_eq_integral_Ioo]
         linarith
       _ ≤ B * (volume (Set.Ioo a b)).toReal := by
@@ -72,14 +72,14 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         · exact sub_nonneg_of_le hab
         · linarith [Real.two_le_pi]
         · exact (le_add_iff_nonneg_right ↑B).mpr hK
-  wlog n_pos : 0 < n generalizing n ϕ
+  wlog n_pos : 0 < n generalizing n φ
   · /-We could do calculations analogous to those below. Instead, we apply the positive
     case to the complex conjugate.-/
     push_neg at n_pos
-    calc ‖∫ x in a..b, cexp (I * ↑n * ↑x) * ϕ x‖
-      _ = ‖(starRingEnd ℂ) (∫ x in a..b, cexp (I * ↑n * ↑x) * ϕ x)‖ :=
+    calc ‖∫ x in a..b, cexp (I * ↑n * ↑x) * φ x‖
+      _ = ‖(starRingEnd ℂ) (∫ x in a..b, cexp (I * ↑n * ↑x) * φ x)‖ :=
         (RCLike.norm_conj _).symm
-      _ = ‖∫ x in a..b, cexp (I * ↑(-n) * ↑x) * ((starRingEnd ℂ) ∘ ϕ) x‖ := by
+      _ = ‖∫ x in a..b, cexp (I * ↑(-n) * ↑x) * ((starRingEnd ℂ) ∘ φ) x‖ := by
         rw [intervalIntegral.integral_of_le (by linarith), ← integral_conj,
           ← intervalIntegral.integral_of_le (by linarith)]
         congr
@@ -107,7 +107,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
       apply add_pos_of_pos_of_nonneg zero_lt_one
       apply mul_nonneg (by simp) (by linarith)
     calc _
-      _ = ‖∫ x in Set.Ioo a b, cexp (I * ↑n * ↑x) * ϕ x‖ := by
+      _ = ‖∫ x in Set.Ioo a b, cexp (I * ↑n * ↑x) * φ x‖ := by
         rw [intervalIntegral.integral_of_le, ← integral_Ioc_eq_integral_Ioo]
         linarith
       _ ≤ B * (volume (Set.Ioo a b)).toReal := by
@@ -137,30 +137,30 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
   push_neg at h
   have pi_div_n_pos : 0 < π / n := div_pos Real.pi_pos (Int.cast_pos.mpr n_pos)
   calc _
-    _ = ‖∫ x in a..b, (1 / 2 * exp (I * n * x) - 1 / 2 * exp (I * ↑n * (↑x + ↑π / ↑n))) * ϕ x‖ := by
+    _ = ‖∫ x in a..b, (1 / 2 * exp (I * n * x) - 1 / 2 * exp (I * ↑n * (↑x + ↑π / ↑n))) * φ x‖ := by
       congr
       ext x
       congr
       rw [mul_add, mul_assoc I n (π / n), mul_div_cancel₀ _ (by simpa), exp_add, mul_comm I π, exp_pi_mul_I]
       ring
-    _ = ‖1 / 2 * ∫ x in a..b, cexp (I * ↑n * ↑x) * ϕ x - cexp (I * ↑n * (↑x + ↑π / ↑n)) * ϕ x‖ := by
+    _ = ‖1 / 2 * ∫ x in a..b, cexp (I * ↑n * ↑x) * φ x - cexp (I * ↑n * (↑x + ↑π / ↑n)) * φ x‖ := by
       congr
       rw [← intervalIntegral.integral_const_mul]
       congr
       ext x
       ring
-    _ = 1 / 2 * ‖(∫ x in a..b, exp (I * n * x) * ϕ x)
-                      - (∫ x in a..b, exp (I * n * (x + π / n)) * ϕ x)‖ := by
+    _ = 1 / 2 * ‖(∫ x in a..b, exp (I * n * x) * φ x)
+                      - (∫ x in a..b, exp (I * n * (x + π / n)) * φ x)‖ := by
       rw [norm_mul]
       congr
       · simp
       rw [← intervalIntegral.integral_sub]
       · exact intervalIntegrable_continuous_mul_lipschitzOnWith hab (by fun_prop) h1
       · exact intervalIntegrable_continuous_mul_lipschitzOnWith hab (by fun_prop) h1
-    _ = 1 / 2 * ‖  (∫ x in a..(a + π / n), exp (I * n * x) * ϕ x)
-                 + (∫ x in (a + π / n)..b, exp (I * n * x) * ϕ x)
-                 -((∫ x in a..(b - π / n), exp (I * n * (x + π / n)) * ϕ x)
-                 + (∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * ϕ x))‖ := by
+    _ = 1 / 2 * ‖  (∫ x in a..(a + π / n), exp (I * n * x) * φ x)
+                 + (∫ x in (a + π / n)..b, exp (I * n * x) * φ x)
+                 -((∫ x in a..(b - π / n), exp (I * n * (x + π / n)) * φ x)
+                 + (∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * φ x))‖ := by
       congr 3
       · rw [intervalIntegral.integral_add_adjacent_intervals]
         · exact intervalIntegrable_continuous_mul_lipschitzOnWith (by linarith) (by fun_prop)
@@ -172,23 +172,23 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
             (h1.mono (Ioo_subset_Ioo le_rfl (by linarith)))
         · exact intervalIntegrable_continuous_mul_lipschitzOnWith (by linarith) (by fun_prop)
             (h1.mono (Ioo_subset_Ioo (by linarith) le_rfl))
-    _ = 1 / 2 * ‖  (∫ x in a..(a + π / n), exp (I * n * x) * ϕ x)
-                 + (∫ x in (a + π / n)..b, exp (I * n * x) * ϕ x)
-                 -((∫ x in (a + π / n)..(b - π / n + π / n), exp (I * n * x) * ϕ (x - π / n))
-                 + (∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * ϕ x))‖ := by
+    _ = 1 / 2 * ‖  (∫ x in a..(a + π / n), exp (I * n * x) * φ x)
+                 + (∫ x in (a + π / n)..b, exp (I * n * x) * φ x)
+                 -((∫ x in (a + π / n)..(b - π / n + π / n), exp (I * n * x) * φ (x - π / n))
+                 + (∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * φ x))‖ := by
       congr 4
       rw [← intervalIntegral.integral_comp_add_right]
       simp
-    _ = 1 / 2 * ‖  (∫ x in a..(a + π / n), exp (I * n * x) * ϕ x)
-                 +((∫ x in (a + π / n)..b, exp (I * n * x) * ϕ x)
-                 - (∫ x in (a + π / n)..b, exp (I * n * x) * ϕ (x - π / n)))
-                 - (∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * ϕ x)‖ := by
+    _ = 1 / 2 * ‖  (∫ x in a..(a + π / n), exp (I * n * x) * φ x)
+                 +((∫ x in (a + π / n)..b, exp (I * n * x) * φ x)
+                 - (∫ x in (a + π / n)..b, exp (I * n * x) * φ (x - π / n)))
+                 - (∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * φ x)‖ := by
       congr 2
       rw [sub_add_cancel]
       ring
-    _ = 1 / 2 * ‖  (∫ x in a..(a + π / n), exp (I * n * x) * ϕ x)
-                 + (∫ x in (a + π / n)..b, exp (I * n * x) * (ϕ x - ϕ (x - π / n)))
-                 - (∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * ϕ x)‖ := by
+    _ = 1 / 2 * ‖  (∫ x in a..(a + π / n), exp (I * n * x) * φ x)
+                 + (∫ x in (a + π / n)..b, exp (I * n * x) * (φ x - φ (x - π / n)))
+                 - (∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * φ x)‖ := by
       congr 4
       rw [← intervalIntegral.integral_sub]
       · congr
@@ -196,23 +196,23 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         ring
       · exact intervalIntegrable_continuous_mul_lipschitzOnWith (by linarith) (by fun_prop)
           (h1.mono (Ioo_subset_Ioo (by linarith) le_rfl))
-      · have : IntervalIntegrable (fun x ↦ cexp (I * ↑n * (x + π / n)) * ϕ x)
+      · have : IntervalIntegrable (fun x ↦ cexp (I * ↑n * (x + π / n)) * φ x)
             volume a (b - π / n) := intervalIntegrable_continuous_mul_lipschitzOnWith
           (by linarith) (by fun_prop) (h1.mono (Ioo_subset_Ioo le_rfl (by linarith)))
         simpa using this.comp_sub_right (π / n)
-    _ ≤ 1 / 2 * (  ‖(∫ x in a..(a + π / n), exp (I * n * x) * ϕ x)
-                 +  (∫ x in (a + π / n)..b, exp (I * n * x) * (ϕ x - ϕ (x - π / n)))‖
-                 + ‖∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * ϕ x‖) := by
+    _ ≤ 1 / 2 * (  ‖(∫ x in a..(a + π / n), exp (I * n * x) * φ x)
+                 +  (∫ x in (a + π / n)..b, exp (I * n * x) * (φ x - φ (x - π / n)))‖
+                 + ‖∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * φ x‖) := by
       gcongr
       exact norm_sub_le ..
-    _ ≤ 1 / 2 * (  ‖(∫ x in a..(a + π / n), exp (I * n * x) * ϕ x)‖
-                 + ‖(∫ x in (a + π / n)..b, exp (I * n * x) * (ϕ x - ϕ (x - π / n)))‖
-                 + ‖∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * ϕ x‖) := by
+    _ ≤ 1 / 2 * (  ‖(∫ x in a..(a + π / n), exp (I * n * x) * φ x)‖
+                 + ‖(∫ x in (a + π / n)..b, exp (I * n * x) * (φ x - φ (x - π / n)))‖
+                 + ‖∫ x in (b - π / n)..b, exp (I * n * (x + π / n)) * φ x‖) := by
       gcongr
       exact norm_add_le ..
-    _ = 1 / 2 * (  ‖∫ x in Ioo a (a + π / n), exp (I * n * x) * ϕ x‖
-                 + ‖∫ x in Ioo (a + π / n) b, exp (I * n * x) * (ϕ x - ϕ (x - π / n))‖
-                 + ‖∫ x in Ioo (b - π / n) b, exp (I * n * (x + π / n)) * ϕ x‖) := by
+    _ = 1 / 2 * (  ‖∫ x in Ioo a (a + π / n), exp (I * n * x) * φ x‖
+                 + ‖∫ x in Ioo (a + π / n) b, exp (I * n * x) * (φ x - φ (x - π / n))‖
+                 + ‖∫ x in Ioo (b - π / n) b, exp (I * n * (x + π / n)) * φ x‖) := by
       congr
       all_goals
         rw [intervalIntegral.integral_of_le, ← integral_Ioc_eq_integral_Ioo]
@@ -235,7 +235,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           apply le_trans (h1.dist_le_mul ..)
           · simp only [dist_self_sub_right, norm_div, Real.norm_eq_abs]
             rw [_root_.abs_of_nonneg Real.pi_pos.le, _root_.abs_of_nonneg
-              (by simp only [Int.cast_nonneg]; linarith [n_pos])]
+              (by simp only [Int.cast_nonneg_iff]; linarith [n_pos])]
             apply le_of_eq
             ring
           · exact ⟨by linarith [hx.1, hx.2], by linarith [hx.1, hx.2]⟩
