@@ -590,7 +590,7 @@ lemma support_sigma_finite_from_MemLp
       toReal_nonneg, implies_true, and_true, mem_setOf_eq]
     constructor
     · contrapose
-      simp [not_not, Classical.not_imp, not_le, toReal_pos hp' hp]
+      simp [Classical.not_imp, not_le, toReal_pos hp' hp]
     · intro h h'
       contradiction
   rw [← this]

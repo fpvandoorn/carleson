@@ -761,7 +761,6 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         intro h
         obtain ⟨v, hv, hv'⟩ := hx_notMem_i3_u h
         exact hx_mem_i2_and.right v (hv.trans hu) hv'
-
       rw [I2, dif_neg hk_not_neg_s] at hx_mem_i2
       simp only [mem_preimage, mem_iUnion, exists_prop] at hx_mem_i2
       obtain ⟨u, hu, hxu⟩ := hx_mem_i2

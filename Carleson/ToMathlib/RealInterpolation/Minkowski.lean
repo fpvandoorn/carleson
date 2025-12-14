@@ -928,7 +928,6 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
           rw [ENNReal.div_rpow_of_nonneg, div_eq_mul_inv] <;> try positivity
           ring
         · exact (sub_neg.mpr (toReal_strict_mono hp hp₀p)).ne
-
       _ = _ := by
         nth_rw 2 [← one_mul (t ^ p₀.toReal)]
         rw [hdeq, ENNReal.rpow_inv_rpow, ENNReal.mul_inv_cancel (by positivity) term_ne_top]
