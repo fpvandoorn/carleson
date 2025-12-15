@@ -445,7 +445,7 @@ theorem RCLike.enorm_ofReal
   simp
 
 --TODO: move / generalize or find existing version
-theorem add_induction {β γ} [DecidableEq α] [AddCommMonoid β] [AddCommMonoid γ]
+theorem add_induction {β γ} [AddCommMonoid β] [AddCommMonoid γ]
   {g : α → β} {f : β → γ} {motive : γ → γ → Prop}
   (motive_trans : IsTrans γ motive)
   (motive_add_left : ∀ {x y z : γ}, motive y z → motive (x + y) (x + z))
@@ -453,6 +453,7 @@ theorem add_induction {β γ} [DecidableEq α] [AddCommMonoid β] [AddCommMonoid
   (add : ∀ {x y : β}, motive (f (x + y)) (f x + f y))
   {s : Finset α} :
     motive (f (∑ x ∈ s, g x)) (∑ x ∈ s, f (g x)) := by
+  classical
   induction s using Finset.induction_on with
   | empty =>
     simpa only [Finset.sum_empty]
@@ -464,7 +465,7 @@ theorem add_induction {β γ} [DecidableEq α] [AddCommMonoid β] [AddCommMonoid
 
 
 --TODO: move / generalize or find existing version
-theorem vector_valued_induction {β γ} [DecidableEq α] [AddCommMonoid β] [AddCommMonoid γ]
+theorem vector_valued_induction {β γ} [AddCommMonoid β] [AddCommMonoid γ]
   {M : Type*} [AddCommMonoid M] [Module ℝ M]
   {Q : (α → M) → Prop} {motive : ℕ → (α → M) → Prop}
   {f : α → M} (hf : Q f)
@@ -656,7 +657,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
           classical
           apply add_induction (f := fun h ↦ eLpNorm (T h) 1 (ν.restrict G)) --(motive := T_subadditive measurable_G G_finite)
           · exact instIsTransLe
-          · exact fun {x y z} a ↦ add_le_add_left a x
+          · exact fun {x y z} a ↦ add_le_add_right a x
           · sorry
           · --apply T_subadditive measurable_G G_finite
             sorry
