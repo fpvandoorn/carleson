@@ -111,7 +111,6 @@ theorem eLpNorm_const_smul' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0�
 
 theorem eLpNorm_top_smul {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
   {μ : Measure α} {f : α → ℝ≥0∞} (hf : AEStronglyMeasurable f μ) : eLpNorm (∞ • f) p μ = ⊤ * eLpNorm f p μ := by
-  --extract_goal
   by_cases hp : p = 0
   · simp [hp]
   by_cases h : f =ᶠ[ae μ] 0
