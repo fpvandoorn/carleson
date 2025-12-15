@@ -25,7 +25,6 @@ protected theorem IntegrableAtFilter.congr {μ : Measure α} [TopologicalSpace �
     IntegrableAtFilter g l μ :=
   Exists.casesOn hf fun s hs ↦ ⟨s, hs.1, hs.2.congr h.restrict⟩
 
-
 end MeasureTheory
 
 
