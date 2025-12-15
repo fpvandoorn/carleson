@@ -110,5 +110,4 @@ lemma lintegral_set_mono_fn {α : Type*} {m : MeasurableSpace α} {μ : Measure 
     exact hfg x hxs
   · rfl
 
-
 end MeasureTheory
