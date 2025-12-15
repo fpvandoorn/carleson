@@ -598,8 +598,7 @@ lemma distribution_zero' [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α
 lemma distribution_zero [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   apply distribution_zero'
-  unfold Filter.EventuallyEq
-  simpa only [comp_apply, Pi.zero_apply, enorm_eq_zero]
+  simpa only [Filter.EventuallyEq, comp_apply, Pi.zero_apply, enorm_eq_zero]
 
 lemma distribution_indicator_const [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
     distribution (s.indicator (Function.const α a)) t μ = (Set.Iio ‖a‖ₑ).indicator (fun _ ↦ μ s) t := by
