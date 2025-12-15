@@ -15,8 +15,7 @@ def Lorentz {α ε : Type*} (p q : ℝ≥0∞) {m0 : MeasurableSpace α} (μ : M
   zero_mem' := by
     simp only [Set.mem_setOf_eq]
     use aestronglyMeasurable_zero
-    have : 0 < (⊤ : ℝ≥0∞) := trivial
-    convert this
+    convert ENNReal.zero_lt_top
     simp
   add_mem' := by
     intro f g hf hg
