@@ -743,7 +743,6 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     apply add_le_add (cotlar_estimate ha hT hg ?hrR) (by rfl)
     case hrR => rw [mem_Ioc]; exact ⟨hr, hR.le⟩
   unfold pointwise
-
   have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) zero_lt_one one_lt_two
   norm_cast at hst_gmf
   have hst_gmf_g := hst_gmf g (hg.memLp 2)

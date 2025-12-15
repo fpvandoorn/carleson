@@ -350,7 +350,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   refine (lintegral_indicator_const_le _ _).trans ?_
   rw [Measure.restrict_apply' coeGrid_measurable, Measure.restrict_apply_univ,
     Set.inter_eq_left.mpr (fun x hx ↦ hx.1)]
-  refine ((ENNReal.mul_le_mul_left (by simp) (ne_of_beq_false rfl).symm).mpr vsupp).trans ?_
+  refine ((ENNReal.mul_le_mul_iff_right (by simp) (ne_of_beq_false rfl).symm).mpr vsupp).trans ?_
   rw [← mul_assoc, ENNReal.ofReal, ← ENNReal.coe_natCast, ← ENNReal.coe_pow, ← ENNReal.coe_mul]
   gcongr
   rw [Real.toNNReal_mul (by positivity), Real.toNNReal_rpow_of_nonneg (by positivity),
@@ -532,16 +532,16 @@ lemma btp_integral_bound :
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
         ⨍⁻ y in ball (c I) (8 * D ^ s I), ‖f y‖ₑ ∂volume := by
       gcongr with y; rw [setLAverage_eq, ENNReal.div_eq_inv_mul]
-      refine mul_le_mul_left' (lintegral_mono_set (iUnion₂_subset fun p mp ↦ ?_)) _
+      refine mul_le_mul_right (lintegral_mono_set (iUnion₂_subset fun p mp ↦ ?_)) _
       rw [Finset.mem_filter] at mp
       convert (E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball _)
       · exact mp.2.2.symm
       · change (4 : ℝ) * D ^ s (𝓘 p) ≤ _
         rw [mp.2.2]; gcongr; norm_num
     _ ≤ _ := by
-      refine mul_le_mul_left' (lintegral_mono fun y ↦ ?_) _
+      refine mul_le_mul_right (lintegral_mono fun y ↦ ?_) _
       by_cases my : y ∈ ball (c I) (8 * D ^ s I)
-      · refine mul_le_mul_left' ?_ _; rw [MB_def]
+      · refine mul_le_mul_right ?_ _; rw [MB_def]
         have : (3, 0, I) ∈ 𝓑 := by simp [𝓑]
         refine le_of_eq_of_le ?_ (le_biSup _ this)
         have : y ∈ ball (c I) (2 ^ 3 * (D : ℝ) ^ s I) := by rwa [show (2 : ℝ) ^ 3 = 8 by norm_num]
@@ -761,7 +761,7 @@ lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume :=
-  (e764_postCS hu₁ hu₂ hu h2u hf).trans (mul_le_mul_right' btp_constant_bound _)
+  (e764_postCS hu₁ hu₂ hu h2u hf).trans (mul_le_mul_left btp_constant_bound _)
 
 lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
     approxOnCube (𝓙 (t u₁))
