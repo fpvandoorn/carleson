@@ -32,8 +32,7 @@ theorem coe_lt_iff_lt_toNNReal {a : ℝ≥0∞} {t : ℝ≥0} (ha : a ≠ ⊤) :
   rw [← ENNReal.toNNReal_coe t, ENNReal.toNNReal_lt_toNNReal ENNReal.coe_ne_top ha]
   simp only [ENNReal.toNNReal_coe]
 
-theorem le_mul_top_self {x : ℝ≥0∞} :
-  x ≤ ⊤ * x := by
+theorem le_mul_top_self {x : ℝ≥0∞} : x ≤ ⊤ * x := by
   nth_rw 1 [← one_mul x]
   gcongr
   exact OrderTop.le_top 1

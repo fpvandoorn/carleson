@@ -4,7 +4,7 @@ import Mathlib.MeasureTheory.Function.AEEqOfLIntegral
 
 namespace MeasureTheory
 
---TODO: generalize this?
+--TODO: generalize this to other measures and density functions?
 lemma aeMeasurable_withDensity_inv {f : NNReal → ENNReal} (hf : AEMeasurable f) :
     AEMeasurable f (volume.withDensity (fun t ↦ t⁻¹)) := by
   have : AEMeasurable f (volume.withDensity (fun t ↦ ENNReal.ofNNReal t⁻¹)) := by

@@ -182,7 +182,7 @@ lemma NNReal.volume_Ioo {a b : ℝ≥0} : volume (Set.Ioo a b) = b - a:= by
   simp only [val_eq_coe]
   rw [toReal_Ioo_eq_Ioo, Real.volume_Ioo, ENNReal.ofReal_sub] <;> simp
 
--- TODO: the proofs in the next four lemmas feel quite repetitive
+-- TODO: the proofs in the following lemmas feel quite repetitive
 -- extract helper lemma to re-use some of the argument!
 
 -- TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
