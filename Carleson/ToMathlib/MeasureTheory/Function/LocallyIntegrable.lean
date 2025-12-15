@@ -10,7 +10,6 @@ theorem LocallyIntegrable.norm {X : Type*} {E : Type*} [MeasurableSpace X]
   (hf : LocallyIntegrable f μ) :
     LocallyIntegrable (fun x ↦ ‖f x‖) μ := fun x ↦ (hf x).norm
 
-
 variable {X Y ε ε' ε'' E F R : Type*} [MeasurableSpace X] [TopologicalSpace X]
 variable [MeasurableSpace Y] [TopologicalSpace Y]
 variable [TopologicalSpace ε] [ContinuousENorm ε] [TopologicalSpace ε'] [ContinuousENorm ε']
