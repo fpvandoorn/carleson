@@ -102,9 +102,9 @@ lemma dist_triangle5 (a b c d e : X) :
     dist a e ≤ dist a b + dist b c + dist c d + dist d e :=
   calc
     dist a e ≤ dist a d + dist d e := dist_triangle a d e
-    _ ≤ (dist a c + dist c d) + dist d e := add_le_add_right (dist_triangle a c d) _
+    _ ≤ (dist a c + dist c d) + dist d e := add_le_add_left (dist_triangle a c d) _
     _ ≤ (dist a b + dist b c + dist c d) + dist d e :=
-      add_le_add_right (add_le_add_right (dist_triangle a b c) _) _
+      add_le_add_left (add_le_add_left (dist_triangle a b c) _) _
 
 lemma 𝓘_subset_iUnion_𝓙_𝔖₀ : (𝓘 u₁ : Set X) ⊆ ⋃ J ∈ 𝓙 (t.𝔖₀ u₁ u₂), (J : Set X) := by
   rw [biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)]
@@ -209,7 +209,7 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
   use p, mp, sp.trans (ball_subset_ball' ?_)
   calc
     _ ≤ 100 * D ^ (s J' + 1 + 1) + (dist (c J'') (c J') + dist (c J) (c J')) :=
-      add_le_add_left (dist_triangle_right ..) _
+      add_le_add_right (dist_triangle_right ..) _
     _ ≤ 100 * D ^ (s J' + 1 + 1) + (4 * D ^ s J'' + 8 * D ^ s J + 8 * D ^ s J') := by
       rw [add_assoc (4 * _)]; gcongr
       · exact (mem_ball'.mp (Grid_subset_ball (lJ''.1 Grid.c_mem_Grid))).le
@@ -367,7 +367,7 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
             gcongr; norm_num
   have vpos : 0 < volume (ball (c J) (9 * D ^ (s J + 1))) := by
     apply measure_ball_pos volume; unfold defaultD; positivity
-  rw [ENNReal.mul_le_mul_right vpos.ne' measure_ball_lt_top.ne] at dbl
+  rw [ENNReal.mul_le_mul_iff_left vpos.ne' measure_ball_lt_top.ne] at dbl
   exact_mod_cast dbl
 
 /-- Part of Lemma 7.5.2. -/
@@ -568,7 +568,7 @@ lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
   have h2f := hf.memLp_top.ae_norm_le
   set B := eLpNorm f ∞ volume |>.toReal
   refine Integrable.const_mul ?_ _; simp_rw [mul_rotate]
-  refine Integrable.bdd_mul' (c := B) ?_ ?_ ?_
+  refine Integrable.bdd_mul (c := B) ?_ ?_ ?_
   · have bep : IsBounded (E p) := by
       rw [isBounded_iff_subset_ball (𝔠 p)]; use 4 * D ^ 𝔰 p
       exact E_subset_𝓘.trans Grid_subset_ball
@@ -765,7 +765,7 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
           (D2_1_3 a / volume (ball y (D ^ 𝔰 p)) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹) := by
       refine add_le_add (setLIntegral_mono' measurableSet_E fun y my ↦ ?_)
         (lintegral_mono fun _ ↦ ?_)
-      · exact mul_le_mul' (mul_le_mul_left' enorm_Ks_le _) (QQQQ_bound my hu hp hx hx')
+      · exact mul_le_mul' (mul_le_mul_right enorm_Ks_le _) (QQQQ_bound my hu hp hx hx')
       · gcongr; exact enorm_Ks_sub_Ks_le
     _ = (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
         ∫⁻ y in E p, ‖f y‖ₑ / volume (ball y (D ^ 𝔰 p)) := by
@@ -787,7 +787,7 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
       rw [← mul_rotate, mul_comm _ (D2_1_3 a : ℝ≥0∞), ← add_mul]
     _ ≤ (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
         ∫⁻ y in E p, ‖f y‖ₑ / (volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a)) := by
-      refine mul_le_mul_left' (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
+      refine mul_le_mul_right (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
       exact ENNReal.div_le_div_left (volume_xDsp_bound (E_subset_𝓘 my)) _
     _ = 2 ^ (3 * a) * (C2_1_3 a * Q7_5_5 a + D2_1_3 a) / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
         (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * ∫⁻ y in E p, ‖f y‖ₑ := by
@@ -1182,8 +1182,8 @@ lemma volume_cpDsp_bound {J : Grid X}
         gcongr; exact one_le_realD a
       _ ≤ _ := by rw [← add_mul, ← add_mul, ← mul_assoc]; gcongr; norm_num
   convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
-  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
-  rw [show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow _ _ one_lt_two]
+  unfold As defaultA; norm_cast
+  rw [← pow_mul', show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow _ _ one_lt_two]
 
 open scoped Classical in
 lemma gtc_integral_bound {k : ℤ} {ℭ : Set (𝔓 X)}
@@ -1389,7 +1389,7 @@ lemma one_le_C7_5_9s : 1 ≤ C7_5_9s a := by
 
 lemma C7_5_9d_le_C7_5_9s : C7_5_9d a ≤ C7_5_9s a := by
   simp only [C7_5_9d, C7_5_9s]
-  exact mul_le_mul_left' (pow_le_pow_right' one_le_two (add_le_add_left NeZero.one_le _)) _
+  exact mul_le_mul_right (pow_le_pow_right' one_le_two (add_le_add_right NeZero.one_le _)) _
 
 /-- Equation (7.5.17) of Lemma 7.5.9. -/
 lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -1418,11 +1418,11 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
         ‖adjointCarlesonSum ℭ f x'‖ₑ + (ε / 2 : ℝ≥0) := by
       rw [add_comm]; exact tsub_tsub_le_tsub_add
     _ ≤ (ε / 2 : ℝ≥0) + (‖adjointCarlesonSum ℭ f x‖ₑ - ‖adjointCarlesonSum ℭ f x'‖ₑ) +
-        (ε / 2 : ℝ≥0) := add_le_add_right add_tsub_le_assoc _
+        (ε / 2 : ℝ≥0) := add_le_add_left add_tsub_le_assoc _
     _ = ‖‖adjointCarlesonSum ℭ f x‖ₑ - ‖adjointCarlesonSum ℭ f x'‖ₑ‖ₑ + ε := by
       rw [add_rotate, add_assoc]; simp
     _ ≤ (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x) + ε := by
-      refine add_le_add_right ?_ _
+      refine add_le_add_left ?_ _
       replace hx' : x' ∈ ball (c J) (16 * D ^ s J) := by
         exact (ball_subset_ball (by gcongr; norm_num)) hx'
       rcases hℭ with rfl | rfl

@@ -422,7 +422,7 @@ private lemma L7_1_4_integrand_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u
       (2 ^ ((𝕔 + 3) * a ^ 3) / volume (ball x (D ^ s))) * ‖f y‖ₑ := by
   by_cases hKxy : Ks s x y = 0
   · rw [hKxy, mul_zero, zero_mul, enorm_zero]; positivity
-  · rw [enorm_mul, enorm_mul]; refine mul_le_mul_right' ?_ _
+  · rw [enorm_mul, enorm_mul]; refine mul_le_mul_left ?_ _
     apply mul_le_mul' (L7_1_4_bound hu hs hKxy) enorm_Ks_le |>.trans
     rw [mul_assoc 5, mul_comm (2 ^ (4 * a)), ← mul_assoc, mul_assoc, mul_div, C2_1_3]
     gcongr; norm_cast; rw [← pow_add]
@@ -599,7 +599,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       (5 * 2 ^ ((𝕔 + 4) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 g x') * 2 ^ (s - t.σMax u x hσ) by
     apply ((t.σ u x).sum_le_sum this).trans
     rw [← Finset.mul_sum]
-    apply le_trans <| mul_le_mul_left' (L7_1_4_sum hσ) _
+    apply le_trans <| mul_le_mul_right (L7_1_4_sum hσ) _
     rw [mul_comm _ 2, ← mul_assoc, ← mul_assoc, C7_1_4]
     gcongr; norm_num
   intro s hs
@@ -627,7 +627,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     apply ball_subset_ball'
     calc
       _ ≤ (16 : ℝ) * D ^ s + 4 * D ^ 𝔰 pₛ :=
-        add_le_add_left (mem_ball'.mp (Grid_subset_ball xpₛ.1)).le _
+        add_le_add_right (mem_ball'.mp (Grid_subset_ball xpₛ.1)).le _
       _ = 16 * D ^ s + 4 * D ^ s := by nth_rw 3 [← hpₛ]
       _ ≤ _ := by linarith only [defaultD_pow_pos a s]
   calc
@@ -677,7 +677,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
       _ ≤ dist_{𝔠 p, 8 * D ^ 𝔰 p'} (𝒬 u) (Q x) := by
         refine cdist_mono (ball_subset_ball' ?_); rw [← sp']
         calc
-          _ ≤ (D : ℝ) ^ 𝔰 p' + 4 * D ^ 𝔰 p' := add_le_add_left i1.le _
+          _ ≤ (D : ℝ) ^ 𝔰 p' + 4 * D ^ 𝔰 p' := add_le_add_right i1.le _
           _ = 5 * D ^ 𝔰 p' := by ring
           _ ≤ _ := by gcongr; norm_num
       _ ≤ defaultA a * dist_{𝔠 p', 4 * D ^ 𝔰 p'} (𝒬 u) (Q x) := by
@@ -812,7 +812,7 @@ private lemma L7_1_6_integral_le {J : Grid X} (hJ : J ∈ 𝓙 (t u)) {i : ℤ}
     simp_rw [h, Pi.smul_apply, smul_eq_mul]
     rw [lintegral_const_mul'' _ hf.aestronglyMeasurable.enorm.restrict, mul_assoc])
   simp_rw [g, h, enorm_mul, Pi.smul_apply, smul_eq_mul]
-  refine mul_le_mul_right' ?_ _
+  refine mul_le_mul_left ?_ _
   have ⟨z₀, z₀J, hz₀⟩ : ∃ z₀ ∈ (J : Set X),
       ⨍⁻ z in J, ‖Ks i x y - Ks i x z‖ₑ ∂volume ≤ ‖Ks i x y - Ks i x z₀‖ₑ := by
     apply exists_setLAverage_le (volume_coeGrid_pos (defaultD_pos a)).ne.symm
@@ -912,7 +912,7 @@ lemma le_C7_1_6 (a4 : 4 ≤ a) :
     Nat.cast_ofNat, ← pow_mul, ← pow_add]
   calc
     _ ≤ (2 : ℝ≥0∞) ^ ((𝕔 + 2 + 𝕔 / 4) * a ^ 3 + a * 5) * 2 := by
-      refine mul_le_mul_left' ?_ _
+      refine mul_le_mul_right ?_ _
       conv_rhs => rw [← ENNReal.rpow_one 2]
       refine ENNReal.rpow_le_rpow_of_exponent_le one_le_two ?_
       rw [div_le_one (by norm_cast; cutsat)]; norm_cast; cutsat
@@ -964,7 +964,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       refine Finset.sum_le_sum fun I _ ↦ Finset.sum_le_sum fun p hp ↦ ?_
       by_cases xEp : x ∈ E p; swap
       · simp only [indicator_of_notMem xEp, zero_mul, le_refl]
-      apply mul_le_mul_left'
+      apply mul_le_mul_right
       gcongr; apply ENNReal.div_le_of_le_mul'
       calc
         _ ≤ volume (ball x (32 * D ^ s I)) := by
@@ -1077,7 +1077,7 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
     -- Separate the LHS into three pieces
     rw [this, Finset.sum_add_distrib, Finset.sum_add_distrib]
     apply le_trans <| ENNReal.coe_strictMono.monotone <| (nnnorm_add_le _ _).trans
-      (add_le_add_right (nnnorm_add_le _ _) _)
+      (add_le_add_left (nnnorm_add_le _ _) _)
     rw [ENNReal.coe_add, ENNReal.coe_add, mul_add]
     -- Apply Lemmas 7.1.4, 7.1.5, and 7.1.6
     simp_rw [← mul_comm (Ks _ x _)]
@@ -1089,20 +1089,20 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
       exact (third_tree_pointwise hu hL hx hx' hf).trans <| mul_left_mono (by exact_mod_cast h)
   -- In order to split the integral, we will first need some trivial integrability results
   have h1 {i : ℤ} : Integrable (fun y ↦ approxOnCube (𝓙 (t.𝔗 u)) f y * Ks i x y) := by
+    classical
     apply (integrable_Ks_x <| one_lt_realD (K := K)).bdd_mul
+      (c := ∑ J with J ∈ 𝓙 (t u), ‖⨍ y in J, f y‖)
     · exact (stronglyMeasurable_approxOnCube _ _).aestronglyMeasurable
-    · classical
-      use ∑ J with J ∈ 𝓙 (t u), ‖⨍ y in J, f y‖
-      refine fun x ↦ (norm_sum_le _ _).trans <| Finset.sum_le_sum (fun J hJ ↦ ?_)
+    · refine ae_of_all _ fun x ↦ (norm_sum_le _ _).trans <| Finset.sum_le_sum (fun J hJ ↦ ?_)
       by_cases h : x ∈ (J : Set X) <;> simp [h]
-  have : ∃ C, ∀ (y : X), ‖cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ ≤ C := by
-    refine ⟨2, fun y ↦ le_of_le_of_eq (norm_sub_le _ _) ?_⟩
+  have : ∀ (y : X), ‖cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ ≤ 2 := by
+    refine fun y ↦ le_of_le_of_eq (norm_sub_le _ _) ?_
     norm_cast
     rw [mul_comm, norm_exp_ofReal_mul_I, one_add_one_eq_two]
   have h2 {i : ℤ} : Integrable
       (fun y ↦ f y * ((cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y)) :=
-    hf.integrable_mul <| (integrable_Ks_x <| one_lt_realD (K := K)).bdd_mul
-      (Measurable.aestronglyMeasurable (by fun_prop)) this
+    hf.integrable_mul <| (integrable_Ks_x <| one_lt_realD (K := K)).bdd_mul (c := 2)
+      (Measurable.aestronglyMeasurable (by fun_prop)) (ae_of_all _ this)
   have h3 {i : ℤ} : Integrable (fun y ↦ (f y - approxOnCube (𝓙 (t.𝔗 u)) f y) * Ks i x y) := by
     simp_rw [sub_mul]
     exact hf.integrable_mul (integrable_Ks_x <| one_lt_realD (K := K)) |>.sub h1

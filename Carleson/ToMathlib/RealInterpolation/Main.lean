@@ -590,11 +590,10 @@ lemma support_sigma_finite_from_MemLp
       toReal_nonneg, implies_true, and_true, mem_setOf_eq]
     constructor
     · contrapose
-      simp [not_not, Classical.not_imp, not_le, toReal_pos hp' hp]
+      simp [Classical.not_imp, not_le, toReal_pos hp' hp]
     · intro h h'
       contradiction
   rw [← this]
-
   apply support_sigma_finite_of_lintegrable
   · exact hf.1.enorm.pow_const _
   · unfold g
@@ -704,7 +703,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
       (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal *
       ((spf.d ^ (q.toReal - q₀.toReal)) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ *
         (((eLpNorm f p μ) ^ p.toReal) ^ ((sel ⊥ p₀ p₁).toReal ⁻¹ * (sel ⊥ q₀ q₁).toReal))))) := by
-      apply mul_le_mul_left'
+      apply mul_le_mul_right
       apply add_le_add
       · split_ifs with is_q₁top
         · gcongr
@@ -1057,7 +1056,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
         ENNReal.ofReal (t ^ (q.toReal - 1))) * if q₁ = ⊤ then 0 else 1)) ^
         q.toReal⁻¹ := by
       apply ENNReal.rpow_le_rpow <;> try positivity
-      apply mul_le_mul_left'
+      apply mul_le_mul_right
       apply add_le_add
       · split_ifs with is_q₀top
         · contrapose! is_q₀top; exact hq₀q₁.ne_top

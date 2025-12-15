@@ -102,7 +102,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     · refine le_trans (b := (min (f x) ↑n) * min (f x) ↑n ^ (p - 1)) ?_ ?_
       · nth_rewrite 1 [← add_sub_cancel 1 p]
         rw [rpow_add_of_pos, ENNReal.rpow_one] <;> try linarith
-      · exact mul_le_mul_right' (min_le_left (f x) ↑n) (min (f x) ↑n ^ (p - 1))
+      · exact mul_le_mul_left (min_le_left (f x) ↑n) (min (f x) ↑n ^ (p - 1))
     · rw [ENNReal.zero_rpow_of_pos] <;> positivity
   have g_lim : ∀ x : α, Filter.Tendsto (fun n ↦ g n x) Filter.atTop (nhds (f x)) := by
     intro x
@@ -928,7 +928,6 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
           rw [ENNReal.div_rpow_of_nonneg, div_eq_mul_inv] <;> try positivity
           ring
         · exact (sub_neg.mpr (toReal_strict_mono hp hp₀p)).ne
-
       _ = _ := by
         nth_rw 2 [← one_mul (t ^ p₀.toReal)]
         rw [hdeq, ENNReal.rpow_inv_rpow, ENNReal.mul_inv_cancel (by positivity) term_ne_top]

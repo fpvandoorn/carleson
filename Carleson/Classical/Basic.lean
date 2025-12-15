@@ -20,7 +20,6 @@ theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : 
   apply integral_congr_ae
   change @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * f =ᶠ[ae haarAddCircle] @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * g
   have fourier_measurable : AEStronglyMeasurable (⇑(@fourier T (-n))) haarAddCircle := (ContinuousMap.measurable _).aestronglyMeasurable
-
   rw [← AEEqFun.mk_eq_mk (hf := fourier_measurable.mul hf) (hg := fourier_measurable.mul hg),
       ← AEEqFun.mk_mul_mk _ _ fourier_measurable hf, ← AEEqFun.mk_mul_mk _ _ fourier_measurable hg]
   congr 1
@@ -37,7 +36,7 @@ lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N :
   ext x
   unfold partialFourierSum partialFourierSum' liftIoc
   simp only [
-    Function.comp_apply, Set.restrict_apply, Int.ofNat_eq_coe, ContinuousMap.coe_sum,
+    Function.comp_apply, Set.restrict_apply, Int.ofNat_eq_natCast, ContinuousMap.coe_sum,
     ContinuousMap.coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
   congr
   ext n

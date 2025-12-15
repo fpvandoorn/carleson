@@ -702,7 +702,7 @@ lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : 0 < t) (htγ : 
   rw [mul_comm]
   have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
   rw [Real.rpow_sub γ_pos]
-  refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-b) )) ?_ coe_ne_top).mp ?_
+  refine (ENNReal.mul_le_mul_iff_right (a := ENNReal.ofReal (γ ^ (-b) )) ?_ coe_ne_top).mp ?_
   · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos γ_pos (-b))).ne'
   · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
         Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
@@ -730,7 +730,7 @@ lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : 0 < γ) (htγ 
   rw [mul_comm]
   have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
   rw [Real.rpow_sub hγ]
-  refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
+  refine (ENNReal.mul_le_mul_iff_right (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
   · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne'
   · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
         Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
@@ -942,7 +942,6 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
   by_cases hp0 : p = 0
   · rw [hp0, memLp_zero_iff_aestronglyMeasurable]
     exact aestronglyMeasurable_trnc hf_m
-
   /- TODO: We currently need this annoying extra step because
     we do not have `MeasurableSet {a | t < ‖f a‖ₑ}` in general
     (since f is only aestronglymeasurable).

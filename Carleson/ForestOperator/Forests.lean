@@ -875,7 +875,7 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
     · simp [he]
     · have nt : eLpNorm IGTf 2 ≠ ⊤ := (bIGTf.memLp _).eLpNorm_ne_top
       rwa [mul_assoc _ (eLpNorm IGTf 2 volume), mul_comm (eLpNorm IGTf 2 volume), ← mul_assoc, sq,
-        ENNReal.mul_le_mul_right he nt] at this
+        ENNReal.mul_le_mul_iff_left he nt] at this
   calc
     _ = ‖∫ x, conj (IGTf x) * carlesonRowSum t j f x‖ₑ := by
       rw [eLpNorm_two_eq_enorm_integral_mul_conj (bIGTf.memLp _)]; congr! 3 with x

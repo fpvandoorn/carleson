@@ -31,7 +31,7 @@ lemma exists_mem_aux𝓒 {i : Grid X} (hi : 0 < volume (G ∩ i)) : ∃ k, i ∈
     ENNReal.toReal_pos (zero_lt_one.trans_le one_le_quot).ne' quot_ne_top
   let k : ℝ := Real.logb 2 (volume (i : Set X) / volume (G ∩ i)).toReal
   use ⌊k⌋₊, i, le_rfl
-  nth_rw 1 [← ENNReal.mul_lt_mul_left (show 2 ^ (⌊k⌋₊ + 1) ≠ 0 by simp) (by simp), ← mul_assoc,
+  nth_rw 1 [← ENNReal.mul_lt_mul_iff_right (show 2 ^ (⌊k⌋₊ + 1) ≠ 0 by simp) (by simp), ← mul_assoc,
     ← ENNReal.rpow_natCast, ← ENNReal.rpow_intCast, ← ENNReal.rpow_add _ _ (by simp) (by simp)]
   rw [Int.cast_neg, Int.cast_natCast, add_neg_cancel, ENNReal.rpow_zero, one_mul,
     ← ENNReal.div_lt_iff (Or.inl hi.ne') (Or.inr vlt.ne), ← ENNReal.ofReal_toReal quot_ne_top,
@@ -66,7 +66,7 @@ lemma dens'_le_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : dens' k {p} ≤ 2 ^
   rw [ENNReal.div_le_iff vpos.ne' volume_coeGrid_lt_top.ne]
   calc
     _ ≤ volume (E₂ l p') := by
-      nth_rw 2 [← one_mul (volume _)]; apply mul_le_mul_right'
+      nth_rw 2 [← one_mul (volume _)]; apply mul_le_mul_left
       rw [show 1 = (l : ℝ≥0∞) ^ (0 : ℤ) by simp]; apply ENNReal.zpow_le_of_le
       · rw [ENNReal.one_le_coe_iff]; exact one_le_two.trans hl
       · linarith [four_le_a X]
@@ -333,7 +333,7 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
     rw [@mem_ball] at mx₁ mx₂
     calc
       _ ≤ 5⁻¹ + (dist_{𝓘 p'} x (𝒬 p'') + dist_{𝓘 p'} x (𝒬 p')) :=
-        add_le_add_left (dist_triangle_left ..) _
+        add_le_add_right (dist_triangle_left ..) _
       _ ≤ 5⁻¹ + (1 + l) := by gcongr; rw [← mp''.1]; exact mx₂.le
       _ = _ := by rw [inv_eq_one_div, ← add_assoc, add_comm _ l.toReal]; norm_num
   have vO : CoveredByBalls (ball_(p') (𝒬 p') (l + 6 / 5)) ⌊2 ^ (4 * a) * l ^ a⌋₊ 5⁻¹ := by
@@ -347,7 +347,7 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
           (Nat.floor_le ?_)
         calc
           _ ≥ 4 + Real.logb 2 2 :=
-            add_le_add_left (Real.logb_le_logb_of_le one_lt_two zero_lt_two hl) _
+            add_le_add_right (Real.logb_le_logb_of_le one_lt_two zero_lt_two hl) _
           _ ≥ _ := by rw [Real.logb_self_eq_one one_lt_two]; norm_num
       _ = _ := by
         rw [Nat.cast_pow, Nat.cast_ofNat, ← Real.rpow_natCast, ← Real.rpow_mul zero_le_two,
@@ -385,7 +385,7 @@ lemma l_upper_bound : l < 2 ^ n := by
   have ql1 : volume (E₂ l p') / volume (𝓘 p' : Set X) ≤ 1 := by
     apply ENNReal.div_le_of_le_mul; rw [one_mul]; exact measure_mono (E₂_subset ..)
   replace qp' := (lt_quotient_rearrange qp').trans_le ql1
-  rw [← ENNReal.mul_lt_mul_right (c := 2 ^ (n : ℤ)) (by simp) (by simp), one_mul, mul_assoc,
+  rw [← ENNReal.mul_lt_mul_iff_left (c := 2 ^ (n : ℤ)) (by simp) (by simp), one_mul, mul_assoc,
     ← ENNReal.zpow_add two_ne_zero ENNReal.ofNat_ne_top, neg_add_cancel, zpow_zero, mul_one,
     show (2 ^ (n : ℤ) : ℝ≥0∞) = (2 ^ (n : ℤ) : ℝ≥0) by simp, ENNReal.coe_lt_coe,
     zpow_natCast] at qp'
@@ -426,7 +426,7 @@ lemma exists_𝔒_with_le_quotient :
       _ ≤ ∑ _ ∈ 𝔒 p' l, (2 : ℝ≥0∞) ^ (-n : ℤ) := Finset.sum_le_sum h
       _ = (𝔒 p' l).card * (2 : ℝ≥0∞) ^ (-n : ℤ) := by rw [Finset.sum_const, nsmul_eq_mul]
       _ ≤ _ := by
-        refine mul_le_mul_right' ?_ _
+        refine mul_le_mul_left ?_ _
         rw [show ((𝔒 p' l).card : ℝ≥0∞) = ((𝔒 p' l).card : ℝ≥0) by simp, ENNReal.coe_le_coe]
         rw [← Nat.cast_le (α := ℝ≥0)] at cO
         exact cO.trans (Nat.floor_le (by positivity))
@@ -466,12 +466,12 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
     calc
       _ ≤ dist_(sl.1) (𝒬 sl.1) (𝒬 p') + dist_(sl.1) (𝒬 p') θ := dist_triangle ..
       _ < l + dist_(sl.1) (𝒬 p') θ := by
-        apply add_lt_add_right
+        apply add_lt_add_left
         have : 𝒬 p' ∈ ball_(p') (𝒬 p') l := by convert mem_ball_self (zero_lt_two.trans_le hl)
         exact mem_ball'.mp (sp'.2 this)
-      _ ≤ l + dist_(p') (𝒬 p') θ := add_le_add_left (Grid.dist_mono sp'.1) _
+      _ ≤ l + dist_(p') (𝒬 p') θ := add_le_add_right (Grid.dist_mono sp'.1) _
       _ ≤ l + dist_(p') (𝒬 p') (𝒬 b) + dist_(p') (𝒬 b) θ := by
-        rw [add_assoc]; apply add_le_add_left; exact dist_triangle ..
+        rw [add_assoc]; apply add_le_add_right; exact dist_triangle ..
       _ ≤ l + (l + 1) + dist_(b) (𝒬 b) θ := by
         gcongr
         · rw [𝔒, Finset.mem_filter] at mb
@@ -485,7 +485,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
               change dist_{𝓘 p'} x (𝒬 b) ≤ 1; rw [𝓘p'b]; exact x₂.le
         · change dist_{𝓘 p'} (𝒬 b) θ ≤ dist_{𝓘 b} (𝒬 b) θ; rw [𝓘p'b]
       _ ≤ l + (l + 1) + (dist_(b) (𝒬 m) (𝒬 b) + dist_(b) (𝒬 m) θ) :=
-        add_le_add_left (dist_triangle_left ..) _
+        add_le_add_right (dist_triangle_left ..) _
       _ ≤ l + (l + 1) + (1 + dist_(m) (𝒬 m) θ) := by
         gcongr
         · exact (dist_𝒬_lt_one_of_le lm).le
@@ -495,8 +495,8 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   calc
     _ ≤ dist_(s₀.1) (𝒬 sl.1) θ + dist_(s₀.1) (𝒬 sl.1) (𝒬 s₀.1) := dist_triangle_left ..
     _ < 1 + dist_(s₀.1) (𝒬 sl.1) θ := by
-      rw [add_comm]; exact add_lt_add_right (dist_𝒬_lt_one_of_le s.head_le_last) _
-    _ ≤ 1 + C2_1_2 a ^ n * dist_(sl.1) (𝒬 sl.1) θ := add_le_add_left (dist_LTSeries hs) _
+      rw [add_comm]; exact add_lt_add_left (dist_𝒬_lt_one_of_le s.head_le_last) _
+    _ ≤ 1 + C2_1_2 a ^ n * dist_(sl.1) (𝒬 sl.1) θ := add_le_add_right (dist_LTSeries hs) _
     _ < 1 + C2_1_2 a ^ n * (2 * l + 3) := by gcongr; rw [C2_1_2]; positivity
     _ ≤ 1 + (1 / 256) ^ n * (2 * 2 ^ n + 3) := by
       gcongr
@@ -854,7 +854,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
   have J : 0 ≤ q⁻¹ - 2⁻¹ := inv_q_sub_half_nonneg X
   apply (antichain_operator_le_volume (hA.subset inter_subset_right) h'f hf diff_subset).trans
   simp only [mul_assoc]
-  apply mul_le_mul_left'
+  apply mul_le_mul_right
   have : dens₁ (𝔓pos (X := X) ∩ 𝔓₁ᶜ ∩ 𝔄) ≤ 2 ^ (4 * a - n + 1 : ℝ) :=
     dens1_le (inter_subset_right.trans h'A)
   have : dens₂ (𝔓pos (X := X) ∩ 𝔓₁ᶜ ∩ 𝔄) ≤ 2 ^ (2 * a + 5) * volume F / volume G := by

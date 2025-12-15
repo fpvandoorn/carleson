@@ -19,7 +19,6 @@ theorem exceptional_set_carleson {f : ℝ → ℂ}
   set ε' := ε / 4 / C_control_approximation_effect ε with ε'def
   have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num))
     (C_control_approximation_effect_pos εpos)
-
   /- Approximate f by a smooth f₀. -/
   have unicont_f : UniformContinuous f := periodic_f.uniformContinuous_of_continuous
     Real.two_pi_pos cont_f.continuousOn
@@ -33,11 +32,9 @@ theorem exceptional_set_carleson {f : ℝ → ℂ}
   have h_bound : ∀ x, ‖h x‖ ≤ ε' := by
     intro x
     simpa only [hdef, Pi.sub_apply, norm_sub_rev] using hf₀ x
-
   /- Control approximation effect: Get a bound on the partial Fourier sums of h. -/
   obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect εpos ε'pos
     h_measurable h_periodic h_bound
-
   /- This is a classical "epsilon third" argument. -/
   use E, Esubset, Emeasurable, Evolume, N₀
   intro x hx N NgtN₀
@@ -45,7 +42,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ}
   _ = ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x) + (S_ N f₀ x - S_ N f x)‖ := by ring_nf
   _ ≤ ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x)‖ + ‖S_ N f₀ x - S_ N f x‖ := norm_add_le ..
   _ ≤ ‖f x - f₀ x‖ + ‖f₀ x - S_ N f₀ x‖ + ‖S_ N f₀ x - S_ N f x‖ :=
-    add_le_add_right (norm_add_le ..) _
+    add_le_add_left (norm_add_le ..) _
   _ ≤ ε' + (ε / 4) + (ε / 4) := by
     gcongr
     · exact hf₀ x
@@ -66,17 +63,14 @@ theorem exceptional_set_carleson {f : ℝ → ℂ}
 theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
     ∀ᵐ x ∂volume.restrict (Set.Icc 0 (2 * π)),
       Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
-
   let δ (k : ℕ) : ℝ := 1 / (k + 1) --arbitrary sequence tending to zero
   have δconv : Filter.Tendsto δ Filter.atTop (nhds 0) := tendsto_one_div_add_atTop_nhds_zero_nat
   have δpos (k : ℕ) : 0 < δ k := by apply div_pos zero_lt_one (by linarith)
-
   -- ENNReal version to be comparable to volumes
   let δ' (k : ℕ) := ENNReal.ofReal (δ k)
   have δ'conv : Filter.Tendsto δ' Filter.atTop (nhds 0) := by
     rw [← ENNReal.ofReal_zero]
     exact ENNReal.tendsto_ofReal δconv
-
   set ε := fun k n ↦ (1 / 2) ^ n * 2⁻¹ * δ k with εdef
   have εpos (k n : ℕ) : 0 < ε k n := by positivity
   have εsmall (k : ℕ) {e : ℝ} (epos : 0 < e) : ∃ n, ε k n < e := by
@@ -91,7 +85,6 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
     use n
     convert (hn n (by simp))
     simp_rw [dist_zero_right, Real.norm_eq_abs, abs_of_nonneg (εpos k n).le]
-
   have δ'_eq {k : ℕ} : δ' k = ∑' n, ENNReal.ofReal (ε k n) := by
     rw [εdef]
     conv => rhs; pattern ENNReal.ofReal _; rw [ENNReal.ofReal_mul' (δpos k).le,
@@ -102,43 +95,35 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
     conv => pattern ENNReal.ofReal _; ring_nf; rw [ENNReal.ofReal_one]
     · rw [one_mul]
     norm_num
-
   -- Main step: Apply exceptional_set_carleson to get a family of exceptional sets parameterized by ε.
   choose Eε hEε_subset _ hEε_measure hEε using (@exceptional_set_carleson f cont_f periodic_f)
-
   have Eεmeasure {ε : ℝ} (hε : 0 < ε) : volume (Eε hε) ≤ ENNReal.ofReal ε := by
     rw [ENNReal.le_ofReal_iff_toReal_le _ hε.le]
     · exact hEε_measure hε
     · rw [← lt_top_iff_ne_top]
       apply lt_of_le_of_lt (measure_mono (hEε_subset hε)) measure_Icc_lt_top
-
   -- Define exceptional sets parameterized by δ.
   let Eδ (k : ℕ) := ⋃ (n : ℕ), Eε (εpos k n)
   have Eδmeasure (k : ℕ) : volume (Eδ k) ≤ δ' k := by
     apply le_trans (measure_iUnion_le _)
     rw [δ'_eq]
     exact ENNReal.tsum_le_tsum (fun n ↦ Eεmeasure (εpos k n))
-
   -- Define final exceptional set.
   let E := ⋂ (k : ℕ), Eδ k
-
   -- Show that it has the desired property.
   have hE : ∀ x ∈ (Set.Icc 0 (2 * π)) \ E, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
     intro x hx
     rw [Set.diff_iInter, Set.mem_iUnion] at hx
     rcases hx with ⟨k,hk⟩
     rw [Set.diff_iUnion, Set.mem_iInter] at hk
-
     rw [Metric.tendsto_atTop']
     intro e epos
     rcases (εsmall k epos) with ⟨n, lt_e⟩
-
     rcases (hEε (εpos k n)) with ⟨N₀,hN₀⟩
     use N₀
     intro N hN
     rw [dist_comm, dist_eq_norm]
     exact (hN₀ x (hk n) N hN).trans_lt lt_e
-
   -- Show that is has measure zero.
   have Emeasure : volume E ≤ 0 := by
     have : ∀ k, volume E ≤ δ' k := by
@@ -147,7 +132,6 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
       apply measure_mono
       apply Set.iInter_subset
     exact ge_of_tendsto' δ'conv this
-
   -- Use results to prove the statement.
   rw [ae_restrict_iff' measurableSet_Icc]
   apply le_antisymm _ (zero_le _)

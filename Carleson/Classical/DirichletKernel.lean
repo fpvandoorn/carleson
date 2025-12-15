@@ -26,7 +26,7 @@ lemma continuous_dirichletKernel : Continuous (dirichletKernel N) := by
 
 lemma dirichletKernel_periodic : Function.Periodic (dirichletKernel N) (2 * π) := by
   intro x
-  simp only [dirichletKernel, Int.ofNat_eq_coe, AddSubgroup.mem_zmultiples,
+  simp only [dirichletKernel, Int.ofNat_eq_natCast, AddSubgroup.mem_zmultiples,
     QuotientAddGroup.mk_add_of_mem, fourier_apply, fourier_coe_apply', ofReal_mul, ofReal_ofNat]
 
 lemma dirichletKernel'_periodic : Function.Periodic (dirichletKernel' N) (2 * π) := by

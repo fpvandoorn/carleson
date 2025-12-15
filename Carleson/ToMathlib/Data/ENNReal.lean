@@ -82,7 +82,7 @@ lemma biSup_finsetSum_le_finsetSum_biSup {f : α → ι → ℝ≥0∞} :
   | empty => simp
   | cons a t ha ihs =>
     simp only [Finset.sum_cons]
-    exact biSup_add_le_add_biSup.trans (add_le_add_left ihs _)
+    exact biSup_add_le_add_biSup.trans (add_le_add_right ihs _)
 
 variable {E : Type*} [SeminormedAddCommGroup E]
 
@@ -92,7 +92,7 @@ lemma edist_sum_le_sum_edist {f g : α → E} : edist (∑ i ∈ t, f i) (∑ i 
   | empty => simp
   | cons a t ha ihs =>
     simp only [Finset.sum_cons]
-    exact (edist_add_add_le _ _ _ _).trans (add_le_add_left ihs _)
+    exact (edist_add_add_le _ _ _ _).trans (add_le_add_right ihs _)
 
 lemma enorm_sum_eq_sum_enorm {f : α → ℝ} (hf : ∀ i ∈ t, 0 ≤ f i) :
     ‖∑ i ∈ t, f i‖ₑ = ∑ i ∈ t, ‖f i‖ₑ := by

@@ -43,6 +43,6 @@ lemma exists_le_add_scale_of_mem_layersBelow (hp : p ∈ A.layersBelow n) :
     ∃ p' ∈ A.maxLayer 0, p ≤ p' ∧ 𝔰 p + n ≤ 𝔰 p' := by
   obtain ⟨p', mp', lp'⟩ := exists_le_in_layersBelow_of_le hp le_rfl
   obtain ⟨q, mq, lq, sq⟩ := exists_le_add_scale_of_mem_maxLayer mp'
-  use q, mq, lp'.trans lq, (add_le_add_right lp'.1.2 _).trans sq
+  use q, mq, lp'.trans lq, (add_le_add_left lp'.1.2 _).trans sq
 
 end

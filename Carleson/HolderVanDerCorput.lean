@@ -564,7 +564,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {φ : X → ℂ}
       · exact iLipENorm_holderApprox_le t_pos t_one φ_supp
       · apply ENNReal.rpow_le_rpow_of_nonpos
         · simp
-        apply add_le_add_left
+        apply add_le_add_right
         simp only [edist_dist]
         apply ENNReal.ofReal_le_ofReal
         apply CompatibleFunctions.cdist_mono
