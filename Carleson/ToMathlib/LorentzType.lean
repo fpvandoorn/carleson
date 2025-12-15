@@ -384,10 +384,12 @@ instance : Fintype RCLike.Component where
   complete := sorry
 -/
 
+/-- TODO: check whether this is the right approach -/
 def RCLike.Components {𝕂 : Type*} [RCLike 𝕂] : Finset 𝕂 := {1, -1, RCLike.I, -RCLike.I}
 
 open ComplexConjugate
 
+/-- TODO: check whether this is the right approach -/
 def RCLike.component {𝕂 : Type*} [RCLike 𝕂] (c : 𝕂) (a : 𝕂) : ℝ≥0 :=
   Real.toNNReal (RCLike.re (a * conj c))
 
@@ -423,10 +425,10 @@ lemma RCLike.decomposition {𝕂 : Type*} [RCLike 𝕂] {a : 𝕂} :
 
 @[simp]
 lemma RCLike.decomposition' {𝕂 : Type*} [RCLike 𝕂] {a : 𝕂} :
-  ∑ c ∈ RCLike.Components, c • ((RCLike.component c a).toReal : 𝕂) = a := by
+  ∑ c ∈ RCLike.Components, c * ((RCLike.component c a).toReal : 𝕂) = a := by
   nth_rw 2 [← @RCLike.decomposition _ _ a]
   congr with c
-  rw [RCLike.real_smul_eq_coe_mul, smul_eq_mul, mul_comm]
+  rw [RCLike.real_smul_eq_coe_mul, mul_comm]
 
 
 theorem RCLike.nnnorm_ofReal

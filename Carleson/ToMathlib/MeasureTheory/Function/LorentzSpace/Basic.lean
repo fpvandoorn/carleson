@@ -8,6 +8,8 @@ open scoped NNReal ENNReal
 
 namespace MeasureTheory
 
+
+/-- TODO: basic results -/
 def Lorentz {α ε : Type*} (p q : ℝ≥0∞) {m0 : MeasurableSpace α} (μ : Measure α) [NoAtoms μ]
   [TopologicalSpace ε] [ESeminormedAddMonoid ε] [ContinuousAdd ε] :
     AddSubmonoid (α → ε) where

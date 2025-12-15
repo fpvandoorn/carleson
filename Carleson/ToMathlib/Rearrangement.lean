@@ -148,12 +148,7 @@ lemma distribution_indicator_le_measure [TopologicalSpace ε] [Zero ε] {f : α 
   (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
     distribution (X.indicator f) t μ ≤ μ X := sorry
 
-/- The interval `[0, a) ⊆ ℝ` for `a : ℝ≥0∞`, if useful. -/
-protected def _root_.ENNReal.Ico (a : ℝ≥0∞) : Set ℝ :=
-  {x : ℝ | 0 ≤ x ∧ ENNReal.ofReal x < a}
-
-/- to do: some computation rules for this set. -/
-
+-- Lemma 1.1.24 of [Ian Tice]
 /-- Version of `rearrangement_indicator_le` for `t : ℝ≥0∞` -/
 lemma rearrangement_indicator_le' [TopologicalSpace ε] [Zero ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
@@ -161,24 +156,18 @@ lemma rearrangement_indicator_le' [TopologicalSpace ε] [Zero ε] {f : α → ε
       Set.indicator (Set.Iio (μ X)) (rearrangement f · μ) t := sorry
 
 -- Lemma 1.1.24 of [Ian Tice]
-lemma rearrangement_indicator_le [TopologicalSpace ε] [Zero ε] {f : α → ε}
-  (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ) :
-    rearrangement (X.indicator f) (.ofReal t) μ ≤
-      Set.indicator (μ X).Ico (fun x ↦ rearrangement f (.ofReal x) μ) t := sorry
-
--- Lemma 1.1.24 of [Ian Tice]
 lemma integral_norm_le_integral_rearrangement [TopologicalSpace ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) :
     ∫⁻ x, ‖f x‖ₑ ∂μ ≤
-      ∫⁻ t in (μ X).Ico, rearrangement f (ENNReal.ofReal t) μ := sorry
+      ∫⁻ t in (Set.Iio (μ X)), rearrangement f t μ := sorry
 
---Theorem 4.17 of https://doi.org/10.1007/978-3-319-30034-4
+--Theorem 4.17 in https://doi.org/10.1007/978-3-319-30034-4
 lemma lintegral_rearrangement_eq [TopologicalSpace ε] [NoAtoms μ] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {t : ℝ≥0} :
     ∫⁻ (s : ℝ≥0) in Set.Iio t, rearrangement f s μ = ⨆ (E : Set α) (_ : μ E ≤ t), ∫⁻ x in E, ‖f x‖ₑ ∂μ := by
   sorry
 
---Remark 4.18 of https://doi.org/10.1007/978-3-319-30034-4
+--Remark 4.18 in https://doi.org/10.1007/978-3-319-30034-4
 lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral
   [TopologicalSpace ε] [ESeminormedAddMonoid ε] [NoAtoms μ] {f g : α → ε}
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) {t : ℝ≥0} :

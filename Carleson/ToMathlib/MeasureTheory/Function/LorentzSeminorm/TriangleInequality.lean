@@ -110,12 +110,13 @@ theorem eLorentzNorm_add_le'' (hf : AEStronglyMeasurable f μ) :
       · exact eLorentzNorm'_eq p_zero p_top
 
 --TODO: move somewhere else, add the right measurability conditions on f and g
--- This is Theorem 4.19
+-- This is Theorem 4.19 in https://doi.org/10.1007/978-3-319-30034-4
 theorem lintegral_antitone_mul_le {f g k : ℝ≥0 → ℝ≥0∞}
   (h : ∀ {t}, ∫⁻ s in Set.Iio t, f s ≤ ∫⁻ s in Set.Iio t, g s) (hk : Antitone k) :
     ∫⁻ s, k s * f s ≤ ∫⁻ s, k s * g s := by
   sorry --use: Lebesgue induction
 
+/-- The function `k` in the proof of Theorem 6.7 in https://doi.org/10.1007/978-3-319-30034-4 -/
 noncomputable def lorentz_helper (f : α → ε) (p q : ℝ≥0∞) (μ : Measure α) : ℝ≥0 → ℝ≥0∞ :=
   eLorentzNorm' f p q μ ^ (1 - q.toReal) •
     (fun (t : ℝ≥0) ↦ (t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement f t μ) ^ (q.toReal - 1))
