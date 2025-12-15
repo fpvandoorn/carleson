@@ -58,7 +58,8 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
       apply measure_ball_pos volume o
       simp only [defaultD, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
       positivity
-    rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm (by finiteness), mul_comm,mul_comm (volume _)]
+    rw [← ENNReal.mul_le_mul_iff_right volume_pos.ne.symm (by finiteness), mul_comm,
+      mul_comm (volume _)]
     exact this
   have val_ne_zero : (As (2 ^ a) (2 ^ J' X) : ℝ≥0∞) ≠ 0 := by
     exact_mod_cast (As_pos' (volume : Measure X) (2 ^ J' X)).ne.symm
@@ -715,7 +716,6 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
       rw [not_disjoint_iff]
       use x
     apply this.trans
-
     if hx_mem_Xk : x ∈ Xk hk then
       have hx_i1: x ∈ I1 hk y := by
         rw [I3] at hxk
@@ -761,7 +761,6 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         intro h
         obtain ⟨v, hv, hv'⟩ := hx_notMem_i3_u h
         exact hx_mem_i2_and.right v (hv.trans hu) hv'
-
       rw [I2, dif_neg hk_not_neg_s] at hx_mem_i2
       simp only [mem_preimage, mem_iUnion, exists_prop] at hx_mem_i2
       obtain ⟨u, hu, hxu⟩ := hx_mem_i2
@@ -977,7 +976,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
       ENNReal.mul_le_iff_le_inv (by norm_num) (by norm_num), ← mul_assoc,mul_comm 2⁻¹ _,
       mul_assoc] at this
     simp only [Nat.cast_pow, Nat.cast_ofNat, ENNReal.coe_pow, ENNReal.coe_ofNat] at this
-    rw [← ENNReal.mul_le_mul_left]
+    rw [← ENNReal.mul_le_mul_iff_right]
     · exact this
     · exact (NeZero.ne (2 ^ (4 * a)))
     · finiteness
@@ -1473,7 +1472,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
           finiteness
         _ ≤ 6 * ↑D ^ (k - const_n a ht * ↑const_K) := by
           nth_rw 1 [← one_mul (D ^ (k - const_n a ht * K') : ℝ≥0∞), ← right_distrib]
-          rw [ENNReal.mul_le_mul_right]
+          rw [ENNReal.mul_le_mul_iff_left]
           · norm_num
           · apply LT.lt.ne'
             rw [← ENNReal.rpow_intCast]

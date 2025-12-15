@@ -250,7 +250,6 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
       linarith
     simp [y_eq_zero, y'_eq_zero]
   push_neg at ypos
-
   /- Beginning of the main proof -/
   have y2ley' : y / 2 ≤ y' := by
     rw [div_le_iff₀ two_pos]

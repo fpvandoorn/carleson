@@ -288,7 +288,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       congr
       rw [Dirichlet_Hilbert_eq]
       simp only [ofReal_sub, mul_comm, mul_neg, ← mul_assoc, k, map_mul, ← exp_conj, map_neg,
-        conj_I, map_sub, conj_ofReal, map_natCast, neg_neg, map_div₀, map_one, Int.ofNat_eq_coe,
+        conj_I, map_sub, conj_ofReal, map_natCast, neg_neg, map_div₀, map_one, Int.ofNat_eq_natCast,
         Int.cast_natCast, K, ← exp_add, map_add]
       ring_nf
     _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1), ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + conj (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖ₑ := by
@@ -330,12 +330,12 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
           have integrable₁ := integrable_annulus hx hg rpos.le rle1
           rw [integral_add]
           · conv => pattern ((g _) * _); rw [mul_comm]
-            apply Integrable.bdd_mul' integrable₁ measurable₁.aestronglyMeasurable
+            apply Integrable.bdd_mul integrable₁ measurable₁.aestronglyMeasurable
             · rw [ae_restrict_iff' annulus_measurableSet]
               on_goal 1 => apply Eventually.of_forall
               exact fun _ hy ↦ boundedness₁ hy.1.le
           · conv => pattern ((g _) * _); rw [mul_comm]
-            apply Integrable.bdd_mul' integrable₁ (by fun_prop)
+            apply Integrable.bdd_mul integrable₁ (by fun_prop)
             · rw [ae_restrict_iff' annulus_measurableSet]
               · apply Eventually.of_forall
                 intro y hy
@@ -397,7 +397,6 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
         rw [← intervalIntegral.integral_add (intervalIntegrable_mul_dirichletKernel'_max hx intervalIntegrable_g) (intervalIntegrable_mul_dirichletKernel'_max' hx intervalIntegrable_g)]
         congr with y
         ring
-
   calc
     _ ≤ (‖∫ y in (x - π)..(x + π), g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ
         + ‖∫ y in (x - π)..(x + π), g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ) / ENNReal.ofReal (2 * π) := by
@@ -413,7 +412,6 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
         norm_cast
         apply NNReal.le_toNNReal_of_coe_le
         rw [coe_nnnorm]
-
         calc ‖∫ (y : ℝ) in x - π..x + π, g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖
           _ ≤ (δ * π) * |(x + π) - (x - π)| := by
             apply intervalIntegral.norm_integral_le_of_norm_le_const
@@ -560,7 +558,6 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
     intro x
     simp only [RCLike.star_def, Function.comp_apply, RingHomIsometric.norm_map]
     exact h_bound x
-
   have le_operator_add : ∀ x ∈ E, ENNReal.ofReal ((ε' - π * δ) * (2 * π)) ≤ T h x + T (conj ∘ h) x := by
     intro x hx
     obtain ⟨xIcc, N, hN⟩ := hx

@@ -440,7 +440,6 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε]
         left
         use ENNReal.rpow_lt_top_of_nonneg (by simp) h₁
         exact (MeasureTheory.memLp_of_memLp_le_of_memLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ memLp_r₁ memLp_top).2
-
       /- Hardest part -/
       rw [eLpNorm_eq_lintegral_rpow_enorm r₁_pos.ne' r₁_top,
           lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (measurable_mul_distribution_rpow.aestronglyMeasurable.enorm.pow_const r₁.toReal),
@@ -448,7 +447,6 @@ lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε]
       simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply, one_div] at norm_lt_top
       rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, eLorentzNorm_eq_wnorm h₀, wnorm_ne_top h₁, wnorm']
       rw [iSup_lt_iff]
-
       have toReal_r₁_pos := ENNReal.toReal_pos r₁_pos.ne' r₁_top
       have : r₁ ^ r₁.toReal⁻¹ < ∞ := ENNReal.rpow_lt_top_of_nonneg (by simp) r₁_top
       have norm_lt_top' := ENNReal.mul_lt_top norm_lt_top this

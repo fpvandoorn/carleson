@@ -269,7 +269,7 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
       have hpow : (2 : ℝ) + 2 ^ (6 * a) ≤ 2 ^ (a * 8) :=
         calc
           _ ≤ (2 : ℝ) ^ (6 * a) + 2 ^ (6 * a) := by
-            apply add_le_add_right
+            apply add_le_add_left
             norm_cast
             nth_rw 1 [← pow_one 2]
             exact Nat.pow_le_pow_right zero_lt_two (by cutsat)
@@ -430,7 +430,7 @@ lemma bound_6_2_29 (ha : 4 ≤ a) {p p' : 𝔓 X} (x2 : E p) :
     C6_1_5 a *
     (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) / volume (𝓘 p : Set X) := by
   rw [mul_comm, mul_div_assoc, mul_comm (C6_1_5 a : ℝ≥0∞), mul_div_assoc]
-  refine mul_le_mul_left' ?_ _
+  refine mul_le_mul_right ?_ _
   calc
     _ = 2 ^ ((2 * 𝕔 + 6 + 𝕔 / 4) * a ^ 3 + 1) * 2 ^ (11 * a) * 2 ^ (-(3 : ℤ) * a) /
         volume (ball x2.1 (D ^ 𝔰 p)) := by

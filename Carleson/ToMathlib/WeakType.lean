@@ -533,7 +533,7 @@ lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞
     HasBoundedStrongType (r • T) p p' μ ν (r • c) := by
   intro f hf
   rw [Pi.smul_apply, MeasureTheory.eLpNorm_const_smul']
-  exact ⟨(h f hf).1.const_smul _, le_of_le_of_eq (mul_le_mul_left' (h f hf).2 ‖r‖ₑ) (by simp; rfl)⟩
+  exact ⟨(h f hf).1.const_smul _, le_of_le_of_eq (mul_le_mul_right (h f hf).2 ‖r‖ₑ) (by simp; rfl)⟩
 
 end HasBoundedStrongType
 
@@ -736,7 +736,7 @@ lemma distribution_smul_left {f : α → ε'} {c : ℝ≥0} (hc : c ≠ 0) :
   unfold distribution
   congr with x
   simp only [Pi.smul_apply]
-  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
+  rw [← @ENNReal.mul_lt_mul_iff_left (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
     enorm_smul_eq_mul (c := c) _, ENNReal.div_mul_cancel h₀ coe_ne_top, mul_comm]
 
 variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [NormSMulClass 𝕜 E]
@@ -748,7 +748,7 @@ lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
   unfold distribution
   congr with x
   simp only [Pi.smul_apply]
-  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
+  rw [← @ENNReal.mul_lt_mul_iff_left (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
     enorm_smul _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
 lemma HasStrongType.const_smul [ContinuousConstSMul ℝ≥0 ε']
@@ -896,7 +896,7 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
           _ ≤ ‖L (f z)‖ₑ * ‖g z‖ₑ := ContinuousLinearMap.le_opENorm (L (f z)) (g z)
           _ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ :=
             mul_le_mul' (ContinuousLinearMap.le_opENorm L (f z)) (by rfl)
-      _ ≤ _ := mul_le_mul' (mul_le_mul_left' hz.1 ‖L‖ₑ) hz.2
+      _ ≤ _ := mul_le_mul' (mul_le_mul_right hz.1 ‖L‖ₑ) hz.2
   calc
     _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := measure_mono h₀
     _ ≤ _ := measure_union_le _ _

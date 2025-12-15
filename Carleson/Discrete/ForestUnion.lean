@@ -525,7 +525,7 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
     simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
       C, Grid.mem_def, Finset.filter_filter]
   have Cn : C.Nonempty := by
-    by_contra! Ce; rw [Finset.not_nonempty_iff_eq_empty] at Ce
+    by_contra! Ce
     simp_rw [← Cc, Ce, Finset.card_empty, not_lt_zero'] at h
   let C' : Finset (Grid X) := C.image 𝓘
   have C'n : C'.Nonempty := by rwa [Finset.image_nonempty]
@@ -782,7 +782,7 @@ lemma lintegral_carlesonSum_forest'
     C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
   apply (lintegral_carlesonSum_forest hf h2f).trans
   simp only [mul_assoc]
-  apply mul_le_mul_left'
+  apply mul_le_mul_right
   simp only [div_eq_mul_inv, one_mul, ENNReal.mul_rpow_of_nonneg _ _ (inv_q_sub_half_nonneg X),
     ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul]
   calc

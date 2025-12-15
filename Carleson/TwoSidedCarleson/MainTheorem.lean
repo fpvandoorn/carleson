@@ -48,7 +48,7 @@ theorem two_sided_metric_carleson (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.
       coe_pow, coe_ofNat, ← rpow_natCast, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow,
       ofReal_ofNat 2, smul_eq_mul, ← rpow_add _ _ (NeZero.ne 2) ENNReal.ofNat_ne_top]
     ring_nf
-  rw [← ENNReal.mul_le_mul_left (enorm_ne_zero.mpr c_pos.ne') enorm_ne_top,
+  rw [← ENNReal.mul_le_mul_iff_right (enorm_ne_zero.mpr c_pos.ne') enorm_ne_top,
     ← lintegral_const_mul' _ _ enorm_ne_top, mul_assoc, ← mul_assoc, ← mul_assoc]
   convert metric_carleson hq hqq' hF hG hmf hf HBST
   · convert congrFun (carlesonOperator_const_smul K f (c : ℂ)) _ |>.symm; simp

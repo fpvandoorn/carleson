@@ -198,13 +198,11 @@ theorem two_sided_metric_carleson_hasStrongType [Countable (Θ X)] (ha : 4 ≤ a
   have lorentzType_q₁ :
       HasLorentzType (carlesonOperator K) q₁ 1 q₁ ⊤ volume volume (4 * (C10_0_1 a q₁) / q₁) := by
     apply two_sided_metric_carleson_hasLorentzType ha hq₁ hT
-
   have helper {p : ℝ≥0} (hp : 0 < p): (4 * (C10_0_1 a p) / p) = ENNReal.ofNNReal (4 * (C10_0_1 a p) / p) := by
     norm_cast
     rw [ENNReal.coe_div hp.ne']
   rw [helper q₀_pos] at lorentzType_q₀
   rw [helper q₁_pos] at lorentzType_q₁
-
   -- use interpolation for Lorentz spaces
   rename_i m d kernel cf cancel count
   have : IsOneSidedKernel a K := by infer_instance
@@ -256,7 +254,6 @@ theorem two_sided_metric_carleson_hasStrongType [Countable (Θ X)] (ha : 4 ≤ a
     · rcases hg with hg | hg
       · apply (hg.memLp _).locallyIntegrable <;> simp [hq₀.1.le]
       · apply (hg.memLp _).locallyIntegrable <;> simp [hq₁.1.le]
-
   · simp only [coe_pos]
     exact lt_trans (zero_lt_one' ℝ≥0) hq.1
 

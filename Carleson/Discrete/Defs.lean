@@ -25,7 +25,7 @@ lemma disjoint_TilesAt_of_ne {m n : ℕ} (h : m ≠ n) : Disjoint (TilesAt (X :=
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
   simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at mp₁ mp₂
   apply absurd _ mp₂.2; obtain ⟨j, lj, vj⟩ := mp₁.1; use j, lj; apply lt_of_le_of_lt _ vj
-  exact mul_le_mul_right' (ENNReal.zpow_le_of_le one_le_two (by cutsat)) _
+  exact mul_le_mul_left (ENNReal.zpow_le_of_le one_le_two (by cutsat)) _
 
 lemma pairwiseDisjoint_TilesAt : univ.PairwiseDisjoint (TilesAt (X := X)) := fun _ _ _ _ ↦
   disjoint_TilesAt_of_ne

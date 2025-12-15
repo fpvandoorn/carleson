@@ -28,7 +28,8 @@ lemma IntervalIntegrable.bdd_mul {F : Type*} [NormedDivisionRing F] {f g : ℝ �
     {μ : Measure ℝ} (hg : IntervalIntegrable g μ a b) (hm : AEStronglyMeasurable f μ)
     (hfbdd : ∃ C, ∀ x, ‖f x‖ ≤ C) : IntervalIntegrable (fun x ↦ f x * g x) μ a b := by
   rw [intervalIntegrable_iff, IntegrableOn]
-  apply Integrable.bdd_mul _ hm.restrict hfbdd
+  obtain ⟨C, hC⟩ := hfbdd
+  apply Integrable.bdd_mul _ hm.restrict (ae_of_all _ hC)
   rwa [← IntegrableOn, ← intervalIntegrable_iff]
 
 lemma IntervalIntegrable.mul_bdd {F : Type*} [NormedField F] {f g : ℝ → F} {a b : ℝ}

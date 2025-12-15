@@ -200,9 +200,9 @@ private lemma local_dens2_tree_bound_aux' {p : 𝔓 X} (hpu : p ∈ t u)
   apply local_dens2_tree_bound_aux hpu (le_refl _) h₁
   rw [show 4 * (D : ℝ) ^ 𝔰 p = 2 ^ 4 * (D ^ 𝔰 p / 4) by ring]
   apply le_trans (measure_ball_two_le_same_iterate (𝔠 p) (D ^ 𝔰 p / 4) 4)
-  apply le_trans <| mul_le_mul_left' ((measure_mono ball_subset_Grid).trans h₂) _
+  apply le_trans <| mul_le_mul_right ((measure_mono ball_subset_Grid).trans h₂) _
   simp_rw [defaultA, C7_3_3, ← mul_assoc]
-  apply mul_le_mul_right'
+  apply mul_le_mul_left
   norm_cast
   rw [← pow_mul, ← pow_add]
   apply pow_le_pow_right' one_le_two
@@ -228,7 +228,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
     _ ≤ volume (ball (c J) ((204 * D + 4) * D ^ (s J'))) := by
       refine measure_mono <| ball_subset_ball' ?_
       rw [add_mul, mul_assoc, zpow_add₀ d0.ne.symm, mul_comm (D : ℝ), zpow_one]
-      apply add_le_add_left (mem_ball'.mp <| Grid_subset_ball <| hJJ'.1 J.c_mem_Grid).le
+      apply add_le_add_right (mem_ball'.mp <| Grid_subset_ball <| hJJ'.1 J.c_mem_Grid).le
     _ ≤ volume (ball (c J) (2 ^ (2 * 𝕔 * a ^ 2 + 8) * D ^ (s J))) := by
       rw [hsJ', zpow_add₀ d0.ne.symm, mul_comm ((D : ℝ) ^ (s J)), ← mul_assoc, zpow_one]
       refine measure_mono (ball_subset_ball <| mul_le_mul_of_nonneg_right ?_ (zpow_pos d0 (s J)).le)
@@ -239,7 +239,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
         rw [show 2 ^ (2 * 𝕔 * a^2 + 8) * (D : ℝ) ^ s J = 2 ^ (2 * 𝕔 * a^2 + 10) * (D ^ s J / 4) by ring]
         apply measure_ball_two_le_same_iterate
     _ ≤ 2 ^ (2 * 𝕔 * a ^ 3 + 10 * a) * volume (J : Set X) := by
-      apply le_of_le_of_eq <| mul_le_mul_left' (measure_mono ball_subset_Grid) _
+      apply le_of_le_of_eq <| mul_le_mul_right (measure_mono ball_subset_Grid) _
       simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat]
       rw [← pow_mul, mul_comm a, add_mul, mul_assoc, show a ^ 2 * a = a ^ 3 by rfl]
   by_cases hJB : (J : Set X) ⊆ ball (𝔠 p) (4 * D ^ (𝔰 p))
@@ -258,8 +258,8 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   have B_subset : ball (𝔠 p) (104 * D ^ (s J' + 1)) ⊆ ball (c J') (204 * D ^ (s J' + 1)) := by
     apply ball_subset_ball'
     rw [show (204 : ℝ) = 104 + 100 by norm_num, add_mul]
-    exact add_le_add_left (dist_comm (c J') (𝔠 p) ▸ hcJ'.le) (104 * (D : ℝ) ^ (s J' + 1))
-  refine (measure_mono B_subset).trans <| volume_le.trans <| mul_le_mul_right' ?_ _
+    exact add_le_add_right (dist_comm (c J') (𝔠 p) ▸ hcJ'.le) (104 * (D : ℝ) ^ (s J' + 1))
+  refine (measure_mono B_subset).trans <| volume_le.trans <| mul_le_mul_left ?_ _
   rw [C7_3_3]
   norm_cast
   exact pow_le_pow_right' one_le_two (le_C7_3_3_exponent (four_le_a X) 10 (by norm_num))
@@ -363,7 +363,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
     _ ≤ ∑ J ∈ Finset.univ.filter (· ∈ C),
           (∫⁻ y in J ∩ s, ‖f y‖ₑ ^ 2) * (c * volume (J : Set X)) / volume (J : Set X) := by
       refine Finset.sum_le_sum fun J hJ ↦ ENNReal.div_le_div_right ?_ _
-      exact mul_le_mul_left' (hc J (Finset.mem_filter.mp hJ).2) (∫⁻ (y : X) in ↑J ∩ s, ‖f y‖ₑ ^ 2)
+      exact mul_le_mul_right (hc J (Finset.mem_filter.mp hJ).2) (∫⁻ (y : X) in ↑J ∩ s, ‖f y‖ₑ ^ 2)
     _ = c * ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ (y : X) in J ∩ s, ‖f y‖ₑ ^ 2) := by
       simp_rw [mul_div_assoc,
         ENNReal.div_self ((volume_coeGrid_pos (defaultD_pos a)).ne.symm) volume_coeGrid_lt_top.ne]
@@ -403,7 +403,7 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
     _ ≤ _ := tree_projection_estimate hf hgℰ hu
     _ ≤ C7_2_1 a * (c * eLpNorm f 2 volume) *
         (2 ^ (((𝕔 / 2 : ℕ) + 1) * (a : ℝ) ^ 3) * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume) := by
-      refine mul_le_mul' (mul_le_mul_left' hc (C7_2_1 a)) ?_
+      refine mul_le_mul' (mul_le_mul_right hc (C7_2_1 a)) ?_
       have hgℰ' : ∀ x ∉ G ∩ ℰ, ℰ.indicator g x = 0 := by
         intro x hx
         rw [mem_inter_iff] at hx
@@ -418,7 +418,7 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
         fun L ↦ inter_assoc L G ℰ ▸ local_dens1_tree_bound hu
       apply le_trans <| eLpNorm_approxOnCube_two_le pairwiseDisjoint_𝓛 hℰ this hgℰ hgℰ'
       rw [ENNReal.mul_rpow_of_nonneg _ _ (inv_nonneg_of_nonneg two_pos.le)]
-      refine mul_le_mul' (mul_le_mul_right' ?_ _) ?_
+      refine mul_le_mul' (mul_le_mul_left ?_ _) ?_
       · rw [C7_3_2, ENNReal.rpow_ofNNReal (inv_nonneg_of_nonneg two_pos.le)]
         rw [← NNReal.rpow_natCast]
         rw [← NNReal.rpow_mul 2 _ 2⁻¹, ← ENNReal.rpow_ofNNReal (by positivity)]
@@ -522,12 +522,5 @@ lemma smul_le_indicator {A : Set X} (hf : f.support ⊆ A) {C : ℝ} (hC : ∀ x
   else
     rw [notMem_support.mp (fun a ↦ h (hf a)), indicator_of_notMem h]
     simp only [norm_zero, le_refl]
-
--- move to mathlib, check name
-@[to_additive]
-lemma _root_.MonoidHomClass.map_mulIndicator {F X A B : Type*} [Monoid A] [Monoid B] [FunLike F A B]
-    [MonoidHomClass F A B] {s : Set X} (f : F) (x : X) (g : X → A) :
-    f (s.mulIndicator g x) = s.mulIndicator (f ∘ g) x := by
-  exact (MonoidHomClass.toMonoidHom f).map_mulIndicator s g x
 
 end Extras

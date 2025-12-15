@@ -250,7 +250,6 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
   set m₁ := Int.floor (f - R' / (2 * R)) with m₁def
   set! m₂ := f with m₂def
   set m₃ := Int.ceil (f + R' / (2 * R)) with m₃def
-
   /- classical is necessary to be able to build a Finset of WithFunctionDistance. -/
   classical
   set balls : Finset (WithFunctionDistance x R) := {m₁, m₂, m₃} with balls_def

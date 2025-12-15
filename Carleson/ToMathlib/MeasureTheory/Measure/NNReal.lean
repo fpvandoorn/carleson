@@ -29,7 +29,6 @@ example : volume (Ioo (3 : ℝ≥0) 5) = 2 := by
       use this
       rw [← Subtype.coe_lt_coe, ← Subtype.coe_lt_coe]
       exact hx
-
   rw [NNReal.volume_val, this]
   simpa only [Real.volume_Ioo, ENNReal.ofReal_eq_ofNat] using by norm_num
 

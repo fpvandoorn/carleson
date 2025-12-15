@@ -20,7 +20,7 @@ lemma _root_.MeasureTheory.Integrable.conj {f : X → ℂ} (hf : Integrable f) :
 @[fun_prop]
 lemma _root_.MeasureTheory.Integrable.mul_conj [TopologicalSpace X] {f g : X → ℂ} (hf : Integrable f)
     (hf' : BoundedCompactSupport f) (hg : Integrable g) : Integrable (fun x ↦ f x * conj (g x)) := by
-  apply Integrable.bdd_mul' hg.conj hf.1 (c := (eLpNormEssSup f volume).toReal)
+  apply Integrable.bdd_mul hg.conj hf.1 (c := (eLpNormEssSup f volume).toReal)
   apply (ae_le_eLpNormEssSup (f := f) (μ := volume)).mono fun x hx ↦ ?_
   rw [← ofReal_norm] at hx
   exact (ENNReal.ofReal_le_iff_le_toReal hf'.1.eLpNorm_ne_top).mp hx

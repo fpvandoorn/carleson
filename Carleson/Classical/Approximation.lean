@@ -158,7 +158,7 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
     have : Icc (- Int.ofNat (N.succ)) (N.succ) = insert (↑(N.succ)) (insert (-Int.ofNat (N.succ)) (Icc (-Int.ofNat N) N)) := by
       rw [←Ico_insert_right, ←Ioo_insert_left]
       · congr 2 with n
-        simp only [Int.ofNat_eq_coe, mem_Ioo, mem_Icc]
+        simp only [Int.ofNat_eq_natCast, mem_Ioo, mem_Icc]
         push_cast
         rw [Int.lt_add_one_iff, neg_add, ←sub_eq_add_neg, Int.sub_one_lt_iff]
       · norm_num
@@ -169,7 +169,7 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
     · symm
       rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
       simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, Int.reduceNeg, Nat.succ_eq_add_one,
-        Int.ofNat_eq_coe, add_comm]
+        Int.ofNat_eq_natCast, add_comm]
     · simp
     · norm_num
       linarith

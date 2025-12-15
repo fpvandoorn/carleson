@@ -280,7 +280,7 @@ lemma S_truncation
   have scσ₁ (x : X) : candσ₁ x ⊆ Finset.Icc (-B) B := by simp [candσ₁]
   have mcσ₁ {n : ℤ} : Measurable (n ∈ candσ₁ ·) := by
     simp_rw [candσ₁, Finset.mem_filter, Finset.mem_Icc]
-    apply measurable_const.and; rw [← measurableSet_setOf]; exact measurableSet_eq_fun' mT1 mT1'
+    apply measurable_const.and; rw [← measurableSet_setOf]; exact measurableSet_eq_fun mT1 mT1'
   -- Define `σ₁` and prove its measurability and finite range
   let σ₁ (x : X) := (candσ₁ x).min' (necσ₁ x)
   have eσ₁ (x : X) : σ₁ x ∈ candσ₁ x := (candσ₁ x).min'_mem (necσ₁ x)
@@ -324,7 +324,7 @@ lemma S_truncation
     apply Measurable.and
     · apply Measurable.and ?_ measurable_const
       rw [← measurableSet_setOf]; exact measurableSet_le mσ₁ measurable_const
-    · rw [← measurableSet_setOf]; apply measurableSet_eq_fun'
+    · rw [← measurableSet_setOf]; apply measurableSet_eq_fun
       · apply Measurable.comp (f := fun x ↦ (x, σ₁ x)) (g := fun p ↦ T1' p.1 p.2)
         · exact measurable_from_prod_countable_left fun _ ↦ mT1'
         · exact measurable_id.prodMk mσ₁
@@ -500,12 +500,12 @@ lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁
       · rw [U302, sub_add_cancel]; gcongr; exact my.2.le
     _ = ‖∑ s ∈ BR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
       congr 1; refine integral_finset_sum _ fun s ms ↦ ?_
-      simp_rw [mul_rotate _ (f _)]; refine ((integrable_Ks_x Dg1).bdd_mul ?_ ?_).restrict
+      simp_rw [mul_rotate _ (f _)]; refine ((integrable_Ks_x Dg1).bdd_mul (c := 1) ?_ ?_).restrict
       · rw [aestronglyMeasurable_iff_aemeasurable]
         exact (mf.mul ((Complex.measurable_ofReal.comp (measurable_Q₁ _))
           |>.const_mul I).cexp).aemeasurable
       · simp_rw [norm_mul, norm_exp_I_mul_ofReal, mul_one]
-        use 1; exact fun y ↦ (nf y).trans (indicator_one_le_one y)
+        exact ae_of_all _ fun y ↦ (nf y).trans (indicator_one_le_one y)
     _ ≤ ‖∑ s ∈ SR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ +
         ‖∑ s ∈ BR \ SR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
       have : SR ⊆ BR := Finset.Icc_subset_Icc (by cutsat) (by cutsat)
@@ -688,7 +688,7 @@ lemma R_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
         calc
           _ ≤ dist x y + dist x o := dist_triangle_left ..
           _ < R₂ + R := add_lt_add my.2 sG
-          _ < _ := by rw [two_mul]; exact add_lt_add_right mR₂.2 _
+          _ < _ := by rw [two_mul]; exact add_lt_add_left mR₂.2 _
       _ ≤ _ :=
         this (mF.inter measurableSet_ball) (mf.indicator measurableSet_ball) nf' inter_subset_right
       _ ≤ _ := by gcongr; exact inter_subset_left

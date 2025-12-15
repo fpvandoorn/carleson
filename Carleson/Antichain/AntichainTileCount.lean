@@ -286,7 +286,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
         gcongr
         norm_cast
         calc 𝔄'.toFinset.card * 2 ^ a
-          _ ≤ 2 ^ (a * (N + 4)) * 2 ^ a := mul_le_mul_right' hcard _
+          _ ≤ 2 ^ (a * (N + 4)) * 2 ^ a := mul_le_mul_left hcard _
           _ = 2 ^ (a * (N + 5)) := by ring
       _ ≤ 2 ^ (a * (N + 5)) * dens₁  (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
         have hss : 𝔄' ⊆ 𝔄 := by

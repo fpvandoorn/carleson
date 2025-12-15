@@ -74,7 +74,7 @@ lemma eq_zero_of_isDoubling_lt_one [ProperSpace X] [IsFiniteMeasureOnCompacts μ
       _ ≤ A * μ (ball x r) := by gcongr; linarith
     by_contra H
     have : μ (ball x r) < 1 * μ (ball x r) := by
-      apply I.trans_lt (ENNReal.mul_lt_mul_right' H measure_ball_lt_top.ne (mod_cast hA))
+      apply I.trans_lt (ENNReal.mul_lt_mul_left H measure_ball_lt_top.ne (mod_cast hA))
     simp at this
   rw [← measure_univ_eq_zero, ← iUnion_ball_nat x]
   exact measure_iUnion_null_iff.mpr fun i ↦ M i (by positivity)
@@ -92,7 +92,7 @@ lemma measure_ball_two_le_same_iterate (x : X) (r : ℝ) (n : ℕ) :
   | zero => simp
   | succ m ih =>
       simp_rw [add_comm m 1, pow_add, pow_one, mul_assoc]
-      exact le_trans (measure_ball_two_le_same x _) (mul_le_mul_left' ih A)
+      exact le_trans (measure_ball_two_le_same x _) (mul_le_mul_right ih A)
 
 lemma measure_ball_four_le_same (x : X) (r : ℝ) :
     μ (ball x (4 * r)) ≤ A ^ 2 * μ (ball x r) := by
