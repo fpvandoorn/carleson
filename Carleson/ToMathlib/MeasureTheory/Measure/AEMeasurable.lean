@@ -21,7 +21,7 @@ lemma aeMeasurable_withDensity_inv {f : NNReal → ENNReal} (hf : AEMeasurable f
       apply measure_singleton
     · intro x hx
       simp only [ne_eq, Set.mem_setOf_eq] at *
-      exact Eq.symm (ENNReal.coe_inv hx)
+      exact (ENNReal.coe_inv hx).symm
   · apply Measurable.aemeasurable
     measurability
   · exact measurable_inv.aemeasurable.coe_nnreal_ennreal
