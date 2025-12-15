@@ -28,7 +28,6 @@ theorem locallyIntegrable_congr'_enorm {f : X → ε} {g : X → ε'}
 theorem LocallyIntegrable.congr {f g : X → ε} (hf : LocallyIntegrable f μ) (h : f =ᵐ[μ] g) :
   LocallyIntegrable g μ := fun x ↦ (hf x).congr h
 
-
 theorem locallyIntegrable_congr {f g : X → ε} (h : f =ᵐ[μ] g) : LocallyIntegrable f μ ↔ LocallyIntegrable g μ :=
   ⟨fun hf => hf.congr h, fun hg => hg.congr h.symm⟩
 
