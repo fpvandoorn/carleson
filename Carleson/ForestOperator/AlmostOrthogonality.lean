@@ -85,7 +85,7 @@ lemma enorm_adjointCarleson_le {x : X} :
       rw [← lintegral_const_mul' _ _ (by simp)]
       refine lintegral_mono fun y ↦ ?_
       rw [← mul_assoc, mul_comm _ _⁻¹, ← ENNReal.div_eq_inv_mul]
-      exact mul_le_mul_right' enorm_Ks_le _
+      exact mul_le_mul_left enorm_Ks_le _
     _ ≤ _ := by
       rw [mul_assoc _ (_ ^ _), mul_comm (_ ^ _), ← ENNReal.div_eq_inv_mul,
         ← ENNReal.inv_div (.inl (by simp)) (.inl (by simp)), mul_assoc, ← lintegral_const_mul' _⁻¹]
@@ -93,8 +93,8 @@ lemma enorm_adjointCarleson_le {x : X} :
       · simp_rw [ne_eq, ENNReal.inv_eq_top, ENNReal.div_eq_zero_iff, ENNReal.pow_eq_top_iff,
           ENNReal.ofNat_ne_top, false_and, or_false]
         exact (measure_ball_pos _ _ (by unfold defaultD; positivity)).ne'
-      refine mul_le_mul_left' (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
-      exact mul_le_mul_right' (ENNReal.inv_le_inv' (volume_xDsp_bound_4 (E_subset_𝓘 my))) _
+      refine mul_le_mul_right (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
+      exact mul_le_mul_left (ENNReal.inv_le_inv' (volume_xDsp_bound_4 (E_subset_𝓘 my))) _
 
 lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
     ‖adjointCarleson p f x‖ₑ ≤
@@ -113,7 +113,6 @@ lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
       refine setLIntegral_congr_fun measurableSet_E fun y my ↦ ?_
       rw [indicator_of_mem (E_subset_𝓘 my)]
     _ ≤ _ := by
-      gcongr; refine indicator_le_indicator_apply_of_subset (ball_subset_ball ?_) (zero_le _)
       gcongr; norm_num
 
 lemma adjoint_density_tree_bound1 (hf : BoundedCompactSupport f)
@@ -130,7 +129,7 @@ lemma adjoint_tree_estimate
   by_cases h : eLpNorm (adjointCarlesonSum (t u) g) 2 = 0
   · rw [h]; exact zero_le _
   have bcs : BoundedCompactSupport (adjointCarlesonSum (t u) g) := hg.adjointCarlesonSum
-  rw [← ENNReal.mul_le_mul_right h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
+  rw [← ENNReal.mul_le_mul_iff_left h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
     eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
     mul_comm (eLpNorm g 2 volume), ← mul_assoc]
   conv_lhs => enter [1, 2, x]; rw [mul_comm]
@@ -153,7 +152,7 @@ lemma indicator_adjoint_tree_estimate
   · rw [h]; exact zero_le _
   have bcs : BoundedCompactSupport (F.indicator (adjointCarlesonSum (t u) g)) :=
     hg.adjointCarlesonSum.indicator measurableSet_F
-  rw [← ENNReal.mul_le_mul_right h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
+  rw [← ENNReal.mul_le_mul_iff_left h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
     eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
     mul_comm (eLpNorm g 2 volume), ← mul_assoc]
   calc

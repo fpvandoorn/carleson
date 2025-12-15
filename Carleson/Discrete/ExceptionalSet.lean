@@ -676,9 +676,7 @@ lemma boundary_exception {u : 𝔓 X} :
             intro i ⟨⟨i_subset_I_u, _⟩, s_i_eq_stuff, I_not_contain_8_ball⟩ ipt hipt
             refine ⟨i_subset_I_u hipt, ?_⟩
             rw [show 𝔰 u - Z * (n + 1) - 1 = s i by norm_cast; linarith]
-
             obtain ⟨bpt, hbpt, h_bpt_not_in_I_u⟩ : ∃ b ∈ ball (c i) (8 * ↑D ^ s i), b ∉ ↑(𝓘 u) := not_subset.mp I_not_contain_8_ball
-
             -- triangle inequality between ipt, bpt, c i
             have ipt_bpt_triangle_ineq : dist ipt bpt ≤ (12 * D ^ s i : ℝ) :=
               calc dist ipt bpt
@@ -694,7 +692,6 @@ lemma boundary_exception {u : 𝔓 X} :
                       simp_all only [le_eq_subset, ball, mem_setOf_eq, Grid.mem_def]
                     rel [dist_bpt_c_i_le]
                 _ ≤ 12 * D ^ s i := by linarith
-
             -- show the the triangle inequality implies distance between ipt and (𝓘 u)ᶜ <= 12 * D ^ s i
             calc EMetric.infEdist ipt (GridStructure.coeGrid (𝓘 u))ᶜ
               _ ≤ edist ipt bpt := EMetric.infEdist_le_edist_of_mem <| Set.mem_compl h_bpt_not_in_I_u
@@ -710,7 +707,6 @@ lemma boundary_exception {u : 𝔓 X} :
                   · push_cast
                     rfl
                   · simp
-
           rw [show ⋃ i ∈ 𝓛 (X := X) n u, (i : Set X) = ⋃ i : 𝓛 (X := X) n u, (i : Set X) by simp]
           exact measure_mono <| Set.iUnion_subset_iff.mpr <| by simp [i_subset_X_u]
       _ ≤ 2 * (12 * D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0) ^ κ * volume (𝓘 u : Set X) := by
@@ -718,7 +714,6 @@ lemma boundary_exception {u : 𝔓 X} :
             intro i ⟨_, s_i_eq_stuff, _⟩
             -- choose t for small boundary property
             set t := 12 * (D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0) with ht
-
             -- algebra useful in multiple steps of the proof
             have D_pow_algebra : 12 * (D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0)  * (D ^ (𝔰 u : ℤ) : ℝ≥0) = 12 * (D ^ ( 𝔰 u - Z * (n + 1) - 1 : ℤ) : ℝ≥0) := by
               have : 12 * (D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0)  * (D ^ (𝔰 u : ℤ) : ℝ≥0) = 12 * (D ^ (- Z * (n + 1) - 1 + 𝔰 u : ℤ) : ℝ≥0) := by
@@ -726,7 +721,6 @@ lemma boundary_exception {u : 𝔓 X} :
                 ring
               rw [this]
               rw [show - Z * (n + 1) - 1 + 𝔰 u = 𝔰 u - Z * (n + 1) - 1 by linarith]
-
             -- small boundary property assumption for 𝓘 u
             have small_boundary_h : D ^ ((- S - s (𝓘 u)) : ℤ) ≤ t := by
               have one_le_nnreal_D : 1 ≤ (D : ℝ≥0) := by
@@ -745,9 +739,7 @@ lemma boundary_exception {u : 𝔓 X} :
               rwa [this, mul_neg_one, ← zpow_add₀ (show (D : ℝ≥0) ≠ 0 by norm_num),
                    show 𝔰 u = s (𝓘 u) from rfl, add_comm,
                    neg_add_eq_sub] at small_boundary_h_intermediate
-
             have small_b := GridStructure.small_boundary small_boundary_h
-
             have X_u_in_terms_of_t : X_u = { x ∈ GridStructure.coeGrid (𝓘 u) | EMetric.infEdist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ ((t * D ^ (s (𝓘 u))):ℝ≥0∞)} := by
               rw [ht, show s (𝓘 u) = 𝔰 u from rfl,
                   show (D ^ 𝔰 u : ℝ≥0∞) = (D ^ 𝔰 u : ℝ≥0) by simp]
@@ -774,10 +766,8 @@ lemma boundary_exception {u : 𝔓 X} :
                 exact WithTop.mul_lt_top (by apply WithTop.coe_lt_top) <|
                   (ENNReal.rpow_lt_top_of_nonneg κ_nonneg) (lt_top_iff_ne_top.mp (by apply WithTop.coe_lt_top))
               exact WithTop.mul_lt_top t_k_lt_top volume_coeGrid_lt_top
-
           obtain ⟨i, hi⟩ := h_𝓛_n_u_non_empty
           exact small_boundary_observation i hi
-
       _ ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by -- choosing the right k and D
         have coeff_lt : 2 * (12 * D ^ (-Z * (n + 1) - 1 : ℝ)) ^ κ
             ≤ (D ^ (1 - κ * Z * (n + 1)) : ℝ≥0) := by
