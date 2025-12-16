@@ -244,7 +244,7 @@ lemma dist_LTSeries {n : ℕ} {u : Set (𝔓 X)} {s : LTSeries u} (hs : s.length
     let s' : LTSeries u := s.eraseLast
     specialize ih (show s'.length = n by simp [s', hs])
     have link : dist_(s'.last.1) f g ≤ C2_1_2 a * dist_(s.last.1) f g :=
-      Grid.dist_strictMono <| 𝓘_strictMono <| s.eraseLast_last_rel_last (by cutsat)
+      Grid.dist_strictMono <| 𝓘_strictMono <| s.eraseLast_last_rel_last (by lia)
     apply ih.trans; rw [pow_succ, mul_assoc]; gcongr; unfold C2_1_2; positivity
 
 end
@@ -538,7 +538,7 @@ lemma pairwiseDisjoint_iteratedMaximalSubfamily (A : Set (𝔓 X)) :
     univ.PairwiseDisjoint (iteratedMaximalSubfamily A) := by
   intro m hm n hn hmn
   wlog h'mn : m < n generalizing m n with H
-  · exact (H (mem_univ n) (mem_univ m) hmn.symm (by cutsat)).symm
+  · exact (H (mem_univ n) (mem_univ m) hmn.symm (by lia)).symm
   have : iteratedMaximalSubfamily A n
       ⊆ A \ ⋃ (i : {i | i < n}), iteratedMaximalSubfamily A i := by
     conv_lhs => rw [iteratedMaximalSubfamily]
@@ -609,4 +609,4 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
     simp only [Finset.coe_Iio, mem_Iio] at ha hb
     have := pairwiseDisjoint_iteratedMaximalSubfamily A (mem_univ a) (mem_univ b) hab
     exact disjoint_iff_forall_ne.1 this (hu a ha) (hu b hb)
-  cutsat
+  lia

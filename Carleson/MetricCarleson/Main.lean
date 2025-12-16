@@ -83,7 +83,7 @@ lemma biSup_Θ'_eq_biSup_enumΘ' {x : X} :
     rw [eg]
     calc
       _ ≤ ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x := by
-        have : n ∈ Finset.range (n + 1) := by rw [Finset.mem_range]; cutsat
+        have : n ∈ Finset.range (n + 1) := by rw [Finset.mem_range]; lia
         convert le_iSup₂ _ this; rfl
       _ ≤ _ := le_iSup_iff.mpr fun _ a ↦ a n
   · refine iSup_le fun n ↦ iSup₂_le fun i mi ↦ ?_
@@ -105,7 +105,7 @@ lemma enumΘ'ArgMax_eq_iff {n i : ℕ} {x : X} (hi : i ≤ n) :
     enumΘ'ArgMax nΘ' g n x = i ↔
     (∀ j ≤ n, g (enumΘ' nΘ' j) x ≤ g (enumΘ' nΘ' i) x) ∧
     ∀ j < i, g (enumΘ' nΘ' j) x < g (enumΘ' nΘ' i) x := by
-  rw [enumΘ'ArgMax, List.findIdx_eq (by rw [List.length_range]; cutsat)]
+  rw [enumΘ'ArgMax, List.findIdx_eq (by rw [List.length_range]; lia)]
   simp_rw [List.getElem_range, decide_eq_true_eq, decide_eq_false_iff_not, not_forall, not_le,
     exists_prop, and_congr_right_iff]
   refine fun ismax ↦ forall₂_congr fun j lj ↦ ⟨fun h ↦ ?_, fun h ↦ by use i⟩
@@ -219,7 +219,7 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
       · refine Measurable.iSup fun i ↦ Measurable.iSup fun mi ↦ ?_
         refine Measurable.iSup fun j ↦ Measurable.iSup fun mj ↦ Measurable.enorm ?_
         exact measurable_carlesonOperatorIntegrand (Q := SimpleFunc.const X (enumΘ' nΘ' i)) mf
-      · intro x; apply biSup_mono; simp_rw [Finset.mem_range]; cutsat
+      · intro x; apply biSup_mono; simp_rw [Finset.mem_range]; lia
     _ ≤ ⨆ n, ∫⁻ x in G, g (QΘ' nΘ' mg n x) x := by
       gcongr with n x; exact biSup_enumΘ'_le_QΘ' nΘ' mg
     _ ≤ ⨆ n, ∫⁻ x in G, linearizedCarlesonOperator (QΘ' nΘ' mg n) K f x := by

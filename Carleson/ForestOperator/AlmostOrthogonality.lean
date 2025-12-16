@@ -187,9 +187,9 @@ lemma le_C7_4_3 (ha : 4 ≤ a) : C7_3_1_1 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 
             gcongr
             · norm_cast
               have := seven_le_c
-              cutsat
-            · norm_cast; cutsat
-            · norm_cast; cutsat
+              lia
+            · norm_cast; lia
+            · norm_cast; lia
           _ = _ := by ring
     _ ≤ 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4 : ℕ) * (a : ℝ) ^ 3 + 1) := by
       rw [← NNReal.rpow_natCast]
@@ -244,15 +244,15 @@ lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u
     specialize this (mem_union_left _ mp') (not_disjoint_iff.mpr ⟨c, mc, p'lu₁.1 mc⟩) p'lu₁
     exact this.trans (Grid.dist_mono (p'lu₁.trans u₁lp))
   have four_Z := four_le_Z (X := X)
-  have four_le_Zn : 4 ≤ Z * (n + 1) := by rw [← mul_one 4]; exact mul_le_mul' four_Z (by cutsat)
+  have four_le_Zn : 4 ≤ Z * (n + 1) := by rw [← mul_one 4]; exact mul_le_mul' four_Z (by lia)
   have four_le_two_pow_Zn : 4 ≤ 2 ^ (Z * (n + 1) - 1) := by
-    change 2 ^ 2 ≤ _; exact Nat.pow_le_pow_right zero_lt_two (by cutsat)
+    change 2 ^ 2 ≤ _; exact Nat.pow_le_pow_right zero_lt_two (by lia)
   have ha : (2 : ℝ) ^ (Z * (n + 1)) - 4 ≥ 2 ^ (Z * n / 2 : ℝ) :=
     calc
       _ ≥ (2 : ℝ) ^ (Z * (n + 1)) - 2 ^ (Z * (n + 1) - 1) := by gcongr; norm_cast
       _ = 2 ^ (Z * (n + 1) - 1) := by
-        rw [sub_eq_iff_eq_add, ← two_mul, ← pow_succ', Nat.sub_add_cancel (by cutsat)]
-      _ ≥ 2 ^ (Z * n) := by apply pow_le_pow_right₀ one_le_two; rw [mul_add_one]; cutsat
+        rw [sub_eq_iff_eq_add, ← two_mul, ← pow_succ', Nat.sub_add_cancel (by lia)]
+      _ ≥ 2 ^ (Z * n) := by apply pow_le_pow_right₀ one_le_two; rw [mul_add_one]; lia
       _ ≥ _ := by
         rw [← Real.rpow_natCast]
         apply Real.rpow_le_rpow_of_exponent_le one_le_two; rw [Nat.cast_mul]

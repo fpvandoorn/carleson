@@ -247,7 +247,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
         refine stackSize_mono <| sep_subset ..
       _ ≤ l * 2 ^ (n + 1) := by rwa [setA, mem_setOf_eq, not_lt] at nx'
   -- so the (unchanged) first sum of RHS is at least `2 ^ (n + 1)`
-  rw [add_one_mul] at mx; cutsat
+  rw [add_one_mul] at mx; lia
 
 /-- Equation (5.2.11) in the proof of Lemma 5.2.5. -/
 lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) :
@@ -315,7 +315,7 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
       rw [← ENNReal.mul_le_mul_iff_right (a := 2) (by simp) (by simp), ← mul_assoc]
       apply this.trans
       convert ih using 2; nth_rw 1 [← zpow_one 2, ← ENNReal.zpow_add (by simp) (by simp)]
-      congr 1; cutsat
+      congr 1; lia
     calc
       _ = 2 * ∑ L ∈ Grid.maxCubes (MsetA (X := X) l k n),
           volume (setA (X := X) (l + 1) k n ∩ L) := by
@@ -359,11 +359,11 @@ lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-2 : ℤ) * volume G :=
       rw [ENNReal.tsum_comm]; congr!; split_ifs <;> simp
     _ ≤ ∑' (k : ℕ) (n : ℕ), if k ≤ n then 2 ^ (k - 5 - 2 * n : ℤ) * volume G else 0 := by
       gcongr; split_ifs
-      · convert john_nirenberg using 3; cutsat
+      · convert john_nirenberg using 3; lia
       · rfl
     _ = ∑' (k : ℕ), 2 ^ (-k - 5 : ℤ) * volume G * ∑' (n' : ℕ), 2 ^ (- 2 * n' : ℤ) := by
       congr with k -- n' = n - k - 1; n = n' + k + 1
-      have rearr : ∀ n : ℕ, (k - 5 - 2 * n : ℤ) = (-k - 5 + (-2 * (n - k)) : ℤ) := by cutsat
+      have rearr : ∀ n : ℕ, (k - 5 - 2 * n : ℤ) = (-k - 5 + (-2 * (n - k)) : ℤ) := by lia
       conv_lhs =>
         enter [1, n]
         rw [rearr, ENNReal.zpow_add (by simp) (by simp), ← mul_rotate,
@@ -414,7 +414,7 @@ lemma lintegral_Ioc_layervol_one {l : ℕ} :
       unfold layervol; congr with x; constructor <;> intro h
       · rw [indicator_sum_eq_natCast, ← Nat.cast_one, ← Nat.cast_add, Nat.cast_le]
         rw [indicator_sum_eq_natCast, ← Nat.ceil_le] at h; convert h; symm
-        rwa [Nat.ceil_eq_iff (by cutsat), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]
+        rwa [Nat.ceil_eq_iff (by lia), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]
       · exact ht.2.trans h
     _ = layervol k n (l + 1) * volume (Ioc (l : ℝ) (l + 1)) := setLIntegral_const ..
     _ = _ := by rw [Real.volume_Ioc, add_sub_cancel_left, ENNReal.ofReal_one, mul_one]
@@ -504,7 +504,7 @@ lemma top_tiles : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) �
     _ = _ := by
       nth_rw 3 [← pow_one 2]
       rw [mul_rotate, ← pow_add, ← mul_assoc, ← pow_add,
-        show n + 1 + (k + 1 + 1) = n + k + 3 by cutsat]
+        show n + 1 + (k + 1 + 1) = n + k + 3 by lia]
 
 end TopTiles
 
@@ -948,7 +948,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       calc
       4 + (9 * a + 6)
       _ = 9 * a + 10 := by ring
-      _ ≤ 3 * 4 * a + 4 * 4 := by cutsat
+      _ ≤ 3 * 4 * a + 4 * 4 := by lia
       _ ≤ 3 * a * a + a * a := by gcongr <;> linarith [four_le_a X]
       _ = 4 * a ^ 2 := by ring
       _ ≤ 𝕔 * a ^ 2 := by

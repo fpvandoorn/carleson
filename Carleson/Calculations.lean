@@ -86,7 +86,7 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y
   rw [← distrib_three_right ..]
   calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (x + 3)
   _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (y - 1) := by
-    have h1 : x + 3 ≤ y - 1 := by cutsat
+    have h1 : x + 3 ≤ y - 1 := by lia
     gcongr
     linarith [four_le_realD X]
   _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * (D ^ (y) * D ^ (- 1 : ℝ)) := by
@@ -272,7 +272,7 @@ lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] 
     · norm_num
     gcongr
     · norm_num
-    cutsat
+    lia
   exact Nat.mul_le_mul this (Nat.le_add_left 1 n)
 
 /-- A bound on the sum of a geometric series whose ratio is close to 1. -/
@@ -340,12 +340,12 @@ lemma calculation_150 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] :
 
 lemma sq_le_two_pow_of_four_le (a4 : 4 ≤ a) : a ^ 2 ≤ 2 ^ a := by
   induction a, a4 using Nat.le_induction with
-  | base => cutsat
+  | base => lia
   | succ a a4 ih =>
     rw [pow_succ 2, mul_two, add_sq, one_pow, mul_one, add_assoc]; gcongr
     calc
-      _ ≤ 3 * a := by cutsat
-      _ ≤ a * a := by gcongr; cutsat
+      _ ≤ 3 * a := by lia
+      _ ≤ a * a := by gcongr; lia
       _ ≤ _ := by rwa [← sq]
 
 lemma calculation_6_1_6 (a4 : 4 ≤ a) : 8 * a ^ 4 ≤ 2 ^ (2 * a + 3) := by
