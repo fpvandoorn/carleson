@@ -95,7 +95,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
     refine Grid.lt_def.mpr ⟨(le_of_mem_𝓛 hL mp ?_).1, sLp⟩
     contrapose! hp; exact (hp.mono_left E_subset_𝓘).symm
   obtain ⟨L', lL', sL'⟩ := Grid.exists_scale_succ sLp
-  replace lL' : L < L' := Grid.lt_def.mpr ⟨lL'.1, by cutsat⟩
+  replace lL' : L < L' := Grid.lt_def.mpr ⟨lL'.1, by lia⟩
   obtain ⟨p'', mp'', lp''⟩ : ∃ p'' ∈ t u, 𝓘 p'' ≤ L' := by
     have L'nm : L' ∉ 𝓛₀ (t u) := by
       by_contra h
@@ -103,7 +103,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
       exact lL'.ne (hL.2 h lL'.le)
     rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push_neg at L'nm
     have nfa : ¬∀ p ∈ t u, ¬L' ≤ 𝓘 p := by
-      push_neg; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; cutsat
+      push_neg; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; lia
     simp_rw [nfa, false_or] at L'nm; exact L'nm.2
   suffices ∃ p' ∈ lowerCubes (t u),
       𝓘 p' = L' ∧ dist_(p') (𝒬 p') (𝒬 u) < 4 ∧ smul 9 p'' ≤ smul 9 p' by
@@ -116,7 +116,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
         rw [mem_iUnion₂] at mxU; obtain ⟨q, mq, hq⟩ := mxU; rw [smul_snd, mem_preimage]
         have p'lq : 𝓘 p' ≤ 𝓘 q := by
           refine le_of_mem_of_mem ?_ mxp' (E_subset_𝓘 hq)
-          change s (𝓘 p') ≤ 𝔰 q; rw [ip']; suffices s L < 𝔰 q by cutsat
+          change s (𝓘 p') ≤ 𝔰 q; rw [ip']; suffices s L < 𝔰 q by lia
           exact hp₂ q mq (not_disjoint_iff.mpr ⟨x, mxL, hq⟩)
         simp_rw [mem_ball']
         calc
@@ -151,7 +151,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
   rw [mem_iUnion₂] at m₁; obtain ⟨p', mp', hp'⟩ := m₁
   rw [mem_preimage, mem_singleton_iff] at mp'; change 𝓘 p' = L' at mp'
   have ip'lp : 𝓘 p' ≤ 𝓘 p := by
-    rw [mp']; refine Grid.le_dyadic ?_ lL'.le lip.le; change s L' ≤ 𝔰 p; cutsat
+    rw [mp']; refine Grid.le_dyadic ?_ lL'.le lip.le; change s L' ≤ 𝔰 p; lia
   use p', mem_lowerCubes.mp ⟨p, mp, ip'lp⟩, mp'; constructor
   · rw [← mem_ball']; exact mem_of_mem_of_subset (subset_cball hp') (ball_subset_ball (by norm_num))
   · rw [← mp'] at lp''
@@ -430,7 +430,7 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
         norm_cast
         rw [mul_comm _ 2, ← mul_assoc]
         gcongr
-        cutsat
+        lia
       · refine eLpNorm_mono (fun x ↦ ?_)
         rw [indicator]
         split_ifs <;> simp

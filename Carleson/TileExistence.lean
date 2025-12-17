@@ -1802,7 +1802,7 @@ lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := by
   · rw [disjoint_iUnion₂_right]; intro i hi; rw [mem_diff_singleton] at hi
     exact 𝓩_pairwiseDisjoint z.coe_prop hi.1 hi.2.symm
   · rw [disjoint_iUnion₂_right]; intro i hi
-    let z' := (Finite.equivFin ↑(𝓩 p.1)).symm ⟨i, by cutsat⟩
+    let z' := (Finite.equivFin ↑(𝓩 p.1)).symm ⟨i, by lia⟩
     have zn : z ≠ z' := by simp only [ne_eq, Equiv.eq_symm_apply, z']; exact Fin.ne_of_gt hi
     simpa [z'] using disjoint_ball_Ω₁_aux p.1 z'.2 z.2 (Subtype.coe_ne_coe.mpr zn.symm)
 
@@ -1991,7 +1991,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
     rw [k]
   · obtain ⟨J, sJ, lbJ, ubJ⟩ :=
-      Grid.exists_sandwiched h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; cutsat)
+      Grid.exists_sandwiched h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; lia)
     have : q.2.1 ∈ ⋃ z ∈ 𝓩 J, ball_{J} z C4_2_1 :=
       ((Finset.coe_subset.mpr 𝓩_subset).trans frequency_ball_cover) q.2.2
     rw [mem_iUnion₂] at this; obtain ⟨z', mz', dz⟩ := this
@@ -2005,8 +2005,8 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
       by_contra maxJ; rw [Grid.isMax_iff] at maxJ
       rw [maxJ, show s topCube = S from s_topCube (X := X)] at sJ
       have : 𝔰 q ≤ S := scale_mem_Icc.2
-      cutsat
-    have succJ : J.succ = q.1 := (Grid.succ_def nmaxJ).mpr ⟨ubJ, by change 𝔰 q = _; cutsat⟩
+      lia
+    have succJ : J.succ = q.1 := (Grid.succ_def nmaxJ).mpr ⟨ubJ, by change 𝔰 q = _; lia⟩
     have key : Ω q ⊆ Ω ⟨J, a⟩ := by
       nth_rw 2 [Ω]; simp only [nmaxJ, dite_false]; intro ϑ mϑ; right; rw [mem_iUnion₂]
       refine ⟨q.2, ?_, ?_⟩
@@ -2021,7 +2021,7 @@ termination_by (𝔰 q - 𝔰 p).toNat
 decreasing_by
   rw [Int.lt_toNat]
   change (s J - 𝔰 p).toNat < 𝔰 q - 𝔰 p
-  rw [sJ, Int.toNat_of_nonneg (by cutsat), sub_right_comm]
+  rw [sJ, Int.toNat_of_nonneg (by lia), sub_right_comm]
   exact sub_one_lt _
 
 end Construction

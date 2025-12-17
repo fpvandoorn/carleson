@@ -12,25 +12,25 @@ variable {A : Set (𝔓 X)} {p : 𝔓 X} {n : ℕ}
 lemma exists_scale_add_le_of_mem_minLayer (hp : p ∈ A.minLayer n) :
     ∃ p' ∈ A.minLayer 0, p' ≤ p ∧ 𝔰 p' + n ≤ 𝔰 p := by
   induction n generalizing p with
-  | zero => use p, hp, le_rfl, by cutsat
+  | zero => use p, hp, le_rfl, by lia
   | succ n ih =>
-    obtain ⟨p', mp', lp'⟩ := exists_le_in_minLayer_of_le hp (show n ≤ n + 1 by cutsat)
-    obtain ⟨q, mq, lq, _⟩ := ih mp'; use q, mq, lq.trans lp'; suffices 𝔰 p' < 𝔰 p by cutsat
+    obtain ⟨p', mp', lp'⟩ := exists_le_in_minLayer_of_le hp (show n ≤ n + 1 by lia)
+    obtain ⟨q, mq, lq, _⟩ := ih mp'; use q, mq, lq.trans lp'; suffices 𝔰 p' < 𝔰 p by lia
     have l : 𝓘 p' < 𝓘 p := by
       apply 𝓘_strictMono
-      exact lt_of_le_of_ne lp' <| (disjoint_minLayer_of_ne (by cutsat)).ne_of_mem mp' hp
+      exact lt_of_le_of_ne lp' <| (disjoint_minLayer_of_ne (by lia)).ne_of_mem mp' hp
     rw [Grid.lt_def] at l; exact l.2
 
 lemma exists_le_add_scale_of_mem_maxLayer (hp : p ∈ A.maxLayer n) :
     ∃ p' ∈ A.maxLayer 0, p ≤ p' ∧ 𝔰 p + n ≤ 𝔰 p' := by
   induction n generalizing p with
-  | zero => use p, hp, le_rfl, by cutsat
+  | zero => use p, hp, le_rfl, by lia
   | succ n ih =>
-    obtain ⟨p', mp', lp'⟩ := exists_le_in_maxLayer_of_le hp (show n ≤ n + 1 by cutsat)
-    obtain ⟨q, mq, lq, _⟩ := ih mp'; use q, mq, lp'.trans lq; suffices 𝔰 p < 𝔰 p' by cutsat
+    obtain ⟨p', mp', lp'⟩ := exists_le_in_maxLayer_of_le hp (show n ≤ n + 1 by lia)
+    obtain ⟨q, mq, lq, _⟩ := ih mp'; use q, mq, lp'.trans lq; suffices 𝔰 p < 𝔰 p' by lia
     have l : 𝓘 p < 𝓘 p' := by
       apply 𝓘_strictMono
-      exact lt_of_le_of_ne lp' <| (disjoint_maxLayer_of_ne (by cutsat)).ne_of_mem hp mp'
+      exact lt_of_le_of_ne lp' <| (disjoint_maxLayer_of_ne (by lia)).ne_of_mem hp mp'
     rw [Grid.lt_def] at l; exact l.2
 
 lemma exists_scale_add_le_of_mem_layersAbove (hp : p ∈ A.layersAbove n) :

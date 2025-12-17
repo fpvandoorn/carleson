@@ -274,7 +274,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       · exact (ineq four_pos).le
       · gcongr
         · exact one_le_realD _
-        · cutsat
+        · lia
         · norm_num
       · refine K'.integrableOn_mul_f hf (r := ENNReal.ofReal (D ^ (s I - 1) / 4)) ?_ (s I) s₂
           |>.mono_set ?_
@@ -337,7 +337,7 @@ lemma le_C7_2_2 (a4 : 4 ≤ a) :
       · exact one_le_two
       · rw [show a ^ 3 + 1 = 1 * a ^ 3 + 1 by ring, add_assoc]; gcongr
         · norm_num
-        · cutsat
+        · lia
       · exact one_le_two
       · ring_nf; rfl
     _ = 2 ^ ((𝕔 + 1) * a ^ 3 + 8 * a + 4) := by rw [← two_mul, ← pow_succ']
@@ -345,7 +345,7 @@ lemma le_C7_2_2 (a4 : 4 ≤ a) :
       rw [C7_2_2, add_assoc, show (𝕔 + 2) * a ^ 3 = (𝕔 + 1) * a ^ 3 + a ^ 3 by ring]
       gcongr; · exact one_le_two
       calc
-        _ ≤ 4 * 4 * a := by cutsat
+        _ ≤ 4 * 4 * a := by lia
         _ ≤ _ := by rw [pow_three']; gcongr
 
 /-- Lemma 7.2.2. -/
@@ -608,7 +608,7 @@ lemma boundary_geometric_series :
         · have : (Finset.Icc (s J) S).filter (· = s I) = ∅ := by
             ext k
             simp_rw [Finset.mem_filter, Finset.mem_Icc, Finset.notMem_empty, iff_false, not_and]
-            intro; cutsat
+            intro; lia
           simp [this]
       · simp_rw [h, false_and, ite_false, Finset.sum_const_zero]
     _ = ∑ kh : Icc (s J) S, ∑ I : Grid X,
@@ -646,8 +646,8 @@ lemma boundary_geometric_series :
         ⟨(k - s J).toNat, by rw [mem_Icc] at bk; simp [bk]⟩
       have bijf : Bijective f := by
         rw [Fintype.bijective_iff_surjective_and_card]; constructor
-        · rintro ⟨k', bk'⟩; use ⟨k' + s J, by rw [mem_Icc] at bk' ⊢; cutsat⟩; simp [f]
-        · simp only [Fintype.card_ofFinset, Int.card_Icc, Nat.card_Icc, tsub_zero]; cutsat
+        · rintro ⟨k', bk'⟩; use ⟨k' + s J, by rw [mem_Icc] at bk' ⊢; lia⟩; simp [f]
+        · simp only [Fintype.card_ofFinset, Int.card_Icc, Nat.card_Icc, tsub_zero]; lia
       refine Fintype.sum_bijective f bijf _ _ fun ⟨k, bk⟩ ↦ ?_
       simp only [f, Int.toNat_sub_of_le bk.1, neg_sub, ← Int.cast_sub]
       rw [← ENNReal.rpow_intCast, ← ENNReal.rpow_mul, div_mul_comm, mul_one]
@@ -806,7 +806,7 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
       gcongr
       · norm_num
       simp [add_mul]
-      cutsat
+      lia
   _ = 3 * 2 ^ (12 * a) * 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3) := by rw [add_comm, pow_add]; ring
   _ ≤ 2 ^ (a ^ 3) * 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3) := by
     apply mul_left_mono; norm_cast

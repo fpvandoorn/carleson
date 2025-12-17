@@ -117,8 +117,8 @@ lemma exists_k_n_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ k n, p ∈ �
       ENNReal.toReal_le_toReal dens'_lt_top.ne (by simp)]
     exact_mod_cast dens'_le
   have klq : k ≤ ⌊v⌋₊ := Nat.le_floor klv
-  let n : ℕ := 4 * a + ⌊v⌋₊ + 1; use n; refine ⟨⟨mp, ?_⟩, by cutsat⟩
-  rw [show 4 * (a : ℤ) - (4 * a + ⌊v⌋₊ + 1 : ℕ) = (-⌊v⌋₊ - 1 : ℤ) by cutsat, sub_add_cancel, mem_Ioc,
+  let n : ℕ := 4 * a + ⌊v⌋₊ + 1; use n; refine ⟨⟨mp, ?_⟩, by lia⟩
+  rw [show 4 * (a : ℤ) - (4 * a + ⌊v⌋₊ + 1 : ℕ) = (-⌊v⌋₊ - 1 : ℤ) by lia, sub_add_cancel, mem_Ioc,
     ← ENNReal.ofReal_toReal dens'_lt_top.ne, ← ENNReal.rpow_intCast, ← ENNReal.rpow_intCast,
     show (2 : ℝ≥0∞) = ENNReal.ofReal (2 : ℝ) by norm_cast,
     ENNReal.ofReal_rpow_of_pos zero_lt_two, ENNReal.ofReal_rpow_of_pos zero_lt_two,
@@ -137,7 +137,7 @@ private lemma two_mul_n_add_six_lt : 2 * n + 6 < 2 ^ (n + 3) := by
     calc
       _ = 2 * n + 6 + 2 := by ring
       _ < 2 ^ (n + 3) + 2 := by gcongr
-      _ < 2 ^ (n + 3) + 2 ^ (n + 3) := by cutsat
+      _ < 2 ^ (n + 3) + 2 ^ (n + 3) := by lia
       _ = _ := by ring
 
 lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k n) (hkn : k ≤ n) :
@@ -163,13 +163,13 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
           Finset.filter_filter]; rfl
       _ ≤ (2 * n + 6) * 2 ^ (n + 1) := by rwa [setA, mem_setOf, not_lt] at nx
       _ < _ := by
-        rw [show 2 * n + 4 = (n + 3) + (n + 1) by cutsat, pow_add _ (n + 3)]
+        rw [show 2 * n + 4 = (n + 3) + (n + 1) by lia, pow_add _ (n + 3)]
         exact mul_lt_mul_of_pos_right two_mul_n_add_six_lt (by positivity)
   rcases B.eq_zero_or_pos with Bz | Bpos
   · simp_rw [B, filter_mem_univ_eq_toFinset, Finset.card_eq_zero, toFinset_eq_empty] at Bz
     exact Or.inl ⟨mp, Bz⟩
   · right; use Nat.log 2 B; rw [← Nat.log_lt_iff_lt_pow one_lt_two Bpos.ne'] at Blt
-    refine ⟨by cutsat, (?_ : _ ∧ _ ≤ B), (?_ : ¬(_ ∧ _ ≤ B))⟩
+    refine ⟨by lia, (?_ : _ ∧ _ ≤ B), (?_ : ¬(_ ∧ _ ≤ B))⟩
     · exact ⟨mp, Nat.pow_log_le_self 2 Bpos.ne'⟩
     · rw [not_and, not_le]; exact fun _ ↦ Nat.lt_pow_succ_log_self one_lt_two _
 
@@ -379,7 +379,7 @@ lemma lt_quotient_rearrange :
   congr 1
   rw [ENNReal.coe_pow, ENNReal.coe_ofNat, ← zpow_natCast,
     ← ENNReal.zpow_add two_ne_zero ENNReal.ofNat_ne_top]
-  congr 1; cutsat
+  congr 1; lia
 
 lemma l_upper_bound : l < 2 ^ n := by
   have ql1 : volume (E₂ l p') / volume (𝓘 p' : Set X) ≤ 1 := by
@@ -441,7 +441,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   suffices ¬∃ s : LTSeries (𝔏₀ (X := X) k n), s.length = n by
     rcases lt_or_ge p.length n with c | c
     · exact c
-    · exact absurd ⟨p.take ⟨n, by cutsat⟩, by rw [RelSeries.take_length]⟩ this
+    · exact absurd ⟨p.take ⟨n, by lia⟩, by rw [RelSeries.take_length]⟩ this
   by_contra h; obtain ⟨s, hs⟩ := h; let sl := s.last; have dsl := sl.2.1.2.1
   simp_rw [dens', lt_iSup_iff, mem_singleton_iff, exists_prop, exists_eq_left] at dsl
   obtain ⟨l, hl, p', mp', sp', qp'⟩ := dsl
@@ -507,7 +507,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
       simp [div_pow]; ring
     _ ≤ 1 + 2 * (2 / 256) ^ 0 + (1 / 256) ^ 0 * 3 := by
       gcongr 1 + 2 * ?_ + ?_ * 3 <;>
-        exact pow_le_pow_of_le_one (by norm_num) (by norm_num) (by cutsat)
+        exact pow_le_pow_of_le_one (by norm_num) (by norm_num) (by lia)
     _ < _ := by norm_num
 
 /-- Part of Lemma 5.5.2 -/
@@ -1019,7 +1019,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
   _ = 2 ^ (28 * a + 20) / (q - 1) ^ 4 := by
     simp only [← pow_add]
     congr
-    cutsat
+    lia
 
 omit [TileStructure Q D κ S o] in
 lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux2 {N : ℕ} :
@@ -1079,7 +1079,7 @@ lemma C5_1_3_optimized_le_C5_1_3 : C5_1_3_optimized a nnq ≤ C5_1_3 a nnq := by
       have := four_le_a X
       gcongr; · exact one_le_two
       calc
-        _ ≤ 3 * 4 * 4 * a := by cutsat
+        _ ≤ 3 * 4 * 4 * a := by lia
         _ ≤ 3 * a * a * a := by gcongr
         _ = _ := by ring
     _ = 2 ^ ((𝕔 + 5 + 𝕔 / 8) * a ^ 3 + 3 * a ^ 3) / (nnq - 1) ^ (4 + 1) := by

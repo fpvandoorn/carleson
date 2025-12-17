@@ -21,11 +21,11 @@ def 𝓒 (k : ℕ) : Set (Grid X) :=
 def TilesAt (k : ℕ) : Set (𝔓 X) := 𝓘 ⁻¹' 𝓒 k
 
 lemma disjoint_TilesAt_of_ne {m n : ℕ} (h : m ≠ n) : Disjoint (TilesAt (X := X) m) (TilesAt n) := by
-  wlog hl : m < n generalizing m n; · exact (this h.symm (by cutsat)).symm
+  wlog hl : m < n generalizing m n; · exact (this h.symm (by lia)).symm
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
   simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at mp₁ mp₂
   apply absurd _ mp₂.2; obtain ⟨j, lj, vj⟩ := mp₁.1; use j, lj; apply lt_of_le_of_lt _ vj
-  exact mul_le_mul_left (ENNReal.zpow_le_of_le one_le_two (by cutsat)) _
+  exact mul_le_mul_left (ENNReal.zpow_le_of_le one_le_two (by lia)) _
 
 lemma pairwiseDisjoint_TilesAt : univ.PairwiseDisjoint (TilesAt (X := X)) := fun _ _ _ _ ↦
   disjoint_TilesAt_of_ne
@@ -56,11 +56,11 @@ lemma ℭ_subset_TilesAt {k n : ℕ} : ℭ k n ⊆ TilesAt (X := X) k := fun t m
   rw [ℭ, mem_setOf] at mt; exact mt.1
 
 lemma disjoint_ℭ_of_ne {k m n : ℕ} (h : m ≠ n) : Disjoint (ℭ (X := X) k m) (ℭ k n) := by
-  wlog hl : m < n generalizing m n; · exact (this h.symm (by cutsat)).symm
+  wlog hl : m < n generalizing m n; · exact (this h.symm (by lia)).symm
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
   apply absurd _ (not_disjoint_iff.mpr ⟨_, mp₁.2, mp₂.2⟩)
   rw [Ioc_disjoint_Ioc, le_max_iff]; left; rw [min_le_iff]; right
-  exact ENNReal.zpow_le_of_le one_le_two (by cutsat)
+  exact ENNReal.zpow_le_of_le one_le_two (by lia)
 
 lemma pairwiseDisjoint_ℭ :
     (univ : Set (ℕ × ℕ)).PairwiseDisjoint (fun kn ↦ ℭ (X := X) kn.1 kn.2) :=
@@ -130,11 +130,11 @@ lemma ℭ₁_subset_ℭ {k n j : ℕ} : ℭ₁ k n j ⊆ ℭ (X := X) k n := fun
   rw [ℭ₁, preℭ₁, mem_diff, mem_setOf] at mt; exact mt.1.1
 
 lemma disjoint_ℭ₁_of_ne {k n j l : ℕ} (h : j ≠ l) : Disjoint (ℭ₁ (X := X) k n j) (ℭ₁ k n l) := by
-  wlog hl : j < l generalizing j l; · exact (this h.symm (by cutsat)).symm
+  wlog hl : j < l generalizing j l; · exact (this h.symm (by lia)).symm
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
   simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, mp₁.1.1, true_and, not_le] at mp₁ mp₂
   have := mp₂.1.trans_lt mp₁.2
-  rw [pow_lt_pow_iff_right₀ one_lt_two] at this; cutsat
+  rw [pow_lt_pow_iff_right₀ one_lt_two] at this; lia
 
 lemma pairwiseDisjoint_ℭ₁ {k n : ℕ} : univ.PairwiseDisjoint (ℭ₁ (X := X) k n) := fun _ _ _ _ ↦
   disjoint_ℭ₁_of_ne
@@ -317,7 +317,7 @@ lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
 lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n := by
   refine setOf_subset_setOf.mpr fun x hx ↦ ?_
   calc
-    _ ≤ _ := by gcongr; cutsat
+    _ ≤ _ := by gcongr; lia
     _ < _ := hx
 
 lemma measurable_setA {l k n : ℕ} : MeasurableSet (setA (X := X) l k n) :=

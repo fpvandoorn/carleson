@@ -154,9 +154,9 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
       rw [← pow_mul]
       apply add_le_pow_two ?_ le_rfl ?_
       · ring_nf
-        cutsat
+        lia
       · ring_nf
-        suffices 1 ≤ a ^ 3 by cutsat
+        suffices 1 ≤ a ^ 3 by lia
         exact one_le_pow₀ (by linarith [four_le_a X])
 
 variable [TileStructure Q D κ S o]
@@ -272,13 +272,13 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
             apply add_le_add_left
             norm_cast
             nth_rw 1 [← pow_one 2]
-            exact Nat.pow_le_pow_right zero_lt_two (by cutsat)
+            exact Nat.pow_le_pow_right zero_lt_two (by lia)
           _ = 2 * (2 : ℝ) ^ (6 * a) := by ring
           _ ≤ _ := by
             nth_rw 1 [← pow_one 2, ← pow_add]
             norm_cast
-            exact Nat.pow_le_pow_right zero_lt_two (by cutsat)
-      have h38 : 3 ≤ 8 := by cutsat
+            exact Nat.pow_le_pow_right zero_lt_two (by lia)
+      have h38 : 3 ≤ 8 := by lia
       have h12 : (1 : ℝ) ≤ 2 := by norm_num
       rw [C6_2_3]
       conv_rhs => ring_nf
@@ -367,7 +367,7 @@ lemma I12_le' {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (x1 : E
     norm_cast
     gcongr
     · exact one_le_two
-    · cutsat
+    · lia
 
 private lemma exp_ineq (ha : 4 ≤ a) : 0 < (8 * a : ℕ) * -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹ + 1 := by
   have hpos : 0 < (a : ℝ) ^ 2 * 2 + a ^ 3 := by positivity
@@ -389,7 +389,7 @@ lemma I12_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X �
   rw [pow_add 2 _ 1, pow_one, mul_comm _ 2, mul_assoc, mul_comm 2 (_ * _), mul_assoc]
   gcongr
   -- Now we need to use Lemma 6.2.3 to conclude this inequality.
-  have h623 := uncertainty (by cutsat) hle hinter x1.2 x2.2
+  have h623 := uncertainty (by lia) hle hinter x1.2 x2.2
   rw [C6_2_3, ENNReal.coe_pow, ENNReal.coe_ofNat] at h623
   have hneg : -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹ < 0 :=
     neg_neg_iff_pos.mpr (inv_pos.mpr (by norm_cast; nlinarith))
