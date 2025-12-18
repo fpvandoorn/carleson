@@ -51,16 +51,26 @@ theorem two_sided_metric_carleson_hasLorentzType [Countable (Θ X)] (ha : 4 ≤ 
   have : IsOneSidedKernel a K := by infer_instance
   set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
   apply (two_sided_metric_carleson_hasRestrictedWeakType ha (mem_Ioc_of_Ioo hq) hqq' hT).hasLorentzType
+  · simp [hq.1.le]
   · exact C10_0_1_pos hq.1
   · simpa
   · intro f hf
     apply (carlesonOperator_measurable _).aestronglyMeasurable
     apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le]
-  · intro f g x hf hg
+  · intro G measurable_G hG f g hf hg
+    have hf' : LocallyIntegrable f := by
+      apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le]
+    have hg' : LocallyIntegrable g := by
+      apply (hg.memLp _).locallyIntegrable <;> simp [hq.1.le]
+    have hf'' : AEStronglyMeasurable (carlesonOperator K f) (volume.restrict G) := by
+      exact (carlesonOperator_measurable hf').aestronglyMeasurable
+    have hg'' : AEStronglyMeasurable (carlesonOperator K g) (volume.restrict G) := by
+      exact (carlesonOperator_measurable hg').aestronglyMeasurable
+    apply (eLpNorm_add_le hf'' hg'' le_rfl).trans'
+    apply eLpNorm_mono_enorm
+    intro x
     simp only [enorm_eq_self]
-    apply carlesonOperator_add_le_add_carlesonOperator
-    · apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le]
-    · apply (hg.memLp _).locallyIntegrable <;> simp [hq.1.le]
+    exact carlesonOperator_add_le_add_carlesonOperator hf' hg'
   · intro a f x
     simp only [enorm_eq_self]
     apply le_of_eq
@@ -90,6 +100,11 @@ theorem two_sided_metric_carleson_hasLorentzType [Countable (Θ X)] (ha : 4 ≤ 
         apply (carlesonOperator_measurable _)
         apply f_locInt.mono (h_meas _) bound
     apply Filter.liminf_le_limsup (by isBoundedDefault) (by isBoundedDefault)
+  · intro f hf
+    apply eLpNorm_zero_of_ae_zero
+    apply Filter.Eventually.of_forall
+    intro x
+    rw [carlesonOperator_zero_of_ae_zero hf]
 
 --TODO: move
 /-- The parameter where linear interpolation between `t₀` and `t₁` results in `t`. -/
