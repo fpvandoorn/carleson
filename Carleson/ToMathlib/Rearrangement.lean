@@ -62,7 +62,8 @@ lemma rearrangement_distribution_le : rearrangement f (distribution f x μ) μ �
 -- this should also hold if `rearrangement f x μ = ∞`.
 lemma distribution_rearrangement_le : distribution f (rearrangement f x μ) μ ≤ x := sorry
 
-lemma rearrangement_lt_iff {f : α → ε} {μ : Measure α} {t : ℝ≥0∞} {y : ℝ≥0∞} :
+-- Lemma 1.1.22 of [Ian Tice]
+lemma lt_rearrangement_iff {f : α → ε} {μ : Measure α} {t : ℝ≥0∞} {y : ℝ≥0∞} :
     y < rearrangement f t μ ↔ t < distribution f y μ := by
   constructor
   · unfold rearrangement
@@ -84,7 +85,7 @@ lemma distribution_rearrangement {f : α → ε} {μ : Measure α} {t : ℝ≥0}
   have : {x | t < rearrangement f x μ} = Set.Iio (distribution f t μ) := by
     ext x
     simp only [Set.mem_setOf_eq, Set.mem_Iio]
-    exact rearrangement_lt_iff
+    exact lt_rearrangement_iff
   rw [this, ENNReal.volume_Iio]
   rfl
 
@@ -96,10 +97,6 @@ lemma _root_.ContinuousLinearMap.rearrangement_le {f : α → E₁} {g : α → 
     rearrangement (fun x ↦ L (f x) (g x)) (‖L‖₊ * x * y) μ ≤
     rearrangement f x μ + rearrangement g y μ := sorry
 -/
-
--- Lemma 1.1.22 of [Ian Tice]
-lemma lt_rearrangement_iff [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ) :
-  y < rearrangement f x μ ↔ x < distribution f y μ := sorry
 
 -- Lemma 1.1.22 of [Ian Tice]
 lemma continuousWithinAt_rearrangement [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ)
@@ -122,6 +119,30 @@ lemma sSup_rearrangement [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ) 
 lemma essSup_nnnorm_eq_rearrangement_zero [TopologicalSpace ε] (hf : AEStronglyMeasurable f μ) :
   essSup (‖f ·‖ₑ) μ = rearrangement f 0 μ  := sorry
 
+@[simp]
+lemma rearrangement_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
+  rearrangement (s.indicator (Function.const _ a)) x μ
+    = ((Set.Ico 0 (μ s)).indicator (Function.const _ ‖a‖ₑ) x) := by
+  unfold rearrangement
+  simp_rw [distribution_indicator_const]
+  unfold Set.indicator
+  simp only [Set.mem_Iio, Set.mem_Ico, zero_le, true_and, Function.const_apply]
+  split_ifs with h
+  · apply le_antisymm
+    · apply sInf_le
+      simp
+    · apply le_sInf
+      simp only [Set.mem_setOf_eq]
+      intro b hb
+      contrapose! hb
+      rwa [ite_cond_eq_true]
+      simpa
+  · rw [← ENNReal.bot_eq_zero, eq_bot_iff]
+    apply sInf_le
+    simp only [not_lt, bot_eq_zero', Set.mem_setOf_eq] at *
+    split_ifs
+    · assumption
+    · simp
 
 open Filter Topology
 

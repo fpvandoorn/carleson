@@ -285,6 +285,30 @@ lemma ENNReal.toReal_Ioi_eq_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     · rwa [ENNReal.lt_ofReal_iff_toReal_lt ha]
     · exact (le_trans toReal_nonneg hxa.le)
 
+lemma ENNReal.ofReal_Ico_eq {b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ico 0 b
+    = if b = 0 then ∅ else if b = ∞ then Set.univ else Set.Iio b.toReal := by
+  split_ifs with hb hb'
+  · rw [hb]
+    simp
+  · rw [hb']
+    simp only [preimage_eq_univ_iff]
+    intro x hx
+    simp only [mem_Ico, zero_le, true_and]
+    rcases hx with ⟨y, hy⟩
+    rw [← hy]
+    simp
+  · ext x
+    simp only [mem_preimage, mem_Ico, zero_le, true_and, mem_Iio]
+    by_cases hx : x < 0
+    · rw [ENNReal.ofReal_of_nonpos hx.le]
+      constructor
+      · intro _
+        exact hx.trans_le (@toReal_nonneg b)
+      · intro _
+        rwa [zero_lt_iff]
+    push_neg at hx
+    exact ofReal_lt_iff_lt_toReal hx hb'
+
 lemma ENNReal.volume_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     volume (Set.Ioi a) = ⊤ := by
   rw [ENNReal.volume_val measurableSet_Ioi, ENNReal.toReal_Ioi_eq_Ioi ha, measure_union_eq_top_iff]

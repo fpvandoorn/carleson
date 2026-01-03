@@ -1,3 +1,4 @@
+import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
 import Carleson.ToMathlib.RealInterpolation.Misc
 import Carleson.ToMathlib.Topology.Order.Basic
@@ -48,20 +49,6 @@ theorem eLorentzNorm_congr_ae {f g : α → ε'} (hfg : f =ᵐ[μ] g) :
 
 
 variable {ε : Type*} [TopologicalSpace ε]
-
---TODO: move
-lemma eLpNorm_zero_of_ae_zero' [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
-    eLpNorm f p μ = 0 := by
-  rw [← eLpNorm_zero (ε := ε) (μ := μ) (p := p)]
-  apply eLpNorm_congr_enorm_ae
-  simpa
-
---TODO: move
-lemma eLpNorm_zero_of_ae_zero [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
-    eLpNorm f p μ = 0 := by
-  apply eLpNorm_zero_of_ae_zero'
-  unfold Filter.EventuallyEq
-  simpa only [Function.comp_apply, Pi.zero_apply, enorm_eq_zero]
 
 --TODO: make this an iff, for p, r ≠ 0?
 lemma eLorentzNorm_zero_of_ae_zero [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
@@ -266,7 +253,7 @@ lemma eLorentzNorm_eq_wnorm (hp : p ≠ 0) {f : α → ε} : eLorentzNorm f p �
     refine measurableSet_lt measurable_const ?_
     measurability
 
-lemma eLorentzNorm'_indicator {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
+lemma eLorentzNorm'_indicator_const {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
   {s : Set α} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) :
     eLorentzNorm' (s.indicator (Function.const α a)) p 1 μ = p * (‖a‖ₑ * μ s ^ p⁻¹.toReal) := by
   rw [eLorentzNorm'_eq_integral_distribution_rpow]
@@ -286,6 +273,105 @@ lemma eLorentzNorm'_indicator {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
   congr 1
   simp only [Set.mem_Iio, eq_iff_iff]
   exact (ENNReal.coe_lt_iff_lt_toNNReal ha).symm
+
+
+lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
+  (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) :
+    eLorentzNorm' (s.indicator (Function.const α a)) p q μ
+      = (p / q) ^ q.toReal⁻¹ * μ s ^ p.toReal⁻¹ * ‖a‖ₑ := by
+  rw [eLorentzNorm'_eq p_ne_zero p_ne_top]
+  simp_rw [rearrangement_indicator_const]
+  rw [eLpNorm_eq_lintegral_rpow_enorm q_ne_zero q_ne_top]
+  simp only [ENNReal.toReal_inv, enorm_eq_self, one_div]
+  conv in (_ * _) ^ _ => rw [ENNReal.mul_rpow_of_nonneg _ _ ENNReal.toReal_nonneg,
+    Set.comp_indicator (fun t ↦ t ^ q.toReal),
+    ENNReal.zero_rpow_of_pos (ENNReal.toReal_pos q_ne_zero q_ne_top),
+    Function.comp_const, Function.const_zero, Set.piecewise_eq_indicator,
+    ← Set.indicator_mul_right _ (fun t ↦ (t ^ p.toReal⁻¹) ^ q.toReal) _,
+    ← Set.indicator_comp_right]
+  rw [lintegral_indicator (by measurability)]
+  simp only [Function.const_apply, Function.comp_apply]
+  rw [lintegral_mul_const _ (by fun_prop),
+    ENNReal.mul_rpow_of_nonneg _ _ (by simp),
+    ENNReal.rpow_rpow_inv (ENNReal.toReal_ne_zero.mpr ⟨q_ne_zero, q_ne_top⟩)]
+  congr
+  rw [setLIntegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop) (by measurability)]
+  simp only [Pi.mul_apply]
+  simp_rw [← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul]
+  rw [← lintegral_indicator (by measurability), lintegral_nnreal_eq_lintegral_toNNReal_Ioi]
+  simp_rw [← Set.indicator_comp_right]
+  rw [setLIntegral_indicator (by measurability)]
+  have : ENNReal.ofNNReal ∘ Real.toNNReal = ENNReal.ofReal := rfl
+  rw [← Set.preimage_comp, this]
+  simp only [Function.comp_apply]
+  have : ((μ s ^ p.toReal⁻¹) ^ q.toReal) ^ q.toReal⁻¹ = μ s ^ p.toReal⁻¹:= by
+    apply ENNReal.rpow_rpow_inv (ENNReal.toReal_ne_zero.mpr ⟨q_ne_zero, q_ne_top⟩)
+  rw [← this, ← ENNReal.mul_rpow_of_nonneg _ _ (by simp), ← ENNReal.rpow_mul]
+  congr
+  calc _
+    _ = ∫⁻ (a : ℝ) in ENNReal.ofReal ⁻¹' Set.Ico 0 (μ s) ∩ Set.Ioi 0,
+          ENNReal.ofReal (a ^ (p.toReal⁻¹ * q.toReal - 1)) := by
+      apply setLIntegral_congr_fun (by measurability)
+      intro x hx
+      simp only
+      rw [← ENNReal.rpow_add _ _
+        (by simp only [ne_eq, ENNReal.coe_eq_zero, Real.toNNReal_eq_zero, not_le]; exact hx.2)
+        (by simp)]
+      ring_nf
+      rw [← ENNReal.ofReal_rpow_of_pos hx.2]
+      congr
+  rw [ENNReal.ofReal_Ico_eq]
+  have hpq : 0 < p.toReal⁻¹ * q.toReal := by
+    apply mul_pos
+    · rw [inv_pos]
+      exact ENNReal.toReal_pos p_ne_zero p_ne_top
+    · exact ENNReal.toReal_pos q_ne_zero q_ne_top
+  split_ifs with h h
+  · simp only [Set.empty_inter, Measure.restrict_empty, lintegral_zero_measure, zero_eq_mul,
+    ENNReal.div_eq_zero_iff, ENNReal.rpow_eq_zero_iff]
+    right
+    left
+    use h, hpq
+  · rw [Set.univ_inter]
+    rw [lintegral_rpow_Ioi_top]
+    rw [h, ENNReal.top_rpow_of_pos hpq, ENNReal.mul_top]
+    simp only [ne_eq, ENNReal.div_eq_zero_iff, not_or]
+    use p_ne_zero, q_ne_top
+  · rw [Set.Iio_inter_Ioi, lintegral_rpow_of_gt ENNReal.toReal_nonneg (by simpa)]
+    simp only [sub_add_cancel]
+    rw [ENNReal.ofReal_div_of_pos hpq, ENNReal.ofReal_mul (by simp),
+        ENNReal.ofReal_inv_of_pos (ENNReal.toReal_pos p_ne_zero p_ne_top),
+        ENNReal.ofReal_toReal p_ne_top, ENNReal.ofReal_toReal q_ne_top, ← ENNReal.div_eq_inv_mul,
+        ← ENNReal.div_mul _ (by left; assumption) (by left; assumption), ENNReal.mul_comm_div,
+        mul_comm, ← ENNReal.ofReal_rpow_of_nonneg ENNReal.toReal_nonneg (by positivity),
+        ENNReal.ofReal_toReal h]
+
+@[simp]
+lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} :
+  eLorentzNorm (s.indicator (Function.const α a)) p q μ
+    = if p = 0 then 0
+      else if q = 0 then 0
+      else if p = ∞ then
+        (if μ s = 0 then 0 else if q = ∞ then ‖a‖ₑ else ∞ * ‖a‖ₑ)
+      else if q = ∞ then
+        μ s ^ p.toReal⁻¹ * ‖a‖ₑ
+      else
+        (p / q) ^ q.toReal⁻¹ * μ s ^ p.toReal⁻¹ * ‖a‖ₑ := by
+  unfold eLorentzNorm
+  split_ifs with h₀ h₁ h₂ h₃ h₄ h₅ h₆ h₇
+  all_goals try rfl
+  · exact eLpNormEssSup_indicator_const_eq' h₄
+  · unfold Function.const
+    rw [eLpNormEssSup_indicator_const_eq s a h₄]
+  · unfold Function.const
+    rw [eLpNormEssSup_indicator_const_eq' h₅]
+    exact CommMonoidWithZero.mul_zero ⊤
+  · congr
+    exact eLpNormEssSup_indicator_const_eq s a h₅
+  · simp [h₆]
+  · rw [← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, h₇, eLorentzNorm_eq_wnorm h₀]
+    rw [wnorm_indicator_const h₀ h₁]
+  · exact eLorentzNorm'_indicator_const' h₀ h₁ h₆ h₇
 
 
 lemma MemLorentz_iff_MemLp {f : α → ε} :
@@ -374,11 +460,6 @@ lemma MemLorentz_of_MemLorentz_ge {r₁ r₂ : ℝ≥0∞} (r₁_pos : 0 < r₁)
       have norm_lt_top' := ENNReal.mul_lt_top norm_lt_top this
       exists _, norm_lt_top'
       intro s
-      by_cases s_pos : ¬ 0 < NNReal.toReal s
-      · simp only [NNReal.coe_pos, not_lt, nonpos_iff_eq_zero] at s_pos
-        rw [s_pos]
-        simp
-      push_neg at s_pos
       rw [← ENNReal.div_le_iff_le_mul (by left; apply (ENNReal.rpow_pos r₁_pos r₁_top).ne') (by left; exact this.ne)] --TODO: improve this
       calc _
         _ = distribution f (↑s) μ ^ p.toReal⁻¹ * (↑s / r₁ ^ r₁.toReal⁻¹) := by
@@ -393,7 +474,7 @@ lemma MemLorentz_of_MemLorentz_ge {r₁ r₂ : ℝ≥0∞} (r₁_pos : 0 < r₁)
           --·
         _ = (distribution f (↑s) μ ^ (p.toReal⁻¹ * r₁.toReal)) ^ r₁.toReal⁻¹ * (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, ENNReal.ofReal (x ^ (r₁.toReal - 1))) ^ r₁.toReal⁻¹:= by
           congr
-          rw [lintegral_rpow_of_gt s_pos (by linarith), ENNReal.ofReal_div_of_pos (by simpa),
+          rw [lintegral_rpow_of_gt NNReal.zero_le_coe (by linarith), ENNReal.ofReal_div_of_pos (by simpa),
               ← ENNReal.ofReal_rpow_of_nonneg NNReal.zero_le_coe (by linarith)]
           ring_nf
           rw [ENNReal.ofReal_toReal r₁_top, ENNReal.ofReal, Real.toNNReal_coe]

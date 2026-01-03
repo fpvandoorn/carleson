@@ -55,3 +55,10 @@ theorem ciSup_eq_ciSup {α : Type*} {ι ι' : Sort*} [ConditionallyCompleteLinea
     exact hι ⟨i⟩
   push_neg at hι hι'
   rw [iSup_of_empty', iSup_of_empty']
+
+
+@[simp]
+theorem WithTop.iSup_coe_eq_top' {α : Type*} [ConditionallyCompleteLinearOrderBot α] [NoTopOrder α] :
+  ⨆ (i : α), ↑i = (⊤ : WithTop α) := by
+  rw [WithTop.iSup_coe_eq_top]
+  simp

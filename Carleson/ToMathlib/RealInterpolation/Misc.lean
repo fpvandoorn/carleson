@@ -400,12 +400,12 @@ lemma ofReal_rpow_rpow_aux {p : ℝ} :
   filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     with s (hs : 0 < s) using ofReal_rpow_of_pos hs
 
-lemma lintegral_rpow_of_gt {β γ : ℝ} (hβ : 0 < β) (hγ : -1 < γ) :
+lemma lintegral_rpow_of_gt {β γ : ℝ} (hβ : 0 ≤ β) (hγ : -1 < γ) :
     ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
     ENNReal.ofReal (β ^ (γ + 1) / (γ + 1)) := by
   have hγ2 : 0 < γ + 1 := by linarith
   rw [setLIntegral_congr Ioo_ae_eq_Ioc, ← ofReal_integral_eq_lintegral_ofReal]
-  · rw [← intervalIntegral.integral_of_le hβ.le, integral_rpow]
+  · rw [← intervalIntegral.integral_of_le hβ, integral_rpow]
     · rw [Real.zero_rpow hγ2.ne', sub_zero]
     · exact Or.inl hγ
   · apply (@intervalIntegral.intervalIntegrable_rpow' 0 β γ ?_).1
@@ -1239,7 +1239,7 @@ lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} (hg : AEMeasurable g) {j : Bo
 
 /-! Extract expressions for the lower Lebesgue integral of power functions -/
 
-lemma lintegral_rpow_of_gt_abs {β γ : ℝ} (hβ : 0 < β) (hγ : γ > -1) :
+lemma lintegral_rpow_of_gt_abs {β γ : ℝ} (hβ : 0 ≤ β) (hγ : γ > -1) :
     ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
     ENNReal.ofReal (β ^ (γ + 1) / |γ + 1|) := by
   have hγ2 : 0 < γ + 1 := by linarith
@@ -1284,7 +1284,7 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j
       · by_cases hzero : β = 0
         · rw [hzero, ENNReal.zero_rpow_of_pos (by linarith)]; simp
         · have htcinv : 0 < β.toReal := toReal_pos hzero htop
-          rw [lintegral_rpow_of_gt_abs htcinv hγ, ENNReal.ofReal_div_of_pos
+          rw [lintegral_rpow_of_gt_abs htcinv.le hγ, ENNReal.ofReal_div_of_pos
               (by rw [abs_pos]; linarith), ← ENNReal.ofReal_rpow_of_pos htcinv,
               ofReal_toReal_eq_iff.mpr htop]
     · simp only [eq_false_of_ne_true xor_split, Bool.false_eq_true, ↓reduceIte]
