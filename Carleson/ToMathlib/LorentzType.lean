@@ -165,7 +165,7 @@ variable {ε ε' : Type*}
 /-- The weak continuity assumption neede for `HasRestrictedWeakType.hasLorentzType_helper`. -/
 def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε]
   [Preorder ε] [ENorm ε'] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
-  ∀ {fs : ℕ → SimpleFunc α ε} (_ : Monotone fs),
+  ∀ {fs : ℕ → SimpleFunc α ε} (_ : Monotone fs) (_ : BddAbove (range (fun n ↦ ⇑(fs n)))),
   let f := fun x ↦ ⨆ n, (fs n) x;
   ∀ (_ : MemLorentz f p 1 μ) (G : Set α'),
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T ⇑(fs n)) 1 (ν.restrict G)) Filter.atTop
@@ -183,10 +183,24 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENor
     eLpNorm (T (f + g)) 1 (ν.restrict G) ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G))
   (T_submult : ∀ (f : α → ℝ≥0) (a : ℝ≥0), eLpNorm (T (a • f)) 1 (ν.restrict G) ≤ eLpNorm (a • T f) 1 (ν.restrict G))
   (T_zero_of_ae_zero : ∀ {f : α → ℝ≥0} (_ : f =ᶠ[ae μ] 0), eLpNorm (T f) 1 ν = 0)
+  (T_ae_eq_of_ae_eq : ∀ {f g : α → ℝ≥0} (hfg : f =ᶠ[ae μ] g), T f =ᶠ[ae ν] T g)
   {f : α → ℝ≥0} (hf' : MemLorentz f p 1 μ) :
       eLpNorm (T f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ q⁻¹.toReal := by
+
   wlog hf : Measurable f generalizing f
-  · sorry --TODO: replace f by measurable representative
+  · rcases hf'.1 with ⟨g, stronglyMeasurable_g, hfg⟩
+    have hg' : MemLorentz g p 1 μ := by
+      use StronglyMeasurable.aestronglyMeasurable stronglyMeasurable_g
+      convert hf'.2 using 1
+      symm
+      exact eLorentzNorm_congr_ae hfg
+    have hg : Measurable g := stronglyMeasurable_g.measurable
+    convert this hg' hg using 1
+    · apply eLpNorm_congr_ae
+      apply ae_restrict_le
+      exact T_ae_eq_of_ae_eq hfg
+    · congr 2
+      exact eLorentzNorm_congr_ae hfg
   by_cases p_ne_top : p = ∞
   · sorry --TODO: check whether this works or whether it should be excluded
   by_cases q_ne_top : q = ∞
@@ -283,7 +297,14 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENor
     calc _
       _ ≤ Filter.limsup (fun n ↦ eLpNorm (T (SimpleFunc.nnapprox f n)) 1 (ν.restrict G)) Filter.atTop := by
         nth_rw 1 [← SimpleFunc.iSup_nnapprox hf]
-        apply weakly_cont_T SimpleFunc.monotone_nnapprox hf' G
+        apply weakly_cont_T SimpleFunc.monotone_nnapprox _ hf' G
+        use f
+        rw [mem_upperBounds]
+        intro g hg
+        rcases hg with ⟨n, hn⟩
+        rw [← hn]
+        intro x
+        apply SimpleFunc.nnapprox_le hf
       _ ≤ Filter.limsup (fun n ↦ (c / p) * eLorentzNorm' (SimpleFunc.nnapprox f n) p 1 μ * ν G ^ q⁻¹.toReal) Filter.atTop := by
         apply Filter.mono_limsup
         intro n
@@ -369,11 +390,46 @@ instance : Fintype RCLike.Component where
 /-- TODO: check whether this is the right approach -/
 def RCLike.Components {𝕂 : Type*} [RCLike 𝕂] : Finset 𝕂 := {1, -1, RCLike.I, -RCLike.I}
 
+lemma RCLike.Components.norm_eq_one {𝕂 : Type*} [RCLike 𝕂] {c : 𝕂} (hc : c ∈ Components) (hc' : c ≠ 0) :
+    ‖c‖ = 1 := by
+  unfold Components at hc
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hc
+  rcases hc with hc | hc | hc | hc <;> rw [hc]
+  · simp
+  · simp
+  · rw [RCLike.norm_I_of_ne_zero]
+    rwa [← hc]
+  · rw [norm_neg, RCLike.norm_I_of_ne_zero]
+    rwa [← neg_ne_zero, ← hc]
+
+lemma RCLike.Components.norm_le_one {𝕂 : Type*} [RCLike 𝕂] {c : 𝕂} (hc : c ∈ Components) : ‖c‖ ≤ 1 := by
+  by_cases h : c = 0
+  · rw [h]
+    simp
+  rw [norm_eq_one hc h]
+
 open ComplexConjugate
 
 /-- TODO: check whether this is the right approach -/
 def RCLike.component {𝕂 : Type*} [RCLike 𝕂] (c : 𝕂) (a : 𝕂) : ℝ≥0 :=
   Real.toNNReal (RCLike.re (a * conj c))
+
+lemma RCLike.component_le_norm {𝕂 : Type*} [RCLike 𝕂] {c a : 𝕂} (hc : c ∈ Components) :
+    component c a ≤ ‖a‖ := by
+  unfold component
+  rw [Real.coe_toNNReal']
+  apply max_le _ (by simp)
+  apply (RCLike.re_le_norm (a * (starRingEnd 𝕂) c)).trans
+  simp only [norm_mul, RCLike.norm_conj]
+  nth_rw 2 [← mul_one ‖a‖]
+  gcongr
+  exact Components.norm_le_one hc
+
+lemma RCLike.component_le_nnnorm {𝕂 : Type*} [RCLike 𝕂] {c a : 𝕂} (hc : c ∈ Components) :
+    component c a ≤ ‖a‖₊ := by
+  rw [← norm_toNNReal]
+  apply NNReal.le_toNNReal_of_coe_le
+  exact component_le_norm hc
 
   /-
   (match c with
@@ -406,7 +462,7 @@ lemma RCLike.decomposition {𝕂 : Type*} [RCLike 𝕂] {a : 𝕂} :
   rw [max_zero_sub_eq_self, max_zero_sub_eq_self, mul_comm]
   exact RCLike.re_add_im_ax a
 
-
+/-
 --TODO: is this needed?
 @[simp]
 lemma RCLike.decomposition' {𝕂 : Type*} [RCLike 𝕂] {a : 𝕂} :
@@ -415,7 +471,7 @@ lemma RCLike.decomposition' {𝕂 : Type*} [RCLike 𝕂] {a : 𝕂} :
   rw [Finset.sum_insert sorry, Finset.sum_insert sorry, Finset.sum_insert sorry, Finset.sum_singleton,
       ← add_assoc, ← add_assoc]
   exact RCLike.decomposition
-
+-/
 
 
 theorem RCLike.nnnorm_ofReal
@@ -431,6 +487,8 @@ theorem RCLike.enorm_ofReal
   rw [enorm_eq_nnnorm]
   simp
 
+
+/-
 --TODO: move / generalize or find existing version
 theorem add_induction {β γ} [AddCommMonoid β] [AddCommMonoid γ]
   {g : α → β} {f : β → γ} {motive : γ → γ → Prop}
@@ -458,8 +516,9 @@ theorem vector_valued_induction {β γ} [AddCommMonoid β] [AddCommMonoid γ]
   {f : α → M} (hf : Q f)
   :
   motive 1 f := sorry
+-/
 
---c ∈ RCLike.Components, (RCLike.component c a).toReal
+--TODO: clean up the proof
 theorem RCLike.induction {𝕂 : Type*} [RCLike 𝕂]
   {P : (α → 𝕂) → Prop}
   (P_add : ∀ {f g : α → 𝕂}, P f → P g → P (f + g))
@@ -549,7 +608,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
     --‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
     ‖T (f + g) x‖ₑ ≤ ‖T f x + T g x‖ₑ)
   -/
-  (T_submul : ∀ (a : 𝕂) (f : α → 𝕂) (x : α'), ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ • ‖T f x‖ₑ)
+  (T_submul : ∀ (a : 𝕂) (f : α → 𝕂) (x : α'), ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ * ‖T f x‖ₑ)
   (weakly_cont_T : ∀ {f : α → 𝕂} {fs : ℕ → α → 𝕂}
                      (f_locInt : LocallyIntegrable f μ)
                      (hF_meas : ∀ (n : ℕ), AEStronglyMeasurable (fs n) μ)
@@ -557,42 +616,77 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
                      (h_lim : ∀ (a : α), Filter.Tendsto (fun (n : ℕ) => fs n a) Filter.atTop (nhds (f a)))
                      (G : Set α'),
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T (fs n)) 1 (ν.restrict G)) Filter.atTop)
-  (T_zero_of_ae_zero : ∀ {f : α → 𝕂} (_ : f =ᶠ[ae μ] 0), eLpNorm (T f) 1 ν = 0) --TODO: incorporate into weakly_cont_T?
+  (T_zero_of_ae_zero : ∀ {f : α → 𝕂} (_ : f =ᶠ[ae μ] 0), T f =ᶠ[ae ν] 0) --TODO: incorporate into weakly_cont_T?
     :
-
-  --(weakly_cont_T : WeaklyContinuous T μ ν) : --TODO: correct assumption with modified T
-    --TODO: might have to adjust the constant
     HasLorentzType T p 1 p ∞ μ ν (4 * c / p) := by
-  have T_eq_of_ae_eq : ∀ {f g : α → 𝕂} (hfg : f =ᶠ[ae μ] g) {G : Set α'},
-    eLpNorm (T f) 1 (ν.restrict G) = eLpNorm (T g) 1 (ν.restrict G) := by
-    sorry --use T_submul and T_zero_of_ae_zero
-    --TODO: have this as an external lemma?
+  have T_zero_of_ae_zero' : ∀ {f : α → 𝕂} (_ : f =ᶠ[ae μ] 0), eLpNorm (T f) 1 ν = 0 := by
+    intro f hf
+    exact eLpNorm_zero_of_ae_zero (T_zero_of_ae_zero hf)
+  have T_ae_eq_of_ae_eq : ∀ {f g : α → 𝕂} (hfg : f =ᶠ[ae μ] g), T f =ᶠ[ae ν] T g := by
+    intro f g hfg
+    --have : f = g + (f - g) := by simp
+    --apply le_antisymm
+    sorry
 
+    --sorry --use T_submul and T_zero_of_ae_zero
+    --TODO: have this as an external lemma?
   intro f hf
-  --have hp : 1 ≤ p := by sorry --use: should follow from hpq
+  use T_meas hf
   have claim : ∀ (G : Set α'), (MeasurableSet G) → (ν G < ∞) → eLpNorm (T f) 1 (ν.restrict G)
     ≤ (4 * c / p) * eLorentzNorm f p 1 μ * (ν G) ^ q⁻¹.toReal := by
       intro G measurable_G G_finite
-      --generalize f
-      --rcases hf with ⟨aemeasurable_f, hf⟩
-      revert f --TODO: go on here
-      --have : (4 : ℝ≥0∞) = (4 : ℕ) := by simp
-      --rw [this]
+      revert f
       apply RCLike.induction (motive := fun f n ↦
         eLpNorm (T f) 1 (ν.restrict G)
           ≤ (n : ℝ≥0∞) * c / p * eLorentzNorm f p 1 μ * (ν G) ^ q⁻¹.toReal)
       · exact MemLorentz.add
-      · --apply MemLorentz.mono
-        --TODO: go on here
-        sorry
-      · sorry
+      · intro f c hc hf
+        constructor
+        · have := hf.1
+          rw [aestronglyMeasurable_iff_aemeasurable]
+          apply AEMeasurable.comp_aemeasurable (by fun_prop)
+          apply AEMeasurable.comp_aemeasurable (by fun_prop)
+          unfold RCLike.component
+          apply AEMeasurable.comp_aemeasurable (by fun_prop) hf.1.aemeasurable
+        · apply hf.2.trans_le'
+          apply eLorentzNorm_mono_enorm_ae
+          apply Eventually.of_forall
+          intro x
+          have : NNNorm 𝕂 := by infer_instance
+          rw [← ofReal_norm, ← ofReal_norm]
+          simp only [comp_apply, norm_algebraMap', Real.norm_eq_abs, NNReal.abs_eq,
+            ofReal_coe_nnreal, ofReal_norm, coe_le_enorm, ge_iff_le]
+          exact RCLike.component_le_nnnorm hc
+      · intro f c hc hf
+        constructor
+        · apply AEStronglyMeasurable.const_smul hf.1
+        · apply hf.2.trans_le'
+          apply eLorentzNorm_mono_enorm_ae
+          apply Eventually.of_forall
+          intro x
+          simp only [Pi.smul_apply, smul_eq_mul, enorm_mul]
+          nth_rw 2 [← one_mul ‖f x‖ₑ]
+          gcongr
+          rw [← ofReal_norm]
+          apply ENNReal.ofReal_le_of_le_toReal
+          simp only [toReal_one]
+          exact RCLike.Components.norm_le_one hc
       · --main case
         set T' := T ∘ (fun f ↦ ⇑(algebraMap ℝ 𝕂) ∘ NNReal.toReal ∘ f)
-        --TODO: use properties for T to get those for T'
-        have hT' : HasRestrictedWeakType T' p q μ ν c := sorry
+        -- T' inherits properties of T
+        have hT' : HasRestrictedWeakType T' p q μ ν c := by
+          intro F G measurable_F hF measurable_G hG
+          unfold T'
+          have fun_eq : (⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ F.indicator fun x ↦ 1) = F.indicator fun x ↦ 1 := by
+            ext x
+            unfold indicator
+            split_ifs <;> simpa
+          simp only [comp_apply]
+          rw [fun_eq]
+          exact hT F G measurable_F hF measurable_G hG
         have weaklyCont_T' : WeaklyContinuous T' p μ ν := by
           unfold WeaklyContinuous T'
-          intro fs hfs f hf G
+          intro fs hfs bddAbove_fs f hf G
           simp only [Function.comp_apply]
           apply weakly_cont_T
           · apply ((hf.memLp (by simpa)).locallyIntegrable hp).congr'_enorm
@@ -603,23 +697,33 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
             · simp only [Function.comp_apply]
               simp_rw [← RCLike.enorm_ofReal]
               simp
-          · --apply Filter.Eventually.of_forall
-            intro n
+          · intro n
             apply Measurable.aestronglyMeasurable
             apply RCLike.measurable_ofReal.comp
             apply measurable_coe_nnreal_real.comp (SimpleFunc.measurable (fs n))
           · intro x
             simp only [Function.comp_apply, norm_algebraMap', Real.norm_eq_abs, NNReal.abs_eq]
             exact fun ⦃a b⦄ a_1 ↦ hfs a_1 x
-          · --apply Filter.Eventually.of_forall
-            intro x
-            --apply Filter.Tendsto.algebraMap
-            --apply Filter.Tendsto.comp _
-            --apply Filter.Tendsto.comp _
-            sorry --TODO: use that f is the supremum; maybe need to add a condition implying that
-            -- the (fs n) are really converging to f
-
-
+          · intro x
+            have : Tendsto (fun n ↦ (fs n) x) atTop (𝓝 (f x)) := by
+              apply tendsto_atTop_ciSup
+              · intro n m hmn
+                apply hfs hmn
+              · rw [bddAbove_def] at *
+                rcases bddAbove_fs with ⟨g, hg⟩
+                use g x
+                intro y hy
+                rcases hy with ⟨n, hn⟩
+                rw [← hn]
+                apply hg
+                use n
+            apply Filter.Tendsto.comp (y := (𝓝 ((toReal ∘ f) x)))
+            · apply Continuous.tendsto'
+              · continuity
+              · simp
+            apply Filter.Tendsto.comp (z := 𝓝 (toReal (f x))) _ this
+            apply NNReal.continuous_coe.tendsto'
+            rfl
         have T'_subadd : ∀ (f g : α → ℝ≥0),
           MemLorentz f p 1 μ →
             MemLorentz g p 1 μ →
@@ -648,20 +752,10 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
               simp only [Function.comp_apply]
               simp_rw [← RCLike.enorm_ofReal]
               simp
-          apply le_trans _ (eLpNorm_add_le _ _ le_rfl)
-          · /-
-            apply eLpNorm_mono_enorm
-            intro x
-            simp only [Pi.add_apply]
-            apply le_of_eq_of_le _ (T_subadd _ _ _ hf' hg')
-            congr with x
-            simp
-            -/
-            sorry
-          · apply AEStronglyMeasurable.restrict
-            apply T_meas hf'
-          · apply AEStronglyMeasurable.restrict
-            apply T_meas hg'
+          apply (T_subadditive measurable_G G_finite hf' hg').trans_eq'
+          congr
+          ext x
+          simp
         have T'_submul : ∀ (f : α → ℝ≥0) (a : ℝ≥0), eLpNorm (T' (a • f)) 1 (ν.restrict G)
             ≤ eLpNorm (a • T' f) 1 (ν.restrict G) := by
           intro f a
@@ -682,38 +776,88 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
             eLpNorm (T' f) 1 (ν.restrict G) ≤ (c / p) * eLorentzNorm f p 1 μ * ν G ^ q⁻¹.toReal := by
           intro f hf
           apply HasRestrictedWeakType.hasLorentzType_helper c_pos hT' hpq weaklyCont_T' measurable_G G_finite
-            T'_subadd T'_submul _ hf
-          intro f hf
-          unfold T'
-          simp only [Function.comp_apply]
-          apply T_zero_of_ae_zero
-          have : RCLike.ofReal ∘ NNReal.toReal ∘ (0 : α → ℝ≥0) = (0 : α → 𝕂) := by simp
-          rw [← this]
-          apply Filter.EventuallyEq.fun_comp
-          apply Filter.EventuallyEq.fun_comp hf
+            T'_subadd T'_submul _ _ hf
+          · intro f hf
+            unfold T'
+            simp only [Function.comp_apply]
+            apply T_zero_of_ae_zero'
+            have : RCLike.ofReal ∘ NNReal.toReal ∘ (0 : α → ℝ≥0) = (0 : α → 𝕂) := by simp
+            rw [← this]
+            apply Filter.EventuallyEq.fun_comp
+            apply Filter.EventuallyEq.fun_comp hf
+          · intro f g hfg
+            unfold T'
+            simp only [comp_apply]
+            apply T_ae_eq_of_ae_eq
+            filter_upwards [hfg]
+            intro a hfg
+            simpa
         unfold T' at helper
         simp only [comp_apply] at helper
         intro f hf
         simp only [Nat.cast_one, one_mul]
         have : eLorentzNorm (⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) p 1 μ = eLorentzNorm f p 1 μ := by
-          sorry
+          apply eLorentzNorm_congr_enorm_ae
+          apply Eventually.of_forall
+          intro x
+          rw [← ofReal_norm]
+          simp
         rw [this]
         apply helper
-        sorry
-      · intro f g n m hf hg hf_add hg_add hf' hg'
-        sorry --TODO: do some calculations
-      · intro f c n hc hf
+        constructor
+        · have comp_eq : (⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) = fun x ↦ ⇑(algebraMap ℝ 𝕂) (f x).toReal := by
+            ext x
+            simp
+          have := hf.1
+          rw [comp_eq] at this
+          rwa [IsEmbedding.aestronglyMeasurable_comp_iff, IsEmbedding.aestronglyMeasurable_comp_iff] at this
+          · exact (Isometry.isEmbedding fun _ ↦ congrFun rfl)
+          · exact (algebraMap_isometry ℝ 𝕂).isEmbedding
+        · rw [← this]
+          exact hf.2
+      · intro f g n m hf_add hg_add hf hg hf' hg'
+        apply (T_subadditive measurable_G G_finite hf hg).trans
+        rw [Nat.cast_add, add_mul, ENNReal.add_div, add_mul, add_mul]
+        gcongr
+        · apply hf'.trans
+          gcongr
+          apply eLorentzNorm_mono_enorm_ae
+          apply Eventually.of_forall
+          intro x
+          rw [← ofReal_norm, ← ofReal_norm]
+          apply ENNReal.ofReal_le_ofReal hf_add
+        · apply hg'.trans
+          gcongr
+          apply eLorentzNorm_mono_enorm_ae
+          apply Eventually.of_forall
+          intro x
+          rw [← ofReal_norm, ← ofReal_norm]
+          apply ENNReal.ofReal_le_ofReal hg_add
+      · intro f b n hb hf
+        by_cases h : b = 0
+        · intro _
+          rw [h]
+          simp only [zero_smul, eLorentzNorm_zero, mul_zero, toReal_inv, zero_mul,
+            nonpos_iff_eq_zero]
+          apply eLpNorm_eq_zero_of_ae_zero
+          apply ae_restrict_le
+          apply T_zero_of_ae_zero
+          trivial
         gcongr
         · apply eLpNorm_mono_enorm
           intro x
           apply (T_submul _ _ _).trans
-          sorry --easy: write small lemma for this
+          nth_rw 2 [← one_mul ‖T f x‖ₑ]
+          gcongr
+          rw [enorm_eq_nnnorm]
+          simp only [coe_le_one_iff]
+          apply RCLike.Components.norm_le_one hb
         · apply eLorentzNorm_mono_enorm_ae
           apply Eventually.of_forall
           intro x
-          --might not work if 𝕂 = ℝ; maybe need additional case distinction
-          sorry
-  use T_meas hf
+          simp only [Pi.smul_apply, smul_eq_mul, enorm_mul]
+          rw [← ofReal_norm, ← ofReal_norm, RCLike.Components.norm_eq_one hb h]
+          simp
   by_cases h : p = ⊤
   · rw [h]
     rw [eLorentzNorm_eq_eLpNorm sorry]
