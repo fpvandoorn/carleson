@@ -875,9 +875,9 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
     · rw [eLpNorm_zero_of_ae_zero (T_zero_of_ae_zero h'),
           eLorentzNorm_zero_of_ae_zero h']
       simp
-    · simp
-      --TODO: find contradiction?
-      sorry
+    · have := hf.2
+      rw [p_top, eLorentzNorm_exponent_top (by simp) (by simp) h'] at this
+      contradiction
   · have p_zero : p ≠ 0 := hpq.ne_zero
     have q_zero : q ≠ 0 := hpq.symm.ne_zero
     have hp : 0 < p.toReal := by
@@ -890,6 +890,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
     set G := {x | ↑l < ‖T f x‖ₑ}
     have measurable_G : MeasurableSet G := by
       sorry
+    have measure_G : ν G = distribution (T f) l ν := by rfl
     have G_finite : ν G < ∞ := by
       sorry --TODO: might need another case distinction
     by_cases G_zero : ν G = 0

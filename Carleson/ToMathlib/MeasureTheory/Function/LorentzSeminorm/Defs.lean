@@ -110,6 +110,17 @@ lemma eLorentzNorm_exponent_zero' {f : α → ε} : eLorentzNorm f p 0 μ = 0 :=
 lemma eLorentzNorm_exponent_top_top {f : α → ε} : eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
   simp [eLorentzNorm]
 
+lemma eLorentzNorm_exponent_top' {f : α → ε} (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) (hf : eLpNormEssSup f μ ≠ 0) :
+    eLorentzNorm f ∞ q μ = ∞ := by
+  simp only [eLorentzNorm, ENNReal.top_ne_zero, ↓reduceIte]
+  rw [ite_cond_eq_false, ite_cond_eq_false, ENNReal.top_mul hf] <;> simpa
+
+lemma eLorentzNorm_exponent_top {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
+  (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) (hf : ¬ f =ᶠ[ae μ] 0) :
+    eLorentzNorm f ∞ q μ = ∞ := by
+  apply eLorentzNorm_exponent_top' q_ne_zero q_ne_top
+  contrapose! hf
+  exact eLpNormEssSup_eq_zero_iff.mp hf
 
 /-- A function is in the Lorentz space `L^{p,q}` if it is (strongly a.e.)-measurable and
   has finite Lorentz seminorm. -/
