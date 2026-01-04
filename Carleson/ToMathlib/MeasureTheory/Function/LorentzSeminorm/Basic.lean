@@ -51,7 +51,7 @@ theorem eLorentzNorm_congr_ae {f g : α → ε'} (hfg : f =ᵐ[μ] g) :
 variable {ε : Type*} [TopologicalSpace ε]
 
 --TODO: make this an iff, for p, r ≠ 0?
-lemma eLorentzNorm_zero_of_ae_zero [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
+lemma eLorentzNorm_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     eLorentzNorm f p q μ = 0 := by
   simp only [eLorentzNorm, ite_eq_left_iff]
   intro p_ne_zero
@@ -65,11 +65,18 @@ lemma eLorentzNorm_zero_of_ae_zero [ESeminormedAddMonoid ε] {f : α → ε} (h 
     mul_zero]
   simp
 
+--TODO: make this an iff, for p, r ≠ 0?
+lemma eLorentzNorm_zero_of_ae_zero [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+    eLorentzNorm f p q μ = 0 := by
+  apply eLorentzNorm_zero_of_ae_enorm_zero
+  filter_upwards [h]
+  simp
+
 variable [ESeminormedAddMonoid ε]
 
 @[simp]
 lemma eLorentzNorm_zero : eLorentzNorm (0 : α → ε) p q μ = 0 := by
-  apply eLorentzNorm_zero_of_ae_zero
+  apply eLorentzNorm_zero_of_ae_enorm_zero
   simp
 
 @[simp]
