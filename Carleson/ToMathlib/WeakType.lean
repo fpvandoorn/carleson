@@ -300,6 +300,16 @@ lemma distribution_add {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : �
       exact LT.lt.ne_bot h'
   · exact measurableSet_lt measurable_const (StronglyMeasurable.enorm hg)
 
+lemma distribution_smul_const {f : α → ℝ≥0∞}
+  {a : ℝ≥0∞} (h : a ≠ 0 ∨ t ≠ 0) (h' : a ≠ ⊤ ∨ t ≠ ⊤) :
+    distribution (a • f) t μ = distribution f (t / a) μ := by
+  unfold distribution
+  congr with x
+  simp only [Pi.smul_apply, smul_eq_mul, enorm_eq_self]
+  symm
+  rw [mul_comm]
+  apply ENNReal.div_lt_iff h h'
+
 lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
   (enorm_add : ∀ a b : ε, ‖a + b‖ₑ = ‖a‖ₑ + ‖b‖ₑ) --TODO: new type class for this property?
   {f : α → ε} {c : ε} (hc : ‖c‖ₑ ≠ ⊤) {s : Set α}
@@ -408,6 +418,26 @@ lemma wnorm_toReal_le {f : α → ℝ≥0∞} {p : ℝ≥0∞} :
 lemma wnorm_toReal_eq {f : α → ℝ≥0∞} {p : ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
     wnorm (ENNReal.toReal ∘ f) p μ = wnorm f p μ := by
   simp_rw [wnorm, eLpNormEssSup_toReal_eq hf, wnorm'_toReal_eq hf]
+
+lemma wnorm'_mono_enorm_ae {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α → ε'} {p : ℝ} (hp : 0 ≤ p)
+  (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
+    wnorm' f p μ ≤ wnorm' g p μ := by
+  unfold wnorm'
+  apply iSup_le
+  intro t
+  calc _
+    _ ≤ ↑t * distribution g (↑t) μ ^ p⁻¹ := by
+      gcongr
+      assumption
+  apply le_iSup _ t
+
+lemma wnorm_mono_enorm_ae {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α → ε'}
+  (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
+    wnorm f p μ ≤ wnorm g p μ := by
+  unfold wnorm
+  split_ifs with h'
+  · exact essSup_mono_ae h
+  · exact wnorm'_mono_enorm_ae (by simp) h
 
 theorem wnorm_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
   {a : ε} {s : Set α} {p : ℝ≥0∞}
