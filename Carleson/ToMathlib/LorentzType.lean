@@ -45,22 +45,10 @@ lemma hasStrongType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormed
     have := h f hf
     rwa [← eLorentzNorm_eq_eLpNorm this.1]
 
+
+variable {β : Type*} [Zero β] [One β]
+
 /-
--- TODO: find better name
-lemma HasLorentzType_p_infty_qs {T : (α → ε₁) → (α' → ε₂)} {p q s : ℝ≥0∞}
-  {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : 0 < c) (hT : AEStronglyMeasurable (T f) ν) :
-  HasLorentzType T p ∞ q s μ ν c := by
-  intro f hf
--/
-
---TODO: what exactly should be the requirements on 𝕂? Actually, we only need a 1 here.
---TODO: This could be more general, it currently assumes T f ≥ 0
-variable {β : Type*} [Zero β] [One β] --[NormedField 𝕂] --[ENormedAddMonoid 𝕂] [Field 𝕂] --[TopologicalSpace 𝕂]
-  --[TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
-  --[TopologicalSpace 𝕂] [ENormedAddMonoid 𝕂] --TODO: Actually, these last arguments should probably be infered
-
-/-- Defines when an operator "has restricted weak type". This is an even weaker version
-of `HasBoundedWeakType`. -/
 def HasRestrictedWeakType' [ENorm ε₂] (T : (α → β) → (α' → ε₂)) (p q : ℝ≥0∞)
   (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
@@ -68,16 +56,144 @@ def HasRestrictedWeakType' [ENorm ε₂] (T : (α → β) → (α' → ε₂)) (
     AEStronglyMeasurable (T (F.indicator (fun _ ↦ 1))) ν ∧
       eLpNorm (T (F.indicator 1)) 1 (ν.restrict G)
         ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ q⁻¹.toReal
+-/
 
+/-- Defines when an operator "has restricted weak type". This is an even weaker version
+of `HasBoundedWeakType`. -/
 def HasRestrictedWeakType [ENorm ε₂] (T : (α → β) → (α' → ε₂)) (p p' : ℝ≥0∞)
   (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
   ∀ (F : Set α), (MeasurableSet F) → (μ F < ∞) →
-    AEStronglyMeasurable (T (F.indicator (fun _ ↦ 1))) ν ∧
+    AEStronglyMeasurable (T (F.indicator 1)) ν ∧
       wnorm (T (F.indicator 1)) p' ν ≤ c * (μ F) ^ p⁻¹.toReal
 
---TODO: add lemma relating this to HasRestrictedWeakType
---apply mul_meas_ge_le_lintegral₀
+lemma HasRestrictedWeakType.of_lintegral_le [SigmaFinite ν] [ContinuousENorm ε₂] {T : (α → β) → (α' → ε₂)}
+  (hpq : p.HolderConjugate q) (hp : p ≠ ⊤) (hq : q ≠ ⊤) {c : ℝ≥0}
+  (hT : ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (μ F < ∞) → (MeasurableSet G) → (ν G < ∞) →
+    AEStronglyMeasurable (T (F.indicator 1)) ν ∧
+      (∫⁻ (x : α') in G, ‖T (F.indicator 1) x‖ₑ ∂ν)
+        ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ q⁻¹.toReal) :
+    HasRestrictedWeakType T p p μ ν c := by
+  intro F hF F_finite
+  have hf : AEStronglyMeasurable (T (F.indicator fun x ↦ 1)) ν := by
+    apply (hT F ∅ hF F_finite MeasurableSet.empty (by simp)).1
+  use hf
+  rw [wnorm_ne_top hp, wnorm']
+  apply iSup_le
+  intro l
+  by_cases l_zero : l = 0
+  · simp [l_zero]
+  set G := {x | ↑l < ‖T (F.indicator 1) x‖ₑ}
+  set f := (F.indicator (1 : α → β))
+  have hG : NullMeasurableSet G ν := by
+    unfold G
+    apply nullMeasurableSet_lt aemeasurable_const hf.enorm
+  rcases hG.exists_measurable_superset_ae_eq  with ⟨G', _, hG', G'G⟩
+  have measure_G'G := measure_congr G'G
+  have measure_G : ν G = distribution (T f) l ν := by rfl
+  rw [← measure_G]
+  have p_toReal_pos : 0 < p.toReal := toReal_pos hpq.ne_zero hp
+  have q_toReal_pos : 0 < q.toReal := toReal_pos hpq.symm.ne_zero hq
+  by_cases G_finite : ν G = ⊤
+  · exfalso
+    rw [← measure_G'G] at G_finite
+    set r := (c * μ F ^ p⁻¹.toReal / ↑l) ^ p.toReal with r_def
+    have : r < ν G' := by
+      rw [G_finite]
+      unfold r
+      apply (ENNReal.rpow_lt_top_iff_of_pos p_toReal_pos).mpr
+      apply ENNReal.div_lt_top _ (by simpa)
+      apply ENNReal.mul_ne_top (by simp)
+      apply ENNReal.rpow_ne_top_of_nonneg (by simp) F_finite.ne
+    rcases ν.exists_subset_measure_lt_top hG' this with ⟨H, hH, H_subset_G', H_gt, H_finite⟩
+    have H_pos := (zero_le _).trans_lt H_gt
+    have := (hT F H hF F_finite hH H_finite).2
+    apply this.not_gt
+    calc _
+      _ < l * ν H := by
+        rw [← ENNReal.lt_div_iff_mul_lt
+            (by left; rw [ne_eq, ENNReal.rpow_eq_zero_iff_of_pos (by simpa)]; exact H_pos.ne.symm)
+            (by left; apply ENNReal.rpow_ne_top_of_nonneg (by simp) H_finite.ne), mul_div_assoc]
+        nth_rw 1 [← ENNReal.rpow_one (ν H)]
+        have : 1 - q⁻¹.toReal = p⁻¹.toReal := by
+          have hpq' := ENNReal.holderConjugate_iff.mp hpq
+          have : 1 = ENNReal.toReal 1 := by simp
+          rw [this, ← hpq', toReal_add, add_sub_cancel_right]
+          · simp only [ne_eq, inv_eq_top]
+            exact hpq.ne_zero
+          · simp only [ne_eq, inv_eq_top]
+            exact hpq.symm.ne_zero
+        rw [← ENNReal.rpow_sub _ _ H_pos.ne.symm H_finite.ne, this, mul_comm (ofNNReal l),
+            ← ENNReal.div_lt_iff (by left; simpa) (by left; simp),
+            ← ENNReal.rpow_rpow_inv (toReal_ne_zero.mpr ⟨hpq.ne_zero, hp⟩) (c * μ F ^ p⁻¹.toReal / ↑l),
+            ← r_def, toReal_inv]
+        apply ENNReal.rpow_lt_rpow H_gt (inv_pos.mpr p_toReal_pos)
+      _ = ∫⁻ (x : α') in H, l ∂ν := by
+        rw [setLIntegral_const]
+      _ ≤ ∫⁻ (x : α') in H, ‖T (F.indicator 1) x‖ₑ ∂ν := by
+        apply setLIntegral_mono_ae' hH
+        filter_upwards [G'G]
+        intro x h hx
+        have : G x := by
+          rw [← h]
+          exact H_subset_G' hx
+        exact this.le
+  rw [← Ne, ← lt_top_iff_ne_top] at G_finite
+  have G'_finite : ν G' < ∞ := by
+    convert G_finite
+  by_cases G_zero : ν G = 0
+  · rw [G_zero, zero_rpow_of_pos]
+    · simp
+    simp only [inv_pos]
+    exact toReal_pos hpq.ne_zero hp
+  calc _
+    _ = ↑l * ν G / ν G ^ q⁻¹.toReal := by
+      rw [mul_div_assoc]
+      congr
+      rw [ENNReal.eq_div_iff,
+          ← ENNReal.rpow_add, ← ENNReal.toReal_inv, ← ENNReal.toReal_add, add_comm, ENNReal.holderConjugate_iff.mp hpq]
+      · simp only [ENNReal.toReal_one, ENNReal.rpow_one]
+      · rw [ne_eq, ENNReal.inv_eq_top]
+        exact hpq.symm.ne_zero
+      · rw [ne_eq, ENNReal.inv_eq_top]
+        exact hpq.ne_zero
+      · exact G_zero
+      · exact G_finite.ne
+      · simp only [toReal_inv, ne_eq, ENNReal.rpow_eq_zero_iff, inv_pos, inv_neg'', not_or,
+        not_and, not_lt, toReal_nonneg, implies_true, and_true]
+        intro
+        contradiction
+      · simp only [toReal_inv, ne_eq, rpow_eq_top_iff, inv_neg'', inv_pos, not_or, not_and,
+        not_lt, toReal_nonneg, implies_true, true_and]
+        intro h
+        exfalso
+        exact G_finite.ne h
+    _ ≤ (∫⁻ (x : α') in G, ‖T f x‖ₑ ∂ν) / ν G ^ q⁻¹.toReal := by
+      gcongr
+      rw [← Measure.restrict_eq_self _ (subset_refl G)]
+      calc _
+        _ ≤ ↑l * (ν.restrict G) {x | ↑l ≤ ‖T f x‖ₑ} := by
+          gcongr
+          intro x hx
+          unfold G at hx
+          rw [Set.mem_setOf_eq] at hx ⊢; exact hx.le
+      apply mul_meas_ge_le_lintegral₀
+      apply AEMeasurable.restrict
+      exact AEStronglyMeasurable.enorm hf
+    _ ≤ (c * μ F ^ p⁻¹.toReal * ν G ^ q⁻¹.toReal) / ν G ^ q⁻¹.toReal := by
+      gcongr
+      convert (hT F G' hF F_finite hG' G'_finite).2 using 2
+      · exact Measure.restrict_congr_set G'G.symm
+      · congr 1
+        exact measure_G'G.symm
+    _ = c * μ F ^ p⁻¹.toReal := by
+      apply ENNReal.mul_div_cancel_right
+      · contrapose! G_zero
+        rwa [ENNReal.rpow_eq_zero_iff_of_pos] at G_zero
+        simp only [toReal_inv, inv_pos]
+        apply toReal_pos hpq.symm.ne_zero hq
+      · exact ENNReal.rpow_ne_top' G_zero G_finite.ne
+
 
 lemma HasRestrictedWeakType.without_finiteness [ESeminormedAddMonoid ε₂] {T : (α → β) → (α' → ε₂)}
     (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
@@ -94,61 +210,6 @@ lemma HasRestrictedWeakType.without_finiteness [ESeminormedAddMonoid ε₂] {T :
       exact c_pos.ne.symm
     · simp only [toReal_inv, inv_pos]
       exact ENNReal.toReal_pos p_ne_zero p_ne_top
-
---TODO: might not be needed any more
-/-
-lemma HasRestrictedWeakType'.without_finiteness [ESeminormedAddMonoid ε₂] {T : (α → β) → (α' → ε₂)}
-    (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤)
-    {c : ℝ≥0} (c_pos : 0 < c) (hT : HasRestrictedWeakType' T p q μ ν c)
-    (T_zero_of_ae_zero : ∀ {f : α → β} (_ : f =ᶠ[ae μ] 0), eLpNorm (T f) 1 ν = 0) :
-  ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (MeasurableSet G) →
-    eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
-      ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ q⁻¹.toReal := by
-  intro F G hF hG
-  have p_inv_pos : 0 < p⁻¹.toReal := by
-    simp only [ENNReal.toReal_inv, inv_pos, ENNReal.toReal_pos p_ne_zero p_ne_top]
-  have q_inv_pos : 0 < q⁻¹.toReal := by
-    simp only [ENNReal.toReal_inv, inv_pos, ENNReal.toReal_pos q_ne_zero q_ne_top]
-  by_cases hFG : μ F < ∞ ∧ ν G < ∞
-  · exact (hT F G hF hFG.1 hG hFG.2).2
-  · rw [not_and_or] at hFG
-    rcases hFG with hF | hG
-    · by_cases G_zero : ν G = 0
-      · rw [G_zero, ENNReal.zero_rpow_of_pos q_inv_pos]
-        simp only [ENNReal.toReal_inv, mul_zero, nonpos_iff_eq_zero]
-        convert eLpNorm_measure_zero
-        simpa
-      simp only [not_lt, top_le_iff] at hF
-      rw [hF]
-      convert le_top
-      rw [ENNReal.mul_eq_top]
-      right
-      constructor
-      · rw [ENNReal.top_rpow_of_pos p_inv_pos, ENNReal.mul_top (by simp [c_pos.ne'])]
-      simp only [ENNReal.toReal_inv, ne_eq, ENNReal.rpow_eq_zero_iff, inv_pos, inv_neg'', not_or,
-        not_and, not_lt, ENNReal.toReal_nonneg, implies_true, and_true]
-      intro h
-      exfalso
-      exact G_zero h
-    · by_cases F_zero : μ F = 0
-      · rw [F_zero, ENNReal.zero_rpow_of_pos p_inv_pos]
-        simp only [mul_zero, ENNReal.toReal_inv, zero_mul, nonpos_iff_eq_zero]
-        rw [← le_zero_iff]
-        exact (eLpNorm_restrict_le _ _ _ _).trans (T_zero_of_ae_zero (indicator_meas_zero F_zero)).le
-      simp only [not_lt, top_le_iff] at hG
-      rw [hG]
-      convert le_top
-      rw [ENNReal.mul_eq_top]
-      left
-      constructor
-      · simp only [ENNReal.toReal_inv, ne_eq, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_pos,
-          inv_neg'', not_or, not_and, not_lt, ENNReal.toReal_nonneg, implies_true, and_true]
-        use (by simp [c_pos.ne'])
-        intro h
-        exfalso
-        exact F_zero h
-      rw [ENNReal.top_rpow_of_pos q_inv_pos]
--/
 
 --TODO: Could probably weaken assumption to (h : ∀ᶠ (x : β) in f, u x ≤ v x)
 theorem Filter.mono_limsup {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
@@ -172,8 +233,6 @@ theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ 
       gcongr
       apply ENNReal.rpow_add_rpow_le_add _ _ hp1
 
-
---variable [ENorm ε] [TopologicalSpace ε'] [ENormedAddMonoid ε']
 
 --TODO: move
 theorem ENNReal.limsup_mul_const_of_ne_top {α : Type*} {f : Filter α} {u : α → ℝ≥0∞} {a : ℝ≥0∞} (ha_top : a ≠ ⊤) :
@@ -833,23 +892,20 @@ theorem memLorentz_iff_memLorentz_embedRCLike [TopologicalSpace α] {𝕂 : Type
       apply eLorentzNorm_congr_enorm_ae
       apply Eventually.of_forall enorm_eq_enorm_embedRCLike
 
-lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} /- [MeasurableSpace ε'] [BorelSpace ε'] -/
-  --[ENormedAddMonoid ε']
+lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
-  {T : (α → 𝕂) → (α' → ε')} --(hp : 1 ≤ p)
+  {T : (α → 𝕂) → (α' → ε')}
   [IsLocallyFiniteMeasure μ] [NoAtoms μ] {c : ℝ≥0} (c_pos : 0 < c)
   (hT : HasRestrictedWeakType T p p μ ν c) --(hpq : p.HolderConjugate q)
   (T_meas : ∀ {f : α → 𝕂}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
   (T_subadd : ∀ {f g : α → 𝕂}, (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
     wnorm (T (f + g)) p ν ≤ wnorm (T f) p ν + wnorm (T g) p ν) --TODO: replace by pointwise estimate?
   (T_submul : ∀ (a : 𝕂) (f : α → 𝕂) (x : α'), ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ * ‖T f x‖ₑ)
-  --(weakly_cont_T : WeaklyContinuous T p μ ν)
-
-  (weakly_cont_T : ∀ {f : α → 𝕂} {fs : ℕ → α → 𝕂}
-                     (hf : MemLorentz f p 1 μ)
-                     (hF_meas : ∀ (n : ℕ), AEStronglyMeasurable (fs n) μ)
-                     (h_norm_monotone : ∀ (a : α), Monotone (fun n ↦ ‖fs n a‖))
-                     (h_lim : ∀ (a : α), Filter.Tendsto (fun (n : ℕ) => fs n a) Filter.atTop (nhds (f a))),
+  (weakly_cont_T : ∀ {f : α → 𝕂} {fs : ℕ → α → 𝕂},
+                     (MemLorentz f p 1 μ) →
+                     (∀ (n : ℕ), AEStronglyMeasurable (fs n) μ) →
+                     (∀ (a : α), Monotone (fun n ↦ ‖fs n a‖)) →
+                     (∀ (a : α), Filter.Tendsto (fun (n : ℕ) => fs n a) Filter.atTop (nhds (f a))) →
     wnorm (T f) p ν ≤ Filter.limsup (fun n ↦ wnorm (T (fs n)) p ν) Filter.atTop)
   (T_zero : T 0 =ᶠ[ae ν] 0)
   (T_ae_eq_of_ae_eq : ∀ {f g : α → 𝕂} (_ : f =ᶠ[ae μ] g), T f =ᶠ[ae ν] T g) --TODO: incorporate into weakly_cont_T?
@@ -989,10 +1045,11 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*} 
       constructor
       · apply T_meas
         rw [memLorentz_iff_memLorentz_embedRCLike]
+        have : (1 : α → ℝ≥0) = fun _ ↦ 1 := rfl
         constructor
         · apply Measurable.aestronglyMeasurable
-          rwa [measurable_indicator_const_iff]
-        · rw [const_def, eLorentzNorm_indicator_const]
+          rwa [this, measurable_indicator_const_iff]
+        · rw [this, const_def, eLorentzNorm_indicator_const]
           simp only [one_ne_zero, ↓reduceIte, one_ne_top, enorm_NNReal, ENNReal.coe_one, mul_one,
             div_one, toReal_one, inv_one, ENNReal.rpow_one]
           split_ifs
