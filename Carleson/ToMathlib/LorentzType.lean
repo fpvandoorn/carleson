@@ -444,7 +444,7 @@ theorem HasRestrictedWeakType.hasLorentzType_nnreal [TopologicalSpace ε'] [ENor
   {f : α → ℝ≥0} (hf' : MemLorentz f p 1 μ)
   (weakly_cont_T : WeaklyContinuous T p μ ν)
   (T_subadd : ∀ {f g : α → ℝ≥0}, (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
-    wnorm (T (f + g)) p ν ≤ wnorm (T f) p ν + wnorm (T g) p ν)
+    ∀ᵐ x ∂ν, ‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
   (T_submul : ∀ (a : ℝ≥0) (f : α → ℝ≥0) (x : α'), ‖T (a • f) x‖ₑ ≤ a * ‖T f x‖ₑ)
   --(T_zero_of_ae_zero : ∀ {f : α → ℝ≥0} (_ : f =ᶠ[ae μ] 0), eLpNorm (T f) 1 ν = 0)
   (T_ae_eq_of_ae_eq : ∀ {f g : α → ℝ≥0}, (f =ᶠ[ae μ] g) → T f =ᶠ[ae ν] T g)
@@ -513,7 +513,7 @@ theorem HasRestrictedWeakType.hasLorentzType_nnreal [TopologicalSpace ε'] [ENor
         apply eLorentzNorm_mono_enorm_ae
         simp
       calc _
-        _ ≤ wnorm (T ⇑f) p ν + wnorm (T ⇑g) p ν := T_subadd hf' hg'
+        _ ≤ wnorm (T ⇑f) p ν + wnorm (T ⇑g) p ν := sorry --T_subadd hf' hg' --TODO: find a (non-general) triangle ineq for wnorm
         _ ≤ ↑c / p * eLorentzNorm' (⇑f) p 1 μ + ↑c / p * eLorentzNorm' (⇑g) p 1 μ := by
           gcongr
           · exact hf hf'
@@ -864,7 +864,8 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
   (hT : HasRestrictedWeakType T p p μ ν c) --(hpq : p.HolderConjugate q)
   (T_meas : ∀ {f : α → 𝕂}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
   (T_subadd : ∀ {f g : α → 𝕂}, (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
-    wnorm (T (f + g)) p ν ≤ wnorm (T f) p ν + wnorm (T g) p ν) --TODO: replace by pointwise estimate?
+    ∀ᵐ x ∂ν, ‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
+    --wnorm (T (f + g)) p ν ≤ wnorm (T f) p ν + wnorm (T g) p ν) --TODO: replace by pointwise estimate?
   (T_submul : ∀ (a : 𝕂) (f : α → 𝕂) (x : α'), ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ * ‖T f x‖ₑ)
   (weakly_cont_T : ∀ {f : α → 𝕂} {fs : ℕ → α → 𝕂},
                      (MemLorentz f p 1 μ) →
@@ -980,12 +981,13 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
     · intro f g hf hg
       unfold T'
       simp only [comp_apply]
-      apply (T_subadd _ _).trans_eq'
-      · congr
-        ext x
-        simp
-      · rwa [memLorentz_iff_memLorentz_embedRCLike]
-      · rwa [memLorentz_iff_memLorentz_embedRCLike]
+      rw [← memLorentz_iff_memLorentz_embedRCLike (𝕂 := 𝕂)] at hf
+      rw [← memLorentz_iff_memLorentz_embedRCLike (𝕂 := 𝕂)] at hg
+      filter_upwards [T_subadd hf hg]
+      intro x h
+      apply h.trans_eq'
+      congr with x
+      simp
     · intro a f x
       unfold T'
       simp only [comp_apply]
@@ -1028,6 +1030,8 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
         split_ifs <;> simp
   · intro f g n m hf_add hg_add hf hg hf' hg'
     rw [eLorentzNorm_eq_wnorm p_zero] at *
+    --apply eLpNorm_add
+    /-
     apply (T_subadd hf hg).trans
     rw [Nat.cast_add, add_mul, ENNReal.add_div, add_mul]
     gcongr
@@ -1045,6 +1049,8 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
       intro x
       rw [← ofReal_norm, ← ofReal_norm]
       apply ENNReal.ofReal_le_ofReal hg_add
+    -/
+    sorry
   · intro f b n hb hf
     by_cases h : b = 0
     · intro _
