@@ -5,10 +5,6 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 
 open MeasureTheory
 
-theorem Real.volume_uIoc {a b : ℝ} : volume (Set.uIoc a b) = ENNReal.ofReal |b - a| := by
-  /- Cf. proof of Real.volume_interval-/
-  rw [Set.uIoc, volume_Ioc, max_sub_min_eq_abs]
-
 lemma intervalIntegral.integral_conj' {μ : Measure ℝ} {𝕜 : Type*} [RCLike 𝕜] {f : ℝ → 𝕜} {a b : ℝ} :
     ∫ x in a..b, (starRingEnd 𝕜) (f x) ∂μ = (starRingEnd 𝕜) (∫ x in a..b, f x ∂μ) := by
   rw [intervalIntegral_eq_integral_uIoc, integral_conj, intervalIntegral_eq_integral_uIoc,

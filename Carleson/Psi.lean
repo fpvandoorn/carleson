@@ -197,7 +197,7 @@ private lemma endpoint_sub_one (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) < 1
   rw [one_add_logb hD hx]
   apply le_antisymm
   · rw [← inv_eq_one_div, zpow_neg, inv_lt_inv₀ (by positivity) (cDx0 hD two_pos hx)] at h
-    rw [Int.floor_le_sub_one_iff, ← rpow_lt_rpow_left_iff hD,
+    rw [Int.le_sub_one_iff, Int.floor_lt, ← rpow_lt_rpow_left_iff hD,
       rpow_logb (D0 hD) (ne_of_gt hD) (cDx0 hD two_pos hx)]
     exact_mod_cast h
   · apply sub_le_iff_le_add.2 ∘ Int.ceil_le.2

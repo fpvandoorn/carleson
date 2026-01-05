@@ -181,7 +181,7 @@ lemma iUnion_lt_minLayer_iff_bounded_series :
 all `LTSeries` in `A` have length at most `n`. -/
 lemma iUnion_minLayer_iff_bounded_series :
     ⋃ (k ≤ n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length ≤ n := by
-  simp [← lt_succ_iff, iUnion_lt_minLayer_iff_bounded_series]
+  simp_rw [← Nat.lt_succ_iff, iUnion_lt_minLayer_iff_bounded_series]
 
 variable [Fintype α]
 
