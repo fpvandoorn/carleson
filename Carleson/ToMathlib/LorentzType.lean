@@ -625,24 +625,7 @@ theorem weakly_cont_implies_ae_eq [TopologicalSpace α] {𝕂 : Type*} [Topologi
   --  := @weakly_cont_T _ (fun n ↦ g) f_locInt
   sorry
 -/
-/-
-inductive RCLike.Component
-  | pos_re
-  | neg_re
-  | pos_im
-  | neg_im
 
-
-instance : Fintype RCLike.Component where
-  elems := sorry
-  /-
-  {RCLike.Component.pos_re,
-    RCLike.Component.neg_re,
-    RCLike.Component.pos_im,
-    RCLike.Component.neg_im}
-  -/
-  complete := sorry
--/
 
 /-- TODO: check whether this is the right approach -/
 def RCLike.Components {𝕂 : Type*} [RCLike 𝕂] : Finset 𝕂 := {1, -1, RCLike.I, -RCLike.I}
@@ -687,24 +670,6 @@ lemma RCLike.component_le_nnnorm {𝕂 : Type*} [RCLike 𝕂] {c a : 𝕂} (hc :
   rw [← norm_toNNReal]
   apply NNReal.le_toNNReal_of_coe_le
   exact component_le_norm hc
-
-  /-
-  (match c with
-  | Component.pos_re => RCLike.re a
-  | Component.neg_re => - RCLike.re a
-  | Component.pos_im => RCLike.im a
-  | Component.neg_im => - RCLike.im a)
-  -/
-
-/-
-def RCLike.coeff {𝕂 : Type*} [RCLike 𝕂] (c : Component) : 𝕂 :=
-  match c with
-  | Component.pos_re => 1
-  | Component.neg_re => -1
-  | Component.pos_im => RCLike.I
-  | Component.neg_im => -RCLike.I
--/
-
 
 @[simp]
 lemma RCLike.decomposition {𝕂 : Type*} [RCLike 𝕂] {a : 𝕂} :
