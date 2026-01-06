@@ -9,6 +9,8 @@ In this file we prove several versions of the triangle inequality for the `Loren
 as well as simple corollaries.
 -/
 
+-- Upstreaming status: this file is actively being worked on; not ready yet
+
 open Filter
 open scoped NNReal ENNReal Topology
 
@@ -49,7 +51,7 @@ lemma eLpNorm_withDensity_scale_constant' {f : ℝ≥0 → ℝ≥0∞} (hf : AES
     simp_rw [← mul_assoc, ← this]
 
 open ENNReal in
-theorem eLorentzNorm_add_le'' (hf : AEStronglyMeasurable f μ) :
+theorem eLorentzNorm_add_le'' :
     eLorentzNorm (f + g) p q μ ≤ 2 ^ p.toReal⁻¹ * LpAddConst q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
   unfold eLorentzNorm
   split_ifs with p_zero p_top q_zero q_top
@@ -78,15 +80,13 @@ theorem eLorentzNorm_add_le'' (hf : AEStronglyMeasurable f μ) :
     _ ≤ LpAddConst q * (eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement f (t / 2) μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
         + eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement g (t / 2) μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))) := by
       simp_rw [mul_add ( _ ^ _)]
-      apply eLpNorm_add_le'
-      · sorry --TODO: measurability
-      · sorry --TODO: measurability
+      apply eLpNorm_add_le' (by fun_prop) (by fun_prop)
     _ = LpAddConst q * 2 ^ p.toReal⁻¹ * (eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement f t μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
         + eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement g t μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))) := by
       rw [mul_assoc]
       congr
-      rw [← eLpNorm_withDensity_scale_constant' (a := 2) sorry (by norm_num)] --TODO: measurability
-      nth_rw 2 [← eLpNorm_withDensity_scale_constant' (a := 2) sorry (by norm_num)] --TODO: measurability
+      rw [← eLpNorm_withDensity_scale_constant' (a := 2) (by fun_prop) (by norm_num)]
+      nth_rw 2 [← eLpNorm_withDensity_scale_constant' (a := 2) (by fun_prop) (by norm_num)]
       simp only [coe_mul, coe_ofNat]
       conv in (2 * _) ^ p⁻¹.toReal => rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp)]
       conv in (2 * _) ^ p⁻¹.toReal => rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp)]
@@ -134,6 +134,10 @@ lemma antitone_lorentz_helper :
     Antitone (lorentz_helper f p q μ) := by
   sorry
 
+@[measurability, fun_prop]
+lemma lorentz_helper_measurable : Measurable (lorentz_helper f p q μ) :=
+  Antitone.measurable antitone_lorentz_helper
+
 --TODO: probably need some assumptions on f, p, r
 lemma eLorentzNorm'_eq_lintegral_lorentz_helper_mul :
     eLorentzNorm' f p q μ
@@ -153,7 +157,6 @@ theorem eLorentzNorm_add_le (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
   · rw [← mul_add]
     gcongr
     exact eLpNormEssSup_add_le
-  --rw [eLorentzNorm'_eq p_zero p_top, eLorentzNorm'_eq p_zero p_top, eLorentzNorm'_eq p_zero p_top]
   rw [eLorentzNorm'_eq_lintegral_lorentz_helper_mul]
   calc _
     _ ≤ eLpNorm (lorentz_helper (f + g) p q μ * fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * (rearrangement f t μ + rearrangement g t μ)) 1 := by
@@ -167,7 +170,7 @@ theorem eLorentzNorm_add_le (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
       · apply Antitone.mul' antitone_lorentz_helper (antitone_rpow_inv_sub_inv q_le_p p_zero p_top)
     _ ≤ eLpNorm (lorentz_helper (f + g) p q μ * fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement f t μ) 1
         + eLpNorm (lorentz_helper (f + g) p q μ * fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement g t μ) 1 := by
-      apply (eLpNorm_add_le sorry sorry le_rfl).trans' --TODO: measurability
+      apply (eLpNorm_add_le (by fun_prop) (by fun_prop) le_rfl).trans'
       apply le_of_eq
       congr
       rw [← mul_add]
@@ -215,7 +218,7 @@ lemma eLorentzNorm_add_le' [NoAtoms μ] (hf : AEStronglyMeasurable f μ) (hg : A
     · simp [p_zero]
     rw [one_mul]
     exact eLorentzNorm_add_le hr.1 hr.2 hf hg
-  · apply eLorentzNorm_add_le'' hf
+  · apply eLorentzNorm_add_le''
 
 lemma eLorentzNorm_add_lt_top [NoAtoms μ] (hf : MemLorentz f p q μ) (hg : MemLorentz g p q μ) :
     eLorentzNorm (f + g) p q μ < ⊤ := by
@@ -264,43 +267,5 @@ theorem eLorentzNorm_add_le_of_disjoint_support (h : Disjoint f.support g.suppor
     apply (ENNReal.rpow_add_le_mul_rpow_add_rpow'' _ _ ).trans_eq'
     congr
     rw [distribution_add h hg]
-
-/-
-open ENNReal in
-theorem eLorentzNorm_le_add_of_disjoint_support (h : Disjoint f.support g.support)
-  (hg : AEStronglyMeasurable g μ) :
-    (eLorentzNorm f p q μ + eLorentzNorm g p q μ)
-      ≤ (LpAddConst p) * (LpAddConst q) * eLorentzNorm (f + g) p q μ := by
-  unfold eLorentzNorm
-  have : eLpNormEssSup (f + g) μ ≤ LpAddConst p⁻¹ * LpAddConst q⁻¹ * (eLpNormEssSup f μ + eLpNormEssSup g μ) := by
-    apply eLpNormEssSup_add_le.trans
-    nth_rw 1 [← one_mul (_ + _)]
-    gcongr
-    rw [← one_mul 1]
-    gcongr <;> exact one_le_LpAddConst
-  split_ifs with p_zero p_top q_zero q_top
-  · simp
-  · simp
-  · --exact this
-    sorry
-  · --rw [← mul_add, ← mul_assoc, mul_comm _ ⊤, mul_assoc]
-    --gcongr
-    sorry
-  · unfold eLorentzNorm'
-    rw [← mul_add, ← mul_assoc, mul_comm (LpAddConst _ * _), mul_assoc]
-    gcongr
-    rw [mul_comm (LpAddConst _), mul_assoc, mul_add,
-        ← eLpNorm_const_smul'' (LpAddConst_lt_top _).ne,
-        ← eLpNorm_const_smul'' (LpAddConst_lt_top _).ne]
-    apply (eLpNorm_add_le' (by fun_prop) (by fun_prop) _).trans'
-    apply eLpNorm_mono_enorm
-    intro t
-    simp only [toReal_inv, enorm_eq_self, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
-    rw [← mul_add, ← mul_add, ← mul_assoc, mul_comm (LpAddConst _), mul_assoc]
-    gcongr
-    apply (ENNReal.rpow_add_le_mul_rpow_add_rpow'' _ _ ).trans_eq'
-    congr
-    rw [distribution_add h hg]
--/
 
 end MeasureTheory

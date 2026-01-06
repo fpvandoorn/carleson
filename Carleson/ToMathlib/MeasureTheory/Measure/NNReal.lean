@@ -40,19 +40,23 @@ instance : MeasureSpace ℝ≥0∞ where
   volume := (volume : Measure ℝ≥0).map ENNReal.ofNNReal
 
 --TODO: move these lemmas somewhere else?
+lemma ENNReal.ofNNReal_preimage {s : Set ℝ≥0∞} :
+    ENNReal.ofNNReal ⁻¹' s = ENNReal.toNNReal '' (s \ {⊤}) := by
+  ext x
+  simp only [mem_image, mem_diff, mem_singleton_iff, mem_preimage]
+  constructor
+  · intro h
+    use ENNReal.ofNNReal x
+    simpa
+  · rintro ⟨y, hys, hyx⟩
+    rw [← hyx, coe_toNNReal hys.2]
+    exact hys.1
+
+--TODO: move these lemmas somewhere else?
 lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal {s : Set ℝ≥0∞} (h : ∞ ∉ s) :
     ENNReal.toReal '' s = NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) := by
-  ext x
-  simp only [mem_image, mem_preimage]
-  constructor
-  · rintro ⟨y, hys, hyx⟩
-    have : y ≠ ∞ := ne_of_mem_of_not_mem hys h
-    use y.toNNReal
-    rw [coe_toNNReal this]
-    use hys
-    rwa [coe_toNNReal_eq_toReal]
-  · rintro ⟨y, hys, hyx⟩
-    use ENNReal.ofNNReal y, hys, hyx
+  rw [ofNNReal_preimage, image_image, diff_singleton_eq_self h]
+  congr
 
 lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal' {s : Set ℝ≥0∞} (h : ∞ ∈ s) :
     ENNReal.toReal '' s = NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) ∪ {0}:= by
@@ -146,6 +150,21 @@ lemma NNReal.toReal_Iio_eq_Ico {b : ℝ≥0} :
     use x.toNNReal, (Real.toNNReal_lt_iff_lt_coe hx.1).mpr hx.2
     simp [hx.1]
 
+lemma NNReal.toReal_Ioi_eq_Ioi {b : ℝ≥0} :
+    NNReal.toReal '' Set.Ioi b = Set.Ioi b.toReal := by
+  ext x
+  simp only [mem_image, mem_Ioi]
+  constructor
+  · rintro ⟨y, hy, hyx⟩
+    rw [← hyx]
+    simpa
+  · rintro hx
+    use x.toNNReal
+    rw [Real.lt_toNNReal_iff_coe_lt]
+    use hx
+    simp only [Real.coe_toNNReal', sup_eq_left]
+    exact (coe_nonneg b).trans hx.le
+
 lemma NNReal.toReal_Ioo_eq_Ioo {a b : ℝ≥0} :
     NNReal.toReal '' Set.Ioo a b = Set.Ioo a.toReal b.toReal := by
   ext x
@@ -175,6 +194,11 @@ lemma NNReal.volume_Iio {b : ℝ≥0} : volume (Set.Iio b) = b := by
   simp only [val_eq_coe]
   rw [toReal_Iio_eq_Ico, Real.volume_Ico]
   simp
+
+lemma NNReal.volume_Ioi {b : ℝ≥0} : volume (Set.Ioi b) = ⊤ := by
+  rw [NNReal.volume_val]
+  simp only [val_eq_coe]
+  rw [toReal_Ioi_eq_Ioi, Real.volume_Ioi]
 
 lemma NNReal.volume_Ioo {a b : ℝ≥0} : volume (Set.Ioo a b) = b - a:= by
   rw [NNReal.volume_val]
@@ -308,6 +332,26 @@ lemma ENNReal.ofReal_Ico_eq {b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ico 0 b
         rwa [zero_lt_iff]
     push_neg at hx
     exact ofReal_lt_iff_lt_toReal hx hb'
+
+lemma ENNReal.toNNReal_Iio {b : ℝ≥0∞} : ENNReal.toNNReal '' Set.Iio b
+    = if b = ∞ then Set.univ else Set.Iio b.toNNReal := by
+  split_ifs with hb
+  · rw [hb]
+    ext x
+    simp only [mem_image, mem_Iio, mem_univ, iff_true]
+    use ofNNReal x
+    simp
+  · ext x
+    simp only [mem_image, mem_Iio]
+    constructor
+    · rintro ⟨y, hyb, hyx⟩
+      rwa [← hyx, ENNReal.toNNReal_lt_toNNReal _ hb]
+      grind
+    · intro h
+      use ofNNReal x
+      simp only [toNNReal_coe, and_true]
+      rw [← ENNReal.toNNReal_lt_toNNReal (by simp) hb]
+      simpa
 
 lemma ENNReal.volume_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     volume (Set.Ioi a) = ⊤ := by

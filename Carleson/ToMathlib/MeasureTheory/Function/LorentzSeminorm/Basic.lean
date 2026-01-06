@@ -53,33 +53,93 @@ theorem eLorentzNorm_enorm (f : α → ε) : eLorentzNorm (fun x ↦ ‖f x‖�
 
 variable {ε : Type*} [TopologicalSpace ε]
 
---TODO: make this an iff, for p, r ≠ 0?
-lemma eLorentzNorm_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
+lemma eLorentzNorm'_eq_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α → ε}
+  (h : enorm ∘ f =ᵐ[μ] 0) (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) :
+    eLorentzNorm' f p q μ = 0 := by
+  unfold eLorentzNorm'
+  conv in ↑t * distribution f _ μ ^ p⁻¹.toReal =>
+    rw [distribution_zero_enorm h,
+    ENNReal.zero_rpow_of_pos (by simp only [ENNReal.toReal_inv, inv_pos]; apply ENNReal.toReal_pos p_ne_zero p_ne_top),
+    mul_zero]
+  simp
+
+lemma eLorentzNorm_eq_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     eLorentzNorm f p q μ = 0 := by
   simp only [eLorentzNorm, ite_eq_left_iff]
   intro p_ne_zero
   rw [← eLpNorm_exponent_top, eLpNorm_zero_of_ae_zero' h]
   simp only [mul_zero, ite_self, ite_eq_left_iff]
   intro p_ne_top
-  unfold eLorentzNorm'
-  conv in ↑t * distribution f _ μ ^ p⁻¹.toReal =>
-    rw [distribution_zero' h,
-    ENNReal.zero_rpow_of_pos (by simp only [ENNReal.toReal_inv, inv_pos]; apply ENNReal.toReal_pos p_ne_zero p_ne_top),
-    mul_zero]
-  simp
+  exact eLorentzNorm'_eq_zero_of_ae_enorm_zero h p_ne_zero p_ne_top
 
---TODO: make this an iff, for p, r ≠ 0?
-lemma eLorentzNorm_zero_of_ae_zero [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
-    eLorentzNorm f p q μ = 0 := by
-  apply eLorentzNorm_zero_of_ae_enorm_zero
+lemma eLorentzNorm'_eq_zero_of_ae_zero [ENormedAddMonoid ε] {f : α → ε}
+  (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (h : f =ᵐ[μ] 0) :
+    eLorentzNorm' f p q μ = 0 := by
+  apply eLorentzNorm'_eq_zero_of_ae_enorm_zero _ p_ne_zero p_ne_top
   filter_upwards [h]
   simp
+
+lemma eLorentzNorm_eq_zero_of_ae_zero [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+    eLorentzNorm f p q μ = 0 := by
+  apply eLorentzNorm_eq_zero_of_ae_enorm_zero
+  filter_upwards [h]
+  simp
+
+
+section ENormedAddMonoid
+
+variable {ε : Type*} [TopologicalSpace ε] [ENormedAddMonoid ε]
+
+theorem ae_eq_zero_of_eLorentzNorm'_eq_zero {f : α → ε} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
+  (q_ne_zero : q ≠ 0) (h : eLorentzNorm' f p q μ = 0) :
+    f =ᵐ[μ] 0 := by
+  rw [eLorentzNorm', mul_eq_zero, eLpNorm_eq_zero_iff (by fun_prop) q_ne_zero] at h
+  contrapose! h
+  constructor
+  · simp [p_ne_zero]
+  rw [withDensity_ae_eq (by fun_prop) (by simp)]
+  simp_rw [← Measure.measure_support_eq_zero_iff]
+  simp only [ENNReal.toReal_inv, Function.support_mul, Function.support_ofNNReal]
+  rw [Function.support_rpow_of_pos (by rw [inv_pos]; apply ENNReal.toReal_pos p_ne_zero p_ne_top)]
+  have : (fun (x : ℝ≥0) ↦ distribution f x μ) = (fun x ↦ distribution f x μ) ∘ ENNReal.ofNNReal := by
+    ext x
+    simp
+  rw [this, Function.support_comp_eq_preimage, support_distribution, ENNReal.ofNNReal_preimage,
+      Set.diff_singleton_eq_self (by simp), ENNReal.toNNReal_Iio]
+  split_ifs with h'
+  · simp only [Set.inter_univ, ne_eq]
+    rw [NNReal.volume_Ioi]
+    simp
+  · rw [Set.Ioi_inter_Iio, NNReal.volume_Ioo]
+    simp only [ENNReal.coe_zero, tsub_zero, ENNReal.coe_eq_zero, ne_eq]
+    rw [ENNReal.toNNReal_eq_zero_iff]
+    simp only [eLpNormEssSup_eq_zero_iff, not_or]
+    use h
+
+theorem eLorentzNorm'_eq_zero_iff {f : α → ε}
+  (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (q_ne_zero : q ≠ 0) :
+    eLorentzNorm' f p q μ = 0 ↔ f =ᵐ[μ] 0 :=
+  ⟨ae_eq_zero_of_eLorentzNorm'_eq_zero p_ne_zero p_ne_top q_ne_zero,
+    eLorentzNorm'_eq_zero_of_ae_zero p_ne_zero p_ne_top⟩
+
+theorem eLorentzNorm_eq_zero_iff {f : α → ε}
+  (p_ne_zero : p ≠ 0) (q_ne_zero : q ≠ 0) :
+    eLorentzNorm f p q μ = 0 ↔ f =ᵐ[μ] 0 := by
+  unfold eLorentzNorm
+  split_ifs with p_zero p_top q_zero
+  · contradiction
+  · exact eLpNormEssSup_eq_zero_iff
+  · simp
+  · exact eLorentzNorm'_eq_zero_iff p_ne_zero p_top q_ne_zero
+
+end ENormedAddMonoid
+
 
 variable [ESeminormedAddMonoid ε]
 
 @[simp]
 lemma eLorentzNorm_zero : eLorentzNorm (0 : α → ε) p q μ = 0 := by
-  apply eLorentzNorm_zero_of_ae_enorm_zero
+  apply eLorentzNorm_eq_zero_of_ae_enorm_zero
   simp
 
 @[simp]

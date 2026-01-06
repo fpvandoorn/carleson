@@ -11,6 +11,7 @@ import Carleson.ToMathlib.Rearrangement
 import Carleson.ToMathlib.RealInterpolation.Misc
 import Carleson.ToMathlib.Topology.Order.Basic
 
+-- Upstreaming status: this file is actively being worked on; not ready yet
 
 noncomputable section
 
@@ -165,7 +166,7 @@ def WeaklyContinuous [TopologicalSpace ε] (T : (α → ε) → (α' → ε')) (
 
 variable {ε ε' : Type*}
 
-/-- The weak continuity assumption neede for `HasRestrictedWeakType.hasLorentzType_helper`. -/
+/-- The weak continuity assumption needed for `HasRestrictedWeakType.hasLorentzType_helper`. -/
 def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε]
   [Preorder ε] [ENorm ε'] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
   ∀ {fs : ℕ → SimpleFunc α ε} (_ : Monotone fs) (_ : BddAbove (range (fun n ↦ ⇑(fs n)))),
@@ -321,8 +322,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
       · exact le_top
       · apply mul_ne_zero hcp.ne'
         contrapose! f_zero
-        --apply eLorentzNorm_eq_zero_iff
-        sorry
+        rwa [eLorentzNorm'_eq_zero_iff p_ne_zero p_ne_top (by simp)] at f_zero
       · simp only [toReal_inv, inv_pos]
         exact ENNReal.toReal_pos hpq.symm.ne_zero q_ne_top
     rw [← SimpleFunc.iSup_nnapprox hf] at hf'

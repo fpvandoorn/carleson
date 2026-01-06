@@ -1,4 +1,5 @@
 import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
+--import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.Data.ENNReal
 
 -- Upstreaming status: can be upstreamed/being worked on
@@ -150,14 +151,17 @@ theorem eLpNorm_top_smul {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
         gcongr
         exact le_top
 
+-- TODO: find better place for this?
+theorem _root_.ENNReal.toNNReal_smul {α : Type*} {c : ℝ≥0∞} (hc : c ≠ ⊤) {f : α → ℝ≥0∞} :
+    c.toNNReal • f = c • f := by
+  ext x
+  simp [ENNReal.smul_def, hc]
+
 -- TODO: put next to eLpNorm_const_smul
 theorem eLpNorm_const_smul'' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
   {μ : Measure α} {c : ℝ≥0∞} (hc : c ≠ ⊤) {f : α → ℝ≥0∞} :
     eLpNorm (c • f) p μ = c * eLpNorm f p μ := by
-  have : c • f = c.toNNReal • f := by
-    ext x
-    simp [ENNReal.smul_def, hc]
-  rw [this, eLpNorm_const_smul' (c := c.toNNReal)]
+  rw [← ENNReal.toNNReal_smul hc, eLpNorm_const_smul']
   congr
   simp [hc]
 

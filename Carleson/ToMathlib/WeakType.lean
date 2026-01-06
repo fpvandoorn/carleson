@@ -220,7 +220,7 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {
     _ ≤ _ := measure_union_le _ _
 
 --TODO: make this an iff?
-lemma distribution_zero' [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
+lemma distribution_zero_enorm [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   unfold distribution
   rw[← le_zero_iff]
@@ -239,7 +239,7 @@ lemma distribution_zero' [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α
 
 lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
-  apply distribution_zero'
+  apply distribution_zero_enorm
   simpa only [Filter.EventuallyEq, comp_apply, Pi.zero_apply, enorm_eq_zero]
 
 lemma distribution_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
@@ -269,6 +269,32 @@ lemma distribution_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMon
     · simp only [mem_Iio, not_lt] at h
       exact h
     · simp
+
+lemma distribution_eq_zero_iff {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} :
+    distribution f t μ = 0 ↔ eLpNormEssSup f μ ≤ t := by
+  rw [distribution, eLpNormEssSup]
+  rw [← compl_compl {x | t < ‖f x‖ₑ}, ← mem_ae_iff, compl_def]
+  simp only [mem_setOf_eq, not_lt]
+  constructor
+  · intro h
+    apply essSup_le_of_ae_le
+    filter_upwards [h]
+    simp
+  · rw [essSup]
+    intro h
+    rw [← Filter.Eventually]
+    have : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ limsup (fun x ↦ ‖f x‖ₑ) (ae μ) := by
+      apply ENNReal.eventually_le_limsup
+    filter_upwards [this]
+    intro x hx
+    exact hx.trans h
+
+lemma support_distribution {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} :
+    (fun t ↦ distribution f t μ).support = Iio (eLpNormEssSup f μ) := by
+  ext t
+  simp only [mem_support, ne_eq, mem_Iio]
+  rw [distribution_eq_zero_iff]
+  simp
 
 lemma distribution_add {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g : α → ε}
   (h : Disjoint (Function.support f) (Function.support g)) (hg : AEStronglyMeasurable g μ) :

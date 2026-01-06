@@ -108,6 +108,28 @@ lemma _root_.ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNR
 
 end NNReal
 
+
+namespace Function
+section support
+
+lemma support_rpow_of_pos {α : Type*} {f : α → ℝ≥0∞} {p : ℝ} (p_pos : 0 < p) :
+    support (fun x ↦ f x ^ p) = support f := by
+  ext x
+  simp [ENNReal.rpow_eq_zero_iff_of_pos p_pos]
+
+lemma support_rpow_of_neg {α : Type*} {f : α → ℝ≥0∞} {p : ℝ} (p_neg : p < 0) :
+    support (fun x ↦ f x ^ p) = {x | f x ≠ ⊤} := by
+  ext x
+  simp [p_neg]
+  grind
+
+@[simp] lemma support_ofNNReal : Function.support ENNReal.ofNNReal = Set.Ioi 0 := by
+  ext x
+  simp
+
+end support
+end Function
+
 namespace MeasureTheory
 
 set_option linter.style.refine false in

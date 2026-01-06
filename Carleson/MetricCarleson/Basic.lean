@@ -45,21 +45,18 @@ open MetricΘ
 variable [KernelProofData a K] {θ ϑ : Θ X} {Q : SimpleFunc X (Θ X)} {R₁ R₂ : ℝ} {f g : X → ℂ} {x : X}
 
 @[simp]
-theorem carlesonOperator_zero :
-    carlesonOperator K 0 = 0 := by
+theorem carlesonOperator_zero : carlesonOperator K 0 = 0 := by
   unfold carlesonOperator linearizedCarlesonOperator carlesonOperatorIntegrand
   simp
   rfl
 
-theorem carlesonOperatorIntegrand_congr_ae (h : f =ᶠ[ae volume] g)
-  (x : X) (θ : Θ X) (R₁ R₂ : ℝ) :
-  carlesonOperatorIntegrand K ((fun _ ↦ θ) x) R₁ R₂ f x
-    = carlesonOperatorIntegrand K ((fun _ ↦ θ) x) R₁ R₂ g x := by
+theorem carlesonOperatorIntegrand_congr_ae (h : f =ᶠ[ae volume] g) {x : X} {θ : Θ X} {R₁ R₂ : ℝ} :
+    carlesonOperatorIntegrand K ((fun _ ↦ θ) x) R₁ R₂ f x
+      = carlesonOperatorIntegrand K ((fun _ ↦ θ) x) R₁ R₂ g x := by
   unfold carlesonOperatorIntegrand
   apply integral_congr_ae
   apply ae_restrict_le
-  filter_upwards [h]
-  intro y h'
+  filter_upwards [h] with y h'
   congr
 
 theorem linearizedCarlesonOperator_congr_ae (h : f =ᶠ[ae volume] g)

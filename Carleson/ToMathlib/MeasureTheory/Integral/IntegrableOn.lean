@@ -8,7 +8,6 @@ open scoped Topology Interval Filter ENNReal MeasureTheory
 
 variable {α β ε ε' E F : Type*} [MeasurableSpace α]
 
-
 namespace MeasureTheory
 
 protected theorem IntegrableAtFilter.congr'_enorm {μ : Measure α} [TopologicalSpace ε]
@@ -26,8 +25,6 @@ protected theorem IntegrableAtFilter.congr {μ : Measure α} [TopologicalSpace �
   Exists.casesOn hf fun s hs ↦ ⟨s, hs.1, hs.2.congr h.restrict⟩
 
 end MeasureTheory
-
-
 
 section NormedAddCommGroup
 

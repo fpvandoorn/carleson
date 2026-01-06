@@ -1,6 +1,9 @@
 import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
 
+-- Upstreaming status: would need basic lemmas to be useful (currently the definition is unused)
+
+
 noncomputable section
 
 open MeasureTheory Filter

@@ -40,6 +40,9 @@ variable {f : α → ε} {g : α → ε'} {μ : Measure α} {x y : ℝ≥0∞}
   · intro x hx
     exact hx.out.trans h
 
+lemma rearrangement_mono_right' : (Antitone (fun t ↦ rearrangement f t μ)) :=
+  fun _ _ h ↦ rearrangement_mono_right h
+
 @[gcongr] lemma rearrangement_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
   rearrangement f x μ ≤ rearrangement g x μ := sorry
 
@@ -50,6 +53,15 @@ lemma rearrangement_antitone {f : α → ε} {μ : Measure α} :
 
 @[gcongr] lemma rearrangement_mono (h1 : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h2 : x ≤ y) :
   rearrangement f y μ ≤ rearrangement g x μ := sorry
+
+@[measurability, fun_prop]
+lemma rearrangement_measurable₀ : Measurable (fun t ↦ rearrangement f t μ) :=
+  Antitone.measurable (rearrangement_mono_right' (f := f) (μ := μ))
+
+@[measurability, fun_prop]
+lemma rearrangement_measurable {α' : Type*} {m : MeasurableSpace α'} {g : α' → ℝ≥0∞}
+  (hg : Measurable g) :
+    Measurable (fun y : α' ↦ rearrangement f (g y) μ) := by fun_prop
 
 /-
 lemma rearrangement_smul_left (c : 𝕜) :
@@ -143,6 +155,13 @@ lemma rearrangement_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMo
     split_ifs
     · assumption
     · simp
+
+/-
+lemma ae_eq_zero_of_rearrangement_eq_zero [TopologicalSpace ε] [ENormedAddMonoid ε]
+  (h : (fun t ↦ rearrangement f t μ) =ᵐ[volume] 0) :
+    f =ᵐ[μ] 0 := by
+  unfold rearrangement at h
+-/
 
 open Filter Topology
 
