@@ -270,12 +270,11 @@ lemma distribution_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMon
       exact h
     · simp
 
---TODO: Can the measurability condition be weakened?
-lemma distribution_add {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α → ε}
-  (h : Disjoint (Function.support f) (Function.support g)) (hg : StronglyMeasurable g) :
+lemma distribution_add {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g : α → ε}
+  (h : Disjoint (Function.support f) (Function.support g)) (hg : AEStronglyMeasurable g μ) :
     distribution (f + g) t μ = distribution f t μ + distribution g t μ := by
   unfold distribution
-  rw [← measure_union]
+  rw [← measure_union₀]
   · congr 1
     ext x
     simp only [Pi.add_apply, mem_setOf_eq, mem_union]
@@ -287,18 +286,23 @@ lemma distribution_add {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : �
     · simp only [mem_support, ne_eq, not_not] at hxf
       rw [hxf]
       simp
-  · apply disjoint_of_subset _ _ h
+  · apply nullMeasurableSet_lt aemeasurable_const hg.enorm
+  · apply Disjoint.aedisjoint
+    apply disjoint_of_subset _ _ h
     · intro x
       simp only [mem_setOf_eq, mem_support, ne_eq]
       intro h'
-      rw [← enorm_eq_zero, ← ENNReal.bot_eq_zero]
-      exact LT.lt.ne_bot h'
+      have := LT.lt.ne_bot h'
+      rw [ENNReal.bot_eq_zero] at this
+      contrapose! this
+      rw [this, enorm_zero]
     · intro x
       simp only [mem_setOf_eq, mem_support, ne_eq]
       intro h'
-      rw [← enorm_eq_zero, ← ENNReal.bot_eq_zero]
-      exact LT.lt.ne_bot h'
-  · exact measurableSet_lt measurable_const (StronglyMeasurable.enorm hg)
+      have := LT.lt.ne_bot h'
+      rw [ENNReal.bot_eq_zero] at this
+      contrapose! this
+      rw [this, enorm_zero]
 
 lemma distribution_smul_const {f : α → ℝ≥0∞}
   {a : ℝ≥0∞} (h : a ≠ 0 ∨ t ≠ 0) (h' : a ≠ ⊤ ∨ t ≠ ⊤) :

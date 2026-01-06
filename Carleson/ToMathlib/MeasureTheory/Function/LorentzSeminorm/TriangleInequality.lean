@@ -1,5 +1,6 @@
 import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
-
+import Carleson.ToMathlib.Analysis.MeanInequalitiesPow
+import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 
 /-!
 # Triangle inequality for `Lorentz`-seminorm
@@ -228,5 +229,78 @@ lemma eLorentzNorm_add_lt_top [NoAtoms μ] (hf : MemLorentz f p q μ) (hg : MemL
 lemma MemLorentz.add [NoAtoms μ] [ContinuousAdd ε] (hf : MemLorentz f p q μ)
     (hg : MemLorentz g p q μ) : MemLorentz (f + g) p q μ :=
   ⟨AEStronglyMeasurable.add hf.1 hg.1, eLorentzNorm_add_lt_top hf hg⟩
+
+
+open ENNReal in
+theorem eLorentzNorm_add_le_of_disjoint_support (h : Disjoint f.support g.support)
+  (hg : AEStronglyMeasurable g μ) :
+    eLorentzNorm (f + g) p q μ
+      ≤ (LpAddConst p) * (LpAddConst q) * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
+  unfold eLorentzNorm
+  have : eLpNormEssSup (f + g) μ ≤ LpAddConst p * LpAddConst q * (eLpNormEssSup f μ + eLpNormEssSup g μ) := by
+    apply eLpNormEssSup_add_le.trans
+    nth_rw 1 [← one_mul (_ + _)]
+    gcongr
+    rw [← one_mul 1]
+    gcongr <;> exact one_le_LpAddConst
+  split_ifs with p_zero p_top q_zero q_top
+  · simp
+  · simp
+  · exact this
+  · rw [← mul_add, ← mul_assoc, mul_comm _ ⊤, mul_assoc]
+    gcongr
+  · unfold eLorentzNorm'
+    rw [← mul_add, ← mul_assoc, mul_comm (LpAddConst _ * _), mul_assoc]
+    gcongr
+    rw [mul_comm (LpAddConst _), mul_assoc, mul_add,
+        ← eLpNorm_const_smul'' (LpAddConst_lt_top _).ne,
+        ← eLpNorm_const_smul'' (LpAddConst_lt_top _).ne]
+    apply (eLpNorm_add_le' (by fun_prop) (by fun_prop) _).trans'
+    apply eLpNorm_mono_enorm
+    intro t
+    simp only [toReal_inv, enorm_eq_self, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
+    rw [← mul_add, ← mul_add, ← mul_assoc, mul_comm (LpAddConst _), mul_assoc]
+    gcongr
+    apply (ENNReal.rpow_add_le_mul_rpow_add_rpow'' _ _ ).trans_eq'
+    congr
+    rw [distribution_add h hg]
+
+/-
+open ENNReal in
+theorem eLorentzNorm_le_add_of_disjoint_support (h : Disjoint f.support g.support)
+  (hg : AEStronglyMeasurable g μ) :
+    (eLorentzNorm f p q μ + eLorentzNorm g p q μ)
+      ≤ (LpAddConst p) * (LpAddConst q) * eLorentzNorm (f + g) p q μ := by
+  unfold eLorentzNorm
+  have : eLpNormEssSup (f + g) μ ≤ LpAddConst p⁻¹ * LpAddConst q⁻¹ * (eLpNormEssSup f μ + eLpNormEssSup g μ) := by
+    apply eLpNormEssSup_add_le.trans
+    nth_rw 1 [← one_mul (_ + _)]
+    gcongr
+    rw [← one_mul 1]
+    gcongr <;> exact one_le_LpAddConst
+  split_ifs with p_zero p_top q_zero q_top
+  · simp
+  · simp
+  · --exact this
+    sorry
+  · --rw [← mul_add, ← mul_assoc, mul_comm _ ⊤, mul_assoc]
+    --gcongr
+    sorry
+  · unfold eLorentzNorm'
+    rw [← mul_add, ← mul_assoc, mul_comm (LpAddConst _ * _), mul_assoc]
+    gcongr
+    rw [mul_comm (LpAddConst _), mul_assoc, mul_add,
+        ← eLpNorm_const_smul'' (LpAddConst_lt_top _).ne,
+        ← eLpNorm_const_smul'' (LpAddConst_lt_top _).ne]
+    apply (eLpNorm_add_le' (by fun_prop) (by fun_prop) _).trans'
+    apply eLpNorm_mono_enorm
+    intro t
+    simp only [toReal_inv, enorm_eq_self, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
+    rw [← mul_add, ← mul_add, ← mul_assoc, mul_comm (LpAddConst _), mul_assoc]
+    gcongr
+    apply (ENNReal.rpow_add_le_mul_rpow_add_rpow'' _ _ ).trans_eq'
+    congr
+    rw [distribution_add h hg]
+-/
 
 end MeasureTheory

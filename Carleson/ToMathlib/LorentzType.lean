@@ -440,6 +440,7 @@ theorem HasRestrictedWeakType.hasLorentzType_helper [TopologicalSpace ε'] [ENor
 -/
 
 theorem HasRestrictedWeakType.hasLorentzType_nnreal [TopologicalSpace ε'] [ENormedSpace ε']
+  [NoAtoms ν]
   {c : ℝ≥0} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
   {f : α → ℝ≥0} (hf' : MemLorentz f p 1 μ)
   (weakly_cont_T : WeaklyContinuous T p μ ν)
@@ -513,7 +514,56 @@ theorem HasRestrictedWeakType.hasLorentzType_nnreal [TopologicalSpace ε'] [ENor
         apply eLorentzNorm_mono_enorm_ae
         simp
       calc _
-        _ ≤ wnorm (T ⇑f) p ν + wnorm (T ⇑g) p ν := sorry --T_subadd hf' hg' --TODO: find a (non-general) triangle ineq for wnorm
+        _ ≤ wnorm (T ⇑f) p ν + wnorm (T ⇑g) p ν := by
+          calc _
+            _ ≤ eLorentzNorm ((fun x ↦ ‖T f x‖ₑ) + (fun x ↦ ‖T g x‖ₑ)) p ⊤ ν := by
+              /-
+              apply eLorentzNorm_mono_enorm_ae
+              simp only [enorm_eq_self]
+              exact T_subadd hf' hg'
+              -/
+              sorry
+          sorry --TODO: does this really work?
+          /-
+          rw [← eLorentzNorm_eq_wnorm p_ne_zero, ← eLorentzNorm_eq_wnorm p_ne_zero,
+              ← eLorentzNorm_eq_wnorm p_ne_zero]
+          --apply (eLorentzNorm_add_le' _ _).trans'
+          calc _
+            _ ≤ eLorentzNorm ((fun x ↦ ‖T f x‖ₑ) + (fun x ↦ ‖T g x‖ₑ)) p ⊤ ν := by
+              apply eLorentzNorm_mono_enorm_ae
+              simp only [enorm_eq_self]
+              exact T_subadd hf' hg'
+          apply (eLorentzNorm_add_le'' sorry).trans --(T_meas hf).enorm.aestronglyMeasurable
+          rw [LpAddConst_of_one_le (by simp), mul_one, eLorentzNorm_enorm, eLorentzNorm_enorm]
+          -/
+          /-
+          calc _
+            _ = ∫⁻ (t : ℝ≥0), (if t < a then μ s else distribution f (t - a) μ) ^ p.toReal⁻¹ := by
+              congr with t
+              congr
+              rw [distribution_indicator_add_of_support_subset_nnreal (μ := μ) hfs]
+              simp only [ENNReal.coe_lt_coe]
+            _ = ∫⁻ (t : ℝ≥0), if t < a then μ s ^ p.toReal⁻¹ else distribution f (t - a) μ ^ p.toReal⁻¹ := by
+              simp only [ite_pow]
+            _ = ∫⁻ (t : ℝ≥0), (Set.Iio a).indicator (fun _ ↦ μ s ^ p.toReal⁻¹) t
+                  + (Set.Ici a).indicator (fun t ↦ distribution f (t - a) μ ^ p.toReal⁻¹) t := by
+              congr with t
+              rw [← Set.compl_Iio, ← Pi.add_apply, Set.indicator_add_compl_eq_piecewise]
+              unfold Set.piecewise
+              simp
+            _ = a * μ s ^ p.toReal⁻¹ + ∫⁻ (t : ℝ≥0), distribution f t μ ^ p.toReal⁻¹ := by
+              rw [lintegral_add_left (by measurability)]
+              congr 1
+              · rw [lintegral_indicator_const measurableSet_Iio, NNReal.volume_Iio, mul_comm]
+              · rw [lintegral_indicator measurableSet_Ici, setLIntegral_nnreal_Ici]
+                simp
+          rw [add_comm]
+          congr
+          apply (ENNReal.mul_right_inj p_ne_zero p_ne_top).mp
+          rw [← eLorentzNorm'_eq_integral_distribution_rpow, eLorentzNorm'_indicator_const (by simp) p_ne_zero p_ne_top]
+          simp
+          -/
+          --sorry --T_subadd hf' hg' --TODO: find a (non-general) triangle ineq for wnorm
         _ ≤ ↑c / p * eLorentzNorm' (⇑f) p 1 μ + ↑c / p * eLorentzNorm' (⇑g) p 1 μ := by
           gcongr
           · exact hf hf'
@@ -742,21 +792,22 @@ theorem vector_valued_induction {β γ} [AddCommMonoid β] [AddCommMonoid γ]
 
 --TODO: clean up the proof
 theorem RCLike.induction {𝕂 : Type*} [RCLike 𝕂]
+  {β : Type*} [Mul β] {a b}
   {P : (α → 𝕂) → Prop}
   (P_add : ∀ {f g : α → 𝕂}, P f → P g → P (f + g))
   (P_components : ∀ {f : α → 𝕂} {c : 𝕂} (_ : c ∈ RCLike.Components),
     P f → P (algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ RCLike.component c ∘ f))
   (P_mul_unit : ∀ {f : α → 𝕂} {c : 𝕂} (_ : c ∈ RCLike.Components), P f → P (c • f))
-  {motive : (α → 𝕂) → ℕ → Prop}
+  {motive : (α → 𝕂) → β → Prop}
   (motive_nnreal : ∀ {f : α → ℝ≥0} (_ : P (algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ f)),
-    motive (algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ f) 1)
-  (motive_add : ∀ {f g : α → 𝕂} {n m : ℕ} (_ : ∀ {a : α}, ‖f a‖ ≤ ‖(f + g) a‖) (_ : ∀ {a : α}, ‖g a‖ ≤ ‖(f + g) a‖)
-    (_ : P f) (_ : P g), motive f n → motive g m → motive (f + g) (n + m))
-  --(motive_mono_norm : ∀ {f g : α → 𝕂} {n : ℕ} (_ : ∀ {a : α}, ‖f a‖ ≤ ‖g a‖) (_ : P g), motive g n → motive f n)
-  (motive_mul_unit : ∀ {f : α → 𝕂} {c : 𝕂} {n : ℕ} (_ : c ∈ RCLike.Components) (_ : P f),
+    motive (algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ f) a)
+  --(motive_add : ∀ {f g : α → 𝕂} (_ : Disjoint f.support g.support)
+  --  (_ : P f) (_ : P g), motive f a → motive g a → motive (f + g) (b * a))
+  (motive_add' : ∀ {n : β} {f g : α → 𝕂} (hf_add : ∀ {x}, ‖f x‖ ≤ ‖f x + g x‖) (hg_add : ∀ {x}, ‖g x‖ ≤ ‖f x + g x‖) (_ : P f) (_ : P g), motive f n → motive g n → motive (f + g) (n * b))
+  (motive_mul_unit : ∀ {f : α → 𝕂} {c : 𝕂} {n : β} (_ : c ∈ RCLike.Components) (_ : P f),
     motive f n → motive (c • f) n)
   ⦃f : α → 𝕂⦄ (hf : P f) :
-    motive f 4 := by
+    motive f (a * b * b) := by
   have f_decomposition :
     (1 : 𝕂) • ((algebraMap ℝ 𝕂) ∘ toReal ∘ component 1 ∘ f)
     + (-1 : 𝕂) • ((algebraMap ℝ 𝕂) ∘ toReal ∘ component (-1) ∘ f)
@@ -766,54 +817,70 @@ theorem RCLike.induction {𝕂 : Type*} [RCLike 𝕂]
     simp only [Pi.add_apply, comp_apply, Pi.smul_apply, smul_eq_mul]
     exact RCLike.decomposition
   rw [← f_decomposition]
-  have : 4 = 1 + 1 + 1 + 1 := by norm_num
-  rw [this]
-  apply motive_add
+  rw [add_assoc]
+  apply motive_add'
   · sorry
   · sorry
   · apply P_add
-    · apply P_add
-      · apply P_mul_unit (by unfold Components; simp)
-        apply P_components (by unfold Components; simp) hf
-      · apply P_mul_unit (by unfold Components; simp)
-        apply P_components (by unfold Components; simp) hf
     · apply P_mul_unit (by unfold Components; simp)
       apply P_components (by unfold Components; simp) hf
-  · apply P_mul_unit (by unfold Components; simp)
-    apply P_components (by unfold Components; simp) hf
-  · apply motive_add
-    · sorry
-    · sorry
-    · apply P_add
-      · apply P_mul_unit (by unfold Components; simp)
-        apply P_components (by unfold Components; simp) hf
-      · apply P_mul_unit (by unfold Components; simp)
-        apply P_components (by unfold Components; simp) hf
     · apply P_mul_unit (by unfold Components; simp)
       apply P_components (by unfold Components; simp) hf
-    · apply motive_add
-      · sorry
-      · sorry
-      · apply P_mul_unit (by unfold Components; simp)
-        apply P_components (by unfold Components; simp) hf
-      · apply P_mul_unit (by unfold Components; simp)
-        apply P_components (by unfold Components; simp) hf
-      · apply motive_mul_unit (by unfold Components; simp)
-        · apply P_components (by unfold Components; simp) hf
-        apply motive_nnreal (f := component _ ∘ f)
-        apply P_components (by unfold Components; simp) hf
-      · apply motive_mul_unit (by unfold Components; simp)
-        · apply P_components (by unfold Components; simp) hf
-        apply motive_nnreal (f := component _ ∘ f)
-        apply P_components (by unfold Components; simp) hf
+  · apply P_add
+    · apply P_mul_unit (by unfold Components; simp)
+      apply P_components (by unfold Components; simp) hf
+    · apply P_mul_unit (by unfold Components; simp)
+      apply P_components (by unfold Components; simp) hf
+  · apply motive_add'
+    · sorry
+    · sorry
+    /-
+    · rw [disjoint_iff, eq_bot_iff]
+      simp only [one_smul, neg_smul, support_neg, inf_eq_inter, bot_eq_empty]
+      intro x hx
+      unfold component at hx
+      simp only [map_one, mul_one, map_neg, mul_neg, mem_inter_iff, mem_support, comp_apply,
+        Real.coe_toNNReal', ne_eq, map_eq_zero, sup_eq_right, not_le, Left.neg_nonpos_iff] at hx
+      exact (lt_self_iff_false _).mp (hx.1.trans hx.2)
+    -/
+    · apply P_mul_unit (by unfold Components; simp)
+      apply P_components (by unfold Components; simp) hf
+    · apply P_mul_unit (by unfold Components; simp)
+      apply P_components (by unfold Components; simp) hf
     · apply motive_mul_unit (by unfold Components; simp)
       · apply P_components (by unfold Components; simp) hf
       apply motive_nnreal (f := component _ ∘ f)
       apply P_components (by unfold Components; simp) hf
-  · apply motive_mul_unit (by unfold Components; simp)
-    · apply P_components (by unfold Components; simp) hf
-    apply motive_nnreal (f := component _ ∘ f)
-    apply P_components (by unfold Components; simp) hf
+    · apply motive_mul_unit (by unfold Components; simp)
+      · apply P_components (by unfold Components; simp) hf
+      apply motive_nnreal (f := component _ ∘ f)
+      apply P_components (by unfold Components; simp) hf
+  · apply motive_add'
+    · sorry
+    · sorry
+    /-
+    · rw [disjoint_iff, eq_bot_iff]
+      simp only [neg_smul, support_neg, inf_eq_inter, bot_eq_empty, le_eq_subset]
+      intro x hx
+      unfold component at hx
+      simp only [RCLike.conj_I, mul_neg, map_neg, RCLike.mul_re, RCLike.I_re, mul_zero, RCLike.I_im,
+        zero_sub, neg_neg, mem_inter_iff, mem_support, Pi.smul_apply, comp_apply,
+        Real.coe_toNNReal', smul_eq_mul, ne_eq, mul_eq_zero, map_eq_zero, sup_eq_right, not_or,
+        not_le, Left.neg_nonpos_iff] at hx
+      exact (lt_self_iff_false _).mp (hx.1.2.trans hx.2.2)
+    -/
+    · apply P_mul_unit (by unfold Components; simp)
+      apply P_components (by unfold Components; simp) hf
+    · apply P_mul_unit (by unfold Components; simp)
+      apply P_components (by unfold Components; simp) hf
+    · apply motive_mul_unit (by unfold Components; simp)
+      · apply P_components (by unfold Components; simp) hf
+      apply motive_nnreal (f := component _ ∘ f)
+      apply P_components (by unfold Components; simp) hf
+    · apply motive_mul_unit (by unfold Components; simp)
+      · apply P_components (by unfold Components; simp) hf
+      apply motive_nnreal (f := component _ ∘ f)
+      apply P_components (by unfold Components; simp) hf
 
 theorem enorm_eq_enorm_embedRCLike {𝕂 : Type*} [RCLike 𝕂] {f : α → ℝ≥0} (x : α) :
     ‖(⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) x‖ₑ = ‖f x‖ₑ := by
@@ -860,7 +927,7 @@ theorem memLorentz_iff_memLorentz_embedRCLike [TopologicalSpace α] {𝕂 : Type
 lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')}
-  [IsLocallyFiniteMeasure μ] [NoAtoms μ] {c : ℝ≥0} (c_pos : 0 < c)
+  [IsLocallyFiniteMeasure μ] [NoAtoms μ] [NoAtoms ν] {c : ℝ≥0} (c_pos : 0 < c)
   (hT : HasRestrictedWeakType T p p μ ν c) --(hpq : p.HolderConjugate q)
   (T_meas : ∀ {f : α → 𝕂}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
   (T_subadd : ∀ {f g : α → 𝕂}, (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
@@ -876,7 +943,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
   (T_zero : T 0 =ᶠ[ae ν] 0)
   (T_ae_eq_of_ae_eq : ∀ {f g : α → 𝕂} (_ : f =ᶠ[ae μ] g), T f =ᶠ[ae ν] T g) --TODO: incorporate into weakly_cont_T?
     :
-    HasLorentzType T p 1 p ∞ μ ν (4 * c / p) := by
+    HasLorentzType T p 1 p ∞ μ ν (2 ^ (2 * (1 + p.toReal⁻¹)) * c / p) := by
   have T_zero_of_ae_zero : ∀ {f : α → 𝕂} (_ : f =ᶠ[ae μ] 0), T f =ᶠ[ae ν] 0 := by
     intro f hf
     filter_upwards [T_ae_eq_of_ae_eq hf, T_zero]
@@ -897,8 +964,9 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
     · have := hf.2
       rw [p_top, eLorentzNorm_exponent_top (by simp) (by simp) h'] at this
       contradiction
+  rw [← one_mul (2 ^ _), two_mul, ENNReal.rpow_add _ _ (by simp) (by simp), ← mul_assoc]
   revert f
-  apply RCLike.induction (motive := fun f n ↦ eLorentzNorm (T f) p ⊤ ν ≤ n * ↑c / p * eLorentzNorm f p 1 μ)
+  apply RCLike.induction (motive := fun f n ↦ eLorentzNorm (T f) p ⊤ ν ≤ n * ↑c / p * eLorentzNorm f p 1 μ) (a := 1) (b := ((2 : ℝ≥0∞) ^ (1 + p.toReal⁻¹)))
   · exact MemLorentz.add
   · intro f c hc hf
     rw [memLorentz_iff_memLorentz_embedRCLike]
@@ -929,7 +997,7 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
       exact RCLike.Components.norm_le_one hc
   · --main case
     intro f hf
-    simp only [Nat.cast_one, one_mul]
+    rw [one_mul]
     set T' := T ∘ (fun f ↦ ⇑(algebraMap ℝ 𝕂) ∘ NNReal.toReal ∘ f)
     -- T' inherits properties of T
     have T'f_eq : T' f = T (⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) := by
@@ -944,13 +1012,6 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
       simp only [Function.comp_apply]
       apply weakly_cont_T
       · rwa [memLorentz_iff_memLorentz_embedRCLike]
-        /-
-        apply ((hf.memLp (by simpa)).locallyIntegrable hp).congr'_enorm
-        · apply AEMeasurable.aestronglyMeasurable
-          apply RCLike.measurable_ofReal.comp_aemeasurable
-          apply measurable_coe_nnreal_real.comp_aemeasurable
-          exact hf.1.aemeasurable
-        -/
       · intro n
         apply Measurable.aestronglyMeasurable
         apply RCLike.measurable_ofReal.comp
@@ -1028,29 +1089,30 @@ lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
         simp only [comp_apply, NNReal.coe_indicator, Pi.one_apply, NNReal.coe_one]
         unfold indicator
         split_ifs <;> simp
-  · intro f g n m hf_add hg_add hf hg hf' hg'
-    rw [eLorentzNorm_eq_wnorm p_zero] at *
-    --apply eLpNorm_add
-    /-
-    apply (T_subadd hf hg).trans
-    rw [Nat.cast_add, add_mul, ENNReal.add_div, add_mul]
+  · intro n f g hf_add hg_add hf hg hf' hg'
+    calc _
+      _ ≤ eLorentzNorm ((fun x ↦ ‖T f x‖ₑ) + (fun x ↦ ‖T g x‖ₑ)) p ⊤ ν := by
+        apply eLorentzNorm_mono_enorm_ae
+        simp only [enorm_eq_self]
+        exact T_subadd hf hg
+    apply (eLorentzNorm_add_le'' (T_meas hf).enorm.aestronglyMeasurable).trans
+    rw [LpAddConst_of_one_le (by simp), ENNReal.rpow_add _ _ (by simp) (by simp)]
+    simp only [mul_one, eLorentzNorm_enorm, ENNReal.rpow_one]
+    rw [mul_comm n, mul_comm 2, mul_assoc, mul_assoc, mul_div_assoc, mul_assoc]
     gcongr
-    · apply hf'.trans
-      gcongr
-      apply eLorentzNorm_mono_enorm_ae
+    apply (add_le_add hf' hg').trans
+    rw [two_mul, ENNReal.add_div, add_mul]
+    gcongr
+    · apply eLorentzNorm_mono_enorm_ae
       apply Eventually.of_forall
       intro x
-      rw [← ofReal_norm, ← ofReal_norm]
+      rw [← ofReal_norm, ← ofReal_norm, Pi.add_apply]
       apply ENNReal.ofReal_le_ofReal hf_add
-    · apply hg'.trans
-      gcongr
-      apply eLorentzNorm_mono_enorm_ae
+    · apply eLorentzNorm_mono_enorm_ae
       apply Eventually.of_forall
       intro x
       rw [← ofReal_norm, ← ofReal_norm]
       apply ENNReal.ofReal_le_ofReal hg_add
-    -/
-    sorry
   · intro f b n hb hf
     by_cases h : b = 0
     · intro _

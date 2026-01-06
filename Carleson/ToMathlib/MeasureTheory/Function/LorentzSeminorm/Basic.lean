@@ -47,6 +47,9 @@ theorem eLorentzNorm_congr_ae {f g : α → ε'} (hfg : f =ᵐ[μ] g) :
     eLorentzNorm f p q μ = eLorentzNorm g p q μ :=
   eLorentzNorm_congr_enorm_ae <| hfg.mono fun _x hx => hx ▸ rfl
 
+@[simp]
+theorem eLorentzNorm_enorm (f : α → ε) : eLorentzNorm (fun x ↦ ‖f x‖ₑ) p q μ = eLorentzNorm f p q μ :=
+  eLorentzNorm_congr_enorm_ae <| Eventually.of_forall fun _ => enorm_enorm _
 
 variable {ε : Type*} [TopologicalSpace ε]
 
