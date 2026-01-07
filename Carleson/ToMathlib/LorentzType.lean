@@ -113,7 +113,7 @@ lemma HasRestrictedWeakType.without_finiteness [ESeminormedAddMonoid ε₂] {T :
         exact F_zero h
       rw [ENNReal.top_rpow_of_pos q_inv_pos]
 
-/- An enhanced version of `HasRestrictedWeakType` -/
+/-- An enhanced version of `HasRestrictedWeakType` -/
 def HasRestrictedWeakType' [TopologicalSpace β] [ENorm β] [ENorm ε₂] (T : (α → β) → (α' → ε₂)) (p q : ℝ≥0∞)
   (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
@@ -176,7 +176,6 @@ def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε]
 
 
 theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε'] [ENormedSpace ε']
-  [NoAtoms ν]
   {c : ℝ≥0} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'} (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
   (hpq : p.HolderConjugate q)
   (T_meas : ∀ {f : α → ℝ≥0}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
@@ -365,8 +364,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         exact SimpleFunc.approx_le hf bot_eq_zero'
 
 
-lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν] [TopologicalSpace α]
-  [IsLocallyFiniteMeasure μ] [NoAtoms μ]
+lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν] [TopologicalSpace α] [NoAtoms μ]
   {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} (hpq : p.HolderConjugate q) (hp : p ≠ ⊤) (hq : q ≠ ⊤)
   {c : ℝ≥0∞} (hc : c ≠ ⊤) (hT : HasRestrictedWeakType' T p q μ ν c) :
@@ -575,7 +573,6 @@ lemma RCLike.component_le_nnnorm {𝕂 : Type*} [RCLike 𝕂] {c a : 𝕂} (hc :
   apply NNReal.le_toNNReal_of_coe_le
   exact component_le_norm hc
 
-@[simp]
 lemma RCLike.decomposition {𝕂 : Type*} [RCLike 𝕂] {a : 𝕂} :
   1 * ((algebraMap ℝ 𝕂) (component 1 a).toReal)
   + -1 * ((algebraMap ℝ 𝕂) (component (-1) a).toReal)
@@ -734,7 +731,7 @@ theorem aestronglyMeasurable_iff_aestronglyMeasurable_embedRCLike {𝕂 : Type*}
   · intro hf
     fun_prop
 
-theorem memLorentz_iff_memLorentz_embedRCLike [TopologicalSpace α] {𝕂 : Type*} [RCLike 𝕂]
+theorem memLorentz_iff_memLorentz_embedRCLike {𝕂 : Type*} [RCLike 𝕂]
   {f : α → ℝ≥0} :
     MemLorentz (⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) p q μ ↔ MemLorentz f p q μ := by
   constructor
@@ -756,7 +753,7 @@ theorem memLorentz_iff_memLorentz_embedRCLike [TopologicalSpace α] {𝕂 : Type
       apply eLorentzNorm_congr_enorm_ae
       apply Eventually.of_forall enorm_eq_enorm_embedRCLike
 
-lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal [SigmaFinite ν] [TopologicalSpace α]
+lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal [TopologicalSpace α]
   [IsLocallyFiniteMeasure μ] [NoAtoms μ]
   {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')}

@@ -177,7 +177,7 @@ lemma sSup_rearrangement :
     aesop
 
 -- Lemma 1.1.22 of [Ian Tice]
-lemma essSup_nnnorm_eq_rearrangement_zero [TopologicalSpace ε] :
+lemma essSup_nnnorm_eq_rearrangement_zero :
     essSup (‖f ·‖ₑ) μ = rearrangement f 0 μ  := by
   unfold essSup rearrangement distribution
   simp [Filter.limsup_eq, ae_iff]
