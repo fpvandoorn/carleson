@@ -220,7 +220,7 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {
     _ ≤ _ := measure_union_le _ _
 
 --TODO: make this an iff?
-lemma distribution_zero_enorm [TopologicalSpace ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
+lemma distribution_zero_enorm {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   unfold distribution
   rw[← le_zero_iff]
