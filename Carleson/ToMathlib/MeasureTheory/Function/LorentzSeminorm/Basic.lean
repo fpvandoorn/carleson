@@ -3,6 +3,9 @@ import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
 import Carleson.ToMathlib.RealInterpolation.Misc
 import Carleson.ToMathlib.Topology.Order.Basic
 
+/- Upstreaming status: still needs some cleanup, and more analogues to mathlib lemmas about eLpNorm
+could be added -/
+
 noncomputable section
 
 open TopologicalSpace MeasureTheory Filter
@@ -13,7 +16,6 @@ variable {α ε ε' : Type*} {m m0 : MeasurableSpace α} {p q : ℝ≥0∞} {μ 
   [ENorm ε']
 
 namespace MeasureTheory
-
 
 lemma eLorentzNorm'_mono_enorm_ae {f : α → ε'} {g : α → ε} (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     eLorentzNorm' f p q μ ≤ eLorentzNorm' g p q μ := by
