@@ -42,7 +42,45 @@ end MetricΘ
 
 open MetricΘ
 
-variable [KernelProofData a K] {θ ϑ : Θ X} {Q : SimpleFunc X (Θ X)} {R₁ R₂ : ℝ} {f : X → ℂ} {x : X}
+variable [KernelProofData a K] {θ ϑ : Θ X} {Q : SimpleFunc X (Θ X)} {R₁ R₂ : ℝ} {f g : X → ℂ} {x : X}
+
+@[simp]
+theorem carlesonOperator_zero : carlesonOperator K 0 = 0 := by
+  unfold carlesonOperator linearizedCarlesonOperator carlesonOperatorIntegrand
+  simp
+  rfl
+
+theorem carlesonOperatorIntegrand_congr_ae (h : f =ᶠ[ae volume] g) {x : X} {θ : Θ X} {R₁ R₂ : ℝ} :
+    carlesonOperatorIntegrand K ((fun _ ↦ θ) x) R₁ R₂ f x
+      = carlesonOperatorIntegrand K ((fun _ ↦ θ) x) R₁ R₂ g x := by
+  unfold carlesonOperatorIntegrand
+  apply integral_congr_ae
+  apply ae_restrict_le
+  filter_upwards [h] with y h'
+  congr
+
+theorem linearizedCarlesonOperator_congr_ae (h : f =ᶠ[ae volume] g)
+  (x : X) (θ : Θ X) :
+    linearizedCarlesonOperator (fun _ ↦ θ) K f x = linearizedCarlesonOperator (fun _ ↦ θ) K g x := by
+  unfold linearizedCarlesonOperator
+  congr with R₁
+  congr with R₂
+  congr with hR₁
+  congr with hR₂
+  congr 1
+  apply carlesonOperatorIntegrand_congr_ae h
+
+theorem carlesonOperator_congr_ae (h : f =ᶠ[ae volume] g) :
+    carlesonOperator K f = carlesonOperator K g := by
+  ext x
+  unfold carlesonOperator
+  congr with θ
+  apply linearizedCarlesonOperator_congr_ae h
+
+theorem carlesonOperator_zero_of_ae_zero (hf : f =ᶠ[ae volume] 0) :
+    carlesonOperator K f = 0 := by
+  rw [carlesonOperator_congr_ae hf]
+  simp
 
 @[fun_prop]
 lemma measurable_carlesonOperatorIntegrand (mf : Measurable f) :
