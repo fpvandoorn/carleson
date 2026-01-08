@@ -855,7 +855,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal [NoAtoms μ]
       rw [← ofReal_norm, ← ofReal_norm, RCLike.Components.norm_eq_one hb h]
       simp
 
-lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
+lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*}
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
   [NoAtoms μ] [SigmaFinite ν] {c : ℝ≥0} (c_pos : 0 < c)
