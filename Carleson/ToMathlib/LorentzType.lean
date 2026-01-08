@@ -858,7 +858,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal [NoAtoms μ]
 lemma HasRestrictedWeakType.hasLorentzType [TopologicalSpace α] {𝕂 : Type*}
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
-  [IsLocallyFiniteMeasure μ] [NoAtoms μ] [SigmaFinite ν] {c : ℝ≥0} (c_pos : 0 < c)
+  [NoAtoms μ] [SigmaFinite ν] {c : ℝ≥0} (c_pos : 0 < c)
   (hT : HasRestrictedWeakType T p q μ ν c)
   (T_meas : ∀ {f : α → 𝕂}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
   (T_subadd : ∀ {f g : α → 𝕂}, (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
