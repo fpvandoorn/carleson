@@ -1,6 +1,7 @@
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Mathlib.MeasureTheory.Function.AEEqOfLIntegral
 
+-- Upstreaming status: useful and ready to go
 namespace MeasureTheory
 
 -- TODO: generalize this to other measures and density functions?
