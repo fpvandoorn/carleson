@@ -98,7 +98,7 @@
  ["docBlame", "MeasureTheory.res"],
  ["docBlame", "MeasureTheory.res'"],
  ["docBlame", "MeasureTheory.sel"],
- ["docBlame", "MeasureTheory.trunc_cut"],
+ ["docBlame", "MeasureTheory.truncCut"],
  ["docBlame", "PreTileStructure.fintype_𝔓"],
  ["docBlame", "PreTileStructure.𝒬"],
  ["docBlame", "PreTileStructure.𝓘"],
