@@ -16,6 +16,9 @@ for `Iio` and `Iic`, as they would be balls.
 
 We also define `EAnnulus` similarly using `edist` instead of `dist`.
 
+Upstreaming status: looks ready (once the dependent file is upstreamed);
+two style questions should be answered in the process (see below).
+
 ## Tags
 
 annulus, eannulus
@@ -179,6 +182,7 @@ lemma cc_subset_closedBall {x : X} {r R : ℝ} : cc x r R ⊆ closedBall x R :=
 @[simp]
 lemma oc_union_oo {x : X} {r r' R : ℝ} (h₁ : r ≤ r') (h₂ : r' < R) :
     oc x r r' ∪ oo x r' R = oo x r R := by
+  -- XXX: should this proof be written as `ext; grind [oc, oo]` instead? Same question below.
   ext; simp_rw [oc, oo, mem_union, mem_setOf_eq, ← mem_union, Ioc_union_Ioo_eq_Ioo h₁ h₂]
 
 @[simp]
@@ -263,7 +267,7 @@ lemma measurableSet_oo {x : X} {r R : ℝ} : MeasurableSet (oo x r R) := by
 
 @[measurability]
 lemma measurableSet_oc {x : X} {r R : ℝ} : MeasurableSet (oc x r R) := by
- rw [oc_eq]; measurability
+  rw [oc_eq]; measurability
 
 @[measurability]
 lemma measurableSet_co {x : X} {r R : ℝ} : MeasurableSet (co x r R) := by
@@ -271,7 +275,7 @@ lemma measurableSet_co {x : X} {r R : ℝ} : MeasurableSet (co x r R) := by
 
 @[measurability]
 lemma measurableSet_cc {x : X} {r R : ℝ} : MeasurableSet (cc x r R) := by
- rw [cc_eq]; measurability
+  rw [cc_eq]; measurability
 
 @[measurability]
 lemma measurableSet_oi {x : X} {r : ℝ} : MeasurableSet (oi x r) := by
@@ -306,6 +310,7 @@ lemma oc_eq_annulus {x : X} {r R : ℝ} (hr : 0 ≤ r) :
       ENNReal.ofReal_le_ofReal_iff hR]
   · have R_le_r := (lt_of_lt_of_le (lt_of_not_ge hR) hr).le
     rw [Annulus.oc_eq_empty R_le_r]
+    -- future: can `ext y; push _ ∈ _` golf this, after sufficient `push` tagging?
     refine eq_empty_of_forall_notMem (fun y hy ↦ ?_)
     exact not_le_of_gt (lt_of_le_of_lt (ENNReal.ofReal_le_ofReal R_le_r) hy.1) hy.2
 
