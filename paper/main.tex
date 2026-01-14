@@ -138,7 +138,15 @@ This is a somewhat inelegant solution: most results about the maximal function d
 For the formal proof, we changed the definition to allow arbitrary suprema: this means the maximal function is $[0,\infty]$-valued. Being able to speak of $L^p$-functions valued in $[0,\infty]$ prompted the introduction of \emph{extended norms}, see Subsection~\ref{subsec:enorm}.
 
 \subsubsection{The real interpolation theorem}
-To be written!
+The Marcinkiewicz real interpolation theorem is a standard result in functional analysis.
+It is also a key prerequisite for the proof of Carleson's theorem: it is applied to the Hardy–Littlewood maximal function to deduce it is of strong type $L^p$, for $p\in(0,\infty)$.
+Our formalised version aims to reduce superfluous assumptions commonly found in the mathematical literature. For instance, it applies to any sub-additive function (not merely sub-linear ones) --- that is, there is no need for a scalar multiplication on the target. Similarly, any positive exponent $p$ is allowed (as opposed to demanding $p\geq 1$).
+
+In light of generalising the Hardy--Littlewood maximal function, this proof had to be generalised again:
+applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any commutative monoid with a compatible enorm).
+In return for a significant amount of refactoring work\footnote{the initial formalisation was about 5000 lines long; the generalisation touched about 2000 of them},
+we have formalised a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way.
+For further detail, we refer the reader to a separate article \cite{PortegiesRothgangRealInterpolation}.
 
 \subsection{Constant tweaking} To be written!
 
