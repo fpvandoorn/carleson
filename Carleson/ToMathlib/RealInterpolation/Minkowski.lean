@@ -23,22 +23,6 @@ variable {α α' ε E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measu
 /-! ## Minkowski's integral inequality -/
 namespace MeasureTheory
 
-lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : 0 < c) (hd : 0 < d) :
-    a ^ (c + d) = a ^ c * a ^ d := by
-  have hcd : 0 < c + d := by linarith
-  rcases (eq_or_ne a 0) with a_eq_zero | a_ne_zero
-  · rw [a_eq_zero, zero_rpow_of_pos hcd, zero_rpow_of_pos hc, zero_rpow_of_pos hd, mul_zero]
-  · rcases (eq_or_ne a ⊤) with a_eq_top | a_ne_top
-    · rw [a_eq_top, top_rpow_of_pos hcd, top_rpow_of_pos hc, top_rpow_of_pos hd, top_mul_top]
-    · rw [ENNReal.rpow_add c d a_ne_zero a_ne_top]
-
-lemma eq_of_le_of_le (a b : ℝ≥0∞) (hab : a ≤ b) (hab' : b ≤ a) : a = b := by
-  rcases (eq_or_ne a b) with a_eq_b | a_ne_b
-  · exact a_eq_b
-  · rcases lt_or_gt_of_ne a_ne_b with a_lt_b | b_lt_a
-    · contrapose! a_lt_b; exact hab'
-    · contrapose! b_lt_a; exact hab
-
 def trunc_cut (f : α → ℝ≥0∞) (μ : Measure α) [SigmaFinite μ] :=
   fun n : ℕ ↦ indicator (spanningSets μ n) (fun x ↦ min (f x) n)
 
