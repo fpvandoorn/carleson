@@ -6,6 +6,14 @@ import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 This files contains convenience results for working with interpolated exponents,
 as well as results about a particular choice of exponent that we will use for the proof
 of the real interpolation theorem.
+
+Upstreaming status: mixed; some requires more design discussions
+- the ENNReal section is ready to go
+- the ComputationsInterpolatedExponents sections is also generally useful;
+  need to find a better naming scheme for the lemmas (and address a few TODOs)
+- the ComputationsChoiceExponent section is specific to this particular proof of real interpolation.
+  If we prefer a proof about Lorentz spaces, using a different approach,
+  it may not be worth upstreaming.
 -/
 noncomputable section
 
@@ -100,12 +108,8 @@ lemma le_of_rpow_le {a b : ℝ≥0∞} {c : ℝ} (hc : 0 < c) (h : a ^ c ≤ b ^
 lemma coe_inv_exponent (hp₀ : 0 < p₀) : ENNReal.ofReal (p₀⁻¹.toReal) = p₀⁻¹ :=
   ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₀.ne')
 
-end ENNReal
-
-/-! ## Convenience results for working with (interpolated) exponents -/
-namespace ComputationsInterpolatedExponents
-
-lemma ENNReal_preservation_positivity₀ (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ ∨ q ≠ ⊤) :
+-- TODO: find a better name for the next three lemmas!
+lemma preservation_positivity₀ (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ ∨ q ≠ ⊤) :
     0 < (1 - t) * p⁻¹ + t * q⁻¹ := by
   obtain dir|dir := hpq
   · exact Left.add_pos_of_pos_of_nonneg (mul_pos ((tsub_pos_of_lt ht.2).ne')
@@ -113,26 +117,31 @@ lemma ENNReal_preservation_positivity₀ (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ �
   · exact Right.add_pos_of_nonneg_of_pos (zero_le _)
       <| ENNReal.mul_pos ht.1.ne' (ENNReal.inv_ne_zero.mpr dir)
 
-lemma ENNReal_preservation_positivity (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
+lemma preservation_positivity (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
     0 < (1 - t) * p⁻¹ + t * q⁻¹ := by
-  apply ENNReal_preservation_positivity₀ ht
+  apply preservation_positivity₀ ht
   cases (lt_or_gt_of_ne hpq) <;> exact Ne.ne_or_ne ⊤ hpq
 
-lemma ENNReal_preservation_positivity' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (ht : t ≠ ⊤)
+lemma preservation_positivity' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (ht : t ≠ ⊤)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 0 < p := by
   rw [← inv_inv p, hp]
   simp [ENNReal.mul_eq_top, hp₀.ne', hp₁.ne', ht]
 
+end ENNReal
+
+/-! ## Convenience results for working with (interpolated) exponents -/
+namespace ComputationsInterpolatedExponents
+
 lemma interp_exp_ne_top (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : p ≠ ⊤ := by
   apply ENNReal.inv_ne_zero.mp
-  refine hp ▸ (ENNReal_preservation_positivity₀ ht ?_).ne'
+  refine hp ▸ (preservation_positivity₀ ht ?_).ne'
   by_contra! h
   exact hp₀p₁ (h.1.trans h.2.symm)
 
 lemma interp_exp_ne_top' (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : p ≠ ⊤ :=
-  ENNReal.inv_ne_zero.mp (hp ▸ (ENNReal_preservation_positivity₀ ht hp₀p₁).ne')
+  ENNReal.inv_ne_zero.mp (hp ▸ (preservation_positivity₀ ht hp₀p₁).ne')
 
 lemma interp_exp_eq (hp₀p₁ : p₀ = p₁)
     (ht : t ∈ Ioo 0 1) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
@@ -211,7 +220,7 @@ lemma inv_of_interpolated_pos' (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
 -- TODO: remove, this is redundant, but for now mirror the development for reals...
 lemma interpolated_pos' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (ht : t ≠ ∞)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 0 < p :=
-  ENNReal_preservation_positivity' hp₀ hp₁ ht hp
+  preservation_positivity' hp₀ hp₁ ht hp
 
 lemma exp_toReal_pos (hp₀ : 0 < p₀) (hp₀' : p₀ ≠ ⊤) : 0 < p₀.toReal :=
   toReal_pos hp₀.ne' hp₀'
