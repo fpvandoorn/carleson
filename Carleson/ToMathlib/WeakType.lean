@@ -178,7 +178,6 @@ lemma distribution_pow (ε : Type*) [SeminormedRing ε] [NormOneClass ε] [NormM
   · rw [mem_setOf_eq, enorm_pow (f x) n]; exact ENNReal.pow_right_strictMono hn hx
 
 
-
 section distribution
 
 variable {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α → ε'}
