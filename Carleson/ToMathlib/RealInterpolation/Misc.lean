@@ -150,7 +150,7 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
 -/
 namespace ChoiceScale
 
-def d := --ENNReal.toReal
+def d :=
     (C₀ ^ (q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) * (eLpNorm f p μ ^ p.toReal) ^
       (p₀⁻¹.toReal * q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) /
     (C₁ ^ (q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) * (eLpNorm f p μ ^ p.toReal) ^
@@ -287,7 +287,7 @@ end ChoiceScale
 
 end
 
-noncomputable section
+noncomputable section -- TODO: move these lemmas to a better location!
 
 open NNReal ENNReal MeasureTheory Set
 
@@ -703,92 +703,7 @@ lemma trnc_le_func {j : Bool} {a : ℝ≥0∞} {x : α} :
 
 /-! ## Truncations and L-p spaces -/
 
-lemma power_estimate {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
-    (t / γ) ^ a ≤ (t / γ) ^ b := by
-  gcongr
-  exact (one_le_div hγ).mpr htγ
-
-lemma power_estimate' {a b t γ : ℝ} (ht : 0 < t) (htγ : t ≤ γ) (hab : a ≤ b) :
-    (t / γ) ^ b ≤ (t / γ) ^ a := by
-  have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
-  exact Real.rpow_le_rpow_of_exponent_ge (div_pos ht (γ_pos)) (div_le_one_of_le₀ htγ γ_pos.le) hab
-
-lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : 0 < t) (htγ : t ≤ γ) (hab : a ≤ b) :
-    ENNReal.ofReal (t ^ b) ≤ ENNReal.ofReal (t ^ a) * ENNReal.ofReal (γ ^ (b - a)) := by
-  rw [mul_comm]
-  have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
-  rw [Real.rpow_sub γ_pos]
-  refine (ENNReal.mul_le_mul_iff_right (a := ENNReal.ofReal (γ ^ (-b) )) ?_ coe_ne_top).mp ?_
-  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos γ_pos (-b))).ne'
-  · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
-        Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
-    nth_rw 2 [mul_comm]
-    rw [← neg_one_mul, Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow] <;> try positivity
-    rw [one_div]
-    nth_rw 2 [← Real.rpow_neg_one]
-    rw [← Real.rpow_mul (by positivity)]
-    nth_rw 3 [mul_comm]
-    rw [Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow, ← div_eq_mul_inv] <;> try positivity
-    exact ofReal_le_ofReal (power_estimate' ht htγ hab)
-
--- Note: this lemma is false if t = γ = ∞ and a < 0 ≤ b, as then t ^ a = ∞ ^ a = 0 and
--- the statement becomes ∞ ≤ 0 * ∞ = 0.
-lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} (ht : 0 < t) (ht' : t ≠ ∞) (htγ : t ≤ γ) (hab : a ≤ b) :
-    t ^ b ≤ t ^ a * γ ^ (b - a) := by
-  calc
-  _ = t ^ (a + (b - a)) := by ring_nf
-  _ = t ^ a * t ^ (b - a) := by rw [ENNReal.rpow_add _ _ ht.ne' ht']
-  _ ≤ t ^ a * γ ^ (b - a) := by gcongr; linarith
-
--- TODO: there is a lot of overlap between above proof and below
-lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
-    ENNReal.ofReal (t ^ a) ≤ ENNReal.ofReal (t ^ b) * ENNReal.ofReal (γ ^ (a - b)) := by
-  rw [mul_comm]
-  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
-  rw [Real.rpow_sub hγ]
-  refine (ENNReal.mul_le_mul_iff_right (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
-  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne'
-  · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
-        Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
-    nth_rw 2 [mul_comm]
-    rw [← neg_one_mul, Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow] <;> try positivity
-    rw [one_div]
-    nth_rw 2 [← Real.rpow_neg_one]
-    rw [← Real.rpow_mul (by positivity)]
-    nth_rw 3 [mul_comm]
-    rw [Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow, ← div_eq_mul_inv] <;> try positivity
-    exact ofReal_le_ofReal (Real.rpow_le_rpow_of_exponent_le ((one_le_div hγ).mpr htγ) hab)
-
-lemma rpow_le_rpow_of_exponent_le_base_ge_enorm {a b : ℝ} {t γ : ℝ≥0∞} (hγ : 0 < γ) (hγ' : γ ≠ ∞) (htγ : γ ≤ t) (hab : a ≤ b) :
-    t ^ a ≤ (t ^ b) * (γ ^ (a - b)) := by
-  by_cases ht' : t = ∞
-  · simp_all only [le_top, top_rpow_def, ite_mul, sub_zero, one_mul, zero_mul]
-    split_ifs with ha hb hb' ha'
-    · simp_all
-    · exact False.elim (by linarith [hb, hb'])
-    · exact False.elim (by linarith [hb, hb'])
-    · simp_all
-    · simp_all
-    · simpa using by order
-    · rw [ENNReal.top_mul]
-      · exact zero_le ⊤
-      simp_all
-    · positivity
-    · simp
-  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
-  rw [mul_comm, ← ENNReal.inv_mul_le_iff, ← ENNReal.rpow_neg, mul_comm, ENNReal.mul_le_iff_le_inv,
-    ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
-  · gcongr
-    linarith
-  · positivity
-  · assumption
-  · simp_all only [ne_eq, ENNReal.rpow_eq_zero_iff, false_and, or_false, not_and, not_lt]
-    contrapose
-    exact fun _ ↦ t_pos.ne'
-  · simpa [ht'] using fun hfalse ↦ by simp_all
-  · simp_all
-  · simpa using ⟨fun h ↦ by simp_all, fun h ↦ by simp_all⟩
-
+-- TODO: make the name match the naming conventions, i.e. `MemLp.trunc`
 lemma trunc_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t) p μ := by
   refine ⟨hf.1.trunc, lt_of_le_of_lt (eLpNorm_mono_ae' (ae_of_all _ ?_)) hf.2⟩
   intro x
@@ -799,6 +714,7 @@ lemma trunc_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t
 --     eLpNorm (truncCompl f t) p μ ≤ eLpNorm f p μ :=
 --   eLpNorm_mono (fun _ ↦ truncCompl_le_func)
 
+-- TODO: make the name match the naming conventions, i.e. `MemLp.truncCompl`
 lemma truncCompl_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) :
     MemLp (truncCompl f t) p μ := by
   refine ⟨hf.1.truncCompl, lt_of_le_of_lt (eLpNorm_mono_ae' (ae_of_all _ ?_)) hf.2⟩
@@ -829,6 +745,7 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
     gcongr with x
     exact trnc_le_func (j := ⊥)
 
+-- TODO: better name!
 lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
     (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (hf : AEStronglyMeasurable f μ) (ht : 0 < t) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
@@ -855,6 +772,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
       rw [eLpNorm_eq_lintegral_rpow_enorm p_ne_zero p_ne_top, one_div, ENNReal.rpow_inv_rpow]
       exact (toReal_pos p_ne_zero p_ne_top).ne'
 
+-- TODO: better name!
 lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
     (hq : q ≠ ⊤) (hpq : p ∈ Ioc 0 q) (hf : AEStronglyMeasurable f μ) :
     eLpNorm (trunc f t) q μ ^ q.toReal ≤
@@ -925,6 +843,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
       · exact setLIntegral_le_lintegral _ _
       · exact (toReal_pos hpq.1.ne' p_ne_top).ne'
 
+-- TODO: is there a better name?
 /-- If `f` is in `Lp`, the truncation is element of `Lq` for `q ≥ p`. -/
 lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioc 0 q) (hf : MemLp f p μ) (ht : t ≠ ∞) :
     MemLp (trnc ⊤ f t) q μ := by
@@ -1006,6 +925,7 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
     exact ⟨s, hs, fun a ha ↦ by simp [setOf, hfgs.symm ha]⟩
   _ < ∞ := h
 
+-- is there a better name?
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q ≤ p`. -/
 lemma truncCompl_Lp_Lq_lower
     (hp : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (ht : 0 < t) (hf : MemLp f p μ) :
@@ -1024,7 +944,7 @@ lemma truncCompl_Lp_Lq_lower
   exact toReal_pos (hpq.1.trans_le hpq.2).ne' hp
 
 -- Lemma 6.10 in Folland
--- XXX: is the `ContinuousAdd hypothesis really necessary for `MemLp.add` (and hence here)?
+-- XXX: is the `ContinuousAdd` hypothesis really necessary for `MemLp.add` (and hence here)?
 lemma memLp_of_memLp_le_of_memLp_ge [ContinuousAdd ε]
     {r : ℝ≥0∞} (hp : 0 < p) (hr' : q ∈ Icc p r)
     (hf : MemLp f p μ) (hf' : MemLp f r μ) : MemLp f q μ := by
@@ -1253,7 +1173,8 @@ lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} (hg : AEMeasurable g) {j : Bo
   rw [lintegral_trunc_mul₀ hp, lintegral_trunc_mul₁, lintegral_trunc_mul₂, lintegral_mul_const'']
   exact hg.restrict
 
-/-! Extract expressions for the lower Lebesgue integral of power functions -/
+/-! Extract expressions for the lower Lebesgue integral of power functions
+TODO: move to a lower-level file! -/
 
 lemma lintegral_rpow_of_gt_abs {β γ : ℝ} (hβ : 0 < β) (hγ : γ > -1) :
     ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
@@ -1339,6 +1260,7 @@ lemma value_lintegral_res₂ {γ p' : ℝ} {spf : ScaledPowerFunction} (ht : 0 <
   simp [ht', top_rpow_of_pos hσp', mul_top (ENNReal.rpow_pos this spf.hd').ne',
       top_div_of_lt_top ofReal_lt_top]
 
+-- TODO: move to a lower-level file!
 lemma AEStronglyMeasurable.induction {α : Type*} {β : Type*} {mα : MeasurableSpace α} [TopologicalSpace β]
   {μ : Measure α} {motive : (α → β) → Prop}
   (ae_eq_implies : ∀ ⦃f g : α → β⦄ (_ : StronglyMeasurable f) (_ : f =ᶠ[ae μ] g), motive f → motive g)

@@ -168,6 +168,94 @@ lemma rpow_pos_of_pos_ne_top_ne_zero {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (
   rw [← rpow_neg, inv_zero]
   exact rpow_lt_top_of_pos_ne_top_ne_zero hx hx' (neg_ne_zero.mpr hy)
 
+-- TODO: better name!
+lemma power_estimate {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
+    (t / γ) ^ a ≤ (t / γ) ^ b := by
+  gcongr
+  exact (one_le_div hγ).mpr htγ
+
+-- TODO: better name!
+lemma power_estimate' {a b t γ : ℝ} (ht : 0 < t) (htγ : t ≤ γ) (hab : a ≤ b) :
+    (t / γ) ^ b ≤ (t / γ) ^ a := by
+  have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
+  exact Real.rpow_le_rpow_of_exponent_ge (div_pos ht (γ_pos)) (div_le_one_of_le₀ htγ γ_pos.le) hab
+
+lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : 0 < t) (htγ : t ≤ γ) (hab : a ≤ b) :
+    ENNReal.ofReal (t ^ b) ≤ ENNReal.ofReal (t ^ a) * ENNReal.ofReal (γ ^ (b - a)) := by
+  rw [mul_comm]
+  have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
+  rw [Real.rpow_sub γ_pos]
+  refine (ENNReal.mul_le_mul_iff_right (a := ENNReal.ofReal (γ ^ (-b) )) ?_ coe_ne_top).mp ?_
+  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos γ_pos (-b))).ne'
+  · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
+        Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
+    nth_rw 2 [mul_comm]
+    rw [← neg_one_mul, Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow] <;> try positivity
+    rw [one_div]
+    nth_rw 2 [← Real.rpow_neg_one]
+    rw [← Real.rpow_mul (by positivity)]
+    nth_rw 3 [mul_comm]
+    rw [Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow, ← div_eq_mul_inv] <;> try positivity
+    exact ofReal_le_ofReal (power_estimate' ht htγ hab)
+
+-- Note: this lemma is false if t = γ = ∞ and a < 0 ≤ b, as then t ^ a = ∞ ^ a = 0 and
+-- the statement becomes ∞ ≤ 0 * ∞ = 0.
+lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} (ht : 0 < t) (ht' : t ≠ ∞) (htγ : t ≤ γ) (hab : a ≤ b) :
+    t ^ b ≤ t ^ a * γ ^ (b - a) := by
+  calc
+  _ = t ^ (a + (b - a)) := by ring_nf
+  _ = t ^ a * t ^ (b - a) := by rw [ENNReal.rpow_add _ _ ht.ne' ht']
+  _ ≤ t ^ a * γ ^ (b - a) := by gcongr; linarith
+
+-- TODO: there is a lot of overlap between above proof and below
+lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
+    ENNReal.ofReal (t ^ a) ≤ ENNReal.ofReal (t ^ b) * ENNReal.ofReal (γ ^ (a - b)) := by
+  rw [mul_comm]
+  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
+  rw [Real.rpow_sub hγ]
+  refine (ENNReal.mul_le_mul_iff_right (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
+  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne'
+  · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
+        Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
+    nth_rw 2 [mul_comm]
+    rw [← neg_one_mul, Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow] <;> try positivity
+    rw [one_div]
+    nth_rw 2 [← Real.rpow_neg_one]
+    rw [← Real.rpow_mul (by positivity)]
+    nth_rw 3 [mul_comm]
+    rw [Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow, ← div_eq_mul_inv] <;> try positivity
+    exact ofReal_le_ofReal (Real.rpow_le_rpow_of_exponent_le ((one_le_div hγ).mpr htγ) hab)
+
+lemma rpow_le_rpow_of_exponent_le_base_ge_enorm {a b : ℝ} {t γ : ℝ≥0∞} (hγ : 0 < γ) (hγ' : γ ≠ ∞) (htγ : γ ≤ t) (hab : a ≤ b) :
+    t ^ a ≤ (t ^ b) * (γ ^ (a - b)) := by
+  by_cases ht' : t = ∞
+  · simp_all only [le_top, top_rpow_def, ite_mul, sub_zero, one_mul, zero_mul]
+    split_ifs with ha hb hb' ha'
+    · simp_all
+    · exact False.elim (by linarith [hb, hb'])
+    · exact False.elim (by linarith [hb, hb'])
+    · simp_all
+    · simp_all
+    · simpa using by order
+    · rw [ENNReal.top_mul]
+      · exact zero_le ⊤
+      simp_all
+    · positivity
+    · simp
+  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
+  rw [mul_comm, ← ENNReal.inv_mul_le_iff, ← ENNReal.rpow_neg, mul_comm, ENNReal.mul_le_iff_le_inv,
+    ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
+  · gcongr
+    linarith
+  · positivity
+  · assumption
+  · simp_all only [ne_eq, ENNReal.rpow_eq_zero_iff, false_and, or_false, not_and, not_lt]
+    contrapose
+    exact fun _ ↦ t_pos.ne'
+  · simpa [ht'] using fun hfalse ↦ by simp_all
+  · simp_all
+  · simpa using ⟨fun h ↦ by simp_all, fun h ↦ by simp_all⟩
+
 end ENNReal
 
 /-! ## Convenience results for working with (interpolated) exponents -/
