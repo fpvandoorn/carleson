@@ -72,6 +72,7 @@ lemma co_eq_empty {x : X} {r R : ℝ} (h : R ≤ r) : co x r R = ∅ := by
 lemma cc_eq_empty {x : X} {r R : ℝ} (h : R < r) : cc x r R = ∅ := by
   simp [cc, Icc_eq_empty_of_lt h]
 
+@[gcongr]
 lemma oo_subset_oo {x : X} {r₁ R₁ r₂ R₂ : ℝ} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     oo x r₁ R₁ ⊆ oo x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨lt_of_le_of_lt hr hr₁, lt_of_lt_of_le hR₁ hR⟩
@@ -98,6 +99,7 @@ lemma oc_subset_oo {x : X} {r₁ R₁ r₂ R₂ : ℝ} (hr : r₂ ≤ r₁) (hR 
     oc x r₁ R₁ ⊆ oo x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨lt_of_le_of_lt hr hr₁, lt_of_le_of_lt hR₁ hR⟩
 
+@[gcongr]
 lemma oc_subset_oc {x : X} {r₁ R₁ r₂ R₂ : ℝ} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     oc x r₁ R₁ ⊆ oc x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨lt_of_le_of_lt hr hr₁, hR₁.trans hR⟩
@@ -124,6 +126,7 @@ lemma co_subset_oc {x : X} {r₁ R₁ r₂ R₂ : ℝ} (hr : r₂ < r₁) (hR : 
     co x r₁ R₁ ⊆ oc x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨lt_of_lt_of_le hr hr₁, hR₁.le.trans hR⟩
 
+@[gcongr]
 lemma co_subset_co {x : X} {r₁ R₁ r₂ R₂ : ℝ} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     co x r₁ R₁ ⊆ co x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨hr.trans hr₁, lt_of_lt_of_le hR₁ hR⟩
@@ -150,6 +153,7 @@ lemma cc_subset_co {x : X} {r₁ R₁ r₂ R₂ : ℝ} (hr : r₂ ≤ r₁) (hR 
     cc x r₁ R₁ ⊆ co x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨hr.trans hr₁, lt_of_le_of_lt hR₁ hR⟩
 
+@[gcongr]
 lemma cc_subset_cc {x : X} {r₁ R₁ r₂ R₂ : ℝ} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     cc x r₁ R₁ ⊆ cc x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨hr.trans hr₁, hR₁.trans hR⟩
@@ -231,30 +235,22 @@ lemma co_union_ci {x : X} {r R : ℝ} (h : r ≤ R) : co x r R ∪ ci x R = ci x
 
 theorem iUnion_co_eq_ci {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), co x (f i) (f (i+1)) = ci x (f 0) := by
-  unfold co ci
-  rw [iUnion_setOf, ← iUnion_Ico_eq_Ici hf h2f]
-  simp only [mem_Ico, mem_iUnion]
+  simp [co, ci, iUnion_setOf, ← iUnion_Ico_eq_Ici hf h2f]
 
 theorem iUnion_oc_eq_oi {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), oc x (f i) (f (i+1)) = oi x (f 0) := by
-  unfold oc oi
-  rw [iUnion_setOf, ← iUnion_Ioc_eq_Ioi hf h2f]
-  simp only [mem_iUnion]
+  simp [oc, oi, iUnion_setOf, ← iUnion_Ioc_eq_Ioi hf h2f]
 
 variable {ι : Type*} [LinearOrder ι] [SuccOrder ι]
 
 theorem pairwise_disjoint_co_monotone {x : X} {f : ι → ℝ} (hf : Monotone f) :
     Pairwise (Function.onFun Disjoint fun (i : ι) => co x (f i) (f (Order.succ i))) := by
-  unfold Function.onFun
-  simp only
   intro i j hij
   apply Disjoint.preimage
   exact pairwise_disjoint_Ico_monotone hf hij
 
 theorem pairwise_disjoint_oc_monotone {x : X} {f : ι → ℝ} (hf : Monotone f) :
     Pairwise (Function.onFun Disjoint fun (i : ι) => oc x (f i) (f (Order.succ i))) := by
-  unfold Function.onFun
-  simp only
   intro i j hij
   apply Disjoint.preimage
   exact pairwise_disjoint_Ioc_monotone hf hij
@@ -405,6 +401,7 @@ lemma co_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ∞) : co x r ∞ = (ball 
 lemma cc_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ∞) : cc x r ∞ = (ball x r.toReal)ᶜ := by
   ext; simpa [cc, edist_dist, dist_comm] using le_ofReal_iff_toReal_le hr.ne dist_nonneg
 
+@[gcongr]
 lemma oo_subset_oo {x : X} {r₁ R₁ r₂ R₂ : ℝ≥0∞} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     oo x r₁ R₁ ⊆ oo x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨lt_of_le_of_lt hr hr₁, lt_of_lt_of_le hR₁ hR⟩
@@ -431,6 +428,7 @@ lemma oc_subset_oo {x : X} {r₁ R₁ r₂ R₂ : ℝ≥0∞} (hr : r₂ ≤ r�
     oc x r₁ R₁ ⊆ oo x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨lt_of_le_of_lt hr hr₁, lt_of_le_of_lt hR₁ hR⟩
 
+@[gcongr]
 lemma oc_subset_oc {x : X} {r₁ R₁ r₂ R₂ : ℝ≥0∞} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     oc x r₁ R₁ ⊆ oc x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨lt_of_le_of_lt hr hr₁, hR₁.trans hR⟩
@@ -457,6 +455,7 @@ lemma co_subset_oc {x : X} {r₁ R₁ r₂ R₂ : ℝ≥0∞} (hr : r₂ < r₁)
     co x r₁ R₁ ⊆ oc x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨lt_of_lt_of_le hr hr₁, hR₁.le.trans hR⟩
 
+@[gcongr]
 lemma co_subset_co {x : X} {r₁ R₁ r₂ R₂ : ℝ≥0∞} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     co x r₁ R₁ ⊆ co x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨hr.trans hr₁, lt_of_lt_of_le hR₁ hR⟩
@@ -483,6 +482,7 @@ lemma cc_subset_co {x : X} {r₁ R₁ r₂ R₂ : ℝ≥0∞} (hr : r₂ ≤ r�
     cc x r₁ R₁ ⊆ co x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨hr.trans hr₁, lt_of_le_of_lt hR₁ hR⟩
 
+@[gcongr]
 lemma cc_subset_cc {x : X} {r₁ R₁ r₂ R₂ : ℝ≥0∞} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     cc x r₁ R₁ ⊆ cc x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨hr.trans hr₁, hR₁.trans hR⟩
