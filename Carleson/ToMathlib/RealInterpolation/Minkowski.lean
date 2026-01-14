@@ -147,7 +147,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     rcases eq_or_ne (∫⁻ x : α, (g n x) ^ p ∂μ) 0  with int_eq_zero | int_ne_zero
     · rw [int_eq_zero, ENNReal.zero_rpow_of_pos]
       · exact zero_le _
-      · refine inv_pos_of_pos (by positivity)
+      · exact inv_pos_of_pos (by positivity)
     · calc
       _ = (∫⁻ x : α, (f x) * (g n x) ^ (p - 1) ∂μ) * (
           (∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ := by
@@ -161,7 +161,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
         ext x
         rw [← ENNReal.rpow_mul]
         congr
-        refine Real.HolderConjugate.sub_one_mul_conj hpq'
+        exact Real.HolderConjugate.sub_one_mul_conj hpq'
       _ = (∫⁻ x : α, (g n x) ^ p ∂μ) ^ p⁻¹ := by
         rw [← ENNReal.rpow_neg]
         nth_rw 1 [← ENNReal.rpow_one (x := (∫⁻ x : α, (g n x) ^ (p) ∂μ))]

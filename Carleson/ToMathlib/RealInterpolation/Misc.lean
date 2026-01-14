@@ -703,23 +703,21 @@ lemma trnc_le_func {j : Bool} {a : ℝ≥0∞} {x : α} :
 
 /-! ## Truncations and L-p spaces -/
 
--- TODO: make the name match the naming conventions, i.e. `MemLp.trunc`
-lemma trunc_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t) p μ := by
+lemma MemLp.trunc {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t) p μ := by
   refine ⟨hf.1.trunc, lt_of_le_of_lt (eLpNorm_mono_ae' (ae_of_all _ ?_)) hf.2⟩
   intro x
-  unfold trunc
+  unfold MeasureTheory.trunc
   split_ifs with is_fx_le_a <;> simp
 
 -- lemma eLpNorm_truncCompl_le {p : ℝ≥0∞} :
 --     eLpNorm (truncCompl f t) p μ ≤ eLpNorm f p μ :=
 --   eLpNorm_mono (fun _ ↦ truncCompl_le_func)
 
--- TODO: make the name match the naming conventions, i.e. `MemLp.truncCompl`
-lemma truncCompl_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) :
+lemma MemLp.truncCompl {p : ℝ≥0∞} (hf : MemLp f p μ) :
     MemLp (truncCompl f t) p μ := by
   refine ⟨hf.1.truncCompl, lt_of_le_of_lt (eLpNorm_mono_ae' (ae_of_all _ ?_)) hf.2⟩
   intro x
-  unfold truncCompl
+  unfold MeasureTheory.truncCompl
   split_ifs with is_fx_le_a <;> simp
 
 lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
@@ -789,11 +787,10 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
       refine le_of_eq_of_le ?_ (zero_le _)
       rw [rpow_eq_zero_iff_of_pos]
       · rw [eLpNorm_eq_zero_iff _ hq'.ne']
-        · -- missing API lemma
+        · -- TODO: missing API lemma
           rw [trunc_eq_indicator]
           exact Filter.EventuallyEq.indicator_zero this
-        · -- TODO: fun_prop cannot solve this any more
-          measurability
+        · fun_prop
       · rw [toReal_pos_iff]
         exact ⟨hq', hq.lt_top⟩
     · -- The right hand side is `∞`, hence the statement is always true.
@@ -872,7 +869,7 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
   by_cases hp_top : p = ⊤
   · rw [hp_top]
     simp only [bot_eq_false, trnc_false]
-    exact truncCompl_preserves_Lp hf
+    exact hf.truncCompl
   obtain ⟨hf_m, hf_lt_top⟩ := hf
   by_cases hp0 : p = 0
   · rw [hp0, memLp_zero_iff_aestronglyMeasurable]
@@ -1013,7 +1010,7 @@ def res' (j : Bool) (β : ℝ≥0∞) : Set ℝ :=
   if β = ∞ then if j then Ioi (0 : ℝ) else ∅
   else if j then Ioc (0 : ℝ) β.toReal else Ioi 0 ∩ Ici β.toReal
 
--- TODO: this one is probalby obsolete
+-- TODO: this one is probably obsolete
 lemma res'comp₀ (j : Bool) (β : ℝ≥0∞) (hβ : 0 < β) :
     Ioi (0 : ℝ) \ res' j β = res (¬j) β := by
   unfold res' res
