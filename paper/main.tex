@@ -19,13 +19,19 @@
 \newcommand{\nnreal}{\real_{\ge0}}
 \newcommand{\ennreal}{\overline{\real_{\ge0}}}
 
+% These options can be changed later; these may be personal preferences.
 \hypersetup{
+  bookmarks,bookmarksopen,bookmarksnumbered,
   colorlinks = true,
   linkcolor  = blue,
-  citecolor  = blue,
-  urlcolor   = blue
+  citecolor  = red,
+  urlcolor   = grey,
+  breaklinks
 }
-
+% maxbibnames: List all authors in the bibliography for up to 5 authors. Use up to 4 names for determining the label. Choose alphabetical style.
+\usepackage[backend=biber,maxbibnames=5,maxalphanames=4,style=alphabetic]{biblatex}
+\usepackage[autostyle]{csquotes}
+\addbibresource{references.bib}
 
 \title{\textbf{Formalizing Carleson's Theorem in Lean}}
 \author{Authors}
@@ -213,7 +219,8 @@ The process of generalisation revealed that this abstraction is also useful on i
     \end{itemize}
 \end{itemize}
 
-\bibliographystyle{plain}
-\bibliography{references}
+%\bibliographystyle{plain}
+%\bibliography{references}
+\printbibliography
 
 \end{document}
