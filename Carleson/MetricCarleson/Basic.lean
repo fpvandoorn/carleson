@@ -81,7 +81,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     rw [dist_eq_norm']; convert nb
     rw [sub_eq_iff_eq_add, ← setIntegral_union _ measurableSet_oo]; rotate_left
     · exact iof.mono_set (oc_subset_oo le_rfl dy.2)
-    · exact iof.mono_set (oo_subset_oo ly le_rfl)
+    · exact iof.mono_set (by gcongr)
     · simp_rw [disjoint_left, oc, oo, mem_setOf, mem_Ioc, mem_Ioo, not_and_or, not_lt]
       exact fun z mz ↦ .inl mz.2
     rw [oc_union_oo ly dy.2]
@@ -98,7 +98,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     rw [dist_eq_norm, Real.norm_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_right] at dy
     rw [Function.comp_apply, Measure.restrict_apply measurableSet_oc,
       inter_eq_self_of_subset_left (oc_subset_oo le_rfl (dy.trans (mu n).2))]
-    exact (measure_mono (oc_subset_oc le_rfl dy.le)).trans hn
+    exact (measure_mono (by gcongr)).trans hn
   -- Split the annulus along the `u n`...
   let s (n : ℕ) := oc x (u (n + 1)) (u n)
   have us (k : ℕ) : ⋃ n, s (k + n) = oc x R₁ (u k) := by
@@ -163,7 +163,7 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       integral_indicator measurableSet_co] at nb
     rw [dist_eq_norm']; convert nb
     rw [sub_eq_iff_eq_add', ← setIntegral_union _ measurableSet_co]; rotate_left
-    · exact iof.mono_set (oo_subset_oo le_rfl ly)
+    · exact iof.mono_set (by gcongr)
     · exact iof.mono_set (co_subset_oo dy.2 le_rfl)
     · simp_rw [disjoint_left, co, oo, mem_setOf, mem_Ico, mem_Ioo, not_and_or, not_le]
       exact fun z mz ↦ .inl mz.2
@@ -181,7 +181,7 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     rw [dist_eq_norm', Real.norm_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_left] at dy
     rw [Function.comp_apply, Measure.restrict_apply measurableSet_co,
       inter_eq_self_of_subset_left (co_subset_oo ((mu n).1.trans dy) le_rfl)]
-    exact (measure_mono (co_subset_co dy.le le_rfl)).trans hn
+    exact (measure_mono (by gcongr)).trans hn
   -- Split the annulus along the `u n`...
   let s (n : ℕ) := co x (u n) (u (n + 1))
   have us (k : ℕ) : ⋃ n, s (k + n) = co x (u k) R₂ := by
@@ -302,10 +302,7 @@ lemma exists_rat_near_carlesonOperatorIntegrand'
   specialize hq₁ lbq₁.le dq₁
   -- Shift `R₂` to a smaller rational with error less than `ε / 2`
   have q₁pos : (0 : ℝ) < q₁ := hR₁.trans lbq₁
-  have mf' : IntegrableOn f (Annulus.oo x q₁ R₂) volume := by
-    apply mf.mono_set
-    apply Annulus.oo_subset_oo lbq₁.le (le_refl _)
-  have lcon := @leftContinuous_carlesonOperatorIntegrand' _ _ _ _ _ θ q₁ R₂ _ x mf' q₁pos
+  have lcon := leftContinuous_carlesonOperatorIntegrand' (θ := θ) (mf.mono_set (by gcongr)) q₁pos
   rw [Metric.continuousWithinAt_iff] at lcon; specialize lcon _ (half_pos εpos)
   obtain ⟨δ₂, δ₂pos, hq₂⟩ := lcon
   have lt₂ : max (R₂ - δ₂) q₁ < R₂ := by rw [max_lt_iff]; constructor <;> linarith

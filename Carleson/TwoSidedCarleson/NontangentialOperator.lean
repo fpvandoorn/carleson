@@ -852,7 +852,7 @@ theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ 
         linarith [Real.sub_le_dist r R₁]
     filter_upwards [this] with r hr
     filter_upwards [hB] with y hy
-    refine indicator_le_indicator_of_subset (Annulus.oo_subset_oo (by rfl) hr.le)
+    refine indicator_le_indicator_of_subset (by gcongr)
       (fun a ↦ by positivity) _ |>.trans <| indicator_le_indicator' ?_
     exact fun h2y ↦ hy <| Annulus.oo_subset_ci (by rfl) h2y
   · unfold bound
@@ -909,7 +909,7 @@ theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R
         linarith [Real.sub_le_dist R₂ r]
     filter_upwards [this] with r hr
     filter_upwards [hB] with y hy
-    refine indicator_le_indicator_of_subset (Annulus.oo_subset_oo hr.le (by rfl))
+    refine indicator_le_indicator_of_subset (by gcongr)
       (fun a ↦ by positivity) _ |>.trans <| indicator_le_indicator' ?_
     exact fun h2y ↦ hy <| Annulus.oo_subset_ci (by rfl) h2y
   · unfold bound
