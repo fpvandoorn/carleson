@@ -127,6 +127,47 @@ lemma preservation_positivity' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (ht : t ≠
   rw [← inv_inv p, hp]
   simp [ENNReal.mul_eq_top, hp₀.ne', hp₁.ne', ht]
 
+open scoped NNReal
+
+-- TODO: should some of the following lemmas be tagged with finiteness?
+lemma rpow_apply_coe {x : ℝ≥0} {y : ℝ} :
+    ENNReal.ofNNReal x ^ y = if x = 0 ∧ y < 0 then ∞ else (x ^ y : ℝ≥0) := rfl
+
+lemma rpow_apply_coe' {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ ⊤) :
+    x ^ y = if x = 0 ∧ y < 0 then ∞ else (x.toNNReal ^ y : ℝ≥0) := by
+  convert ENNReal.rpow_apply_coe
+  · exact Eq.symm (coe_toNNReal hx)
+  · rw [ENNReal.toNNReal_eq_zero_iff]
+    simp [hx]
+
+lemma rpow_lt_rpow_iff_neg {x y : ℝ≥0∞} (hx : x ≠ 0) (hy : y ≠ ∞) (hxy : x < y) {z : ℝ} (hz : z < 0) :
+    y ^ z < x ^ z := by
+  rw [ENNReal.rpow_apply_coe' hy, ENNReal.rpow_apply_coe' hxy.ne_top]
+  simpa [(pos_of_gt hxy).ne', hx] using
+    NNReal.rpow_lt_rpow_of_neg (toNNReal_pos hx hxy.ne_top) (toNNReal_strict_mono hy hxy) hz
+
+lemma div_lt_div {a b c : ℝ≥0∞} (hc : 0 < c) (hc' : c ≠ ∞) : a / c < b / c ↔ a < b := by
+  rw [ENNReal.div_lt_iff (Or.inl hc.ne') (Or.inl hc'), ENNReal.div_mul_cancel hc.ne' hc']
+
+lemma rpow_lt_top_of_neg {x : ℝ≥0∞} {y : ℝ} (hx : 0 < x) (hy : y < 0) : x ^ y < ⊤ := by
+  refine ENNReal.inv_lt_inv.mp ?_
+  have := hx.ne'
+  have := hy.le
+  simp only [inv_top, ENNReal.inv_pos, ne_eq, rpow_eq_top_iff, not_or, not_and, not_lt]
+  tauto
+
+lemma rpow_lt_top_of_pos_ne_top_ne_zero {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (hx' : x ≠ ⊤) (hy : y ≠ 0) :
+    x ^ y < ⊤ := by
+  rcases lt_or_gt_of_ne hy with y_pos | y_neg
+  · exact rpow_lt_top_of_neg (hx.bot_lt) y_pos
+  · exact rpow_lt_top_of_nonneg (y_neg.le) hx'
+
+lemma rpow_pos_of_pos_ne_top_ne_zero {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (hx' : x ≠ ⊤) (hy : y ≠ 0) :
+    0 < x ^ y := by
+  refine ENNReal.inv_lt_inv.mp ?_
+  rw [← rpow_neg, inv_zero]
+  exact rpow_lt_top_of_pos_ne_top_ne_zero hx hx' (neg_ne_zero.mpr hy)
+
 end ENNReal
 
 /-! ## Convenience results for working with (interpolated) exponents -/
