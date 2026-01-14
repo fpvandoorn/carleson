@@ -7,6 +7,13 @@ import Carleson.ToMathlib.RealInterpolation.Misc
 In this file, we prove Minkowski's integral inequality and apply it to truncations.
 We use this to deduce weak type estimates for truncations.
 
+Upstreaming status:
+- Minkowski's integral inequality belongs into mathlib, and is mostly ready
+- applying it to truncations needs truncations upstreamed first
+- weak type estimates are also desirable
+
+Lemma names often need to be improved a bit; perhaps the code can also be golfed.
+
 -/
 
 noncomputable section
@@ -21,14 +28,16 @@ variable {α α' ε E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measu
   {f : α → E₁} {t : ℝ≥0∞}
 
 /-! ## Minkowski's integral inequality -/
+
 namespace MeasureTheory
 
-def trunc_cut (f : α → ℝ≥0∞) (μ : Measure α) [SigmaFinite μ] :=
+def truncCut (f : α → ℝ≥0∞) (μ : Measure α) [SigmaFinite μ] :=
   fun n : ℕ ↦ indicator (spanningSets μ n) (fun x ↦ min (f x) n)
 
-lemma trunc_cut_mono {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
-    ∀ x : α, Monotone (fun n ↦ trunc_cut f μ n x) := by
-  intro x m n hmn; simp only [trunc_cut, indicator]
+@[gcongr]
+lemma truncCut_mono {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} (x : α) :
+    Monotone (fun n ↦ truncCut f μ n x) := by
+  intro m n hmn; simp only [truncCut, indicator]
   split_ifs with is_fx_le_m is_fx_le_n
   · exact min_le_min_left (f x) (Nat.cast_le.mpr hmn)
   · contrapose! is_fx_le_n
@@ -36,20 +45,21 @@ lemma trunc_cut_mono {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} 
   · exact zero_le _
   · exact zero_le _
 
-lemma trunc_cut_mono₀ {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
-    Monotone (trunc_cut f μ) := by
-  intro m n hmn x; apply trunc_cut_mono
-  exact hmn
+lemma truncCut_mono₀ {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
+    Monotone (truncCut f μ) := by
+  intro m n hmn x
+  gcongr
 
-lemma trunc_cut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
-    ∀ x : α, ⨆ n : ℕ, trunc_cut f μ n x = f x := by
-  intro x; refine iSup_eq_of_forall_le_of_forall_lt_exists_gt ?h₁ ?h₂
-  · intro n; unfold trunc_cut indicator
+
+lemma truncCut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} (x : α) :
+    ⨆ n : ℕ, truncCut f μ n x = f x := by
+  refine iSup_eq_of_forall_le_of_forall_lt_exists_gt ?h₁ ?h₂
+  · intro n; unfold truncCut indicator
     split_ifs
     · exact min_le_left (f x) ↑n
     · exact zero_le _
   · intro w hw
-    unfold trunc_cut
+    unfold truncCut
     have : ∃ m : ℕ, x ∈ spanningSets μ m := by
       have obs := iUnion_spanningSets μ
       refine mem_iUnion.mp ?_
@@ -77,11 +87,11 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     ⨆ g ∈ {g' : α → ℝ≥0∞ | AEMeasurable g' μ ∧ ∫⁻ x : α, (g' x) ^ q ∂μ ≤ 1},
     ∫⁻ x : α, (f x) * g x ∂μ := by
   let A := spanningSets μ
-  let g := trunc_cut f μ
+  let g := truncCut f μ
   have hpq' : p.HolderConjugate q := Real.holderConjugate_iff.mpr ⟨hp, hpq⟩
   have f_mul : ∀ n : ℕ, (g n) ^ p ≤ f * (g n) ^ (p - 1) := by
     intro n x
-    simp only [g, Pi.pow_apply, Pi.mul_apply, trunc_cut, indicator]
+    simp only [g, Pi.pow_apply, Pi.mul_apply, truncCut, indicator]
     split_ifs
     · refine le_trans (b := (min (f x) ↑n) * min (f x) ↑n ^ (p - 1)) ?_ ?_
       · nth_rewrite 1 [← add_sub_cancel 1 p]
@@ -90,22 +100,22 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     · rw [ENNReal.zero_rpow_of_pos] <;> positivity
   have g_lim : ∀ x : α, Filter.Tendsto (fun n ↦ g n x) Filter.atTop (nhds (f x)) := by
     intro x
-    apply tendsto_atTop_isLUB (trunc_cut_mono _)
-    exact isLUB_iff_sSup_eq.mpr (trunc_cut_sup _)
+    apply tendsto_atTop_isLUB (truncCut_mono _)
+    exact isLUB_iff_sSup_eq.mpr (truncCut_sup _)
   have g_sup' : (fun x ↦ ⨆ n : ℕ, (g n x) ^ p) = fun x ↦ (f x) ^ p := by
     ext x
     apply iSup_eq_of_tendsto
     · intro m n hmn
       dsimp only
       gcongr
-      exact trunc_cut_mono _ hmn
+      exact truncCut_mono _ hmn
     · exact (g_lim x).ennrpow_const p
   have g_meas (n : ℕ): AEMeasurable (g n) μ := by
     exact AEMeasurable.indicator (by fun_prop) (measurableSet_spanningSets μ n)
   have g_fin (n : ℕ): ∫⁻ (z : α), g n z ^ p ∂μ < ⊤ := by
     calc
     _ = ∫⁻ (z : α) in A n, g n z ^ p ∂μ := by
-      unfold g trunc_cut
+      unfold g truncCut
       rw [← lintegral_indicator]; swap; · exact measurableSet_spanningSets μ n
       congr 1
       ext x
@@ -117,7 +127,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
       apply setLIntegral_mono measurable_const
       · intro x hx
         gcongr
-        unfold g trunc_cut indicator
+        unfold g truncCut indicator
         split_ifs
         · exact min_le_right (f x) ↑n
         · contradiction
@@ -157,7 +167,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     apply lintegral_iSup' (fun n ↦ by fun_prop) (ae_of_all _ fun x m n hmn ↦ ?_)
     dsimp only
     gcongr
-    exact trunc_cut_mono _ hmn
+    exact truncCut_mono _ hmn
   have sup_rpow : (⨆ n : ℕ, ∫⁻ x : α, g n x ^ p ∂μ) ^ (1 / p) =
       ⨆ n : ℕ, (∫⁻ x : α, g n x ^ p ∂μ) ^ (1 / p) := by
     apply Monotone.map_iSup_of_continuousAt (f := fun (x : ℝ≥0∞) ↦ x ^ (1 / p))
@@ -220,6 +230,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
       exact hr.2
     _ = _ := by simp
 
+-- TODO: better name!
 lemma aemeasurability_prod₁ {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : Measure α} {ν : Measure β} [SFinite ν]
@@ -230,6 +241,7 @@ lemma aemeasurability_prod₁ {α : Type u_1} {β : Type u_3}
   filter_upwards [Measure.ae_ae_of_ae_prod hg.2] with x h
   exact ⟨g ∘ Prod.mk x, hg.1.comp (measurable_prodMk_left), h⟩
 
+-- TODO: better name!
 lemma aemeasurability_prod₂ {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : Measure α} {ν : Measure β} [SFinite ν]
@@ -242,7 +254,9 @@ lemma aemeasurability_prod₂ {α : Type u_1} {β : Type u_3}
     assumption
   convert aemeasurability_prod₁ this -- perf: convert is faster than exact
 
-lemma aemeasurability_integral_component {α : Type u_1} {β : Type u_3}
+-- TODO: better name!
+@[fun_prop]
+lemma aemeasurable_integral_component {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : Measure α} {ν : Measure β} [SFinite ν]
     ⦃f : α × β → ENNReal⦄
@@ -252,7 +266,7 @@ lemma aemeasurability_integral_component {α : Type u_1} {β : Type u_3}
   refine ⟨fun x ↦ ∫⁻ y : β, g (x, y) ∂ν, Measurable.lintegral_prod_right hg.1, ?_⟩
   filter_upwards [Measure.ae_ae_of_ae_prod hg.2] with x h using lintegral_congr_ae h
 
-/-- Minkowsi's integral inequality -/
+/-- **Minkowsi's integral inequality**: TODO describe what it does -/
 -- TODO: the condition on `μ` can probably be weakened to `SFinite μ`, by using a limit
 -- argument
 lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : 1 ≤ p)
@@ -290,7 +304,7 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
     nth_rw 1 [← one_div]
     rw [representationLp (hp := one_lt_p) (hq := one_lt_q.le) (hpq := hpq'.inv_add_inv_eq_one)]
     · exact (iSup_le fun g ↦ iSup_le fun hg ↦ ineq g hg)
-    · exact (aemeasurability_integral_component hf)
+    · exact (aemeasurable_integral_component hf)
   · rw [← one_eq_p]
     simp only [ENNReal.rpow_one, inv_one]
     exact (lintegral_lintegral_swap hf).le
@@ -311,41 +325,42 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
 -/
 
 @[measurability, fun_prop]
-theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restrict (Ioi 0)) := by
+theorem aemeasurable_ton (tc : ToneCouple) : AEMeasurable tc.ton (volume.restrict (Ioi 0)) := by
   -- ton is either increasing or decreasing
   have tone := tc.ton_is_ton
   split_ifs at tone
   · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi (tone.strictMonoOn _).monotoneOn
   · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi (tone.strictAntiOn _).antitoneOn
 
+-- TODO: better name!
 @[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
     (hg : AEMeasurable g μ) (tc : ToneCouple) :
-    NullMeasurableSet {(s, x) : ℝ≥0∞ × α | ‖g x‖ₑ ≤ tc.ton s }
-        ((volume.restrict (Ioi 0)).prod μ) := by
+    NullMeasurableSet {(s, x) : ℝ≥0∞ × α | ‖g x‖ₑ ≤ tc.ton s } ((volume.restrict (Ioi 0)).prod μ) := by
   apply nullMeasurableSet_le hg.comp_snd.enorm
   apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton a)
   refine AEMeasurable.comp_aemeasurable ?_ aemeasurable_id'
-  simp only [Measure.map_id', ton_aeMeasurable]
+  simp only [Measure.map_id', aemeasurable_ton]
 
+-- TODO: better name!
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁]
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [BorelSpace E₁] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ≥0∞ × α | tc.ton s < ‖g x‖ₑ }
-        ((volume.restrict (Ioi 0)).prod μ) := by
+      ((volume.restrict (Ioi 0)).prod μ) := by
   refine nullMeasurableSet_lt ?_ hg.comp_snd.enorm
   apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton a)
   refine AEMeasurable.comp_aemeasurable ?_ aemeasurable_id'
-  simp only [Measure.map_id', ton_aeMeasurable]
+  simp only [Measure.map_id', aemeasurable_ton]
 
-@[measurability]
+@[measurability, fun_prop]
 lemma AEMeasurable.trunc_ton {f : α → E₁}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a : ℝ≥0∞ × α ↦ (trunc f (tc.ton a.1)) a.2)
-    ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
+      ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
   let A := {(s, x) : ℝ≥0∞ × α | ‖f x‖ₑ ≤ tc.ton s}
   have : (fun z : ℝ≥0∞ × α ↦ (trunc f (tc.ton z.1)) z.2) =
       Set.indicator A (fun z : ℝ≥0∞ × α ↦ f z.2) := by
@@ -354,7 +369,7 @@ lemma AEMeasurable.trunc_ton {f : α → E₁}
   exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable (AEMeasurable.restrict hf) _)).mpr
     hf.restrict.comp_snd.restrict
 
-@[measurability]
+@[measurability, fun_prop]
 lemma AEMeasurable.truncCompl_ton {f : α → E₁}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
@@ -367,6 +382,7 @@ lemma AEMeasurable.truncCompl_ton {f : α → E₁}
   exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
     hf.restrict.comp_snd.restrict
 
+-- TODO: better name!
 lemma restrict_to_support {p : ℝ} (hp : 0 < p) [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (f : α → E₁) :
     ∫⁻ x : α in f.support, ‖trunc f t x‖ₑ ^ p ∂ μ = ∫⁻ x : α, ‖trunc f t x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
@@ -377,6 +393,7 @@ lemma restrict_to_support {p : ℝ} (hp : 0 < p) [TopologicalSpace E₁] [ENorme
   intro f_zero
   simp_rw [f_zero]; simp [hp]
 
+-- TODO: better name!
 lemma restrict_to_support_truncCompl {p : ℝ} [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (hp : 0 < p) (f : α → E₁) :
     ∫⁻ x : α in f.support, ‖(truncCompl f t) x‖ₑ ^ p ∂μ =
     ∫⁻ x : α, ‖(truncCompl f t) x‖ₑ ^ p ∂μ := by
@@ -388,6 +405,7 @@ lemma restrict_to_support_truncCompl {p : ℝ} [TopologicalSpace E₁] [ENormedA
   intro f_zero
   simp [hp, f_zero]
 
+-- TODO: better name!
 lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (hp : 0 < p) (f : α → E₁) :
     ∫⁻ x : α in f.support, ‖trnc j f t x‖ₑ ^ p ∂μ =
     ∫⁻ x : α, ‖trnc j f t x‖ₑ ^ p ∂μ := by
@@ -401,7 +419,7 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁] [ENo
   · simp_rw [f_zero]; simp [hp]
 
 @[fun_prop]
-theorem AEMeasurable.trunc_restrict
+theorem AEMeasurable.trnc_restrict
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁] {j : Bool}
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
@@ -447,7 +465,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpa
           rw [this]
           apply AEMeasurable.comp_aemeasurable
           · fun_prop
-          · exact AEMeasurable.trunc_restrict (AEStronglyMeasurable.aemeasurable hf) _
+          · exact AEMeasurable.trnc_restrict (AEStronglyMeasurable.aemeasurable hf) _
         · fun_prop
         · fun_prop
       · fun_prop
@@ -471,7 +489,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h : α → ENNReal}
     exact (aestronglyMeasurable_iff_aemeasurable.mpr hf.enorm).nullMeasurableSet_support
 
 /-- One of the key estimates for the real interpolation theorem, not yet using
-    the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
+the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
 lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁] [BorelSpace E₁]
     [TopologicalSpace.PseudoMetrizableSpace E₁]
@@ -602,11 +620,12 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       field_simp
     _ = _ := by ring
 
+-- TODO: add a doc-string, explaining the purpose of this definition
 def sel (j : Bool) (p₀ p₁ : ℝ≥0∞) := match j with | true => p₁ | false => p₀
 
 /-- One of the key estimates for the real interpolation theorem, now using
-    the particular choice of exponent, but not yet using the
-    particular choice of scale in the `ScaledPowerFunction`. -/
+the particular choice of exponent, but not yet using the
+particular choice of scale in the `ScaledPowerFunction`. -/
 lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁]
     [BorelSpace E₁] [TopologicalSpace.PseudoMetrizableSpace E₁] (ht : t ∈ Ioo 0 1)
@@ -864,7 +883,6 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
       distribution_mono_right ineq
   _ = 0 := distribution_snormEssSup
 
---variable [MeasurableSpace E₁] [BorelSpace E₁] in
 lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p₀ q₀ : ℝ≥0∞}
     (hp₀ : 0 < p₀) (hq₀ : q₀ = ⊤) (hp₀p : p₀ < p) (hp : p ≠ ⊤) {f : α → E₁} (hf : MemLp f p μ)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (ht : 0 < t) {a : ℝ≥0∞} {d : ℝ≥0∞} -- (hd : 0 < d)

@@ -23,9 +23,10 @@ A few other files contain the necessary pre-requisites:
 - (in `Minkowski.lean`) Apply Minkowski's integral inequality to truncations
 - (in `Minkowski.lean`) Weaktype estimates applied to truncations
 
-## TODO
-Generalise this to functions taking values in ℝ≥0∞, instead of ℝ. This entails generalising
-most intermediate lemmas from normed spaces to the appropriate `enorm` classes.
+Upstreaming status: the result is highly desirable; the ideal proof strategy is not yet clear.
+It may be nicer to generalise this to Lorentz spaces first, and then upstream the proof there.
+(Useful ingredients for this proof also belong into mathlib.)
+Prioritise other files first (e.g., about weak type or the prerequisites files).
 
 -/
 
@@ -1324,10 +1325,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
   by_cases ha : a = ∞
   · rw [ha]
     simp only [trunc_top, truncCompl_top]
-    --rw [add_zero]
-    --simp only [trunc_top, truncCompl_top, add_zero]
     filter_upwards with x
-    --simp
     nth_rw 1 [← one_mul ‖T (f + fun x ↦ 0) x‖ₑ]
     gcongr
     · exact one_le_coe_iff.mpr hA
@@ -1336,7 +1334,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
       · apply le_of_eq
         congr
         · ext x; simp
-      · apply zero_le
+      · simp
   apply hT
   · rcases lt_trichotomy p₀ p₁ with p₀lt_p₁ | (p₀eq_p₁ | p₁lt_p₀)
     · refine Or.inr (trunc_Lp_Lq_higher (p := p) ?_ hf ha)

@@ -13,6 +13,13 @@ theorem. There are the following sections:
 - Measurability properties of truncations
 - Truncations and Lp spaces
 
+Upstreaming status:
+- measure theory computations are basically ready
+- truncations and their properties definitely belong into mathlib
+- the details about cutoff functions and a particular scale function
+  will depend on the particular proof chosen: design on the overall proof approach first
+- except for using `distribution_lt_top`, this file does not use WeakType;
+  it does use helper lemmas in `InterpolatedExponents`, though.
 -/
 
 noncomputable section
