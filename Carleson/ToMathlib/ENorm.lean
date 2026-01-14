@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
---import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.Data.ENNReal
 
 -- Upstreaming status: can be upstreamed/being worked on
