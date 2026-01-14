@@ -613,7 +613,6 @@ section ContinuousENorm
 
 variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
 
-
 lemma distribution_le [MeasurableSpace ε] [OpensMeasurableSpace ε]
     {c : ℝ≥0∞} (hc : c ≠ 0) {μ : Measure α} (hf : AEMeasurable f μ) :
     distribution f c μ ≤ c⁻¹ * (∫⁻ y, ‖f y‖ₑ ∂μ) := by
@@ -647,8 +646,7 @@ lemma distribution_lt_top (hf : MemLp f p μ) (p_pos : 0 < p) (p_ne_top : p ≠ 
   have := wnorm'_le_eLpNorm' hf.1 (toReal_pos p_pos.ne' p_ne_top)
   rw [← eLpNorm_eq_eLpNorm' p_pos.ne' p_ne_top] at this
   have := this.trans_lt hf.2
-  rw [wnorm'] at this
-  rw [iSup_lt_iff] at this
+  rw [wnorm', iSup_lt_iff] at this
   rcases this with ⟨b,b_lt_top, h⟩
   have := (h t).trans_lt b_lt_top
   rw [mul_lt_top_iff] at this
@@ -662,7 +660,6 @@ lemma distribution_lt_top (hf : MemLp f p μ) (p_pos : 0 < p) (p_ne_top : p ≠ 
   · rw [ENNReal.rpow_eq_zero_iff_of_pos (by simp only [inv_pos]; exact toReal_pos p_pos.ne' p_ne_top)] at h
     rw [h]
     simp only [zero_lt_top]
-
 
 lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0 < p) :
     wnorm f p μ ≤ eLpNorm f p μ := by
