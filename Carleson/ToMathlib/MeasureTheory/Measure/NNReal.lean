@@ -1,5 +1,6 @@
 import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 
 open MeasureTheory NNReal ENNReal Set
 
@@ -39,19 +40,23 @@ instance : MeasureSpace ℝ≥0∞ where
   volume := (volume : Measure ℝ≥0).map ENNReal.ofNNReal
 
 --TODO: move these lemmas somewhere else?
+lemma ENNReal.ofNNReal_preimage {s : Set ℝ≥0∞} :
+    ENNReal.ofNNReal ⁻¹' s = ENNReal.toNNReal '' (s \ {⊤}) := by
+  ext x
+  simp only [mem_image, mem_diff, mem_singleton_iff, mem_preimage]
+  constructor
+  · intro h
+    use ENNReal.ofNNReal x
+    simpa
+  · rintro ⟨y, hys, hyx⟩
+    rw [← hyx, coe_toNNReal hys.2]
+    exact hys.1
+
+--TODO: move these lemmas somewhere else?
 lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal {s : Set ℝ≥0∞} (h : ∞ ∉ s) :
     ENNReal.toReal '' s = NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) := by
-  ext x
-  simp only [mem_image, mem_preimage]
-  constructor
-  · rintro ⟨y, hys, hyx⟩
-    have : y ≠ ∞ := ne_of_mem_of_not_mem hys h
-    use y.toNNReal
-    rw [coe_toNNReal this]
-    use hys
-    rwa [coe_toNNReal_eq_toReal]
-  · rintro ⟨y, hys, hyx⟩
-    use ENNReal.ofNNReal y, hys, hyx
+  rw [ofNNReal_preimage, image_image, diff_singleton_eq_self h]
+  congr
 
 lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal' {s : Set ℝ≥0∞} (h : ∞ ∈ s) :
     ENNReal.toReal '' s = NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) ∪ {0}:= by
@@ -145,6 +150,21 @@ lemma NNReal.toReal_Iio_eq_Ico {b : ℝ≥0} :
     use x.toNNReal, (Real.toNNReal_lt_iff_lt_coe hx.1).mpr hx.2
     simp [hx.1]
 
+lemma NNReal.toReal_Ioi_eq_Ioi {b : ℝ≥0} :
+    NNReal.toReal '' Set.Ioi b = Set.Ioi b.toReal := by
+  ext x
+  simp only [mem_image, mem_Ioi]
+  constructor
+  · rintro ⟨y, hy, hyx⟩
+    rw [← hyx]
+    simpa
+  · rintro hx
+    use x.toNNReal
+    rw [Real.lt_toNNReal_iff_coe_lt]
+    use hx
+    simp only [Real.coe_toNNReal', sup_eq_left]
+    exact (coe_nonneg b).trans hx.le
+
 lemma NNReal.toReal_Ioo_eq_Ioo {a b : ℝ≥0} :
     NNReal.toReal '' Set.Ioo a b = Set.Ioo a.toReal b.toReal := by
   ext x
@@ -156,19 +176,66 @@ lemma NNReal.toReal_Ioo_eq_Ioo {a b : ℝ≥0} :
     refine ⟨x.toNNReal, ?_, Real.coe_toNNReal x (zero_le_coe.trans h.1.le)⟩
     rwa [Real.lt_toNNReal_iff_coe_lt, Real.toNNReal_lt_iff_lt_coe x_nonneg]
 
+theorem NNReal.Ici_eq {a : ℝ≥0} :
+  Ici (↑a) = (Real.toNNReal ⁻¹' Ici a ∩ Ici 0) := by
+  ext x
+  constructor
+  · intro hx
+    constructor
+    · simp only [mem_preimage, mem_Ici]
+      exact le_toNNReal_of_coe_le hx
+    · apply zero_le_coe.trans hx
+  · rintro ⟨hx1, hx2⟩
+    simp only [mem_preimage, mem_Ici] at *
+    rwa [← Real.le_toNNReal_iff_coe_le hx2]
+
 lemma NNReal.volume_Iio {b : ℝ≥0} : volume (Set.Iio b) = b := by
   rw [NNReal.volume_val]
   simp only [val_eq_coe]
   rw [toReal_Iio_eq_Ico, Real.volume_Ico]
   simp
 
+lemma NNReal.volume_Ioi {b : ℝ≥0} : volume (Set.Ioi b) = ⊤ := by
+  rw [NNReal.volume_val]
+  simp only [val_eq_coe]
+  rw [toReal_Ioi_eq_Ioi, Real.volume_Ioi]
+
 lemma NNReal.volume_Ioo {a b : ℝ≥0} : volume (Set.Ioo a b) = b - a:= by
   rw [NNReal.volume_val]
   simp only [val_eq_coe]
   rw [toReal_Ioo_eq_Ioo, Real.volume_Ioo, ENNReal.ofReal_sub] <;> simp
 
--- TODO: the proof sin the next four lemmas feel quite repetitive
+-- TODO: the proofs in the following lemmas feel quite repetitive
 -- extract helper lemma to re-use some of the argument!
+
+-- TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
+lemma ENNReal.toReal_Iio_eq_Ico {a : ℝ≥0∞} (ha : a ≠ ∞) :
+    ENNReal.toReal '' Set.Iio a = Set.Ico 0 a.toReal := by
+  ext x
+  simp only [mem_image, mem_Iio, mem_Ico]
+  constructor
+  · rintro ⟨y, ⟨hy₁, hy₂⟩⟩
+    rw [← hy₂]
+    constructor
+    · simp
+    · exact (ENNReal.toReal_lt_toReal hy₁.ne_top ha).mpr hy₁
+  · rintro ⟨zero_le_x, x_lt⟩
+    use ENNReal.ofReal x
+    constructor
+    · exact (ENNReal.ofReal_lt_iff_lt_toReal zero_le_x ha).mpr x_lt
+    · simpa
+
+lemma ENNReal.toReal_Iio_top_eq_Ici :
+    ENNReal.toReal '' Set.Iio ⊤ = Set.Ici 0 := by
+  ext x
+  simp only [mem_image, mem_Iio, mem_Ici]
+  constructor
+  · rintro ⟨y, ⟨hy₁, hy₂⟩⟩
+    rw [← hy₂]
+    simp
+  · rintro zero_le_x
+    use ENNReal.ofReal x
+    simpa
 
 -- TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) :
@@ -242,6 +309,50 @@ lemma ENNReal.toReal_Ioi_eq_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     · rwa [ENNReal.lt_ofReal_iff_toReal_lt ha]
     · exact (le_trans toReal_nonneg hxa.le)
 
+lemma ENNReal.ofReal_Ico_eq {b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ico 0 b
+    = if b = 0 then ∅ else if b = ∞ then Set.univ else Set.Iio b.toReal := by
+  split_ifs with hb hb'
+  · rw [hb]
+    simp
+  · rw [hb']
+    simp only [preimage_eq_univ_iff]
+    intro x hx
+    simp only [mem_Ico, zero_le, true_and]
+    rcases hx with ⟨y, hy⟩
+    rw [← hy]
+    simp
+  · ext x
+    simp only [mem_preimage, mem_Ico, zero_le, true_and, mem_Iio]
+    by_cases hx : x < 0
+    · rw [ENNReal.ofReal_of_nonpos hx.le]
+      constructor
+      · intro _
+        exact hx.trans_le (@toReal_nonneg b)
+      · intro _
+        rwa [zero_lt_iff]
+    push_neg at hx
+    exact ofReal_lt_iff_lt_toReal hx hb'
+
+lemma ENNReal.toNNReal_Iio {b : ℝ≥0∞} : ENNReal.toNNReal '' Set.Iio b
+    = if b = ∞ then Set.univ else Set.Iio b.toNNReal := by
+  split_ifs with hb
+  · rw [hb]
+    ext x
+    simp only [mem_image, mem_Iio, mem_univ, iff_true]
+    use ofNNReal x
+    simp
+  · ext x
+    simp only [mem_image, mem_Iio]
+    constructor
+    · rintro ⟨y, hyb, hyx⟩
+      rwa [← hyx, ENNReal.toNNReal_lt_toNNReal _ hb]
+      grind
+    · intro h
+      use ofNNReal x
+      simp only [toNNReal_coe, and_true]
+      rw [← ENNReal.toNNReal_lt_toNNReal (by simp) hb]
+      simpa
+
 lemma ENNReal.volume_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     volume (Set.Ioi a) = ⊤ := by
   rw [ENNReal.volume_val measurableSet_Ioi, ENNReal.toReal_Ioi_eq_Ioi ha, measure_union_eq_top_iff]
@@ -253,6 +364,14 @@ theorem ENNReal.Ioi_eq_Ioc_top {a : ℝ≥0∞} : Ioi a = Ioc a ⊤ := by
   unfold Ioi Ioc
   ext x
   simp
+
+lemma ENNReal.volume_Iio {a : ℝ≥0∞} :
+    volume (Set.Iio a) = a := by
+  rw [ENNReal.volume_val measurableSet_Iio]
+  by_cases ha : a = ⊤
+  · rw [ha, ENNReal.toReal_Iio_top_eq_Ici, Real.volume_Ici]
+  · rw [ENNReal.toReal_Iio_eq_Ico ha, Real.volume_Ico]
+    simpa
 
 lemma ENNReal.volume_Ioo {a b : ℝ≥0∞} (ha : a ≠ ∞) :
     volume (Set.Ioo a b) = b - a := by
@@ -343,6 +462,15 @@ lemma lintegral_nnreal_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} : �
   simp
   rfl
 
+lemma lintegral_nnreal_Ici_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
+    ∫⁻ x in Ici a, f x = ∫⁻ x in Ici (a : ℝ), f x.toNNReal := by
+  rw [← lintegral_indicator measurableSet_Ici, lintegral_nnreal_eq_lintegral_Ici_ofReal]
+  simp_rw [← indicator_comp_right]
+  rw [setLIntegral_indicator (MeasurableSet.preimage measurableSet_Ici measurable_real_toNNReal)]
+  simp only [Function.comp_apply]
+  apply setLIntegral_congr
+  rw [NNReal.Ici_eq]
+
 lemma lintegral_nnreal_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) := by
   rw [lintegral_nnreal_eq_lintegral_Ici_ofReal]
   exact setLIntegral_congr Ioi_ae_eq_Ici.symm
@@ -376,5 +504,35 @@ lemma lintegral_nnreal_toReal_eq_lintegral_Ici (f : ℝ → ℝ≥0∞) :
     ∫⁻ x : ℝ≥0, f (x.toReal) = ∫⁻ x in Ici (0 : ℝ), f x := by
   rw [lintegral_nnreal_toReal_eq_lintegral_Ioi]
   exact setLIntegral_congr Ioi_ae_eq_Ici
+
+lemma setLIntegral_nnreal_Ici {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
+    ∫⁻ (t : ℝ≥0) in Set.Ici a, f t = ∫⁻ (t : ℝ≥0), f (t + a) := by
+  rw [lintegral_nnreal_eq_lintegral_Ici_ofReal, ← lintegral_shift' (a := -a)]
+  simp only [preimage_add_const_Ici, sub_neg_eq_add, zero_add]
+  rw [lintegral_nnreal_Ici_eq_lintegral_Ici_ofReal]
+  apply setLIntegral_congr_fun measurableSet_Ici
+  intro x hx
+  simp only
+  congr
+  have : (a : ℝ).toNNReal = a := by exact Real.toNNReal_coe
+  nth_rw 2 [← this]
+  rw [← Real.toNNReal_add]
+  · simp only [neg_add_cancel_right]
+  · simpa
+  · exact zero_le_coe
+
+lemma lintegral_nnreal_scale_constant' {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} (h : a ≠ 0) :
+    a * ∫⁻ x : ℝ≥0, f (a*x) = ∫⁻ x, f x := by
+  rw [lintegral_nnreal_eq_lintegral_toNNReal_Ioi, lintegral_nnreal_eq_lintegral_toNNReal_Ioi]
+  symm
+  rw [← lintegral_scale_constant_halfspace' (a:=a) (by rw [NNReal.coe_pos, pos_iff_ne_zero]; exact h)]
+  congr 1
+  · simp
+  apply setLIntegral_congr_fun measurableSet_Ioi
+  intro x hx
+  dsimp only
+  congr
+  rw [Real.toNNReal_mul (by simp)]
+  simp
 
 -- TODO: lemmas about interaction with the Bochner integral

@@ -268,17 +268,19 @@ theorem nnrealRatEmbed_encode (q : ℚ) :
 def nnapprox : (α → ℝ≥0) → ℕ → SimpleFunc α ℝ≥0 :=
   approx nnrealRatEmbed
 
+lemma nnapprox_le {f : α → ℝ≥0} (hf : Measurable f) {a : α} {n : ℕ} :
+    (nnapprox f n) a ≤ f a := approx_le hf rfl
+
 @[mono]
 theorem monotone_nnapprox {f : α → ℝ≥0} : Monotone (nnapprox f) :=
   monotone_approx _ f
 
 set_option linter.style.multiGoal false in
 lemma iSup_nnapprox_apply (hf : Measurable f) (a : α) : ⨆ n, (nnapprox f n : SimpleFunc α ℝ≥0) a = f a := by
-  rw [nnapprox]
   apply le_antisymm
   · apply ciSup_le
     intro n
-    apply approx_le hf rfl
+    exact nnapprox_le hf
   · apply le_of_not_gt
     intro h
     rcases (NNReal.lt_iff_exists_rat_btwn _ _).1 h with ⟨q, _, lt_q, q_lt⟩
@@ -298,7 +300,7 @@ lemma iSup_nnapprox_apply (hf : Measurable f) (a : α) : ⨆ n, (nnapprox f n : 
         simp only [Set.mem_range, forall_exists_index, forall_apply_eq_imp_iff]
         intro n
         exact ciSup_le' fun i ↦ i
-    rw [iSup_approx_apply' _ _ _ hf (by simp)] at lt_q
+    rw [nnapprox, iSup_approx_apply' _ _ _ hf (by simp)] at lt_q
     apply lt_irrefl _ (lt_of_le_of_lt this lt_q)
 
 lemma iSup_nnapprox (hf : Measurable f) : (fun a ↦ ⨆ n, (nnapprox f n) a) = f := by

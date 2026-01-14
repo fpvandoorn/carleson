@@ -1,4 +1,4 @@
-import Carleson.ToMathlib.Lorentz
+import Carleson.ToMathlib.LorentzType
 import Carleson.ToMathlib.RealInterpolation.Main
 
 /-! # The Marcinkiewisz interpolation theorem for Lorentz spaces

@@ -314,63 +314,6 @@ lemma lintegral_double_restrict_set {A B : Set α} {f : α → ℝ≥0∞} (hA :
   have h₀ := setLIntegral_mono_ae' (MeasurableSet.diff hA hB) hf; rw [lintegral_zero] at h₀
   rw [← lintegral_inter_add_diff (hB := hB), nonpos_iff_eq_zero.mp h₀, add_zero]
 
-lemma measure_preserving_shift {a : ℝ} :
-    MeasurePreserving (fun x ↦ a + x) volume volume :=
-  measurePreserving_add_left volume a
-
-lemma measureable_embedding_shift {a : ℝ} : MeasurableEmbedding (fun x ↦ a + x) :=
-  measurableEmbedding_addLeft a
-
-lemma measure_preserving_scaling {a : ℝ} (ha : a ≠ 0) :
-    MeasurePreserving (fun x ↦ a * x) volume ((ENNReal.ofReal |a⁻¹|) • volume) :=
-  { measurable := measurable_const_mul a, map_eq := Real.map_volume_mul_left ha }
-
-lemma lintegral_shift (f : ℝ → ENNReal) {a : ℝ} :
-    ∫⁻ x : ℝ, (f (x + a)) = ∫⁻ x : ℝ, f x :=
-  lintegral_add_right_eq_self f a
-
-lemma lintegral_shift' (f : ℝ → ENNReal) {a : ℝ} {s : Set ℝ} :
-    ∫⁻ (x : ℝ) in (fun z : ℝ ↦ z + a)⁻¹' s, f (x + a) = ∫⁻ (x : ℝ) in s, f x := by
-  rw [(measurePreserving_add_right volume a).setLIntegral_comp_preimage_emb
-    (measurableEmbedding_addRight a)]
-
-lemma lintegral_add_right_Ioi (f : ℝ → ENNReal) {a b : ℝ} :
-    ∫⁻ (x : ℝ) in Ioi (b - a), f (x + a) = ∫⁻ (x : ℝ) in Ioi b, f x := by
-  nth_rewrite 2 [← lintegral_shift' (a := a)]
-  simp
-
-lemma lintegral_scale_constant (f : ℝ → ENNReal) {a : ℝ} (h : a ≠ 0) :
-    ∫⁻ x : ℝ, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x, f x := by
-  rw [← smul_eq_mul, ← @lintegral_smul_measure, MeasurePreserving.lintegral_comp_emb]
-  · exact measure_preserving_scaling h
-  · exact measurableEmbedding_mulLeft₀ h
-
-lemma lintegral_scale_constant_preimage (f : ℝ → ENNReal) {a : ℝ} (h : a ≠ 0) {s : Set ℝ} :
-    ∫⁻ x : ℝ in (fun z : ℝ ↦ a * z)⁻¹' s, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x : ℝ in s, f x := by
-  rw [← smul_eq_mul, ← lintegral_smul_measure,
-    (measure_preserving_scaling h).setLIntegral_comp_preimage_emb (measurableEmbedding_mulLeft₀ h),
-    Measure.restrict_smul]
-
-lemma lintegral_scale_constant_halfspace (f : ℝ → ENNReal) {a : ℝ} (h : 0 < a) :
-    ∫⁻ x : ℝ in Ioi 0, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x : ℝ in Ioi 0, f x := by
-  rw [← lintegral_scale_constant_preimage f h.ne']
-  have h₀ : (fun z ↦ a * z) ⁻¹' Ioi 0 = Ioi 0 := by
-    ext x
-    simp [mul_pos_iff_of_pos_left h]
-  rw [h₀]
-
-lemma lintegral_scale_constant_halfspace' {f : ℝ → ENNReal} {a : ℝ} (h : 0 < a) :
-    ENNReal.ofReal |a| * ∫⁻ x : ℝ in Ioi 0, f (a*x) = ∫⁻ x : ℝ in Ioi 0, f x := by
-  rw [lintegral_scale_constant_halfspace f h, ← mul_assoc, ← ofReal_mul (abs_nonneg a),
-    abs_inv, mul_inv_cancel₀ (abs_ne_zero.mpr h.ne')]
-  simp
-
-lemma lintegral_scale_constant' {f : ℝ → ENNReal} {a : ℝ} (h : a ≠ 0) :
-    ENNReal.ofReal |a| * ∫⁻ x : ℝ, f (a*x) = ∫⁻ x, f x := by
-  rw [lintegral_scale_constant f h, ← mul_assoc, ← ofReal_mul (abs_nonneg a), abs_inv,
-      mul_inv_cancel₀ (abs_ne_zero.mpr h)]
-  simp
-
 -- local convenience function
 lemma lintegral_rw_aux {g : ℝ → ℝ≥0∞} {f₁ f₂ : ℝ → ℝ≥0∞} {A : Set ℝ}
     (heq : f₁ =ᶠ[ae (volume.restrict A)] f₂) :
@@ -423,12 +366,12 @@ lemma ofReal_rpow_rpow_aux {p : ℝ} :
   filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     with s (hs : 0 < s) using ofReal_rpow_of_pos hs
 
-lemma lintegral_rpow_of_gt {β γ : ℝ} (hβ : 0 < β) (hγ : -1 < γ) :
+lemma lintegral_rpow_of_gt {β γ : ℝ} (hβ : 0 ≤ β) (hγ : -1 < γ) :
     ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
     ENNReal.ofReal (β ^ (γ + 1) / (γ + 1)) := by
   have hγ2 : 0 < γ + 1 := by linarith
   rw [setLIntegral_congr Ioo_ae_eq_Ioc, ← ofReal_integral_eq_lintegral_ofReal]
-  · rw [← intervalIntegral.integral_of_le hβ.le, integral_rpow]
+  · rw [← intervalIntegral.integral_of_le hβ, integral_rpow]
     · rw [Real.zero_rpow hγ2.ne', sub_zero]
     · exact Or.inl hγ
   · apply (@intervalIntegral.intervalIntegrable_rpow' 0 β γ ?_).1
@@ -1180,7 +1123,7 @@ lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} (hg : AEMeasurable g) {j : Bo
 /-! Extract expressions for the lower Lebesgue integral of power functions
 TODO: move to a lower-level file! -/
 
-lemma lintegral_rpow_of_gt_abs {β γ : ℝ} (hβ : 0 < β) (hγ : γ > -1) :
+lemma lintegral_rpow_of_gt_abs {β γ : ℝ} (hβ : 0 ≤ β) (hγ : γ > -1) :
     ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
     ENNReal.ofReal (β ^ (γ + 1) / |γ + 1|) := by
   have hγ2 : 0 < γ + 1 := by linarith
@@ -1225,7 +1168,7 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j
       · by_cases hzero : β = 0
         · rw [hzero, ENNReal.zero_rpow_of_pos (by linarith)]; simp
         · have htcinv : 0 < β.toReal := toReal_pos hzero htop
-          rw [lintegral_rpow_of_gt_abs htcinv hγ, ENNReal.ofReal_div_of_pos
+          rw [lintegral_rpow_of_gt_abs htcinv.le hγ, ENNReal.ofReal_div_of_pos
               (by rw [abs_pos]; linarith), ← ENNReal.ofReal_rpow_of_pos htcinv,
               ofReal_toReal_eq_iff.mpr htop]
     · simp only [eq_false_of_ne_true xor_split, Bool.false_eq_true, ↓reduceIte]
