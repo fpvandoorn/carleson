@@ -200,7 +200,7 @@ lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (
   (distribution_mono_left h₁).trans (distribution_mono_right h₂)
 
 lemma distribution_snormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
-  meas_essSup_lt -- meas_eLpNormEssSup_lt
+  meas_essSup_lt
 
 lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
     (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ A * (‖g₁ x‖ₑ + ‖g₂ x‖ₑ)) :
