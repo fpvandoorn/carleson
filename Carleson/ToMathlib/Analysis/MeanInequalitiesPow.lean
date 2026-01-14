@@ -1,6 +1,8 @@
 import Mathlib.Analysis.MeanInequalitiesPow
 import Mathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 
+-- Upstreaming status: looks useful and ready to go
+
 namespace ENNReal
 
 theorem rpow_add_le_mul_rpow_add_rpow' (z₁ z₂ : ℝ≥0∞) {p : ℝ} (hp : 0 ≤ p) :

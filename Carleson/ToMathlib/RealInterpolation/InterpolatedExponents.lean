@@ -783,8 +783,7 @@ lemma ζ_pos_iff_aux₀ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q�
 
 lemma inv_toReal_iff (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) :
     p₀⁻¹.toReal < p₁⁻¹.toReal ↔ p₁ < p₀ :=
-  Iff.trans (toReal_lt_toReal (ne_of_lt (inv_lt_top.mpr hp₀))
-    (ne_of_lt (inv_lt_top.mpr hp₁))) ENNReal.inv_lt_inv
+  Iff.trans (toReal_lt_toReal (inv_lt_top.mpr hp₀).ne (inv_lt_top.mpr hp₁).ne) ENNReal.inv_lt_inv
 
 lemma ζ_pos_iff (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :

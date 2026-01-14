@@ -979,7 +979,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
         simp only [this, mul_zero, zero_le]
     · have snorm_p_pos : eLpNorm f p μ ≠ 0 := by
         intro snorm_0
-        apply Ne.symm (ne_of_lt snorm_pos)
+        apply snorm_pos.ne'
         apply eLpNormEssSup_eq_zero_iff.mpr
         exact (eLpNorm_eq_zero_iff hf.1 hp.ne').mp snorm_0
       -- XXX: these lines are the same as in the lemma above

@@ -42,7 +42,7 @@ lemma distibution_top (f : α → ε) (μ : Measure α) : distribution f ∞ μ 
 lemma distribution_mono_right (h : t ≤ s) : distribution f s μ ≤ distribution f t μ :=
   measure_mono fun _ a ↦ lt_of_le_of_lt h a
 
-lemma distribution_mono_right' : (Antitone (fun t ↦ distribution f t μ)) :=
+lemma distribution_mono_right' : Antitone (fun t ↦ distribution f t μ) :=
   fun _ _ h ↦ distribution_mono_right h
 
 @[measurability, fun_prop]
@@ -57,9 +57,8 @@ lemma distribution_measurable {g : α' → ℝ≥0∞} (hg : Measurable g) :
 lemma distribution_toReal_le {f : α → ℝ≥0∞} :
     distribution (ENNReal.toReal ∘ f) t μ ≤ distribution f t μ := by
   simp_rw [distribution]
-  apply measure_mono
-  simp_rw [comp_apply, enorm_eq_self, setOf_subset_setOf]
-  exact fun x hx ↦ hx.trans_le enorm_toReal_le
+  gcongr with x
+  simp [comp_apply, enorm_eq_self]
 
 lemma distribution_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
     distribution (ENNReal.toReal ∘ f) t μ = distribution f t μ := by
@@ -75,9 +74,7 @@ lemma distribution_add_le_of_enorm {A : ℝ≥0∞}
       ({x | t < ‖g₁ x‖ₑ} ∪ {x | s < ‖g₂ x‖ₑ})) = 0 := by
     apply measure_mono_null ?_ h
     intro x
-    simp only [mem_diff, mem_setOf_eq, mem_union, not_or, not_lt, mem_compl_iff, not_le, and_imp]
-    refine fun h₁ h₂ h₃ ↦ lt_of_le_of_lt ?_ h₁
-    gcongr
+    simpa using fun h₁ h₂ h₃ ↦ lt_of_le_of_lt (by gcongr) h₁
   calc
     μ {x | A * (t + s) < ‖f x‖ₑ}
       ≤ μ ({x | t < ‖g₁ x‖ₑ} ∪ {x | s < ‖g₂ x‖ₑ}) := measure_mono_ae' h₁
@@ -106,6 +103,7 @@ lemma tendsto_measure_iUnion_distribution (t₀ : ℝ≥0∞) :
     _ ≤ t₀ + (↑a)⁻¹ := by gcongr
     _ < _ := h₁
 
+-- TODO: better lemma name!
 lemma select_neighborhood_distribution (t₀ : ℝ≥0∞) (l : ℝ≥0∞)
     (hu : l < distribution f t₀ μ) :
     ∃ n : ℕ, l < distribution f (t₀ + (↑n)⁻¹) μ := by
@@ -152,8 +150,8 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
           exact ⟨zero_le 0, zero_le ε⟩
       -- Case: 0 < distribution f t₀ μ
       · obtain ⟨n, wn⟩ :=
-          select_neighborhood_distribution t₀ _ (ENNReal.sub_lt_self db_not_top.ne_top
-              (ne_of_lt db_not_zero).symm (ne_of_lt ε_gt_0).symm)
+          select_neighborhood_distribution t₀ _
+            (ENNReal.sub_lt_self db_not_top.ne_top db_not_zero.ne' ε_gt_0.ne')
         use Iio (t₀ + (↑n)⁻¹)
         constructor
         · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top (ENNReal.inv_ne_zero.mpr (by finiteness)))

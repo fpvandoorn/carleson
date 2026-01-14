@@ -110,15 +110,12 @@ lemma czOperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
       · exact mKxg.nullMeasurableSet_support
   obtain ⟨M, hM⟩ := bdd_Kxg
   apply integrableOn_of_integrableOn_inter_support measurableSet_ball.compl
-  apply Measure.integrableOn_of_bounded
-  · apply ne_top_of_le_ne_top
-    · exact ne_of_lt hg.measure_support_lt
-    · apply measure_mono
-      trans support Kxg
-      · exact inter_subset_right
-      · exact support_mul_subset_right (K x) g
-  · exact mKxg
-  · exact hM
+  apply Measure.integrableOn_of_bounded ?_ mKxg hM
+  apply ne_top_of_le_ne_top (hg.measure_support_lt.ne)
+  apply measure_mono
+  trans support Kxg
+  · exact inter_subset_right
+  · exact support_mul_subset_right (K x) g
 
 -- This could be adapted to state T_r is a linear operator but maybe it's not worth the effort
 lemma czOperator_sub {f g : X → ℂ} (hf : BoundedFiniteSupport f) (hg : BoundedFiniteSupport g) (hr : 0 < r) :

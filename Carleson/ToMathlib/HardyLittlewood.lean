@@ -870,21 +870,17 @@ theorem hasWeakType_maximalFunction_equal_exponents
     simp only [enorm_eq_self, mem_setOf_eq]
     exact fun ht ↦ ht.trans_le (f_mon hmn x)
   apply (rpow_le_rpow_iff p_pos).mp
-  rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
-  rw [rpow_inv_rpow p_pos.ne']
-  by_cases ht : t = 0; · rw [ht]; simp [(zero_rpow_of_pos p_pos)]
-  have htp : (t : ℝ≥0∞) ^ (p : ℝ) ≠ 0 :=
-    (rpow_pos (coe_pos.mpr ((zero_le t).lt_of_ne' ht)) coe_ne_top).ne'
-  have htp' : (t : ℝ≥0∞) ^ (p : ℝ) ≠ ⊤ :=
-    ne_of_lt ((rpow_lt_top_iff_of_pos p_pos).mpr coe_lt_top)
-  refine (mul_le_iff_le_inv htp htp').mpr ?_
+  rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity), rpow_inv_rpow p_pos.ne']
+  by_cases ht : t = 0
+  · rw [ht]; simp [(zero_rpow_of_pos p_pos)]
+  refine (mul_le_iff_le_inv (by positivity) (by finiteness)).mpr ?_
   calc
   _ ≤ _ := measure_mono (hunion t)
   _ ≤ _ := by
     have := MeasureTheory.tendsto_measure_iUnion_atTop (μ := μ) hm
     refine le_of_tendsto_of_frequently this (.of_forall fun x ↦ ?_)
     dsimp only [Function.comp_apply]
-    refine (mul_le_iff_le_inv htp htp').mp ?_
+    refine (mul_le_iff_le_inv (by positivity) (by finiteness)).mp ?_
     rw [← rpow_inv_rpow (x := μ _) p_pos.ne', ← ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
     exact (rpow_le_rpow_iff p_pos).mpr (hestfin x t)
 
