@@ -175,17 +175,17 @@ def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε]
 
 
 theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε'] [ENormedSpace ε']
-  {c : ℝ≥0} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'} (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
-  (hpq : p.HolderConjugate q)
-  (T_meas : ∀ {f : α → ℝ≥0}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
-  (T_subadd : ∀ {f g : α → ℝ≥0}, (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
-    ∀ᵐ x ∂ν, ‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
-  (T_submul : ∀ (a : ℝ≥0) (f : α → ℝ≥0), ∀ᵐ x ∂ν, ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ * ‖T f x‖ₑ)
-  (T_ae_eq_of_ae_eq : ∀ {f g : α → ℝ≥0}, (f =ᶠ[ae μ] g) → T f =ᶠ[ae ν] T g)
-  (T_zero : T 0 =ᶠ[ae ν] 0)
-  (hT : HasRestrictedWeakType T p q μ ν c)
-  (weakly_cont_T : WeaklyContinuous T p μ ν) :
-    HasRestrictedWeakType' T p q μ ν (c / p) := by
+    {c : ℝ≥0} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'} (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
+    (hpq : p.HolderConjugate q)
+    (T_meas : ∀ {f : α → ℝ≥0}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
+    (T_subadd : ∀ {f g : α → ℝ≥0}, (MemLorentz f p 1 μ) → (MemLorentz g p 1 μ) →
+      ∀ᵐ x ∂ν, ‖T (f + g) x‖ₑ ≤ ‖T f x‖ₑ + ‖T g x‖ₑ)
+    (T_submul : ∀ (a : ℝ≥0) (f : α → ℝ≥0), ∀ᵐ x ∂ν, ‖T (a • f) x‖ₑ ≤ ‖a‖ₑ * ‖T f x‖ₑ)
+    (T_ae_eq_of_ae_eq : ∀ {f g : α → ℝ≥0}, (f =ᶠ[ae μ] g) → T f =ᶠ[ae ν] T g)
+    (T_zero : T 0 =ᶠ[ae ν] 0)
+    (hT : HasRestrictedWeakType T p q μ ν c)
+    (weakly_cont_T : WeaklyContinuous T p μ ν) :
+      HasRestrictedWeakType' T p q μ ν (c / p) := by
   have T_zero_of_ae_zero : ∀ {f : α → ℝ≥0} (_ : f =ᶠ[ae μ] 0), enorm ∘ T f =ᶠ[ae ν] 0 := by
     intro f hf
     filter_upwards [T_ae_eq_of_ae_eq hf, T_zero]
@@ -250,16 +250,9 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
       rw [SimpleFunc.coe_add]
       set g := (SimpleFunc.const α a).restrict s with g_def
       intro hfg'
-      have hf' : MemLorentz f p 1 μ := by
-        use (by fun_prop)
-        apply hfg'.2.trans_le'
-        apply eLorentzNorm_mono_enorm_ae
-        simp
-      have hg' : MemLorentz g p 1 μ := by
-        use (by fun_prop)
-        apply hfg'.2.trans_le'
-        apply eLorentzNorm_mono_enorm_ae
-        simp
+      have hf' : MemLorentz f p 1 μ :=
+        ⟨by fun_prop, hfg'.2.trans_le' <| eLorentzNorm_mono_enorm_ae (by simp)⟩
+      have hg' : MemLorentz g p 1 μ := ⟨by fun_prop, hfg'.2.trans_le' <| eLorentzNorm_mono_enorm_ae (by simp)⟩
       calc _
         _ ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G) := by
           nth_rw 2 [← eLpNorm_enorm]
@@ -267,8 +260,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
           apply (eLpNorm_add_le _ _ (by rfl)).trans'
           · apply eLpNorm_mono_enorm_ae
             simp only [Pi.add_apply, enorm_eq_self]
-            apply ae_restrict_le
-            exact (T_subadd hf' hg')
+            exact ae_restrict_le (T_subadd hf' hg')
           · exact (T_meas hf').enorm.aestronglyMeasurable.restrict
           · exact (T_meas hg').enorm.aestronglyMeasurable.restrict
         _ ≤ c / p * eLorentzNorm' f p 1 μ * ν G ^ q⁻¹.toReal + c / p *  eLorentzNorm' g p 1 μ * ν G ^ q⁻¹.toReal := by
@@ -354,12 +346,10 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG')]
         gcongr
         apply Filter.limsup_le_of_le'
-        apply Filter.Eventually.of_forall
-        intro n
+        filter_upwards with n
         apply eLorentzNorm'_mono_enorm_ae
-        apply Filter.Eventually.of_forall
+        filter_upwards with x
         simp only [enorm_NNReal, ENNReal.coe_le_coe]
-        intro x
         exact SimpleFunc.approx_le hf bot_eq_zero'
 
 
@@ -369,11 +359,9 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
   {c : ℝ≥0∞} (hc : c ≠ ⊤) (hT : HasRestrictedWeakType' T p q μ ν c) :
     HasLorentzType T p 1 p ∞ μ ν c := by
   intro f hf
-  have hf' : AEStronglyMeasurable (T f) ν := by
-    exact (hT f hf ∅ MeasurableSet.empty).1
-  use hf'
-  rw [eLorentzNorm_eq_wnorm hpq.ne_zero]
-  rw [wnorm_ne_top hp, wnorm']
+  have hf' : AEStronglyMeasurable (T f) ν := (hT f hf ∅ MeasurableSet.empty).1
+  use (hT f hf ∅ MeasurableSet.empty).1
+  rw [eLorentzNorm_eq_wnorm hpq.ne_zero, wnorm_ne_top hp, wnorm']
   apply iSup_le
   intro l
   by_cases l_zero : l = 0
@@ -381,7 +369,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
   set G := {x | ↑l < ‖T f x‖ₑ}
   have hG : NullMeasurableSet G ν := by
     unfold G
-    apply nullMeasurableSet_lt aemeasurable_const hf'.enorm
+    exact nullMeasurableSet_lt aemeasurable_const (by fun_prop)
   rcases hG.exists_measurable_superset_ae_eq  with ⟨G', _, hG', G'G⟩
   have measure_G'G := measure_congr G'G
   have measure_G : ν G = distribution (T f) l ν := by rfl
@@ -486,9 +474,6 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
         simp only [toReal_inv, inv_pos]
         apply toReal_pos hpq.symm.ne_zero hq
       · exact ENNReal.rpow_ne_top' G_zero G_finite.ne
-
-
-
 
 theorem RCLike.norm_I {K : Type u_1} [RCLike K] : ‖(RCLike.I : K)‖ = if RCLike.I ≠ (0 : K) then 1 else 0 := by
   split_ifs with h
