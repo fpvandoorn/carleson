@@ -216,11 +216,11 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {
       exact (enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
 
---TODO: make this an iff?
+-- TODO: make this an iff?
 lemma distribution_zero_enorm {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   unfold distribution
-  rw[← le_zero_iff]
+  rw [← nonpos_iff_eq_zero]
   calc _
     _ ≤ μ {x | 0 < ‖f x‖ₑ} := by
       apply measure_mono

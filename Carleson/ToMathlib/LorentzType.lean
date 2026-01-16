@@ -95,7 +95,7 @@ lemma HasRestrictedWeakType.without_finiteness [ESeminormedAddMonoid ε₂] {T :
     · by_cases F_zero : μ F = 0
       · rw [F_zero, ENNReal.zero_rpow_of_pos p_inv_pos]
         simp only [mul_zero, ENNReal.toReal_inv, zero_mul, nonpos_iff_eq_zero]
-        rw [← le_zero_iff]
+        rw [← nonpos_iff_eq_zero]
         apply (eLpNorm_restrict_le _ _ _ _).trans
         simp only [nonpos_iff_eq_zero]
         apply eLpNorm_zero_of_ae_zero' (T_zero_of_ae_zero (indicator_meas_zero F_zero))
@@ -122,19 +122,19 @@ def HasRestrictedWeakType' [TopologicalSpace β] [ENorm β] [ENorm ε₂] (T : (
       eLpNorm (T f) 1 (ν.restrict G)
         ≤ c * eLorentzNorm f p 1 μ * (ν G) ^ q⁻¹.toReal
 
---TODO: move
---TODO: Could probably weaken assumption to (h : ∀ᶠ (x : β) in f, u x ≤ v x)
+-- TODO: move
+-- TODO: Could probably weaken assumption to (h : ∀ᶠ (x : β) in f, u x ≤ v x)
 theorem Filter.mono_limsup {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
     {u v : β → α} (h : ∀ (x : β), u x ≤ v x) : Filter.limsup u f ≤ Filter.limsup v f := by
   refine Filter.limsup_le_limsup ?_
   apply Filter.Eventually.of_forall h
 
---TODO: move?
+-- TODO: move?
 theorem Filter.limsup_le_of_le' {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
     {u : β → α} {a : α} (h : ∀ᶠ (n : β) in f, u n ≤ a) :
   Filter.limsup u f ≤ a := sInf_le h
 
---TODO: move?
+-- TODO: move?
 theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ p) :
     a ^ p + b ^ p ≤ (a + b) ^ p := by
   calc
@@ -143,19 +143,18 @@ theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ 
       linarith
     _ ≤ (a + b) ^ p := by
       gcongr
-      apply ENNReal.rpow_add_rpow_le_add _ _ hp1
+      exact ENNReal.rpow_add_rpow_le_add _ _ hp1
 
---TODO: move
+-- TODO: move
 theorem ENNReal.limsup_mul_const_of_ne_top {α : Type*} {f : Filter α} {u : α → ℝ≥0∞} {a : ℝ≥0∞} (ha_top : a ≠ ⊤) :
     Filter.limsup (fun x ↦ u x * a) f = Filter.limsup u f * a := by
   simp_rw [mul_comm]
-  apply ENNReal.limsup_const_mul_of_ne_top ha_top
+  exact ENNReal.limsup_const_mul_of_ne_top ha_top
 
---TODO: move
+-- TODO: move
 theorem ENNReal.limsup_mul_const {α : Type u_1} {f : Filter α} [CountableInterFilter f] {u : α → ℝ≥0∞} {a : ℝ≥0∞} :
     limsup (fun x ↦ u x * a) f = limsup u f * a := by
-  simp_rw [mul_comm]
-  apply limsup_const_mul
+  simp_rw [mul_comm, limsup_const_mul]
 
 /-
 def WeaklyContinuous [TopologicalSpace ε] (T : (α → ε) → (α' → ε')) (μ : Measure α) (ν : Measure α') : Prop :=

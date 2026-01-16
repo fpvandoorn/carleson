@@ -167,7 +167,7 @@ lemma le_depth_iff_subset {d : ℝ} : ENNReal.ofReal d ≤ depth O x ↔ ball x 
 /-- A point's depth in an open set `O` is positive iff it lies in `O`. -/
 lemma depth_pos_iff_mem (hO : IsOpen O) : 0 < depth O x ↔ x ∈ O := by
   constructor <;> intro h
-  · contrapose! h; simp_rw [le_zero_iff, depth, iSup_eq_zero]; intro d hd
+  · contrapose! h; simp_rw [nonpos_iff_eq_zero, depth, iSup_eq_zero]; intro d hd
     by_contra! dpos; apply absurd _ h; rw [coe_ne_zero, ← zero_lt_iff] at dpos
     exact hd (mem_ball_self dpos)
   · obtain ⟨ε, εpos, hε⟩ := Metric.mem_nhds_iff.mp (hO.mem_nhds h)
@@ -178,7 +178,7 @@ lemma depth_pos_iff_mem (hO : IsOpen O) : 0 < depth O x ↔ x ∈ O := by
 
 lemma depth_eq_zero_iff_notMem (hO : IsOpen O) : depth O x = 0 ↔ x ∉ O := by
   have := (depth_pos_iff_mem hO (x := x)).not
-  rwa [not_lt, le_zero_iff] at this
+  rwa [not_lt, nonpos_iff_eq_zero] at this
 
 /-- A point has finite depth in `O` iff `O` is not the whole space. -/
 lemma depth_lt_top_iff_ne_univ : depth O x < ⊤ ↔ O ≠ univ := by
@@ -327,7 +327,8 @@ lemma ball_covering' (hO : IsOpen O ∧ O ≠ univ) :
   have countU : U.Countable := by
     refine maxU.1.2.countable_of_isOpen (fun _ _ ↦ isOpen_ball) (fun u mu ↦ ?_)
     rw [nonempty_ball]; refine div_pos (toReal_pos ?_ ?_) (by norm_num)
-    · rw [← zero_lt_iff, depth_pos_iff_mem hO.1]; exact maxU.1.1 mu
+    · rw [← EReal.coe_ennreal_pos_iff_ne_zero, EReal.coe_ennreal_pos, depth_pos_iff_mem hO.1]
+      exact maxU.1.1 mu
     · rw [← lt_top_iff_ne_top, depth_lt_top_iff_ne_univ]; exact hO.2
   refine ⟨U, fun c ↦ (depth O c).toReal / 6, countU, maxU.1.2, ?_, fun c mc ↦ ?_, fun x mx ↦ ?_⟩
   · refine subset_antisymm (fun x mx ↦ ?_) (fun x mx ↦ ?_)
@@ -1634,7 +1635,7 @@ lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
     (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
     distribution (czOperator K r (czRemainder f (α' a α))) (α / 2) volume ≤
     C10_2_9 a / α * eLpNorm f 1 volume := by
-  rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero'] at hα
+  rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero] at hα
   by_cases hX : GeneralCase f (α' a α)
   · calc
       _ ≤ volume (Ω f (α' a α) ∪
@@ -1697,7 +1698,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
         · have := (EventuallyEq.rfl (f := (K x ·))).mul hf₂
           simp only [mul_zero] at this; exact this.restrict
         simp
-      simp_rw [op0, distribution, Pi.zero_apply, enorm_zero, not_lt_zero', setOf_false,
+      simp_rw [op0, distribution, Pi.zero_apply, enorm_zero, not_lt_zero, setOf_false,
         measure_empty, zero_le]
     conv_rhs at hα =>
       enter [1, 2, x]; rw [div_eq_mul_inv, c10_0_3, coe_inv (by positivity), inv_inv]
@@ -1710,7 +1711,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
     rw [mul_comm, ENNReal.mul_div_right_comm] at hα
     refine (measure_mono (subset_univ _)).trans (hα.trans ?_)
     rw [C10_0_3, add_assoc]; gcongr; exacts [one_le_two, by lia]
-  rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero'] at hα
+  rcases eq_zero_or_pos α with rfl | αpos; · simp only [_root_.not_lt_zero] at hα
   have α'pos : 0 < c10_0_3 a * α := by rw [c10_0_3]; positivity
   calc
     _ ≤ distribution (czOperator K r (czApproximation f (α' a α))) (α / 2) volume +
