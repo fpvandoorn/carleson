@@ -258,7 +258,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
     rw [Measure.restrict_apply_univ]
     exact volume_coeGrid_lt_top⟩
   let 𝒟 (s₀ x) : Set (Grid X) := { I | x ∈ ball (c I) (8 * D ^ s I) ∧ s I = s₀ }
-  let supp : Set X := { x ∈ J | EMetric.infEdist x Jᶜ ≤ 8 * (D ^ (s J - s')) }
+  let supp : Set X := { x ∈ J | Metric.infEDist x Jᶜ ≤ 8 * (D ^ (s J - s')) }
   have hsupp : supp ⊆ J := fun x hx ↦ hx.1
   have vsupp : volume.real supp ≤ 2 * (↑8 * ↑D ^ (-s')) ^ κ * volume.real (J : Set X) := by
     simp only [supp, sub_eq_neg_add, ENNReal.zpow_add (x := D) (by simp) (by finiteness),
