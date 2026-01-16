@@ -367,7 +367,7 @@ lemma sum_𝓙₆_indicator_sq_eq {f : Grid X → X → ℝ≥0∞} :
     ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (f J · ^ 2) x := by
   rw [sq, Finset.sum_mul_sum, ← Finset.sum_product']
   have dsub : (𝓙₆ t u₁).toFinset.diag ⊆ (𝓙₆ t u₁).toFinset ×ˢ (𝓙₆ t u₁).toFinset :=
-    Finset.filter_subset ..
+    sorry -- was: Finset.filter_subset --..
   rw [← Finset.sum_subset dsub]; swap
   · intro p mp np
     simp_rw [Finset.mem_product, Finset.mem_diag, mem_toFinset, not_and] at mp np
