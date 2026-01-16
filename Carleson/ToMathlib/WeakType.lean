@@ -216,11 +216,11 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {
       exact (enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
 
---TODO: make this an iff?
+-- TODO: make this an iff?
 lemma distribution_zero_enorm {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   unfold distribution
-  rw[← le_zero_iff]
+  rw [← nonpos_iff_eq_zero]
   calc _
     _ ≤ μ {x | 0 < ‖f x‖ₑ} := by
       apply measure_mono
@@ -926,12 +926,7 @@ lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
     apply eLpNormEssSup_const_nnreal_smul_le
   simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
   by_cases k_zero : k = 0
-  · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero',
-      setOf_false, measure_empty, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero,
-      ENNReal.rpow_eq_zero_iff, inv_pos, true_and, zero_ne_top, inv_neg'', false_and, or_false]
-    intro _
-    right
-    exact toReal_pos hp ptop
+  · simp [distribution, k_zero, toReal_pos hp ptop]
   simp only [distribution_smul_left k_zero]
   intro t
   rw [ENNReal.mul_iSup]
@@ -953,12 +948,7 @@ lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E} 
     apply eLpNormEssSup_const_smul_le
   simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
   by_cases k_zero : k = 0
-  · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero', setOf_false,
-      measure_empty, coe_lt_enorm, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero,
-      ENNReal.rpow_eq_zero_iff, inv_pos, true_and, zero_ne_top, inv_neg'', false_and, or_false]
-    intro _
-    right
-    exact toReal_pos hp ptop
+  · simp [distribution, k_zero, toReal_pos hp ptop]
   simp only [distribution_smul_left' k_zero]
   intro t
   rw [ENNReal.mul_iSup]
@@ -1052,7 +1042,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
   simp only [mul_comm (μ _), ne_eq, ofReal_ne_top, not_false_eq_true, ← lintegral_const_mul',
     ← mul_assoc, ofReal_mul, distribution, hp.le] at this ⊢
   -- TODO: clean up this whole proof
-  by_cases ae_finite : μ {x | ‖f x‖ₑ = ∞} = 0
+  by_cases! ae_finite : μ {x | ‖f x‖ₑ = ∞} = 0
   · -- main case
     convert this using 1
     · apply lintegral_congr_ae
@@ -1086,8 +1076,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
     exact hx.2 hx.1
   · rw [lintegral_eq_top_of_measure_eq_top_ne_zero]
     · symm
-      push_neg at ae_finite
-      rw [← zero_lt_iff] at ae_finite
+      rw [← enorm_pos] at ae_finite
       rw [eq_top_iff]
       calc
       _ = ENNReal.ofReal p *

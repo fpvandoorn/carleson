@@ -91,10 +91,10 @@ lemma pos_rb_of_Icc_1_inh {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : 0 < q :=
   lt_of_lt_of_le zero_lt_one (le_trans hp.1 hp.2)
 
 lemma toReal_pos_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : 0 < p.toReal :=
-  toReal_pos (ne_zero_of_lt hp.1) hp.2.ne_top
+  toReal_pos (ne_zero_of_Ioo hp) hp.2.ne_top
 
 lemma toReal_ne_zero_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : p.toReal ≠ 0 :=
-  toReal_ne_zero.mpr ⟨ne_zero_of_lt hp.1, hp.2.ne_top⟩
+  toReal_ne_zero.mpr ⟨ne_zero_of_Ioo hp, hp.2.ne_top⟩
 
 -- TODO: check which ones are actually used
 lemma eq_of_rpow_eq (a b : ℝ≥0∞) (c : ℝ) (hc : c ≠ 0) (h : a ^ c = b ^ c) : a = b := by

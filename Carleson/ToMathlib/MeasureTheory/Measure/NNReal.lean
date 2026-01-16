@@ -327,9 +327,9 @@ lemma ENNReal.ofReal_Ico_eq {b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ico 0 b
     · rw [ENNReal.ofReal_of_nonpos hx.le]
       constructor
       · intro _
-        exact hx.trans_le (@toReal_nonneg b)
+        exact hx.trans_le (by positivity)
       · intro _
-        rwa [zero_lt_iff]
+        positivity
     push_neg at hx
     exact ofReal_lt_iff_lt_toReal hx hb'
 
