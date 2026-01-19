@@ -36,7 +36,7 @@ jobs:
         run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter Carleson
 
       - name: Compile blueprint and documentation
-        uses: leanprover-community/docgen-action@3dbd3475a9bc8d22fd786a8f8efe1869457da7cc # 2026-01-15
+        uses: leanprover-community/docgen-action@deed0cdc44dd8e5de07a300773eb751d33e32fc8 # 2025-10-26
         with:
           blueprint: true
           homepage: docs
