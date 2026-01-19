@@ -669,7 +669,7 @@ lemma tree_count :
 lemma boundary_exception {u : 𝔓 X} :
     volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by
   by_cases  h_𝓛_n_u_non_empty : Set.Nonempty (𝓛 (X := X) n u)
-  · set X_u := { x ∈ GridStructure.coeGrid (𝓘 u) | EMetric.infEdist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ 12 * (D ^ (𝔰 u - Z * (n + 1) - 1 : ℤ) : ℝ≥0∞)} with h_X_u -- 5.2.25
+  · set X_u := { x ∈ GridStructure.coeGrid (𝓘 u) | Metric.infEDist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ 12 * (D ^ (𝔰 u - Z * (n + 1) - 1 : ℤ) : ℝ≥0∞)} with h_X_u -- 5.2.25
     calc volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X))
       _ ≤ volume X_u := by
           have i_subset_X_u : ∀ i ∈ 𝓛 (X := X) n u, GridStructure.coeGrid i ⊆ X_u := by
@@ -693,8 +693,8 @@ lemma boundary_exception {u : 𝔓 X} :
                     rel [dist_bpt_c_i_le]
                 _ ≤ 12 * D ^ s i := by linarith
             -- show the the triangle inequality implies distance between ipt and (𝓘 u)ᶜ <= 12 * D ^ s i
-            calc EMetric.infEdist ipt (GridStructure.coeGrid (𝓘 u))ᶜ
-              _ ≤ edist ipt bpt := EMetric.infEdist_le_edist_of_mem <| Set.mem_compl h_bpt_not_in_I_u
+            calc Metric.infEDist ipt (GridStructure.coeGrid (𝓘 u))ᶜ
+              _ ≤ edist ipt bpt := Metric.infEDist_le_edist_of_mem <| Set.mem_compl h_bpt_not_in_I_u
               _ ≤ ENNReal.ofReal (12 * D ^ s i) := by
                 rw [edist_dist]
                 exact ENNReal.ofReal_le_ofReal ipt_bpt_triangle_ineq
@@ -740,7 +740,7 @@ lemma boundary_exception {u : 𝔓 X} :
                    show 𝔰 u = s (𝓘 u) from rfl, add_comm,
                    neg_add_eq_sub] at small_boundary_h_intermediate
             have small_b := GridStructure.small_boundary small_boundary_h
-            have X_u_in_terms_of_t : X_u = { x ∈ GridStructure.coeGrid (𝓘 u) | EMetric.infEdist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ ((t * D ^ (s (𝓘 u))):ℝ≥0∞)} := by
+            have X_u_in_terms_of_t : X_u = { x ∈ GridStructure.coeGrid (𝓘 u) | Metric.infEDist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ ((t * D ^ (s (𝓘 u))):ℝ≥0∞)} := by
               rw [ht, show s (𝓘 u) = 𝔰 u from rfl,
                   show (D ^ 𝔰 u : ℝ≥0∞) = (D ^ 𝔰 u : ℝ≥0) by simp]
               rw_mod_cast [D_pow_algebra, h_X_u]

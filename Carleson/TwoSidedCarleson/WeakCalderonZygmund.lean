@@ -167,7 +167,7 @@ lemma le_depth_iff_subset {d : ℝ} : ENNReal.ofReal d ≤ depth O x ↔ ball x 
 /-- A point's depth in an open set `O` is positive iff it lies in `O`. -/
 lemma depth_pos_iff_mem (hO : IsOpen O) : 0 < depth O x ↔ x ∈ O := by
   constructor <;> intro h
-  · contrapose! h; simp_rw [le_zero_iff, depth, iSup_eq_zero]; intro d hd
+  · contrapose! h; simp_rw [nonpos_iff_eq_zero, depth, iSup_eq_zero]; intro d hd
     by_contra! dpos; apply absurd _ h; rw [coe_ne_zero, ← zero_lt_iff] at dpos
     exact hd (mem_ball_self dpos)
   · obtain ⟨ε, εpos, hε⟩ := Metric.mem_nhds_iff.mp (hO.mem_nhds h)
@@ -178,7 +178,7 @@ lemma depth_pos_iff_mem (hO : IsOpen O) : 0 < depth O x ↔ x ∈ O := by
 
 lemma depth_eq_zero_iff_notMem (hO : IsOpen O) : depth O x = 0 ↔ x ∉ O := by
   have := (depth_pos_iff_mem hO (x := x)).not
-  rwa [not_lt, le_zero_iff] at this
+  rwa [not_lt, nonpos_iff_eq_zero] at this
 
 /-- A point has finite depth in `O` iff `O` is not the whole space. -/
 lemma depth_lt_top_iff_ne_univ : depth O x < ⊤ ↔ O ≠ univ := by
@@ -271,10 +271,8 @@ lemma depth_bound_3 (hO : O ≠ univ) (h : x ∈ ball y (3 * ((depth O y).toReal
         gcongr; rw [edist_dist]; apply ofReal_le_of_le_toReal
         rw [toReal_div, toReal_ofNat]; linarith
   calc
-    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((depth O y).toReal / 6) := by
-      gcongr; exact mul_ne_top ofNat_ne_top dnt
-    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((2 * depth O x).toReal / 6) := by
-      gcongr; exact mul_ne_top ofNat_ne_top dnt
+    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((depth O y).toReal / 6) := by gcongr; have := @dnt x; finiteness
+    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((2 * depth O x).toReal / 6) := by gcongr; have := @dnt x; finiteness
     _ = _ := by rw [toReal_mul, toReal_ofNat]; ring
 
 lemma ball_covering_bounded_intersection
@@ -327,7 +325,8 @@ lemma ball_covering' (hO : IsOpen O ∧ O ≠ univ) :
   have countU : U.Countable := by
     refine maxU.1.2.countable_of_isOpen (fun _ _ ↦ isOpen_ball) (fun u mu ↦ ?_)
     rw [nonempty_ball]; refine div_pos (toReal_pos ?_ ?_) (by norm_num)
-    · rw [← zero_lt_iff, depth_pos_iff_mem hO.1]; exact maxU.1.1 mu
+    · rw [← EReal.coe_ennreal_pos_iff_ne_zero, EReal.coe_ennreal_pos, depth_pos_iff_mem hO.1]
+      exact maxU.1.1 mu
     · rw [← lt_top_iff_ne_top, depth_lt_top_iff_ne_univ]; exact hO.2
   refine ⟨U, fun c ↦ (depth O c).toReal / 6, countU, maxU.1.2, ?_, fun c mc ↦ ?_, fun x mx ↦ ?_⟩
   · refine subset_antisymm (fun x mx ↦ ?_) (fun x mx ↦ ?_)
@@ -1094,12 +1093,13 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
   · simp [hα_top, top_div_of_lt_top ENNReal.ofNat_lt_top]
   have ne0 : (c10_0_3 a : ℝ≥0∞) ≠ 0 := by simp [c10_0_3]
   have hα' : 0 < α' a α := α'_pos (pos_of_gt hα)
+  have hα'' := ((zero_le _).trans_lt hα).ne'
   calc distribution ((czOperator K r (czApproximation f (α' a α)))) (α / 2) volume
     _ = distribution ((czOperator K r (czApproximation f (α' a α))) ^ 2) ((α / 2) ^ 2) volume :=
       (distribution_pow _ _ _ _ two_pos.ne').symm
     _ ≤ ((α / 2) ^ 2)⁻¹ * ∫⁻ y, ‖((czOperator K r (czApproximation f (α' a α))) ^ 2) y‖ₑ := by
       apply distribution_le
-      · exact ENNReal.pow_ne_zero (ENNReal.div_ne_zero.mpr ⟨ne_zero_of_lt hα, ofNat_ne_top⟩) 2
+      · exact ENNReal.pow_ne_zero (ENNReal.div_ne_zero.mpr ⟨hα'', ofNat_ne_top⟩) 2
       · change AEMeasurable (czOperator K r (czApproximation f (α' a α)) · ^ 2) volume
         refine czOperator_aestronglyMeasurable ?_ |>.aemeasurable.pow_const 2
         exact aemeasurable_czApproximation (hf := hf.aemeasurable) |>.aestronglyMeasurable
@@ -1124,15 +1124,14 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
       refine mul_assoc _ _ α ▸ enorm_czApproximation_le ?_ (hf := hf)
       exact mul_comm α _ ▸ (ENNReal.div_lt_iff (Or.inl ne0) (Or.inl coe_ne_top)).mp hα |>.le
     _ = 2^2/α^2 * ((C_Ts a)^2 * (2^(3*a) * c10_0_3 a * α * ∫⁻ y, ‖czApproximation f _ y‖ₑ)) := by
-      have : 2 ^ (3*a) * c10_0_3 a * α ≠ ∞ := mul_ne_top (mul_ne_top coe_ne_top coe_ne_top) hα_top
-      rw [lintegral_const_mul' _ _ this]
+      rw [lintegral_const_mul' _ _ (by finiteness)]
     _ ≤ 2 ^ 2 / α ^ 2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α * eLpNorm f 1 volume)) := by
       gcongr; simpa [eLpNorm, eLpNorm'] using eLpNorm_czApproximation_le (hf := hf) hα'
     _ = 2 ^ 2 / α^2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α)) * eLpNorm f 1 volume := by ring
     _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * c10_0_3 a * α) / α ^ 2 * eLpNorm f 1 volume := by
       rw [ENNReal.mul_comm_div, mul_div]; ring_nf
     _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * c10_0_3 a) / α * eLpNorm f 1 volume := by
-      rw [sq α, ENNReal.mul_div_mul_right _ _ (ne_zero_of_lt hα) hα_top]
+      rw [sq α, ENNReal.mul_div_mul_right _ _ hα'' hα_top]
     _ = (C10_2_6 a) / α * eLpNorm f 1 volume := by simp only [C_Ts, C10_2_6]; norm_cast; ring_nf
 
 /-- The constant used in `czOperatorBound`. -/
@@ -1598,7 +1597,7 @@ lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
         simp only [coe_nnreal_ennreal_nndist]
         exact aemeasurable_id'.edist aemeasurable_const
       · simp [αpos.ne']
-      · exact ENNReal.div_ne_top αlt.ne (by norm_num)
+      · finiteness
     _ ≤ 8 * C10_2_7 a * ∑' i, volume (czBall3 hX i) * ∫⁻ x in (Ω f (α' a α))ᶜ,
         ((3 * czRadius hX i).toNNReal / edist x (czCenter hX i)) ^ (a : ℝ)⁻¹ /
         volume (ball x (dist x (czCenter hX i))) := by
@@ -1634,7 +1633,7 @@ lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
     (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
     distribution (czOperator K r (czRemainder f (α' a α))) (α / 2) volume ≤
     C10_2_9 a / α * eLpNorm f 1 volume := by
-  rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero'] at hα
+  rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero] at hα
   by_cases hX : GeneralCase f (α' a α)
   · calc
       _ ≤ volume (Ω f (α' a α) ∪
@@ -1697,7 +1696,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
         · have := (EventuallyEq.rfl (f := (K x ·))).mul hf₂
           simp only [mul_zero] at this; exact this.restrict
         simp
-      simp_rw [op0, distribution, Pi.zero_apply, enorm_zero, not_lt_zero', setOf_false,
+      simp_rw [op0, distribution, Pi.zero_apply, enorm_zero, not_lt_zero, setOf_false,
         measure_empty, zero_le]
     conv_rhs at hα =>
       enter [1, 2, x]; rw [div_eq_mul_inv, c10_0_3, coe_inv (by positivity), inv_inv]
@@ -1710,7 +1709,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
     rw [mul_comm, ENNReal.mul_div_right_comm] at hα
     refine (measure_mono (subset_univ _)).trans (hα.trans ?_)
     rw [C10_0_3, add_assoc]; gcongr; exacts [one_le_two, by lia]
-  rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero'] at hα
+  rcases eq_zero_or_pos α with rfl | αpos; · simp only [_root_.not_lt_zero] at hα
   have α'pos : 0 < c10_0_3 a * α := by rw [c10_0_3]; positivity
   calc
     _ ≤ distribution (czOperator K r (czApproximation f (α' a α))) (α / 2) volume +

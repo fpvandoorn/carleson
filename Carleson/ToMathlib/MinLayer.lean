@@ -183,14 +183,13 @@ lemma iUnion_minLayer_iff_bounded_series :
     ⋃ (k ≤ n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length ≤ n := by
   simp_rw [← Nat.lt_succ_iff, iUnion_lt_minLayer_iff_bounded_series]
 
-variable [Fintype α]
-
-lemma exists_le_in_layersAbove_of_le (ha : a ∈ A.layersAbove n) (hm : m ≤ n) :
+lemma exists_le_in_layersAbove_of_le [Finite α] (ha : a ∈ A.layersAbove n) (hm : m ≤ n) :
     ∃ c ∈ A.minLayer m, c ≤ a := by
   classical
   have ma : a ∈ A \ ⋃ (l' < n), A.minLayer l' := by
     simp only [layersAbove, mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at ha ⊢
     exact ⟨ha.1, fun l' hl' h ↦ ha.2 l' hl'.le h⟩
+  have := Fintype.ofFinite α
   let C : Finset α :=
     (A.toFinset \ (Finset.range n).biUnion fun l ↦ (A.minLayer l).toFinset).filter (· ≤ a)
   have Cn : C.Nonempty := by use a; simp_all [C]
@@ -205,7 +204,7 @@ lemma exists_le_in_layersAbove_of_le (ha : a ∈ A.layersAbove n) (hm : m ≤ n)
   obtain ⟨c, mc, lc⟩ := exists_le_in_minLayer_of_le ma'₁ hm
   use c, mc, lc.trans ma'.2
 
-lemma exists_le_in_layersBelow_of_le (ha : a ∈ A.layersBelow n) (hm : m ≤ n) :
+lemma exists_le_in_layersBelow_of_le [Finite α] (ha : a ∈ A.layersBelow n) (hm : m ≤ n) :
     ∃ c ∈ A.maxLayer m, a ≤ c := exists_le_in_layersAbove_of_le (α := αᵒᵈ) ha hm
 
 end Set

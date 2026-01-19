@@ -825,7 +825,7 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
 structure ClosenessProperty {k1 k2 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2)
     (y1 : Yk X k1) (y2 : Yk X k2) : Prop where
   I3_subset : I3 hk1 y1 ⊆ I3 hk2 y2
-  I3_infdist_lt : EMetric.infEdist (y1 : X) (I3 hk2 y2)ᶜ < (6 * D ^ k1 : ℝ≥0∞)
+  I3_infdist_lt : Metric.infEDist (y1 : X) (I3 hk2 y2)ᶜ < (6 * D ^ k1 : ℝ≥0∞)
 
 local macro "clProp(" hkl:term ", " y1:term " | " hkr:term ", " y2:term ")" : term =>
  `(ClosenessProperty $hkl $hkr $y1 $y2)
@@ -854,7 +854,7 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
     exact (ENNReal.zpow_pos hd_nzero (by finiteness) _).ne'
   have hdp_finit42 : (D ^ 42 : ℝ≥0∞) ≠ ⊤ := by finiteness
   refine ⟨⟨hi3_1_2, ?_⟩, ⟨hi3_2_3, ?_⟩⟩
-  · apply lt_of_le_of_lt (EMetric.infEdist_anti _) hx'
+  · apply lt_of_le_of_lt (Metric.infEDist_anti _) hx'
     rw [compl_subset_compl]
     exact hi3_2_3
   · rw [← emetric_ball,EMetric.mem_ball] at hx_4k2 hx_4k2'
@@ -863,16 +863,16 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
     rw [ENNReal.ofReal_mul (by norm_num), ← ENNReal.ofReal_rpow_of_pos (realD_pos a),
       ENNReal.ofReal_ofNat,ENNReal.ofReal_natCast,ENNReal.rpow_intCast] at hx_4k2 hx_4k2'
     calc
-      EMetric.infEdist (y2 : X) (I3 hk3 y3)ᶜ
-        ≤ edist (y2 : X) (y1 : X) + EMetric.infEdist (y1 : X) (I3 hk3 y3)ᶜ :=
-          EMetric.infEdist_le_edist_add_infEdist
-      _ = EMetric.infEdist (y1 : X) (I3 hk3 y3)ᶜ + edist (y1 : X) (y2 : X) := by
+      Metric.infEDist (y2 : X) (I3 hk3 y3)ᶜ
+        ≤ edist (y2 : X) (y1 : X) + Metric.infEDist (y1 : X) (I3 hk3 y3)ᶜ :=
+          Metric.infEDist_le_edist_add_infEDist
+      _ = Metric.infEDist (y1 : X) (I3 hk3 y3)ᶜ + edist (y1 : X) (y2 : X) := by
         rw [add_comm,edist_comm]
-      _ ≤ EMetric.infEdist (y1 : X) (I3 hk3 y3)ᶜ +
+      _ ≤ Metric.infEDist (y1 : X) (I3 hk3 y3)ᶜ +
           (edist (y1:X) x + edist x y2) := by
         rw [ENNReal.add_le_add_iff_left hx'.ne_top]
         exact edist_triangle (↑y1) x ↑y2
-      _ < EMetric.infEdist (y1 : X) (I3 hk3 y3)ᶜ + edist (y1 : X) x + 4 * D ^ k2 := by
+      _ < Metric.infEDist (y1 : X) (I3 hk3 y3)ᶜ + edist (y1 : X) x + 4 * D ^ k2 := by
         rw [← add_assoc, ENNReal.add_lt_add_iff_left (by finiteness)]
         exact hx_4k2
       _ < 6 * D ^ k1 + 4 * D ^ k1 + 4 * D ^ k2 := by
@@ -919,7 +919,7 @@ lemma transitive_boundary {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) (
     · exact ⟨le_refl _,by
         obtain hx := hcl.I3_infdist_lt
         apply lt_of_le_of_lt _ hx
-        apply EMetric.infEdist_anti
+        apply Metric.infEDist_anti
         simp only [compl_subset_compl]
         exact hcl.I3_subset⟩
     exact hcl
@@ -1116,7 +1116,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
           simp only [disjoint_iUnion_right, disjoint_iUnion_left]
           intro u hu u' hu'
           rw [Set.disjoint_iff]
-          obtain ⟨x,hx⟩ := EMetric.infEdist_lt_iff.mp hu'.I3_infdist_lt
+          obtain ⟨x, hx⟩ := Metric.infEDist_lt_iff.mp hu'.I3_infdist_lt
           intro x' hx'
           have : x ∈ ball (u:X) (2⁻¹ * D^(l:ℤ)) := by
             simp only [mem_inter_iff, mem_compl_iff, mem_ball] at hx hx' ⊢
@@ -1411,7 +1411,7 @@ end ProofData
 
 lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht : t ∈ Set.Ioo 0 1)
     (htD : (D ^ (-S : ℤ) : ℝ) ≤ t * D ^ k) :
-    volume ({x | x ∈ I3 hk y ∧ EMetric.infEdist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)}) ≤
+    volume ({x | x ∈ I3 hk y ∧ Metric.infEDist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)}) ≤
       2 * t ^ κ * volume (I3 hk y) := by
   have hconst_n : -S ≤ k - const_n a ht * K' := by
     suffices (D ^ (-S : ℤ) : ℝ) ≤ D ^ (k - const_n a ht * K' : ℤ) by
@@ -1425,7 +1425,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
     positivity
   simp only [mem_Ioo] at ht
   calc
-    volume ({x | x ∈ I3 hk y ∧ EMetric.infEdist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)})
+    volume ({x | x ∈ I3 hk y ∧ Metric.infEDist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)})
     _ ≤ volume (⋃ (y' : Yk X (k - const_n a ht *K')), ⋃ (_ : clProp(hconst_n,y'|hk,y)),
           I3 hconst_n y') := by
       apply volume.mono
@@ -1450,9 +1450,9 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
         rw [← ENNReal.ofReal_natCast,ENNReal.ofReal_pos]
         exact realD_pos a
       calc
-        EMetric.infEdist (y' : X) (I3 hk y)ᶜ
-        _ ≤ EMetric.infEdist (x:X) (I3 hk y)ᶜ + edist (y':X) x :=
-          EMetric.infEdist_le_infEdist_add_edist
+        Metric.infEDist (y' : X) (I3 hk y)ᶜ
+        _ ≤ Metric.infEDist (x:X) (I3 hk y)ᶜ + edist (y':X) x :=
+          Metric.infEDist_le_infEDist_add_edist
         _ < t * D^k + 4 * D^(k-const_n a ht * K') := by
           apply ENNReal.add_lt_add_of_le_of_lt _ hxb' hxy'
           apply (hxb'.trans_lt _).ne
@@ -1540,11 +1540,11 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
 
 lemma boundary_measure' {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht : t ∈ Set.Ioo 0 1)
     (htD : (D ^ (-S : ℤ) : ℝ) ≤ t * D ^ k) :
-    volume.real ({x | x ∈ I3 hk y ∧ EMetric.infEdist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)}) ≤
+    volume.real ({x | x ∈ I3 hk y ∧ Metric.infEDist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)}) ≤
       2 * t ^ κ * volume.real (I3 hk y) := by
   dsimp only [Measure.real]
   calc
-    volume ({x | x ∈ I3 hk y ∧ EMetric.infEdist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)}) |>.toReal
+    volume ({x | x ∈ I3 hk y ∧ Metric.infEDist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)}) |>.toReal
     _ ≤ ((2 : ℝ≥0∞) * t ^ κ : ℝ≥0∞).toReal * (volume (I3 hk y)).toReal := by
         rw [← ENNReal.toReal_mul]
         rw [ENNReal.toReal_le_toReal]

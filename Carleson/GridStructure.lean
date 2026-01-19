@@ -35,7 +35,7 @@ class GridStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasur
   ball_subset_Grid {i} : ball (c i) (D ^ s i / 4) ⊆ coeGrid i --2.0.10
   Grid_subset_ball {i} : coeGrid i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
   small_boundary {i} {t : ℝ≥0} (ht : D ^ (- S - s i) ≤ t) :
-    volume.real { x ∈ coeGrid i | EMetric.infEdist x (coeGrid i)ᶜ ≤ t * (D ^ (s i):ℝ≥0∞)} ≤
+    volume.real { x ∈ coeGrid i | Metric.infEDist x (coeGrid i)ᶜ ≤ t * (D ^ (s i):ℝ≥0∞)} ≤
     2 * t ^ κ * volume.real (coeGrid i)
   coeGrid_measurable {i} : MeasurableSet (coeGrid i)
 

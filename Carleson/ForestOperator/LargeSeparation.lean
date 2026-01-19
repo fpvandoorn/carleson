@@ -1404,7 +1404,7 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
       ‖adjointCarlesonSum ℭ f x₀‖ₑ + (ε / 2 : ℝ≥0) := by
     apply ENNReal.exists_biSup_le_enorm_add_eps (by positivity)
       ⟨c J, mem_ball_self (by unfold defaultD; positivity)⟩
-    rw [isBounded_image_iff_bddAbove_norm]
+    rw [isBounded_image_iff_bddAbove_norm']
     exact hf.bddAbove_norm_adjointCarlesonSum |>.mono (image_subset_range ..)
   obtain ⟨x', hx', ex'⟩ : ∃ x₀ ∈ ball (c J) (8⁻¹ * D ^ s J),
       ‖adjointCarlesonSum ℭ f x₀‖ₑ - (ε / 2 : ℝ≥0) ≤
@@ -1779,10 +1779,9 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
               (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ / edist x x' ^ τ :=
             ENNReal.div_le_div_right (edist_holderFunction_le hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mx') _
           _ = _ := by
-            have dn0 : edist x x' ≠ 0 := by rw [← zero_lt_iff]; exact edist_pos.mpr hn
             rw [mul_div_assoc, defaultτ, ← ENNReal.div_rpow_of_nonneg _ _ (by positivity),
               div_eq_mul_inv, div_eq_mul_inv, ← mul_rotate _ (edist x x'),
-              ENNReal.inv_mul_cancel dn0 (edist_ne_top x x'), one_mul]
+              ENNReal.inv_mul_cancel (by positivity [edist_pos.mpr hn]) (edist_ne_top x x'), one_mul]
     _ ≤ C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J +
         ENNReal.ofReal (16 * D ^ s J) ^ τ *
         (I7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J * ((D : ℝ≥0∞) ^ s J)⁻¹ ^ (a : ℝ)⁻¹) := by
