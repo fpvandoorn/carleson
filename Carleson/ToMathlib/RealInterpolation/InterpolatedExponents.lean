@@ -106,7 +106,7 @@ lemma le_of_rpow_le {a b : ℝ≥0∞} {c : ℝ} (hc : 0 < c) (h : a ^ c ≤ b ^
   exact (ENNReal.rpow_le_rpow_iff (inv_pos_of_pos hc)).mpr h
 
 lemma coe_inv_exponent (hp₀ : 0 < p₀) : ENNReal.ofReal (p₀⁻¹.toReal) = p₀⁻¹ :=
-  ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₀.ne')
+  ofReal_toReal_eq_iff.mpr (by finiteness)
 
 -- TODO: find a better name for the next three lemmas!
 lemma preservation_positivity₀ (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ ∨ q ≠ ⊤) :

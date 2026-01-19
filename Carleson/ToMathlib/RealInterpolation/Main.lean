@@ -540,17 +540,14 @@ def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
     · have one_div_ne_zero : (1 : ℝ≥0∞) / (n + 1) ≠ 0 := by
         apply ne_of_gt
         rw [one_div]
-        exact ENNReal.inv_pos.mpr (add_ne_top.mpr ⟨coe_ne_top, one_ne_top⟩)
+        exact ENNReal.inv_pos.mpr (by finiteness)
       calc
-      _ ≤ (∫⁻ x : α in g.support, g x ∂μ) / (1 / (n + 1)) := by
-        apply meas_ge_le_lintegral_div hg.restrict one_div_ne_zero
-        · rw [one_div]
-          apply inv_ne_top.mpr
-          simp
+      _ ≤ (∫⁻ x : α in g.support, g x ∂μ) / (1 / (n + 1)) :=
+        meas_ge_le_lintegral_div hg.restrict one_div_ne_zero (by finiteness)
       _ ≤ (∫⁻ x : α, g x ∂μ) / (1 / (n + 1)) := by
         gcongr
         exact Measure.restrict_le_self
-      _ < ⊤ := div_lt_top hg_int.ne one_div_ne_zero
+      _ < ⊤ := by finiteness
   spanning := by
     ext x
     constructor
