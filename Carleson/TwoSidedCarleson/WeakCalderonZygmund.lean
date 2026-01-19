@@ -270,10 +270,9 @@ lemma depth_bound_3 (hO : O ≠ univ) (h : x ∈ ball y (3 * ((depth O y).toReal
       _ ≤ _ := by
         gcongr; rw [edist_dist]; apply ofReal_le_of_le_toReal
         rw [toReal_div, toReal_ofNat]; linarith
-  replace dnt := @dnt x
   calc
-    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((depth O y).toReal / 6) := by gcongr; finiteness
-    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((2 * depth O x).toReal / 6) := by gcongr; finiteness
+    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((depth O y).toReal / 6) := by gcongr; have := @dnt x; finiteness
+    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((2 * depth O x).toReal / 6) := by gcongr; have := @dnt x; finiteness
     _ = _ := by rw [toReal_mul, toReal_ofNat]; ring
 
 lemma ball_covering_bounded_intersection
