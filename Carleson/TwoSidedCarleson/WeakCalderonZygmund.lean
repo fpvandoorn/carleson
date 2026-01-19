@@ -1100,11 +1100,8 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
       (distribution_pow _ _ _ _ two_pos.ne').symm
     _ ≤ ((α / 2) ^ 2)⁻¹ * ∫⁻ y, ‖((czOperator K r (czApproximation f (α' a α))) ^ 2) y‖ₑ := by
       apply distribution_le
-      · exact ENNReal.pow_ne_zero (ENNReal.div_ne_zero.mpr ⟨by
-          sorry /-apply ne_of_gt
-          refine lt_trans ?_ hα -- need stronger lemma
-          positivity-/
-          , ofNat_ne_top⟩) 2
+      · exact ENNReal.pow_ne_zero
+          (ENNReal.div_ne_zero.mpr ⟨((zero_le _).trans_lt hα).ne', ofNat_ne_top⟩) 2
       · change AEMeasurable (czOperator K r (czApproximation f (α' a α)) · ^ 2) volume
         refine czOperator_aestronglyMeasurable ?_ |>.aemeasurable.pow_const 2
         exact aemeasurable_czApproximation (hf := hf.aemeasurable) |>.aestronglyMeasurable
@@ -1137,7 +1134,7 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
     _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * c10_0_3 a * α) / α ^ 2 * eLpNorm f 1 volume := by
       rw [ENNReal.mul_comm_div, mul_div]; ring_nf
     _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * c10_0_3 a) / α * eLpNorm f 1 volume := by
-      rw [sq α, ENNReal.mul_div_mul_right _ _ (sorry /- was: ne_zero_of_lt hα-/) hα_top]
+      rw [sq α, ENNReal.mul_div_mul_right _ _ ((zero_le _).trans_lt hα).ne' hα_top]
     _ = (C10_2_6 a) / α * eLpNorm f 1 volume := by simp only [C_Ts, C10_2_6]; norm_cast; ring_nf
 
 /-- The constant used in `czOperatorBound`. -/
