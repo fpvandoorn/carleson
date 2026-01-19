@@ -361,13 +361,20 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   congr!
   simp [mul_assoc, mul_comm (G := ℝ) 14]
 
+-- PRed to mathlib: leanprover-community/mathlib4#34142
+variable {α} (s t : Finset α) in
+theorem _root_.Finset.diag_eq_filter [DecidableEq α] :
+    Finset.diag s = (s ×ˢ s).filter fun a : α × α => a.fst = a.snd := by
+  ext; simp +contextual
+
 open Classical in
 lemma sum_𝓙₆_indicator_sq_eq {f : Grid X → X → ℝ≥0∞} :
     (∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (f J) x) ^ 2 =
     ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (f J · ^ 2) x := by
   rw [sq, Finset.sum_mul_sum, ← Finset.sum_product']
-  have dsub : (𝓙₆ t u₁).toFinset.diag ⊆ (𝓙₆ t u₁).toFinset ×ˢ (𝓙₆ t u₁).toFinset :=
-    sorry -- was: Finset.filter_subset --..
+  have dsub : (𝓙₆ t u₁).toFinset.diag ⊆ (𝓙₆ t u₁).toFinset ×ˢ (𝓙₆ t u₁).toFinset := by
+    rw [Finset.diag_eq_filter]
+    exact Finset.filter_subset ..
   rw [← Finset.sum_subset dsub]; swap
   · intro p mp np
     simp_rw [Finset.mem_product, Finset.mem_diag, mem_toFinset, not_and] at mp np
