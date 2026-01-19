@@ -316,7 +316,7 @@ lemma interp_exp_between (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
       exact ht.2
     nth_rw 2 [this]
     gcongr
-    · exact mul_ne_top (sub_ne_top top_ne_one.symm) (inv_ne_top.mpr hp₀.ne')
+    · finiteness
     · exact ht.1.ne'
     · exact ht'
   · rw [hp]
@@ -325,7 +325,7 @@ lemma interp_exp_between (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
       exact ht.2
     nth_rw 1 [this]
     gcongr
-    · exact mul_ne_top ht' (inv_ne_top.mpr hp₁.ne')
+    · finiteness
     · exact (tsub_pos_iff_lt.mpr ht.2).ne'
     · exact (mem_sub_Ioo (one_ne_top) ht).2.trans one_lt_top |>.ne
 

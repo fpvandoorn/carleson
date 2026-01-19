@@ -593,17 +593,15 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) : ∀ᵐ x �
   have h4 (t : ℝ≥0) : μ A ≤ (C / t) ^ p.toReal := (h1 t).trans (h3 t)
   have h5 : μ A ≤ μ A / 2 := by
     convert h4 (C * (2 / μ A) ^ p.toReal⁻¹).toNNReal
-    rw [coe_toNNReal ?_]
-    swap
-    · refine mul_ne_top h2.ne_top (rpow_ne_top_of_nonneg (inv_nonneg.mpr toReal_nonneg) ?_)
-      simp [div_eq_top, h]
+    rw [coe_toNNReal (by finiteness)]
     nth_rw 1 [← mul_one C]
     rw [ENNReal.mul_div_mul_left _ _ hC_zero h2.ne_top, div_rpow_of_nonneg _ _ toReal_nonneg,
       ENNReal.rpow_inv_rpow hp_toReal_zero, ENNReal.one_rpow, one_div,
         ENNReal.inv_div (Or.inr ofNat_ne_top) (Or.inr (NeZero.ne' 2).symm)]
   have h6 : μ A = 0 := by
-    convert (fun hh ↦ ENNReal.half_lt_self hh (ne_top_of_le_ne_top (rpow_ne_top_of_nonneg
-      toReal_nonneg ((div_one C).symm ▸ h2.ne_top)) (h4 1))).mt h5.not_gt
+    convert (fun hh ↦ ENNReal.half_lt_self hh (ne_top_of_le_ne_top
+      (rpow_ne_top_of_nonneg toReal_nonneg ((div_one C).symm ▸ h2.ne_top))
+      (h4 1))).mt h5.not_gt
     tauto
   exact h h6
 

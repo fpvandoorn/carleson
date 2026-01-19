@@ -70,7 +70,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     exact mul_pos_iff.2 ⟨ENNReal.pow_pos two_pos _, measure_pos_of_superset subset_rfl hF⟩
   have K_ne_top : K ≠ ⊤ := by
     simp only [K]
-    exact (div_lt_top (mul_ne_top (pow_ne_top ofNat_ne_top) volume_F_ne_top) hG).ne
+    finiteness [volume_F_ne_top (X := X)]
   -- Define function `r : 𝔓 X → ℝ`, with garbage value `0` for `p ∉ highDensityTiles`
   have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
       volume (F ∩ (ball (𝔠 p) r)) ≥ K * volume (ball (𝔠 p) r) := by

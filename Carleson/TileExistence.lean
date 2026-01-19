@@ -1554,9 +1554,7 @@ lemma boundary_measure' {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht
           apply volume.mono (I3_prop_3_2 hk y) |>.trans_lt
           simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
           finiteness
-        apply ENNReal.mul_ne_top
-        · have : 0 ≤ κ := κ_nonneg
-          finiteness
+        apply ENNReal.mul_ne_top (by finiteness [κ_nonneg (a := a)])
         exact volume.mono (I3_prop_3_2 hk y) |>.trans_lt measure_ball_lt_top |>.ne
     _ = 2 * t ^ κ * (volume (I3 hk y)).toReal := by
       congr

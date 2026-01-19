@@ -868,9 +868,7 @@ lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*}
   · sorry
   -/
   rw [mul_div_assoc]
-  apply HasRestrictedWeakType'.hasLorentzType hpq p_ne_top q_ne_top
-  · apply mul_ne_top (by simp)
-    apply div_ne_top (by simp) hpq.ne_zero
+  apply HasRestrictedWeakType'.hasLorentzType hpq p_ne_top q_ne_top (by finiteness [hpq.ne_zero])
   apply HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal T_meas T_zero T_subadd T_submul
   apply hasRestrictedWeakType'_nnreal c_pos p_ne_top q_ne_top hpq
   · intro f hf

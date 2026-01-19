@@ -775,14 +775,12 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
       have nt₀ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ < ⊤ := by
         apply ENNReal.rpow_lt_top_of_nonneg (by positivity); rw [← lt_top_iff_ne_top]
         exact ENNReal.div_lt_top (edist_ne_top _ _) (ENNReal.zpow_pos (by simp) (by simp) _).ne'
-      have nt₁ : Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * C2_1_3 a ≠ ⊤ :=
-        ENNReal.mul_ne_top (ENNReal.mul_ne_top (by simp) nt₀.ne) (by simp)
+      have nt₁ : Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * C2_1_3 a ≠ ⊤ := by finiteness
       rw [lintegral_const_mul' _ _ nt₁]
       conv_lhs =>
         enter [2, 2, y]
         rw [← mul_assoc, ← mul_div_assoc, mul_comm ‖f y‖ₑ, mul_div_assoc, ← mul_rotate]
-      have nt₂ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * D2_1_3 a ≠ ⊤ :=
-        ENNReal.mul_ne_top nt₀.ne (by simp)
+      have nt₂ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * D2_1_3 a ≠ ⊤ := by finiteness
       rw [lintegral_const_mul' _ _ nt₂, ← add_mul]; congr 1
       rw [← mul_rotate, mul_comm _ (D2_1_3 a : ℝ≥0∞), ← add_mul]
     _ ≤ (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *

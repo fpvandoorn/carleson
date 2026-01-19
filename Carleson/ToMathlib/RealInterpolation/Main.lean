@@ -1084,9 +1084,8 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
               have q₀ne_top : q₀ ≠ ⊤ := hq₀q₁.ne_top
               unfold M at ht
               rw [d_eq_top_of_eq] at ht <;> try assumption
-              have : ENNReal.ofReal (C₁ * eLpNorm f p μ).toReal = C₁ * eLpNorm f p μ := by
-                refine ofReal_toReal_eq_iff.mpr ?_
-                exact mul_ne_top coe_ne_top hF.2.ne
+              have : ENNReal.ofReal (C₁ * eLpNorm f p μ).toReal = C₁ * eLpNorm f p μ :=
+                ofReal_toReal_eq_iff.mpr (by finiteness)
               rw [← this]
               exact ofReal_le_ofReal ht
           rw [setLIntegral_congr_fun measurableSet_Ici hf_0, lintegral_zero]
