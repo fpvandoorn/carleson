@@ -270,11 +270,10 @@ lemma depth_bound_3 (hO : O ≠ univ) (h : x ∈ ball y (3 * ((depth O y).toReal
       _ ≤ _ := by
         gcongr; rw [edist_dist]; apply ofReal_le_of_le_toReal
         rw [toReal_div, toReal_ofNat]; linarith
+  replace dnt := @dnt x
   calc
-    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((depth O y).toReal / 6) := by
-      gcongr; exact mul_ne_top ofNat_ne_top dnt
-    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((2 * depth O x).toReal / 6) := by
-      gcongr; exact mul_ne_top ofNat_ne_top dnt
+    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((depth O y).toReal / 6) := by gcongr; finiteness
+    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((2 * depth O x).toReal / 6) := by gcongr; finiteness
     _ = _ := by rw [toReal_mul, toReal_ofNat]; ring
 
 lemma ball_covering_bounded_intersection
@@ -1095,13 +1094,13 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
   · simp [hα_top, top_div_of_lt_top ENNReal.ofNat_lt_top]
   have ne0 : (c10_0_3 a : ℝ≥0∞) ≠ 0 := by simp [c10_0_3]
   have hα' : 0 < α' a α := α'_pos (pos_of_gt hα)
+  have hα'' := ((zero_le _).trans_lt hα).ne'
   calc distribution ((czOperator K r (czApproximation f (α' a α)))) (α / 2) volume
     _ = distribution ((czOperator K r (czApproximation f (α' a α))) ^ 2) ((α / 2) ^ 2) volume :=
       (distribution_pow _ _ _ _ two_pos.ne').symm
     _ ≤ ((α / 2) ^ 2)⁻¹ * ∫⁻ y, ‖((czOperator K r (czApproximation f (α' a α))) ^ 2) y‖ₑ := by
       apply distribution_le
-      · exact ENNReal.pow_ne_zero
-          (ENNReal.div_ne_zero.mpr ⟨((zero_le _).trans_lt hα).ne', ofNat_ne_top⟩) 2
+      · exact ENNReal.pow_ne_zero (ENNReal.div_ne_zero.mpr ⟨hα'', ofNat_ne_top⟩) 2
       · change AEMeasurable (czOperator K r (czApproximation f (α' a α)) · ^ 2) volume
         refine czOperator_aestronglyMeasurable ?_ |>.aemeasurable.pow_const 2
         exact aemeasurable_czApproximation (hf := hf.aemeasurable) |>.aestronglyMeasurable
@@ -1126,15 +1125,14 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
       refine mul_assoc _ _ α ▸ enorm_czApproximation_le ?_ (hf := hf)
       exact mul_comm α _ ▸ (ENNReal.div_lt_iff (Or.inl ne0) (Or.inl coe_ne_top)).mp hα |>.le
     _ = 2^2/α^2 * ((C_Ts a)^2 * (2^(3*a) * c10_0_3 a * α * ∫⁻ y, ‖czApproximation f _ y‖ₑ)) := by
-      have : 2 ^ (3*a) * c10_0_3 a * α ≠ ∞ := mul_ne_top (mul_ne_top coe_ne_top coe_ne_top) hα_top
-      rw [lintegral_const_mul' _ _ this]
+      rw [lintegral_const_mul' _ _ (by finiteness)]
     _ ≤ 2 ^ 2 / α ^ 2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α * eLpNorm f 1 volume)) := by
       gcongr; simpa [eLpNorm, eLpNorm'] using eLpNorm_czApproximation_le (hf := hf) hα'
     _ = 2 ^ 2 / α^2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α)) * eLpNorm f 1 volume := by ring
     _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * c10_0_3 a * α) / α ^ 2 * eLpNorm f 1 volume := by
       rw [ENNReal.mul_comm_div, mul_div]; ring_nf
     _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * c10_0_3 a) / α * eLpNorm f 1 volume := by
-      rw [sq α, ENNReal.mul_div_mul_right _ _ ((zero_le _).trans_lt hα).ne' hα_top]
+      rw [sq α, ENNReal.mul_div_mul_right _ _ hα'' hα_top]
     _ = (C10_2_6 a) / α * eLpNorm f 1 volume := by simp only [C_Ts, C10_2_6]; norm_cast; ring_nf
 
 /-- The constant used in `czOperatorBound`. -/
@@ -1600,7 +1598,7 @@ lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
         simp only [coe_nnreal_ennreal_nndist]
         exact aemeasurable_id'.edist aemeasurable_const
       · simp [αpos.ne']
-      · exact ENNReal.div_ne_top αlt.ne (by norm_num)
+      · finiteness
     _ ≤ 8 * C10_2_7 a * ∑' i, volume (czBall3 hX i) * ∫⁻ x in (Ω f (α' a α))ᶜ,
         ((3 * czRadius hX i).toNNReal / edist x (czCenter hX i)) ^ (a : ℝ)⁻¹ /
         volume (ball x (dist x (czCenter hX i))) := by
