@@ -60,7 +60,8 @@ jobs:
             cd ..
             cp paper/main.pdf docs/paper.pdf
 
-      - uses: leanprover-community/docgen-action@deed0cdc44dd8e5de07a300773eb751d33e32fc8 # 2025-10-26
+      - name: Compile blueprint and documentation
+        uses: leanprover-community/docgen-action@cc833d262c7b8f179ac444cd20fde412b24b8beb # 2026-01-08
         with:
           blueprint: true
           homepage: docs
