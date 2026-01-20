@@ -540,17 +540,14 @@ def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
     · have one_div_ne_zero : (1 : ℝ≥0∞) / (n + 1) ≠ 0 := by
         apply ne_of_gt
         rw [one_div]
-        exact ENNReal.inv_pos.mpr (add_ne_top.mpr ⟨coe_ne_top, one_ne_top⟩)
+        exact ENNReal.inv_pos.mpr (by finiteness)
       calc
-      _ ≤ (∫⁻ x : α in g.support, g x ∂μ) / (1 / (n + 1)) := by
-        apply meas_ge_le_lintegral_div hg.restrict one_div_ne_zero
-        · rw [one_div]
-          apply inv_ne_top.mpr
-          simp
+      _ ≤ (∫⁻ x : α in g.support, g x ∂μ) / (1 / (n + 1)) :=
+        meas_ge_le_lintegral_div hg.restrict one_div_ne_zero (by finiteness)
       _ ≤ (∫⁻ x : α, g x ∂μ) / (1 / (n + 1)) := by
         gcongr
         exact Measure.restrict_le_self
-      _ < ⊤ := div_lt_top hg_int.ne one_div_ne_zero
+      _ < ⊤ := by finiteness
   spanning := by
     ext x
     constructor
@@ -1084,9 +1081,8 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
               have q₀ne_top : q₀ ≠ ⊤ := hq₀q₁.ne_top
               unfold M at ht
               rw [d_eq_top_of_eq] at ht <;> try assumption
-              have : ENNReal.ofReal (C₁ * eLpNorm f p μ).toReal = C₁ * eLpNorm f p μ := by
-                refine ofReal_toReal_eq_iff.mpr ?_
-                exact mul_ne_top coe_ne_top hF.2.ne
+              have : ENNReal.ofReal (C₁ * eLpNorm f p μ).toReal = C₁ * eLpNorm f p μ :=
+                ofReal_toReal_eq_iff.mpr (by finiteness)
               rw [← this]
               exact ofReal_le_ofReal ht
           rw [setLIntegral_congr_fun measurableSet_Ici hf_0, lintegral_zero]

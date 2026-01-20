@@ -275,7 +275,7 @@ lemma d_eq_top_top (hq₀ : 0 < q₀) (hq₀q₁ : q₀ ≠ q₁) (hp₁' : p₁
     zero_mul, one_div]
   rw [div_neg, div_eq_mul_inv, mul_inv_cancel₀]
   · rw [ENNReal.rpow_neg, ENNReal.rpow_one, inv_inv]
-  · exact (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁)) (ENNReal.inv_ne_top.mpr hq₀.ne')).ne'
+  · exact (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁)) (by finiteness)).ne'
 
 /-- The particular choice of scaled power function that works in the proof of the
 real interpolation theorem. -/

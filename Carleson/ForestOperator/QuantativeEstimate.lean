@@ -190,7 +190,7 @@ private lemma local_dens2_tree_bound_aux {p : 𝔓 X} (hpu : p ∈ t u) {r : ℝ
   · refine mul_ne_zero ?_ (volume_coeGrid_pos (defaultD_pos a)).ne.symm
     rw [C7_3_3]
     exact_mod_cast (pow_pos two_pos _).ne.symm
-  · exact ENNReal.mul_ne_top ENNReal.coe_ne_top (volume_coeGrid_lt_top).ne
+  · finiteness
 
 -- Special case of `local_dens2_tree_bound_aux` which is used twice
 private lemma local_dens2_tree_bound_aux' {p : 𝔓 X} (hpu : p ∈ t u)
