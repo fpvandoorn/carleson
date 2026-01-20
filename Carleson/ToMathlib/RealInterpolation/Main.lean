@@ -371,8 +371,8 @@ lemma estimate_norm_rpow_range_operator'
   have := hp₁p.ne_top
   have p_pos : 0 < p := lt_trans hp₀ hp₀p
   repeat rw [lintegral_rw₂ (Filter.EventuallyEq.refl _ _) power_aux_3]
-  nth_rw 2 [← lintegral_const_mul']; swap; · finiteness
-  nth_rw 1 [← lintegral_const_mul']; swap; · finiteness
+  nth_rw 2 [← lintegral_const_mul' _ _ (by finiteness)]
+  nth_rw 1 [← lintegral_const_mul' _ _ (by finiteness)]
   simp_rw [← mul_assoc]
   split_ifs with is_q₁top is_q₀top
   · rw [one_mul, one_mul, ← lintegral_add_left']
@@ -1229,11 +1229,8 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A
   apply mul_ne_top
   · apply mul_ne_top
     · apply mul_ne_top
-      · have := interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq |>.ne'
-        have := interp_exp_ne_top hq₀q₁ ht hq
-        apply mul_ne_top
-        · split_ifs <;> finiteness
-        · finiteness
+      · finiteness [interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq |>.ne',
+          interp_exp_ne_top hq₀q₁ ht hq]
       · apply rpow_ne_top'
         · split_ifs
           · rw [one_mul, one_mul]
@@ -1266,20 +1263,15 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : 
           · exact interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq
           · exact interp_exp_ne_top hq₀q₁ ht hq
       · apply ne_of_gt
-        apply ENNReal.rpow_pos
-        · split_ifs
-          · rw [one_mul, one_mul]
-            apply add_pos'
-            · exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
-            · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
-          · simp [ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq]
-          · simp [ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq]
-          · simp_all
-        · refine add_ne_top.mpr ⟨?_, ?_⟩
-          · apply mul_ne_top ?_ coe_ne_top
-            split_ifs <;> finiteness
-          · apply mul_ne_top ?_ coe_ne_top
-            split_ifs <;> finiteness
+        apply ENNReal.rpow_pos ?_ (by finiteness)
+        split_ifs
+        · rw [one_mul, one_mul]
+          apply add_pos'
+          · exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
+          · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
+        · simp [ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq]
+        · simp [ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq]
+        · simp_all
     · exact (ENNReal.rpow_pos (by positivity) coe_ne_top).ne'
   · exact (ENNReal.rpow_pos (by positivity) coe_ne_top).ne'
 
