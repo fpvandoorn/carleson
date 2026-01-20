@@ -103,12 +103,11 @@ lemma measure_ball_four_le_same (x : X) (r : ℝ) :
 lemma measure_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     μ (ball x r') ≤ As A s * μ (ball x r) := by
   /- If the large ball is empty, all balls are -/
-  by_cases hr : r < 0
+  by_cases! hr : r < 0
   · have hr' : r' < 0 := by
       calc r' ≤ s * r := hs
       _ < 0 := mul_neg_of_pos_of_neg hsp hr
     simp [ball_eq_empty.mpr hr.le, ball_eq_empty.mpr hr'.le]
-  push_neg at hr
   /- Show inclusion in larger ball -/
   have haux : s * r ≤ 2 ^ ⌈Real.logb 2 s⌉₊ * r := by
     gcongr
@@ -157,11 +156,10 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
     letI : Nonempty X := ⟨x⟩
     by_cases hr : r ≤ 0
     · have cball_eq : closedBall x (2 * r) = closedBall x r:= by
-        by_cases hr' : r < 0
+        by_cases! hr' : r < 0
         · have : 2 * r < 0 := by linarith
           simp [*]
-        · push_neg at hr'
-          simp [le_antisymm hr hr']
+        · simp [le_antisymm hr hr']
       rw [cball_eq]
       nth_rw 1 [← one_mul (μ (closedBall x r))]
       gcongr

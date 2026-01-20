@@ -488,9 +488,8 @@ private lemma s_le_s {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p)
     {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u) ∧ ((J : Set X) ∩ ball x (D ^ 𝔰 p / 2)).Nonempty) :
     s J ≤ 𝔰 p := by
   have ⟨z, hz⟩ := hJ.2
-  by_cases h : s J ≤ 𝔰 p ∨ s J = -S
+  by_cases! h : s J ≤ 𝔰 p ∨ s J = -S
   · exact h.elim id (· ▸ (range_s_subset ⟨𝓘 p, rfl⟩).1)
-  push_neg at h
   apply False.elim ∘ hJ.1.1.resolve_left h.2 p pu ∘ le_trans Grid_subset_ball ∘ ball_subset_ball'
   have : (D : ℝ) ^ 𝔰 p ≤ D ^ s J := (zpow_le_zpow_iff_right₀ (one_lt_realD (X := X))).mpr h.1.le
   calc 4 * (D : ℝ) ^ GridStructure.s (𝓘 p) + dist (GridStructure.c (𝓘 p)) (c J)
@@ -980,7 +979,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
           ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ) := by
       simp_rw [← Finset.sum_mul]
       gcongr with I hI
-      by_cases ex : ∃ p ∈ ps I, x ∈ E p
+      by_cases! ex : ∃ p ∈ ps I, x ∈ E p
       · obtain ⟨p, hp, xEp⟩ := ex
         have L_subset_I : (L : Set X) ⊆ (I : Set X) := by
           simp only [ps, Finset.mem_filter] at hp
@@ -992,8 +991,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
           simp only [ps, Finset.mem_filter] at hp hp'
           exact (indicator_eq_zero_iff_notMem _).mpr fun xEp' ↦
             disjoint_left.mp (disjoint_Ω p'_ne_p (hp'.2.2.trans hp.2.2.symm)) xEp'.2.1 xEp.2.1
-      · push_neg at ex
-        suffices ∑ p ∈ ps I, (E p).indicator (1 : X → ℝ≥0∞) x = 0 by rw [this]; exact zero_le _
+      · suffices ∑ p ∈ ps I, (E p).indicator (1 : X → ℝ≥0∞) x = 0 by rw [this]; exact zero_le _
         exact Finset.sum_eq_zero (fun p hp ↦ indicator_of_notMem (ex p hp) _)
     _ = ∑ I : Grid X, ((I : Set X).indicator 1 x') *
           ((D2_1_3 a * defaultA a ^ 5 * 2 ^ (3 / a : ℝ)) /

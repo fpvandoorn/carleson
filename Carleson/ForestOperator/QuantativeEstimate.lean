@@ -88,9 +88,9 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
   by_cases hq : (L : Set X) ∩ ⋃ p ∈ t u, E p = ∅
   · rw [inter_comm (L : Set X), inter_assoc, hq, inter_empty, measure_empty]; exact zero_le _
   rw [← disjoint_iff_inter_eq_empty, disjoint_iUnion₂_right] at hq; push_neg at hq
-  by_cases hp₂ : ∃ p ∈ t u, ¬Disjoint (L : Set X) (E p) ∧ 𝔰 p ≤ s L
+  by_cases! hp₂ : ∃ p ∈ t u, ¬Disjoint (L : Set X) (E p) ∧ 𝔰 p ≤ s L
   · exact local_dens1_tree_bound_exists hu hL hp₂
-  push_neg at hp₂; obtain ⟨p, mp, hp⟩ := hq; have sLp := hp₂ p mp hp
+  obtain ⟨p, mp, hp⟩ := hq; have sLp := hp₂ p mp hp
   have lip : L < 𝓘 p := by
     refine Grid.lt_def.mpr ⟨(le_of_mem_𝓛 hL mp ?_).1, sLp⟩
     contrapose! hp; exact (hp.mono_left E_subset_𝓘).symm
@@ -306,7 +306,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
     _ = ∫⁻ x, ∑ J ∈ Finset.univ.filter (· ∈ C),
           (J : Set X).indicator (fun _ ↦ (ENNReal.ofReal (⨍ y in J, ‖f y‖)) ^ 2) x := by
       congr with x
-      by_cases ex : ∃ J₀ ∈ Finset.univ.filter (· ∈ C), x ∈ (J₀ : Set X)
+      by_cases! ex : ∃ J₀ ∈ Finset.univ.filter (· ∈ C), x ∈ (J₀ : Set X)
       · obtain ⟨J₀, hJ₀, hx⟩ := ex
         calc
           _ = ((J₀ : Set X).indicator (fun _ ↦ ENNReal.ofReal (⨍ y in J₀, ‖f y‖)) x) ^ 2 := by
@@ -323,9 +323,8 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
             intro J hJ J_ne_J₀
             have := disj_C (Finset.mem_filter.mp hJ).2 (Finset.mem_filter.mp hJ₀).2 J_ne_J₀
             apply indicator_of_notMem (disjoint_right.mp this hx)
-      · push_neg at ex
-        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _, zero_pow two_pos.ne.symm]
-        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _]
+      · rw [Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _, zero_pow two_pos.ne',
+          Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C),
           ENNReal.ofReal (⨍ y in J, ‖f y‖) ^ 2 * volume (J : Set X) := by
       rw [lintegral_finset_sum _ (fun _ _ ↦ measurable_const.indicator coeGrid_measurable)]

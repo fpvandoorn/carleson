@@ -72,10 +72,9 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
         · exact sub_nonneg_of_le hab
         · linarith [Real.two_le_pi]
         · exact (le_add_iff_nonneg_right ↑B).mpr hK
-  wlog n_pos : 0 < n generalizing n φ
-  · /-We could do calculations analogous to those below. Instead, we apply the positive
-    case to the complex conjugate.-/
-    push_neg at n_pos
+  wlog! n_pos : 0 < n generalizing n φ
+  · /- We could do calculations analogous to those below. Instead, we apply the positive
+    case to the complex conjugate. -/
     calc ‖∫ x in a..b, cexp (I * ↑n * ↑x) * φ x‖
       _ = ‖(starRingEnd ℂ) (∫ x in a..b, cexp (I * ↑n * ↑x) * φ x)‖ :=
         (RCLike.norm_conj _).symm
@@ -102,7 +101,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
         · rw [Left.neg_pos_iff]; exact lt_of_le_of_ne n_pos n_nonzero
     rw [abs_neg]
   -- Case distinction such that splitting integrals in the second case works.
-  by_cases h : b - a < π / n
+  by_cases! h : b - a < π / n
   · have : 0 < 1 + ↑|n| * (b - a) := by
       apply add_pos_of_pos_of_nonneg zero_lt_one
       apply mul_nonneg (by simp) (by linarith)
@@ -134,7 +133,6 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
           exact mul_le_of_le_div₀ Real.pi_pos.le (by exact_mod_cast n_pos.le) h.le
         · simpa
       _ = 2 * π * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by ring
-  push_neg at h
   have pi_div_n_pos : 0 < π / n := div_pos Real.pi_pos (Int.cast_pos.mpr n_pos)
   calc _
     _ = ‖∫ x in a..b, (1 / 2 * exp (I * n * x) - 1 / 2 * exp (I * ↑n * (↑x + ↑π / ↑n))) * φ x‖ := by

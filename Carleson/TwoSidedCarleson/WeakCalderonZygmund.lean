@@ -1055,9 +1055,8 @@ def Ω (α : ℝ≥0∞) : Set X :=
 
 private lemma czBall3_subset_of_mem_Ω (hX : GeneralCase f α) (hx : x ∈ (Ω f α)ᶜ) (j : ℕ) :
     czBall3 hX j ⊆ (ball x (czRadius hX j))ᶜ := by
-  by_cases hr : czRadius hX j ≤ 0
+  by_cases! hr : czRadius hX j ≤ 0
   · simp [ball_eq_empty.mpr hr]
-  push_neg at hr
   intro y hy
   simp only [Ω, hX, reduceDIte, compl_iUnion, mem_iInter] at hx
   simp only [czBall3, mem_ball, mem_compl_iff, not_lt] at hx hy ⊢
@@ -1203,9 +1202,8 @@ private lemma lemma_10_2_7_bound (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : General
     {g : X → ℂ} (g_int : IntegrableOn g (czBall3 hX j)) (hg0 : ∫ y in czBall3 hX j, g y = 0)
     (hg : ∫⁻ y in czBall3 hX j, ‖g y‖ₑ ≤ 2 ^ (2 * a + 1) * (α' a α) * volume (czBall3 hX j)) :
     ‖∫ y in czBall3 hX j, K x y * g y‖ₑ ≤ czOperatorBoundSummand hX j x := by
-  by_cases hj : czRadius hX j ≤ 0
+  by_cases! hj : czRadius hX j ≤ 0
   · simp [Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hj]
-  push_neg at hj
   calc
     _ = ‖(∫ y in czBall3 hX j, K x y * g y) - ∫ y in czBall3 hX j, K x (czCenter hX j) * g y‖ₑ := by
       rw [integral_const_mul, hg0, mul_zero, sub_zero]
@@ -1254,9 +1252,8 @@ private lemma integrableOn_d (hX : GeneralCase f (α' a α)) (j : ℕ) :
 
 private lemma enorm_d_le (hf : BoundedFiniteSupport f) (hX : GeneralCase f (α' a α)) (j : ℕ) :
     ‖d r x hX j‖ₑ ≤ 2 ^ (2 * a + 1) * α' a α := by
-  by_cases hr : czRadius hX j ≤ 0
+  by_cases! hr : czRadius hX j ≤ 0
   · simp [d, Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hr]
-  push_neg at hr
   calc
     _ ≤ _ := enorm_integral_le_lintegral_enorm _
     _ ≤ (volume (czBall3 hX j))⁻¹ * ∫⁻ y in czBall3 hX j,
@@ -1299,9 +1296,8 @@ private lemma integrableOn_g (hα : 0 < α) (hf : BoundedFiniteSupport f)
 
 private lemma integral_g (hf : BoundedFiniteSupport f) (hα : 0 < α) (hX : GeneralCase f (α' a α))
     (j : ℕ) : ∫ y in czBall3 hX j, g r x hX j y = 0 := by
-  by_cases hj : czRadius hX j ≤ 0
+  by_cases! hj : czRadius hX j ≤ 0
   · simp [Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hj]
-  push_neg at hj
   rw [integral_sub (integrableOn_g₀ hf hα hX j) (integrableOn_d hX j)]
   suffices (volume.real (czBall3 hX j) : ℂ) * ((volume.real (czBall3 hX j)) : ℂ)⁻¹ = 1 by
     simp [d, this, setAverage_eq, ← mul_assoc]
@@ -1340,9 +1336,8 @@ private lemma 𝒥₂_bound (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x
   _ = ‖∫ y in czBall3 hX j, K x y * (g r x hX j y + d r x hX j)‖ₑ := by simp
   _ = ‖(∫ y in czBall3 hX j, K x y * (g r x hX j y)) +
         ∫ y in czBall3 hX j, K x y * d r x hX j‖ₑ := by
-    by_cases hj : czRadius hX j ≤ 0
+    by_cases! hj : czRadius hX j ≤ 0
     · simp [Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hj]
-    push_neg at hj
     simp_rw [mul_add]
     have subset : czBall3 hX j ⊆
         {y | dist x y ∈ Icc (czRadius hX j) (dist x (czCenter hX j) + 3 * czRadius hX j)} := by

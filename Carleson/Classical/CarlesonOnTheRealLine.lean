@@ -155,10 +155,9 @@ lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
 lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g) := by
-  by_cases r_pos : r ≤ 0
+  by_cases! r_pos : r ≤ 0
   · rw [ball_eq_empty.mpr r_pos]
     simp [localOscillation]
-  push_neg at r_pos
   simp_rw [dist_integer_linear_eq]
   calc ⨆ z ∈ ball x r ×ˢ ball x r, ENNReal.ofReal ‖↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2‖
     _ = ⨆ z ∈ ball x r ×ˢ ball x r, ENNReal.ofReal |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)| := by
@@ -185,12 +184,11 @@ lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
 
 lemma frequency_monotone {x₁ x₂ r R : ℝ} {f g : Θ ℝ} (h : ball x₁ r ⊆ ball x₂ R) : dist_{x₁,r} f g ≤ dist_{x₂,R} f g := by
   rw [dist_integer_linear_eq, dist_integer_linear_eq]
-  by_cases r_pos : r ≤ 0
+  by_cases! r_pos : r ≤ 0
   · rw [ball_eq_empty.mpr r_pos] at h
     rw [max_eq_right r_pos]
     gcongr
     apply le_max_right
-  push_neg at r_pos
   gcongr
   rw [Real.ball_eq_Ioo, Real.ball_eq_Ioo, Set.Ioo_subset_Ioo_iff (by linarith)] at h
   linarith [h.1, h.2]
@@ -259,11 +257,10 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
     apply Finset.card_le_three
   intro φ hφ
   unfold WithFunctionDistance at φ
-  rw [mem_ball] at hφ
-  rw [dist_comm] at hφ
+  rw [mem_ball, dist_comm] at hφ
   /- m₁, m₂, m₃ each correspond to one case. -/
   simp only [Set.mem_iUnion, mem_ball, exists_prop]
-  by_cases h : φ ≤ f - R' / (2 * R)
+  by_cases! h : φ ≤ f - R' / (2 * R)
   · use m₁
     constructor
     · rw [balls_def]
@@ -303,8 +300,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
               rw [max_eq_left_iff]
               exact Rpos.le
       _ = R' := by ring
-  push_neg at h
-  by_cases h' : φ < f + R' / (2 * R)
+  by_cases! h' : φ < f + R' / (2 * R)
   · use m₂
     constructor
     · rw [balls_def]
@@ -321,7 +317,6 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
         rw [abs_sub_lt_iff]
         constructor <;> linarith
       _ = R' := by field_simp
-  push_neg at h'
   use m₃
   constructor
   · simp [balls_def]
@@ -361,7 +356,6 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
             rw [mul_comm, ←mul_assoc, inv_mul_cancel₀ Rpos.ne.symm, one_mul]
     _ = R' := by ring
 
-
 instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
   eq_zero := by
     use 0
@@ -378,10 +372,9 @@ instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
     intro x₁ x₂ r f g _
     apply le_trans (@frequency_ball_growth x₁ x₂ r _ _)
     rw [dist_integer_linear_eq, dist_integer_linear_eq]
-    by_cases r_nonneg : 0 ≤ r
+    by_cases! r_nonneg : 0 ≤ r
     · gcongr; norm_num
-    · push_neg at r_nonneg
-      rw [max_eq_right (by linarith), max_eq_right (by norm_num; linarith)]
+    · rw [max_eq_right (by linarith), max_eq_right (by norm_num; linarith)]
   allBallsCoverBalls := by
     intro x R R' f
     exact integer_ball_cover.mono_nat (by norm_num)

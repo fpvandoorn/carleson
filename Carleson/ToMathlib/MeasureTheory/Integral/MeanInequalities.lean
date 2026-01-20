@@ -75,13 +75,12 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
 theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderConjugate q)
     {f g : α → ENNReal} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     ∫⁻ (a : α), (f * g) a ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
-  by_cases pq_top : p = ∞ ∨ q = ∞
+  by_cases! pq_top : p = ∞ ∨ q = ∞
   · wlog hp : p = ∞
     · have hq := pq_top.resolve_left hp
       simpa only [mul_comm] using this hpq.symm hg hf (Or.inl hq) hq
     apply le_of_le_of_eq <| lintegral_mono_ae ((ae_le_essSup f).mono (fun a ha ↦ mul_left_mono ha))
     simp [eLpNorm, eLpNorm', eLpNormEssSup, hp, hpq.conj_eq, lintegral_const_mul'' _ hg]
-  push_neg at pq_top
   have hp : p ≠ 0 := HolderConjugate.ne_zero p q
   have hq : q ≠ 0 := HolderConjugate.ne_zero q p
   convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal_of_ne_top pq_top.1 pq_top.2) hf hg
@@ -163,9 +162,8 @@ private theorem eLpNorm_top_convolution_le_aux [AddGroup G] {p q : ℝ≥0∞}
     (hg' : ∀ x : G, eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  by_cases hc : c ≤ 0
+  by_cases! hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
-  push_neg at hc
   rw [eLpNorm_exponent_top, eLpNormEssSup]
   refine essSup_le_of_ae_le _ (Filter.Eventually.of_forall fun x ↦ ?_)
   apply le_trans <| enorm_integral_le_lintegral_enorm _
@@ -213,12 +211,10 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
       .ofReal c * eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (.ofReal r) μ *
       ((eLpNorm f (.ofReal p) μ) ^ ((r - p) / r) *
       (eLpNorm g (.ofReal q) μ) ^ ((r - q) / r)) := by
-  by_cases hc : c ≤ 0
+  by_cases! hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
-  push_neg at hc
-  by_cases μ0 : μ = 0
+  by_cases! μ0 : μ = 0
   · simp [μ0, convolution]
-  push_neg at μ0
   let F (i : Fin 3) : G → ℝ≥0∞ :=
     match i with
     | 0 => fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)

@@ -335,12 +335,11 @@ theorem exists_disjoint_subfamily_covering_enlargement_closedBall' {α} [MetricS
         (∀ u ∈ t, 0 ≤ r u → r a ≤ (τ - 1) / 2 * r b) := by
   rcases eq_empty_or_nonempty t with (rfl | _)
   · exact ⟨∅, Subset.refl _, pairwiseDisjoint_empty, by simp⟩
-  by_cases ht : ∀ a ∈ t, r a < 0
+  by_cases! ht : ∀ a ∈ t, r a < 0
   · refine ⟨t, .rfl, fun a ha b _ _ ↦ by
       simp only [Function.onFun, closedBall_eq_empty.2 (ht a ha), empty_disjoint],
       fun a ha => ⟨a, ha, by simp only [closedBall_eq_empty.2 (ht a ha), empty_subset],
       fun u hut hu ↦ (ht u hut).not_ge hu |>.elim⟩⟩
-  push_neg at ht
   let t' := { a ∈ t | 0 ≤ r a }
   have h2τ : 1 < (τ - 1) / 2 := by linarith
   rcases exists_disjoint_subfamily_covering_enlargement (fun a => closedBall (x a) (r a)) t' r

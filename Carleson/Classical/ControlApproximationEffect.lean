@@ -71,11 +71,10 @@ lemma Dirichlet_Hilbert_eq {N : ℕ} {x : ℝ} :
 lemma Dirichlet_Hilbert_diff {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc (-π) π) :
     ‖dirichletKernel' N (x) - (exp (I * (-N * x)) * k x + conj (exp (I * (-N * x)) * k x))‖ ≤ π := by
   rw [← Dirichlet_Hilbert_eq]
-  by_cases h : 1 - cexp (I * ↑x) = 0
+  by_cases! h : 1 - cexp (I * ↑x) = 0
   · rw [sub_eq_zero] at h
     rw [dirichletKernel'_eq_zero h.symm]
     simp [pi_pos.le]
-  push_neg at h
   conv => pattern (dirichletKernel' N x); rw [← (one_mul (dirichletKernel' N x))]
   rw [← sub_mul]
   norm_cast

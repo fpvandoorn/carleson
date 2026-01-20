@@ -193,10 +193,9 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
     eLpNorm ((Ioc 0 (2 * π)).indicator (partialFourierSum n f)) 2 ≤
     eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 := by
   -- Proof by massaging the statement of `spectral_projection_bound_lp` into this.
-  by_cases hf_L2 : eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 = ⊤
+  by_cases! hf_L2 : eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 = ⊤
   · rw [hf_L2]
     exact OrderTop.le_top _
-  push_neg at hf_L2
   rw [← lt_top_iff_ne_top] at hf_L2
   have : Fact (0 < 2 * π) := ⟨by positivity⟩
   have lift_MemLp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by

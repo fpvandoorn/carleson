@@ -192,10 +192,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
           · exact (h'.trans h).le
       have contOn : ∀ y, ∀ t ≠ dist x y, ContinuousAt (F x · y) t := by
         intro y t ht
-        by_cases h : t < dist x y
+        by_cases! h : t < dist x y
         · exact_mod_cast (contOn1 y).continuousAt (Iio_mem_nhds h)
-        · push_neg at h
-          exact ContinuousOn.continuousAt (contOn2 y) (Ioi_mem_nhds
+        · exact ContinuousOn.continuousAt (contOn2 y) (Ioi_mem_nhds
             ((min_le_left _ _).trans_lt (lt_of_le_of_ne h ht.symm)))
       have subset_finite :
           {y | ¬ContinuousAt (F x · y) r} ⊆ ({x - r, x + r} : Finset ℝ) := by

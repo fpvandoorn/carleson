@@ -470,11 +470,11 @@ section OneInOneOut
 
 omit [ProofData a q K σ₁ σ₂ F G] in
 lemma ψ_le_max [ProofData a q K σ₁ σ₂ F G] {x : ℝ} : ψ x ≤ max 0 ((2 - 4 * x) ^ (a : ℝ)⁻¹) := by
-  by_cases h₁ : x ≤ 1 / 4
+  by_cases! h₁ : x ≤ 1 / 4
   · exact (ψ_le_one ..).trans ((Real.one_le_rpow (by linarith) (by simp)).trans (le_max_right ..))
-  by_cases h₂ : 1 / 2 ≤ x
+  by_cases! h₂ : 1 / 2 ≤ x
   · rw [ψ_formula₄ h₂]; exact le_max_left ..
-  push_neg at h₁ h₂; rw [ψ_formula₃ (one_lt_realD X) ⟨h₁.le, h₂.le⟩]
+  rw [ψ_formula₃ (one_lt_realD X) ⟨h₁.le, h₂.le⟩]
   refine le_trans ?_ (le_max_right ..)
   set y := 2 - 4 * x; apply Real.self_le_rpow_of_le_one
   · unfold y; linarith
@@ -835,12 +835,11 @@ lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompa
   · rw [or_comm] at hxx; specialize this hxx (hxx.resolve_right hx)
     rwa [edist_comm, edist_comm x' x] at this
   clear hxx
-  by_cases hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)
+  by_cases! hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)
   · nth_rw 2 [adjoint_tile_support1]
     rw [indicator_of_notMem hx', mul_zero, edist_zero_right, enorm_mul, mul_comm I, ← enorm_norm,
       norm_exp_ofReal_mul_I, enorm_one, one_mul]
     exact holder_correlation_tile_one hf hx'
-  push_neg at hx'
   exact holder_correlation_tile_two hu hp hf hx hx'
 
 /-- Part of Lemma 7.5.6. -/
