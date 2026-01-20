@@ -78,13 +78,14 @@ theorem pairwise_disjoint_Ico_monotone {f : ι → α} (hf : Monotone f) :
   · have := this hinej.symm (hij.lt_of_ne hinej.symm)
     rwa [inter_comm]
   intro a
-  simp only [mem_empty_iff_false, mem_inter_iff, mem_Ico, imp_false, not_and, not_lt, and_imp]
+  push _ ∈ _
+  simp only [imp_false, not_and, not_lt, and_imp]
   intro ha ha2 ha3
   have : ¬f j ≤ a := not_le.mpr (lt_of_lt_of_le ha2 (hf (SuccOrder.succ_le_of_lt hij)))
   contradiction
 
 theorem pairwise_disjoint_Ioc_monotone {f : ι → α} (hf : Monotone f) :
-    Pairwise (Function.onFun Disjoint fun (i : ι) => Ioc (f i) (f (Order.succ i))) := by
+    Pairwise (Function.onFun Disjoint fun (i : ι) ↦ Ioc (f i) (f (Order.succ i))) := by
   unfold Function.onFun
   simp_rw [Set.disjoint_iff]
   intro i j hinej
@@ -92,10 +93,10 @@ theorem pairwise_disjoint_Ioc_monotone {f : ι → α} (hf : Monotone f) :
   · have := this hinej.symm (hij.lt_of_ne hinej.symm)
     rwa [inter_comm]
   intro a
-  simp only [mem_empty_iff_false, mem_inter_iff, mem_Ioc, imp_false, not_and, and_imp]
+  push _ ∈ _
+  simp only [imp_false, not_and, and_imp]
   intro ha ha2 ha3
-  have : ¬f j < a := not_lt.mpr (le_trans ha2 (hf (SuccOrder.succ_le_of_lt hij)))
-  contradiction
+  simp_all [not_lt.mpr (ha2.trans (hf (SuccOrder.succ_le_of_lt hij)))]
 
 end LinearOrder
 

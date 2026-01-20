@@ -281,5 +281,4 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + �
     norm_num [pi_le_four]
   _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
     apply lower_secant_bound' xAbs
-    rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]
-    exact xIcc
+    rwa [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]

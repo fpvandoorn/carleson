@@ -323,14 +323,9 @@ lemma ENNReal.ofReal_Ico_eq {b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ico 0 b
     simp
   · ext x
     simp only [mem_preimage, mem_Ico, zero_le, true_and, mem_Iio]
-    by_cases hx : x < 0
+    by_cases! hx : x < 0
     · rw [ENNReal.ofReal_of_nonpos hx.le]
-      constructor
-      · intro _
-        exact hx.trans_le (by positivity)
-      · intro _
-        positivity
-    push_neg at hx
+      exact ⟨fun _ ↦ hx.trans_le (by positivity), fun _ ↦ by positivity⟩
     exact ofReal_lt_iff_lt_toReal hx hb'
 
 lemma ENNReal.toNNReal_Iio {b : ℝ≥0∞} : ENNReal.toNNReal '' Set.Iio b

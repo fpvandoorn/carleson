@@ -156,17 +156,12 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         intro s hs t ht
         rw [Fdef]
         simp only [Set.mem_Ioo]
-        by_cases h : dist x y < 1
+        by_cases! h : dist x y < 1
         · rw [Set.indicator_apply, ite_cond_eq_true, Set.indicator_apply, ite_cond_eq_true]
-          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
-            use ht
-          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
-            use hs
-        · push_neg at h
-          rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
-          all_goals
-            simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
-            exact fun _ ↦ h
+          · simpa using ⟨ht, h⟩
+          · simpa using ⟨hs, h⟩
+        · rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
+          all_goals simpa using fun _ ↦ h
       have contOn2 : ∀ (y : ℝ), ContinuousOn (fun s ↦ F x s y) (Set.Ioi (min (dist x y) 1)) := by
         intro y
         rw [continuousOn_iff_continuous_restrict]

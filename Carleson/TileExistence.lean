@@ -106,13 +106,11 @@ lemma property_set_nonempty (k : ℤ) : (if k = S then {o} else ∅) ∈ propert
   dsimp only [property_set]
   split
   · simp only [mem_setOf_eq, singleton_subset_iff, mem_ball, dist_self, sub_pos,
-    pairwiseDisjoint_singleton, mem_singleton_iff, implies_true, and_self, and_true]
+      pairwiseDisjoint_singleton, mem_singleton_iff, implies_true, and_self, and_true]
     rename_i hk
-    rw [hk,zpow_natCast, lt_mul_iff_one_lt_left (pow_pos (realD_pos a) _)]
+    rw [hk, zpow_natCast, lt_mul_iff_one_lt_left (by norm_num)]
     norm_num
-  simp only [mem_setOf_eq, empty_subset, pairwiseDisjoint_empty, mem_empty_iff_false, imp_false,
-    true_and]
-  assumption
+  simpa
 
 variable (X) in
 lemma chain_property_set_has_bound (k : ℤ) :
@@ -128,16 +126,15 @@ lemma chain_property_set_has_bound (k : ℤ) :
   have h : ∃ z, z ∈ c := by
     rw [Set.ext_iff] at h
     push_neg at h
-    simp only [mem_empty_iff_false, not_false_eq_true, and_true, and_false, or_false] at h
-    exact h
+    simpa using h
   have : (⋃ s ∈ c,s) ∪ (if k = S then ({o}:Set X) else ∅) = (⋃ s ∈ c,s) := by
     ext x
     rw [mem_union,mem_iUnion]
     constructor
-    · rintro (l|r)
+    · rintro (l | r)
       · exact l
       simp only [mem_ite_empty_right, mem_singleton_iff] at r
-      obtain ⟨z,hz⟩ := h
+      obtain ⟨z, hz⟩ := h
       rw [r.right]
       simp only [mem_iUnion, exists_prop]
       use z, hz
@@ -158,24 +155,15 @@ lemma chain_property_set_has_bound (k : ℤ) :
     constructor
     · intro x hx y hy
       simp only [mem_iUnion, exists_prop] at hx hy
-      obtain ⟨sx,hsx, hsx'⟩ := hx
-      obtain ⟨sy,hsy, hsy'⟩ := hy
-      obtain hxy|hyx := hchain.total hsx hsy
-      · specialize hxy hsx'
-        specialize hc hsy
-        rw [mem_setOf_eq] at hc
-        exact hc.right.left hxy hsy'
-      · specialize hyx hsy'
-        specialize hc hsx
-        rw [mem_setOf_eq] at hc
-        exact hc.right.left hsx' hyx
+      obtain ⟨sx, hsx, hsx'⟩ := hx
+      obtain ⟨sy, hsy, hsy'⟩ := hy
+      obtain hxy | hyx := hchain.total hsx hsy
+      · exact (hc hsy).right.left (hxy hsx') hsy'
+      · exact (hc hsx).right.left hsx' (hyx hsy')
     · obtain ⟨x,hx⟩ := h
       intro hk
       simp only [defaultA, mem_iUnion, exists_prop]
-      use x, hx
-      specialize hc hx
-      rw [mem_setOf_eq] at hc
-      exact hc.right.right hk
+      exact ⟨x, hx, (hc hx).right.right hk⟩
   · exact fun s a ↦ subset_iUnion₂_of_subset s a fun ⦃a⦄ a ↦ a
 
 variable (X) in
@@ -213,19 +201,13 @@ lemma cover_big_ball (k : ℤ) : ball o (4 * D ^ S - D ^ k) ⊆ ⋃ y ∈ Yk X k
       rw [disjoint_self, bot_eq_empty, ball_eq_empty, not_le]
       positivity [by exact_mod_cast realD_pos a]
     suffices (Yk X k) ∪ {y} = Yk X k by
-      rw [union_singleton, insert_eq_self] at this
-      exact this
+      rwa [union_singleton, insert_eq_self] at this
     apply Yk_maximal
-    · rw [union_subset_iff]
+    · rw [union_subset_iff, singleton_subset_iff]
       use Yk_subset k
-      rw [singleton_subset_iff]
-      exact hy
     · rw [pairwiseDisjoint_union]
       use Yk_pairwise k
-      simp only [pairwiseDisjoint_singleton, true_and, mem_singleton_iff,forall_eq]
-      intro z hz _
-      specialize hcon z hz
-      exact hcon.symm
+      simpa using fun z hz _ ↦ (hcon z hz).symm
     · exact subset_union_left
     intro h
     rw [h]
@@ -242,8 +224,7 @@ lemma cover_big_ball (k : ℤ) : ball o (4 * D ^ S - D ^ k) ⊆ ⋃ y ∈ Yk X k
 
 variable (X) in
 lemma Yk_nonempty {k : ℤ} (hmin : (0 : ℝ) < 4 * D ^ S - D ^ k) : (Yk X k).Nonempty := by
-  have : o ∈ ball o (4 * D^S - D^k) := mem_ball_self hmin
-  have h1 : {o} ⊆ ball o (4 * D^S - D^k) := singleton_subset_iff.mpr this
+  have h1 : {o} ⊆ ball o (4 * D^S - D^k) := singleton_subset_iff.mpr (mem_ball_self hmin)
   have h2 : ({o} : Set X).PairwiseDisjoint (fun y ↦ ball y (D^k)) :=
     pairwiseDisjoint_singleton o fun y ↦ ball y (D ^ k)
   by_contra hcon
@@ -251,9 +232,7 @@ lemma Yk_nonempty {k : ℤ} (hmin : (0 : ℝ) < 4 * D ^ S - D ^ k) : (Yk X k).No
   push_neg at hcon
   use o
   have hsuper : (Yk X k) ⊆ {o} := hcon ▸ empty_subset {o}
-  have : {o} = Yk X k := Yk_maximal _ h1 h2 hsuper (fun _ => rfl)
-  rw [← this]
-  trivial
+  simp [← Yk_maximal _ h1 h2 hsuper (fun _ => rfl)]
 
 -- not sure if we actually need this; just countability seems quite good enough
 lemma Yk_finite {k : ℤ} (hk_lower : -S ≤ k) : (Yk X k).Finite := by
@@ -1494,8 +1473,6 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
         rw [if_neg this]
         exact hsuf
       rw [ENNReal.coe_le_coe]
-      suffices hsuf : (2⁻¹ ^ const_n a ht : ℝ) ≤ 2 * t ^ κ by
-        exact hsuf -- TIL: things in ℝ≥0 are very defeq to things in ℝ
       calc
         (2⁻¹ ^ const_n a ht : ℝ)
         _ = 2 ^ (-const_n a ht : ℝ) := by
@@ -1523,7 +1500,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
               · exact Real.rpow_pos_of_pos (realD_pos a) _
           · positivity
           · positivity
-          · rw [inv_pos,mul_pos_iff_of_pos_right (K_pos)]
+          · rw [inv_pos, mul_pos_iff_of_pos_right (K_pos)]
             exact Real.logb_pos (by norm_num) (one_lt_realD X)
         _ = 2 * t ^ (Real.logb 2 D * K' : ℝ)⁻¹ := by
           rw [Real.mul_rpow,mul_comm, ← Real.rpow_mul (realD_nonneg a), mul_comm (K' : ℝ)]

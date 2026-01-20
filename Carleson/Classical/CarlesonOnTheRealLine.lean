@@ -219,32 +219,22 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
     CoveredByBalls (ball f (2 * R')) 3 R' := by
   unfold WithFunctionDistance at f
   rw [coveredByBalls_iff]
-  by_cases R'pos : 0 ≥ R'
-  · --trivial case
-    use {f}
-    constructor
-    · norm_num
+  by_cases! R'pos : 0 ≥ R'
+  · -- trivial case
+    refine ⟨{f}, by norm_num, ?_⟩
     simp only [Finset.mem_singleton, Set.iUnion_iUnion_eq_left]
     rw [Metric.ball_eq_empty.mpr R'pos, Set.subset_empty_iff, Metric.ball_eq_empty]
     linarith
-  push_neg at R'pos
-  by_cases Rpos : 0 ≥ R
-  · --trivial case
-    use {f}
-    constructor
-    · norm_num
+  by_cases! Rpos : 0 ≥ R
+  · -- trivial case
+    refine ⟨{f}, by norm_num, ?_⟩
     simp only [Finset.mem_singleton, Set.iUnion_iUnion_eq_left]
     convert Set.subset_univ _
     ext g
-    constructor
-    · simp
-    simp only [Set.mem_univ, mem_ball, true_implies]
-    rw [dist_integer_linear_eq]
+    refine ⟨by simp, ?_⟩
+    simp only [Set.mem_univ, mem_ball, true_implies, dist_integer_linear_eq]
     convert R'pos
-    simp only [mul_eq_zero, OfNat.ofNat_ne_zero, max_eq_right_iff, false_or, abs_eq_zero]
-    left
-    exact Rpos
-  push_neg at Rpos
+    simpa using Or.inl Rpos
   set m₁ := Int.floor (f - R' / (2 * R)) with m₁def
   set! m₂ := f with m₂def
   set m₃ := Int.ceil (f + R' / (2 * R)) with m₃def
