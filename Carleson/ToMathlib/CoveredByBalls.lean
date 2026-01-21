@@ -81,7 +81,7 @@ lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
           exact Nat.mul_le_mul_right m hb0
     · obtain ⟨b, _, hb⟩ := Set.mem_iUnion₂.mp (hs0 hp)
       have tmp := ((this b).choose_spec.2) hb
-      rw [Set.mem_iUnion₂] at tmp ⊢
+      push _ ∈ _ at tmp ⊢
       obtain ⟨c, _, hc⟩ := tmp
       use c, (by rw [mem_biUnion]; use b), hc
 
@@ -167,8 +167,7 @@ theorem Metric.secondCountableTopology_of_almost_dense_set_balls_nat
   use ⋃ n, s n, by simp [*]
   intro x
   use y (⌊dist x x₀⌋₊ + 1) x (by simp [Nat.lt_floor_add_one])
-  simp only [Set.mem_iUnion, and_true, h2y]
-  exact ⟨_, h1y ..⟩
+  simpa only [Set.mem_iUnion, and_true, h2y] using ⟨_, h1y ..⟩
 
 -- todo: move near `secondCountable_of_almost_dense_set`
 /-- A pseudometric space is second countable if, for every `ε > 0` and every ball `B`,
@@ -197,7 +196,7 @@ theorem BallsCoverBalls.secondCountableTopology
   obtain ⟨s, hs, h2⟩ := hn x₀
   use s, countable_toSet s, fun x hx ↦ ?_
   have := h2 hx
-  simp only [Set.mem_iUnion, mem_ball, exists_prop] at this
+  push _ ∈ _ at this
   obtain ⟨y, hy, h2y⟩ := this
   use y, hy, h2y.le
 

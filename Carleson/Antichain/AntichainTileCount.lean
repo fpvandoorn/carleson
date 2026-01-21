@@ -472,7 +472,7 @@ lemma I_p_subset_union_L (p : 𝔄' 𝔄 ϑ N) : (𝓘 (p : 𝔓 X) : Set X) ⊆
 lemma union_L_eq_union_I_p : ⋃ (L ∈ 𝓛 𝔄 ϑ N), L = ⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 (p : 𝔓 X) : Set X) := by
   apply le_antisymm
   · intro _ hx
-    simp only [mem_iUnion, exists_prop] at hx ⊢
+    push _ ∈ _ at hx ⊢
     obtain ⟨L, hL, hLx⟩ := hx
     obtain ⟨q, hqL⟩ := hL.1
     exact ⟨q, q.2, hqL.1 hLx⟩

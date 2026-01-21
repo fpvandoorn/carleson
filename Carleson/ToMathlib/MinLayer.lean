@@ -97,8 +97,8 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
     rw [minLayer, mem_setOf, minimal_iff] at ha nma
     have al : a ∈ A \ ⋃ (l < n), A.minLayer l := by
       have : a ∈ A \ ⋃ (k < n + 1), A.minLayer k := ha.1
-      simp only [mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at this ⊢
-      exact ⟨this.1, fun l hl h => this.2 l (Nat.lt_succ_of_lt hl) h⟩
+      push (_ ∈ _) at this ⊢; push_neg at this ⊢
+      exact ⟨this.1, fun l hl h ↦ this.2 l (Nat.lt_succ_of_lt hl) h⟩
     simp_rw [al, true_and] at nma; push_neg at nma; obtain ⟨a', ha', la⟩ := nma
     have ma' : a' ∈ A.minLayer n := by
       by_contra h
@@ -155,14 +155,15 @@ lemma iUnion_lt_minLayer_iff_bounded_series :
     ⋃ (k < n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length < n := by
   refine ⟨fun h p ↦ ?_, fun hlength ↦ ?_⟩
   · have hx : p.last.1 ∈ ⋃ (k < n), A.minLayer k := h.symm ▸ p.last.2
-    simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, Subtype.coe_eta,
-      Subtype.coe_prop, exists_const, exists_prop] at hx
+    simp only [minLayer_eq_setOf_height] at hx
+    push _ ∈ _ at hx
+    simp only [Subtype.coe_eta, Subtype.coe_prop, exists_const] at hx
     obtain ⟨i, hix, hi⟩ := hx
     have hh := length_le_height_last (p := p)
     rw [hi, Nat.cast_le] at hh
     exact hh.trans_lt hix
   · ext x
-    simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, exists_prop]
+    simp only [minLayer_eq_setOf_height]; push _ ∈ _
     wlog hxs : x ∈ A; · simp [hxs]
     simp only [hxs, exists_true_left, iff_true]
     suffices height (⟨x, hxs⟩ : A) < n by
@@ -187,7 +188,8 @@ lemma exists_le_in_layersAbove_of_le [Finite α] (ha : a ∈ A.layersAbove n) (h
     ∃ c ∈ A.minLayer m, c ≤ a := by
   classical
   have ma : a ∈ A \ ⋃ (l' < n), A.minLayer l' := by
-    simp only [layersAbove, mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at ha ⊢
+    simp only [layersAbove] at ha ⊢
+    push _ ∈ _ at ha ⊢; push_neg at ha ⊢
     exact ⟨ha.1, fun l' hl' h ↦ ha.2 l' hl'.le h⟩
   have := Fintype.ofFinite α
   let C : Finset α :=
@@ -199,7 +201,7 @@ lemma exists_le_in_layersAbove_of_le [Finite α] (ha : a ∈ A.layersAbove n) (h
   conv at mina' => enter [x]; rw [and_imp]
   have ma'₁ : a' ∈ A.minLayer n := by
     rw [minLayer, mem_setOf, minimal_iff]
-    simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and]
+    push _ ∈ _; push_neg
     exact ⟨ma'.1, fun y hy ly ↦ le_antisymm (mina' hy (ly.trans ma'.2) ly) ly⟩
   obtain ⟨c, mc, lc⟩ := exists_le_in_minLayer_of_le ma'₁ hm
   use c, mc, lc.trans ma'.2

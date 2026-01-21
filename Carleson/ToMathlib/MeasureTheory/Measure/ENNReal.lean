@@ -21,7 +21,8 @@ lemma measurable_biSup_of_continuousOn {T : Set ι} {f : ι → X → ℝ≥0∞
     rw [this]
     exact MeasurableSet.biUnion cJ fun j mj ↦ (measurableSet_lt measurable_const (mf j (sJ mj)))
   ext x
-  simp_rw [mem_preimage, mem_Ioi, iSup_apply, lt_biSup_iff, mem_iUnion₂, mem_setOf_eq, exists_prop]
+  push _ ∈ _
+  simp_rw [iSup_apply, lt_biSup_iff]
   constructor <;> rintro ⟨t, mt, ht⟩
   · simp_rw [continuousOn_iff] at cf
     obtain ⟨u, ou, mu, hu⟩ := cf _ _ mt _ isOpen_Ioi ht

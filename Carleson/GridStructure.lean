@@ -212,7 +212,6 @@ lemma isMin_iff {i : Grid X} : IsMin i ↔ s i = - S := by
     have : -(S : ℤ) ∈ Ico (-(S : ℤ)) (s i) := by simp [h]
     have := Grid_subset_biUnion (i := i) (-S) this c_mem_Grid
     push _ ∈ _ at this
-
     rcases this with ⟨j, (hj : s j = -(S : ℤ)), h'j⟩
     have sji : s j < s i := by simpa [hj] using h
     have : (j : Set X) ⊆ i := by

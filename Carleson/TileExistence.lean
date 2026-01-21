@@ -762,7 +762,7 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
       right
       constructor
       · rw [I2, dif_neg hk_not_neg_s]
-        simp only [mem_preimage, mem_iUnion, exists_prop]
+        push _ ∈ _
         use y''
       intro u hu
       have hx_not_i1' : x' ∉ I1 hk u := by
@@ -1199,7 +1199,7 @@ lemma smaller_boundary (n : ℕ) :
       apply volume.mono
       simp only [iUnion_subset_iff]
       intro y'' hy'' x hx
-      simp only [mem_iUnion, exists_prop]
+      push _ ∈ _
       have hx_y: x ∈ I3 hk y := hy''.I3_subset hx
       have : x ∈ ⋃ (y' : Yk X (k - K')), I3 (le_s_2' n hk_mnK) y' :=
         cover_by_cubes (le_s_2' n hk_mnK) (by linarith) hk y hx_y
@@ -1579,7 +1579,8 @@ def grid_existence : GridStructure X D κ S o where
     apply I3_prop_3_1
     simpa using by positivity [realD_pos a]
   range_s_subset i := by
-    simp only [mem_range, mem_Icc, forall_exists_index]
+    push _ ∈ _
+    simp only [forall_exists_index]
     rintro x rfl
     use x.hk, x.hk_max
   topCube := max_𝓓 X
@@ -1591,7 +1592,7 @@ def grid_existence : GridStructure X D κ S o where
   Grid_subset_biUnion := by
     intro i l hl
     simp only [mem_Ico] at hl
-    simp only [mem_preimage, mem_singleton_iff]
+    push _ ∈ _
     have : i.coe ⊆ (max_𝓓 X).coe := i.hsub
     intro x hx
     simp only [mem_iUnion, exists_prop]
@@ -1916,14 +1917,14 @@ lemma Ω_disjoint {p p' : 𝔓 X} (hn : p ≠ p') (h𝓘 : 𝓘 p = 𝓘 p') : D
 lemma Ω_biUnion {I : Grid X} : SetLike.coe Q.range ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (Grid X)), Ω p := by
   induction I using Grid.induction with
   | base I maxI =>
-    intro ϑ mϑ; simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop]
+    intro ϑ mϑ; push _ ∈ _
     have l := ((frequency_ball_cover (I := I)).trans iUnion_ball_subset_iUnion_Ω₁) mϑ
     rw [mem_iUnion] at l; obtain ⟨z, mz⟩ := l; use ⟨I, z⟩
     exact ⟨rfl, by rw [Ω]; simp only [maxI, dite_true, mz]⟩
   | ind I nmaxI ih =>
     intro ϑ mϑ
     replace ih := ih mϑ
-    simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at ih ⊢
+    push _ ∈ _ at ih ⊢
     obtain ⟨⟨J, z⟩, (rfl : J = I.succ), h⟩ := ih
     have : z.1 ∈ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 :=
       ((Finset.coe_subset.mpr 𝓩_subset).trans frequency_ball_cover) z.2

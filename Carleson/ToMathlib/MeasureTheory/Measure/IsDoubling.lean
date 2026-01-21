@@ -276,7 +276,8 @@ lemma IsDoubling.allBallsCoverBalls [OpensMeasurableSpace X] [NeZero μ]
   have := hs; obtain ⟨h1s, h2s⟩ := this
   use s, h1 s hs
   intro y hy
-  simp only [Set.mem_iUnion, mem_ball, exists_prop]
+  push _ ∈ _
+  simp only [mem_ball]
   by_contra! h2y
   have hys : y ∉ s := by intro h3y; simpa [hr.not_ge] using h2y y h3y
   have h2 : insert y s ∈ S := by
