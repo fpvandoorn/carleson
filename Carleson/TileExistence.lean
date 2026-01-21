@@ -127,14 +127,13 @@ lemma chain_property_set_has_bound (k : ℤ) :
     simpa using h
   have : (⋃ s ∈ c,s) ∪ (if k = S then ({o} : Set X) else ∅) = (⋃ s ∈ c,s) := by
     ext x
-    rw [mem_union,mem_iUnion]
     constructor
     · rintro (l | r)
       · exact l
       simp only [mem_ite_empty_right, mem_singleton_iff] at r
       obtain ⟨z, hz⟩ := h
       rw [r.right]
-      simp only [mem_iUnion, exists_prop]
+      push _ ∈ _
       use z, hz
       specialize hc hz
       dsimp only [property_set] at hc
@@ -152,7 +151,7 @@ lemma chain_property_set_has_bound (k : ℤ) :
       exact hc.left
     constructor
     · intro x hx y hy
-      simp only [mem_iUnion, exists_prop] at hx hy
+      push _ ∈ _ at hx hy
       obtain ⟨sx, hsx, hsx'⟩ := hx
       obtain ⟨sy, hsy, hsy'⟩ := hy
       obtain hxy | hyx := hchain.total hsx hsy
@@ -160,7 +159,7 @@ lemma chain_property_set_has_bound (k : ℤ) :
       · exact (hc hsx).right.left hsx' (hyx hsy')
     · obtain ⟨x,hx⟩ := h
       intro hk
-      simp only [defaultA, mem_iUnion, exists_prop]
+      push _ ∈ _
       exact ⟨x, hx, (hc hx).right.right hk⟩
   · exact fun s a ↦ subset_iUnion₂_of_subset s a fun ⦃a⦄ a ↦ a
 
@@ -212,7 +211,7 @@ lemma cover_big_ball (k : ℤ) : ball o (4 * D ^ S - D ^ k) ⊆ ⋃ y ∈ Yk X k
     left
     exact o_mem_Yk_S
   obtain ⟨z,hz,hz'⟩ := this
-  simp only [mem_iUnion, mem_ball, exists_prop]
+  push _ ∈ _
   use z, hz
   rw [Set.not_disjoint_iff] at hz'
   obtain ⟨x,hx,hx'⟩ := hz'
@@ -337,9 +336,8 @@ lemma I3_subset_I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     I3 hk y ⊆ I2 hk y := by
   intro x hx
   rw [I3] at hx
-  simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
-    not_and] at hx
-  obtain l|r := hx
+  push _ ∈ _ at hx
+  obtain l | r := hx
   · exact I1_subset_I2 hk y l
   · exact r.left
 
@@ -405,7 +403,7 @@ mutual
         linarith
       rw [dif_neg hk_s, dif_neg hk_s]
       intro hx
-      simp only [mem_preimage, mem_inter_iff, mem_iUnion, exists_prop] at hx
+      push _ ∈ _ at hx
       obtain ⟨⟨z1, hz1, hz1'⟩, ⟨z2, hz2, hz2'⟩⟩ := hx
       have hz_eq : z1 = z2 := I3_prop_1 (I_induction_proof hk hk_s) ⟨hz1', hz2'⟩
       subst hz_eq
@@ -421,8 +419,8 @@ mutual
     have hx' := hx
     rw [I3,I3] at hx
     obtain ⟨hl,hr⟩ := hx'
-    simp only [mem_inter_iff, mem_union, mem_diff, mem_iUnion, exists_prop, not_or,
-      not_exists, not_and] at hx
+    push _ ∈ _ at hx
+    simp only [not_or, not_exists] at hx
     by_cases hx_mem_Xk : x ∈ Xk hk
     · rw [not_iff_false_intro hx_mem_Xk] at hx
       simp_rw [false_and,and_false,or_false] at hx
@@ -449,7 +447,7 @@ lemma I3_prop_3_2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     revert this
     apply ball_subset_ball (by gcongr; norm_num)
   · rw [dif_neg hk_s] at this
-    simp only [mem_preimage, mem_iUnion, exists_prop] at this
+    push _ ∈ _ at this
     obtain ⟨y',hy',hyi3⟩ := this
     have : -S ≤ k - 1 := I_induction_proof hk hk_s
     have : x ∈ ball (y' : X) (4 * D ^ (k-1)) := I3_prop_3_2 _ y' hyi3
@@ -556,11 +554,12 @@ mutual
       have hx_notMem_i1 : ∀ y',x ∉ I1 hk y' := by
         simp only [Xk,mem_iUnion, not_exists] at hx_mem_Xk
         exact hx_mem_Xk
-      simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
-        not_and]
+      push _ ∈ _
+      simp only [not_or, not_exists]
       refine Or.inr ⟨hy_i2,hx_mem_Xk, fun y' hy' ↦ ?_⟩
       rw [I3]
-      simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists, not_and]
+      push _ ∈ _
+      simp only [not_or, not_exists, not_and]
       exact ⟨hx_notMem_i1 y', fun hy_i2' _ _ ↦ hy_min y' hy_i2' hy'⟩
   termination_by (2 * (S + k)).toNat + 1
 end
@@ -653,10 +652,10 @@ lemma cover_by_cubes {l : ℤ} (hl : -S ≤ l) :
   intro hk1 y x hx
   have h : -S < k + 1 := by linarith
   have : x ∈ I2 hk1 y := I3_subset_I2 hk1 y hx
-  rw [I2,dif_neg h.ne.symm] at this
-  simp only [mem_preimage, mem_iUnion, exists_prop] at this
-  obtain ⟨z,_,hz'⟩ := this
-  specialize hind (I_induction_proof hk1 h.ne.symm) z hz'
+  rw [I2, dif_neg h.ne'] at this
+  push _ ∈ _ at this
+  obtain ⟨z, _, hz'⟩ := this
+  specialize hind (I_induction_proof hk1 h.ne') z hz'
   exact hind
 
 lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
@@ -687,13 +686,13 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
     by_cases hx_mem_Xk : x ∈ Xk hk
     · have hx_i1: x ∈ I1 hk y := by
         rw [I3] at hxk
-        simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
-          not_and] at hxk
+        push _ ∈ _ at hxk
+        simp only [not_or, not_exists] at hxk
         rw [not_iff_false_intro hx_mem_Xk,false_and,and_false,or_false] at hxk
         exact hxk
       rw [I1] at hx_i1
       rw [dif_neg hk_not_neg_s] at hx_i1
-      simp only [mem_preimage, mem_iUnion, exists_prop] at hx_i1
+      push _ ∈ _ at hx_i1
       obtain ⟨u, hu, hu'⟩ := hx_i1
       have hxy'' : x ∈ I3 _ y'' := this hxl
       have : y'' = u := by
@@ -703,7 +702,7 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
       apply Subset.trans _ (I1_subset_I3 _ _)
       rw [I1,dif_neg hk_not_neg_s]
       intro x' hx'
-      simp only [mem_preimage, mem_iUnion, exists_prop]
+      push _ ∈ _
       use y''
     · have hx_notMem_i1 (y_1 : Yk X k) : x ∉ I1 hk y_1 := by
         rw [Xk] at hx_mem_Xk
@@ -711,8 +710,8 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         exact hx_mem_Xk y_1
       have hx_mem_i2_and : x ∈ I2 hk y ∧ ∀ u < y, x ∉ I3 hk u:= by
         rw [I3] at hxk
-        simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
-          not_and] at hxk
+        push _ ∈ _ at hxk
+        simp only [not_or, not_exists] at hxk
         rw [iff_false_intro (hx_notMem_i1 y), iff_true_intro hx_mem_Xk, false_or, true_and] at hxk
         exact hxk
       have hx_mem_i2 := hx_mem_i2_and.left
@@ -721,22 +720,23 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         intro u hu
         specialize hx_notMem_i3_u u hu
         rw [I3] at hx_notMem_i3_u
-        simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists, not_and,
-          not_forall, not_not] at hx_notMem_i3_u
+        push _ ∈ _ at hx_notMem_i3_u
+        -- xxx: can push_neg help here?
+        simp only [not_or, not_exists, not_and, not_forall, not_not] at hx_notMem_i3_u
         rw [iff_true_intro (hx_notMem_i1 u),iff_true_intro hx_mem_Xk] at hx_notMem_i3_u
         rw [true_and,true_implies] at hx_notMem_i3_u
         intro h
         obtain ⟨v, hv, hv'⟩ := hx_notMem_i3_u h
         exact hx_mem_i2_and.right v (hv.trans hu) hv'
       rw [I2, dif_neg hk_not_neg_s] at hx_mem_i2
-      simp only [mem_preimage, mem_iUnion, exists_prop] at hx_mem_i2
+      push _ ∈ _ at hx_mem_i2
       obtain ⟨u, hu, hxu⟩ := hx_mem_i2
       obtain rfl : y'' = u := by
         apply I3_prop_1 (I_induction_proof hk hk_not_neg_s)
         use hy''
       have : I3 (I_induction_proof hk hk_not_neg_s) y'' ∩ Xk hk = ∅ := by
         ext x'
-        simp only [mem_inter_iff, mem_empty_iff_false, iff_false, not_and]
+        push _ ∈ _; simp only [iff_false, not_and]
         intro hx_i3' hx_xk'
         apply hx_mem_Xk
         rw [Xk] at hx_xk' ⊢
@@ -744,9 +744,9 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         obtain ⟨u, hu⟩ := hx_xk'
         use u
         rw [I1,dif_neg hk_not_neg_s] at hu ⊢
-        simp only [mem_preimage, mem_iUnion, exists_prop] at hu ⊢
+        push _ ∈ _ at hu ⊢
         obtain ⟨u', hu', hu''⟩ := hu
-        use u',hu'
+        use u', hu'
         obtain rfl : u' = y'' := I3_prop_1 (I_induction_proof hk hk_not_neg_s) (And.intro hu'' hx_i3')
         exact hxu
       intro x' hx'
@@ -757,8 +757,8 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
           rw [← this]
           exact mem_inter hx' hcontra
         exact this
-      simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
-        not_and,iff_true_intro hx_not_xk, true_and]
+      push _ ∈ _
+      simp only [exists_prop, not_or, not_exists, not_and, iff_true_intro hx_not_xk, true_and]
       right
       constructor
       · rw [I2, dif_neg hk_not_neg_s]
@@ -772,14 +772,14 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         simp only [mem_iUnion]
         use u
       rw [I3]
-      simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists, not_and,
-        not_forall]
+      push _ ∈ _
+      simp only [exists_prop, not_or, not_exists, not_and, not_forall]
       rw [iff_true_intro hx_not_xk, iff_true_intro hx_not_i1', true_and, true_implies]
       intro hx_i2'
       by_contra
       apply hx_notMem_i2_u u hu
       rw [I2, dif_neg hk_not_neg_s] at hx_i2' ⊢
-      simp only [mem_preimage, mem_iUnion] at hx_i2' ⊢
+      push _ ∈ _ at hx_i2' ⊢
       obtain ⟨z,hz,hz'⟩ := hx_i2'
       use z, hz
       suffices z = y'' by

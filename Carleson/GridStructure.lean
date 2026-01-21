@@ -211,8 +211,8 @@ lemma isMin_iff {i : Grid X} : IsMin i ↔ s i = - S := by
     contrapose! h
     have : -(S : ℤ) ∈ Ico (-(S : ℤ)) (s i) := by simp [h]
     have := Grid_subset_biUnion (i := i) (-S) this c_mem_Grid
-    simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, mem_preimage, mem_singleton_iff, mem_iUnion,
-      exists_prop] at this
+    push _ ∈ _ at this
+
     rcases this with ⟨j, (hj : s j = -(S : ℤ)), h'j⟩
     have sji : s j < s i := by simpa [hj] using h
     have : (j : Set X) ⊆ i := by
@@ -294,7 +294,7 @@ lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i 
   have ts := Grid_subset_biUnion (X := X) (i := topCube) l
     (by rw [s_topCube, mem_Ico]; omega)
   have := mem_of_mem_of_subset hx ((le_topCube (i := i)).1.trans ts)
-  simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
+  push _ ∈ _ at this
   obtain ⟨j, (sj : s j = l), mj⟩ := this; use j, sj
   exact le_of_mem_of_mem (by lia) hx mj
 

@@ -543,11 +543,8 @@ variable [KernelProofData a K] {Q : SimpleFunc X (Θ X)}
 lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
   have : (fun p : X × X ↦ (Q p.1) p.2) ⁻¹' s = ⋃ θ ∈ Q.range, (Q ⁻¹' {θ}) ×ˢ (θ ⁻¹' s) := by
     ext ⟨x, y⟩
-    simp only [mem_preimage, SimpleFunc.mem_range, mem_range, iUnion_exists, iUnion_iUnion_eq',
-      mem_iUnion, mem_prod, mem_singleton_iff]
-    constructor <;> intro h
-    · use x
-    · obtain ⟨j, hj⟩ := h; exact congr($(hj.1) y).symm ▸ hj.2
+    push _ ∈ _
+    simp
   rw [this]
   exact Q.range.measurableSet_biUnion fun θ _ ↦
     (Q.measurableSet_fiber θ).prod (meass.preimage (map_continuous θ).measurable)
