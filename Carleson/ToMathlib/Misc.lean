@@ -36,10 +36,9 @@ section ENNReal
 open ENNReal
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
-  if hfin : s.Finite then
-    lift s to Finset α using hfin
+  by_cases hfin : s.Finite
+  · lift s to Finset α using hfin
     simp
-  else
   have : Infinite s := infinite_coe_iff.mpr hfin
   rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num), Set.encard_eq_top_iff.mpr hfin]
   simp only [ENat.toENNReal_top]

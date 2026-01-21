@@ -515,11 +515,10 @@ lemma smul_le_indicator {A : Set X} (hf : f.support ⊆ A) {C : ℝ} (hC : ∀ x
     Real.norm_eq_abs]
   rw [inv_mul_le_iff₀ (by positivity),mul_comm,← indicator_mul_const]
   simp only [Pi.one_apply, one_mul]
-  if h : x ∈ A then
-    rw [indicator_of_mem h]
+  by_cases h : x ∈ A
+  · rw [indicator_of_mem h]
     exact le_trans (hC x) (by exact le_abs_self C)
-  else
-    rw [notMem_support.mp (fun a ↦ h (hf a)), indicator_of_notMem h]
+  · rw [notMem_support.mp (fun a ↦ h (hf a)), indicator_of_notMem h]
     simp only [norm_zero, le_refl]
 
 end Extras
