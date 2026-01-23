@@ -4,18 +4,34 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb,amsthm}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{enumitem}
 
+\usepackage[]{minted}
+\newcommand{\lean}[1]{\mintinline{lean}{#1}}
+
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\newcommand*{\ud}{\, \mathrm{d}}
+\newcommand*{\complex}{\mathbb{C}} % set of complex numbers
+\newcommand*{\real}{\mathbb{R}} % the set of real numbers
+\newcommand{\nnreal}{\real_{\ge0}}
+\newcommand{\ennreal}{\overline{\real_{\ge0}}}
+
+% These options can be changed later; these may be personal preferences.
 \hypersetup{
+  bookmarks,bookmarksopen,bookmarksnumbered,
   colorlinks = true,
   linkcolor  = blue,
-  citecolor  = blue,
-  urlcolor   = blue
+  citecolor  = red,
+  urlcolor   = grey,
+  breaklinks
 }
-
+% maxbibnames: List all authors in the bibliography for up to 5 authors. Use up to 4 names for determining the label. Choose alphabetical style.
+\usepackage[backend=biber,maxbibnames=5,maxalphanames=4,style=alphabetic]{biblatex}
+\usepackage[autostyle]{csquotes}
+\addbibresource{references.bib}
 
 \title{\textbf{Formalizing Carleson's Theorem in Lean}}
 \author{Authors}
@@ -103,13 +119,36 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 \end{itemize}
 
 \subsection{Changes and refinements}\label{subsec:blueprint_changes}
-\begin{itemize}
-	\item $I \leq J$ vs.\ $I \subset J$.
-	\item Real interpolation theorem.
-	\item Hardy--Littlewood maximal function for finite vs.\ countable balls.
-	\item Just one top cube.
-	\item Constant tweaking.
-\end{itemize}
+
+Throughout the formalisation process, most of the blueprint only needed minor changes, such as fixing typos of clarifications of minor details. Let us highlight four aspects where formalisation resulted in more substantial changes or refinements.
+
+\subsubsection{$I \leq J$ vs.\ $I \subset J$}
+To be written!
+
+\subsubsection{Just one top cube} To be written!
+
+\subsubsection{The Hardy--Littlewood maximal function} One main ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
+To recall: given $f\colon\real^d\to\complex$, the Hardy–Littlewood maximal function $M f$ of $f$ is usually defined as
+\begin{equation*}
+Mf\colon\real \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
+\end{equation*}
+If $f$ is integrable, then $M f$ is (weak) $L^1$, and hence finite almost everywhere. Initially, the blueprint only used a variant taking a supremum over finitely many balls: this ensured the resulting function was \emph{always} finite, hence real-valued. Applying it to a countable collection of balls required taking a limit and using the monotone convergence theorem.
+This is a somewhat inelegant solution: most results about the maximal function do hold for any suprema, hence should be proven in the appropriate generality. We also prefer to avoid a superfluous limiting argument.
+
+For the formal proof, we changed the definition to allow arbitrary suprema: this means the maximal function is $[0,\infty]$-valued. Being able to speak of $L^p$-functions valued in $[0,\infty]$ prompted the introduction of \emph{extended norms}, see Subsection~\ref{subsec:enorm}.
+
+\subsubsection{The real interpolation theorem}
+The Marcinkiewicz real interpolation theorem is a standard result in functional analysis.
+It is also a key prerequisite for the proof of Carleson's theorem: for example, it is applied to the Hardy–Littlewood maximal function to deduce it is of strong type $L^p$, for $p\in(0,\infty)$.
+Our formalised version aims to reduce superfluous assumptions commonly found in the mathematical literature. For instance, it applies to any sub-additive function (not merely sub-linear ones) --- that is, there is no need for a scalar multiplication on the target. Similarly, any positive exponent $p$ is allowed (as opposed to demanding $p\geq 1$).
+
+In light of generalising the Hardy--Littlewood maximal function, this proof had to be generalised again:
+applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any commutative monoid with a compatible enorm).
+In return for a significant amount of refactoring work\footnote{the initial formalisation was about 5000 lines long; the generalisation touched about 2000 of them},
+we have formalised a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way.
+For further detail, we refer the reader to a separate article \cite{PortegiesRothgangRealInterpolation}.
+
+\subsection{Constant tweaking} To be written!
 
 \subsection{Dealing with mistakes}\label{subsec:blueprint_mistakes}
 \begin{itemize}
@@ -140,6 +179,25 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
 
+This project motivated the creation of a new formalisation abstraction: \emph{extended norms} (\lean{enorm}s for short) generalise many results from normed spaces to $\ennreal$.
+Their introduction was motivated by defining the Hardy--Littlewood maximal with co-domain $\ennreal=[0,\infty]$ (see Subsection~\ref{subsec:blueprint_changes}).
+Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. Speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about Lp functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, the $L^p$ norm of $f\colon X\to\ennreal$ for $p<\infty$ can be defined as $(\int_X \abs{f(x)}^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto \abs{f(x)}^p$.
+
+Motivated by this observation, we introduced a new notation class \lean{ENorm}, describing a type endowed with a function \lean{enorm} $X\to\ennreal$.
+This captures both normed spaces and $\ennreal$. The enorm of a normed space is the ambient norm, considered as a function into $\ennreal$; the enorm on $\ennreal$ is the identity function.
+Some definitions only require the existence of an enorm; many results require suitable compatibility conditions. %(For instance, on an abelian monoid $\alpha$ endowed with an enorm, we may require the enorm to respect the triangle inequality with respect to addition and be positive definite, or ask for the enorm to be continuous.)
+Most lemmas necessary in this project only require an \lean{ENormedAddCommMonoid}, i.e.\ an abelian monoid endowed with a continuous enorm that is positive definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions.
+
+Pursuing this approach required generalising all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalisation helped a lot by allowing to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
+%; while massive, this actually led to simplifications.
+The final phase involved generalising lemmas: often, this required small changes (such as, constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no more changes needed to be made.
+
+To illustrate the magnitude of this refactoring, let us give some statistics: phase two (changing the basic definitions) changed about 300 lines of code; phase three (changing lemma statements to enorms) about 1000, and the lemma generalisations so far touched about 2500 lines of code.
+
+The last phase (generalising mathlib lemmas) is not exhaustive: while substantial parts of mathlib have been generalised, some areas would require further refactor (and will follow as needed). To give an example, the total variation of a path in $\ennreal$ is a sensible quantity, even though $\ennreal$ is not a metric space. Introducing a weaker notion of extended metric spaces will enable new applications, and also provide the proper abstraction to state many scalar multiplication lemmas nicely. This is an ongoing effort by Felix Pernegger.
+
+The process of generalisation revealed that this abstraction is also useful on its own: previously, many proofs in mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using enorms provides a useful common denominator. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics.
+
 \subsection{Working with $L^p$ functions}\label{subsec:Lp}
 \begin{itemize}
 	\item Working with \texttt{MemLp}, not functions on \texttt{Lp}.
@@ -169,7 +227,8 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
     \end{itemize}
 \end{itemize}
 
-\bibliographystyle{plain}
-\bibliography{references}
+%\bibliographystyle{plain}
+%\bibliography{references}
+\printbibliography
 
 \end{document}
