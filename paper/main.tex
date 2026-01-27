@@ -175,6 +175,22 @@ For further detail, we refer the reader to a separate article \cite{PortegiesRot
 	\begin{itemize}
 		\item Tactic support issues (\texttt{norm\_num}, \texttt{field\_simp}, \texttt{ring}).
 	\end{itemize}
+
+Generalising to enormed space had a small price in terms of ergonomics: currently, there is less tactic support for working with $\ennreal$.
+On the nose, many results about real numbers transfer to $\ennreal$ provided all arguments are finite; in many cases, these finiteness hypotheses are actually necessary. Manipulating expressions in $\ennreal$ thus often requires proving such finiteness side goals. The \lean{finiteness} tactic (initially developed for the formalisation of the PFR project) solves many such proof obligations automatically. We made this tactic more powerful, completing (for instance) support for all relevant cases in the Carleson project.
+
+A desirable future step is adding improved interaction with the \lean{positivity} tactic (which solves goals of the form \texttt{$0 \leq x$} or \texttt{$0 < x$}). Proving a goal \texttt{$(x + y + 1)^{-1}<\infty$} (for $x,y\in\ennreal$) requires proving that $x + y + 1$ is non-zero; this is already handled by calling \lean{positivity}. Conversely, \lean{positivity} alone cannot prove goals \texttt{$x^{-1}\neq 0$} for $x\in\ennreal$ --- as this is true only if $x$ is finite. Allowing \lean{positivity} to call \lean{finiteness} would improve automation significantly.
+
+% fun_prop improvements are not as relevant here; omit!
+
+% should this belong into the outlook section instead?
+On the tactic side, the \lean{ring} tactic only works in commutative (semi-)rings, which $\ennreal$ is not. (At the moment, even the non-negative real numbers are not supported well; this is merely a matter of refactoring the tactic. Supporting $\ennreal$ in \lean{ring} is much more difficult and not likely to happen.)
+A better path forward is improving for automation for treating the cases of a quantity being finite or infinite separately:
+the infinite case should simplify calculations already (as infinity has simpler rules of computation); the finite case should reduce to real number arithmetic (as above).
+The new \lean{grind} tactic is designed to handle such successive simplifications and case splits well; we will experiment with using it for better proofs.
+
+% missing discussion about norm_num and field_simp
+
 \end{itemize}
 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
