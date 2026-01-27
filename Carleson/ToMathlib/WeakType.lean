@@ -234,10 +234,11 @@ lemma distribution_zero_enorm {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     _ = 0 := by
       exact ae_iff.mp h
 
-lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+lemma distribution_zero {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   apply distribution_zero_enorm
-  simpa only [Filter.EventuallyEq, comp_apply, Pi.zero_apply, enorm_eq_zero]
+  simp only [EventuallyEq, comp_apply, Pi.ofNat_apply]
+  filter_upwards [h] with x hx using (by simp [hx])
 
 lemma distribution_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
     distribution (s.indicator (Function.const α a)) t μ = (Set.Iio ‖a‖ₑ).indicator (fun _ ↦ μ s) t := by
@@ -773,7 +774,7 @@ end HasWeakType
 
 section HasBoundedWeakType
 
-variable [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENorm ε₂]
+variable [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENorm ε₂]
     {f₁ : α → ε₁}
 
 lemma HasBoundedWeakType.memWLp (h : HasBoundedWeakType T p p' μ ν c)
@@ -823,7 +824,7 @@ end HasStrongType
 
 section HasBoundedStrongType
 
-variable [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ContinuousENorm ε₂]
+variable [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace ε₂] [ContinuousENorm ε₂]
     {f₁ : α → ε₁}
 
 lemma HasBoundedStrongType.memLp (h : HasBoundedStrongType T p p' μ ν c)
