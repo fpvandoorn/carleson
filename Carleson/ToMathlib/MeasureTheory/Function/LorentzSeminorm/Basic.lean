@@ -74,21 +74,20 @@ lemma eLorentzNorm_eq_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α �
   intro p_ne_top
   exact eLorentzNorm'_eq_zero_of_ae_enorm_zero h p_ne_zero p_ne_top
 
-lemma eLorentzNorm'_eq_zero_of_ae_zero [ENormedAddMonoid ε] {f : α → ε}
-  (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (h : f =ᵐ[μ] 0) :
+lemma eLorentzNorm'_eq_zero_of_ae_zero [ESeminormedAddMonoid ε] {f : α → ε}
+    (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (h : f =ᵐ[μ] 0) :
     eLorentzNorm' f p q μ = 0 := by
   apply eLorentzNorm'_eq_zero_of_ae_enorm_zero _ p_ne_zero p_ne_top
   filter_upwards [h]
-  simp
+  simp +contextual
 
-lemma eLorentzNorm_eq_zero_of_ae_zero [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+lemma eLorentzNorm_eq_zero_of_ae_zero [ESeminormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
     eLorentzNorm f p q μ = 0 := by
   apply eLorentzNorm_eq_zero_of_ae_enorm_zero
   filter_upwards [h]
-  simp
+  simp +contextual
 
-
-section ENormedAddMonoid
+section ENormedAddMonoid -- TODO: do all of these results require positive definiteness?
 
 variable {ε : Type*} [TopologicalSpace ε] [ENormedAddMonoid ε]
 
