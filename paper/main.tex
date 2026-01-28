@@ -95,11 +95,239 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 
 \subsection{Statement of the main results}\label{subsec:main_results}
 
-\begin{itemize}
-	\item Statement of Theorem 1.0.2.
-	\item Main propositions in Chapter 2.
+\subsubsection{Classical Carleson}\label{subsubsec:classical-result}
 
-\end{itemize}
+The namesake of the formalization project is the classical result of Carleson on the pointwise convergence of Fourier series.
+The specific statement is as follows:
+
+\begin{theorem}[classical Carleson]
+    \label{classical-carleson}
+    Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
+    Then for almost all $x \in \mathbb{R}$ we have
+    \begin{equation}\label{eq:fourier-limit}
+      \lim_{N\to\infty}S_N f(x) = f(x),
+    \end{equation}
+    where $S_N f$ is the $N$-th partial Fourier sum $S_N(x):= \sum_{n=-N}^N c_n e^{inx}$
+    with coefficients $c_n:=\frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.$
+\end{theorem}
+
+The formalization was approached through a recent result (blabla reference) which encompasses a number of generalizations of Carleson's original theorem.
+The context for this new result is called a \emph{doubling metric measure space}, accompanied by a \emph{cancellative compatible collection} of real valued continuous functions.
+For a \emph{one-sided} respectively \emph{two-sided Calder\'on--Zygmund kernel} $K$ on this space, one obtains bounds for certain \emph{generalized Carleson operators} involving the collection of functions and the kernel.
+Specific choices of the objects and structures involved are leveraged to derive the classical Carleson theorem.
+
+
+\subsubsection{Preliminary definitions}\label{subsubsec:definitions}
+
+A doubling metric measure space $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
+equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
+\begin{equation}\label{doublingx}
+    \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
+\end{equation}
+where we have denoted by $B(x,R)$ the open ball of radius $R$ centered at $x$.
+%\begin{equation}\label{eq-define-ball}
+%    B(x,R):=\{y\in X: \rho(x,y)<R\}.
+%\end{equation}
+%In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
+
+A collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
+if there is a point $o\in X$ where all the functions are equal to $0$,
+and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$,
+such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied.
+For every ball $B \subset X$
+\begin{equation}\label{osccontrol}
+    \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb)\,.
+\end{equation}
+For any two balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$ and any $\mfa,\mfb\in \Mf$,
+\begin{equation}\label{firstdb}
+    d_{B_2}(\mfa,\mfb) \le 2^a d_{B_1}(\mfa,\mfb) .
+\end{equation}
+For any two balls $B_1, B_2$ in $X$ with $B_1 \subset B_2$ and any $\mfa, \mfb \in \Mf$
+\begin{equation}\label{monotonedb}
+    d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa, \mfb)
+\end{equation}
+and for any two balls
+$B_1=B(x_1,R)$, $B_2= B(x_2,2^aR)$
+with $B_1\subset B_2$, and $\mfa,\mfb\in \Mf$,
+\begin{equation}\label{seconddb}
+    2d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa,\mfb) .
+\end{equation}
+For every ball $B$ in $X$ and every $d_B$-ball $\tilde B$ of radius $2R$ in $\Mf$, there is a collection $\mathcal{B}$ of
+at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
+\begin{equation}\label{thirddb}
+    \tilde B\subset \bigcup \mathcal{B}.
+\end{equation}
+
+Further, a compatible collection $\Mf$ is called cancellative, if
+for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi: X\to \C$
+supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
+\begin{equation}
+    \label{eq-vdc-cond}
+    |\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)|\le 2^a \mu(B)\|\varphi\|_{\Lip(B)}
+(1+d_B(\mfa,\mfb))^{-\frac{1}{a}},
+\end{equation}
+where $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipschitz norm on $B$:
+$$
+    \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
+$$
+
+A one-sided Calder\'on--Zygmund kernel $K$ on the doubling metric measure space $(X, \rho, \mu, a)$ is a measurable function
+\begin{equation}\label{eqkernel0}
+  K:X\times X\to \mathbb{C}
+\end{equation}
+such that for all $x,y',y\in X$ with $x\neq y$, we have
+\begin{equation}\label{eqkernel-size}
+    |K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
+\end{equation}
+and if $2\rho(y,y') \leq \rho(x,y)$, then
+\begin{equation}
+  \label{eqkernel-y-smooth}
+  |K(x,y) - K(x,y')| \leq \left(\frac{\rho(y,y')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)},
+\end{equation}
+where \[V(x,y):=\mu(B(x,\rho(x,y))).\]
+
+A two-sided Calder\'on--Zygmund kernel is a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
+\begin{equation}
+    \label{eqkernel-x-smooth}
+    |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
+\end{equation}
+
+Let $f: X \to \C$ be a bounded, measurable function supported on a set of finite measure.
+Define the maximally truncated non-tangential singular integral $T_{*}$ associated with $K$ by
+\begin{equation}
+    \label{def-tang-unm-op}
+    T_{*}f(x):=\sup_{R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
+\end{equation}
+Additionally, define for $r > 0$, $x\in X$:
+\begin{equation}
+\label{def-T-r}
+T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
+\end{equation}
+Finally, define the generalized Carleson operator $T$ by
+\begin{equation}
+    \label{def-main-op}
+    Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|\, ,
+\end{equation}
+where $e(r)=e^{ir}$.
+
+For a Borel function $\tQ:X\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
+\begin{equation}
+    R_{\tQ}(\mfa,x)=\sup\{r>0:d_{B(x,r)}(\mfa, \tQ(x))<1\}
+\end{equation}
+and define further
+\begin{equation}
+    \label{def-lin-star-op}
+    T_{\tQ}^\mfa f(x):=\sup_{R_1<R_2} \ \sup_{\rho(x,x')<R_1}
+    \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+\end{equation}
+Define further the linearized generalized Carleson operator $T_\tQ$ by
+\begin{equation}
+    \label{def-lin-main-op}
+    T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|\, ,
+\end{equation}
+where again $e(r)=e^{ir}$.
+
+
+\subsubsection{Metric space Carleson}\label{subsubsec:metric-carleson}
+
+Our first main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
+which by interpolation techniques recovers $L^q$ estimates for the open range $1<q<2$.
+\begin{theorem}[metric space Carleson]
+\label{metric-space-Carleson}
+    For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
+    Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
+    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$.
+    Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    \begin{equation}\label{nontanbound}
+        \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
+    \end{equation}
+    where $T_{*}$ is defined in \eqref{def-tang-unm-op}.
+    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with
+    $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
+    \begin{equation}
+        \label{resweak}
+        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+    \end{equation}
+\end{theorem}
+
+In some applications, such as the Walsh-case of Carleson's theorem, the kernel $K$ naturally depends also on the modulation functions $\mfa$.
+The fact that we don't assume H\"older-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
+
+We now state another Theorem with a slightly weaker replacement of the assumption \eqref{nontanbound}.
+It implies the Walsh-case of Carleson's theorem.
+
+\begin{theorem}[linearised metric Carleson]
+\label{linearised-metric-Carleson}
+    For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
+    Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
+    cancellative compatible collection of functions.
+    Let $\tQ:X\to \Mf$ be a Borel function with finite range.
+    Let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    \begin{equation}\label{linnontanbound}
+        \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
+    \end{equation}
+    where $T_{\tQ}^\mfa$ is defined in \eqref{def-lin-star-op}.
+    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with
+    $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
+    \begin{equation}
+        \label{linresweak}
+        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \le \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+    \end{equation}
+\end{theorem}
+
+For two-sided alder\'on--Zygmund kernels, the additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
+In particular the two-sided case can be applied to derive the classical Carleson's theorem.
+
+\begin{theorem}[two-sided metric space Carleson]
+    \label{two-sided-metric-space-Carleson}
+        For all  integers $a \ge  4$ and real numbers $1<q\le 2$ the following holds.
+        Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
+        cancellative compatible  collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
+      \begin{equation}\label{two-sided-Hr-bound-assumption}
+            \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
+        \end{equation}
+        Then for all Borel sets $F$ and $G$ in $X$ and
+        all Borel functions $f:X\to \C$ with
+        $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
+      \begin{equation}
+        \label{two-sided-resweak}
+            \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{474a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \end{equation}
+\end{theorem}
+
+\subsubsection{Metric space Carleson applied to the real line}\label{subsubsec:metric-carleson-real}
+
+In order to arrive at the classical result \Cref{classical-carleson}, we use the following specific instance of the main result.
+
+Let $\kappa:\R\to \C$ be the function defined by
+$\kappa(0)=0$ and for $0<|x|<1$
+\begin{equation}\label{eq-hilker}
+\kappa(x)=\frac { 1-|x|}{1-e^{ix}}\,
+\end{equation}
+and for $|x|\ge 1$,
+\begin{equation}\label{eq-hilker1}
+\kappa(x)=0\, .
+\end{equation}
+Note that this function is continuous at every point $x$ with $|x|>0$.
+
+\begin{theorem}[real Carleson]\label{real-Carleson}
+    Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
+\begin{equation}
+    \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
+\end{equation}
+where
+\begin{equation}
+    \label{define-T-carleson}
+    T f(x)=\sup_{n\in \mathbb{Z}}
+    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|\, .
+\end{equation}
+\end{theorem}
+
+%\begin{itemize}
+%	\item Statement of Theorem 1.0.2.
+%	\item Main propositions in Chapter 2.
+%
+%\end{itemize}
 %\item Level of mathematical detail to include.
 
 \section{Project organization}\label{sec:org}
