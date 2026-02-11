@@ -33,6 +33,37 @@
 \usepackage[autostyle]{csquotes}
 \addbibresource{references.bib}
 
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[subsection]
+
+\newcommand{\N}{{\mathbb{N}}}
+\newcommand{\Z}{{\mathbb{Z}}}
+\newcommand{\Q}{{\mathbb{Q}}}
+\newcommand{\R}{{\mathbb{R}}}
+
+\DeclareMathOperator{\ch}{\operatorname{ch}}
+\DeclareMathOperator{\dens}{\operatorname{dens}}
+\DeclareMathOperator{\supp}{\operatorname{supp}}
+\DeclareMathOperator{\tp}{\operatorname{top}}
+\DeclareMathOperator{\im}{\operatorname{im}}
+\DeclareMathOperator{\Lip}{\operatorname{Lip}}
+\DeclareMathOperator{\bd}{\operatorname{bd}}
+\DeclareMathOperator*{\esssup}{\operatorname{ess\,sup}}
+
+\def\C{\mathbb{C}}
+\newcommand{\pc}{{\mathrm{c}}}
+\newcommand{\ps}{{\mathrm{s}}}
+\newcommand{\AD}{{\bf s}}
+\newcommand{\fc}{{\Omega}}
+\newcommand{\borel}{{\mathcal{E}}}
+\newcommand{\borelb}{{\mathcal{G}}}
+\newcommand{\scI}{{\mathcal{I}}} % note: renamed because it conflicted with another command
+\newcommand{\tQ}{{Q}}
+\newcommand{\mfa}{{\vartheta}}
+\newcommand{\mfb}{{\theta}}
+\newcommand{\Mf}{{\Theta}}
+\newcommand{\fcc}{{\mathcal{Q}}}
+
 \title{\textbf{Formalizing Carleson's Theorem in Lean}}
 \author{Authors}
 \date{\today}
@@ -114,7 +145,7 @@ The specific statement is as follows:
 The formalization was approached through a recent result (blabla reference) which encompasses a number of generalizations of Carleson's original theorem.
 The context for this new result is called a \emph{doubling metric measure space}, accompanied by a \emph{cancellative compatible collection} of real valued continuous functions.
 For a \emph{one-sided} respectively \emph{two-sided Calder\'on--Zygmund kernel} $K$ on this space, one obtains bounds for certain \emph{generalized Carleson operators} involving the collection of functions and the kernel.
-Specific choices of the objects and structures involved are leveraged to derive the classical Carleson theorem.
+Specific choices of these objects and structures are leveraged to derive the classical Carleson theorem.
 
 
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
@@ -171,11 +202,8 @@ $$
     \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
 $$
 
-A one-sided Calder\'on--Zygmund kernel $K$ on the doubling metric measure space $(X, \rho, \mu, a)$ is a measurable function
-\begin{equation}\label{eqkernel0}
-  K:X\times X\to \mathbb{C}
-\end{equation}
-such that for all $x,y',y\in X$ with $x\neq y$, we have
+A one-sided Calder\'on--Zygmund kernel $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
+is a measurable function $K:X\times X\to \mathbb{C}$ such that for all $x,y',y\in X$ with $x\neq y$, we have
 \begin{equation}\label{eqkernel-size}
     |K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
 \end{equation}
@@ -184,7 +212,7 @@ and if $2\rho(y,y') \leq \rho(x,y)$, then
   \label{eqkernel-y-smooth}
   |K(x,y) - K(x,y')| \leq \left(\frac{\rho(y,y')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)},
 \end{equation}
-where \[V(x,y):=\mu(B(x,\rho(x,y))).\]
+where $V(x,y):=\mu(B(x,\rho(x,y)))$.
 
 A two-sided Calder\'on--Zygmund kernel is a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
 \begin{equation}
@@ -275,7 +303,7 @@ It implies the Walsh-case of Carleson's theorem.
     \end{equation}
 \end{theorem}
 
-For two-sided alder\'on--Zygmund kernels, the additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
+For two-sided Calder\'on--Zygmund kernels, the additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
 In particular the two-sided case can be applied to derive the classical Carleson's theorem.
 
 \begin{theorem}[two-sided metric space Carleson]
