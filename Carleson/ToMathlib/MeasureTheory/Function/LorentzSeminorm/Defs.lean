@@ -56,7 +56,7 @@ lemma eLorentzNorm'_eq_integral_distribution_rpow {_ : MeasurableSpace α} {f : 
   unfold eLorentzNorm'
   simp only [inv_one, ENNReal.toReal_one, ENNReal.rpow_one, ENNReal.toReal_inv]
   congr
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   rw [lintegral_withDensity_eq_lintegral_mul₀' (by measurability)
     (by apply aeMeasurable_withDensity_inv; apply AEMeasurable.pow_const; apply AEStronglyMeasurable.enorm; apply
       aestronglyMeasurable_iff_aemeasurable.mpr; apply Measurable.aemeasurable; measurability)]

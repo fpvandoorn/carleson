@@ -36,7 +36,7 @@ lemma intervalIntegrable_continuous_mul_lipschitzOnWith
       rw [Real.Ioo_eq_ball] at hy
       simp only [Metric.mem_ball, dist_eq_norm] at hy
       exact hy.le
-  apply (hf.continuousOn.mul hg.continuousOn).intervalIntegrable_Ioo_of_bound hab
+  apply (hf.continuousOn.fun_mul hg.continuousOn).intervalIntegrable_Ioo_of_bound hab
     (C := C * D) (fun x hx ↦ ?_)
   rw [norm_mul, mul_comm, mul_comm C]
   gcongr

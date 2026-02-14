@@ -51,7 +51,7 @@ theorem eLpNorm_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
   by_cases hp_top : p = ∞
   · rw [hp_top, eLpNorm_exponent_top]
     exact eLpNormEssSup_map_measure' hg hf
-  simp_rw [eLpNorm_eq_lintegral_rpow_enorm hp_zero hp_top]
+  simp_rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp_zero hp_top]
   rw [lintegral_map' (hg.enorm.pow_const p.toReal) hf]
   rfl
 
