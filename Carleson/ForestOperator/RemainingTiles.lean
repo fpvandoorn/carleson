@@ -327,9 +327,9 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       intro I
       simp_rw [Finset.filter_filter, Finset.mem_filter_univ, mem_toFinset]
       exact fun H ↦ ⟨H.2, H.1.1⟩
-    · have (I : Grid X) : ball (c I) (8 * D ^ s I) = EMetric.ball (c I) (8 * D ^ s I) := by
-        trans EMetric.ball (c I) (show ℝ≥0 from ⟨8 * D ^ s I, by positivity⟩)
-        · rw [emetric_ball_nnreal]; rfl
+    · have (I : Grid X) : ball (c I) (8 * D ^ s I) = Metric.eball (c I) (8 * D ^ s I) := by
+        trans Metric.eball (c I) (show ℝ≥0 from ⟨8 * D ^ s I, by positivity⟩)
+        · rw [Metric.eball_coe]; rfl
         · congr!
           simp only [ENNReal.coe_nnreal_eq, ← Real.rpow_intCast]
           erw [ENNReal.ofReal_mul (by norm_num)]
@@ -337,7 +337,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
           norm_num
       simp_rw [this]
       simp only [CharP.cast_eq_zero, nonpos_iff_eq_zero, Finset.sum_eq_zero_iff, Finset.mem_filter,
-        Finset.mem_univ, true_and, indicator_apply_eq_zero, EMetric.mem_ball, Pi.one_apply,
+        Finset.mem_univ, true_and, indicator_apply_eq_zero, Metric.mem_eball, Pi.one_apply,
         one_ne_zero, imp_false, not_lt, and_imp]
       intro I e hI₁ _
       simp only [Grid.mem_def, mem_setOf_eq, not_and, not_le, supp, ← e] at hx'
@@ -388,7 +388,7 @@ lemma btp_expansion (hf : BoundedCompactSupport f) :
     _ = (∫⁻ x, ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (fun _ ↦
         ‖⨍ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖‖ₑ ^ 2) x) ^ (2 : ℝ)⁻¹ := by
       unfold approxOnCube
-      simp_rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top,
+      simp_rw [eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ENNReal.ofNat_ne_top,
         ENNReal.toReal_ofNat, one_div]
       congr! with x; rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
       · refine fun J mJ ↦ indicator_nonneg (fun y my ↦ ?_) _
@@ -682,8 +682,9 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       congr; rw [← lintegral_biUnion_finset _ fun _ _ ↦ coeGrid_measurable]; swap
       · rw [coe_toFinset]; exact pairwiseDisjoint_𝓙₆
       simp_rw [mem_toFinset, union_𝓙₆ hu₁, ← lintegral_indicator coeGrid_measurable,
-        eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
-        one_div, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast, enorm_eq_self]
+        eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ENNReal.ofNat_ne_top,
+        ENNReal.toReal_ofNat, one_div, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast,
+        enorm_eq_self]
       congr! with x
       simp_rw [sq, ← inter_indicator_mul, inter_self]
 
