@@ -824,7 +824,7 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
   · apply lt_of_le_of_lt (Metric.infEDist_anti _) hx'
     rw [compl_subset_compl]
     exact hi3_2_3
-  · rw [← emetric_ball,EMetric.mem_ball] at hx_4k2 hx_4k2'
+  · rw [← eball_ofReal, Metric.mem_eball] at hx_4k2 hx_4k2'
     rw [edist_comm] at hx_4k2'
     rw [← Real.rpow_intCast] at hx_4k2 hx_4k2'
     rw [ENNReal.ofReal_mul (by norm_num), ← ENNReal.ofReal_rpow_of_pos (realD_pos a),
@@ -1405,7 +1405,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
       · apply dyadic_property hconst_n hconst_n_k hk y y'
         rw [not_disjoint_iff]
         use x
-      rw [← emetric_ball, EMetric.mem_ball,ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat,
+      rw [← eball_ofReal, Metric.mem_eball, ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat,
         ← Real.rpow_intCast, ← ENNReal.ofReal_rpow_of_pos (realD_pos a),
         ENNReal.ofReal_natCast,ENNReal.rpow_intCast,edist_comm] at hxy'
       have : 0 < (Nat.cast D : ℝ≥0∞) := by

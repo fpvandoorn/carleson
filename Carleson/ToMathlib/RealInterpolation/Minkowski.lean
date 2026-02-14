@@ -739,7 +739,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
     rw [← one_div]
-    refine (eLpNorm_eq_lintegral_rpow_enorm (ε := E₁) ?_ ?_).symm
+    refine (eLpNorm_eq_lintegral_rpow_enorm_toReal (ε := E₁) ?_ ?_).symm
     · exact (interpolated_pos' hp₀ hp₁ (ne_top_of_Ioo ht) hp).ne'
     · exact interp_exp_ne_top hp₀p₁.ne ht hp
 

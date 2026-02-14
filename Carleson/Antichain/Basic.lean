@@ -327,7 +327,7 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
       ring
     _ ≤ _ := by
       gcongr
-      · rw [eLpNorm_eq_lintegral_rpow_enorm (by assumption) (by assumption), toReal_ofReal <|
+      · rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by assumption) (by assumption), toReal_ofReal <|
           le_of_lt p'_pos, one_div, ← div_rpow_of_nonneg _ _ (le_of_lt inv_p'_pos), dens₂]
         gcongr
         refine le_trans ?_ <| le_iSup₂ 𝔭 h𝔭
@@ -343,7 +343,7 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
           rw [Pi.one_apply, mul_one, enorm_indicator_eq_indicator_enorm, indicator, indicator]
           split_ifs <;> simp [p'_pos]
         · exact Measure.restrict_apply_univ B
-      · rw [eLpNorm_eq_lintegral_rpow_enorm (by assumption) (by assumption),
+      · rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by assumption) (by assumption),
           toReal_ofReal <| le_of_lt p_pos, 𝓜p, maximalFunction, one_div,
           ← div_rpow_of_nonneg _ _ (le_of_lt inv_p_pos), ← laverage_eq, hp_coe]
         gcongr

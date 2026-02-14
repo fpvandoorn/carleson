@@ -352,7 +352,7 @@ lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0)
       = (p / q) ^ q.toReal⁻¹ * μ s ^ p.toReal⁻¹ * ‖a‖ₑ := by
   rw [eLorentzNorm'_eq p_ne_zero p_ne_top]
   simp_rw [rearrangement_indicator_const]
-  rw [eLpNorm_eq_lintegral_rpow_enorm q_ne_zero q_ne_top]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_ne_zero q_ne_top]
   simp only [ENNReal.toReal_inv, enorm_eq_self, one_div]
   conv in (_ * _) ^ _ => rw [ENNReal.mul_rpow_of_nonneg _ _ ENNReal.toReal_nonneg,
     Set.comp_indicator (fun t ↦ t ^ q.toReal),
@@ -520,7 +520,7 @@ lemma MemLorentz_of_MemLorentz_ge {r₁ r₂ : ℝ≥0∞} (r₁_pos : 0 < r₁)
         use ENNReal.rpow_lt_top_of_nonneg (by simp) h₁
         exact (MeasureTheory.memLp_of_memLp_le_of_memLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ memLp_r₁ memLp_top).2
       /- Hardest part -/
-      rw [eLpNorm_eq_lintegral_rpow_enorm r₁_pos.ne' r₁_top,
+      rw [eLpNorm_eq_lintegral_rpow_enorm_toReal r₁_pos.ne' r₁_top,
           lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (measurable_mul_distribution_rpow.aestronglyMeasurable.enorm.pow_const r₁.toReal),
           lintegral_nnreal_eq_lintegral_toNNReal_Ioi] at norm_lt_top
       simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply, one_div] at norm_lt_top
