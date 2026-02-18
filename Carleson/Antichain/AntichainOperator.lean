@@ -154,7 +154,7 @@ lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄) {x₀ : X} (hx : x₀ ∈ ba
   · exact Or.inl <| (by finiteness)
   rw [ENNReal.div_eq_inv_mul, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, mul_comm _ (-1),
     ENNReal.rpow_mul, ENNReal.rpow_neg_one,
-    eLpNorm_eq_lintegral_rpow_enorm (by simpa) (by finiteness)]
+    eLpNorm_eq_lintegral_rpow_enorm_toReal (by simpa) (by finiteness)]
   simp_rw [ENNReal.toReal_ofReal hr.le, one_div]
   rw [← ENNReal.mul_rpow_of_nonneg _ _ (by positivity), M14, maximalFunction]
   refine ENNReal.rpow_le_rpow ?_ (by positivity)

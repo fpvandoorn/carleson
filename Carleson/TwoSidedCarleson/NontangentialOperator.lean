@@ -977,7 +977,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
       · simp [closure_Ioo hR₁.2.ne, hR₁.2.le]
       · apply continuousWithinAt_const
-      · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
+      · apply ContinuousWithinAt.fun_add ?_ continuousWithinAt_const
         exact small_annulus_right hf hR₁.1 |>.enorm
     simpa using le_R1
   · have (R' : ℝ) (hR' : R' ∈ Ioo (dist x' x) R₁) : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
@@ -1007,7 +1007,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
       · simp [closure_Ioo (mem_ball.mp hx').ne, (mem_ball.mp hx').le]
       · apply continuousWithinAt_const
-      · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
+      · apply ContinuousWithinAt.fun_add ?_ continuousWithinAt_const
         exact small_annulus_left hf (dist_nonneg) |>.enorm
     simpa using le_R1
 

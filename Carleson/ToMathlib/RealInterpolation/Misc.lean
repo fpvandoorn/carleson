@@ -718,7 +718,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
       exact Measure.restrict_le_self
     _ = _ := by
       congr
-      rw [eLpNorm_eq_lintegral_rpow_enorm p_ne_zero p_ne_top, one_div, ENNReal.rpow_inv_rpow]
+      rw [eLpNorm_eq_lintegral_rpow_enorm_toReal p_ne_zero p_ne_top, one_div, ENNReal.rpow_inv_rpow]
       exact (toReal_pos p_ne_zero p_ne_top).ne'
 
 -- TODO: better name!
