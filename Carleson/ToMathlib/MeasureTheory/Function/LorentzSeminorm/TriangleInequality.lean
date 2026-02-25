@@ -20,6 +20,51 @@ variable {α ε : Type*} {m : MeasurableSpace α}
   [TopologicalSpace ε] [ESeminormedAddMonoid ε]
   {p q : ℝ≥0∞} {μ : Measure α} {f g : α → ε}
 
+private lemma nnreal_quasiMeasurePreserving_const_mul (a : ℝ≥0) (ha : a ≠ 0) :
+    Measure.QuasiMeasurePreserving (fun x : ℝ≥0 => a * x) volume volume := by
+  refine ⟨measurable_const_mul a, Measure.AbsolutelyContinuous.mk fun s hs h0 => ?_⟩
+  rw [Measure.map_apply (measurable_const_mul a) hs]
+  have key := lintegral_nnreal_scale_constant' (f := s.indicator (fun _ => 1)) ha
+  have h1 : (fun x => s.indicator (fun _ => (1 : ℝ≥0∞)) (a * x)) =
+      ((fun x => a * x) ⁻¹' s).indicator (fun _ => 1) := by
+    ext x; simp [Set.indicator, Set.mem_preimage]; tauto
+  rw [h1] at key
+  conv at key => lhs; rw [show (((fun x => a * x) ⁻¹' s).indicator
+      (fun _ => (1 : ℝ≥0∞))) = ((fun x => a * x) ⁻¹' s).indicator 1 from rfl]
+  rw [lintegral_indicator_one (hs.preimage (measurable_const_mul a))] at key
+  rw [show (s.indicator (fun (_ : ℝ≥0) => (1 : ℝ≥0∞))) = s.indicator 1 from rfl] at key
+  rw [lintegral_indicator_one hs, h0] at key
+  exact (mul_eq_zero.mp key).elim (fun h => absurd (ENNReal.coe_eq_zero.mp h) ha) id
+
+private lemma aeStronglyMeasurable_comp_const_mul {f : ℝ≥0 → ℝ≥0∞}
+    (hf : AEStronglyMeasurable f volume) {a : ℝ≥0} (ha : a ≠ 0) :
+    AEStronglyMeasurable (fun x => f (a * x)) volume :=
+  hf.comp_quasiMeasurePreserving (nnreal_quasiMeasurePreserving_const_mul a ha)
+
+private lemma withDensity_inv_map_const_mul (a : ℝ≥0) (ha : a ≠ 0) :
+    Measure.map (fun x : ℝ≥0 => a * x)
+      (volume.withDensity (fun t : ℝ≥0 => (t : ℝ≥0∞)⁻¹)) =
+    volume.withDensity (fun t : ℝ≥0 => (t : ℝ≥0∞)⁻¹) := by
+  ext s hs
+  rw [Measure.map_apply (measurable_const_mul a) hs,
+      withDensity_apply _ (hs.preimage (measurable_const_mul a)),
+      withDensity_apply _ hs]
+  rw [← lintegral_indicator (hs.preimage (measurable_const_mul a)),
+      ← lintegral_indicator hs]
+  have key : ∀ t : ℝ≥0,
+      ((fun x => a * x) ⁻¹' s).indicator (fun t : ℝ≥0 => (t : ℝ≥0∞)⁻¹) t
+      = (a : ℝ≥0∞) * s.indicator (fun t : ℝ≥0 => (t : ℝ≥0∞)⁻¹) (a * t) := by
+    intro t
+    simp only [Set.indicator, Set.mem_preimage]
+    split_ifs with h1 h2 h2
+    · rw [ENNReal.coe_mul,
+          ENNReal.mul_inv (Or.inl (by simp [ha])) (Or.inl (by simp)),
+          ← mul_assoc, ENNReal.mul_inv_cancel (by simp [ha]) (by simp), one_mul]
+    · exact absurd h1 h2
+    · exact absurd h2 h1
+    · simp
+  simp_rw [key]
+  rw [lintegral_const_mul' _ _ (by simp), lintegral_nnreal_scale_constant' ha]
 
 --TODO: move?
 lemma eLpNorm_withDensity_scale_constant' {f : ℝ≥0 → ℝ≥0∞} (hf : AEStronglyMeasurable f) {p : ℝ≥0∞} {a : ℝ≥0} (h : a ≠ 0) :
@@ -28,15 +73,22 @@ lemma eLpNorm_withDensity_scale_constant' {f : ℝ≥0 → ℝ≥0∞} (hf : AES
   unfold eLpNorm
   split_ifs with p_zero p_top
   · rfl
-  · --TODO: case p = ⊤
-    sorry
+  · simp only [eLpNormEssSup, enorm_eq_self]
+    change essSup (f ∘ (fun x => a * x)) _ = essSup f _
+    have hinv := withDensity_inv_map_const_mul a h
+    conv_rhs => rw [← hinv]
+    have hf' : AEMeasurable f (Measure.map (fun x => a * x)
+        (volume.withDensity (fun t : ℝ≥0 => (t : ℝ≥0∞)⁻¹))) := by
+      rw [hinv]
+      exact hf.aemeasurable.mono' (withDensity_absolutelyContinuous _ _)
+    exact (essSup_map_measure hf' ((measurable_const_mul a).aemeasurable)).symm
   · symm
     rw [eLpNorm'_eq_lintegral_enorm, eLpNorm'_eq_lintegral_enorm]
     rw [lintegral_withDensity_eq_lintegral_mul₀' (by measurability)
           (by apply aeMeasurable_withDensity_inv; apply AEMeasurable.pow_const; exact AEStronglyMeasurable.enorm hf),
         lintegral_withDensity_eq_lintegral_mul₀' (by measurability)
-          (by apply aeMeasurable_withDensity_inv; apply AEMeasurable.pow_const; apply AEStronglyMeasurable.enorm; sorry)]
-          --TODO: measurablility
+          (by apply aeMeasurable_withDensity_inv; apply AEMeasurable.pow_const
+              exact AEStronglyMeasurable.enorm (aeStronglyMeasurable_comp_const_mul hf h))]
     simp only [enorm_eq_self, Pi.mul_apply, one_div]
     rw [← lintegral_nnreal_scale_constant' h, ← lintegral_const_mul' _ _ (by simp)]
     have : ∀ {t : ℝ≥0}, (ENNReal.ofNNReal t)⁻¹ = a * (ENNReal.ofNNReal (a * t))⁻¹ := by
