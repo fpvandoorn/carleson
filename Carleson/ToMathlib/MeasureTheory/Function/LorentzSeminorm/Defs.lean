@@ -38,17 +38,55 @@ def eLorentzNorm' (f : α → ε) (p : ℝ≥0∞) (q : ℝ≥0∞) (μ : Measur
 lemma eLorentzNorm'_exponent_zero' {f : α → ε} {μ : Measure α} : eLorentzNorm' f p 0 μ = 0 := by
   simp [eLorentzNorm']
 
+private lemma ae_withDensity_inv_eq :
+    ae ((volume : Measure ℝ≥0).withDensity (fun t ↦ (↑t : ℝ≥0∞)⁻¹)) =
+    ae (volume : Measure ℝ≥0) := by
+  ext s
+  change (∀ᵐ x ∂(volume : Measure ℝ≥0).withDensity _, x ∈ s) ↔
+    (∀ᵐ x ∂(volume : Measure ℝ≥0), x ∈ s)
+  rw [ae_withDensity_iff (by measurability : Measurable (fun (t : ℝ≥0) ↦ (↑t : ℝ≥0∞)⁻¹))]
+  exact ⟨fun h => h.mono fun x hx => hx (by simp), fun h => h.mono fun x hx _ => hx⟩
+
 lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} {μ : Measure α} :
   eLorentzNorm' f p q μ
     = eLpNorm (fun (t : ℝ≥0) ↦ t ^ p⁻¹.toReal * rearrangement f t μ) q
         (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
   sorry
 
---TODO: probably need some assumptions on q here
+
 lemma eLorentzNorm'_eq' (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} {μ : Measure α} :
   eLorentzNorm' f p q μ
     = eLpNorm (fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement f t μ) q := by
-  sorry --should be an easy consequence of eLorentzNorm'_eq
+  rcases eq_or_ne q 0 with rfl | q_nonzero
+  · simp [eLorentzNorm'_exponent_zero', eLpNorm_exponent_zero]
+  rcases eq_or_ne q ⊤ with rfl | q_ne_top
+  · simp only [ENNReal.inv_top, ENNReal.toReal_zero, sub_zero]
+    rw [eLorentzNorm'_eq p_nonzero p_ne_top, eLpNorm_exponent_top, eLpNorm_exponent_top]
+    simp only [eLpNormEssSup, essSup, enorm_eq_self, ae_withDensity_inv_eq]
+  · rw [eLorentzNorm'_eq p_nonzero p_ne_top,
+        eLpNorm_eq_lintegral_rpow_enorm_toReal q_nonzero q_ne_top,
+        eLpNorm_eq_lintegral_rpow_enorm_toReal q_nonzero q_ne_top]
+    simp only [enorm_eq_self]
+    congr 1
+    rw [lintegral_withDensity_eq_lintegral_mul₀' (by measurability)]
+    · apply lintegral_congr_ae
+      have hae : ∀ᵐ (t : ℝ≥0) ∂(volume : Measure ℝ≥0), (t : ℝ≥0∞) ≠ 0 := by
+        rw [ae_iff]
+        have : {a : ℝ≥0 | ¬(a : ℝ≥0∞) ≠ 0} = {0} := by ext x; simp [ENNReal.coe_eq_zero]
+        rw [this]; exact measure_singleton 0
+      filter_upwards [hae] with t ht
+      simp only [Pi.mul_apply]
+      rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity : (0:ℝ) ≤ q.toReal),
+          ENNReal.mul_rpow_of_nonneg _ _ (by positivity : (0:ℝ) ≤ q.toReal),
+          ← ENNReal.rpow_mul, ← ENNReal.rpow_mul,
+          show (↑t : ℝ≥0∞)⁻¹ = (↑t : ℝ≥0∞) ^ (-1 : ℝ) from by simp [ENNReal.rpow_neg_one],
+          ← mul_assoc, ← ENNReal.rpow_add _ _ ht ENNReal.coe_ne_top]
+      congr 2
+      rw [ENNReal.toReal_inv q]
+      have hq : q.toReal ≠ 0 := ENNReal.toReal_ne_zero.mpr ⟨q_nonzero, q_ne_top⟩
+      field_simp; linarith
+    · measurability
+
 
 lemma eLorentzNorm'_eq_integral_distribution_rpow {_ : MeasurableSpace α} {f : α → ε}
   {μ : Measure α} :
