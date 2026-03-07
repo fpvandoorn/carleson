@@ -1,4 +1,8 @@
-import Mathlib.Order.LiminfLimsup
+module
+
+public import Mathlib.Order.LiminfLimsup
+
+@[expose] public section
 
 -- Upstreaming status: seems like a useful lemma; no obvious clean-up opportunities
 

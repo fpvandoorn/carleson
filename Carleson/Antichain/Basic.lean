@@ -1,7 +1,9 @@
-import Carleson.Calculations
-import Carleson.Operators
-import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+module
+
+public import Carleson.Calculations
+public import Carleson.Operators
+public import Carleson.ToMathlib.HardyLittlewood
+public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 
 /-!
 # 6.1. The density arguments
@@ -13,6 +15,8 @@ This file contains the proofs of lemmas 6.1.1, 6.1.2 and 6.1.3 from the blueprin
 - `maximal_bound_antichain`: Lemma 6.1.2.
 - `dens2_antichain`: Lemma 6.1.3.
 -/
+
+@[expose] public section
 
 open scoped ShortVariables
 

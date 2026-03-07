@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
+module
+
+public import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
+
+@[expose] public section
 
 open MeasureTheory
 

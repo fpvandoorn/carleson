@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Integral.Average
+module
+
+public import Mathlib.MeasureTheory.Integral.Average
+
+@[expose] public section
 
 -- Upstreaming status: useful and good to go
 

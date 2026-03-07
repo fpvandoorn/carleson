@@ -1,6 +1,8 @@
-import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
-import Carleson.ToMathlib.Analysis.MeanInequalitiesPow
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
+public import Carleson.ToMathlib.Analysis.MeanInequalitiesPow
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 
 /-!
 # Triangle inequality for `Lorentz`-seminorm
@@ -8,6 +10,8 @@ import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 In this file we prove several versions of the triangle inequality for the `Lorentz` seminorm,
 as well as simple corollaries.
 -/
+
+@[expose] public section
 
 -- Upstreaming status: this file is actively being worked on; not ready yet
 

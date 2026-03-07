@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+module
+
+public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+
+@[expose] public section
 
 -- Upstreaming status: useful and good to go. Easy generalisations of mathlib lemmas.
 

@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Integral.IntegrableOn
+module
+
+public import Mathlib.MeasureTheory.Integral.IntegrableOn
+
+@[expose] public section
 
 open Set Filter TopologicalSpace MeasureTheory Function
 

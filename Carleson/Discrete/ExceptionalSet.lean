@@ -1,5 +1,9 @@
-import Carleson.Discrete.Defs
-import Carleson.ToMathlib.HardyLittlewood
+module
+
+public import Carleson.Discrete.Defs
+public import Carleson.ToMathlib.HardyLittlewood
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal

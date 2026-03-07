@@ -1,6 +1,10 @@
-import Mathlib.Analysis.Normed.Group.Basic
-import Carleson.ToMathlib.HardyLittlewood
-import Carleson.TwoSidedCarleson.Basic
+module
+
+public import Mathlib.Analysis.Normed.Group.Basic
+public import Carleson.ToMathlib.HardyLittlewood
+public import Carleson.TwoSidedCarleson.Basic
+
+@[expose] public section
 
 open MeasureTheory Set Bornology Function Metric Filter Topology
 open ENNReal hiding one_lt_two

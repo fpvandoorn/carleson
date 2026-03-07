@@ -3,7 +3,9 @@ Copyright (c) 2024 Jeremy Tan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Tan, Joachim Breitner
 -/
-import Mathlib.Order.KrullDimension
+module
+
+public import Mathlib.Order.KrullDimension
 
 /-!
 # Minimal and maximal layers of a set
@@ -20,6 +22,8 @@ of `Minimal`/`Maximal` on a set, excluding earlier layers.
 * `Set.iUnion_minLayer_iff_bounded_series`: if the length of `LTSeries` in `A` is bounded,
   `A` equals the union of its `minLayer`s up to `n`.
 -/
+
+@[expose] public section
 
 -- Upstreaming status: the file generally looks useful and should go into mathlib;
 -- the code can probably be polished and golfed more

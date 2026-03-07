@@ -1,6 +1,10 @@
-import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
-import Mathlib.Analysis.Convolution
-import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
+module
+
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
+public import Mathlib.Analysis.Convolution
+public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
+
+@[expose] public section
 
 -- Upstreaming status: looks nice and clean
 -- First lemmas augment mathlib ones (or replace some proofs),

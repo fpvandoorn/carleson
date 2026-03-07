@@ -1,4 +1,8 @@
-import Carleson.GridStructure
+module
+
+public import Carleson.GridStructure
+
+@[expose] public section
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate

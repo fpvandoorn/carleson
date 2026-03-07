@@ -1,5 +1,9 @@
-import Carleson.Calculations
-import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
+module
+
+public import Carleson.Calculations
+public import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
+
+@[expose] public section
 
 open MeasureTheory Set Metric Function Topology NNReal ENNReal
 

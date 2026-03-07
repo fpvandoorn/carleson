@@ -1,4 +1,6 @@
-import Carleson.Antichain.Basic
+module
+
+public import Carleson.Antichain.Basic
 
 /-!
 # 6.3. Proof of the Antichain Tile Count Lemma
@@ -12,6 +14,8 @@ This file contains the proofs of lemmas 6.3.1, 6.3.2, 6.3.3, 6.3.4 and 6.1.6 fro
 - `Antichain.global_antichain_density` : Lemma 6.3.4.
 - `Antichain.tile_count`: Lemma 6.1.6.
 -/
+
+@[expose] public section
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
