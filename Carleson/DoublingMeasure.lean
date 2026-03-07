@@ -1,6 +1,10 @@
-import Carleson.Defs
-import Carleson.LipschitzNorm
-import Carleson.ToMathlib.Data.ENNReal
+module
+
+public import Carleson.Defs
+public import Carleson.LipschitzNorm
+public import Carleson.ToMathlib.Data.ENNReal
+
+@[expose] public section
 
 open MeasureTheory Measure Metric Complex Set Bornology Function
 open ENNReal hiding one_lt_two

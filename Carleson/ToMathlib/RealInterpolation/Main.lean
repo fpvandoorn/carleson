@@ -1,4 +1,6 @@
-import Carleson.ToMathlib.RealInterpolation.Minkowski
+module
+
+public import Carleson.ToMathlib.RealInterpolation.Minkowski
 
 /-!
 # The Marcinkiewisz real interpolation theorem
@@ -29,6 +31,8 @@ It may be nicer to generalise this to Lorentz spaces first, and then upstream th
 Prioritise other files first (e.g., about weak type or the prerequisites files).
 
 -/
+
+@[expose] public section
 
 noncomputable section
 

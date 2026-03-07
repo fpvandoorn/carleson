@@ -1,4 +1,8 @@
-import Mathlib.Data.Real.ConjExponents
+module
+
+public import Mathlib.Data.Real.ConjExponents
+
+@[expose] public section
 
 open scoped ENNReal
 

@@ -1,8 +1,12 @@
-import Carleson.Antichain.AntichainOperator
-import Carleson.Discrete.Defs
-import Carleson.Discrete.SumEstimates
-import Mathlib.Analysis.Complex.ExponentialBounds
-import Mathlib.Combinatorics.Enumerative.DoubleCounting
+module
+
+public import Carleson.Antichain.AntichainOperator
+public import Carleson.Discrete.Defs
+public import Carleson.Discrete.SumEstimates
+public import Mathlib.Analysis.Complex.ExponentialBounds
+public import Mathlib.Combinatorics.Enumerative.DoubleCounting
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal

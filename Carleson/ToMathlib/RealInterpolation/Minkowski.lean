@@ -1,5 +1,7 @@
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.RealInterpolation.Misc
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.RealInterpolation.Misc
 
 /-!
 # Minkowski's integral inequality
@@ -15,6 +17,8 @@ Upstreaming status:
 Lemma names often need to be improved a bit; perhaps the code can also be golfed.
 
 -/
+
+@[expose] public section
 
 noncomputable section
 

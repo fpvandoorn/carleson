@@ -1,12 +1,16 @@
-import Carleson.Classical.DirichletKernel
-import Carleson.Classical.HilbertKernel
-import Carleson.Classical.SpectralProjectionBound
-import Carleson.Defs
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
-import Carleson.TwoSidedCarleson.Basic
-import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
-import Mathlib.Analysis.Real.Pi.Bounds
-import Mathlib.Tactic.Field
+module
+
+public import Carleson.Classical.DirichletKernel
+public import Carleson.Classical.HilbertKernel
+public import Carleson.Classical.SpectralProjectionBound
+public import Carleson.Defs
+public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+public import Carleson.TwoSidedCarleson.Basic
+public import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
+public import Mathlib.Analysis.Real.Pi.Bounds
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 /- This file contains the proof that the Hilbert kernel is a bounded operator. -/
 

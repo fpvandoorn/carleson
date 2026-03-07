@@ -1,8 +1,12 @@
-import Carleson.ForestOperator.LargeSeparation
-import Carleson.ForestOperator.RemainingTiles
-import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import Mathlib.Data.Set.Pairwise.Chain
+module
+
+public import Carleson.ForestOperator.LargeSeparation
+public import Carleson.ForestOperator.RemainingTiles
+public import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
+public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+public import Mathlib.Data.Set.Pairwise.Chain
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}

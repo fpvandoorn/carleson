@@ -1,4 +1,8 @@
-import Carleson.MetricCarleson.Linearized
+module
+
+public import Carleson.MetricCarleson.Linearized
+
+@[expose] public section
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Metric

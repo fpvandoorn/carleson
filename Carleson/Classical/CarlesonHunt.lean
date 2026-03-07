@@ -1,6 +1,10 @@
-import Carleson.Classical.ClassicalCarleson
+module
+
+public import Carleson.Classical.ClassicalCarleson
 
 /-! This file contains the Carleson-Hunt theorem, a generalization of `classical_carleson`. -/
+
+@[expose] public section
 
 open MeasureTheory Real
 

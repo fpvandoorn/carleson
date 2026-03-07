@@ -1,7 +1,9 @@
-import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
-import Carleson.ToMathlib.WeakType
-import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+module
+
+public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
+public import Carleson.ToMathlib.WeakType
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 
 /-!
 This file contains some miscellaneous prerequisites for proving the Marcinkiewisz real interpolation
@@ -21,6 +23,8 @@ Upstreaming status:
 - except for using `distribution_lt_top`, this file does not use WeakType;
   it does use helper lemmas in `InterpolatedExponents`, though.
 -/
+
+@[expose] public section
 
 noncomputable section
 

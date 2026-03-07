@@ -1,4 +1,8 @@
-import Carleson.TileStructure
+module
+
+public import Carleson.TileStructure
+
+@[expose] public section
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate

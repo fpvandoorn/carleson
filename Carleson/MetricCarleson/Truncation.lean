@@ -1,4 +1,8 @@
-import Carleson.FinitaryCarleson
+module
+
+public import Carleson.FinitaryCarleson
+
+@[expose] public section
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Filter Topology ShortVariables Bornology Metric Complex

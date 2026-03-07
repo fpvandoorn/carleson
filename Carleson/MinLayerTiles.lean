@@ -1,5 +1,9 @@
-import Carleson.TileStructure
-import Carleson.ToMathlib.MinLayer
+module
+
+public import Carleson.TileStructure
+public import Carleson.ToMathlib.MinLayer
+
+@[expose] public section
 
 noncomputable section
 

@@ -1,8 +1,11 @@
 /- This file contains definitions and lemmas regarding the Dirichlet kernel. -/
+module
 
-import Carleson.Classical.Basic
-import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
-import Mathlib.Tactic.Field
+public import Carleson.Classical.Basic
+public import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 open scoped Real
 open Finset Complex MeasureTheory

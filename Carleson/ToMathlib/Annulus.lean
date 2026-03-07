@@ -3,8 +3,10 @@ Copyright (c) 2024 James Sundstrom. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: James Sundstrom
 -/
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
-import Carleson.ToMathlib.Interval
+module
+
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
+public import Carleson.ToMathlib.Interval
 
 /-!
 # Annulus
@@ -23,6 +25,8 @@ two style questions should be answered in the process (see below).
 
 annulus, eannulus
 -/
+
+@[expose] public section
 
 open Set Metric ENNReal
 

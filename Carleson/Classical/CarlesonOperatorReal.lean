@@ -1,5 +1,9 @@
-import Carleson.Classical.HilbertKernel
-import Mathlib.MeasureTheory.Integral.Prod
+module
+
+public import Carleson.Classical.HilbertKernel
+public import Mathlib.MeasureTheory.Integral.Prod
+
+@[expose] public section
 
 /- This file contains the definition and basic properties of the Carleson operator on the real line.
 -/
