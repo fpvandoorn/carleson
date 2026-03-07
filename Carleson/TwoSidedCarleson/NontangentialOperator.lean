@@ -399,9 +399,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       rw [dist_comm x' y]
       linarith
     _ = (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖g y‖ₑ := by
-      apply lintegral_const_mul''
-      apply AEMeasurable.enorm
-      exact hg.aemeasurable.restrict
+      exact lintegral_const_mul'' _ (by fun_prop)
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in (ball x (2 * R)), ‖g y‖ₑ := by
       gcongr _ * ?_
       apply lintegral_mono_set
@@ -437,8 +435,8 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       rw [← ENNReal.div_mul, mul_assoc, mul_comm (2 ^ (4 * a)), ← mul_assoc, ENNReal.div_mul_cancel]
       · norm_cast
         ring
-      · apply (measure_ball_pos volume x (by linarith)).ne.symm
-      · apply measure_ball_ne_top
+      · apply (measure_ball_pos volume x (by linarith)).ne'
+      · finiteness
       · simp
       · simp
 
@@ -457,8 +455,7 @@ lemma cut_out_ball {g : X → ℂ} (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 
     intro hy'
     exfalso
     simp at hy hy'
-    have : dist y x' ≤ dist y x + dist x x' := by
-      apply dist_triangle
+    have : dist y x' ≤ dist y x + dist x x' := dist_triangle ..
     linarith
   · measurability
   · measurability
