@@ -1,6 +1,7 @@
 module
 
 public import Carleson.TileStructure
+import Mathlib.Algebra.Order.Interval.Set.Group
 
 @[expose] public section
 
@@ -23,12 +24,12 @@ lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
         refine ball_subset ?h
         simp only [add_sub_cancel_right]
         obtain hy' := hY hy
-        rw [mem_ball,dist_comm] at hy'
+        rw [mem_ball, dist_comm] at hy'
         apply hy'.le.trans
         rw [tsub_le_iff_right, le_add_iff_nonneg_right]
         positivity
-    _ = ball y (8 * D ^ (S:ℤ):ℝ) := by congr! 1; ring
-    _ ⊆ ball y (8 * D ^ (2 * S:ℤ) * D ^ k:ℝ) := by
+    _ = ball y (8 * D ^ (S : ℤ) : ℝ) := by congr! 1; ring
+    _ ⊆ ball y (8 * D ^ (2 * S : ℤ) * D ^ k) := by
         apply ball_subset_ball
         rw [mul_assoc]
         gcongr
@@ -173,7 +174,8 @@ variable (X) in
 lemma zorn_apply_maximal_set (k : ℤ) :
     ∃ s ∈ property_set X k, ∀ s' ∈ property_set X k, s ⊆ s' → s' = s := by
   have := zorn_subset (property_set X k) (chain_property_set_has_bound X k)
-  simp_rw [maximal_iff] at this; convert this using 6; exact eq_comm
+  simp_rw [maximal_iff] at this; convert this using 6
+  simp only [le_eq_subset, eq_comm]
 
 variable (X) in
 def Yk (k : ℤ) : Set X := (zorn_apply_maximal_set X k).choose
@@ -466,7 +468,7 @@ lemma I3_prop_3_2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
       _ <  4 * D ^ (k - 1) + 2 * D ^ k := add_lt_add this hy'
       _ ≤ 1 * D ^ (k - 1 + 1) + 2 * D ^ k := by
         simp only [one_mul, add_le_add_iff_right]
-        rw [zpow_add₀ (realD_pos a).ne.symm _ 1,zpow_one,mul_comm _ (D:ℝ)]
+        rw [zpow_add₀ (realD_pos a).ne' _ 1,zpow_one, mul_comm _ (D : ℝ)]
         gcongr
         exact four_le_realD X
       _ ≤ 4 * D ^ k := by

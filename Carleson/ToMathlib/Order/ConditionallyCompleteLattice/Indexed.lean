@@ -1,6 +1,8 @@
-import Mathlib.Order.ConditionallyCompleteLattice.Indexed
+module
 
-section ConditionallyCompleteLinearOrderBot
+public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
+
+public section ConditionallyCompleteLinearOrderBot
 
 variable {α : Type*} {ι : Sort*} {κ : ι → Sort*}
 variable [ConditionallyCompleteLinearOrderBot α] {a : α}
