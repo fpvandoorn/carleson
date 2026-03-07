@@ -1,9 +1,13 @@
-import Carleson.ToMathlib.LorentzType
-import Carleson.ToMathlib.RealInterpolation.Main
+module
+
+public import Carleson.ToMathlib.LorentzType
+public import Carleson.ToMathlib.RealInterpolation.Main
 
 /-! # The Marcinkiewisz interpolation theorem for Lorentz spaces
 
 Upstreaming status: this file is under construction and being worked on. Don't upstream yet! -/
+
+@[expose] public section
 
 open NNReal ENNReal MeasureTheory Set Pointwise
 

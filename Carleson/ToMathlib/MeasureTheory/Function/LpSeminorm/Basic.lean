@@ -1,7 +1,11 @@
-import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-import Mathlib.Analysis.Normed.Group.Basic
-import Carleson.ToMathlib.Misc -- for iSup_rpow
+module
+
+public import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+public import Mathlib.Analysis.Normed.Group.Basic
+public import Carleson.ToMathlib.Misc
+
+@[expose] public section -- for iSup_rpow
 
 -- Upstreaming status: lemmas seem useful (mostly minor modifications of mathlib),
 -- a lot is ready to go already

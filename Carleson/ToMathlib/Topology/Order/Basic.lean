@@ -1,4 +1,8 @@
-import Mathlib.Topology.Order.Basic
+module
+
+public import Mathlib.Topology.Order.Basic
+
+@[expose] public section
 
 -- Upstreaming status: perhaps, the hypotheses can be weakened, but otherwise looks ready
 

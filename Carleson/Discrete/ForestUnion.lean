@@ -1,8 +1,12 @@
-import Carleson.Discrete.Defs
-import Carleson.Discrete.SumEstimates
-import Carleson.ForestOperator.Forests
-import Carleson.MinLayerTiles
-import Mathlib.Analysis.Complex.ExponentialBounds
+module
+
+public import Carleson.Discrete.Defs
+public import Carleson.Discrete.SumEstimates
+public import Carleson.ForestOperator.Forests
+public import Carleson.MinLayerTiles
+public import Mathlib.Analysis.Complex.ExponentialBounds
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal

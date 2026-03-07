@@ -1,5 +1,9 @@
-import Mathlib.Order.CompleteLattice.Basic
-import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
+module
+
+public import Mathlib.Order.CompleteLattice.Basic
+public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
+
+@[expose] public section
 
 -- Upstreaming status: under active development by @ldiedering
 -- Wait for the file to stabilise first.

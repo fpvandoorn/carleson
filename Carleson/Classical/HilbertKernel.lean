@@ -1,5 +1,9 @@
-import Carleson.Classical.Basic
-import Mathlib.Analysis.Real.Pi.Bounds
+module
+
+public import Carleson.Classical.Basic
+public import Mathlib.Analysis.Real.Pi.Bounds
+
+@[expose] public section
 
 /- This file contains definitions and lemmas regarding the Hilbert kernel. -/
 

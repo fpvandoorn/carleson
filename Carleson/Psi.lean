@@ -1,5 +1,9 @@
-import Carleson.ProofData
-import Mathlib.Tactic.Field
+module
+
+public import Carleson.ProofData
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
 open scoped ENNReal
