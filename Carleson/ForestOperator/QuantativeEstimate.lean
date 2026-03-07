@@ -1,5 +1,9 @@
-import Carleson.ForestOperator.L2Estimate
-import Carleson.ToMathlib.BoundedCompactSupport
+module
+
+public import Carleson.ForestOperator.L2Estimate
+public import Carleson.ToMathlib.BoundedCompactSupport
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}

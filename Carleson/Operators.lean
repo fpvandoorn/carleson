@@ -1,6 +1,10 @@
-import Carleson.Psi
-import Carleson.TileStructure
-import Carleson.ToMathlib.BoundedCompactSupport
+module
+
+public import Carleson.Psi
+public import Carleson.TileStructure
+public import Carleson.ToMathlib.BoundedCompactSupport
+
+@[expose] public section
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped ComplexConjugate

@@ -1,7 +1,11 @@
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
-import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Topology.Order.Basic
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
+public import Carleson.ToMathlib.RealInterpolation.Misc
+public import Carleson.ToMathlib.Topology.Order.Basic
+
+@[expose] public section
 
 /- Upstreaming status: still needs some cleanup, and more analogues to mathlib lemmas about eLpNorm
 could be added -/

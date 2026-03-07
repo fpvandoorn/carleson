@@ -1,7 +1,11 @@
-import Carleson.TileStructure
-import Carleson.HolderNorm
+module
+
+public import Carleson.TileStructure
+public import Carleson.HolderNorm
 
 /-! This should roughly contain the contents of chapter 8. -/
+
+@[expose] public section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}

@@ -1,5 +1,9 @@
-import Mathlib.Analysis.MeanInequalitiesPow
-import Mathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
+module
+
+public import Mathlib.Analysis.MeanInequalitiesPow
+public import Mathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
+
+@[expose] public section
 
 -- Upstreaming status: looks useful and ready to go
 

@@ -1,4 +1,8 @@
-import Carleson.ForestOperator.QuantativeEstimate
+module
+
+public import Carleson.ForestOperator.QuantativeEstimate
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}

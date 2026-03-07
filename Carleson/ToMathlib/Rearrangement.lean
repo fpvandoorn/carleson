@@ -1,5 +1,9 @@
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.WeakType
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.WeakType
+
+@[expose] public section
 
 noncomputable section
 

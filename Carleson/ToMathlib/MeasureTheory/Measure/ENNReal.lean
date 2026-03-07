@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
+module
+
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
+
+@[expose] public section
 
 -- Upstreaming status: ready to be upstreamed
 

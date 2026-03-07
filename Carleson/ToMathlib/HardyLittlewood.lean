@@ -1,8 +1,12 @@
-import Carleson.Defs
-import Carleson.ToMathlib.MeasureTheory.Integral.Average
-import Carleson.ToMathlib.RealInterpolation.Main
-import Mathlib.MeasureTheory.Covering.Vitali
-import Mathlib.Tactic.Field
+module
+
+public import Carleson.Defs
+public import Carleson.ToMathlib.MeasureTheory.Integral.Average
+public import Carleson.ToMathlib.RealInterpolation.Main
+public import Mathlib.MeasureTheory.Covering.Vitali
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter Pointwise
 open ENNReal hiding one_lt_two

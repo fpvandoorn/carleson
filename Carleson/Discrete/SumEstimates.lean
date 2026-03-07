@@ -1,5 +1,9 @@
-import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
-import Mathlib.Analysis.SumIntegralComparisons
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
+public import Mathlib.Analysis.SumIntegralComparisons
+
+@[expose] public section
 
 open scoped Nat
 open Real MeasureTheory

@@ -1,7 +1,11 @@
-import Mathlib.Data.Finset.Lattice.Fold
-import Mathlib.Order.ConditionallyCompleteLattice.Defs
-import Mathlib.Order.ConditionallyCompleteLattice.Indexed
-import Mathlib.Data.Set.Finite.Lattice
+module
+
+public import Mathlib.Data.Finset.Lattice.Fold
+public import Mathlib.Order.ConditionallyCompleteLattice.Defs
+public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
+public import Mathlib.Data.Set.Finite.Lattice
+
+@[expose] public section
 
 -- Upstreaming status: under active development by @ldiedering
 -- Wait for the file to stabilise first.

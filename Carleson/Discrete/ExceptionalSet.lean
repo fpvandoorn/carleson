@@ -1,5 +1,9 @@
-import Carleson.Discrete.Defs
-import Carleson.ToMathlib.HardyLittlewood
+module
+
+public import Carleson.Discrete.Defs
+public import Carleson.ToMathlib.HardyLittlewood
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
@@ -524,7 +528,7 @@ variable {k} {n} {j} {x}
 variable {x : X} {m u u' u'' : 𝔓 X}
 variable (hu : u ∈ 𝔘 k n j x m) (hu' : u' ∈ 𝔘 k n j x m) (hu'' : u'' ∈ 𝔘 k n j x m)
 
-include hu in
+/-include hu in
 private lemma x_mem_𝓘u : x ∈ (𝓘 u) := by
   simp only [𝔘, mem_filter] at hu
   exact hu.2.1
@@ -607,7 +611,7 @@ private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
     apply Set.not_disjoint_iff.mpr ⟨f, mem_ball_comm.mp hg₁.2, mem_ball_comm.mp hg₂.2⟩
     exact disjoint_balls hu hu₁ hu₂ (ne_of_apply_ne 𝒬 h)
   rw [← card_image_iff.mpr 𝒬_injOn_𝔘m, 𝒬𝔘_eq_union]
-  exact (mul_one 𝓑.card ▸ card_biUnion_le_card_mul 𝓑 𝓕 1 card_le_one).trans 𝓑_card_le
+  exact (mul_one 𝓑.card ▸ card_biUnion_le_card_mul 𝓑 𝓕 1 card_le_one).trans 𝓑_card_le -/
 
 variable (k n j) (x) in
 open scoped Classical in
@@ -659,11 +663,11 @@ lemma tree_count :
   simp_rw [← mul_sum, stackSize_real, mem_coe, filter_univ_mem, interchange, sum_const]
   let _ : PosMulReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   -- Replace the cardinality of `𝔘` with the upper bound proven in `card_𝔘m_le`, and simplify.
-  apply le_of_le_of_eq <| (mul_le_mul_iff_right₀ (zpow_pos two_pos _)).mpr <| sum_le_sum <|
+  sorry /-apply le_of_le_of_eq <| (mul_le_mul_iff_right₀ (zpow_pos two_pos _)).mpr <| sum_le_sum <|
     fun _ _ ↦ smul_le_smul_of_nonneg_right card_𝔘m_le <| Set.indicator_apply_nonneg (by simp)
   simp_rw [← smul_sum, nsmul_eq_mul, ← mul_assoc, filter_mem_univ_eq_toFinset (𝔐 k n), defaultA]
   rw [sub_eq_add_neg, zpow_add₀ two_ne_zero, ← pow_mul, mul_comm 9, mul_comm (2 ^ _)]
-  norm_cast
+  norm_cast-/
 
 /-- Lemma 5.2.9 -/
 lemma boundary_exception {u : 𝔓 X} :

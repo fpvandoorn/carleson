@@ -1,5 +1,9 @@
-import Carleson.ForestOperator.PointwiseEstimate
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+module
+
+public import Carleson.ForestOperator.PointwiseEstimate
+public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+
+@[expose] public section
 
 noncomputable section
 
