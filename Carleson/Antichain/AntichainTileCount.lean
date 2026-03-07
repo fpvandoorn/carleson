@@ -623,7 +623,7 @@ private lemma exists_p''_le_L' : ∃ (p : 𝔓 X), p ∈ 𝔄' 𝔄 ϑ N ∧ �
   use p
 
 /-- p'' in the blueprint -/
-def p'' : 𝔓 X := (exists_p''_le_L' hL).choose
+@[no_expose] def p'' : 𝔓 X := (exists_p''_le_L' hL).choose
 
 lemma p''_mem : p'' hL ∈ 𝔄' 𝔄 ϑ N := (exists_p''_le_L' hL).choose_spec.1
 
@@ -642,7 +642,7 @@ private lemma exists_pΘ_eq_L' : ∃! (p : 𝔓 X), 𝓘 p = L' hL ∧ ϑ.val �
   exact absurd this (nonempty_iff_ne_empty.mp ⟨ϑ, hp.2, qΩ⟩)
 
 /-- p_Θ in the blueprint -/
-def pΘ : 𝔓 X := by
+@[no_expose] def pΘ : 𝔓 X := by
   classical exact if 𝓘 (p'' hL) = L' hL then p'' hL else (exists_pΘ_eq_L' hL).choose
 
 lemma I_pΘ_eq_L' : 𝓘 (pΘ hL) = L' hL := by
