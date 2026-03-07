@@ -528,6 +528,21 @@ variable {k} {n} {j} {x}
 variable {x : X} {m u u' u'' : 𝔓 X}
 variable (hu : u ∈ 𝔘 k n j x m) (hu' : u' ∈ 𝔘 k n j x m) (hu'' : u'' ∈ 𝔘 k n j x m)
 
+-- neigher of these options help!
+set_option backward.privateInPublic true
+set_option backward.proofsInPublic true
+
+include hu in
+/--
+error: `simp` made no progress
+---
+error: internal exception #3
+-/
+#guard_msgs in
+private lemma x_mem_𝓘u : x ∈ (𝓘 u) := by
+  simp only [𝔘, mem_filter] at hu
+  exact hu.2.1
+
 /-include hu in
 private lemma x_mem_𝓘u : x ∈ (𝓘 u) := by
   simp only [𝔘, mem_filter] at hu
@@ -645,6 +660,8 @@ private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ �
   refine Finset.sum_congr rfl (fun m hm ↦ ?_)
   simp only [TileLike.le_def, smul_fst, Finset.mem_filter] at hm
   simp [hm.2.2.1.1 hx]
+
+set_option backward.privateInPublic true
 
 open Finset in
 /-- Lemma 5.2.8 -/
