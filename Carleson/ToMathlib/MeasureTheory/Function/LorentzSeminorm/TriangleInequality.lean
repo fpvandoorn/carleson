@@ -362,8 +362,8 @@ lemma eLorentzNorm'_eq_lintegral_lorentz_helper_mul (p_ne_zero : p ≠ 0) (p_ne_
   simp
 
 open ENNReal in
-theorem eLorentzNorm_add_le (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
-    [NoAtoms μ] (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
+theorem eLorentzNorm_add_le [NoAtoms μ] [ContinuousAdd ε] (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
+     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
       eLorentzNorm (f + g) p q μ ≤ eLorentzNorm f p q μ + eLorentzNorm g p q μ := by
   unfold eLorentzNorm
   split_ifs with p_zero p_top q_zero q_top
@@ -398,7 +398,11 @@ theorem eLorentzNorm_add_le (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
       apply lintegral_antitone_mul_le (by fun_prop) (by fun_prop)
       · intro t
         apply (le_lintegral_add _ _).trans'
-        exact lintegral_rearrangement_add_rearrangement_le_add_lintegral hf hg
+        have := lintegral_rearrangement_add_rearrangement_le_add_lintegral hf hg (t := t)
+        rw [setLIntegral_ennreal_eq_setLintegral_of_nnreal measurableSet_Iio,
+            setLIntegral_ennreal_eq_setLintegral_of_nnreal measurableSet_Iio,
+            setLIntegral_ennreal_eq_setLintegral_of_nnreal measurableSet_Iio] at this
+        convert this <;> aesop
       · apply Antitone.mul' (antitone_lorentz_helper one_le_q q_le_p p_top) (antitone_rpow_inv_sub_inv q_le_p (zero_lt_one.trans_le one_le_q).ne')
     _ ≤ eLpNorm (lorentz_helper (f + g) p q μ * fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement f t μ) 1
         + eLpNorm (lorentz_helper (f + g) p q μ * fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement g t μ) 1 := by
@@ -439,7 +443,7 @@ theorem LorentzAddConst_lt_top : LorentzAddConst p q < ∞ := by
   · apply ENNReal.mul_lt_top _ (LpAddConst_lt_top _)
     exact ENNReal.rpow_lt_top_of_nonneg (by simp) (by norm_num)
 
-lemma eLorentzNorm_add_le' [NoAtoms μ] (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
+lemma eLorentzNorm_add_le' [NoAtoms μ] [ContinuousAdd ε] (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
     eLorentzNorm (f + g) p q μ ≤ LorentzAddConst p q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
   unfold LorentzAddConst
   split_ifs with h
@@ -449,7 +453,7 @@ lemma eLorentzNorm_add_le' [NoAtoms μ] (hf : AEStronglyMeasurable f μ) (hg : A
     exact eLorentzNorm_add_le hr.1 hr.2 hf hg
   · apply eLorentzNorm_add_le''
 
-lemma eLorentzNorm_add_lt_top [NoAtoms μ] (hf : MemLorentz f p q μ) (hg : MemLorentz g p q μ) :
+lemma eLorentzNorm_add_lt_top [NoAtoms μ] [ContinuousAdd ε] (hf : MemLorentz f p q μ) (hg : MemLorentz g p q μ) :
     eLorentzNorm (f + g) p q μ < ⊤ := by
   calc
     eLorentzNorm (f + g) p q μ ≤ LorentzAddConst p q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) :=

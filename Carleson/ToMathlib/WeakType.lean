@@ -45,6 +45,15 @@ lemma distribution_mono_right (h : t ≤ s) : distribution f s μ ≤ distributi
 lemma distribution_mono_right' : Antitone (fun t ↦ distribution f t μ) :=
   fun _ _ h ↦ distribution_mono_right h
 
+@[congr]
+lemma distribution_congr_ae (h : ∀ᵐ x ∂μ, f x = g x) :
+    distribution f t μ = distribution g t μ := by
+  apply measure_congr
+  filter_upwards [h] with y hy
+  have : {x | t < ‖f x‖ₑ} y = (t < ‖f y‖ₑ) := rfl
+  rw [this, hy]
+  rfl
+
 @[measurability, fun_prop]
 lemma distribution_measurable₀ : Measurable (fun t ↦ distribution f t μ) :=
   Antitone.measurable (distribution_mono_right' (f := f) (μ := μ))

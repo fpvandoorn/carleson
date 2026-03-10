@@ -1,3 +1,4 @@
+import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
 import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
 import Carleson.ToMathlib.Rearrangement
 
@@ -42,7 +43,78 @@ lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → 
   eLorentzNorm' f p q μ
     = eLpNorm (fun (t : ℝ≥0) ↦ t ^ p⁻¹.toReal * rearrangement f t μ) q
         (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
+  by_cases q_zero : q = 0
+  · rw [q_zero]
+    simp
+  unfold eLorentzNorm'
+  by_cases q_top : q = ⊤
+  · rw [q_top]
+    simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv,
+      eLpNorm_exponent_top, one_mul]
+    sorry
+  rw [← eLpNorm_const_smul'' (by simp; aesop), eLpNorm_eq_lintegral_rpow_enorm q_zero q_top,
+      eLpNorm_eq_lintegral_rpow_enorm q_zero q_top,
+      lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop),
+      lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop)]
+  congr 1
+  simp only [ENNReal.toReal_inv, Pi.smul_apply, smul_eq_mul, enorm_eq_self]
+  conv =>
+    lhs
+    congr
+    rfl
+    intro t
+    simp
+    rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp),
+        ENNReal.rpow_inv_rpow (ENNReal.toReal_ne_zero.mpr ⟨q_zero, q_top⟩),
+        ENNReal.mul_rpow_of_nonneg _ _ (by simp),
+        ← mul_assoc, ← mul_assoc, mul_comm _ p, mul_assoc p, ← ENNReal.rpow_neg_one,
+        ]
+  conv =>
+    rhs
+    congr
+    rfl
+    intro t
+    simp
+    rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp),
+        ← ENNReal.rpow_mul, ← ENNReal.rpow_neg_one, ← mul_assoc]
+  --← ENNReal.rpow_add
+  --apply lintegral_norm_pow_eq_distribution
+  symm
+  calc _
+    _ = ∫⁻ (t : ℝ≥0), ↑t ^ (-1 : ℝ) * ↑t ^ (p.toReal⁻¹ * q.toReal)
+          * (∫⁻ l in Set.Ioo 0 (rearrangement f t μ), q * l ^ (q - 1).toReal) := by
+      congr with t
+      congr
+      rw [lintegral_const_mul _ (by fun_prop), ← lintegral_indicator measurableSet_Ioo, lintegral_ennreal_eq_lintegral_Ioi_ofReal]
+      simp_rw [← Set.indicator_comp_right]
+      rw [setLIntegral_indicator (by measurability), ENNReal.ofReal_Ioo_eq]
+      simp only [ENNReal.zero_ne_top, ↓reduceIte, zero_le, true_and, ENNReal.toReal_zero,
+        Function.comp_apply]
+      split_ifs with h
+      · rw [h, ENNReal.top_rpow_of_pos (ENNReal.toReal_pos q_zero q_top), Set.inter_self]
+        sorry
+      · rw [Set.Ioo_inter_Ioi, max_self, ← lintegral_indicator measurableSet_Ioo]
+        --simp only [max_self]
+        have : (fun a ↦ ENNReal.ofReal a ^ (q - 1).toReal) = ENNReal.ofReal ∘ (fun a ↦ a ^ (q - 1).toReal) := by
+          ext a
+          simp only [Function.comp_apply]
+          rw [ENNReal.ofReal_rpow_of_pos]
+          sorry
+
+        --simp_rw [ENNReal.ofReal_rpow_of_nonneg]
+
+        --simp_rw [Set.indicator_comp_of_zero,
+        --    ← integral_eq_lintegral_of_nonneg_ae,]
+        --rw [integral_rpow]
+        sorry
+
+
+      --setLIntegral_indicator
+
+      --apply lintegral_norm_pow_eq_distribution
+
   sorry
+
 
 lemma eLorentzNorm'_eq' (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} {μ : Measure α} :
   eLorentzNorm' f p q μ
@@ -55,13 +127,7 @@ lemma eLorentzNorm'_eq' (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α →
   · rw [q_top]
     simp only [ENNReal.toReal_inv, eLpNorm_exponent_top, ENNReal.inv_top, ENNReal.toReal_zero,
       sub_zero]
-    unfold eLpNormEssSup essSup
-    congr 1
-    apply le_antisymm
-    · rw [Measure.ae_le_iff_absolutelyContinuous]
-      apply withDensity_absolutelyContinuous
-    · rw [Measure.ae_le_iff_absolutelyContinuous]
-      apply withDensity_absolutelyContinuous' (by fun_prop) (by simp)
+    apply eLpNormEssSup_withDensity (by fun_prop) (by simp)
   rw [eLpNorm_eq_lintegral_rpow_enorm q_zero q_top, eLpNorm_eq_lintegral_rpow_enorm q_zero q_top,
       lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop)]
   congr 1

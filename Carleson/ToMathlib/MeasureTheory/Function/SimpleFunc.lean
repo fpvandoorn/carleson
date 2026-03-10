@@ -21,6 +21,17 @@ variable {α β γ δ : Type*}
 
 namespace SimpleFunc
 
+--TODO: tag this as @[fun_prop] (currently this gives an error)
+theorem measurable_comp [MeasurableSpace α] [MeasurableSpace γ] {f : SimpleFunc α β}
+  {g : β → γ} :
+    Measurable (g ∘ f) :=
+  SimpleFunc.measurable_bind _ (fun b _ ↦ g b) (fun _ ↦ measurable_const)
+
+theorem measurable_comp' [MeasurableSpace α] [MeasurableSpace γ] {f : SimpleFunc α β}
+  {g : β → γ} :
+    Measurable fun a ↦ g (f a) :=
+  SimpleFunc.measurable_bind _ (fun b _ ↦ g b) (fun _ ↦ measurable_const)
+
 /- Proof stolen from the mathlib `SimpleFunc.induction` with a minor modification
    that is even suggested there. -/
 --TODO: update notation in mathlib version to match this one
@@ -201,6 +212,7 @@ private lemma helper [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β] [C
       assumption
 
 --TODO: move
+--TODO: formulate this with `IsLowerSet` and write a separate lemma to distinguish the cases
 open Classical in
 lemma Antitone.support_eq [ConditionallyCompleteLinearOrderBot α] [AddMonoid β] [LinearOrder β] [CanonicallyOrderedAdd β] [OrderBot β]
   {f : α → β} (hf : Antitone f) :
