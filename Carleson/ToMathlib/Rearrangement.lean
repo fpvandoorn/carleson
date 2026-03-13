@@ -139,6 +139,428 @@ lemma distribution_rearrangement {f : α → ε} {μ : Measure α} {t : ℝ≥0�
   rw [this, ENNReal.volume_Iio]
   rfl
 
+lemma distribution_indicator_superlevelSet {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} {t : ℝ≥0∞} :
+    distribution ((superlevelSet f t).indicator f) x μ
+      = min (distribution f t μ) (distribution f x μ) := by
+    by_cases h : t ≤ x
+    · rw [min_eq_right (distribution_mono_right h)]
+      unfold distribution superlevelSet Set.indicator
+      congr with y
+      split_ifs with h
+      · rfl
+      · simp only [enorm_zero, not_lt_zero, false_iff, not_lt]
+        simp only [Set.mem_setOf_eq, not_lt] at h
+        order
+    · push_neg at h
+      rw [min_eq_left (distribution_mono_right h.le)]
+      unfold distribution superlevelSet Set.indicator
+      congr with y
+      split_ifs with h
+      · simp only [Set.mem_setOf_eq] at h
+        simp only [h, iff_true]
+        order
+      · simp only [Set.mem_setOf_eq] at h
+        simp [h]
+
+lemma distribution_indicator_superlevelSet_compl {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} (ht : distribution f t μ ≠ ∞) :
+    distribution ((superlevelSet f t)ᶜ.indicator f) x μ
+      = distribution f x μ - distribution f t μ := by
+    by_cases h : t ≤ x
+    · rw [tsub_eq_zero_of_le (distribution_mono_right h), ← measure_empty (μ := μ)]
+      unfold distribution superlevelSet Set.indicator
+      congr 1
+      ext y
+      simp only [Set.mem_compl_iff, Set.mem_setOf_eq, not_lt, Set.mem_empty_iff_false, iff_false]
+      split_ifs with h
+      · order
+      · simp
+    · push_neg at h
+      unfold distribution superlevelSet Set.indicator
+      rw [← measure_diff _ _ ht]
+      rotate_left
+      · intro y
+        simp only [Set.mem_setOf_eq]
+        exact h.trans
+      · exact (nullMeasurableSet_superlevelSet hf)
+      congr 1
+      ext y
+      simp only [Set.mem_compl_iff, Set.mem_setOf_eq, not_lt, Set.mem_diff]
+      split_ifs with h <;> simp [h]
+
+lemma rearrangement_indicator_superlevelSet {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} {t : ℝ≥0∞} :
+    rearrangement ((superlevelSet f t).indicator f) x μ
+      = (superlevelSet (rearrangement f · μ) t).indicator (rearrangement f · μ) x := by
+  rw [rearrangement]
+  simp_rw [distribution_indicator_superlevelSet]
+  simp only [inf_le_iff]
+  unfold Set.indicator superlevelSet
+  simp only [enorm_eq_self, Set.mem_setOf_eq]
+  split_ifs with h
+  · rw [lt_rearrangement_iff] at h
+    unfold rearrangement
+    congr with σ
+    simp [h]
+  · push_neg at h
+    rw [rearrangement_le_iff] at h
+    simp [h]
+
+lemma rearrangement_indicator_superlevelSet_compl {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} (ht : distribution f t μ ≠ ∞) :
+    rearrangement ((superlevelSet f t)ᶜ.indicator f) x μ
+      = rearrangement f (x + distribution f t μ) μ := by
+  rw [rearrangement]
+  simp_rw [distribution_indicator_superlevelSet_compl hf ht, tsub_le_iff_right]
+  rfl
+
+#check MeasurableSet.induction_on_open
+#check MeasurableSpace.induction_on_inter
+#check Real.borel_eq_generateFrom_Ioi_rat
+#check borel_eq_generateFrom_Ioi
+
+lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite {ε} [TopologicalSpace ε]
+  [ENormedAddMonoid ε]
+  {f : α → ε} (hf : AEStronglyMeasurable f μ) (hf' : μ f.support < ∞) {s : Set ℝ≥0∞}
+  (hs : MeasurableSet s) :
+    μ {x | ‖f x‖ₑ ∈ s \ {0}} = volume {x | rearrangement f x μ ∈ s \ {0}} := by
+  apply MeasurableSpace.induction_on_inter
+    (C := fun s hs ↦ μ {x | ‖f x‖ₑ ∈ s \ {0}} = volume {x | ‖rearrangement f x μ‖ₑ ∈ s \ {0}})
+    (borel_eq_generateFrom_Ioi ℝ≥0∞) isPiSystem_Ioi _ _ _ _ _ hs
+  · simp
+  · intro s hs
+    rcases hs with ⟨t, ht⟩
+    rw [← ht]
+    simp only [Set.mem_Ioi, not_lt_zero, not_false_eq_true, Set.diff_singleton_eq_self,
+      enorm_eq_self]
+    exact distribution_rearrangement
+  · intro s hs h
+    calc _
+      _ = μ {x | ‖f x‖ₑ ≠ 0} - μ {x | ‖f x‖ₑ ∈ s \ {0}} := by
+        rw [← measure_diff]
+        · nth_rw 2 [Set.diff_eq]
+          rw [Set.compl_setOf, ← Set.setOf_and]
+          congr with x
+          grind
+        · simp
+        · exact AEMeasurable.nullMeasurableSet_preimage hf.enorm (by aesop)
+        · rw [← lt_top_iff_ne_top]
+          apply hf'.trans_le'
+          gcongr
+          unfold Function.support
+          aesop
+      _ = volume {x | rearrangement f x μ ≠ 0} - volume {x | rearrangement f x μ ∈ s \ {0}} := by
+        congr
+        rw [← ENNReal.bot_eq_zero]
+        simp_rw [← bot_lt_iff_ne_bot]
+        rw [ENNReal.bot_eq_zero]
+        exact distribution_rearrangement
+      _ = volume {x | rearrangement f x μ ∈ sᶜ \ {0}} := by
+        rw [← measure_diff]
+        · nth_rw 1 [Set.diff_eq]
+          rw [Set.compl_setOf, ← Set.setOf_and]
+          congr with x
+          grind
+        · simp
+        · exact AEMeasurable.nullMeasurableSet_preimage rearrangement_measurable₀.aemeasurable (by aesop)
+        · rw [← lt_top_iff_ne_top]
+          apply hf'.trans_le'
+          rw [← distribution_zero_eq_measure_support, distribution_rearrangement]
+          unfold distribution
+          rw [← ENNReal.bot_eq_zero]
+          simp_rw [bot_lt_iff_ne_bot]
+          rw [ENNReal.bot_eq_zero]
+          gcongr
+          aesop
+  · intro S hSd hSm hS
+    calc _
+      _ = μ (⋃ i, {x | ‖f x‖ₑ ∈ S i \ {0}}) := by
+        rw [Set.iUnion_setOf]
+        congr with x
+        simp
+      _ = ∑' i, μ ({x | ‖f x‖ₑ ∈ S i \ {0}}) := by
+        apply measure_iUnion₀
+        · intro i j hij
+          unfold Function.onFun
+          apply Disjoint.aedisjoint
+          rw [Set.disjoint_iff]
+          intro x
+          simp only [Set.mem_diff, Set.mem_singleton_iff, enorm_eq_zero, Set.mem_inter_iff,
+            Set.mem_setOf_eq, Set.mem_empty_iff_false, imp_false, not_and, not_not, and_imp]
+          intro hi _ hj
+          exfalso
+          have := hSd hij
+          contrapose this
+          rw [Set.not_disjoint_iff]
+          use ‖f x‖ₑ, hi, hj
+        · exact fun i ↦ AEMeasurable.nullMeasurableSet_preimage hf.enorm (by aesop)
+      _ = ∑' i,  volume {x | rearrangement f x μ ∈ S i \ {0}} := by
+        congr with i
+        exact hS i
+      _ = volume (⋃ i, {x | rearrangement f x μ ∈ S i \ {0}}) := by
+        symm
+        apply measure_iUnion₀
+        · intro i j hij
+          unfold Function.onFun
+          apply Disjoint.aedisjoint
+          rw [Set.disjoint_iff]
+          intro x
+          simp only [Set.mem_diff, Set.mem_singleton_iff, Set.mem_inter_iff,
+            Set.mem_setOf_eq, Set.mem_empty_iff_false, imp_false, not_and, not_not, and_imp]
+          intro hi _ hj
+          exfalso
+          have := hSd hij
+          contrapose this
+          rw [Set.not_disjoint_iff]
+          use ‖rearrangement f x μ‖ₑ, hi, hj
+        · exact fun i ↦ AEMeasurable.nullMeasurableSet_preimage rearrangement_measurable₀.aemeasurable (by aesop)
+      _ = volume {x | rearrangement f x μ ∈ (⋃ i, S i) \ {0}} := by
+        rw [Set.iUnion_setOf]
+        congr with x
+        simp
+
+lemma measure_enorm_mem_eq_volume_rearrangement_mem' {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} (hf : AEStronglyMeasurable f μ) {s : Set ℝ≥0∞}
+  (hs : MeasurableSet s) (h : ∃ T, (∀ t ∈ s, T < t) ∧ distribution f T μ < ∞) :
+    μ {x | ‖f x‖ₑ ∈ s \ {0}} = volume {x | rearrangement f x μ ∈ s \ {0}} := by
+  rcases h with ⟨T, hT, hT'⟩
+  have hμ : {x | ‖f x‖ₑ ∈ s \ {0}} = {x | ‖(superlevelSet f T).indicator f x‖ₑ ∈ s \ {0}} := by
+    ext x
+    unfold superlevelSet Set.indicator
+    simp only [Set.mem_diff, Set.mem_singleton_iff, enorm_eq_zero, Set.mem_setOf_eq,
+      ite_eq_right_iff, Classical.not_imp]
+    aesop
+  have hvolume : {x | rearrangement f x μ ∈ s \ {0}}
+      = {x | (superlevelSet (rearrangement f · μ) T).indicator (rearrangement f · μ) x ∈ s \ {0}} := by
+    ext x
+    unfold superlevelSet Set.indicator
+    aesop
+  rw [hμ, hvolume]
+  rw [measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite (μ := μ) _ _ hs]
+  · congr with x
+    rw [rearrangement_indicator_superlevelSet]
+  · exact hf.indicator₀ (nullMeasurableSet_superlevelSet hf)
+  · rw [← distribution_zero_eq_measure_support, distribution_indicator_superlevelSet]
+    exact min_lt_of_left_lt hT'
+
+lemma measure_enorm_eq_eq_volume_rearrangement_eq {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} (hf : AEStronglyMeasurable f μ) {a : ℝ≥0∞}
+  (ha : distribution f a μ ≠ ∞) (h : μ {x | ‖f x‖ₑ = a} = ⊤) :
+    volume {x | rearrangement f x μ = a} = ⊤ := by
+  rw [← top_le_iff]
+  calc _
+    _ ≤ volume {x | rearrangement f (x + distribution f a μ) μ = a} := by
+      simp_rw [← rearrangement_indicator_superlevelSet_compl hf ha]
+      rw [← ENNReal.volume_Iio (a := ∞)]
+      gcongr
+      intro x hx
+      simp only [Set.mem_Iio, Set.mem_setOf_eq] at *
+      apply le_antisymm
+      · rw [rearrangement_le_iff]
+        convert zero_le'
+        unfold distribution superlevelSet Set.indicator
+        rw [← measure_empty (μ := μ)]
+        congr 1
+        ext x
+        simp only [Set.mem_compl_iff, Set.mem_setOf_eq, not_lt, Set.mem_empty_iff_false,
+          iff_false]
+        split_ifs
+        · assumption
+        · simp
+      · unfold rearrangement
+        apply le_sInf
+        intro b
+        simp only [Set.mem_setOf_eq]
+        contrapose!
+        intro hb
+        unfold distribution
+        apply hx.trans_le
+        rw [← h]
+        gcongr with x
+        intro hfa
+        unfold Set.indicator superlevelSet
+        split_ifs with h
+        · rwa [hfa]
+        · simp at h
+          order
+    _ = Measure.map (· + distribution f a μ) volume {x | rearrangement f x μ = a} := by
+      rw [Measure.map_apply (by measurability) (by measurability)]
+      congr
+    _ ≤ volume {x | rearrangement f x μ = a} := by
+      apply ENNReal.volume_map_add_right_le_self ha (by measurability)
+
+lemma measure_enorm_mem_eq_volume_rearrangement_mem {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} (hf : AEStronglyMeasurable f μ) {s : Set ℝ≥0∞}
+  (hs : MeasurableSet s) (hs' : ∀ t ∈ s, distribution f t μ < ∞) (inf_not_mem : sInf s ∉ s) :
+    μ {x | ‖f x‖ₑ ∈ s \ {0}} = volume {x | rearrangement f x μ ∈ s \ {0}} := by
+  /-
+  by_cases s_inf : sInf s ∈ s
+  · --push_neg at s_inf
+    calc _
+      _ = μ {x | ‖f x‖ₑ ∈ (s \ {sInf s}) \ {0}} + μ {x | ‖f x‖ₑ = sInf s ∧ ‖f x‖ₑ ≠ 0} := by
+        rw [← measure_union₀, ← Set.setOf_or]
+        · congr with x
+          grind
+        · --measurability
+          sorry
+        · apply Disjoint.aedisjoint
+          rw [Set.disjoint_iff]
+          intro x hx
+          grind
+      _ = volume {x | rearrangement f x μ ∈ (s \ {sInf s}) \ {0}} + volume {x | rearrangement f x μ = sInf s ∧ rearrangement f x μ ≠ 0} := by
+        congr 1
+        · apply measure_enorm_mem_eq_volume_rearrangement_mem' hf (by measurability)
+          use sInf s
+          simp only [Set.mem_diff, Set.mem_singleton_iff, and_imp, hs' _ s_inf, and_true]
+          intro t ht ht'
+          apply lt_of_le_of_ne (sInf_le ht)
+          symm
+          exact ht'
+        · by_cases hs : sInf s = 0
+          · rw [hs]
+            simp
+          have {a : ℝ≥0∞} : a = sInf s ∧ a ≠ 0 ↔ a = sInf s := by aesop
+          simp_rw [this]
+          sorry
+      _ = volume {x | rearrangement f x μ ∈ s \ {0}} := by
+        sorry
+  -/
+  by_cases s_nonempty : s = ∅
+  · rw [s_nonempty]
+    simp
+  simp_rw [← Set.nonempty_iff_ne_empty] at s_nonempty
+  have s_bddBelow : BddBelow s := by simp
+  /-
+  by_cases s_inf : sInf s ∈ s
+  · have hμ : {x | ‖f x‖ₑ ∈ s \ {0}} = {x | ‖(superlevelSet f (sInf s)).indicator f x‖ₑ ∈ s \ {0}} := by
+      ext x
+      unfold superlevelSet Set.indicator
+      simp only [Set.mem_diff, Set.mem_singleton_iff, enorm_eq_zero, Set.mem_setOf_eq,
+        ite_eq_right_iff, Classical.not_imp]
+      split_ifs with h
+      · aesop
+      · simp [h]
+        intro h'
+        exfalso
+        simp at h
+  -/
+  rcases exists_seq_tendsto_sInf s_nonempty s_bddBelow with ⟨u, antitone_u, tendsto_u, hus⟩
+  have hμ : {x | ‖f x‖ₑ ∈ s \ {0}} = ⋃ n, {x | ‖(superlevelSet f (u n)).indicator f x‖ₑ ∈ s \ {0}} := by
+    ext x
+    unfold superlevelSet Set.indicator
+    aesop
+    have : ∃ i, u i < ‖f x‖ₑ := by
+      refine iInf_lt_iff.mp ?_
+      rw [iInf_eq_of_tendsto antitone_u tendsto_u]
+      apply lt_of_le_of_ne (sInf_le left)
+      grind
+    rcases this with ⟨i, hi⟩
+    use i
+    split_ifs
+    use left
+  have hvolume : {x | rearrangement f x μ ∈ s \ {0}}
+      = ⋃ n, {x | (superlevelSet (rearrangement f · μ) (u n)).indicator (rearrangement f · μ) x ∈ s \ {0}} := by
+    ext x
+    unfold superlevelSet Set.indicator
+    aesop
+    have : ∃ i, u i < rearrangement f x μ := by
+      refine iInf_lt_iff.mp ?_
+      rw [iInf_eq_of_tendsto antitone_u tendsto_u]
+      apply lt_of_le_of_ne (sInf_le left)
+      grind
+    rcases this with ⟨i, hi⟩
+    use i
+    split_ifs
+    use left
+  rw [hμ, hvolume, Monotone.measure_iUnion, Monotone.measure_iUnion]
+  · congr with i
+    rw [measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite (μ := μ) _ _ hs]
+    · congr with x
+      rw [rearrangement_indicator_superlevelSet]
+    · exact hf.indicator₀ (nullMeasurableSet_superlevelSet hf)
+    · rw [← distribution_zero_eq_measure_support, distribution_indicator_superlevelSet]
+      exact min_lt_of_left_lt (hs' (u i) (hus i))
+  · intro n m hmn
+    simp only
+    unfold Set.indicator
+    intro x
+    simp only [Set.mem_setOf_eq]
+    split_ifs with hn hm
+    · exact id
+    · exfalso
+      unfold superlevelSet at hn hm
+      simp only [enorm_eq_self, Set.mem_setOf_eq, not_lt] at hn hm
+      have := antitone_u hmn
+      order
+    · simp
+    · exact id
+  · intro n m hmn
+    simp only
+    unfold Set.indicator
+    intro x
+    simp only [Set.mem_setOf_eq]
+    split_ifs with hn hm
+    · exact id
+    · exfalso
+      unfold superlevelSet at hn hm
+      simp only [Set.mem_setOf_eq, not_lt] at hn hm
+      have := antitone_u hmn
+      order
+    · simp
+    · exact id
+
+/-
+--TODO: use some kind of induction on measurable sets?
+lemma measure_enorm_mem_eq_volume_rearrangement_mem [TopologicalSpace ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
+    μ {x | ‖f x‖ₑ ∈ s} = volume {x | ‖rearrangement f x μ‖ₑ ∈ s} := by
+  --let C (s : Set α) := sorry
+  --apply MeasurableSpace.induction_on_inter
+  have : μ {x | ‖f x‖ₑ ∈ s} = volume {x | ‖rearrangement f x μ‖ₑ ∈ s} ∧
+         μ {x | ‖f x‖ₑ ∈ sᶜ} = volume {x | ‖rearrangement f x μ‖ₑ ∈ sᶜ} := by
+    --induction s hs using MeasurableSpace.induction_on_inter
+    sorry --TODO: apply induction to this
+  --apply SigmaFinite
+  sorry
+-/
+
+lemma distribution_comp_rearrangement  {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) (hf' : distribution f 0 μ ≠ ∞) {g : ℝ≥0∞ → ℝ≥0∞} {t : ℝ≥0∞}
+  (hg : Measurable g) (g_zero : g 0 = 0) :
+    distribution (g ∘ (rearrangement f · μ)) t volume = distribution (fun x ↦ g ‖f x‖ₑ) t μ := by
+  unfold distribution
+  simp only [enorm_eq_self]
+  calc _
+    _ = volume {s | rearrangement f s μ ∈ g ⁻¹' Set.Ioi t} := by rfl
+
+
+--TODO: generalize this
+lemma lintegral_comp_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) (hf' : distribution f 0 μ ≠ ∞) {g : ℝ≥0∞ → ℝ≥0∞}
+  (hg : Measurable g) (g_zero : g 0 = 0) :
+    ∫⁻ x, g ‖f x‖ₑ ∂μ = ∫⁻ t, g (rearrangement f t μ) := by
+
+  rw [lintegral_eq_lintegral_distribution _ (by fun_prop)]
+  symm
+  rw [lintegral_eq_lintegral_distribution _ (by fun_prop)]
+  congr with t
+  unfold distribution
+  simp only [enorm_eq_self]
+  symm
+  calc _
+    _ = volume {s | rearrangement f s μ ∈ g ⁻¹' Set.Ioi t} :=
+      measure_enorm_mem_eq_volume_rearrangement_mem hf (by measurability)
+
+  sorry
+
+/-
+lemma measure_rearrangement {f : α → ε} {g : ℝ≥0∞ → ℝ≥0∞} {t : ℝ≥0∞} :
+    μ {x | t < g ‖f x‖ₑ} = volume {x | t < g ‖rearrangement f x μ‖ₑ} := by
+  sorry
+-/
+
+/-
 lemma rearrangement_add_le {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g : α → ε} :
     rearrangement (f + g) (x + y) μ ≤ rearrangement f x μ + rearrangement g y μ := by
   apply csInf_le'
@@ -239,9 +661,14 @@ lemma liminf_rearrangement [TopologicalSpace ε] {s : ℕ → α → ε}
       rearrangement f x μ ≤ liminf (fun i ↦ rearrangement (s i) x μ) atTop := sorry
 
 -- Lemma 1.1.24 of [Ian Tice]
-lemma distribution_indicator_le_distribution [TopologicalSpace ε] [Zero ε] {f : α → ε}
-  (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
-    distribution (X.indicator f) t μ ≤ distribution f t μ := sorry
+lemma distribution_indicator_le_distribution {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
+  {f : α → ε} {X : Set α} (t : ℝ≥0∞) (μ : Measure α) :
+    distribution (X.indicator f) t μ ≤ distribution f t μ := by
+  apply distribution_mono_left
+  filter_upwards
+  intro x
+  unfold Set.indicator
+  split_ifs <;> simp
 
 -- Lemma 1.1.24 of [Ian Tice]
 lemma distribution_indicator_le_measure [TopologicalSpace ε] [Zero ε] {f : α → ε}
@@ -249,8 +676,7 @@ lemma distribution_indicator_le_measure [TopologicalSpace ε] [Zero ε] {f : α 
     distribution (X.indicator f) t μ ≤ μ X := sorry
 
 -- Lemma 1.1.24 of [Ian Tice]
-/-- Version of `rearrangement_indicator_le` for `t : ℝ≥0∞` -/
-lemma rearrangement_indicator_le' [TopologicalSpace ε] [Zero ε] {f : α → ε}
+lemma rearrangement_indicator_le [TopologicalSpace ε] [Zero ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
     rearrangement (X.indicator f) t μ ≤
       Set.indicator (Set.Iio (μ X)) (rearrangement f · μ) t := sorry
@@ -797,6 +1223,7 @@ def Lorentz {α} (E : Type*) {m : MeasurableSpace α} [NormedAddCommGroup E] (p 
 
 -/
 
+-/
 
 end rearrangement
 

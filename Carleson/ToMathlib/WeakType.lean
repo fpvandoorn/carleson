@@ -28,12 +28,37 @@ variable [ENorm ε] {f g g₁ g₂ : α → ε}
 /- Proofs for this file can be found in
 Folland, Real Analysis. Modern Techniques and Their Applications, section 6.3. -/
 
+/-- The superlevel set of a function `f`. -/
+def superlevelSet (f : α → ε) (t : ℝ≥0∞) : Set α := {x | t < ‖f x‖ₑ}
+
+lemma superlevelSet_antitone : Antitone (superlevelSet f) := by
+  intro s t h
+  unfold superlevelSet
+  intro x hx
+  exact lt_of_le_of_lt h hx
+
+@[measurability]
+lemma nullMeasurableSet_superlevelSet {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) :
+    NullMeasurableSet (superlevelSet f t) μ := by
+  unfold superlevelSet
+  apply AEStronglyMeasurable.nullMeasurableSet_lt (by fun_prop) hf.enorm.aestronglyMeasurable
+
+@[measurability]
+lemma measurableSet_superlevelSet {ε} [TopologicalSpace ε] [ContinuousENorm ε] [MeasurableSpace ε]
+  [OpensMeasurableSpace ε] {f : α → ε} (hf : Measurable f) :
+    MeasurableSet (superlevelSet f t) := by
+  unfold superlevelSet
+  measurability
+
 /-! # The distribution function `d_f` -/
 
 /-- The distribution function of a function `f`.
 Todo: rename to something more Mathlib-appropriate. -/
 def distribution (f : α → ε) (t : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   μ { x | t < ‖f x‖ₑ }
+
+lemma distribution_eq_measure_superlevelSet : distribution f t μ = μ (superlevelSet f t) := by rfl
 
 @[simp]
 lemma distibution_top (f : α → ε) (μ : Measure α) : distribution f ∞ μ = 0 := by simp [distribution]
@@ -247,6 +272,13 @@ lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α
     distribution f t μ = 0 := by
   apply distribution_zero_enorm
   simpa only [Filter.EventuallyEq, comp_apply, Pi.zero_apply, enorm_eq_zero]
+
+lemma distribution_zero_eq_measure_support {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} :
+    distribution f 0 μ = μ f.support := by
+  unfold distribution support
+  congr with x
+  simp
 
 lemma distribution_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
     distribution (s.indicator (Function.const α a)) t μ = (Set.Iio ‖a‖ₑ).indicator (fun _ ↦ μ s) t := by

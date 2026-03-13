@@ -540,6 +540,50 @@ instance : Measure.IsOpenPosMeasure (@volume ℝ≥0 _) where
     rw [NNReal.volume_Ioo]
     simpa
 
+--TODO: prove analog of lemmas below for ℝ≥0
+
+lemma ENNReal.volume_map_add_left_le_self {g : ℝ≥0∞} (hg : g ≠ ⊤) {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
+    Measure.map (g + ·) volume s ≤ volume s := by
+  wlog hs' : ∞ ∉ s generalizing s
+  · push_neg at hs'
+    have meas : MeasurableSet (s \ {∞}) := by measurability
+    have := this meas (by simp)
+    apply (this.trans' _).trans _
+    · rw [Measure.map_apply (by measurability) (by measurability),
+          Measure.map_apply (by measurability) (by measurability)]
+      have : ((fun x ↦ g + x) ⁻¹' s) ⊆ ((fun x ↦ g + x) ⁻¹' (s \ {⊤})) ∪ {⊤} := by
+        intro x
+        simp only [mem_preimage, preimage_diff, union_singleton, mem_insert_iff, mem_diff,
+          mem_singleton_iff, add_eq_top, not_or]
+        intro a
+        simp_all only [ne_eq, MeasurableSet.singleton, MeasurableSet.diff, mem_diff, mem_singleton_iff,
+          not_true_eq_false, and_false, not_false_eq_true, true_and]
+        exact eq_or_ne x ⊤
+      apply (measure_mono this).trans
+      apply (measure_union_le _ _).trans
+      simp
+    · rw [measure_diff_null (measure_singleton ⊤)]
+  calc _
+    _ ≤ volume ((fun x ↦ g.toReal + x) ⁻¹' (ENNReal.toReal '' s)) := by
+      rw [Measure.map_apply (by measurability) hs]
+      rw [ENNReal.volume_val (by measurability)]
+      gcongr
+      intro y
+      simp only [mem_image, mem_preimage, forall_exists_index, and_imp]
+      intro x hx hxy
+      use g + x, hx
+      rw [← hxy, toReal_add hg (by contrapose! hs'; rwa [hs', add_top] at hx)]
+    _ ≤ (Measure.map (fun x ↦ g.toReal + x) volume) (ENNReal.toReal '' s) := by
+      apply Measure.le_map_apply (by measurability)
+    _ = volume s := by
+      rw [map_add_left_eq_self (g := g.toReal) (μ := volume),
+          ENNReal.volume_val hs]
+
+lemma ENNReal.volume_map_add_right_le_self {g : ℝ≥0∞} (hg : g ≠ ⊤) {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
+    Measure.map (· + g) volume s ≤ volume s := by
+  convert ENNReal.volume_map_add_left_le_self hg hs using 4
+  apply add_comm
+
 lemma ENNReal.volume_Ico {a b : ℝ≥0∞} :
     volume (Set.Ico a b) = b - a := by
   convert ENNReal.volume_Ioo using 1
