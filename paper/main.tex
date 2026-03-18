@@ -251,6 +251,24 @@ For further detail, we refer the reader to a separate article \cite{PortegiesRot
 
 \section{Design decisions}\label{sec:design}
 \subsection{Treatment of constants}\label{subsec:constants}
+In analysis papers, one often needs to compare the growth of two functions $f, g : X \to Y$, where $Y$ is a normed space such as the real numbers or the complex numbers. This is often expressed by statements of the form
+\begin{align}\label{eq:const}
+	\exists C > 0, \forall x \in X, \| f (x) \| \le \|g(x)\|.
+\end{align}
+In many cases, one only cares about the existence of the positive constant $C$, but not about its concrete value. The constant can even be hidden in the notation, by writing (\ref{eq:const}) as
+\[ \forall x \in X, \| f (x) \| \lesssim \|g(x)\|.\]
+
+This was also the case in the first version of \cite{ThieleCarlesonPreprint}. However, while Lean allows one to work with existential statements such as (\ref{eq:const}), this would have made the formalization harder. From the mathematical point of view, it would require the formalizers to figure out how large these constants needed to be and how the constants required to make each lemma hold were related to each other. From the technical side, it would require to work with witnesses for these existential statements, which can introduce some overhead.
+Therefore, while they were writing the blueprint, the authors of \cite{ThieleCarlesonPreprint} decided to make all of the constants explicit. At the beginning of the blueprint, they fixed a real number $1 < q \le 2$ and a natural number $a \ge 4$, which is used to define the constants $D = 2^{100a^2}, \kappa := 2 ^{-10a}$ and $Z := 2^{12a}$. The bounding constants that appear in the blueprint theorem statements are expressed as functions of these fundamental constants.
+
+% The character 𝕔 is not available
+In the formalization, we introduced a constant \lean{c} with a value of 100, coming from the exponent of $D$.
+%\begin{minted}[escapeinside=||, mathescape=true]{lean}
+%irreducible_def c : |$\mathbb{N}$| := 100
+%\end{minted}
+Every other constant is defined in terms of $a$, $q$ and \lean{c}, and we use the notation convention \lean{Cx_y_z} to denote the constant appearing in result \lean{x.y.z} of the blueprint.
+
+As a side effect of the formalization project, once the main result had been formalized we were able to check that, replacing $D := 2^{100a^2}$ by $2^{7a^2}$, the results still hold without needing to make any adjustments to the proofs. This improves the constant appearing in the main theorem by an order of magnitude.
 
 
 \subsection{The \texttt{ProofData} pattern}\label{subsec:proof_data}
