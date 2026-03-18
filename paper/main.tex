@@ -91,8 +91,8 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 
 \subsection{Mathematical background}\label{subsec:background}
 \begin{itemize}
-  \item Prerequisites: Fourier series, Hardy--Littlewood maximal function, doubling measures (\texttt{IsDoubling}), \texttt{WeakType}, \texttt{wnorm}.
-  \item Real interpolation %TODO: what is the exact formulation used?
+  \item Prerequisites: Fourier series, Hardy--Littlewood maximal function, doubling measures (\texttt{IsDoubling}), \texttt{WeakType}, \texttt{wnorm}. %TODO: HL only if needed in more than one other section
+  %\item Real interpolation %TODO: what is the exact formulation used?
 \end{itemize}
 %TODO: include Lean notations for the described concepts?
 We introduce a few basic concepts.
@@ -105,6 +105,7 @@ where
 \begin{equation}\label{eq:fourier-coefficients}
     c_n:=\widehat{f}_n:=\frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
 \end{equation}
+%TODO: describe different types of integrals in mathlib
 The coefficients $\widehat{f}_n$ are well-defined e.g. if $f\in L^1(0,2\pi)$.
 
 %TODO: check differences to Lean definition
@@ -124,8 +125,11 @@ For a function $f$ on $X$, we define its weak $L^p$ norm to be
   \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X : t < |f(x)| \}) ^ \frac{1}{p}
 \end{equation}
 if $0<p<\infty$, and $\|f\|_{L^{\infty,\infty}} \coloneq \|f\|_{L^{\infty}}$.
+%TODO: add def of MemWLp, MemWLP.ae_ne_top (probably without proof), maybe other small statements
 
-%TODO: include that T f has to be (ae)measurable?
+
+%TODO: include that T f has to be (ae)measurable
+%TODO: add that we use measure theoy from mathlib, cite other papers, e.g. about product measures, change of variables formula
 %TODO: formally specify domain of T?
 An operator $T$ has weak type $(p, p')$ if there exists a constant $C$ such that for any $f\in L^p$,
 \begin{equation}
@@ -169,7 +173,7 @@ To be written!
 \subsubsection{The Hardy--Littlewood maximal function} One main ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
 To recall: given $f\colon\real^d\to\complex$, the Hardy–Littlewood maximal function $M f$ of $f$ is usually defined as
 \begin{equation*}
-Mf\colon\real \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
+Mf\colon\real^d \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
 \end{equation*}
 If $f$ is integrable, then $M f$ is (weak) $L^1$, and hence finite almost everywhere. Initially, the blueprint only used a variant taking a supremum over finitely many balls: this ensured the resulting function was \emph{always} finite, hence real-valued. Applying it to a countable collection of balls required taking a limit and using the monotone convergence theorem.
 This is a somewhat inelegant solution: most results about the maximal function do hold for any suprema, hence should be proven in the appropriate generality. We also prefer to avoid a superfluous limiting argument.
