@@ -11,6 +11,7 @@
 
 \usepackage[]{minted}
 \newcommand{\lean}[1]{\mintinline{lean}{#1}}
+\usepackage{xspace}
 
 \DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
 \newcommand*{\ud}{\, \mathrm{d}}
@@ -19,13 +20,15 @@
 \newcommand{\nnreal}{\real_{\ge0}}
 \newcommand{\ennreal}{\overline{\real_{\ge0}}}
 
+\newcommand{\mathlib}{\texttt{Mathlib}\xspace}
+
 % These options can be changed later; these may be personal preferences.
 \hypersetup{
   bookmarks,bookmarksopen,bookmarksnumbered,
   colorlinks = true,
   linkcolor  = blue,
   citecolor  = red,
-  urlcolor   = grey,
+  urlcolor   = gray,
   breaklinks
 }
 % maxbibnames: List all authors in the bibliography for up to 5 authors. Use up to 4 names for determining the label. Choose alphabetical style.
@@ -124,6 +127,19 @@ collaborative effort, written and developed in public.
 \subsection{Brief history of Carleson's theorem and significance}\label{subsec:history}
 
 \subsection{Overview of the formalization project}\label{subsec:overview}
+% TODO: I assume that the classical and generalized Carleson theorems will already be mentioned in the previous subsection, so that I can cite them here.
+The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result. 
+
+The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization was since the beginning envisioned as a large scale collaborative project. This posed a problem, since there are not many experts in formalization that are also experts in harmonic analysis, so most of the potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
+
+To address this challenge, before the formalization started, the authors of \cite{ThieleCarlesonPreprint} wrote a much more detailed document \cite{CarlesonBlueprint} intended as a blueprint for the formalization, which was modified as needed while the formalization process was taking place (see \S\ref{sec:blueprint}).
+
+The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and other smaller contributions were made by the 14 people listed in the acknowledgements section. This makes the Carleson project one of the largest scale formalization efforts up to date.
+
+The formalization was written in Lean 4, making extensive use of Lean's mathematical library, \mathlib. The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
+
+%TODO: update stats before submitting
+The project comprises around 38,000 lines of Lean code (not including spaces or comments), of which around 12,000 are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
 
 \subsection{Related work}\label{subsec:rel_work}
 \begin{itemize}
@@ -235,6 +251,7 @@ For further detail, we refer the reader to a separate article \cite{PortegiesRot
 
 \section{Design decisions}\label{sec:design}
 \subsection{Treatment of constants}\label{subsec:constants}
+
 
 \subsection{The \texttt{ProofData} pattern}\label{subsec:proof_data}
 
