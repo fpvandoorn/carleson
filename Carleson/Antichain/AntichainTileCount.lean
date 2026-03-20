@@ -1,4 +1,6 @@
-import Carleson.Antichain.Basic
+module
+
+public import Carleson.Antichain.Basic
 
 /-!
 # 6.3. Proof of the Antichain Tile Count Lemma
@@ -12,6 +14,8 @@ This file contains the proofs of lemmas 6.3.1, 6.3.2, 6.3.3, 6.3.4 and 6.1.6 fro
 - `Antichain.global_antichain_density` : Lemma 6.3.4.
 - `Antichain.tile_count`: Lemma 6.1.6.
 -/
+
+@[expose] public section
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
@@ -619,7 +623,7 @@ private lemma exists_p''_le_L' : ∃ (p : 𝔓 X), p ∈ 𝔄' 𝔄 ϑ N ∧ �
   use p
 
 /-- p'' in the blueprint -/
-def p'' : 𝔓 X := (exists_p''_le_L' hL).choose
+@[no_expose] def p'' : 𝔓 X := (exists_p''_le_L' hL).choose
 
 lemma p''_mem : p'' hL ∈ 𝔄' 𝔄 ϑ N := (exists_p''_le_L' hL).choose_spec.1
 
@@ -638,7 +642,7 @@ private lemma exists_pΘ_eq_L' : ∃! (p : 𝔓 X), 𝓘 p = L' hL ∧ ϑ.val �
   exact absurd this (nonempty_iff_ne_empty.mp ⟨ϑ, hp.2, qΩ⟩)
 
 /-- p_Θ in the blueprint -/
-def pΘ : 𝔓 X := by
+@[no_expose] def pΘ : 𝔓 X := by
   classical exact if 𝓘 (p'' hL) = L' hL then p'' hL else (exists_pΘ_eq_L' hL).choose
 
 lemma I_pΘ_eq_L' : 𝓘 (pΘ hL) = L' hL := by

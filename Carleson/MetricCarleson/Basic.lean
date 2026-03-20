@@ -1,7 +1,11 @@
-import Carleson.DoublingMeasure
-import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Order.LiminfLimsup
-import Mathlib.Order.CompleteLattice.Group
+module
+
+public import Carleson.DoublingMeasure
+public import Carleson.ToMathlib.RealInterpolation.Misc
+public import Carleson.ToMathlib.Order.LiminfLimsup
+public import Mathlib.Order.CompleteLattice.Group
+
+@[expose] public section
 
 open scoped NNReal
 open ENNReal hiding one_lt_two

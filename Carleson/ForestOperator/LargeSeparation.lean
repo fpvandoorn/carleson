@@ -1,7 +1,11 @@
-import Carleson.Calculations
-import Carleson.ForestOperator.AlmostOrthogonality
-import Carleson.HolderVanDerCorput
-import Carleson.ToMathlib.Data.NNReal
+module
+
+public import Carleson.Calculations
+public import Carleson.ForestOperator.AlmostOrthogonality
+public import Carleson.HolderVanDerCorput
+public import Carleson.ToMathlib.Data.NNReal
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}

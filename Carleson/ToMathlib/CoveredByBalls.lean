@@ -1,4 +1,8 @@
-import Carleson.ToMathlib.Misc
+module
+
+public import Carleson.ToMathlib.Misc
+
+@[expose] public section
 
 -- Upstreaming status: ready to go; two lemmas need to move to different files
 -- and the remainder could go into a new file

@@ -1,10 +1,14 @@
-import Carleson.Classical.Helper
-import Carleson.Defs
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
-import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
-import Mathlib.Analysis.Fourier.AddCircle
-import Mathlib.Tactic.Field
+module
+
+public import Carleson.Classical.Helper
+public import Carleson.Defs
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
+public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
+public import Mathlib.Analysis.Fourier.AddCircle
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 /- This file contains basic definitions and lemmas. -/
 

@@ -1,5 +1,9 @@
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Mathlib.MeasureTheory.Function.AEEqOfLIntegral
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Mathlib.MeasureTheory.Function.AEEqOfLIntegral
+
+@[expose] public section
 
 -- Upstreaming status: useful and ready to go
 namespace MeasureTheory

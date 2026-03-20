@@ -1,6 +1,10 @@
-import Mathlib.Data.Set.Lattice
-import Mathlib.Order.SuccPred.Basic
-import Mathlib.Tactic.Common
+module
+
+public import Mathlib.Data.Set.Lattice
+public import Mathlib.Order.SuccPred.Basic
+public import Mathlib.Tactic.Common
+
+@[expose] public section
 
 -- Upstreaming status: results seem useful in general, some should be generalised
 -- Proofs can probaby be polished and golfed significantly

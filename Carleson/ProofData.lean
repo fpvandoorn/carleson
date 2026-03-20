@@ -1,4 +1,8 @@
-import Carleson.DoublingMeasure
+module
+
+public import Carleson.DoublingMeasure
+
+@[expose] public section
 
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function
 open ENNReal hiding one_lt_two

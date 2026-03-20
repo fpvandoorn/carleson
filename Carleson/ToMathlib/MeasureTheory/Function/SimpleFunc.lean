@@ -1,6 +1,10 @@
-import Mathlib.Algebra.Order.Pi
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
-import Mathlib.MeasureTheory.Function.SimpleFunc
+module
+
+public import Mathlib.Algebra.Order.Pi
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
+public import Mathlib.MeasureTheory.Function.SimpleFunc
+
+@[expose] public section
 
 -- Upstreaming status: under active development by @ldiedering.
 -- Wait for the file to stabilise first.

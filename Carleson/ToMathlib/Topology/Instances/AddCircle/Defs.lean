@@ -1,4 +1,8 @@
-import Mathlib.Topology.Instances.AddCircle.Defs
+module
+
+public import Mathlib.Topology.Instances.AddCircle.Defs
+
+@[expose] public section
 
 -- Upstreaming status: seems ready to go; lemmas are usually analogues of existing mathlib lemmas
 -- Sometimes, mathlib lemmas need to be renamed along with upstreaming this.
