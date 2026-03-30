@@ -199,6 +199,7 @@ lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
 
 def C2_1_1 (k : ℕ) (a : ℕ) : ℕ := 2 ^ (k * a)
 
+set_option backward.isDefEq.respectTransparency false in
 lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
     (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :

@@ -53,9 +53,8 @@ theorem ciSup_eq_ciSup {α : Type*} {ι ι' : Sort*} [ConditionallyCompleteLinea
     intro ⟨j⟩
     rcases h₁ j with ⟨i, _⟩
     exact hι ⟨i⟩
-  push_neg at hι hι'
+  push Not at hι hι'
   rw [iSup_of_empty', iSup_of_empty']
-
 
 @[simp]
 theorem WithTop.iSup_coe_eq_top' {α : Type*} [ConditionallyCompleteLinearOrderBot α] [NoTopOrder α] :
