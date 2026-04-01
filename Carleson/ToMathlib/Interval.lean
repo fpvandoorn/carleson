@@ -36,7 +36,7 @@ variable [LinearOrder α]
 theorem iUnion_Ico_eq_Ici {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), Ico (f i) (f (i+1)) = Ici (f 0) := by
   apply subset_antisymm
-  · exact iUnion_subset fun i ↦ Ico_subset_Ici_self.trans (Ici_subset_Ici.mpr (hf i))
+  · exact iUnion_subset fun i ↦ Ico_subset_Ici (hf i)
   · intro a ha
     by_contra! hcontra
     simp only [mem_iUnion, mem_Ico, not_exists, not_and, not_lt] at hcontra
@@ -45,7 +45,7 @@ theorem iUnion_Ico_eq_Ici {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬Bd
 theorem iUnion_Ioc_eq_Ioi {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), Ioc (f i) (f (i+1)) = Ioi (f 0) := by
   apply subset_antisymm
-  · exact iUnion_subset fun i ↦ Ioc_subset_Ioi_self.trans (Ioi_subset_Ioi (hf i))
+  · exact iUnion_subset fun i ↦ Ioc_subset_Ioi (hf i)
   · intro a ha
     by_contra! hcontra
     simp only [mem_iUnion, mem_Ioc, not_exists, not_and, not_le] at hcontra
