@@ -191,18 +191,17 @@ theorem NNReal.Ici_eq {a : ℝ≥0} :
 
 lemma NNReal.volume_Iio {b : ℝ≥0} : volume (Set.Iio b) = b := by
   rw [NNReal.volume_val]
-  simp only [val_eq_coe]
-  rw [toReal_Iio_eq_Ico, Real.volume_Ico]
-  simp
+  change volume (NNReal.toReal '' Set.Iio b) = b
+  simp only [image_coe_Iio, Real.volume_Ico, sub_zero, ofReal_coe_nnreal]
 
 lemma NNReal.volume_Ioi {b : ℝ≥0} : volume (Set.Ioi b) = ⊤ := by
   rw [NNReal.volume_val]
-  simp only [val_eq_coe]
-  rw [toReal_Ioi_eq_Ioi, Real.volume_Ioi]
+  change volume (NNReal.toReal '' Set.Ioi b) = ⊤
+  simp only [image_coe_Ioi, Real.volume_Ioi]
 
 lemma NNReal.volume_Ioo {a b : ℝ≥0} : volume (Set.Ioo a b) = b - a:= by
   rw [NNReal.volume_val]
-  simp only [val_eq_coe]
+  change volume (NNReal.toReal '' Set.Ioo a b) = b - a
   rw [toReal_Ioo_eq_Ioo, Real.volume_Ioo, ENNReal.ofReal_sub] <;> simp
 
 -- TODO: the proofs in the following lemmas feel quite repetitive
