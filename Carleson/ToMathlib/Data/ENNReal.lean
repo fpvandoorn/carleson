@@ -3,8 +3,10 @@ import Mathlib.Analysis.Normed.Group.Uniform
 import Mathlib.Analysis.Normed.Ring.Basic
 import Mathlib.Order.CompletePartialOrder
 
--- Upstreaming status: lemmas seem useful; proofs may need some polish
+-- Upstreaming status: lemmas seem useful; proofs may need some polish.
 -- At least three or four distinct PRs.
+-- `ofReal_inv_le` and `ofReal_div_le` upstreamed in
+-- https://github.com/leanprover-community/mathlib4/pull/37565
 
 /-! ## `ENNReal` manipulation lemmas -/
 
