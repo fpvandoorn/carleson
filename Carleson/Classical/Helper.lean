@@ -42,7 +42,7 @@ lemma IntegrableOn.sub {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : 
 lemma ConditionallyCompleteLattice.le_biSup {α : Type*} [ConditionallyCompleteLinearOrder α]
     {ι : Type*} {f : ι → α} {s : Set ι} {a : α} (hfs : BddAbove (f '' s)) (ha : ∃ i ∈ s, f i = a) :
     a ≤ ⨆ i ∈ s, f i := by
-  apply ConditionallyCompleteLattice.le_csSup
+  apply le_csSup
   · --TODO: improve this
     rw [bddAbove_def] at *
     rcases hfs with ⟨x, hx⟩
