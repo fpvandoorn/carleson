@@ -40,7 +40,7 @@ theorem iUnion_Ico_eq_Ici {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬Bd
   · intro a ha
     by_contra! hcontra
     simp only [mem_iUnion, mem_Ico, not_exists, not_and, not_lt] at hcontra
-    exact h2f ⟨a, forall_mem_range.mpr (Nat.rec ha fun i ih ↦ hcontra i ih)⟩
+    exact h2f ⟨a, forall_mem_range.mpr (Nat.rec ha hcontra)⟩
 
 theorem iUnion_Ioc_eq_Ioi {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), Ioc (f i) (f (i+1)) = Ioi (f 0) := by
@@ -49,8 +49,7 @@ theorem iUnion_Ioc_eq_Ioi {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬Bd
   · intro a ha
     by_contra! hcontra
     simp only [mem_iUnion, mem_Ioc, not_exists, not_and, not_le] at hcontra
-    apply h2f ⟨a, forall_mem_range.mpr (fun i ↦ le_of_lt ?_)⟩
-    exact Nat.rec ha (fun x ih ↦ hcontra x ih) i
+    exact h2f ⟨a, forall_mem_range.mpr (fun i ↦ le_of_lt (Nat.rec ha hcontra i))⟩
 
 variable {ι : Type*} [LinearOrder ι] [SuccOrder ι]
 
