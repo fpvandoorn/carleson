@@ -79,8 +79,14 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
       _ = ‖(starRingEnd ℂ) (∫ x in a..b, cexp (I * ↑n * ↑x) * φ x)‖ :=
         (RCLike.norm_conj _).symm
       _ = ‖∫ x in a..b, cexp (I * ↑(-n) * ↑x) * ((starRingEnd ℂ) ∘ φ) x‖ := by
-        rw [intervalIntegral.integral_of_le (by linarith), ← integral_conj,
-          ← intervalIntegral.integral_of_le (by linarith)]
+        congr 1
+        have hconj : (starRingEnd ℂ) (∫ x in a..b, cexp (I * n * x) * φ x) = ∫ x in a..b, (starRingEnd ℂ) (cexp (I * n * x) * φ x) := by
+          change (starRingEnd ℂ) (∫ x in Ioc a b, cexp (I * n * x) * φ x ∂volume - ∫ x in Ioc b a, cexp (I * n * x) * φ x ∂volume) = _
+          rw [map_sub]
+          congr 1
+          · exact integral_conj.symm
+          · exact integral_conj.symm
+        rw [hconj]
         congr
         ext x
         rw [map_mul, ← exp_conj]
@@ -93,7 +99,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
           simp only [Function.comp_apply]
           rw [edist_eq_enorm_sub, ← map_sub, starRingEnd_apply,
             enorm_eq_nnnorm, nnnorm_star]
-          apply h1 hx hy
+          simpa [edist_eq_enorm_sub, enorm_eq_nnnorm] using h1 hx hy
         · intro x hx
           rw [Function.comp_apply, RCLike.norm_conj]
           exact h2 x hx
@@ -142,8 +148,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
       rw [mul_add, mul_assoc I n (π / n), mul_div_cancel₀ _ (by simpa), exp_add, mul_comm I π, exp_pi_mul_I]
       ring
     _ = ‖1 / 2 * ∫ x in a..b, cexp (I * ↑n * ↑x) * φ x - cexp (I * ↑n * (↑x + ↑π / ↑n)) * φ x‖ := by
-      congr
-      rw [← intervalIntegral.integral_const_mul]
+      rw [show (1/2 : ℂ) * ∫ x in a..b, cexp (I * ↑n * ↑x) * φ x - cexp (I * ↑n * (↑x + ↑π / ↑n)) * φ x = ∫ x in a..b, (1/2 : ℂ) * (cexp (I * ↑n * ↑x) * φ x - cexp (I * ↑n * (↑x + ↑π / ↑n)) * φ x) from (intervalIntegral.integral_const_mul (1/2 : ℂ) _).symm]
       congr
       ext x
       ring
