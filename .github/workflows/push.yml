@@ -53,6 +53,7 @@ jobs:
           project-name: Carleson
           relevant-labels: carleson
           include-drafts: true
+          branch-name: master
 
       - name: Generate the paper PDF and add it to the website
         uses: xu-cheng/texlive-action@8268537fedf1198f3ed7000c544bfdbddcbae3b7 # v3
