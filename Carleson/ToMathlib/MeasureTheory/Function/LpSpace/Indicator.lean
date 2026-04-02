@@ -11,8 +11,7 @@ variable {X : Type*} [TopologicalSpace X] [MeasurableSpace X]
 
 namespace MeasureTheory
 
--- Upstreaming status: seems ready for PRing
--- not actually used in the project, but we want to upstream this and similar lemmas.
+-- Upstreaming status: upstreamed in https://github.com/leanprover-community/mathlib4/pull/37559
 
 /-- A bounded measurable function with compact support is in L^p. -/
 theorem _root_.HasCompactSupport.memLp_of_enorm_bound {f : X → E} (hf : HasCompactSupport f)

@@ -1,6 +1,6 @@
 import Mathlib.Topology.Order.Basic
 
--- Upstreaming status: perhaps, the hypotheses can be weakened, but otherwise looks ready
+-- Upstreaming status: upstreamed in https://github.com/leanprover-community/mathlib4/pull/37550
 
 theorem nonempty_nhds_inter_Ioi {α : Type*} [LinearOrder α] [DenselyOrdered α]
     [TopologicalSpace α] [OrderTopology α]
