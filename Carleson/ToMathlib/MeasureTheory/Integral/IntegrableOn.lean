@@ -5,6 +5,9 @@ open Set Filter TopologicalSpace MeasureTheory Function
 open scoped Topology Interval Filter ENNReal MeasureTheory
 
 -- Upstreaming note: Hypotheses and variables have been matched to corresponding Mathlib file
+-- `IntegrableAtFilter.congr` already in mathlib.
+-- `integrableOn_of_integrableOn_inter_support` upstreamed in
+-- https://github.com/leanprover-community/mathlib4/pull/37590
 
 variable {α β ε ε' E F : Type*} [MeasurableSpace α]
 
