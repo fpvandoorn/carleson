@@ -178,8 +178,12 @@ lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
           use {x | x ≠ 0}
           constructor
           · refine mem_ae_iff.mpr ?_
-            rw [NNReal.volume_val]
-            simp
+            rw [
+              show ({x : ℝ≥0 | x ≠ 0})ᶜ = {0} by ext; simp,
+              NNReal.volume_val,
+              show Subtype.val '' ({0} : Set ℝ≥0) = _ from Set.image_singleton
+            ]
+            exact Real.volume_singleton
           · intro x hx
             rw[ENNReal.inv_lt_top, ENNReal.coe_pos]
             exact pos_of_ne_zero hx
@@ -311,7 +315,7 @@ lemma eLorentzNorm_eq_wnorm (hp : p ≠ 0) {f : α → ε} : eLorentzNorm f p �
       · apply ContinuousWithinAt.ennreal_mul continuous_id'.continuousWithinAt
           (continuousWithinAt_distribution _).ennrpow_const
         · rw [or_iff_not_imp_left]
-          push_neg
+          push Not
           intro h
           exfalso
           rw [h] at ha
