@@ -85,7 +85,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
              = fun x ↦ ⨆ (r : ℝ) (_ : r ∈ Set.Ioo 0 1), G x r := by
     ext
     congr with r
-    rw [iSup_and, Gdef, Fdef]
+    simp_rw [iSup_and', ← Set.mem_Ioo, Gdef, Fdef]
     congr
     rw [← integral_indicator annulus_measurableSet]
   rw [hFG]
@@ -252,7 +252,9 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
   congr with rle1
   norm_cast
   rw [← Real.enorm_eq_ofReal ha.le]
-  simp_rw [mul_assoc, integral_const_mul, enorm_mul, ← mul_assoc]
+  simp_rw [mul_assoc]
+  rw [show ∫ y in {y : ℝ | dist x y ∈ Set.Ioo r 1}, ↑(1 / a) * (f y * (K x y * Complex.exp (Complex.I * (↑n * ↑y)))) = ↑(1 / a) * ∫ y in {y : ℝ | dist x y ∈ Set.Ioo r 1}, f y * (K x y * Complex.exp (Complex.I * (↑n * ↑y))) from integral_const_mul _ _]
+  rw [enorm_mul, ← mul_assoc]
   rw [← enorm_norm (Complex.ofReal (1 / a)), Complex.norm_real, enorm_norm, ← enorm_mul,
     mul_one_div_cancel ha.ne', enorm_one, one_mul]
 
