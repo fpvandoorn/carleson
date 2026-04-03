@@ -547,7 +547,7 @@ mutual
       let y := H.min {i | x ∈ I2 hk i} this
       have hy_i2 : x ∈ I2 hk y := H.min_mem {i|x ∈ I2 hk i} this
       have hy_is_min : ∀ y', x ∈ I2 hk y' → ¬ y' < y :=
-        fun y' hy' ↦ sorry -- was: H.not_lt_min {i | x ∈ I2 hk i} this hy'
+        fun y' hy' ↦ H.not_lt_min {i | x ∈ I2 hk i} hy'
       use y
       revert hy_i2 hy_is_min
       generalize y = y
