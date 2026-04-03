@@ -86,18 +86,15 @@ local notation "S_" => partialFourierSum
 
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {c : ℂ} {n : ℤ} :
-    fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n):= by
-  simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
-    fourier_coe_apply', mul_comm, Complex.ofReal_sub, smul_eq_mul, mul_assoc,
-    intervalIntegral.integral_const_mul, Complex.real_smul, Complex.ofReal_inv]
-  ring
+    fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n):=
+  fourierCoeffOn.const_mul f c n hab
 
 @[simp]
 lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {n : ℤ} :
     fourierCoeffOn hab (-f) n = - (fourierCoeffOn hab f n):= by
   simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
     fourier_coe_apply', Complex.ofReal_sub, Pi.neg_apply, smul_eq_mul, mul_neg,
-    intervalIntegral.integral_neg, smul_neg, Complex.real_smul, Complex.ofReal_inv]
+    intervalIntegral.integral_neg, smul_neg]
 
 @[simp]
 lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
@@ -105,12 +102,11 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     (hg : IntervalIntegrable g MeasureTheory.volume a b) :
     fourierCoeffOn hab (f + g) n = fourierCoeffOn hab f n + fourierCoeffOn hab g n:= by
   simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
-    fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, mul_add, Complex.real_smul,
-    Complex.ofReal_inv]
-  rw [← mul_add, ← intervalIntegral.integral_add]
-  · ring_nf
-    exact hf.continuousOn_mul (Continuous.continuousOn (by fun_prop))
-  · exact hg.continuousOn_mul (Continuous.continuousOn (by fun_prop))
+    fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, mul_add]
+  rw [intervalIntegral.integral_add
+    (by ring_nf; exact hf.continuousOn_mul (Continuous.continuousOn (by fun_prop)))
+    (by ring_nf; exact hg.continuousOn_mul (Continuous.continuousOn (by fun_prop))),
+    smul_add]
 
 @[simp]
 lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
