@@ -228,7 +228,7 @@ def ℭ₅ (k n j : ℕ) : Set (𝔓 X) :=
 lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
     p ∈ ℭ₅ k n j ↔ p ∈ ℭ₄ k n j ∧ ∀ u ∈ 𝔘₁ k n j, ¬(𝓘 p : Set X) ⊆ ⋃ (i ∈ 𝓛 (X := X) n u), i := by
   rw [ℭ₅, mem_diff, 𝔏₄, mem_setOf, not_and, and_congr_right_iff]; intro h
-  simp_rw [h, true_implies]; push_neg; rfl
+  simp_rw [h, true_implies]; push Not; rfl
 
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₅, mem_diff] at mt; exact mt.1
