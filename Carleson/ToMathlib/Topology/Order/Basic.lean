@@ -1,6 +1,7 @@
 import Mathlib.Topology.Order.Basic
 
--- Upstreaming status: upstreamed in https://github.com/leanprover-community/mathlib4/pull/37550
+-- Upstreaming status: upstreamed (moved to Mathlib.Topology.Order.DenselyOrdered) in
+-- https://github.com/leanprover-community/mathlib4/pull/37550
 
 theorem nonempty_nhds_inter_Ioi {α : Type*} [LinearOrder α] [DenselyOrdered α]
     [TopologicalSpace α] [OrderTopology α]
