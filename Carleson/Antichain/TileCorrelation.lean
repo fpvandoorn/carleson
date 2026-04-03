@@ -95,7 +95,7 @@ private lemma e625 {s₁ s₂ : ℤ} {x₁ x₂ y y' : X} (hy' : y ≠ y') (hs :
       rw [mul_comm (volume _), edist_comm]
     _ ≤ 2 ^ ((2 * 𝕔 + 4 + 𝕔 / 4) * a ^ 3) / (volume (ball x₁ (D ^ s₁)) *
         volume (ball x₂ (D ^ s₂))) * (2 * (edist y y' ^ τ / (D ^ s₁) ^ τ)) := by
-      simp only [two_mul, defaultA, defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultτ]
+      simp only [two_mul, defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultτ]
       gcongr
       exact_mod_cast one_le_realD _
     _ = 2 ^ ((2 * 𝕔 + 4 + 𝕔 / 4) * a ^ 3) * 2 / (volume (ball x₁ (D ^ s₁)) *
@@ -171,7 +171,7 @@ lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson 
   have hyx : dist y x ≤ 1 / 2 * D ^ 𝔰 p := by -- 6.2.14
     have hK : Ks (𝔰 p) x y ≠ 0 := by
       by_contra h0
-      simp [h0] at hx0
+      simp only [h0, map_zero, zero_mul, ne_eq, not_true] at hx0
     rw [dist_comm]
     convert (dist_mem_Icc_of_Ks_ne_zero hK).2 using 1
     ring
@@ -313,7 +313,10 @@ open GridStructure
 lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
     conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
     ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) := by
-  simp only [← integral_conj, map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
+  rw [show conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
+    ∫ y1 in E p, conj (conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) from
+    integral_conj.symm]
+  simp only [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
   congr; ext x; rw [← exp_conj]; congr
   simp only [map_mul, conj_I, map_sub, conj_ofReal]
   ring
@@ -396,8 +399,12 @@ lemma I12_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X �
   rw [← ENNReal.rpow_le_rpow_iff_of_neg hneg] at h623
   have h0 : ((2 : ℝ≥0∞) ^ (8 * a)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) ≠ 0 := by simp
   have h210 : (2 : ℝ≥0∞) ^ (1 : ℝ) ≠ 0 := by rw [ENNReal.rpow_one]; exact two_ne_zero
-  rw [ENNReal.mul_rpow_of_ne_top (Ne.symm (not_eq_of_beq_eq_false rfl)) (by simp [edist_dist]),
-    mul_comm, ← ENNReal.le_div_iff_mul_le (.inl h0) (.inr (by simp [edist_dist]))] at h623
+  rw [ENNReal.mul_rpow_of_ne_top (Ne.symm (not_eq_of_beq_eq_false rfl))
+      (ENNReal.add_ne_top.mpr ⟨ENNReal.one_ne_top, edist_ne_top _ _⟩),
+    mul_comm, ← ENNReal.le_div_iff_mul_le (.inl h0)
+      (.inl (ENNReal.rpow_ne_top_of_ne_zero
+        (ENNReal.pow_ne_zero (by norm_num) _)
+        (ENNReal.pow_ne_top (by norm_num))))] at h623
   apply h623.trans
   rw [ENNReal.div_eq_inv_mul, mul_comm _ 2]
   gcongr
@@ -603,9 +610,15 @@ lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
   have hx1 : ‖exp (I * Q x.1 x.1)‖ₑ = 1 := enorm_exp_I_mul_ofReal _
   have hx2 : ‖exp (I * -Q x.2 x.2)‖ₑ = 1 := mod_cast enorm_exp_I_mul_ofReal _
   simp only [I12, enorm_mul]
-  simp_rw [heq, integral_mul_const, enorm_mul, RCLike.enorm_conj, ← mul_assoc]
-  rw [hx1, hx2]
-  simp only [mul_neg, mul_one, correlation]
+  have key2 : ∫ (y : X), conj (Ks (𝔰 p') x.1 y) * exp (I * (Q x.1 x.1 - Q x.1 y)) * g x.1 *
+      (Ks (𝔰 p) x.2 y * exp (I * (-Q x.2 x.2 + Q x.2 y)) * conj (g x.2)) =
+      (∫ (y : X), conj (Ks (𝔰 p') x.1 y) * exp (I * -Q x.1 y) *
+        (Ks (𝔰 p) x.2 y * exp (I * Q x.2 y))) *
+      (exp (I * Q x.1 x.1) * exp (I * -Q x.2 x.2) * g x.1 * conj (g x.2)) := by
+    rw [heq]; exact integral_mul_const _ _
+  rw [key2, enorm_mul, enorm_mul, enorm_mul, enorm_mul, hx1, hx2, RCLike.enorm_conj,
+      one_mul, one_mul, ← mul_assoc]
+  simp only [mul_neg, correlation]
   congr; ext y
   rw [mul_add I, exp_add]
   ring_nf
@@ -618,7 +631,17 @@ lemma bound_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
       conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
       ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) :=
     complex_exp_lintegral
-  simp_rw [adjointCarleson, haux, ← setIntegral_prod_mul]; rw [← setIntegral_univ]
+  simp_rw [adjointCarleson, haux]
+  have key : ∀ y, (∫ y1 in E p', conj (Ks (𝔰 p') y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) *
+      (∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1)) =
+      ∫ z in E p' ×ˢ E p,
+        conj (Ks (𝔰 p') z.1 y) * exp (I * (Q z.1 z.1 - Q z.1 y)) * g z.1 *
+        (Ks (𝔰 p) z.2 y * exp (I * (-Q z.2 z.2 + Q z.2 y)) * conj (g z.2)) := fun y =>
+    (setIntegral_prod_mul
+      (fun z1 ↦ conj (Ks (𝔰 p') z1 y) * exp (I * (Q z1 z1 - Q z1 y)) * g z1)
+      (fun z2 ↦ Ks (𝔰 p) z2 y * exp (I * (-Q z2 z2 + Q z2 y)) * conj (g z2))
+      (E p') (E p)).symm
+  simp_rw [key]; rw [← setIntegral_univ]
   let f := fun (x, z1, z2) ↦
     conj (Ks (𝔰 p') z1 x) * exp (I * (Q z1 z1 - Q z1 x)) * g z1 *
     (Ks (𝔰 p) z2 x * exp (I * (-Q z2 z2 + Q z2 x)) * conj (g z2))
@@ -626,6 +649,8 @@ lemma bound_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
     (boundedCompactSupport_aux_6_2_26 hg hg1).integrable.integrableOn
   have hf' : IntegrableOn (f ·.swap) ((E p' ×ˢ E p) ×ˢ univ) ((volume.prod volume).prod volume) :=
     hf.swap
+  change ‖∫ (x : X) in univ,
+      ∫ (z : X × X) in E p' ×ˢ E p, f (x, z) ∂(volume.prod volume) ∂volume‖ₑ ≤ _
   rw [← setIntegral_prod _ hf, ← setIntegral_prod_swap, setIntegral_prod _ hf', restrict_univ]
   simp_rw [Prod.swap_prod_mk, ← bound_6_2_26_aux]
   exact enorm_integral_le_lintegral_enorm _
