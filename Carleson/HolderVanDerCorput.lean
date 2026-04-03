@@ -539,7 +539,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {φ : X → ℂ}
   Lipschitz and the cancellativity assumption for the integral against Lipschitz functions. -/
   have : (ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + edist_{z, R} f g) ^ (- τ) ≤
       (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
-    simp only [defaultA, coe_nndist, defaultτ, t]
+    simp only [coe_nndist, defaultτ, t]
     rw [← ENNReal.ofReal_rpow_of_pos (by positivity),
       ENNReal.ofReal_add zero_le_one (by positivity), ← edist_dist, ENNReal.ofReal_one]
     rw [← ENNReal.rpow_mul, ← ENNReal.rpow_add]; rotate_left
@@ -583,7 +583,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {φ : X → ℂ}
     apply this.trans_eq
     rw [show - τ ^ 2 / (2 + a) = (-τ / (2 + a)) * τ by ring, ENNReal.rpow_mul]
     congr 1
-    simp only [defaultA, coe_nndist, defaultτ, t]
+    simp only [coe_nndist, defaultτ, t]
     rw [← ENNReal.ofReal_rpow_of_pos (by positivity),
       ENNReal.ofReal_add zero_le_one (by positivity), ← edist_dist, ENNReal.ofReal_one]
     congr
