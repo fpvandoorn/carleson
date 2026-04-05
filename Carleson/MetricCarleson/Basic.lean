@@ -642,7 +642,7 @@ lemma tendsto_carlesonOperatorIntegrand_of_dominated_convergence
   · apply h_bound.mp
     apply Eventually.of_forall
     intro n hn
-    simp only [defaultA, Complex.norm_mul, norm_exp_I_mul_ofReal, mul_one, norm_real,
+    simp only [Complex.norm_mul, norm_exp_I_mul_ofReal, mul_one, norm_real,
       Real.norm_eq_abs]
     apply ae_restrict_le
     apply hn.mp
