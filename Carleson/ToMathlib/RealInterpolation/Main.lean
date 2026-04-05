@@ -244,7 +244,8 @@ lemma toReal {T : (α → ε₁) → α' → ℝ≥0∞}
     simp only [ne_eq, hfx, not_false_eq_true, enorm_toReal, hgx] at hx ⊢
     exact enorm_toReal_le.trans hx
   · filter_upwards [h.2 f c hf, hP f hf] with x hx hfx
-    simp_rw [hx, Pi.smul_apply, toReal_smul]
+    simp only [hx, Pi.smul_apply, toReal_smul]
+    rfl
 
 end AESublinearOn
 
