@@ -1206,7 +1206,7 @@ private lemma lemma_10_2_7_bound (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : General
   · simp [Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hj]
   calc
     _ = ‖(∫ y in czBall3 hX j, K x y * g y) - ∫ y in czBall3 hX j, K x (czCenter hX j) * g y‖ₑ := by
-      rw [integral_const_mul, hg0, mul_zero, sub_zero]
+      rw [integral_const_mul_of_integrable (IntegrableOn.integrable g_int), hg0, mul_zero, sub_zero]
     _ = ‖∫ y in czBall3 hX j, (K x y - K x (czCenter hX j)) * g y‖ₑ := by
       simp_rw [sub_mul]
       rw [integral_sub ?_ (g_int.const_mul _)]
@@ -1299,9 +1299,7 @@ private lemma integral_g (hf : BoundedFiniteSupport f) (hα : 0 < α) (hX : Gene
   by_cases! hj : czRadius hX j ≤ 0
   · simp [Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hj]
   rw [integral_sub (integrableOn_g₀ hf hα hX j) (integrableOn_d hX j)]
-  suffices (volume.real (czBall3 hX j) : ℂ) * ((volume.real (czBall3 hX j)) : ℂ)⁻¹ = 1 by
-    simp [d, this, setAverage_eq, ← mul_assoc]
-  exact_mod_cast mul_inv_cancel₀ (measureReal_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne'
+  simp only [d, setAverage_eq, integral_const, smul_smul, measureReal_restrict_apply_univ, mul_inv_cancel₀ (measureReal_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne', one_smul, sub_self]
 
 private lemma lintegral_enorm_half_g (hf : BoundedFiniteSupport f) (hα : 0 < α)
     (hX : GeneralCase f (α' a α)) (j : ℕ) :
@@ -1350,13 +1348,27 @@ private lemma 𝒥₂_bound (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x
       exact subset.trans (fun y ↦ by simp [dist_comm y]; tauto)
     · exact (integrableOn_K_Icc hj).mono_set subset |>.mul_const _
   _ ≤ ‖_‖ₑ + ‖_‖ₑ := enorm_add_le _ _
+  _ = ‖2 * (2⁻¹ * ∫ y in czBall3 hX j, K x y * g r x hX j y)‖ₑ + ‖_‖ₑ := by
+    congr
+    ring
+  _ = ‖2 * ∫ y in czBall3 hX j, K x y * (2⁻¹ * g r x hX j y)‖ₑ + ‖_‖ₑ := by
+    congr
+    have h : ∀ y, K x y * (2⁻¹ * g r x hX j y) = 2⁻¹ * (K x y * g r x hX j y) := by
+      intro y
+      exact mul_left_comm ..
+    simp_rw [h]
+    exact (integral_const_mul ..).symm
   _ = ‖(2 : ℂ)‖ₑ * ‖∫ y in czBall3 hX j, K x y * (2⁻¹ * g r x hX j y)‖ₑ + ‖_‖ₑ := by
-    rw [← enorm_mul, ← integral_const_mul]; congr; ext; ring
+    rw [← enorm_mul]
   _ ≤ _ := by
     gcongr
     · simp [← ofReal_norm_eq_enorm]
     · apply lemma_10_2_7_bound hx hX j ((integrableOn_g r x hα hf hX j).const_mul 2⁻¹)
-      · rw [integral_const_mul, integral_g hf hα hX, mul_zero]
+      · have h :
+          ∫ (y : X) in czBall3 hX j, 2⁻¹ * g r x hX j y =
+          2⁻¹ * ∫ (y : X) in czBall3 hX j, g r x hX j y :=
+          integral_const_mul ..
+        simp_rw [h, integral_g hf hα hX, mul_zero]
       · apply lintegral_enorm_half_g hf hα hX
     · apply le_trans (enorm_integral_le_lintegral_enorm _)
       simp_rw [enorm_mul, lintegral_mul_const _ (measurable_K_right x).enorm, ← mul_comm ‖_‖ₑ]
@@ -1434,7 +1446,8 @@ private lemma tsum_𝒥₂ (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x 
         _ = _ * ∑' (j : 𝒥₂ r x hX), _ := by rw [ENNReal.tsum_mul_left]
         _ ≤ _ * 2 ^ (a^3 + 10*a) := mul_le_mul_right (tsum_integral_K_le hx hX) _
         _ = 2 ^ (2*a + 1 : ℝ) * ((2 ^ (a^3 + 12*a + 4 : ℝ))⁻¹ * α) * 2 ^ (a^3 + 10*a : ℝ) := by
-          simp only [α', c10_0_3]; rw [coe_inv (by norm_num)]; norm_cast
+          norm_cast
+          simp [α', c10_0_3]
         _ = 2 ^ (2*a + 1 : ℝ) * 2 ^ (- (a^3 + 12*a + 4 : ℝ)) * 2 ^ (a^3 + 10*a : ℝ) * α := by
           rw [rpow_neg]; ring
         _ = 2 ^ ((2 * a + 1) + -(a ^ 3 + 12 * a + 4 : ℝ) + (a ^ 3 + 10 * a)) * α := by
