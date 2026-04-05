@@ -64,7 +64,7 @@ lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonem
   suffices (S : ℤ) = -(S : ℤ) by exact_mod_cast eq_zero_of_neg_eq this.symm
   rw [𝓙₀, mem_setOf_eq, s, s_topCube] at h
   apply h.resolve_right
-  push_neg
+  push Not
   have ⟨p, hp⟩ := h𝔖
   refine ⟨p, hp, subset_topCube.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩
   apply mul_le_mul (by norm_num) (c0 := by positivity) (b0 := by norm_num)
