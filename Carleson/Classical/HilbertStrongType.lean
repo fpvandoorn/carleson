@@ -427,12 +427,18 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
   · apply IntervalIntegrable.mul_continuousOn ?_ (by fun_prop)
     rw [intervalIntegrable_iff_integrableOn_Ioc_of_le (by simp [Real.pi_nonneg])]
     exact (hf.restrict _).integrable le_top
-  simp only [one_div, mul_inv_rev, ← intervalIntegral.integral_const_mul, ←
-    intervalIntegral.integral_mul_const]
-  congr with y
-  simp only [modulationOperator, Int.cast_neg, Int.cast_natCast, mul_neg, neg_mul, mul_sub, exp_sub,
-    div_eq_inv_mul, ← exp_neg]
-  ring
+  simp only [one_div, mul_inv_rev]
+  calc
+    _ = (↑π)⁻¹ * 2⁻¹ * ((↑n)⁻¹ * cexp (I * ↑i * ↑x) * ∫ (y : ℝ) in 0..2 * π, modulationOperator (-↑i) f y * dirichletKernel i (x - y)) := by
+      ring
+    _ = (↑π)⁻¹ * 2⁻¹ * ∫ (y : ℝ) in (0 : ℝ)..2 * π, (↑n : ℂ)⁻¹ * cexp (I * ↑i * ↑x) * (modulationOperator (-↑i) f y * dirichletKernel i (x - y)) := by
+      congr
+      exact (intervalIntegral.integral_const_mul _ _).symm
+    _ = (↑π)⁻¹ * 2⁻¹ * ∫ (x_1 : ℝ) in 0..2 * π, f x_1 * ((↑n)⁻¹ * (dirichletKernel i (x - x_1) * cexp (I * ↑i * (↑x - ↑x_1)))) := by
+      congr
+      ext y
+      simp only [modulationOperator, Int.cast_neg, Int.cast_natCast, mul_neg, neg_mul, mul_sub, exp_sub, div_eq_inv_mul, ← exp_neg]
+      ring
 
 /-- The convolution with `dirichletApprox` is controlled on `(0, 2π]` in `L^2` norm. This
 follows from the fact that it coincides (up to a constant) with `approxHilbertTransform`,
@@ -447,7 +453,13 @@ lemma eLpNorm_convolution_dirichletApprox {g : ℝ → ℂ} {n : ℕ} (hg : MemL
     simp only [Pi.smul_apply, real_smul, ofReal_mul, ofReal_ofNat, ofReal_inv,
       approxHilbertTransform_eq_dirichletApprox hg, ← mul_assoc, Pi.smul_apply]
     rw [mul_inv_cancel₀ (by simp [Real.pi_ne_zero]), one_mul]
-  rw [this, eLpNorm_const_smul]
+  rw [
+    this,
+    show
+    eLpNorm ((2 * π : ℝ) • fun x ↦ approxHilbertTransform n g x) 2 (volume.restrict (Ioc 0 (2 * π))) =
+    ‖(2 * π : ℝ)‖ₑ * eLpNorm (fun x ↦ approxHilbertTransform n g x) 2 (volume.restrict (Ioc 0 (2 * π)))
+    from eLpNorm_const_smul ..
+  ]
   gcongr
   · have A : ‖2 * π‖ₑ = ENNReal.ofReal (2 * π) := by
       refine Real.enorm_of_nonneg ?_
