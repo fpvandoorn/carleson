@@ -5,7 +5,9 @@ import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 open MeasureTheory NNReal ENNReal Set
 
 noncomputable
-instance NNReal.MeasureSpace : MeasureSpace ℝ≥0 := ⟨Measure.Subtype.measureSpace.volume⟩
+instance NNReal.MeasureSpace : MeasureSpace ℝ≥0 where
+  toMeasurableSpace := NNReal.measurableSpace
+  volume := Measure.comap Subtype.val (volume : Measure ℝ)
 
 -- Upstreaming status:
 -- The results in this file are generally worth having, but the proofs can be golfed
@@ -16,22 +18,10 @@ lemma NNReal.volume_val {s : Set ℝ≥0} : volume s = volume (Subtype.val '' s)
 
 -- sanity check: this measure is what you expect
 example : volume (Ioo (3 : ℝ≥0) 5) = 2 := by
-  have : Subtype.val '' Ioo (3 : ℝ≥0) 5 = Ioo (3 : ℝ) 5 := by
-    ext x
-    constructor
-    · simp only [val_eq_coe, mem_image, mem_Ioo, Subtype.exists, coe_mk, exists_and_right,
-      exists_eq_right, forall_exists_index, and_imp]
-      intro hx1 hx2 hx3
-      exact ⟨hx2, hx3⟩
-    · intro hx
-      simp only [val_eq_coe, mem_image, mem_Ioo, Subtype.exists, coe_mk, exists_and_right,
-        exists_eq_right]
-      have : 0 ≤ x := by linarith [hx.1]
-      use this
-      rw [← Subtype.coe_lt_coe, ← Subtype.coe_lt_coe]
-      exact hx
-  rw [NNReal.volume_val, this]
-  simpa only [Real.volume_Ioo, ENNReal.ofReal_eq_ofNat] using by norm_num
+  rw [NNReal.volume_val]
+  change volume (NNReal.toReal '' Ioo 3 5) = 2
+  rw [NNReal.image_coe_Ioo, Real.volume_Ioo, ENNReal.ofReal_eq_ofNat]
+  norm_num
 
 -- integral over a function over NNReal equals the integral over the right set of real numbers
 
