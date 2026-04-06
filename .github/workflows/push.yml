@@ -50,7 +50,7 @@ jobs:
         run: python3 scripts/upstreaming_dashboard.py
 
       - name: Generate the paper PDF and add it to the website
-        uses: xu-cheng/texlive-action@8268537fedf1198f3ed7000c544bfdbddcbae3b7 # v3
+        uses: xu-cheng/texlive-action@22c04326a5d855880f9d39bb955138bf11c6df80 # v3
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20251002
           run: |
