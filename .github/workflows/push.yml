@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 1
 
       - name: Build and lint project
-        uses: leanprover/lean-action@434f25c2f80ded67bba02502ad3a86f25db50709 # 2025-07-02
+        uses: leanprover/lean-action@c544e89643240c6b398f14a431bcdc6309e36b3e # 2025-07-02
         with:
           build: true
           lint: true
@@ -50,7 +50,7 @@ jobs:
         run: python3 scripts/upstreaming_dashboard.py
 
       - name: Generate the paper PDF and add it to the website
-        uses: xu-cheng/texlive-action@8268537fedf1198f3ed7000c544bfdbddcbae3b7 # v3
+        uses: xu-cheng/texlive-action@22c04326a5d855880f9d39bb955138bf11c6df80 # v3
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20251002
           run: |
@@ -60,7 +60,8 @@ jobs:
             cd ..
             cp paper/main.pdf docs/paper.pdf
 
-      - uses: leanprover-community/docgen-action@deed0cdc44dd8e5de07a300773eb751d33e32fc8 # 2025-10-26
+      - name: Compile blueprint and documentation
+        uses: leanprover-community/docgen-action@3dbd3475a9bc8d22fd786a8f8efe1869457da7cc # 2026-01-15
         with:
           blueprint: true
           homepage: docs

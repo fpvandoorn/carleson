@@ -124,15 +124,15 @@ theorem restrict {s : Set X} (hf : BoundedCompactSupport f μ) :
 end ContinuousENorm
 
 
-section  ENormedAddCommMonoid
-variable [TopologicalSpace E] [ENormedAddCommMonoid E]
+section ESeminormedAddCommMonoid
+variable [TopologicalSpace E] [ESeminormedAddCommMonoid E]
 
 /-- Bounded compactly supported functions are in all `Lᵖ` spaces. -/
 theorem memLp [IsFiniteMeasureOnCompacts μ] (hf : BoundedCompactSupport f μ) (p : ℝ≥0∞) :
     MemLp f p μ :=
   hf.boundedFiniteSupport.memLp p
 
-end ENormedAddCommMonoid
+end ESeminormedAddCommMonoid
 
 section NormedAddCommGroup
 

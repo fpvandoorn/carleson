@@ -239,70 +239,69 @@ lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x : X)
   simp_rw [Finset.mem_filter_univ, mem_inter_iff]
   exact ⟨t.rowDecomp_𝔘_subset j h𝔲'.1, h𝔲'.1⟩
 
-lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) :
-  ∀ x : X, stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
-    intro x
-    induction j with
-    | zero =>
-      simp only [not_lt_zero', iUnion_of_empty, iUnion_empty, diff_empty, tsub_zero]
-      exact t.stackSize_le'
-    | succ j hinduct =>
-      if h: ∃ 𝔲 ∈ (t \ ⋃ i < j + 1, t.rowDecomp i : Set _), x ∈ 𝓘 𝔲 then
-        have : ∃ s, Maximal (· ∈ (𝓘 '' (t \ ⋃ i < j, t.rowDecomp i : Set _))) s ∧ x ∈ s := by
-          obtain ⟨𝔲,h𝔲⟩ := h
-          rw [biUnion_lt_succ,← diff_diff,mem_diff] at h𝔲
-          exact (((toFinite _).image 𝓘).exists_le_maximal ⟨𝔲,h𝔲.left.left,rfl⟩).imp
-            fun _ hz => ⟨hz.right, Grid.mem_mono hz.left h𝔲.right⟩
+lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
+    stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
+  induction j with
+  | zero =>
+    simp only [not_lt_zero', iUnion_of_empty, iUnion_empty, diff_empty, tsub_zero]
+    exact t.stackSize_le'
+  | succ j hinduct =>
+    if h: ∃ 𝔲 ∈ (t \ ⋃ i < j + 1, t.rowDecomp i : Set _), x ∈ 𝓘 𝔲 then
+      have : ∃ s, Maximal (· ∈ (𝓘 '' (t \ ⋃ i < j, t.rowDecomp i : Set _))) s ∧ x ∈ s := by
         obtain ⟨𝔲,h𝔲⟩ := h
-        simp only [biUnion_lt_succ, ← diff_diff] at h𝔲 ⊢
-        rw [stackSize_sdiff_eq,← Nat.sub_sub]
-        apply tsub_le_tsub hinduct (stackSize_remainder_ge_one_of_exists t j x _)
-        rw [mem_diff] at h𝔲
-        apply (or_not).elim id
-        push_neg
-        intro h
-        apply this.elim
-        intro _ ⟨hmax, hz⟩
-        obtain ⟨u, hu, rfl⟩ := hmax.prop
-        use u
-        rw [mem_𝔘]
-        refine ⟨?_, hz⟩
-        apply (t.rowDecomp_𝔘_def j).mem_of_prop_insert
-        rw [mem_rowDecomp_zornset_iff]
-        simp only [mem_insert_iff, forall_eq_or_imp]
-        constructor
-        · rw [insert_subset_iff]
-          simp_rw [rowDecomp_𝔘_eq] at hu
-          exact ⟨hu, rowDecomp_𝔘_subset _ _⟩
-        constructor
-        · rw [pairwiseDisjoint_insert]
-          use t.rowDecomp_𝔘_pairwiseDisjoint j
-          intro k hk hne
-          have : 𝓘 u = 𝓘 k → u = k := by
-            specialize h k hk
-            intro heq
-            rw [← heq] at h
-            contradiction
-          obtain (h | h | h) := le_or_ge_or_disjoint (i := 𝓘 u) (j := 𝓘 k)
-          · have heq : 𝓘 u = 𝓘 k := by
-              apply le_antisymm h
-              exact hmax.le_of_ge ⟨k,rowDecomp_𝔘_subset t j hk, rfl⟩ h
-            exact (hne (this heq)).elim
-          · have heq : 𝓘 u = 𝓘 k := by
-              apply le_antisymm _ h
-              exact (mem_rowDecomp_𝔘_maximal t j k hk).le_of_ge ⟨u, hu, rfl⟩ h
-            exact (hne (this heq)).elim
-          · exact h
-        · exact ⟨hmax, mem_rowDecomp_𝔘_maximal t j⟩
-      else
-        dsimp [stackSize]
-        push_neg at h
-        rw [Finset.sum_congr rfl (g := fun _ => 0) (by
-          simp_rw [Finset.mem_filter_univ, indicator_apply_eq_zero,
-            Pi.one_apply, one_ne_zero] at h ⊢
-          exact h)]
-        rw [Finset.sum_eq_zero (fun _ _ => rfl)]
-        exact zero_le _
+        rw [biUnion_lt_succ,← diff_diff,mem_diff] at h𝔲
+        exact (((toFinite _).image 𝓘).exists_le_maximal ⟨𝔲,h𝔲.left.left,rfl⟩).imp
+          fun _ hz => ⟨hz.right, Grid.mem_mono hz.left h𝔲.right⟩
+      obtain ⟨𝔲,h𝔲⟩ := h
+      simp only [biUnion_lt_succ, ← diff_diff] at h𝔲 ⊢
+      rw [stackSize_sdiff_eq,← Nat.sub_sub]
+      apply tsub_le_tsub hinduct (stackSize_remainder_ge_one_of_exists t j x _)
+      rw [mem_diff] at h𝔲
+      apply (or_not).elim id
+      push_neg
+      intro h
+      apply this.elim
+      intro _ ⟨hmax, hz⟩
+      obtain ⟨u, hu, rfl⟩ := hmax.prop
+      use u
+      rw [mem_𝔘]
+      refine ⟨?_, hz⟩
+      apply (t.rowDecomp_𝔘_def j).mem_of_prop_insert
+      rw [mem_rowDecomp_zornset_iff]
+      simp only [mem_insert_iff, forall_eq_or_imp]
+      constructor
+      · rw [insert_subset_iff]
+        simp_rw [rowDecomp_𝔘_eq] at hu
+        exact ⟨hu, rowDecomp_𝔘_subset _ _⟩
+      constructor
+      · rw [pairwiseDisjoint_insert]
+        use t.rowDecomp_𝔘_pairwiseDisjoint j
+        intro k hk hne
+        have : 𝓘 u = 𝓘 k → u = k := by
+          specialize h k hk
+          intro heq
+          rw [← heq] at h
+          contradiction
+        obtain (h | h | h) := le_or_ge_or_disjoint (i := 𝓘 u) (j := 𝓘 k)
+        · have heq : 𝓘 u = 𝓘 k := by
+            apply le_antisymm h
+            exact hmax.le_of_ge ⟨k,rowDecomp_𝔘_subset t j hk, rfl⟩ h
+          exact (hne (this heq)).elim
+        · have heq : 𝓘 u = 𝓘 k := by
+            apply le_antisymm _ h
+            exact (mem_rowDecomp_𝔘_maximal t j k hk).le_of_ge ⟨u, hu, rfl⟩ h
+          exact (hne (this heq)).elim
+        · exact h
+      · exact ⟨hmax, mem_rowDecomp_𝔘_maximal t j⟩
+    else
+      dsimp [stackSize]
+      push_neg at h
+      rw [Finset.sum_congr rfl (g := fun _ => 0) (by
+        simp_rw [Finset.mem_filter_univ, indicator_apply_eq_zero,
+          Pi.one_apply, one_ne_zero] at h ⊢
+        exact h)]
+      rw [Finset.sum_eq_zero (fun _ _ => rfl)]
+      exact zero_le _
 
 /-- Part of Lemma 7.7.1 -/
 @[simp]

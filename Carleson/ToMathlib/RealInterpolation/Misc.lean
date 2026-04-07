@@ -142,7 +142,7 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α}
   {a : ℝ≥0∞} -- truncation parameter
-  [TopologicalSpace ε] [ENormedAddCommMonoid ε] {f : α → ε} {t : ℝ≥0∞}
+  [TopologicalSpace ε] [ESeminormedAddCommMonoid ε] {f : α → ε} {t : ℝ≥0∞}
 
 /-! ## Results about the particular choice of scale
 
@@ -275,7 +275,7 @@ lemma d_eq_top_top (hq₀ : 0 < q₀) (hq₀q₁ : q₀ ≠ q₁) (hp₁' : p₁
     zero_mul, one_div]
   rw [div_neg, div_eq_mul_inv, mul_inv_cancel₀]
   · rw [ENNReal.rpow_neg, ENNReal.rpow_one, inv_inv]
-  · exact (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁)) (ENNReal.inv_ne_top.mpr hq₀.ne')).ne'
+  · exact (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁)) (by finiteness)).ne'
 
 /-- The particular choice of scaled power function that works in the proof of the
 real interpolation theorem. -/
@@ -390,7 +390,8 @@ open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
 variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
   {μ : Measure α} {ν : Measure α'}
-  [TopologicalSpace ε] [ENormedAddMonoid ε]
+  [TopologicalSpace ε] [ESeminormedAddMonoid ε]
+  {ε' : Type*} [TopologicalSpace ε'] [ENormedAddMonoid ε']
   {f : α → ε} {s t t' : ℝ≥0∞}
 
 /-! ## Results about truncations of a function
@@ -445,7 +446,7 @@ lemma trunc_add_truncCompl {t : ℝ≥0∞} : trunc f t + truncCompl f t = f := 
 alias trnc_true_add_trnc_false := trunc_add_truncCompl
 
 /-- If the truncation parameter is non-positive, the truncation vanishes. -/
-lemma trunc_of_nonpos {f : α → ε} (ht : t ≤ 0) : trunc f t = 0 := by
+lemma trunc_of_nonpos {f : α → ε'} (ht : t ≤ 0) : trunc f t = 0 := by
   unfold trunc
   ext x
   split_ifs with h
@@ -458,7 +459,7 @@ lemma trunc_of_nonpos {f : α → ε} (ht : t ≤ 0) : trunc f t = 0 := by
 
 /-- If the truncation parameter is non-positive, the complement of the truncation is the
 function itself. -/
-lemma truncCompl_of_nonpos {f : α → ε} (ht : t ≤ 0) : truncCompl f t = f := by
+lemma truncCompl_of_nonpos {f : α → ε'} (ht : t ≤ 0) : truncCompl f t = f := by
   rw [truncCompl_eq]
   ext x
   dsimp only [Pi.zero_apply]
@@ -717,12 +718,12 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
       exact Measure.restrict_le_self
     _ = _ := by
       congr
-      rw [eLpNorm_eq_lintegral_rpow_enorm p_ne_zero p_ne_top, one_div, ENNReal.rpow_inv_rpow]
+      rw [eLpNorm_eq_lintegral_rpow_enorm_toReal p_ne_zero p_ne_top, one_div, ENNReal.rpow_inv_rpow]
       exact (toReal_pos p_ne_zero p_ne_top).ne'
 
 -- TODO: better name!
 lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
-    (hq : q ≠ ⊤) (hpq : p ∈ Ioc 0 q) (hf : AEStronglyMeasurable f μ) :
+    (hq : q ≠ ⊤) (hpq : p ∈ Ioc 0 q) {f : α → ε'} (hf : AEStronglyMeasurable f μ) :
     eLpNorm (trunc f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   have hq' : 0 < q := hpq.1.trans_le hpq.2
@@ -792,7 +793,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
 
 -- TODO: is there a better name?
 /-- If `f` is in `Lp`, the truncation is element of `Lq` for `q ≥ p`. -/
-lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioc 0 q) (hf : MemLp f p μ) (ht : t ≠ ∞) :
+lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioc 0 q) {f : α → ε'} (hf : MemLp f p μ) (ht : t ≠ ∞) :
     MemLp (trnc ⊤ f t) q μ := by
   refine ⟨aestronglyMeasurable_trnc hf.1, ?_⟩
   rcases (eq_or_ne q ⊤) with q_eq_top | q_ne_top
@@ -892,7 +893,7 @@ lemma truncCompl_Lp_Lq_lower
 
 -- Lemma 6.10 in Folland
 -- XXX: is the `ContinuousAdd` hypothesis really necessary for `MemLp.add` (and hence here)?
-lemma memLp_of_memLp_le_of_memLp_ge [ContinuousAdd ε]
+lemma memLp_of_memLp_le_of_memLp_ge {f : α → ε'} [ContinuousAdd ε']
     {r : ℝ≥0∞} (hp : 0 < p) (hr' : q ∈ Icc p r)
     (hf : MemLp f p μ) (hf' : MemLp f r μ) : MemLp f q μ := by
   by_cases p_ne_top : p = ⊤
@@ -923,7 +924,7 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ≥0∞} -- truncation parameter
-  [TopologicalSpace ε] [ENormedAddCommMonoid ε] {f : α → ε} {t : ℝ≥0∞}
+  [TopologicalSpace ε] [ESeminormedAddCommMonoid ε] {f : α → ε} {t : ℝ≥0∞}
 
 /-! ## Some results about the integrals of truncations
 

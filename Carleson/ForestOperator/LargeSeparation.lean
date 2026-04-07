@@ -470,11 +470,11 @@ section OneInOneOut
 
 omit [ProofData a q K σ₁ σ₂ F G] in
 lemma ψ_le_max [ProofData a q K σ₁ σ₂ F G] {x : ℝ} : ψ x ≤ max 0 ((2 - 4 * x) ^ (a : ℝ)⁻¹) := by
-  by_cases h₁ : x ≤ 1 / 4
+  by_cases! h₁ : x ≤ 1 / 4
   · exact (ψ_le_one ..).trans ((Real.one_le_rpow (by linarith) (by simp)).trans (le_max_right ..))
-  by_cases h₂ : 1 / 2 ≤ x
+  by_cases! h₂ : 1 / 2 ≤ x
   · rw [ψ_formula₄ h₂]; exact le_max_left ..
-  push_neg at h₁ h₂; rw [ψ_formula₃ (one_lt_realD X) ⟨h₁.le, h₂.le⟩]
+  rw [ψ_formula₃ (one_lt_realD X) ⟨h₁.le, h₂.le⟩]
   refine le_trans ?_ (le_max_right ..)
   set y := 2 - 4 * x; apply Real.self_le_rpow_of_le_one
   · unfold y; linarith
@@ -775,14 +775,12 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
       have nt₀ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ < ⊤ := by
         apply ENNReal.rpow_lt_top_of_nonneg (by positivity); rw [← lt_top_iff_ne_top]
         exact ENNReal.div_lt_top (edist_ne_top _ _) (ENNReal.zpow_pos (by simp) (by simp) _).ne'
-      have nt₁ : Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * C2_1_3 a ≠ ⊤ :=
-        ENNReal.mul_ne_top (ENNReal.mul_ne_top (by simp) nt₀.ne) (by simp)
+      have nt₁ : Q7_5_5 a * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * C2_1_3 a ≠ ⊤ := by finiteness
       rw [lintegral_const_mul' _ _ nt₁]
       conv_lhs =>
         enter [2, 2, y]
         rw [← mul_assoc, ← mul_div_assoc, mul_comm ‖f y‖ₑ, mul_div_assoc, ← mul_rotate]
-      have nt₂ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * D2_1_3 a ≠ ⊤ :=
-        ENNReal.mul_ne_top nt₀.ne (by simp)
+      have nt₂ : (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * D2_1_3 a ≠ ⊤ := by finiteness
       rw [lintegral_const_mul' _ _ nt₂, ← add_mul]; congr 1
       rw [← mul_rotate, mul_comm _ (D2_1_3 a : ℝ≥0∞), ← add_mul]
     _ ≤ (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
@@ -837,12 +835,11 @@ lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompa
   · rw [or_comm] at hxx; specialize this hxx (hxx.resolve_right hx)
     rwa [edist_comm, edist_comm x' x] at this
   clear hxx
-  by_cases hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)
+  by_cases! hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)
   · nth_rw 2 [adjoint_tile_support1]
     rw [indicator_of_notMem hx', mul_zero, edist_zero_right, enorm_mul, mul_comm I, ← enorm_norm,
       norm_exp_ofReal_mul_I, enorm_one, one_mul]
     exact holder_correlation_tile_one hf hx'
-  push_neg at hx'
   exact holder_correlation_tile_two hu hp hf hx hx'
 
 /-- Part of Lemma 7.5.6. -/
@@ -1404,7 +1401,7 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
       ‖adjointCarlesonSum ℭ f x₀‖ₑ + (ε / 2 : ℝ≥0) := by
     apply ENNReal.exists_biSup_le_enorm_add_eps (by positivity)
       ⟨c J, mem_ball_self (by unfold defaultD; positivity)⟩
-    rw [isBounded_image_iff_bddAbove_norm]
+    rw [isBounded_image_iff_bddAbove_norm']
     exact hf.bddAbove_norm_adjointCarlesonSum |>.mono (image_subset_range ..)
   obtain ⟨x', hx', ex'⟩ : ∃ x₀ ∈ ball (c J) (8⁻¹ * D ^ s J),
       ‖adjointCarlesonSum ℭ f x₀‖ₑ - (ε / 2 : ℝ≥0) ≤
@@ -1779,10 +1776,9 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
               (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ / edist x x' ^ τ :=
             ENNReal.div_le_div_right (edist_holderFunction_le hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mx') _
           _ = _ := by
-            have dn0 : edist x x' ≠ 0 := by rw [← zero_lt_iff]; exact edist_pos.mpr hn
             rw [mul_div_assoc, defaultτ, ← ENNReal.div_rpow_of_nonneg _ _ (by positivity),
               div_eq_mul_inv, div_eq_mul_inv, ← mul_rotate _ (edist x x'),
-              ENNReal.inv_mul_cancel dn0 (edist_ne_top x x'), one_mul]
+              ENNReal.inv_mul_cancel (by positivity [edist_pos.mpr hn]) (edist_ne_top x x'), one_mul]
     _ ≤ C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J +
         ENNReal.ofReal (16 * D ^ s J) ^ τ *
         (I7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J * ((D : ℝ≥0∞) ^ s J)⁻¹ ^ (a : ℝ)⁻¹) := by

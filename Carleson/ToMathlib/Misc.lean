@@ -36,10 +36,9 @@ section ENNReal
 open ENNReal
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
-  if hfin : s.Finite then
-    lift s to Finset α using hfin
+  by_cases hfin : s.Finite
+  · lift s to Finset α using hfin
     simp
-  else
   have : Infinite s := infinite_coe_iff.mpr hfin
   rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num), Set.encard_eq_top_iff.mpr hfin]
   simp only [ENat.toENNReal_top]
@@ -593,12 +592,10 @@ lemma isBounded_iff_bddAbove_norm' {E} [SeminormedCommGroup E] {s : Set E} :
     IsBounded s ↔ BddAbove (Norm.norm '' s) := by
   simp [isBounded_iff_forall_norm_le', bddAbove_def]
 
-@[to_additive isBounded_range_iff_bddAbove_norm]
 lemma isBounded_range_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} :
     IsBounded (range f) ↔ BddAbove (range (‖f ·‖)) := by
   rw [isBounded_iff_bddAbove_norm, ← range_comp, Function.comp_def]
 
-@[to_additive isBounded_image_iff_bddAbove_norm]
 lemma isBounded_image_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} {s : Set ι} :
     IsBounded (f '' s) ↔ BddAbove ((‖f ·‖) '' s) := by
   rw [isBounded_iff_bddAbove_norm, ← image_comp, Function.comp_def]

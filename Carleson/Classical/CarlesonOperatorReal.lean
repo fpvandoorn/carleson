@@ -156,17 +156,12 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         intro s hs t ht
         rw [Fdef]
         simp only [Set.mem_Ioo]
-        by_cases h : dist x y < 1
+        by_cases! h : dist x y < 1
         · rw [Set.indicator_apply, ite_cond_eq_true, Set.indicator_apply, ite_cond_eq_true]
-          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
-            use ht
-          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
-            use hs
-        · push_neg at h
-          rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
-          all_goals
-            simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
-            exact fun _ ↦ h
+          · simpa using ⟨ht, h⟩
+          · simpa using ⟨hs, h⟩
+        · rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
+          all_goals simpa using fun _ ↦ h
       have contOn2 : ∀ (y : ℝ), ContinuousOn (fun s ↦ F x s y) (Set.Ioi (min (dist x y) 1)) := by
         intro y
         rw [continuousOn_iff_continuous_restrict]
@@ -192,10 +187,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
           · exact (h'.trans h).le
       have contOn : ∀ y, ∀ t ≠ dist x y, ContinuousAt (F x · y) t := by
         intro y t ht
-        by_cases h : t < dist x y
+        by_cases! h : t < dist x y
         · exact_mod_cast (contOn1 y).continuousAt (Iio_mem_nhds h)
-        · push_neg at h
-          exact ContinuousOn.continuousAt (contOn2 y) (Ioi_mem_nhds
+        · exact ContinuousOn.continuousAt (contOn2 y) (Ioi_mem_nhds
             ((min_le_left _ _).trans_lt (lt_of_le_of_ne h ht.symm)))
       have subset_finite :
           {y | ¬ContinuousAt (F x · y) r} ⊆ ({x - r, x + r} : Finset ℝ) := by

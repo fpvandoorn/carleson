@@ -91,19 +91,16 @@ lemma continuous_ψ : Continuous (ψ D) := by
 include hD in
 lemma support_ψ : support (ψ D) = Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
   ext x
-  by_cases hx₀ : x ≤ 1 / (4 * D)
+  by_cases! hx₀ : x ≤ 1 / (4 * D)
   · suffices x ≤ (D : ℝ)⁻¹ * 4⁻¹ by simp [ψ_formula₀ hx₀, this]
     rwa [one_div, mul_inv_rev] at hx₀
-  push_neg at hx₀
   have hx₀_inv : (D : ℝ)⁻¹ * 4⁻¹ < x := by convert hx₀ using 1; simp
   have ne₀ : 4 * D * x - 1 ≠ 0 := ne_of_gt (by rwa [sub_pos, ← div_lt_iff₀' (by linarith)])
-  by_cases hx₁ : x ≤ 1 / (2 * D)
+  by_cases! hx₁ : x ≤ 1 / (2 * D)
   · suffices (D : ℝ)⁻¹ * 4⁻¹ < x ∧ x < 2⁻¹ by simpa [ne₀, ψ_formula₁ hD ⟨hx₀.le, hx₁⟩]
     exact ⟨hx₀_inv, lt_of_le_of_lt hx₁ (by simp [_root_.inv_lt_one_iff₀, hD])⟩
-  push_neg at hx₁
-  by_cases hx₂ : x ≤ 1 / 4
+  by_cases! hx₂ : x ≤ 1 / 4
   · simpa [ψ_formula₂ hD ⟨hx₁.le, hx₂⟩, hx₀_inv] using lt_of_le_of_lt hx₂ (by norm_num)
-  push_neg at hx₂
   by_cases hx₃ : x < 1 / 2
   · have : ¬ 2 - 4 * x = 0 := by linarith
     simpa [ψ_formula₃ hD ⟨hx₂.le, hx₃.le⟩, hx₀, hx₃, ← one_div]
@@ -593,13 +590,12 @@ include K in
 private lemma ψ_ineq {x y y' : X} :
     ‖ψ (D ^ (-s) * dist x y) - ψ (D ^ (-s) * dist x y')‖ₑ ≤
     4 * D * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
-  by_cases h : edist y y' / D ^ s ≥ 1    -- If `dist y y'` is large, then the RHS is large while
+  by_cases! h : edist y y' / D ^ s ≥ 1    -- If `dist y y'` is large, then the RHS is large while
   · apply le_trans enorm_ψ_sub_ψ_le_two  -- the LHS remains bounded.
     rw [← mul_one 2]
     gcongr
     · norm_cast; linarith [defaultD_pos a]
     · apply ENNReal.one_le_rpow h <| inv_pos_of_pos <| Nat.cast_pos.mpr (by linarith [four_le_a X])
-  push_neg at h
   -- If `dist y y'` is small, then `(dist y y') ^ (a : ℝ)⁻¹` is comparable with `dist y y'`,
   -- so the Lipschitz bound for `ψ` is enough to finish the proof.
   have D1 : 1 ≤ D := by exact_mod_cast one_le_realD (a := a)

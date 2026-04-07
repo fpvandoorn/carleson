@@ -222,11 +222,10 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
 
 lemma lower_secant_bound' {η : ℝ} {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * π - η) :
     (2 / π) * η ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
-  by_cases ηpos : η ≤ 0
+  by_cases! ηpos : η ≤ 0
   · calc (2 / π) * η
     _ ≤ 0 := mul_nonpos_of_nonneg_of_nonpos (div_nonneg zero_le_two pi_pos.le) ηpos
     _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := norm_nonneg _
-  push_neg at ηpos
   wlog x_nonneg : 0 ≤ x generalizing x
   · convert (@this (-x) _ (by simpa) (by linarith)) using 1
     · rw [← Complex.norm_conj, map_sub, map_one, Complex.ofReal_neg, mul_neg,
@@ -240,7 +239,7 @@ lemma lower_secant_bound' {η : ℝ} {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le
       simp [← Complex.exp_conj, mul_sub, Complex.conj_ofReal, Complex.exp_sub,
         mul_comm Complex.I (2 * π), ← Complex.exp_neg]
     all_goals linarith
-  by_cases h : x ≤ π / 2
+  by_cases! h : x ≤ π / 2
   · calc (2 / π) * η
     _ ≤ (2 / π) * x := by gcongr
     _ = (1 - (2 / π) * x) * Real.sin 0 + ((2 / π) * x) * Real.sin (π / 2) := by simp
@@ -264,17 +263,15 @@ lemma lower_secant_bound' {η : ℝ} {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le
         apply (Real.sqrt_le_sqrt_iff _).mpr
         · simp [pow_two_nonneg]
         · linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
-  · push_neg at h
-    exact lower_secant_bound_aux ηpos le_abs_x abs_x_le x_le_pi h
+  · exact lower_secant_bound_aux ηpos le_abs_x abs_x_le x_le_pi h
 
 /- Slightly weaker version of Lemma 11..1.9 (lower secant bound) with simplified constant. -/
 lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + η) (2 * π - η)) (xAbs : η ≤ |x|) :
     η / 2 ≤ ‖(1 - Complex.exp (Complex.I * x))‖ := by
-  by_cases ηpos : η < 0
+  by_cases! ηpos : η < 0
   · calc η / 2
     _ ≤ 0 := by linarith
     _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := norm_nonneg _
-  push_neg at ηpos
   calc η / 2
   _ ≤ (2 / π) * η := by
     ring_nf
@@ -284,5 +281,4 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + �
     norm_num [pi_le_four]
   _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
     apply lower_secant_bound' xAbs
-    rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]
-    exact xIcc
+    rwa [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]

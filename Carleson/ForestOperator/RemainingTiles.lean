@@ -258,7 +258,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
     rw [Measure.restrict_apply_univ]
     exact volume_coeGrid_lt_top⟩
   let 𝒟 (s₀ x) : Set (Grid X) := { I | x ∈ ball (c I) (8 * D ^ s I) ∧ s I = s₀ }
-  let supp : Set X := { x ∈ J | EMetric.infEdist x Jᶜ ≤ 8 * (D ^ (s J - s')) }
+  let supp : Set X := { x ∈ J | Metric.infEDist x Jᶜ ≤ 8 * (D ^ (s J - s')) }
   have hsupp : supp ⊆ J := fun x hx ↦ hx.1
   have vsupp : volume.real supp ≤ 2 * (↑8 * ↑D ^ (-s')) ^ κ * volume.real (J : Set X) := by
     simp only [supp, sub_eq_neg_add, ENNReal.zpow_add (x := D) (by simp) (by finiteness),
@@ -327,9 +327,9 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       intro I
       simp_rw [Finset.filter_filter, Finset.mem_filter_univ, mem_toFinset]
       exact fun H ↦ ⟨H.2, H.1.1⟩
-    · have (I : Grid X) : ball (c I) (8 * D ^ s I) = EMetric.ball (c I) (8 * D ^ s I) := by
-        trans EMetric.ball (c I) (show ℝ≥0 from ⟨8 * D ^ s I, by positivity⟩)
-        · rw [emetric_ball_nnreal]; rfl
+    · have (I : Grid X) : ball (c I) (8 * D ^ s I) = Metric.eball (c I) (8 * D ^ s I) := by
+        trans Metric.eball (c I) (show ℝ≥0 from ⟨8 * D ^ s I, by positivity⟩)
+        · rw [Metric.eball_coe]; rfl
         · congr!
           simp only [ENNReal.coe_nnreal_eq, ← Real.rpow_intCast]
           erw [ENNReal.ofReal_mul (by norm_num)]
@@ -337,7 +337,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
           norm_num
       simp_rw [this]
       simp only [CharP.cast_eq_zero, nonpos_iff_eq_zero, Finset.sum_eq_zero_iff, Finset.mem_filter,
-        Finset.mem_univ, true_and, indicator_apply_eq_zero, EMetric.mem_ball, Pi.one_apply,
+        Finset.mem_univ, true_and, indicator_apply_eq_zero, Metric.mem_eball, Pi.one_apply,
         one_ne_zero, imp_false, not_lt, and_imp]
       intro I e hI₁ _
       simp only [Grid.mem_def, mem_setOf_eq, not_and, not_le, supp, ← e] at hx'
@@ -366,8 +366,9 @@ lemma sum_𝓙₆_indicator_sq_eq {f : Grid X → X → ℝ≥0∞} :
     (∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (f J) x) ^ 2 =
     ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (f J · ^ 2) x := by
   rw [sq, Finset.sum_mul_sum, ← Finset.sum_product']
-  have dsub : (𝓙₆ t u₁).toFinset.diag ⊆ (𝓙₆ t u₁).toFinset ×ˢ (𝓙₆ t u₁).toFinset :=
-    Finset.filter_subset ..
+  have dsub : (𝓙₆ t u₁).toFinset.diag ⊆ (𝓙₆ t u₁).toFinset ×ˢ (𝓙₆ t u₁).toFinset := by
+    rw [Finset.diag_eq_filter]
+    exact Finset.filter_subset ..
   rw [← Finset.sum_subset dsub]; swap
   · intro p mp np
     simp_rw [Finset.mem_product, Finset.mem_diag, mem_toFinset, not_and] at mp np
@@ -387,7 +388,7 @@ lemma btp_expansion (hf : BoundedCompactSupport f) :
     _ = (∫⁻ x, ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (fun _ ↦
         ‖⨍ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖‖ₑ ^ 2) x) ^ (2 : ℝ)⁻¹ := by
       unfold approxOnCube
-      simp_rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top,
+      simp_rw [eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ENNReal.ofNat_ne_top,
         ENNReal.toReal_ofNat, one_div]
       congr! with x; rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
       · refine fun J mJ ↦ indicator_nonneg (fun y my ↦ ?_) _
@@ -681,8 +682,9 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       congr; rw [← lintegral_biUnion_finset _ fun _ _ ↦ coeGrid_measurable]; swap
       · rw [coe_toFinset]; exact pairwiseDisjoint_𝓙₆
       simp_rw [mem_toFinset, union_𝓙₆ hu₁, ← lintegral_indicator coeGrid_measurable,
-        eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
-        one_div, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast, enorm_eq_self]
+        eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ENNReal.ofNat_ne_top,
+        ENNReal.toReal_ofNat, one_div, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast,
+        enorm_eq_self]
       congr! with x
       simp_rw [sq, ← inter_indicator_mul, inter_self]
 

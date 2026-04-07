@@ -335,12 +335,11 @@ theorem exists_disjoint_subfamily_covering_enlargement_closedBall' {α} [MetricS
         (∀ u ∈ t, 0 ≤ r u → r a ≤ (τ - 1) / 2 * r b) := by
   rcases eq_empty_or_nonempty t with (rfl | _)
   · exact ⟨∅, Subset.refl _, pairwiseDisjoint_empty, by simp⟩
-  by_cases ht : ∀ a ∈ t, r a < 0
+  by_cases! ht : ∀ a ∈ t, r a < 0
   · refine ⟨t, .rfl, fun a ha b _ _ ↦ by
       simp only [Function.onFun, closedBall_eq_empty.2 (ht a ha), empty_disjoint],
       fun a ha => ⟨a, ha, by simp only [closedBall_eq_empty.2 (ht a ha), empty_subset],
       fun u hut hu ↦ (ht u hut).not_ge hu |>.elim⟩⟩
-  push_neg at ht
   let t' := { a ∈ t | 0 ≤ r a }
   have h2τ : 1 < (τ - 1) / 2 := by linarith
   rcases exists_disjoint_subfamily_covering_enlargement (fun a => closedBall (x a) (r a)) t' r
@@ -406,10 +405,10 @@ theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h�
   calc
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := by
           refine mul_right_mono (μ.mono fun x hx ↦ ?_)
-          simp only [mem_iUnion, mem_ball, exists_prop] at hx
+          push _ ∈ _ at hx
           rcases hx with ⟨i, i𝓑, hi⟩
           obtain ⟨b, bB, hb⟩ := h2B i i𝓑
-          refine mem_iUnion₂.mpr ⟨b, bB, hb <| mem_ball.mpr hi⟩
+          exact mem_iUnion₂.mpr ⟨b, bB, hb <| mem_ball.mpr hi⟩
     _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) :=
           mul_right_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
     _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
@@ -784,11 +783,10 @@ lemma lowerSemiContinuous_MB :
       ⋃ i ∈ 𝓑, (ball (c i) (r i)).indicator
       (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ‖f y‖ₑ ∂μ) ⁻¹' Ioi y := by
     ext x
-    simp only [mem_preimage, mem_Ioi, mem_iUnion, exists_prop]
+    push _ ∈ _
     constructor
     · intro h
-      by_contra h₀
-      simp only [not_exists, not_and, not_lt] at h₀
+      by_contra! h₀
       have := iSup₂_le_iff.mpr h₀
       order
     · intro h
@@ -851,12 +849,12 @@ theorem hasWeakType_maximalFunction_equal_exponents
       {x | (t : ℝ≥0∞) < ‖ maximalFunction μ 𝓑 c r (↑p) v x‖ₑ } ⊆
       ⋃ k : ℕ, {x | (t : ℝ≥0∞) < ‖ maximalFunction μ (tr h𝓑 k) c r (↑p) v x‖ₑ } := by
     intro x
-    simp only [enorm_eq_self, mem_setOf_eq, mem_iUnion]
+    push _ ∈ _
     intro hx
     by_contra! h₀
     refine (not_le_of_gt (lt_of_le_of_lt' ?_ hx)) (iSup_le h₀)
     rw [maximalFunction_seq_eq h𝓑 hp]
-    rfl
+    exact le_rfl
   let f (k : ℕ) := fun x ↦ maximalFunction μ (tr h𝓑 k) c r (↑p) v x
   have f_mon : Monotone f := by
     refine fun a b hab x ↦ rpow_le_rpow (iSup₂_le fun i Hi ↦ ?_) (by positivity)

@@ -40,7 +40,7 @@ lemma Hilbert_kernel_measurable : Measurable (Function.uncurry K) :=
 
 /- Lemma 11.1.11 (Hilbert kernel bound) -/
 lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := by
-  by_cases h : 0 < |x - y| ∧ |x - y| < 1
+  by_cases! h : 0 < |x - y| ∧ |x - y| < 1
   · calc ‖K x y‖
       _ ≤ 1 / ‖1 - exp (I * ↑(x - y))‖ := by
         rw [K, k, norm_div]
@@ -69,8 +69,7 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x
               _ ≤ 2 * π - |x - y| := by gcongr; exact h.2.le
       _ = 2 / |x - y| := by rw [one_div, inv_div]
       _ ≤ (2 : ℝ) ^ (2 : ℝ) / (2 * |x - y|) := by ring_nf; trivial
-  · push_neg at h
-    have : ‖K x y‖ = 0 := by
+  · have : ‖K x y‖ = 0 := by
       rw [norm_eq_zero, K, k, _root_.div_eq_zero_iff]
       by_cases xeqy : x = y
       · simp [xeqy]
@@ -219,17 +218,14 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
   intro h
   simp only [zero_sub, abs_neg] at h
   simp only [zero_sub, abs_neg]
-  wlog yy'nonneg : 0 ≤ y ∧ 0 ≤ y' generalizing y y'
-  · by_cases yge0 : 0 ≤ y
-    · push_neg at yy'nonneg
-      exfalso
+  wlog! yy'nonneg : 0 ≤ y ∧ 0 ≤ y' generalizing y y'
+  · by_cases! yge0 : 0 ≤ y
+    · exfalso
       rw [_root_.abs_of_nonneg yge0, _root_.abs_of_nonneg] at h <;> linarith [yy'nonneg yge0]
-    push_neg at yge0
-    by_cases y'ge0 : 0 ≤ y'
+    by_cases! y'ge0 : 0 ≤ y'
     · exfalso
       rw [abs_of_neg yge0, abs_of_neg] at h <;> linarith
     /- This is the only interesting case. -/
-    push_neg at y'ge0
     set! y_ := -y with y_def
     set! y'_ := -y' with y'_def
     have h_ : 2 * |y_ - y'_| ≤ |y_| := by
@@ -243,13 +239,12 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
       ← abs_neg (y' - y)] at this
     simpa
   /-"Wlog" 0 < y-/
-  by_cases ypos : y ≤ 0
+  by_cases! ypos : y ≤ 0
   · have y_eq_zero : y = 0 := le_antisymm ypos yy'nonneg.1
     have y'_eq_zero : y' = 0 := by
       simp [y_eq_zero, _root_.abs_of_nonneg yy'nonneg.2] at h
       linarith
     simp [y_eq_zero, y'_eq_zero]
-  push_neg at ypos
   /- Beginning of the main proof -/
   have y2ley' : y / 2 ≤ y' := by
     rw [div_le_iff₀ two_pos]

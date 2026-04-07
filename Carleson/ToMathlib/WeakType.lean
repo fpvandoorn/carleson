@@ -250,11 +250,11 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {
       exact (enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
 
---TODO: make this an iff?
+-- TODO: make this an iff?
 lemma distribution_zero_enorm {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   unfold distribution
-  rw[← le_zero_iff]
+  rw [← nonpos_iff_eq_zero]
   calc _
     _ ≤ μ {x | 0 < ‖f x‖ₑ} := by
       apply measure_mono
@@ -268,10 +268,11 @@ lemma distribution_zero_enorm {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     _ = 0 := by
       exact ae_iff.mp h
 
-lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+lemma distribution_zero {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   apply distribution_zero_enorm
-  simpa only [Filter.EventuallyEq, comp_apply, Pi.zero_apply, enorm_eq_zero]
+  simp only [EventuallyEq, comp_apply, Pi.ofNat_apply]
+  filter_upwards [h] with x hx using (by simp [hx])
 
 lemma distribution_zero_eq_measure_support {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   {f : α → ε} :
@@ -634,17 +635,15 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) : ∀ᵐ x �
   have h4 (t : ℝ≥0) : μ A ≤ (C / t) ^ p.toReal := (h1 t).trans (h3 t)
   have h5 : μ A ≤ μ A / 2 := by
     convert h4 (C * (2 / μ A) ^ p.toReal⁻¹).toNNReal
-    rw [coe_toNNReal ?_]
-    swap
-    · refine mul_ne_top h2.ne_top (rpow_ne_top_of_nonneg (inv_nonneg.mpr toReal_nonneg) ?_)
-      simp [div_eq_top, h]
+    rw [coe_toNNReal (by finiteness)]
     nth_rw 1 [← mul_one C]
     rw [ENNReal.mul_div_mul_left _ _ hC_zero h2.ne_top, div_rpow_of_nonneg _ _ toReal_nonneg,
       ENNReal.rpow_inv_rpow hp_toReal_zero, ENNReal.one_rpow, one_div,
         ENNReal.inv_div (Or.inr ofNat_ne_top) (Or.inr (NeZero.ne' 2).symm)]
   have h6 : μ A = 0 := by
-    convert (fun hh ↦ ENNReal.half_lt_self hh (ne_top_of_le_ne_top (rpow_ne_top_of_nonneg
-      toReal_nonneg ((div_one C).symm ▸ h2.ne_top)) (h4 1))).mt h5.not_gt
+    convert (fun hh ↦ ENNReal.half_lt_self hh (ne_top_of_le_ne_top
+      (rpow_ne_top_of_nonneg toReal_nonneg ((div_one C).symm ▸ h2.ne_top))
+      (h4 1))).mt h5.not_gt
     tauto
   exact h h6
 
@@ -816,7 +815,7 @@ end HasWeakType
 
 section HasBoundedWeakType
 
-variable [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENorm ε₂]
+variable [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENorm ε₂]
     {f₁ : α → ε₁}
 
 lemma HasBoundedWeakType.memWLp (h : HasBoundedWeakType T p p' μ ν c)
@@ -866,7 +865,7 @@ end HasStrongType
 
 section HasBoundedStrongType
 
-variable [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ContinuousENorm ε₂]
+variable [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace ε₂] [ContinuousENorm ε₂]
     {f₁ : α → ε₁}
 
 lemma HasBoundedStrongType.memLp (h : HasBoundedStrongType T p p' μ ν c)
@@ -967,12 +966,7 @@ lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
     apply eLpNormEssSup_const_nnreal_smul_le
   simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
   by_cases k_zero : k = 0
-  · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero',
-      setOf_false, measure_empty, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero,
-      ENNReal.rpow_eq_zero_iff, inv_pos, true_and, zero_ne_top, inv_neg'', false_and, or_false]
-    intro _
-    right
-    exact toReal_pos hp ptop
+  · simp [distribution, k_zero, toReal_pos hp ptop]
   simp only [distribution_smul_left k_zero]
   intro t
   rw [ENNReal.mul_iSup]
@@ -994,12 +988,7 @@ lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E} 
     apply eLpNormEssSup_const_smul_le
   simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
   by_cases k_zero : k = 0
-  · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero', setOf_false,
-      measure_empty, coe_lt_enorm, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero,
-      ENNReal.rpow_eq_zero_iff, inv_pos, true_and, zero_ne_top, inv_neg'', false_and, or_false]
-    intro _
-    right
-    exact toReal_pos hp ptop
+  · simp [distribution, k_zero, toReal_pos hp ptop]
   simp only [distribution_smul_left' k_zero]
   intro t
   rw [ENNReal.mul_iSup]
@@ -1093,7 +1082,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
   simp only [mul_comm (μ _), ne_eq, ofReal_ne_top, not_false_eq_true, ← lintegral_const_mul',
     ← mul_assoc, ofReal_mul, distribution, hp.le] at this ⊢
   -- TODO: clean up this whole proof
-  by_cases ae_finite : μ {x | ‖f x‖ₑ = ∞} = 0
+  by_cases! ae_finite : μ {x | ‖f x‖ₑ = ∞} = 0
   · -- main case
     convert this using 1
     · apply lintegral_congr_ae
@@ -1127,8 +1116,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
     exact hx.2 hx.1
   · rw [lintegral_eq_top_of_measure_eq_top_ne_zero]
     · symm
-      push_neg at ae_finite
-      rw [← zero_lt_iff] at ae_finite
+      rw [← enorm_pos] at ae_finite
       rw [eq_top_iff]
       calc
       _ = ENNReal.ofReal p *

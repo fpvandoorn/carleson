@@ -88,9 +88,9 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
   by_cases hq : (L : Set X) ∩ ⋃ p ∈ t u, E p = ∅
   · rw [inter_comm (L : Set X), inter_assoc, hq, inter_empty, measure_empty]; exact zero_le _
   rw [← disjoint_iff_inter_eq_empty, disjoint_iUnion₂_right] at hq; push_neg at hq
-  by_cases hp₂ : ∃ p ∈ t u, ¬Disjoint (L : Set X) (E p) ∧ 𝔰 p ≤ s L
+  by_cases! hp₂ : ∃ p ∈ t u, ¬Disjoint (L : Set X) (E p) ∧ 𝔰 p ≤ s L
   · exact local_dens1_tree_bound_exists hu hL hp₂
-  push_neg at hp₂; obtain ⟨p, mp, hp⟩ := hq; have sLp := hp₂ p mp hp
+  obtain ⟨p, mp, hp⟩ := hq; have sLp := hp₂ p mp hp
   have lip : L < 𝓘 p := by
     refine Grid.lt_def.mpr ⟨(le_of_mem_𝓛 hL mp ?_).1, sLp⟩
     contrapose! hp; exact (hp.mono_left E_subset_𝓘).symm
@@ -190,7 +190,7 @@ private lemma local_dens2_tree_bound_aux {p : 𝔓 X} (hpu : p ∈ t u) {r : ℝ
   · refine mul_ne_zero ?_ (volume_coeGrid_pos (defaultD_pos a)).ne.symm
     rw [C7_3_3]
     exact_mod_cast (pow_pos two_pos _).ne.symm
-  · exact ENNReal.mul_ne_top ENNReal.coe_ne_top (volume_coeGrid_lt_top).ne
+  · finiteness
 
 -- Special case of `local_dens2_tree_bound_aux` which is used twice
 private lemma local_dens2_tree_bound_aux' {p : 𝔓 X} (hpu : p ∈ t u)
@@ -306,7 +306,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
     _ = ∫⁻ x, ∑ J ∈ Finset.univ.filter (· ∈ C),
           (J : Set X).indicator (fun _ ↦ (ENNReal.ofReal (⨍ y in J, ‖f y‖)) ^ 2) x := by
       congr with x
-      by_cases ex : ∃ J₀ ∈ Finset.univ.filter (· ∈ C), x ∈ (J₀ : Set X)
+      by_cases! ex : ∃ J₀ ∈ Finset.univ.filter (· ∈ C), x ∈ (J₀ : Set X)
       · obtain ⟨J₀, hJ₀, hx⟩ := ex
         calc
           _ = ((J₀ : Set X).indicator (fun _ ↦ ENNReal.ofReal (⨍ y in J₀, ‖f y‖)) x) ^ 2 := by
@@ -323,9 +323,8 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
             intro J hJ J_ne_J₀
             have := disj_C (Finset.mem_filter.mp hJ).2 (Finset.mem_filter.mp hJ₀).2 J_ne_J₀
             apply indicator_of_notMem (disjoint_right.mp this hx)
-      · push_neg at ex
-        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _, zero_pow two_pos.ne.symm]
-        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _]
+      · rw [Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _, zero_pow two_pos.ne',
+          Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C),
           ENNReal.ofReal (⨍ y in J, ‖f y‖) ^ 2 * volume (J : Set X) := by
       rw [lintegral_finset_sum _ (fun _ _ ↦ measurable_const.indicator coeGrid_measurable)]
@@ -516,11 +515,10 @@ lemma smul_le_indicator {A : Set X} (hf : f.support ⊆ A) {C : ℝ} (hC : ∀ x
     Real.norm_eq_abs]
   rw [inv_mul_le_iff₀ (by positivity),mul_comm,← indicator_mul_const]
   simp only [Pi.one_apply, one_mul]
-  if h : x ∈ A then
-    rw [indicator_of_mem h]
+  by_cases h : x ∈ A
+  · rw [indicator_of_mem h]
     exact le_trans (hC x) (by exact le_abs_self C)
-  else
-    rw [notMem_support.mp (fun a ↦ h (hf a)), indicator_of_notMem h]
+  · rw [notMem_support.mp (fun a ↦ h (hf a)), indicator_of_notMem h]
     simp only [norm_zero, le_refl]
 
 end Extras
