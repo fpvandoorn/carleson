@@ -129,7 +129,7 @@ collaborative effort, written and developed in public.
 
 \subsection{Overview of the formalization project}\label{subsec:overview}
 % TODO: I assume that the classical and generalized Carleson theorems will already be mentioned in the previous subsection, so that I can cite them here.
-The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result. 
+The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result.
 
 The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization was since the beginning envisioned as a large scale collaborative project. This posed a problem, since there are not many experts in formalization that are also experts in harmonic analysis, so most of the potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
 
@@ -205,20 +205,20 @@ where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ cent
 %In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
 %TODO: what should we specify as codomain?
-For a function $f$ on $X$, we define its weak $L^p$ norm to be
+For a function $f$ on a (not necessarily doubling) measure space $(X,\mu)$ taking values in some space $E$ endowed with an extended norm (see \ref{subsec:enorm}), we define its weak $L^p$ norm to be
 \begin{equation}
   \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X : t < |f(x)| \}) ^ \frac{1}{p}
 \end{equation}
 if $0<p<\infty$, and $\|f\|_{L^{\infty,\infty}} \coloneq \|f\|_{L^{\infty}}$.
-%TODO: add def of MemWLp, MemWLP.ae_ne_top (probably without proof), maybe other small statements
+The function $f$ is said to be in weak $L^p$ (\lean{MemWLp}) if $f$ is $\mu$-a.e. strongly measurable with respect to a fixed topology on $E$ (see e.g. \cite{vanDoornFormalizedHaarMeasure, GouezelChangeOfVariables} for motivation of the different notions of measurability in mathlib) and $\|f\|_{L^{p,\infty}} < \infty$. %TODO: split this sentence, add short definition of aestronglymeasurable, and add reference to the definition in mathlib.
+An important consequence is that if $f$ is in weak $L^p$, then $|f|$ is finite almost everywhere (see \lean{MemWLp.ae_ne_top}).
+%TODO: add maybe other small statements (probably without proof)
+%TODO: think about order of different definitions
 
-
-%TODO: include that T f has to be (ae)measurable
 %TODO: add that we use measure theoy from mathlib, cite other papers, e.g. about product measures, change of variables formula
-%TODO: formally specify domain of T?
-An operator $T$ has weak type $(p, p')$ if there exists a constant $C$ such that for any $f\in L^p$,
+Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T : (X \to E) \to (Y \to F)$ is of strong type $(p,p')$ if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e. strongly measurable and
 \begin{equation}
-  \|T f\|_{L^{p',\infty}} \le \|f\|_{L^p}.
+  \|T f\|_{L^{p',\infty}} \le C \cdot \|f\|_{L^p}.
 \end{equation}
 
 \subsection{Statement of the main results}\label{subsec:main_results}
