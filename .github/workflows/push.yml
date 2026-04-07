@@ -47,7 +47,13 @@ jobs:
           mk_all-check: true
 
       - name: Upstreaming dashboard
-        run: python3 scripts/upstreaming_dashboard.py
+        uses: leanprover-community/upstreaming-dashboard-action@main
+        with:
+          website-directory: ./docs
+          project-name: Carleson
+          relevant-labels: carleson
+          include-drafts: true
+          branch-name: master
 
       - name: Generate the paper PDF and add it to the website
         uses: xu-cheng/texlive-action@22c04326a5d855880f9d39bb955138bf11c6df80 # v3
