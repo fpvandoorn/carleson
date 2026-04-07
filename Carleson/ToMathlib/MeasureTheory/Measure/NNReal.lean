@@ -141,8 +141,15 @@ lemma Measure.Subtype.sigmaFinite {δ : Type*} [MeasureSpace δ] [sf : SigmaFini
 
 instance : SigmaFinite (@volume ℝ≥0 _) := Measure.Subtype.sigmaFinite measurableSet_Ici
 
-instance : SigmaFinite (@volume ℝ≥0∞ _) := sorry
+--TODO: move?
+lemma measurableEmbedding_ofNNReal : MeasurableEmbedding ENNReal.ofNNReal := by
+  apply MeasurableEmbedding.of_measurable_inverse (g := ENNReal.toNNReal)
+    measurable_coe_nnreal_ennreal _ measurable_toNNReal
+  · exact Function.RightInverse.leftInverse (congrFun rfl)
+  · rw [range_coe']
+    exact measurableSet_Iio
 
+instance : SigmaFinite (@volume ℝ≥0∞ _) := measurableEmbedding_ofNNReal.sigmaFinite_map
 
 lemma NNReal.volume_eq_volume_ennreal {s : Set ℝ≥0} (hs : MeasurableSet (ofNNReal '' s)) :
     volume s = volume (ENNReal.ofNNReal '' s) := by
