@@ -201,11 +201,6 @@ lemma rearrangement_indicator_superlevelSet_compl {ε} [TopologicalSpace ε] [EN
   simp_rw [distribution_indicator_superlevelSet_compl hf ht, tsub_le_iff_right]
   rfl
 
-#check MeasurableSet.induction_on_open
-#check MeasurableSpace.induction_on_inter
-#check Real.borel_eq_generateFrom_Ioi_rat
-#check borel_eq_generateFrom_Ioi
-
 lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [TopologicalSpace ε]
   [ENormedAddMonoid ε]
   {f : α → ε} (hf : AEStronglyMeasurable f μ) (hf' : μ f.support < ∞) {s : Set ℝ≥0∞}
@@ -351,16 +346,18 @@ lemma measure_enorm_eq_eq_volume_rearrangement_eq {ε} [TopologicalSpace ε] [EN
       simp only [Set.mem_Iio, Set.mem_setOf_eq] at *
       apply le_antisymm
       · rw [rearrangement_le_iff]
-        convert zero_le'
-        unfold distribution superlevelSet Set.indicator
-        rw [← measure_empty (μ := μ)]
-        congr 1
-        ext x
-        simp only [Set.mem_compl_iff, Set.mem_setOf_eq, not_lt, Set.mem_empty_iff_false,
-          iff_false]
-        split_ifs
-        · assumption
-        · simp
+        have :  distribution ((superlevelSet f a)ᶜ.indicator f) a μ = 0 := by
+          unfold distribution superlevelSet Set.indicator
+          rw [← measure_empty (μ := μ)]
+          congr 1
+          ext x
+          simp only [Set.mem_compl_iff, Set.mem_setOf_eq, not_lt, Set.mem_empty_iff_false,
+            iff_false]
+          split_ifs
+          · assumption
+          · simp
+        rw [this]
+        simp
       · unfold rearrangement
         apply le_sInf
         intro b
@@ -1014,7 +1011,8 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
       simp only [Set.mem_setOf_eq, Set.mem_inter_iff]
       intro hs
       simp only [hs, and_true]
-      exact hs.trans_le' zero_le'
+      apply hs.trans_le'
+      simp
     rw [← ENNReal.bot_eq_zero, ← le_bot_iff, not_le, ENNReal.bot_eq_zero] at h_zero
     have : ∀ a < rearrangement f t μ,
       ∫⁻ s in (Set.Ioo a (rearrangement f t μ))ᶜ, min (distribution f s μ) t

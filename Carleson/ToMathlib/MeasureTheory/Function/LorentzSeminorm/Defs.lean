@@ -52,8 +52,8 @@ lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → 
     simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv,
       eLpNorm_exponent_top, one_mul]
     sorry
-  rw [← eLpNorm_const_smul'' (by simp; aesop), eLpNorm_eq_lintegral_rpow_enorm q_zero q_top,
-      eLpNorm_eq_lintegral_rpow_enorm q_zero q_top,
+  rw [← eLpNorm_const_smul'' (by simp; aesop), eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top,
+      eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top,
       lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop),
       lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop)]
   congr 1
@@ -128,7 +128,7 @@ lemma eLorentzNorm'_eq' (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α →
     simp only [ENNReal.toReal_inv, eLpNorm_exponent_top, ENNReal.inv_top, ENNReal.toReal_zero,
       sub_zero]
     apply eLpNormEssSup_withDensity (by fun_prop) (by simp)
-  rw [eLpNorm_eq_lintegral_rpow_enorm q_zero q_top, eLpNorm_eq_lintegral_rpow_enorm q_zero q_top,
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top, eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top,
       lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop)]
   congr 1
   apply lintegral_congr_ae

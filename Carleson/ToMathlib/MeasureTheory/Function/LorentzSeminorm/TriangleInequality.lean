@@ -255,8 +255,8 @@ lemma eLpNorm_lorentz_helper (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
   have q'_ne_top : q.conjExponent ≠ ⊤ := (ENNReal.HolderConjugate.conjExponent one_le_q).symm.ne_top_iff_ne_one.mpr q_ne_one
   unfold lorentz_helper
   rw [eLpNorm_const_smul''' (by fun_prop)]
-  rw [eLorentzNorm'_eq' p_ne_zero p_ne_top, eLpNorm_eq_lintegral_rpow_enorm q_ne_zero q_ne_top,
-      eLpNorm_eq_lintegral_rpow_enorm q'_ne_zero q'_ne_top] at *
+  rw [eLorentzNorm'_eq' p_ne_zero p_ne_top, eLpNorm_eq_lintegral_rpow_enorm_toReal q_ne_zero q_ne_top,
+      eLpNorm_eq_lintegral_rpow_enorm_toReal q'_ne_zero q'_ne_top] at *
   simp only [ENNReal.toReal_inv, enorm_eq_self, one_div] at *
   rw [← ENNReal.rpow_mul]
   simp_rw [← ENNReal.rpow_mul]
