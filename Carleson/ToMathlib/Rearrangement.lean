@@ -1,6 +1,6 @@
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Integral.Layercake
-import Carleson.ToMathlib.WeakType
+import Carleson.ToMathlib.Distribution
 
 noncomputable section
 
@@ -29,6 +29,10 @@ def rearrangement (f : α → ε) (t : ℝ≥0∞) (μ : Measure α) : ℝ≥0�
 
 
 variable {f : α → ε} {g : α → ε'} {μ : Measure α} {x y : ℝ≥0∞}
+
+@[simp] lemma rearrangement_top : rearrangement f ⊤ μ = 0 := by
+  unfold rearrangement
+  simp
 
 @[gcongr] lemma rearrangement_mono_right (h : x ≤ y) :
     rearrangement f y μ ≤ rearrangement f x μ := by
@@ -749,6 +753,30 @@ lemma essSup_nnnorm_eq_rearrangement_zero :
     essSup (‖f ·‖ₑ) μ = rearrangement f 0 μ  := by
   unfold essSup rearrangement distribution
   simp [Filter.limsup_eq, ae_iff]
+
+lemma eLpNormEssSup_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} :
+    eLpNormEssSup (rearrangement f · μ) volume = eLpNormEssSup f μ := by
+  /-
+  rw [eLpNorm, ENNReal.rpow_zero, one_mul]
+  exact essSup_nnnorm_eq_rearrangement_zero
+  -/
+  sorry
+
+lemma eLpNorm'_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+    eLpNorm' (rearrangement f · μ) p volume = eLpNorm' f p μ := by
+  unfold eLpNorm'
+  simp only [enorm_eq_self, one_div]
+  rw [lintegral_rearrangement_pow hf hp]
+
+lemma eLpNorm_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0 < p) :
+    eLpNorm (rearrangement f · μ) p volume = eLpNorm f p μ := by
+  unfold eLpNorm
+  split_ifs with p_zero p_top
+  · rfl
+  · exact eLpNormEssSup_rearrangement
+  · exact eLpNorm'_rearrangement hf (ENNReal.toReal_pos p_zero p_top)
 
 @[simp]
 lemma rearrangement_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
