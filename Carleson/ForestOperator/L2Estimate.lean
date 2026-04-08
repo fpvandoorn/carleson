@@ -65,7 +65,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
   suffices ((D : ℝ) ^ s)⁻¹ * dist x y ∉ support ψ by simp [Ks, notMem_support.mp this, -defaultD]
   rw [support_ψ (one_lt_realD X), mem_Ioo, not_and_or]
   rcases lt_or_ge ((D : ℝ) ^ (b - 1) / 4) (dist x y) with h | h
-  · push_neg; right
+  · push Not; right
     calc
       _ ≥ ((D : ℝ) ^ c)⁻¹ * (D ^ c / 2) := by
         gcongr
@@ -74,7 +74,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
         · exact (Finset.mem_Icc.mp hs).2
         · exact hy h
       _ = _ := by field_simp
-  · push_neg; left
+  · push Not; left
     calc
       _ ≤ ((D : ℝ) ^ b)⁻¹ * (D ^ (b - 1) / 4) := by
         refine mul_le_mul ?_ h dist_nonneg ?_
