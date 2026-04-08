@@ -9,7 +9,7 @@ import Mathlib.MeasureTheory.Integral.Layercake
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
 import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
-import Carleson.ToMathlib.WeakType
+import Carleson.ToMathlib.Distribution
 
 /-!
 # The layer cake formula / Cavalieri's principle / tail probability formula
