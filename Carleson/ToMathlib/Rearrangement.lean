@@ -754,6 +754,8 @@ lemma essSup_nnnorm_eq_rearrangement_zero :
   unfold essSup rearrangement distribution
   simp [Filter.limsup_eq, ae_iff]
 
+--TODO: do we need these lemmas?
+/-
 lemma eLpNormEssSup_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} :
     eLpNormEssSup (rearrangement f · μ) volume = eLpNormEssSup f μ := by
   /-
@@ -761,6 +763,7 @@ lemma eLpNormEssSup_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid �
   exact essSup_nnnorm_eq_rearrangement_zero
   -/
   sorry
+-/
 
 lemma eLpNorm'_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
@@ -769,6 +772,8 @@ lemma eLpNorm'_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f
   simp only [enorm_eq_self, one_div]
   rw [lintegral_rearrangement_pow hf hp]
 
+--TODO: do we need these lemmas?
+/-
 lemma eLpNorm_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} :
     eLpNorm (rearrangement f · μ) p volume = eLpNorm f p μ := by
@@ -777,6 +782,7 @@ lemma eLpNorm_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f 
   · rfl
   · exact eLpNormEssSup_rearrangement
   · exact eLpNorm'_rearrangement hf (ENNReal.toReal_pos p_zero p_top)
+-/
 
 @[simp]
 lemma rearrangement_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
@@ -812,6 +818,8 @@ lemma ae_eq_zero_of_rearrangement_eq_zero [TopologicalSpace ε] [ENormedAddMonoi
 
 open Filter Topology
 
+--TODO: do we need these lemmas?
+/-
 -- Lemma 1.1.23 of [Ian Tice]
 lemma tendsto_rearrangement [TopologicalSpace ε] {s : ℕ → α → ε}
   (hs : ∀ᶠ i in atTop, AEStronglyMeasurable (s i) μ) (hf : AEStronglyMeasurable f μ)
@@ -824,6 +832,7 @@ lemma liminf_rearrangement [TopologicalSpace ε] {s : ℕ → α → ε}
   (hs : ∀ᶠ i in atTop, AEStronglyMeasurable (s i) μ) (hf : AEStronglyMeasurable f μ)
     (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ liminf (‖s · x‖ₑ) atTop) :
       rearrangement f x μ ≤ liminf (fun i ↦ rearrangement (s i) x μ) atTop := sorry
+-/
 
 -- Lemma 1.1.24 of [Ian Tice]
 lemma distribution_indicator_le_distribution {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
@@ -835,6 +844,8 @@ lemma distribution_indicator_le_distribution {ε} [TopologicalSpace ε] [ESemino
   unfold Set.indicator
   split_ifs <;> simp
 
+--TODO: do we need these lemmas?
+/-
 -- Lemma 1.1.24 of [Ian Tice]
 lemma distribution_indicator_le_measure [TopologicalSpace ε] [Zero ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) (t : ℝ≥0∞) (μ : Measure α) :
@@ -852,7 +863,10 @@ lemma setLIntegral_enorm_le_lintegral_rearrangement [TopologicalSpace ε] {f : �
     ∫⁻ x in X, ‖f x‖ₑ ∂μ ≤
       ∫⁻ t in (Set.Iio (μ X)), rearrangement f t μ := by
   sorry
+-/
 
+--TODO: prove these lemmas when needed
+/-
 --Theorem 4.15 in https://doi.org/10.1007/978-3-319-30034-4
 /-- Hardy-Littlewood rearrangement inequality -/
 lemma lintegral_mul_le_lintegral_rearrangement_mul_rearrangement {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f g : α → ε}
@@ -873,6 +887,7 @@ lemma lintegral_withDensity_le_lintegral_rearrangement_withDensity {ε} [Topolog
       _ = ∫⁻ t, rearrangement f t μ ∂volume.withDensity (rearrangement d · μ) := by
         rw [lintegral_withDensity_eq_lintegral_mul₀' (by fun_prop) (by fun_prop)]
         simp
+-/
 
 lemma setLIntegral_enorm_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : NullMeasurableSet X μ) :
@@ -1019,6 +1034,13 @@ lemma lintegral_rearrangement_eq'' {ε} [TopologicalSpace ε] [ContinuousENorm �
     -/
 -/
 
+--TODO: not true with the current mathlib definition of mathlib which should be changed to the
+--more common definition implying the theorem
+theorem NoAtoms.exists_between₀ [NoAtoms μ] {s t : Set α}
+  (hs : NullMeasurableSet s μ) (hs : NullMeasurableSet t μ)
+  {x : ℝ≥0∞} (lb : μ s ≤ x) (ub : x ≤ μ t) :
+    ∃ E, NullMeasurableSet E μ ∧ s ⊆ E ∧ E ⊆ t ∧ μ E = x := sorry
+
 --Theorem 4.17 in https://doi.org/10.1007/978-3-319-30034-4
 lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε] [NoAtoms μ] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} :
@@ -1052,7 +1074,8 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
         have ub : t ≤ μ (superlevelSet f a) := by
           rw [lt_rearrangement_iff] at ha
           exact ha.le
-        sorry --use: `lb`, `ub` and `NoAtoms`
+        apply NoAtoms.exists_between₀ (nullMeasurableSet_superlevelSet hf)
+          (nullMeasurableSet_superlevelSet hf) lb ub
       rcases this with ⟨E, measE, hE, hE', hμE⟩
       apply le_iSup_of_le E
       apply le_iSup_of_le measE
