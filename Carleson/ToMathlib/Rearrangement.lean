@@ -770,7 +770,7 @@ lemma eLpNorm'_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f
   rw [lintegral_rearrangement_pow hf hp]
 
 lemma eLpNorm_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
-  (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0 < p) :
+  (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} :
     eLpNorm (rearrangement f · μ) p volume = eLpNorm f p μ := by
   unfold eLpNorm
   split_ifs with p_zero p_top
