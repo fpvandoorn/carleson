@@ -1425,7 +1425,8 @@ lemma lintegral_rearrangement_eq''' {ε} [TopologicalSpace ε] [ContinuousENorm 
       aesop
 -/
 
-
+--TODO: we can probably get rid of the NoAtoms assumption here by taking a product
+-- with the unit interval (equipped with the Lebesgue measure)
 --Remark 4.18 in https://doi.org/10.1007/978-3-319-30034-4
 lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral {ε}
   [TopologicalSpace ε] [ESeminormedAddMonoid ε] [ContinuousAdd ε] [NoAtoms μ] {f g : α → ε}
