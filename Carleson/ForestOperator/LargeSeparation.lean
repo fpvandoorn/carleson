@@ -32,8 +32,15 @@ lemma χtilde_pos_iff : 0 < χtilde J u₁ x ↔ x ∈ 𝓘 u₁ ∧ x ∈ ball 
   have := @one_le_realD a; rw [χtilde]
   by_cases h : x ∈ 𝓘 u₁
   · rw [indicator_of_mem h, Real.toNNReal_pos, sub_pos, zpow_neg, inv_mul_lt_iff₀' (by positivity)]
-    simp [h]
-  · rw [indicator_of_notMem h]; simp [h]
+    exact iff_and_self.mpr fun a ↦ h
+  · rw [indicator_of_notMem h]
+    apply Iff.intro
+    · simp
+    · simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, defaultD, Nat.cast_pow, Nat.cast_ofNat,
+      mem_ball, lt_self_iff_false, imp_false, not_and, not_lt]
+      intro h1
+      exfalso
+      exact h h1
 
 lemma χtilde_le_eight : χtilde J u₁ x ≤ 8 := by
   unfold χtilde; apply indicator_le fun _ _ ↦ ?_
@@ -1425,12 +1432,14 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
       rcases hℭ with rfl | rfl
       · nth_rw 2 [← one_mul ‖_‖ₑ]; rw [← enorm_exp_I_mul_ofReal (𝒬 u₁ x), ← enorm_mul]
         nth_rw 3 [← one_mul ‖_‖ₑ]; rw [← enorm_exp_I_mul_ofReal (𝒬 u₁ x'), ← enorm_mul]
-        exact ENNReal.enorm_enorm_sub_enorm_le.trans
-          (global_tree_control1_edist_left hu₁ hu₂ hu h2u hJ hf hx hx')
+        apply ENNReal.enorm_enorm_sub_enorm_le.trans
+        rw [← edist_eq_enorm_sub]
+        exact global_tree_control1_edist_left hu₁ hu₂ hu h2u hJ hf hx hx'
       · nth_rw 2 [← one_mul ‖_‖ₑ]; rw [← enorm_exp_I_mul_ofReal (𝒬 u₂ x), ← enorm_mul]
         nth_rw 3 [← one_mul ‖_‖ₑ]; rw [← enorm_exp_I_mul_ofReal (𝒬 u₂ x'), ← enorm_mul]
-        exact ENNReal.enorm_enorm_sub_enorm_le.trans
-          (global_tree_control1_edist_right hu₁ hu₂ hu h2u hJ hf hx hx')
+        apply ENNReal.enorm_enorm_sub_enorm_le.trans
+        rw [← edist_eq_enorm_sub]
+        exact global_tree_control1_edist_right hu₁ hu₂ hu h2u hJ hf hx hx'
     _ ≤ (C7_5_9d a * 2 ^ ((2 : ℕ) : ℝ) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x) + ε := by
       gcongr; rw [mem_ball] at hx hx'; rw [edist_dist]
       calc
@@ -1773,8 +1782,10 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       · exact iSup₂_le_iff.mpr fun x mx ↦ enorm_holderFunction_le hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx
       · calc
           _ ≤ I7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J *
-              (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ / edist x x' ^ τ :=
-            ENNReal.div_le_div_right (edist_holderFunction_le hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mx') _
+              (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ / edist x x' ^ τ := by
+              rw [← edist_eq_enorm_sub]
+              have h := edist_holderFunction_le hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mx'
+              exact ENNReal.div_le_div_right h (edist x x' ^ τ)
           _ = _ := by
             rw [mul_div_assoc, defaultτ, ← ENNReal.div_rpow_of_nonneg _ _ (by positivity),
               div_eq_mul_inv, div_eq_mul_inv, ← mul_rotate _ (edist x x'),
