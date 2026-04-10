@@ -93,11 +93,100 @@ lemma ENNReal.volume_val {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
     _ = volume (NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s)) := NNReal.volume_val
     _ = volume (ENNReal.toReal '' s) := Eq.symm (measure_congr ENNReal.map_toReal_ae_eq_map_toReal_comap_ofReal)
 
+instance : NoAtoms (@volume ℝ≥0∞ _) where
+  measure_singleton := by
+    intro x
+    rw [ENNReal.volume_val (measurableSet_singleton _), image_singleton]
+    simp
+
+-- TODO: move this general result to an appropriate place
+-- TODO: maybe generalize further to general measures restricted to a subtype
+lemma Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NoAtoms (volume : Measure δ)] {p : δ → Prop} (hp : MeasurableSet p) :
+    NoAtoms (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
+  measure_singleton := by
+    intro x
+    calc _
+      _ = volume (Subtype.val '' {x}) := by
+        apply comap_subtype_coe_apply hp volume
+      _ = 0 := by
+        simp
+
+instance : NoAtoms (@volume ℝ≥0 _) := Measure.Subtype.noAtoms measurableSet_Ici
+
+--TODO: move this general result to an appropriate place
+--TODO: maybe generalize further to general measures restricted to a subtype
+lemma Measure.Subtype.sigmaFinite {δ : Type*} [MeasureSpace δ] [sf : SigmaFinite (@volume δ _)] {p : δ → Prop} (hp : MeasurableSet p) :
+    SigmaFinite (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
+  out' := by
+    refine Nonempty.intro ?_
+    rw [sigmaFinite_iff] at sf
+    rcases Classical.choice sf with ⟨set, set_mem, finite, spanning⟩
+    set set' := fun n ↦ (Subtype.val ⁻¹' (set n))
+    apply Measure.FiniteSpanningSetsIn.mk set'
+    · simp
+    · intro n
+      calc _
+        _ = volume (Subtype.val '' set' n) := by
+          apply comap_subtype_coe_apply hp volume (set' n)
+        _ ≤ volume (set n) := by
+          apply measure_mono
+          unfold set'
+          exact image_preimage_subset Subtype.val (set n)
+        _ < ⊤ := finite n
+    · unfold set'
+      rw [← preimage_iUnion]
+      refine preimage_eq_univ_iff.mpr ?_
+      rw [spanning]
+      exact fun ⦃a⦄ a ↦ trivial
+
+instance : SigmaFinite (@volume ℝ≥0 _) := Measure.Subtype.sigmaFinite measurableSet_Ici
+
+--TODO: move?
+lemma measurableEmbedding_ofNNReal : MeasurableEmbedding ENNReal.ofNNReal := by
+  apply MeasurableEmbedding.of_measurable_inverse (g := ENNReal.toNNReal)
+    measurable_coe_nnreal_ennreal _ measurable_toNNReal
+  · exact Function.RightInverse.leftInverse (congrFun rfl)
+  · rw [range_coe']
+    exact measurableSet_Iio
+
+instance : SigmaFinite (@volume ℝ≥0∞ _) := measurableEmbedding_ofNNReal.sigmaFinite_map
+
 lemma NNReal.volume_eq_volume_ennreal {s : Set ℝ≥0} (hs : MeasurableSet (ofNNReal '' s)) :
     volume s = volume (ENNReal.ofNNReal '' s) := by
   rw [ENNReal.volume_val hs, NNReal.volume_val]
   congr 1
   exact Eq.symm (image_image ENNReal.toReal ofNNReal s)
+
+theorem NNReal.smul_map_volume_mul_left {a : ℝ≥0} (h : a ≠ 0) :
+    a • Measure.map (a * ·) volume = volume := by
+  ext s hs
+  rw [NNReal.volume_val, ← Real.smul_map_volume_mul_left (a := a) (by simpa)]
+  simp only [Measure.smul_apply, Measure.nnreal_smul_coe_apply, NNReal.abs_eq, ofReal_coe_nnreal,
+    val_eq_coe, smul_eq_mul]
+  congr 1
+  rw [Measure.map_apply (by fun_prop) hs, Measure.map_apply (by fun_prop), NNReal.volume_val]
+  rotate_left
+  · exact (MeasurableEmbedding.subtype_coe measurableSet_Ici).measurableSet_image.mpr hs
+  congr 1
+  ext x
+  simp only [val_eq_coe, mem_image, mem_preimage, Subtype.exists, coe_mk, exists_and_right,
+    exists_eq_right]
+  constructor
+  · rintro ⟨hx, hax⟩
+    apply Exists.intro
+    · exact hax
+    exact mul_nonneg (by simp) hx
+  · rintro ⟨hx, hax⟩
+    apply Exists.intro
+    · exact hax
+    rwa [mul_nonneg_iff_right_nonneg_of_pos] at hx
+    simp only [NNReal.coe_pos]
+    exact lt_of_le_of_ne (zero_le _) h.symm
+
+theorem NNReal.map_volume_mul_left {a : ℝ≥0} (h : a ≠ 0) :
+    Measure.map (a * ·) volume = a⁻¹ • volume := by
+  conv_rhs =>
+    rw [← NNReal.smul_map_volume_mul_left h, smul_smul, inv_mul_cancel₀ h, one_smul]
 
 lemma ENNReal.volume_eq_volume_preimage {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
     volume s = volume (ENNReal.ofReal ⁻¹' s ∩ Ici 0) := by
@@ -135,7 +224,6 @@ lemma map_restrict_Ioi_eq_volume :
   refine Eq.trans map_restrict_Ioi_eq_restrict_Ioi ?_
   refine Measure.restrict_eq_self_of_ae_mem ?_
   filter_upwards [ae_in_Ioo_zero_top] with a ha using ha.1
-
 
 --TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma NNReal.toReal_Iio_eq_Ico {b : ℝ≥0} :
@@ -309,6 +397,35 @@ lemma ENNReal.toReal_Ioi_eq_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
     · rwa [ENNReal.lt_ofReal_iff_toReal_lt ha]
     · exact (le_trans toReal_nonneg hxa.le)
 
+lemma ENNReal.ofReal_Ioo_eq {a b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ioo a b
+    = if a = ⊤ then ∅ else if a ≤ b ∧ b = ∞ then Set.Ioi a.toReal else Set.Ioo a.toReal b.toReal := by
+  split_ifs with ha h
+  · rw [ha]
+    simp
+  · rw [h.2]
+    ext x
+    simp only [mem_preimage, mem_Ioo, ofReal_lt_top, and_true, mem_Ioi]
+    exact lt_ofReal_iff_toReal_lt ha
+  · ext x
+    simp only [mem_preimage, mem_Ioo]
+    push_neg at h
+    by_cases hx : x < 0
+    · rw [ENNReal.ofReal_of_nonpos hx.le]
+      simp only [_root_.not_lt_zero, false_and, false_iff, not_and, not_lt]
+      intro ha
+      exfalso
+      have := ha.trans hx
+      have := @toReal_nonneg a
+      linarith
+    push_neg at hx
+    constructor
+    · intro h'
+      rw [← ofReal_lt_iff_lt_toReal hx (by aesop)]
+      use toReal_lt_of_lt_ofReal h'.1, h'.2
+    · intro h'
+      rwa [lt_ofReal_iff_toReal_lt ha, ofReal_lt_iff_lt_toReal hx]
+      aesop
+
 lemma ENNReal.ofReal_Ico_eq {b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ico 0 b
     = if b = 0 then ∅ else if b = ∞ then Set.univ else Set.Iio b.toReal := by
   split_ifs with hb hb'
@@ -368,8 +485,38 @@ lemma ENNReal.volume_Iio {a : ℝ≥0∞} :
   · rw [ENNReal.toReal_Iio_eq_Ico ha, Real.volume_Ico]
     simpa
 
-lemma ENNReal.volume_Ioo {a b : ℝ≥0∞} (ha : a ≠ ∞) :
+@[simp]
+lemma ENNReal.range_toReal : range ENNReal.toReal = Ici 0 := by
+  ext x
+  simp only [mem_range, mem_Ici]
+  constructor
+  · rintro ⟨y, rfl⟩
+    exact toReal_nonneg
+  · intro hx
+    use ENNReal.ofReal x
+    simp only [toReal_ofReal_eq_iff]
+    exact hx
+
+@[simp]
+lemma ENNReal.volume_univ : volume (univ : Set ℝ≥0∞) = ⊤ := by
+  rw [ENNReal.volume_val MeasurableSet.univ, image_univ]
+  simp
+
+@[simp]
+lemma ENNReal.volume_Iic {a : ℝ≥0∞} :
+    volume (Set.Iic a) = a := by
+  rw [ENNReal.volume_val measurableSet_Iic]
+  by_cases ha : a = ⊤
+  · rw [ha]
+    simp
+  · rw [← Icc_bot, ENNReal.toReal_Icc_eq_Icc bot_ne_top ha, Real.volume_Icc]
+    simpa
+
+lemma ENNReal.volume_Ioo {a b : ℝ≥0∞} :
     volume (Set.Ioo a b) = b - a := by
+  by_cases ha : a = ∞
+  · rw [ha]
+    simp
   rw [ENNReal.volume_val measurableSet_Ioo]
   by_cases hb : b = ⊤
   · have : ⊤ - ⊤ = (0 : ENNReal) := by simp only [tsub_self]
@@ -377,20 +524,13 @@ lemma ENNReal.volume_Ioo {a b : ℝ≥0∞} (ha : a ≠ ∞) :
     apply Real.volume_Ioi
   rw [toReal_Ioo_eq_Ioo ha hb, Real.volume_Ioo, ofReal_sub _ (by simp), ofReal_toReal hb, ofReal_toReal ha]
 
--- sanity check: this measure is what you expect
-example : volume (Set.Icc (3 : ℝ≥0∞) 42) = 39 := by
-  rw [volume_val measurableSet_Icc,
-    toReal_Icc_eq_Icc (by finiteness) (by finiteness),
-    toReal_ofNat, Real.volume_Icc, ofReal_eq_ofNat]
-  norm_num
-
 instance : Measure.IsOpenPosMeasure (@volume ℝ≥0∞ _) where
   open_pos := by
     intro U open_U nonempty_U
     rcases open_U.exists_Ioo_subset nonempty_U with ⟨a, b, a_lt_b, Ioo_subset⟩
     rw [← ENNReal.bot_eq_zero, ← bot_lt_iff_ne_bot]
     apply lt_of_lt_of_le _ (measure_mono Ioo_subset)
-    rw [ENNReal.volume_Ioo a_lt_b.ne_top]
+    rw [ENNReal.volume_Ioo]
     simpa
 
 instance : Measure.IsOpenPosMeasure (@volume ℝ≥0 _) where
@@ -402,54 +542,63 @@ instance : Measure.IsOpenPosMeasure (@volume ℝ≥0 _) where
     rw [NNReal.volume_Ioo]
     simpa
 
-instance : NoAtoms (@volume ℝ≥0∞ _) where
-  measure_singleton := by
-    intro x
-    rw [ENNReal.volume_val (measurableSet_singleton _), image_singleton]
-    simp
+--TODO: prove analog of lemmas below for ℝ≥0
 
--- TODO: move this general result to an appropriate place
--- TODO: maybe generalize further to general measures restricted to a subtype
-lemma Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NoAtoms (volume : Measure δ)] {p : δ → Prop} (hp : MeasurableSet p) :
-    NoAtoms (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
-  measure_singleton := by
-    intro x
-    calc _
-      _ = volume (Subtype.val '' {x}) := by
-        apply comap_subtype_coe_apply hp volume
-      _ = 0 := by
-        simp
+lemma ENNReal.volume_map_add_left_le_self {g : ℝ≥0∞} (hg : g ≠ ⊤) {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
+    Measure.map (g + ·) volume s ≤ volume s := by
+  wlog hs' : ∞ ∉ s generalizing s
+  · push_neg at hs'
+    have meas : MeasurableSet (s \ {∞}) := by measurability
+    have := this meas (by simp)
+    apply (this.trans' _).trans _
+    · rw [Measure.map_apply (by measurability) (by measurability),
+          Measure.map_apply (by measurability) (by measurability)]
+      have : ((fun x ↦ g + x) ⁻¹' s) ⊆ ((fun x ↦ g + x) ⁻¹' (s \ {⊤})) ∪ {⊤} := by
+        intro x
+        simp only [mem_preimage, preimage_diff, union_singleton, mem_insert_iff, mem_diff,
+          mem_singleton_iff, add_eq_top, not_or]
+        intro a
+        simp_all only [ne_eq, MeasurableSet.singleton, MeasurableSet.diff, mem_diff, mem_singleton_iff,
+          not_true_eq_false, and_false, not_false_eq_true, true_and]
+        exact eq_or_ne x ⊤
+      apply (measure_mono this).trans
+      apply (measure_union_le _ _).trans
+      simp
+    · rw [measure_diff_null (measure_singleton ⊤)]
+  calc _
+    _ ≤ volume ((fun x ↦ g.toReal + x) ⁻¹' (ENNReal.toReal '' s)) := by
+      rw [Measure.map_apply (by measurability) hs]
+      rw [ENNReal.volume_val (by measurability)]
+      gcongr
+      intro y
+      simp only [mem_image, mem_preimage, forall_exists_index, and_imp]
+      intro x hx hxy
+      use g + x, hx
+      rw [← hxy, toReal_add hg (by contrapose! hs'; rwa [hs', add_top] at hx)]
+    _ ≤ (Measure.map (fun x ↦ g.toReal + x) volume) (ENNReal.toReal '' s) := by
+      apply Measure.le_map_apply (by measurability)
+    _ = volume s := by
+      rw [map_add_left_eq_self (g := g.toReal) (μ := volume),
+          ENNReal.volume_val hs]
 
-instance : NoAtoms (@volume ℝ≥0 _) := Measure.Subtype.noAtoms measurableSet_Ici
+lemma ENNReal.volume_map_add_right_le_self {g : ℝ≥0∞} (hg : g ≠ ⊤) {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
+    Measure.map (· + g) volume s ≤ volume s := by
+  convert ENNReal.volume_map_add_left_le_self hg hs using 4
+  apply add_comm
 
---TODO: move this general result to an appropriate place
---TODO: maybe generalize further to general measures restricted to a subtype
-lemma Measure.Subtype.sigmaFinite {δ : Type*} [MeasureSpace δ] [sf : SigmaFinite (@volume δ _)] {p : δ → Prop} (hp : MeasurableSet p) :
-    SigmaFinite (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
-  out' := by
-    refine Nonempty.intro ?_
-    rw [sigmaFinite_iff] at sf
-    rcases Classical.choice sf with ⟨set, set_mem, finite, spanning⟩
-    set set' := fun n ↦ (Subtype.val ⁻¹' (set n))
-    apply Measure.FiniteSpanningSetsIn.mk set'
-    · simp
-    · intro n
-      calc _
-        _ = volume (Subtype.val '' set' n) := by
-          apply comap_subtype_coe_apply hp volume (set' n)
-        _ ≤ volume (set n) := by
-          apply measure_mono
-          unfold set'
-          exact image_preimage_subset Subtype.val (set n)
-        _ < ⊤ := finite n
-    · unfold set'
-      rw [← preimage_iUnion]
-      refine preimage_eq_univ_iff.mpr ?_
-      rw [spanning]
-      exact fun ⦃a⦄ a ↦ trivial
+lemma ENNReal.volume_Ico {a b : ℝ≥0∞} :
+    volume (Set.Ico a b) = b - a := by
+  convert ENNReal.volume_Ioo using 1
+  apply measure_congr
+  symm
+  exact Ioo_ae_eq_Ico
 
-instance : SigmaFinite (@volume ℝ≥0 _) := Measure.Subtype.sigmaFinite measurableSet_Ici
-
+-- sanity check: this measure is what you expect
+example : volume (Set.Icc (3 : ℝ≥0∞) 42) = 39 := by
+  rw [volume_val measurableSet_Icc,
+    toReal_Icc_eq_Icc (by finiteness) (by finiteness),
+    toReal_ofNat, Real.volume_Icc, ofReal_eq_ofNat]
+  norm_num
 
 lemma lintegral_nnreal_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ici (0 : ℝ), f x.toNNReal := by
   change ∫⁻ (x : ℝ≥0), f x = ∫⁻ (x : ℝ) in Ici 0, (f ∘ Real.toNNReal) x
@@ -475,6 +624,13 @@ lemma lintegral_ennreal_eq_lintegral_of_nnreal {f : ℝ≥0∞ → ℝ≥0∞} :
   refine (MeasurePreserving.lintegral_comp_emb ⟨by fun_prop, rfl⟩ ?_ f).symm
   refine isEmbedding_coe.measurableEmbedding ?_
   rw [range_coe']; exact measurableSet_Iio
+
+lemma setLIntegral_ennreal_eq_setLintegral_of_nnreal {f : ℝ≥0∞ → ℝ≥0∞} {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
+    ∫⁻ x in s, f x = ∫⁻ x in (ofNNReal⁻¹' s), f x := by
+  rw [← lintegral_indicator hs, lintegral_ennreal_eq_lintegral_of_nnreal]
+  simp_rw [← Set.indicator_comp_right]
+  rw [lintegral_indicator (by measurability)]
+  rfl
 
 lemma lintegral_ennreal_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} :
     ∫⁻ x : ℝ≥0∞, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) :=
