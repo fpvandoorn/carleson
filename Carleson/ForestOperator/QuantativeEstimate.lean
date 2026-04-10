@@ -87,7 +87,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
     volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
   by_cases hq : (L : Set X) ∩ ⋃ p ∈ t u, E p = ∅
   · rw [inter_comm (L : Set X), inter_assoc, hq, inter_empty, measure_empty]; exact zero_le _
-  rw [← disjoint_iff_inter_eq_empty, disjoint_iUnion₂_right] at hq; push_neg at hq
+  rw [← disjoint_iff_inter_eq_empty, disjoint_iUnion₂_right] at hq; push Not at hq
   by_cases! hp₂ : ∃ p ∈ t u, ¬Disjoint (L : Set X) (E p) ∧ 𝔰 p ≤ s L
   · exact local_dens1_tree_bound_exists hu hL hp₂
   obtain ⟨p, mp, hp⟩ := hq; have sLp := hp₂ p mp hp
@@ -101,9 +101,9 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
       by_contra h
       simp_rw [𝓛, mem_setOf, maximal_iff] at hL
       exact lL'.ne (hL.2 h lL'.le)
-    rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push_neg at L'nm
+    rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push Not at L'nm
     have nfa : ¬∀ p ∈ t u, ¬L' ≤ 𝓘 p := by
-      push_neg; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; lia
+      push Not; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; lia
     simp_rw [nfa, false_or] at L'nm; exact L'nm.2
   suffices ∃ p' ∈ lowerCubes (t u),
       𝓘 p' = L' ∧ dist_(p') (𝒬 p') (𝒬 u) < 4 ∧ smul 9 p'' ≤ smul 9 p' by
@@ -220,7 +220,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   have ⟨J', hJJ', hsJ'⟩ := J.exists_scale_succ (J.scale_lt_scale_topCube J_top)
   have : J' ∉ 𝓙₀ (t u) := fun h ↦ succ_ne_self (s J) <| hJ.eq_of_le h hJJ' ▸ hsJ'.symm
   rw [𝓙₀, mem_setOf_eq] at this
-  push_neg at this
+  push Not at this
   obtain ⟨p, hpu, hp⟩ := this.2
   have d0 := realD_pos a
   have volume_le : volume (ball (c J') (204 * D ^ (s J' + 1))) ≤
@@ -406,7 +406,7 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
       have hgℰ' : ∀ x ∉ G ∩ ℰ, ℰ.indicator g x = 0 := by
         intro x hx
         rw [mem_inter_iff] at hx
-        push_neg at hx
+        push Not at hx
         by_cases xG : x ∈ G
         · apply indicator_of_notMem (hx xG)
         · have : g x = 0 := by rw [← notMem_support]; exact xG ∘ (h2g ·)
