@@ -157,10 +157,9 @@ lemma indicator_rpow {α : Type*} {p : ℝ} (hp : 0 < p) {s : Set α} {f : α �
 lemma maximalFunction_eq_MB
     {μ : Measure X} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → E} {x : X} (hp : 0 < p) :
     maximalFunction μ 𝓑 c r p u x = (MB μ 𝓑 c r (‖u ·‖ ^ p) x) ^ p⁻¹ := by
-  simp only [maximalFunction, indicator_rpow (inv_pos_of_pos hp), Pi.pow_apply, MB_def,
-    iSup_rpow (inv_pos_of_pos hp)]
-  congr! 8
-  sorry -- ‖u x✝‖ₑ ^ p = ‖‖u x✝‖ ^ p‖ₑ
+  simp [maximalFunction, indicator_rpow (inv_pos_of_pos hp), Pi.pow_apply, MB_def,
+    iSup_rpow (inv_pos_of_pos hp), enorm_eq_nnnorm, Real.nnnorm_rpow_of_nonneg,
+    coe_rpow_of_nonneg _ hp.le]
 
 -- We will replace the criterion `P` used in `MeasureTheory.AESublinearOn.maximalFunction` with the
 -- weaker criterion `LocallyIntegrable` that is closed under addition and scalar multiplication.
