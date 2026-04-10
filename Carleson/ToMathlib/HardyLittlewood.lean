@@ -134,7 +134,6 @@ lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStro
     exact le_of_lt <| lt_of_le_of_lt (ha a le_rfl) <|
       by unfold g; rw [lintegral_indicator measurableSet_ball]; exact hns₁ a
 
--- todo: wouldn't it play easier with lean if the rpow was inside the indicator function?
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑.
 M_{𝓑, p} in the blueprint. -/
 def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ)

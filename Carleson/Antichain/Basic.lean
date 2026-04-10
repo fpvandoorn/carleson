@@ -294,7 +294,7 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
   have hp_coe : p.toNNReal.toReal = p := Real.coe_toNNReal _ (by positivity)
   conv_lhs => rw [eq_indicator_one_mul_of_norm_le hfF]
   refine eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' _
-    (Measurable.maximalFunction.aestronglyMeasurable) (ae_of_all _ <| fun x ↦ ?_)
+    Measurable.maximalFunction.aestronglyMeasurable (ae_of_all _ <| fun x ↦ ?_)
   simp only [enorm_eq_self, 𝓜, MB_def]
   apply iSup_le_iff.mpr <| fun 𝔭 ↦ iSup_le_iff.mpr <| fun h𝔭 ↦ ?_
   apply indicator_le <| fun x hx ↦ ?_
