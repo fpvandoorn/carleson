@@ -911,7 +911,7 @@ lemma setLIntegral_eq {f : α → ℝ≥0∞}
   rw [setLIntegral_enorm_eq hf.aestronglyMeasurable hX]
   simp
 
-lemma lintegral_rearrangement_eq' [TopologicalSpace ε] {f : α → ε} {t : ℝ≥0∞} :
+lemma lintegral_rearrangement_eq' {f : α → ε} {t : ℝ≥0∞} :
     ∫⁻ s in Set.Iio t, rearrangement f s μ = ∫⁻ s, min (distribution f s μ) t := by
   rw [lintegral_eq_lintegral_distribution _ (by fun_prop)]
   congr with s
