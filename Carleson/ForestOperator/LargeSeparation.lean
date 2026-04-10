@@ -199,13 +199,13 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
   by_contra! hs
   have fa : ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * D ^ (s J + 1)) :=
     hJ.1.1.resolve_left (by linarith [(scale_mem_Icc (i := J')).1])
-  apply absurd fa; push_neg
+  apply absurd fa; push Not
   obtain ⟨J'', sJ'', lJ''⟩ : ∃ J'', s J'' = s J' + 1 ∧ J' ≤ J'' := by
     refine Grid.exists_supercube (s J' + 1) ⟨by lia, ?_⟩
     rw [lt_sub_iff_add_lt] at hs; exact hs.le.trans scale_mem_Icc.2
   obtain ⟨p, mp, sp⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * D ^ (s J' + 1 + 1)) := by
     have : J'' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ lJ'' (by linarith) hJ'.1
-    rw [𝓙₀, mem_setOf_eq, sJ''] at this; push_neg at this; exact this.2
+    rw [𝓙₀, mem_setOf_eq, sJ''] at this; push Not at this; exact this.2
   use p, mp, sp.trans (ball_subset_ball' ?_)
   calc
     _ ≤ 100 * D ^ (s J' + 1 + 1) + (dist (c J'') (c J') + dist (c J) (c J')) :=
@@ -907,7 +907,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
     have J'Touches𝔖₀ : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ (le := belongs)
       (sle := by linarith [plusOne]) (A_in := hJ.1)
     rw [𝓙₀, Set.notMem_setOf_iff] at J'Touches𝔖₀
-    push_neg at J'Touches𝔖₀
+    push Not at J'Touches𝔖₀
     exact J'Touches𝔖₀.right
   apply calculation_9 (X := X)
   apply one_le_of_le_mul_right₀ (b := 2 ^ ((Z : ℝ) * n / 2)) (by positivity)
@@ -1890,7 +1890,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
     exact mem_of_mem_inter_left hJ
   unfold 𝓙₀ at notIn𝓙₀
   simp only [mem_setOf_eq, not_or, not_forall] at notIn𝓙₀
-  push_neg at notIn𝓙₀
+  push Not at notIn𝓙₀
   obtain ⟨_, ⟨ p, pIn, pSubset ⟩⟩ := notIn𝓙₀
   have thus :=
     calc 2 ^ ((Z : ℝ) * n / 2)
