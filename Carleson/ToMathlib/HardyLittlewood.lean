@@ -1,6 +1,7 @@
 import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.RealInterpolation.Main
+import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
 import Mathlib.MeasureTheory.Covering.Vitali
 import Mathlib.Tactic.Field
 
@@ -435,21 +436,6 @@ protected theorem Finset.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  :=
   let ⟨c, hc⟩ := 𝓑.exists_image_le r
   𝓑.countable_toSet.measure_biUnion_le_lintegral l u c hc h2u
-
-section ConditionallyCompleteLinearOrderBot
-
-variable {α : Type*} {ι : Sort*} {κ : ι → Sort*}
-variable [ConditionallyCompleteLinearOrderBot α] {a : α}
-
-theorem ciSup₂_le' {f : ∀ i, κ i → α} (h : ∀ i j, f i j ≤ a) : ⨆ (i) (j), f i j ≤ a :=
-  ciSup_le' fun i => ciSup_le' <| h i
-
-theorem exists_lt_of_lt_ciSup₂' {f : ∀ i, κ i → α} (h : a < ⨆ (i) (j), f i j) :
-    ∃ i j, a < f i j := by
-  contrapose! h
-  exact ciSup₂_le' h
-
-end ConditionallyCompleteLinearOrderBot
 
 lemma lowerSemiContinuous_maximalFunction {p : ℝ} :
     LowerSemicontinuous (maximalFunction μ 𝓑 c r p f) := by
