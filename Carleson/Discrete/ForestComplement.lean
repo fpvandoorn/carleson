@@ -52,7 +52,7 @@ lemma exists_k_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ k, p ∈ TilesA
   have s_min : ∀ t ∈ C, s ≤ t := fun t mt ↦ WellFounded.min_le _ mt _
   have s_pos : 0 < s := by
     by_contra! h; rw [nonpos_iff_eq_zero] at h
-    simp_rw [h, C, aux𝓒, mem_setOf] at s_mem; apply absurd s_mem; push_neg; intro _ _
+    simp_rw [h, C, aux𝓒, mem_setOf] at s_mem; apply absurd s_mem; push Not; intro _ _
     rw [Int.neg_ofNat_zero, zpow_zero, one_mul]; exact measure_mono inter_subset_right
   use s - 1; rw [TilesAt, mem_preimage, 𝓒, mem_diff, Nat.sub_add_cancel s_pos]
   have : ∀ t < s, t ∉ C := fun t mt ↦ by contrapose! mt; exact s_min t mt
@@ -73,7 +73,7 @@ lemma dens'_le_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : dens' k {p} ≤ 2 ^
     _ ≤ _ := by
       have E : E₂ l p' ⊆ 𝓘 p' ∩ G := inter_subset_left
       rw [TilesAt, mem_preimage, 𝓒, mem_diff] at mp'; replace mp' := mp'.2
-      rw [aux𝓒, mem_setOf] at mp'; push_neg at mp'; specialize mp' (𝓘 p') le_rfl
+      rw [aux𝓒, mem_setOf] at mp'; push Not at mp'; specialize mp' (𝓘 p') le_rfl
       rw [inter_comm] at E; exact (measure_mono E).trans mp'
 
 lemma exists_E₂_volume_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ r : ℕ, 0 < volume (E₂ r p) := by
@@ -149,7 +149,7 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
   replace h : 0 < volume ((𝓘 p : Set X) ∩ G₂ᶜ) :=
     h.trans_le (measure_mono (inter_subset_left.trans inter_subset_left))
   obtain ⟨x, mx, nx⟩ := nonempty_of_measure_ne_zero h.ne'
-  simp_rw [G₂, mem_compl_iff, mem_iUnion] at nx; push_neg at nx; specialize nx n k hkn
+  simp_rw [G₂, mem_compl_iff, mem_iUnion] at nx; push Not at nx; specialize nx n k hkn
   let B : ℕ := Finset.card { q | q ∈ 𝔅 k n p }
   have Blt : B < 2 ^ (2 * n + 4) := by
     calc
@@ -258,7 +258,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
   pick_goal 2; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ iUnion₂_subset fun _ _ ↦ 𝔏₃_subset_ℭ
   pick_goal -1; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ ℭ₅_subset_ℭ
   by_cases ml0 : p ∈ 𝔏₀ k n
-  · simp_rw [ml0, true_or, iff_true, mem_iUnion₂]; push_neg; intros
+  · simp_rw [ml0, true_or, iff_true, mem_iUnion₂]; push Not; intros
     exact fun a ↦ disjoint_left.mp 𝔏₀_disjoint_ℭ₁ ml0 (ℭ₅_subset_ℭ₁ a)
   simp_rw [ml0, false_or] at split ⊢
   obtain ⟨j, hj, mc1⟩ := split
@@ -534,7 +534,7 @@ private instance : Preorder (ℭ₁' (X := X) k n j) where
 /-- Lemma 5.5.3 -/
 lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
   classical
-  by_contra h; rw [isAntichain_iff_forall_not_lt] at h; push_neg at h
+  by_contra h; rw [isAntichain_iff_forall_not_lt] at h; push Not at h
   obtain ⟨p', mp', p, mp, l⟩ := h
   have p200 : smul 2 p' ≤ smul 200 p := by
     calc
@@ -579,7 +579,7 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
     have : z.last < ⟨q, mq⟩ := by
       refine ⟨s200, (?_ : ¬(smul 200 q ≤ smul 200 z.last.1))⟩
       rw [TileLike.le_def, not_and_or]; exact Or.inl (not_le_of_gt lq)
-    apply absurd maxz; push_neg; use z.snoc ⟨q, mq⟩ this, by simp [C, mz], by simp
+    apply absurd maxz; push Not; use z.snoc ⟨q, mq⟩ this, by simp [C, mz], by simp
 
 end L2Antichain
 
