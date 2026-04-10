@@ -113,7 +113,7 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
   have qlt : 𝓘 q < 𝓘 u₁ := lt_of_le_of_ne (t.smul_four_le hu₁ mq).1 (t.𝓘_ne_𝓘 hu₁ mq)
   have u₁nm : 𝓘 u₁ ∉ 𝓙₆ t u₁ := by
     simp_rw [𝓙₆, mem_inter_iff, mem_Iic, le_rfl, and_true, 𝓙, mem_setOf, Maximal, not_and_or]; left
-    rw [𝓙₀, mem_setOf]; push_neg; rw [Grid.lt_def] at qlt
+    rw [𝓙₀, mem_setOf]; push Not; rw [Grid.lt_def] at qlt
     refine ⟨(scale_mem_Icc.1.trans_lt qlt.2).ne',
       ⟨q, mq, qlt.1.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩⟩
     change 4 * (D : ℝ) ^ (𝔰 u₁) ≤ 100 * D ^ (𝔰 u₁ + 1); gcongr
@@ -122,8 +122,8 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
   rw [Grid.lt_def] at Jlt; obtain ⟨J', lJ', sJ'⟩ := Grid.exists_scale_succ Jlt.2
   replace lJ' : J < J' := Grid.lt_def.mpr ⟨lJ'.1, by lia⟩
   have J'nm : J' ∉ 𝓙₀ (t u₁) := by
-    by_contra hh; apply absurd hJ.1.2; push_neg; use J', hh, lJ'.le, not_le_of_gt lJ'
-  rw [𝓙₀, mem_setOf] at J'nm; push_neg at J'nm; obtain ⟨p', mp', sp'⟩ := J'nm.2
+    by_contra hh; apply absurd hJ.1.2; push Not; use J', hh, lJ'.le, not_le_of_gt lJ'
+  rw [𝓙₀, mem_setOf] at J'nm; push Not at J'nm; obtain ⟨p', mp', sp'⟩ := J'nm.2
   exact ⟨b1, ⟨J', lJ', sJ', ⟨p', mp', sp'⟩⟩⟩
 
 /-- The key relation of Lemma 7.6.3, which will eventually be shown to lead to a contradiction. -/
