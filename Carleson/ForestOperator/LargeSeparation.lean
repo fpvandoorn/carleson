@@ -2050,9 +2050,9 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
         refine AEMeasurable.indicator ?_ coeGrid_measurable
       · have af₁ := hf₁.aestronglyMeasurable
         refine (af₁.adjointCarlesonSum.enorm.add ?_).add af₁.enorm
-        exact (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
+        exact Measurable.maximalFunction.aemeasurable
       · have af₂ := hf₂.aestronglyMeasurable
         refine (af₂.adjointCarlesonSum.enorm.add ?_).add af₂.enorm
-        exact (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
+        exact Measurable.maximalFunction.aemeasurable
 
 end TileStructure.Forest
