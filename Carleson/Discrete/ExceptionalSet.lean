@@ -1,6 +1,5 @@
 import Carleson.Discrete.Defs
 import Carleson.ToMathlib.HardyLittlewood
-import Paperproof
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
 
