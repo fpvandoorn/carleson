@@ -6,7 +6,6 @@ open MeasureTheory NNReal ENNReal Set
 
 noncomputable
 instance NNReal.MeasureSpace : MeasureSpace ℝ≥0 where
-  toMeasurableSpace := NNReal.measurableSpace
   volume := Measure.comap Subtype.val (volume : Measure ℝ)
 
 -- Upstreaming status:
