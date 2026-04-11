@@ -146,16 +146,17 @@ nonrec lemma URel.rfl : URel k n j u u := Or.inl rfl
 lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : URel k n j u u') :
     ¬Disjoint (ball_(u) (𝒬 u) 100) (ball_(u') (𝒬 u') 100) := by
   classical
-  by_cases e : u = u'; · rw [e]; simp
-  simp_rw [URel, e, false_or, 𝔗₁, mem_setOf] at huu'; obtain ⟨p, ⟨mp, np, sl₁⟩, sl₂⟩ := huu'
+  by_cases e : u = u'
+  · rw [e]
+    exact not_disjoint_iff.mpr ⟨𝒬 u', mem_ball_self (by positivity), mem_ball_self (by positivity)⟩
+  simp_rw [URel, e, false_or] at huu'; obtain ⟨p, ⟨mp, np, sl₁⟩, sl₂⟩ := huu'
   by_cases e' : 𝓘 p = 𝓘 u'
   · refine not_disjoint_iff.mpr ⟨𝒬 u, mem_ball_self (by positivity), ?_⟩
-    rw [@mem_ball]
     have i1 : ball_{𝓘 u} (𝒬 u) 1 ⊆ ball_{𝓘 p} (𝒬 p) 2 := sl₁.2
     have i2 : ball_{𝓘 u'} (𝒬 u') 1 ⊆ ball_{𝓘 p} (𝒬 p) 10 := sl₂.2
     replace i1 : 𝒬 u ∈ ball_{𝓘 p} (𝒬 p) 2 := i1 (mem_ball_self zero_lt_one)
     replace i2 : 𝒬 u' ∈ ball_{𝓘 p} (𝒬 p) 10 := i2 (mem_ball_self zero_lt_one)
-    rw [e', @mem_ball] at i1 i2
+    rw [e'] at i1 i2
     calc
       _ ≤ dist_{𝓘 u'} (𝒬 u) (𝒬 p) + dist_{𝓘 u'} (𝒬 u') (𝒬 p) := dist_triangle_right ..
       _ < 2 + 10 := add_lt_add i1 i2
@@ -166,8 +167,12 @@ lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) 
   have 𝔅dj : Disjoint (𝔅 k n u) (𝔅 k n u') := by
     simp_rw [𝔅, disjoint_left, mem_setOf, not_and]; intro q ⟨_, sl⟩ _
     simp_rw [TileLike.le_def, smul_fst, smul_snd, not_and_or] at sl ⊢; right
-    have := disjoint_left.mp (h.mono_left sl.2) (mem_ball_self zero_lt_one)
-    rw [not_subset]; use 𝒬 q, mem_ball_self zero_lt_one
+    intro hs
+    apply disjoint_left.mp (h.mono_left sl.2) (mem_ball_self zero_lt_one)
+    apply hs
+    change dist_{𝔠 q, ↑D ^ 𝔰 q / 4} (𝒬 q) (𝒬 q) < 1
+    rw [dist_self]
+    positivity
   have usp : 𝔅 k n u ⊆ 𝔅 k n p := fun q mq ↦ by
     rw [𝔅, mem_setOf] at mq ⊢; exact ⟨mq.1, plu.trans mq.2⟩
   have u'sp : 𝔅 k n u' ⊆ 𝔅 k n p := fun q mq ↦ by
@@ -180,7 +185,7 @@ lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) 
       add_le_add (card_𝔅_of_mem_ℭ₁ hu.1.1).1 (card_𝔅_of_mem_ℭ₁ hu'.1.1).1
     _ = (𝔅 k n u ∪ 𝔅 k n u').toFinset.card := by
       rw [toFinset_union]; refine (Finset.card_union_of_disjoint ?_).symm
-      simpa using 𝔅dj
+      rwa [Set.disjoint_toFinset]
     _ ≤ _ := by
       apply Finset.card_le_card
       simp_rw [toFinset_union, subset_toFinset, Finset.coe_union, coe_toFinset, union_subset_iff]
@@ -210,16 +215,19 @@ lemma urel_of_not_disjoint {x y : 𝔓 X} (my : y ∈ 𝔘₂ k n j) (xye : 𝓘
       (smul_mono_left (by norm_num)).trans (wiggle_order_500 sl np)
     exact ⟨(xye ▸ sl.1 : 𝓘 p ≤ 𝓘 x), hpy.2.trans w⟩
   intro (q : Θ X) (mq : q ∈ ball_{𝓘 x} (𝒬 x) 1)
-  rw [@mem_ball] at mq ⊢
   calc
     _ ≤ dist_(y) q ϑ + dist_(y) ϑ (𝒬 y) := dist_triangle ..
     _ ≤ dist_(y) q (𝒬 x) + dist_(y) ϑ (𝒬 x) + dist_(y) ϑ (𝒬 y) := by
       gcongr; apply dist_triangle_right
     _ < 1 + 100 + 100 := by
+      have hϑy : dist_(y) ϑ (𝒬 y) < 100 := ϑy
+      have hc : 𝔠 x = 𝔠 y := congr_arg c xye
+      have hs : 𝔰 x = 𝔰 y := congr_arg s xye
       gcongr
-      · rwa [xye] at mq
-      · rwa [@mem_ball, xye] at ϑx
-      · rwa [@mem_ball] at ϑy
+      · rw [← hc, ← hs]
+        exact mq
+      · rw [← hc, ← hs]
+        exact mem_ball.mp ϑx
     _ < _ := by norm_num
 
 /-- Lemma 5.4.2. -/
@@ -241,20 +249,30 @@ lemma equivalenceOn_urel : EquivalenceOn (URel (X := X) k n j) (𝔘₂ k n j) w
       have w : ball_(x) (𝒬 x) 500 ⊆ ball_(p) (𝒬 p) 4 := (wiggle_order_500 sl np).2
       exact ⟨(yze ▸ xye ▸ sl.1 : 𝓘 p ≤ 𝓘 z), (this.trans w).trans (ball_subset_ball (by norm_num))⟩
     intro (q : Θ X) (mq : q ∈ ball_{𝓘 z} (𝒬 z) 1)
-    rw [@mem_ball] at mq ⊢
     calc
       _ ≤ dist_(x) q ϑ + dist_(x) ϑ (𝒬 x) := dist_triangle ..
-      _ < dist_(x) q ϑ + 100 := by gcongr; rwa [@mem_ball] at ϑx
-      _ ≤ dist_(x) q (𝒬 y) + dist_(x) ϑ (𝒬 y) + 100 := by gcongr; exact dist_triangle_right ..
-      _ < dist_(x) q (𝒬 y) + 100 + 100 := by gcongr; rwa [@mem_ball, ← xye] at ϑy
+      _ < dist_(x) q ϑ + 100 := by
+        change dist_(x) ϑ (𝒬 x) < 100 at ϑx
+        gcongr
+      _ ≤ dist_(x) q (𝒬 y) + dist_(x) ϑ (𝒬 y) + 100 := by
+        gcongr
+        exact dist_triangle_right ..
+      _ < dist_(x) q (𝒬 y) + 100 + 100 := by
+        have : dist_(x) ϑ (𝒬 y) < 100 := by rwa [← xye] at ϑy
+        gcongr
       _ ≤ dist_(x) q θ + dist_(x) θ (𝒬 y) + 100 + 100 := by gcongr; exact dist_triangle ..
-      _ < dist_(x) q θ + 100 + 100 + 100 := by gcongr; rwa [@mem_ball, ← xye] at θy
+      _ < dist_(x) q θ + 100 + 100 + 100 := by
+        have : dist_(x) θ (𝒬 y) < 100 := by rwa [← xye] at θy
+        gcongr
       _ ≤ dist_(x) q (𝒬 z) + dist_(x) θ (𝒬 z) + 100 + 100 + 100 := by
         gcongr; exact dist_triangle_right ..
       _ < 1 + 100 + 100 + 100 + 100 := by
+        have : dist_(x) θ (𝒬 z) < 100 := by rwa [← yze, ← xye] at θz
         gcongr
-        · rwa [← yze, ← xye] at mq
-        · rwa [@mem_ball, ← yze, ← xye] at θz
+        have hc : 𝔠 x = 𝔠 z := (congr_arg c xye).trans (congr_arg c yze)
+        have hs : 𝔰 x = 𝔰 z := (congr_arg s xye).trans (congr_arg s yze)
+        rw [hc, hs]
+        exact mq
       _ < _ := by norm_num
   symm {x y} mx my xy := urel_of_not_disjoint my (URel.eq mx my xy) (URel.not_disjoint mx my xy)
 
@@ -320,16 +338,17 @@ lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : 
     have w : smul 4 p ≤ smul 500 u' := (wiggle_order_500 sl np)
     exact ⟨(xye ▸ sl.1 : 𝓘 p ≤ 𝓘 u), w.2.trans this⟩
   intro (q : Θ X) (mq : q ∈ ball_{𝓘 u} (𝒬 u) 1)
-  rw [@mem_ball] at mq ⊢
   calc
     _ ≤ dist_(u') q ϑ + dist_(u') ϑ (𝒬 u') := dist_triangle ..
     _ ≤ dist_(u') q (𝒬 u) + dist_(u') ϑ (𝒬 u) + dist_(u') ϑ (𝒬 u') := by
       gcongr; apply dist_triangle_right
     _ < 1 + 100 + 100 := by
+      change dist_(u') ϑ (𝒬 u') < 100 at ϑy
+      have hc : 𝔠 u = 𝔠 u' := congrArg c xye
+      have hs : 𝔰 u = 𝔰 u' := congrArg s xye
       gcongr
-      · rwa [xye] at mq
-      · rwa [@mem_ball, xye] at ϑx
-      · rwa [@mem_ball] at ϑy
+      · rw [← hc, ← hs]; exact mq
+      · rw [← hc, ← hs]; exact ϑx
     _ < _ := by norm_num
 
 /-- Lemma 5.4.5, verifying (2.0.33) -/
@@ -369,10 +388,9 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
     · exact (wiggle_order_11_10 lp' (C5_3_3_le (X := X).trans (by norm_num))).trans sl
   specialize np'u p' mpt
   have 𝓘p'u : 𝓘 p' ≤ 𝓘 u := lp'.1.trans h
-  simp_rw [TileLike.le_def, smul_fst, smul_snd, 𝓘p'u, true_and,
-    not_subset_iff_exists_mem_notMem] at np'u
-  obtain ⟨(q : Θ X), mq, nq⟩ := np'u
-  simp_rw [mem_ball, not_lt] at mq nq
+  simp_rw [TileLike.le_def, smul_fst, 𝓘p'u, true_and] at np'u
+  obtain ⟨(q : Θ X), mq, nq⟩ := Set.not_subset.mp np'u
+  change dist_(u) q (𝒬 u) < 1 at mq; change ¬ dist_(p') q (𝒬 p') < 10 at nq; rw [not_lt] at nq
   have d8 : 8 < dist_(p') (𝒬 p) (𝒬 u) :=
     calc
       _ = 10 - 1 - 1 := by norm_num
@@ -426,8 +444,7 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
   have ur : URel k n j u' u'' := Or.inr ⟨p, pu', s10⟩
   have hu'' : u'' ∈ 𝔘₂ k n j := by
     rw [𝔘₂, mem_setOf, not_disjoint_iff]
-    refine ⟨mu'', ⟨p, ?_, p₆⟩⟩
-    simpa [𝔗₁, p₁, s2'] using (lq.1.trans_lt nu'').ne
+    exact ⟨mu'', ⟨p, ⟨p₁, (lq.1.trans_lt nu'').ne, s2'⟩, p₆⟩⟩
   have ru'' : URel k n j u u'' := equivalenceOn_urel.trans (𝔘₃_subset_𝔘₂ hu) mu' hu'' ru' ur
   have qlu : 𝓘 q < 𝓘 u := URel.eq (𝔘₃_subset_𝔘₂ hu) hu'' ru'' ▸ nu''
   have squ : 𝔰 q < 𝔰 u := (Grid.lt_def.mp qlu).2
@@ -514,7 +531,7 @@ lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackS
     exact ⟨(mf k n j ⟨u, mu.1⟩).2, hu.1 mu.2⟩
   · rw [Finset.coe_filter, mem_setOf, Finset.mem_filter_univ] at mu mu'
     simp_rw [mf', mu.1, mu'.1, dite_true, Subtype.val_inj] at e
-    simpa using mf_injOn mu.2 mu'.2 e
+    exact congr_arg Subtype.val (mf_injOn mu.2 mu'.2 e)
 
 /-- Lemma 5.4.8, used to verify that 𝔘₄ satisfies 2.0.34. -/
 lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n j) x ≤ C5_4_8 n := by
@@ -648,8 +665,8 @@ def forest : Forest X n where
     have : ℭ₆ k n j ∩ 𝔗₁ k n j u ⊆ 𝔗₂ k n j u := by
       apply inter_subset_inter_right
       have : 𝔗₁ k n j u ⊆ ⋃ (_ : URel k n j u u), 𝔗₁ k n j u := by
-        have : URel k n j u u := (equivalenceOn_urel (X := X)).refl _ m
-        simp [this]
+        intro p hp
+        exact Set.mem_iUnion.mpr ⟨(equivalenceOn_urel (X := X)).refl _ m, hp⟩
       apply this.trans
       apply subset_biUnion_of_mem (u := fun u' ↦ ⋃ (_ : URel k n j u u'), 𝔗₁ k n j u') m
     apply Nonempty.mono this
@@ -768,7 +785,7 @@ lemma lintegral_carlesonSum_forest
       contrapose! W
       exact W.trans (subset_union_left.trans subset_union_left)
     contrapose! this
-    have : p ∈ highDensityTiles := by simp [highDensityTiles, this]
+    change p ∈ highDensityTiles at this
     apply subset_biUnion_of_mem this
   · exact diff_subset
 
