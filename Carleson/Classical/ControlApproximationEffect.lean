@@ -28,7 +28,7 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g 
     simp only [Set.mem_union, Set.mem_inter_iff, Set.mem_preimage, Set.mem_Ici]
     by_contra! hx'
     absurd le_refl a
-    push_neg
+    push Not
     calc a
       _ ≤ f x + g x := h x hx
       _ < a / 2 + a / 2 := by
@@ -41,7 +41,7 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g 
   have : μ E ≤ 2 * μ Ef ∨ μ E ≤ 2 * μ Eg := by
     by_contra! hEfg
     absurd le_refl (2 * μ E)
-    push_neg
+    push Not
     calc 2 * μ E
     _ ≤ 2 * μ (Ef ∪ Eg) := by
       gcongr
@@ -201,14 +201,14 @@ lemma domain_reformulation {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (
       · trivial
       · dsimp at h₀ h₁
         rw [Real.dist_eq, Set.mem_Ioo] at h₀ h₁
-        push_neg at h₁
+        push Not at h₁
         rw [k_of_one_le_abs (h₁ h₀.1)]
         simp
       · rw [k_of_one_le_abs]
         · simp
         dsimp at h₀ h₂
         rw [Real.dist_eq, Set.mem_Ioo] at h₀ h₂
-        push_neg at h₀
+        push Not at h₀
         exact le_trans' (h₀ h₂.1) (by linarith [Real.two_le_pi])
       · trivial
 
