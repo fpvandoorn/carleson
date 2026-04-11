@@ -25,7 +25,7 @@ lemma ordConnected_tilesAt : OrdConnected (TilesAt k : Set (𝔓 X)) := by
   constructor
   · obtain ⟨J, hJ, _⟩ := mp''.1
     use J, mp'.2.1.trans hJ
-  · push_neg at mp ⊢
+  · push Not at mp ⊢
     exact fun J hJ ↦ mp.2 J (mp'.1.1.trans hJ)
 
 /-- Lemma 5.3.5 -/
@@ -746,8 +746,7 @@ lemma lintegral_carlesonSum_forest
     · intro a ha b hb hab
       simp only [Function.onFun, disjoint_iff_forall_ne]
       intro x hx y hy
-      simp only [forest, Forest.mem_mk, Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq,
-        𝔉] at ha hb hx hy
+      simp only [Finset.coe_filter, Finset.mem_univ, true_and, 𝔉] at ha hb hx hy
       have := forest_disjoint (X := X) (𝔘₄_subset_𝔘₃ ha) (𝔘₄_subset_𝔘₃ hb) hab
       exact disjoint_iff_forall_ne.1 this hx hy
     congr with p
