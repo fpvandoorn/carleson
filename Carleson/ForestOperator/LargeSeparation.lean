@@ -607,8 +607,12 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     _ = ‖∫ y in E p,
         exp (.I * 𝒬 u x) * (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y) -
         exp (.I * 𝒬 u x') * (conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x')) * f y)‖ₑ := by
-      rw [edist_eq_enorm_sub, adjointCarleson, adjointCarleson, ← integral_const_mul,
-        ← integral_const_mul, ← integral_sub] <;> exact integrable_adjointCarleson_interior hf
+      rw [
+        edist_eq_enorm_sub, adjointCarleson, adjointCarleson,
+        show cexp (I * ↑((𝒬 u) x)) * ∫ y in E p, (starRingEnd ℂ) (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x))) * f y = ∫ y in E p, cexp (I * ↑((𝒬 u) x)) * ((starRingEnd ℂ) (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x))) * f y) from (integral_const_mul ..).symm,
+        show cexp (I * ↑((𝒬 u) x')) * ∫ y in E p, (starRingEnd ℂ) (Ks (𝔰 p) y x') * cexp (I * (↑((Q y) y) - ↑((Q y) x'))) * f y = ∫ y in E p, cexp (I * ↑((𝒬 u) x')) * ((starRingEnd ℂ) (Ks (𝔰 p) y x') * cexp (I * (↑((Q y) y) - ↑((Q y) x'))) * f y) from (integral_const_mul ..).symm,
+        ← integral_sub (integrable_adjointCarleson_interior hf) (integrable_adjointCarleson_interior hf)
+      ]
     _ = ‖∫ y in E p, f y *
           (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x + 𝒬 u x)) -
           conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x' + 𝒬 u x')))‖ₑ := by
@@ -1232,7 +1236,11 @@ lemma global_tree_control1_edist_part1
   classical calc
     _ ≤ ∑ p ∈ ℭ, edist (exp (.I * 𝒬 u x) * adjointCarleson p f x)
         (exp (.I * 𝒬 u x') * adjointCarleson p f x') := by
-      simp_rw [adjointCarlesonSum, Finset.mul_sum, toFinset_ofFinset]
+      simp_rw [adjointCarlesonSum, Finset.mul_sum]
+      have heq : Finset.univ.filter (· ∈ ℭ) = ℭ.toFinset :=
+        Finset.ext (fun x => by simp only [Finset.mem_filter, Finset.mem_univ, true_and,
+          Set.mem_toFinset])
+      rw [heq]
       exact ENNReal.edist_sum_le_sum_edist
     _ = ∑ p ∈ ℭ with ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (16 * D ^ s J)),
         edist (exp (.I * 𝒬 u x) * adjointCarleson p f x)
@@ -1309,7 +1317,7 @@ lemma gtc_sum_Icc_le_two : ∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s 
       pick_goal -1
       · rw [Finset.mem_Icc] at hk
         rw [Int.toNat_of_nonneg (by lia), neg_sub]
-      all_goals simp at hk ⊢; try omega
+      all_goals simp only [Finset.mem_Icc] at hk ⊢; omega
     _ ≤ ∑' k : ℕ, 2 ^ (-k : ℤ) := ENNReal.sum_le_tsum _
     _ = _ := ENNReal.sum_geometric_two_pow_neg_one
 
@@ -1702,14 +1710,18 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
   let CH := χ t u₁ u₂ J
   let T₁ := fun z ↦ exp (.I * 𝒬 u₁ z) * adjointCarlesonSum (t u₁) f₁ z
   let T₂ := fun z ↦ exp (.I * 𝒬 u₂ z) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ z
+  rw [edist_eq_enorm_sub]
   change ‖CH x * T₁ x * conj (T₂ x) - CH x' * T₁ x' * conj (T₂ x')‖ₑ ≤ _
   calc
-    _ ≤ _ := edist_triangle4 _ (CH x' * T₁ x * conj (T₂ x)) (CH x' * T₁ x' * conj (T₂ x)) _
+    _ ≤ edist (CH x * T₁ x * conj (T₂ x)) (CH x' * T₁ x * conj (T₂ x)) +
+        edist (CH x' * T₁ x * conj (T₂ x)) (CH x' * T₁ x' * conj (T₂ x)) +
+        edist (CH x' * T₁ x' * conj (T₂ x)) (CH x' * T₁ x' * conj (T₂ x')) := by
+      rw [← edist_eq_enorm_sub]
+      exact edist_triangle4 ..
     _ = edist (CH x) (CH x') * ‖T₁ x‖ₑ * ‖T₂ x‖ₑ + CH x' * edist (T₁ x) (T₁ x') * ‖T₂ x‖ₑ +
         CH x' * ‖T₁ x'‖ₑ * edist (T₂ x) (T₂ x') := by
-      simp_rw [edist_eq_enorm_sub, ← sub_mul, ← mul_sub, enorm_mul, ← RingHom.map_sub,
-        RCLike.enorm_conj, ← ofReal_sub, Complex.enorm_real, NNReal.enorm_eq]
-      rfl
+      simp_rw [edist_eq_enorm_sub, ← sub_mul, ← mul_sub, ← map_sub (starRingEnd ℂ), enorm_mul, RCLike.enorm_conj]
+      rw [Complex.enorm_real, NNReal.enorm_eq, edist_dist, NNReal.dist_eq, ← Complex.ofReal_sub, Complex.enorm_real, Real.enorm_eq_ofReal_abs]
     _ ≤ C7_5_2 a * C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) +
         C7_5_9d a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ +
         C7_5_9s a * C7_5_9d a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
