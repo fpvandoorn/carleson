@@ -243,7 +243,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   · suffices ({I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
         ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) } : Finset (Grid X)) = ∅ by
       rw [this]
-      simp
+      simp only [Finset.sum_empty, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, laverage_zero, zero_le]
     simp only [Finset.filter_eq_empty_iff, Finset.mem_univ, not_and, Decidable.not_not,
       true_implies]
     intros I hI
@@ -543,7 +543,9 @@ lemma btp_integral_bound :
       refine mul_le_mul_right (lintegral_mono fun y ↦ ?_) _
       by_cases my : y ∈ ball (c I) (8 * D ^ s I)
       · refine mul_le_mul_right ?_ _; rw [MB_def]
-        have : (3, 0, I) ∈ 𝓑 := by simp [𝓑]
+        have : (3, 0, I) ∈ 𝓑 := by
+          simp only [𝓑, Set.mem_prod, mem_Iic, Set.mem_univ, and_true]
+          omega
         refine le_of_eq_of_le ?_ (le_biSup _ this)
         have : y ∈ ball (c I) (2 ^ 3 * (D : ℝ) ^ s I) := by rwa [show (2 : ℝ) ^ 3 = 8 by norm_num]
         simp_rw [c𝓑, r𝓑, Nat.cast_zero, add_zero, indicator_of_mem this, enorm_eq_nnnorm]
@@ -819,7 +821,11 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   calc
     _ = ‖∫ x, conj (adjointCarlesonSum (t u₁) f₁ x) *
         adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x‖ₑ := by
-      rw [← RCLike.enorm_conj, ← integral_conj]; congr! 3 with x
+      rw [
+        ← RCLike.enorm_conj,
+        show (starRingEnd ℂ) (∫ (x : X), adjointCarlesonSum (t u₁) f₁ x * (starRingEnd ℂ) (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x)) = ∫ (x : X), (starRingEnd ℂ) (adjointCarlesonSum (t u₁) f₁ x * (starRingEnd ℂ) (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x)) from integral_conj.symm
+      ]
+      congr! 3 with x
       rw [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
     _ = ‖∫ x, conj (U.indicator (adjointCarlesonSum (t u₁) (U.indicator f₁)) x) *
         adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x‖ₑ := by
