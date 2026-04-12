@@ -183,11 +183,9 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
       calc volume (E p ∩ G)
         _ ≤ volume (E₂ 2 p) := by
           gcongr; intro x hx
-          have hQ : Q x ∈ ball_(p) (𝒬 p) 1 := subset_cball hx.1.2.1
-          simp only [E₂, TileLike.toSet, smul_fst, smul_snd, mem_inter_iff, mem_preimage]
           refine ⟨⟨hx.1.1, hx.2⟩, ?_⟩
-          apply @ball_subset_ball (WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)) instPseudoMetricSpaceWithFunctionDistance _ 1 2 (by norm_num)
-          exact hQ
+          apply @ball_subset_ball _ instPseudoMetricSpaceWithFunctionDistance _ 1 2 (by norm_num)
+          exact subset_cball hx.1.2.1
         _ ≤ 2^a * dens₁ (𝔄' : Set (𝔓 X)) * volume (L : Set X) := by
           have hIL : 𝓘 p = L := by simp_rw [← hp.2]
           have h2a : ((2 : ℝ≥0∞) ^ a)⁻¹ = 2^(-(a : ℤ)) := by
