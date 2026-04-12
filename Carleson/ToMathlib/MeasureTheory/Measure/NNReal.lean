@@ -5,8 +5,7 @@ import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 open MeasureTheory NNReal ENNReal Set
 
 noncomputable
-instance NNReal.MeasureSpace : MeasureSpace ℝ≥0 where
-  volume := Measure.comap Subtype.val (volume : Measure ℝ)
+instance NNReal.MeasureSpace : MeasureSpace ℝ≥0 := ⟨Measure.comap Subtype.val (volume : Measure ℝ)⟩
 
 -- Upstreaming status:
 -- The results in this file are generally worth having, but the proofs can be golfed
