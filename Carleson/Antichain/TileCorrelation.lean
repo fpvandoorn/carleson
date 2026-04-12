@@ -313,9 +313,7 @@ open GridStructure
 lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
     conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
     ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) := by
-  rw [show conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
-    ∫ y1 in E p, conj (conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) from
-    integral_conj.symm]
+  rw [show conj (∫ _ in _, _) = ∫ y1 in _, conj (_ * g y1) from integral_conj.symm]
   simp only [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
   congr; ext x; rw [← exp_conj]; congr
   simp only [map_mul, conj_I, map_sub, conj_ofReal]
