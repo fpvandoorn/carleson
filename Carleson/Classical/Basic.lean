@@ -86,7 +86,7 @@ local notation "S_" => partialFourierSum
 
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {c : ℂ} {n : ℤ} :
-    fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n):=
+    fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n) :=
   fourierCoeffOn.const_mul f c n hab
 
 @[simp]
