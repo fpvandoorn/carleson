@@ -17,9 +17,7 @@ lemma NNReal.volume_val {s : Set ℝ≥0} : volume s = volume (Subtype.val '' s)
 
 -- sanity check: this measure is what you expect
 example : volume (Ioo (3 : ℝ≥0) 5) = 2 := by
-  rw [NNReal.volume_val]
-  change volume (NNReal.toReal '' Ioo 3 5) = 2
-  rw [NNReal.image_coe_Ioo, Real.volume_Ioo, ENNReal.ofReal_eq_ofNat]
+  erw [volume_val, NNReal.image_coe_Ioo, Real.volume_Ioo, ofReal_eq_ofNat]
   norm_num
 
 -- integral over a function over NNReal equals the integral over the right set of real numbers
@@ -179,19 +177,14 @@ theorem NNReal.Ici_eq {a : ℝ≥0} :
     rwa [← Real.le_toNNReal_iff_coe_le hx2]
 
 lemma NNReal.volume_Iio {b : ℝ≥0} : volume (Set.Iio b) = b := by
-  rw [NNReal.volume_val]
-  change volume (NNReal.toReal '' Set.Iio b) = b
-  simp only [image_coe_Iio, Real.volume_Ico, sub_zero, ofReal_coe_nnreal]
+  erw [volume_val, image_coe_Iio b, Real.volume_Ico, sub_zero, ofReal_coe_nnreal]
 
 lemma NNReal.volume_Ioi {b : ℝ≥0} : volume (Set.Ioi b) = ⊤ := by
-  rw [NNReal.volume_val]
-  change volume (NNReal.toReal '' Set.Ioi b) = ⊤
-  simp only [image_coe_Ioi, Real.volume_Ioi]
+  erw [volume_val, image_coe_Ioi, Real.volume_Ioi]
 
 lemma NNReal.volume_Ioo {a b : ℝ≥0} : volume (Set.Ioo a b) = b - a:= by
-  rw [NNReal.volume_val]
-  change volume (NNReal.toReal '' Set.Ioo a b) = b - a
-  rw [toReal_Ioo_eq_Ioo, Real.volume_Ioo, ENNReal.ofReal_sub] <;> simp
+  erw [volume_val, toReal_Ioo_eq_Ioo, Real.volume_Ioo, ofReal_sub (hq := by simp)]
+  simp
 
 -- TODO: the proofs in the following lemmas feel quite repetitive
 -- extract helper lemma to re-use some of the argument!
