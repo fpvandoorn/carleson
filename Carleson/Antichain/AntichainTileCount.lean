@@ -200,7 +200,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
           · refine le_iSup₂_of_le p (mem_lowerCubes.mpr ⟨p, hp, le_refl _⟩) ?_
             refine le_iSup_of_le (le_refl _) ?_
             gcongr
-            · simp only [NNReal.coe_ofNat, subset_refl]
+            · simp
             · rw [hIL]
     let p : 𝔓 X := h𝔄'.choose
     have hp : p ∈ 𝔄' := h𝔄'.choose_spec
@@ -254,10 +254,9 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
         contrapose! hcap
         refine ⟨hcap, ⟨(hex q hq).choose, ⟨(hex q hq).choose_spec.1, ?_⟩⟩⟩
         constructor <;> simp only [mem_ball]
-        · rw [dist_comm (α := WithFunctionDistance (𝔠 p) (D ^ 𝔰 p / 4)) _ (𝒬 q)]
+        · rw [dist_comm]
           exact (hex q hq).choose_spec.2
-        · rw [dist_comm (α := WithFunctionDistance (𝔠 p) (D ^ 𝔰 p / 4)) _ (𝒬 q')]
-          rw [←hfq, hf, hfq']
+        · rw [dist_comm, ← hfq, hf, hfq']
           exact (hex q' hq').choose_spec.2
     -- Ineq. 6.3.16
     calc ∑ p ∈ (𝔄_aux 𝔄 ϑ N).toFinset with 𝓘 p = L, volume (E p ∩ G)
