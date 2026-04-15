@@ -157,9 +157,8 @@ lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄) {x₀ : X} (hx : x₀ ∈ ba
     eLpNorm_eq_lintegral_rpow_enorm_toReal (by simpa) (by finiteness)]
   simp_rw [ENNReal.toReal_ofReal hr.le, one_div]
   rw [← ENNReal.mul_rpow_of_nonneg _ _ (by positivity), M14, maximalFunction]
-  refine ENNReal.rpow_le_rpow ?_ (by positivity)
   conv_lhs =>
-    enter [2, 2, x]
+    enter [1, 2, 2, x]
     rw [enorm_eq_self, ← Function.comp_apply (f := (· ^ r)),
       ← indicator_comp_of_zero (g := fun x ↦ x ^ r) (by simpa using hr)]
   rw [lintegral_indicator measurableSet_ball, ← ENNReal.div_eq_inv_mul, ← setLAverage_eq]
@@ -272,7 +271,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     _ = Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         ∫⁻ y in ⋃ p ∈ 𝔄, E p, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by
       rw [mul_assoc _ (C6_1_6 a : ℝ≥0∞), mul_assoc (_ * _), ← lintegral_const_mul'']; swap
-      · exact ((AEStronglyMeasurable.maximalFunction 𝔄.to_countable).aemeasurable.mul
+      · exact (Measurable.maximalFunction.aemeasurable.mul
           hg.enorm.aemeasurable).restrict
       congr 1; simp_rw [← mul_assoc]
       rw [← lintegral_biUnion_finset _ (fun _ _ ↦ measurableSet_E)]
@@ -287,7 +286,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
       conv_rhs => enter [2, 2]; rw [← eLpNorm_enorm]
       gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
-        (AEStronglyMeasurable.maximalFunction 𝔄.to_countable).aemeasurable hg.enorm.aemeasurable
+        Measurable.maximalFunction.aemeasurable hg.enorm.aemeasurable
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (2 ^ (a + 2) * eLpNorm g 2 ^ 2) := by
       rw [sq, ← mul_assoc (_ ^ _)]

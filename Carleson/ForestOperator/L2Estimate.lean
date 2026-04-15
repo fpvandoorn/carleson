@@ -352,7 +352,7 @@ lemma le_C7_2_2 (a4 : 4 ≤ a) :
 lemma nontangential_operator_bound (hf : BoundedCompactSupport f) (θ : Θ X) :
     eLpNorm (nontangentialMaximalFunction θ f) 2 volume ≤ C7_2_2 a * eLpNorm f 2 volume := by
   have aemeas_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) :=
-    (AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable
+    Measurable.maximalFunction.aemeasurable
   have ⟨hT₁, hT₂⟩ := BST_T_Q θ f hf.boundedFiniteSupport
   dsimp only at hT₁ hT₂
   calc
@@ -576,7 +576,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       refine Finset.sum_le_sum fun J mJ ↦ setLIntegral_mono_ae ?_ ?_
       · refine (Finset.aemeasurable_fun_sum _ fun I _ ↦ ?_).restrict; split_ifs; swap; · simp
         refine (AEMeasurable.mul_const ?_ _).mul nfs
-        exact (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
+        exact Measurable.maximalFunction.aemeasurable
       · refine Eventually.of_forall fun y my ↦ Finset.sum_le_sum fun I _ ↦ ?_
         split_ifs with hIJ; swap; · rfl
         refine mul_le_mul_left (mul_le_mul_left ?_ _) _
@@ -697,7 +697,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
       rw [mul_assoc]; gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm ⟨by simpa using ENNReal.inv_two_add_inv_two⟩
         hf.aestronglyMeasurable.aemeasurable.enorm
-        (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
+        Measurable.maximalFunction.aemeasurable
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * (2 ^ (a + (3 / 2 : ℝ)) * eLpNorm g 2 volume) := by
       have ST : HasStrongType (α := X) (α' := X) (ε₁ := ℂ) (MB volume 𝓑 c𝓑 r𝓑) 2 2 volume volume
           (CMB (defaultA a) 2) := by
@@ -784,7 +784,7 @@ private def cS_bound (x' : X) :=
 
 private lemma aeMeasurable_cS_bound : AEMeasurable (cS_bound t u f) := by
   refine AEMeasurable.add ?_ MeasureTheory.Measurable.nontangentialMaximalFunction.aemeasurable
-  apply ((AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable.add ?_).const_mul
+  apply (Measurable.maximalFunction.aemeasurable.add ?_).const_mul
   exact measurable_boundaryOperator.aemeasurable
 
 -- The natural constant for Lemma 7.2.1 is ≤ the simpler constant `C7_2_1` we use instead.
@@ -829,7 +829,7 @@ private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤
   let g₂ := t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖))
   let g₃ := nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) (eI𝒬u_mul u f))
   have m₁ : AEMeasurable g₁ :=
-    (MeasureTheory.AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable
+    Measurable.maximalFunction.aemeasurable
   have m₂ : AEMeasurable g₂ := measurable_boundaryOperator.aemeasurable
   calc eLpNorm (cS_bound t u f) 2 μ
     _ = eLpNorm (C7_1_3 a • (g₁ + g₂) + g₃) 2 μ := rfl
