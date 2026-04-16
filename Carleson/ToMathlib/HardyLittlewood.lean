@@ -478,34 +478,17 @@ lemma maximalFunction_seq_mono (𝓑 : Set ι) {p : ℝ} (u : X → E) :
   apply iSup_le_iSup_of_subset
   exact tr_mono hmn
 
-lemma maximalFunction_seq_eq {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (hp : 0 < p) (u : X → E) (x : X) :
-    maximalFunction μ 𝓑 c r (↑p) u x =
-      ⨆ k : ℕ, maximalFunction_seq μ h𝓑 c r (↑p) u k x := by
-  let g := Classical.choose (Set.countable_iff_exists_injective.mp h𝓑)
-  let 𝓑' (k : ℕ) := Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})
-  apply ge_antisymm
-  · exact iSup_le fun i => iSup_le_iSup_of_subset (Subtype.coe_image_subset 𝓑 _)
-  · unfold maximalFunction_seq maximalFunction
-    have p_pos : p.toReal > 0 := by positivity
-    apply iSup₂_le_iff.mpr
-    intro i Hi
-    let k₀ := g ⟨i, Hi⟩
-    have k₀large : i ∈ 𝓑' k₀ := by
-      unfold 𝓑'
-      simp only [preimage_setOf_eq, mem_image, mem_setOf_eq, Subtype.exists, exists_and_right,
-          exists_eq_right]
-      use Hi
-    calc
-    (ball (c i) (r i)).indicator
-        (fun x ↦ (⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖ₑ ^ p.toReal ∂μ) ^ p.toReal⁻¹) x
-      ≤ (⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
-        (fun x ↦ (⨍⁻ (y : X) in ball (c j) (r j), ‖u y‖ₑ ^ p.toReal ∂μ) ^ p.toReal⁻¹) x) := by
-      apply le_iSup₂ (i := i)
-          (f := fun j _ ↦ (ball (c j) (r j)).indicator
-          (fun x ↦ (⨍⁻ (y : X) in ball (c j) (r j), ‖u y‖ₑ ^ p.toReal ∂μ) ^ p.toReal⁻¹) x) k₀large
-    _ ≤ _ := by
-      apply le_iSup (f := fun k ↦ (⨆ i ∈ 𝓑' k, (ball (c i) (r i)).indicator
-          (fun x ↦ (⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖ₑ ^ p.toReal ∂μ)  ^ (p.toReal)⁻¹) x))
+lemma maximalFunction_seq_eq (𝓑 : Set ι) {p : ℝ} (u : X → E) (x : X) :
+      maximalFunction μ 𝓑 c r p u x = ⨆ k : ℕ, maximalFunction_seq μ 𝓑 c r p u k x := by
+  unfold maximalFunction_seq maximalFunction
+  rw [←iSup_iUnion]
+  congr!
+  apply eq_of_subset_of_subset
+  · intro i hi
+    rcases exists_nat_ge (r i) with ⟨k, hk⟩
+    exact mem_iUnion.mpr ⟨k, hi, hk⟩
+  · intro i hi
+    exact (mem_iUnion.mp hi).elim (fun _ p => p.left)
 
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`.
 A proof for basically this result is given in Chapter 9, everything following after equation
