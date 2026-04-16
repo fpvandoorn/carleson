@@ -473,24 +473,16 @@ theorem hasStrongType_maximalFunction_aux
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
-def tr {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (k : ℕ) : Set ι := by
-  choose g hg using (Set.countable_iff_exists_injective.mp h𝓑)
-  exact Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})
+variable (𝓑 r) in
+def tr (k : ℕ) : Set ι := {i | i ∈ 𝓑 ∧ r i ≤ k}
 
-lemma tr_finite {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (k : ℕ) :
-    (tr h𝓑 k).Finite := by
-  refine Finite.image Subtype.val
-    (Finite.preimage (Function.Injective.injOn ?_) (finite_le_nat k))
-  exact Classical.choose_spec (Set.countable_iff_exists_injective.mp h𝓑)
+lemma tr_mono {k₁ k₂ : ℕ} (h : k₁ ≤ k₂) : tr 𝓑 r k₁ ⊆ tr 𝓑 r k₂ := by
+  rintro _ ⟨hi₁, hi₂⟩
+  exact ⟨hi₁, hi₂.trans (Nat.cast_le.mpr h)⟩
 
-lemma tr_radius_bound {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (k : ℕ) :
-    ∃ R, ∀ i ∈ (tr h𝓑 k), r i ≤ R :=
-  Finite.exists_image_le (tr_finite h𝓑 k) r
-
-def maximalFunction_seq (μ : Measure X) {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (c : ι → X) (r : ι → ℝ)
-    (q : ℝ) (v : X → E) (k : ℕ) (z : X) :
-    ℝ≥0∞ :=
-  maximalFunction μ (tr h𝓑 k) c r q v z
+def maximalFunction_seq (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ) (q : ℝ) (v : X → E)
+    (k : ℕ) (z : X) : ℝ≥0∞ :=
+  maximalFunction μ (tr 𝓑 r k) c r q v z
 
 lemma maximalFunction_seq_mono {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (u : X → E) :
   Monotone (maximalFunction_seq μ h𝓑 c r p u : ℕ → (X → ℝ≥0∞)) := by
@@ -550,7 +542,7 @@ theorem hasStrongType_maximalFunction
   have hp₂neq_zero : (ofNNReal p₂).toReal ≠ 0 := hp₂pos.ne'
   have hp₂inv_pos : (ofNNReal p₂).toReal⁻¹ > 0 := inv_pos_of_pos hp₂pos
   have hestfin : ∀ k : ℕ, eLpNorm
-      (fun x ↦ maximalFunction_seq μ h𝓑 c r (↑p₁) v k x) (↑p₂) μ ≤
+      (fun x ↦ maximalFunction_seq μ 𝓑 c r (↑p₁) v k x) (↑p₂) μ ≤
       ↑(C2_0_6 A p₁ p₂) * eLpNorm v (↑p₂) μ := by
     intro k
     obtain ⟨R, hR⟩ := Finite.exists_image_le (tr_finite h𝓑 k) r
@@ -563,10 +555,10 @@ theorem hasStrongType_maximalFunction
     simp at h
   · unfold eLpNorm'
     calc
-    _ = (∫⁻ (a : X), (⨆ k, maximalFunction_seq μ h𝓑 c r (↑p₁) v k a) ^ (ofNNReal p₂).toReal ∂μ)
+    _ = (∫⁻ (a : X), (⨆ k, maximalFunction_seq μ 𝓑 c r (↑p₁) v k a) ^ (ofNNReal p₂).toReal ∂μ)
         ^ (1 / (ofNNReal p₂).toReal) := by
-      congr; ext x; congr; exact maximalFunction_seq_eq h𝓑 hp₁ v x
-    _ ≤ (∫⁻ (a : X), ⨆ k, (maximalFunction_seq μ h𝓑 c r (↑p₁) v k a) ^ (ofNNReal p₂).toReal ∂μ)
+      congr; ext x; congr; exact maximalFunction_seq_eq 𝓑 hp₁ v x
+    _ ≤ (∫⁻ (a : X), ⨆ k, (maximalFunction_seq μ 𝓑 c r (↑p₁) v k a) ^ (ofNNReal p₂).toReal ∂μ)
         ^ (1 / (ofNNReal p₂).toReal) := by
       gcongr with a
       apply (rpow_le_rpow_iff (z := ((ofNNReal p₂).toReal)⁻¹) (by positivity)).mp
@@ -576,8 +568,8 @@ theorem hasStrongType_maximalFunction
       rw [← ENNReal.rpow_rpow_inv (x := maximalFunction_seq _ _ _ _ _ _ _ _) hp₂neq_zero]
       gcongr
       apply le_iSup
-          (f := fun j ↦ (maximalFunction_seq μ h𝓑 c r (↑p₁) v j a) ^ (ofNNReal p₂).toReal)
-    _ = (⨆ k, ∫⁻ (a : X), maximalFunction_seq μ h𝓑 c r (↑p₁) v k a ^ (ofNNReal p₂).toReal ∂μ)
+          (f := fun j ↦ (maximalFunction_seq μ 𝓑 c r (↑p₁) v j a) ^ (ofNNReal p₂).toReal)
+    _ = (⨆ k, ∫⁻ (a : X), maximalFunction_seq μ 𝓑 c r (↑p₁) v k a ^ (ofNNReal p₂).toReal ∂μ)
         ^ (1 / (ofNNReal p₂).toReal) := by
       congr 1
       apply lintegral_iSup'
@@ -586,7 +578,7 @@ theorem hasStrongType_maximalFunction
           Measurable.maximalFunction.aemeasurable
           (ofNNReal p₂).toReal
       · refine ae_of_all μ fun a ⦃k l⦄ hkl ↦ id (rpow_le_rpow ?_ (le_of_lt hp₂pos))
-        exact maximalFunction_seq_mono h𝓑 v hkl a
+        exact maximalFunction_seq_mono 𝓑 v hkl a
     _ ≤ _ := by
       apply (rpow_le_rpow_iff hp₂pos).mp
       rw [one_div, ENNReal.rpow_inv_rpow hp₂neq_zero]
@@ -640,7 +632,7 @@ theorem hasWeakType_maximalFunction_equal_exponents
   constructor; · exact Measurable.maximalFunction.aestronglyMeasurable
   have p_pos : (p : ℝ) > 0 := NNReal.coe_pos.mpr hp
   have hestfin (k : ℕ) : wnorm
-      (fun x ↦ maximalFunction_seq μ h𝓑 c r p v k x) p μ ≤
+      (fun x ↦ maximalFunction_seq μ 𝓑 c r p v k x) p μ ≤
       (A ^ (2 / p : ℝ)) * eLpNorm v p μ := by
     obtain ⟨R, hR⟩ := Finite.exists_image_le (tr_finite h𝓑 k) r
     exact (hasWeakType_maximalFunction_equal_exponents₀ (c := c)
@@ -656,7 +648,7 @@ theorem hasWeakType_maximalFunction_equal_exponents
     intro hx
     by_contra! h₀
     refine (not_le_of_gt (lt_of_le_of_lt' ?_ hx)) (iSup_le h₀)
-    rw [maximalFunction_seq_eq h𝓑 hp]
+    rw [maximalFunction_seq_eq 𝓑 hp]
     exact le_rfl
   let f (k : ℕ) := fun x ↦ maximalFunction μ (tr h𝓑 k) c r (↑p) v x
   have f_mon : Monotone f := by
