@@ -1,5 +1,6 @@
 import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
+import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.RealInterpolation.Main
 import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
 import Mathlib.MeasureTheory.Covering.Vitali
@@ -448,10 +449,13 @@ irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) 
 This is a special case of `hasStrongType_maximalFunction` below, which doesn't have the assumption
 `hR` (but uses this result in its proof). -/
 theorem hasStrongType_maximalFunction_aux
-    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
+    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
-    HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
-      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := fun v mlpv ↦ by
+    HasStrongType (fun (u : X → E) x ↦ maximalFunction μ 𝓑 c r p₁ u x) p₂ p₂ μ μ
+      (C2_0_6 A p₁ p₂) := by
+  by_cases h : Nonempty X; swap
+  · have := not_nonempty_iff.mp h; intro _ _; simp
+  intro v mlpv
   refine ⟨Measurable.maximalFunction.aestronglyMeasurable, ?_⟩; dsimp only
   have cp₁p : 0 < (p₁ : ℝ) := by positivity
   have p₁n : p₁ ≠ 0 := by exact_mod_cast cp₁p.ne'
@@ -475,6 +479,12 @@ theorem hasStrongType_maximalFunction_aux
 
 variable (𝓑 r) in
 def tr (k : ℕ) : Set ι := {i | i ∈ 𝓑 ∧ r i ≤ k}
+
+lemma tr_subset (k : ℕ) : tr 𝓑 r k ⊆ 𝓑 :=
+  fun _ hi => hi.left
+
+lemma tr_radius_le (k : ℕ) : ∀ i ∈ tr 𝓑 r k, r i ≤ k :=
+  fun _ hi => hi.right
 
 lemma tr_mono {k₁ k₂ : ℕ} (h : k₁ ≤ k₂) : tr 𝓑 r k₁ ⊆ tr 𝓑 r k₂ := by
   rintro _ ⟨hi₁, hi₂⟩
@@ -502,80 +512,13 @@ lemma maximalFunction_seq_eq (𝓑 : Set ι) (p : ℝ) :
   · intro i hi
     exact (mem_iUnion.mp hi).elim (fun _ p => p.left)
 
-/-- `hasStrongType_maximalFunction` minus the assumption `hR`.
-A proof for basically this result is given in Chapter 9, everything following after equation
-(9.0.36). -/
-theorem hasStrongType_maximalFunction
-    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
-    {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
-    HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
-      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
-  by_cases h : Nonempty X; swap
-  · have := not_nonempty_iff.mp h; intro _ _; simp
-  intro v mlpv
-  dsimp only
-  constructor; · exact Measurable.maximalFunction.aestronglyMeasurable
-  have hp₂pos : (ofNNReal p₂).toReal > 0 :=
-    toReal_pos (coe_ne_zero.mpr (ne_zero_of_lt hp₁₂)) coe_ne_top
-  have hp₂neq_zero : (ofNNReal p₂).toReal ≠ 0 := hp₂pos.ne'
-  have hp₂inv_pos : (ofNNReal p₂).toReal⁻¹ > 0 := inv_pos_of_pos hp₂pos
-  have hestfin : ∀ k : ℕ, eLpNorm
-      (fun x ↦ maximalFunction_seq μ 𝓑 c r (↑p₁) v k x) (↑p₂) μ ≤
-      ↑(C2_0_6 A p₁ p₂) * eLpNorm v (↑p₂) μ := by
-    intro k
-    obtain ⟨R, hR⟩ := Finite.exists_image_le (tr_finite h𝓑 k) r
-    exact (hasStrongType_maximalFunction_aux (c := c)
-        (Finite.countable (tr_finite h𝓑 k)) hR hp₁ hp₁₂ v mlpv).2
-  unfold eLpNorm
-  split_ifs with h₀
-  · simp
-  · have h : ENNReal.ofNNReal p₂ = ⊤ := by assumption
-    simp at h
-  · unfold eLpNorm'
-    calc
-    _ = (∫⁻ (a : X), (⨆ k, maximalFunction_seq μ 𝓑 c r (↑p₁) v k a) ^ (ofNNReal p₂).toReal ∂μ)
-        ^ (1 / (ofNNReal p₂).toReal) := by
-      congr; ext x; congr; exact maximalFunction_seq_eq 𝓑 hp₁ v x
-    _ ≤ (∫⁻ (a : X), ⨆ k, (maximalFunction_seq μ 𝓑 c r (↑p₁) v k a) ^ (ofNNReal p₂).toReal ∂μ)
-        ^ (1 / (ofNNReal p₂).toReal) := by
-      gcongr with a
-      apply (rpow_le_rpow_iff (z := ((ofNNReal p₂).toReal)⁻¹) (by positivity)).mp
-      rw [rpow_rpow_inv (hp₂neq_zero)]
-      apply iSup_le
-      intro i
-      rw [← ENNReal.rpow_rpow_inv (x := maximalFunction_seq _ _ _ _ _ _ _ _) hp₂neq_zero]
-      gcongr
-      apply le_iSup
-          (f := fun j ↦ (maximalFunction_seq μ 𝓑 c r (↑p₁) v j a) ^ (ofNNReal p₂).toReal)
-    _ = (⨆ k, ∫⁻ (a : X), maximalFunction_seq μ 𝓑 c r (↑p₁) v k a ^ (ofNNReal p₂).toReal ∂μ)
-        ^ (1 / (ofNNReal p₂).toReal) := by
-      congr 1
-      apply lintegral_iSup'
-      · exact fun k ↦
-        AEMeasurable.pow_const
-          Measurable.maximalFunction.aemeasurable
-          (ofNNReal p₂).toReal
-      · refine ae_of_all μ fun a ⦃k l⦄ hkl ↦ id (rpow_le_rpow ?_ (le_of_lt hp₂pos))
-        exact maximalFunction_seq_mono 𝓑 v hkl a
-    _ ≤ _ := by
-      apply (rpow_le_rpow_iff hp₂pos).mp
-      rw [one_div, ENNReal.rpow_inv_rpow hp₂neq_zero]
-      apply iSup_le
-      intro k
-      apply (rpow_le_rpow_iff hp₂inv_pos).mp
-      rw [ENNReal.rpow_rpow_inv hp₂neq_zero]
-      unfold eLpNorm at hestfin
-      split_ifs at hestfin
-      unfold eLpNorm' at hestfin
-      rw [one_div] at hestfin
-      exact hestfin k
 
-theorem hasWeakType_maximalFunction_equal_exponents₀ [BorelSpace X]
+/-- Version of `hasWeakType_maximalFunction_equal_exponents` with the additional assumption `hR`.
+-/
+theorem hasWeakType_maximalFunction_equal_exponents_aux [BorelSpace X]
     {p : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp : 0 < p) :
-    HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p u x)
-      p p μ μ (A ^ ((2 / p : ℝ))) := by
+    HasWeakType (maximalFunction (E := E) μ 𝓑 c r p) p p μ μ (A ^ ((2 / p : ℝ))) := by
   intro v mlpv
-  dsimp only
   constructor; · exact Measurable.maximalFunction.aestronglyMeasurable
   have cp : 0 < (p : ℝ) := by positivity
   have p₁n : p ≠ 0 := by exact_mod_cast cp.ne'
@@ -601,6 +544,19 @@ theorem hasWeakType_maximalFunction_equal_exponents₀ [BorelSpace X]
       congr; ext x; rw [coe_rpow_of_ne_zero ht ↑p]; exact (lt_rpow_inv_iff cp)
     · rw [eLpNorm_norm_rpow v cp, ENNReal.mul_rpow_of_nonneg _ _ NNReal.zero_le_coe,
           div_eq_mul_inv, rpow_mul, rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n), rpow_two]; simp
+
+/-- `hasStrongType_maximalFunction` minus the assumption `hR`.
+A proof for basically this result is given in Chapter 9, everything following after equation
+(9.0.36). -/
+theorem hasStrongType_maximalFunction
+    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
+    {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
+    HasStrongType (maximalFunction (E := E) μ 𝓑 c r p₁) p₂ p₂ μ μ
+      (C2_0_6 A p₁ p₂) := by
+  rw [maximalFunction_seq_eq]
+  apply hasStrongType_iSup_of_monotone maximalFunction_seq_mono
+  intro n
+  exact hasStrongType_maximalFunction_aux (h𝓑.mono (tr_subset n)) (tr_radius_le n) hp₁ hp₁₂
 
 theorem hasWeakType_maximalFunction_equal_exponents
     [BorelSpace X] {p : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp : 0 < p) :
