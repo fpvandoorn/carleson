@@ -484,16 +484,11 @@ def maximalFunction_seq (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι 
     (k : ℕ) (z : X) : ℝ≥0∞ :=
   maximalFunction μ (tr 𝓑 r k) c r q v z
 
-lemma maximalFunction_seq_mono {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (u : X → E) :
-  Monotone (maximalFunction_seq μ h𝓑 c r p u : ℕ → (X → ℝ≥0∞)) := by
+lemma maximalFunction_seq_mono {p : ℝ} :
+    Monotone (maximalFunction_seq μ 𝓑 c r p f) := by
   intro m n hmn x
-  apply iSup₂_le
-  intro i Hi
-  apply le_iSup₂ (f := fun j _ ↦ (ball (c j) (r j)).indicator
-    (fun x ↦ (⨍⁻ (y : X) in ball (c j) (r j),
-    ‖u y‖ₑ ^ (ofNNReal p).toReal ∂μ) ^ (ofNNReal p).toReal⁻¹) x)
-  obtain ⟨w, hw⟩ := Hi
-  exact ⟨w, hw.1.trans hmn, hw.2⟩
+  apply iSup_le_iSup_of_subset
+  exact tr_mono hmn
 
 lemma maximalFunction_seq_eq {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (hp : 0 < p) (u : X → E) (x : X) :
     maximalFunction μ 𝓑 c r (↑p) u x =
