@@ -101,7 +101,7 @@ theorem BoundedCompactSupport.bddAbove_norm_carlesonOn
     have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (Q x y - Q x x)) ≠ 0 := by
       by_contra! hc
       apply hx
-      simp [hc]
+      simp_rw [hc, integral_zero]
     obtain ⟨y, hy⟩ := this
     simp only [ne_eq, mul_eq_zero, exp_ne_zero, or_false, not_or] at hy
     apply le_trans <| dist_triangle _ y _
@@ -169,8 +169,9 @@ lemma carlesonSum_inter_add_inter_compl {f : X → ℂ} {x : X} (A B : Set (𝔓
   simp only [carlesonSum]
   conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ (fun p ↦ p ∈ B)]
   congr 2
-  · ext; simp
-  · ext; simp
+  · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Set.mem_inter_iff]
+  · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Set.mem_inter_iff,
+      Set.mem_compl_iff]
 
 lemma sum_carlesonSum_of_pairwiseDisjoint {ι : Type*} {f : X → ℂ} {x : X} {A : ι → Set (𝔓 X)}
     {s : Finset ι} (hs : (s : Set ι).PairwiseDisjoint A) :
@@ -179,18 +180,19 @@ lemma sum_carlesonSum_of_pairwiseDisjoint {ι : Type*} {f : X → ℂ} {x : X} {
   simp only [carlesonSum]
   rw [← Finset.sum_biUnion]
   · congr with p
-    simp
+    simp only [Finset.mem_biUnion, Finset.mem_filter, Finset.mem_univ, true_and,
+      Set.mem_iUnion₂, exists_prop]
   · convert hs
     refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
     · intro i hi j hj hij
       convert Finset.disjoint_coe.2 (h hi hj hij)
-      · ext; simp
-      · ext; simp
+      · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
+      · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
     · intro i hi j hj hij
       apply Finset.disjoint_coe.1
       convert h hi hj hij
-      · ext; simp
-      · ext; simp
+      · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
+      · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
 
 end Carleson
 
@@ -342,7 +344,7 @@ lemma adjointCarleson_adjoint
         nth_rw 2 [mul_assoc, mul_comm]
         gcongr
         apply mul_le_mul (norm_indicator_one_le ..) norm_MKD_le_norm_Ks (by simp) (by simp) |>.trans
-        simp [hM₀ x y h]
+        linarith [hM₀ x y h]
       · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
         unfold H; simp [image_eq_zero_of_notMem_tsupport h]
     have : Integrable (fun z : X × X ↦ M₀ * ‖g z.1‖ * ‖f z.2‖) :=
@@ -359,17 +361,27 @@ lemma adjointCarleson_adjoint
       exact fun z ↦ (hHleH₀ z.1 z.2).trans <| Real.le_norm_self _
   calc
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
-      conv =>
-        enter [1, 2, x, 2]; unfold carlesonOn
-        rw [indicator_eq_indicator_one_mul, ← integral_const_mul]
-        enter [2, y]; rw [← mul_assoc]
-    _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_const_mul, mul_assoc]
+      congr 1; ext x; congr 1
+      rw [carlesonOn, indicator_eq_indicator_one_mul, ← smul_eq_mul, ← integral_smul]
+      congr 1; ext y; unfold MKD; simp [smul_eq_mul]; ring
+    _ = ∫ x, ∫ y, H x y := by
+      unfold H; congr 1; ext x
+      calc conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y
+          = ∫ y, conj (g x) * ((E p).indicator 1 x * MKD (𝔰 p) x y * f y) :=
+            (integral_const_mul _ _).symm
+        _ = ∫ y, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
+            congr 1; ext y; ring
     _ = ∫ y, ∫ x, H x y := integral_integral_swap hH
     _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
-      simp_rw [H, integral_mul_const]
+      simp_rw [H]; congr 1; ext y
+      exact integral_mul_const _ _
     _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
-      simp_rw [← integral_conj]; congrm (∫ _, (∫ _, ?_) * (f _))
-      rw [map_mul, conj_conj, map_mul, conj_indicator, map_one]
+      congr 1; ext y; congr 1
+      have h : ∀ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y =
+          conj (g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) :=
+        fun x => by rw [map_mul, conj_conj, map_mul, conj_indicator, map_one]
+      simp_rw [h]
+      exact integral_conj
     _ = _ := by
       congr! with y
       simp_rw [mul_comm (g _) _]

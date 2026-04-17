@@ -139,8 +139,10 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   · have hl := (le_or_ge_or_disjoint.resolve_left h2u).resolve_right hd
     rw [disjoint_comm] at hd
     convert this hu₂ hu₁ hu.symm hg₂ hg₁ hd hl using 1
-    · rw [← RCLike.enorm_conj, ← integral_conj]; congr! 3
-      rw [map_mul, conj_conj, mul_comm]
+    · rw [← RCLike.enorm_conj (z := ∫ x, adjointCarlesonSum _ g₂ x * _)]
+      erw [← integral_conj]
+      congr
+      simp [mul_comm]
     · rw [inter_comm]; ring
   exact correlation_separated_trees_of_subset hu₁ hu₂ hu h2u hg₁ hg₂
 
@@ -232,12 +234,17 @@ lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x : X)
     1 ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j: Set _) x := by
   classical
   obtain ⟨𝔲', h𝔲'⟩ := hx
-  dsimp [stackSize]
-  rw [← Finset.sum_erase_add _ (a := 𝔲')]
-  · rw [indicator_apply, ← Grid.mem_def,if_pos h𝔲'.right, Pi.one_apply]
-    simp
-  simp_rw [Finset.mem_filter_univ, mem_inter_iff]
-  exact ⟨t.rowDecomp_𝔘_subset j h𝔲'.1, h𝔲'.1⟩
+  calc 1
+      = stackSize {𝔲'} x := by
+        rw [stackSize, Finset.sum_eq_single_of_mem]
+        · exact (Set.indicator_of_mem h𝔲'.2 (1 : X → ℕ)).symm
+        · rw [Finset.mem_filter_univ]
+          exact Set.mem_singleton_iff.mpr rfl
+        · intro b hb hbp
+          rw [Finset.mem_filter_univ, Set.mem_singleton_iff] at hb
+          exact absurd hb hbp
+    _ ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j : Set _) x :=
+        stackSize_mono (Set.singleton_subset_iff.mpr ⟨t.rowDecomp_𝔘_subset j h𝔲'.1, h𝔲'.1⟩)
 
 lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
     stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
@@ -258,7 +265,7 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
       apply tsub_le_tsub hinduct (stackSize_remainder_ge_one_of_exists t j x _)
       rw [mem_diff] at h𝔲
       apply (or_not).elim id
-      push_neg
+      push Not
       intro h
       apply this.elim
       intro _ ⟨hmax, hz⟩
@@ -295,7 +302,7 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
       · exact ⟨hmax, mem_rowDecomp_𝔘_maximal t j⟩
     else
       dsimp [stackSize]
-      push_neg at h
+      push Not at h
       rw [Finset.sum_congr rfl (g := fun _ => 0) (by
         simp_rw [Finset.mem_filter_univ, indicator_apply_eq_zero,
           Pi.one_apply, one_ne_zero] at h ⊢
@@ -650,8 +657,8 @@ lemma disjoint_of_ne_of_mem {i j : ℕ} {u u' : 𝔓 X} (hne : u ≠ u') (hu : u
       exact le_trans (le_abs_self _) <|
         abs_dist_sub_le (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)) _ _ _
   have : 𝒬 p' ∉ ball_(p) (𝒬 p) 1 := by
-    rw [mem_ball (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)),dist_comm]
-    exact not_lt_of_ge <| le_trans (calculation_7_7_4 (X := X)) this.le
+    intro hmem
+    apply not_lt_of_ge (le_trans (calculation_7_7_4 (X := X)) this.le) (mem_ball'.mp hmem)
   have : ¬(Ω p' ⊆ Ω p) := (fun hx => this <| subset_cball <| hx 𝒬_mem_Ω)
   exact (relative_fundamental_dyadic 𝓘_p_le).resolve_right this
 

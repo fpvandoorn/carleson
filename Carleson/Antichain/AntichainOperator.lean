@@ -276,7 +276,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
           hg.enorm.aemeasurable).restrict
       congr 1; simp_rw [← mul_assoc]
       rw [← lintegral_biUnion_finset _ (fun _ _ ↦ measurableSet_E)]
-      · simp
+      · simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       · intro p mp p' mp' hn
         simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at mp mp'
         exact not_not.mp ((tile_disjointness h𝔄 mp mp').mt hn)

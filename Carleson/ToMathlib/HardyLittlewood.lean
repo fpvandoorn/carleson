@@ -544,8 +544,8 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
   · intro u hu
     filter_upwards [MB_ae_ne_top h𝓑 hR hu] with x hx
     simpa [MB, maximalFunction] using hx
-  · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
-  · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
+  · intro f c hf; exact hf.const_smul _
+  · intro f c hf; exact hf.const_smul _
   · intro i _
     refine AESublinearOn.const (T μ c r i) P (fun hf hg ↦ T.add_le i (hP hf))
       (fun f d hf ↦ T.smul i) |>.indicator _

@@ -49,10 +49,10 @@ lemma exists_k_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ k, p ∈ TilesA
     obtain ⟨k, hk⟩ := exists_mem_aux𝓒 vpos; exact ⟨_, hk⟩
   let s : ℕ := WellFounded.min wellFounded_lt _ Cn
   have s_mem : s ∈ C := WellFounded.min_mem ..
-  have s_min : ∀ t ∈ C, s ≤ t := fun t mt ↦ WellFounded.min_le _ mt _
+  have s_min : ∀ t ∈ C, s ≤ t := fun t mt ↦ WellFounded.min_le _ mt
   have s_pos : 0 < s := by
     by_contra! h; rw [nonpos_iff_eq_zero] at h
-    simp_rw [h, C, aux𝓒, mem_setOf] at s_mem; apply absurd s_mem; push_neg; intro _ _
+    simp_rw [h, C, aux𝓒, mem_setOf] at s_mem; apply absurd s_mem; push Not; intro _ _
     rw [Int.neg_ofNat_zero, zpow_zero, one_mul]; exact measure_mono inter_subset_right
   use s - 1; rw [TilesAt, mem_preimage, 𝓒, mem_diff, Nat.sub_add_cancel s_pos]
   have : ∀ t < s, t ∉ C := fun t mt ↦ by contrapose! mt; exact s_min t mt
@@ -73,7 +73,7 @@ lemma dens'_le_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : dens' k {p} ≤ 2 ^
     _ ≤ _ := by
       have E : E₂ l p' ⊆ 𝓘 p' ∩ G := inter_subset_left
       rw [TilesAt, mem_preimage, 𝓒, mem_diff] at mp'; replace mp' := mp'.2
-      rw [aux𝓒, mem_setOf] at mp'; push_neg at mp'; specialize mp' (𝓘 p') le_rfl
+      rw [aux𝓒, mem_setOf] at mp'; push Not at mp'; specialize mp' (𝓘 p') le_rfl
       rw [inter_comm] at E; exact (measure_mono E).trans mp'
 
 lemma exists_E₂_volume_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ r : ℕ, 0 < volume (E₂ r p) := by
@@ -83,7 +83,7 @@ lemma exists_E₂_volume_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ r
   suffices ⋃ i : ℕ, Q ⁻¹' ball_(p) (𝒬 p) i = univ by
     rw [this, inter_univ, ← pos_iff_ne_zero]
     rw [𝔓pos, mem_setOf] at h; exact h.trans_le (measure_mono inter_subset_left)
-  simp_rw [iUnion_eq_univ_iff, mem_preimage, mem_ball]
+  simp_rw [iUnion_eq_univ_iff, mem_preimage]
   exact fun x ↦ exists_nat_gt (dist_(p) (Q x) (𝒬 p))
 
 lemma dens'_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) (hp : p ∈ TilesAt k) : 0 < dens' k {p} := by
@@ -149,7 +149,7 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
   replace h : 0 < volume ((𝓘 p : Set X) ∩ G₂ᶜ) :=
     h.trans_le (measure_mono (inter_subset_left.trans inter_subset_left))
   obtain ⟨x, mx, nx⟩ := nonempty_of_measure_ne_zero h.ne'
-  simp_rw [G₂, mem_compl_iff, mem_iUnion] at nx; push_neg at nx; specialize nx n k hkn
+  simp_rw [G₂, mem_compl_iff, mem_iUnion] at nx; push Not at nx; specialize nx n k hkn
   let B : ℕ := Finset.card { q | q ∈ 𝔅 k n p }
   have Blt : B < 2 ^ (2 * n + 4) := by
     calc
@@ -258,7 +258,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
   pick_goal 2; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ iUnion₂_subset fun _ _ ↦ 𝔏₃_subset_ℭ
   pick_goal -1; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ ℭ₅_subset_ℭ
   by_cases ml0 : p ∈ 𝔏₀ k n
-  · simp_rw [ml0, true_or, iff_true, mem_iUnion₂]; push_neg; intros
+  · simp_rw [ml0, true_or, iff_true, mem_iUnion₂]; push Not; intros
     exact fun a ↦ disjoint_left.mp 𝔏₀_disjoint_ℭ₁ ml0 (ℭ₅_subset_ℭ₁ a)
   simp_rw [ml0, false_or] at split ⊢
   obtain ⟨j, hj, mc1⟩ := split
@@ -330,11 +330,14 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
     simp_rw [𝔒, Finset.mem_filter_univ] at mp''
     obtain ⟨x, mx₁, mx₂⟩ := not_disjoint_iff.mp mp''.2
     replace mx₂ := _root_.subset_cball mx₂
-    rw [@mem_ball] at mx₁ mx₂
+    rw [@mem_ball] at mx₁
     calc
       _ ≤ 5⁻¹ + (dist_{𝓘 p'} x (𝒬 p'') + dist_{𝓘 p'} x (𝒬 p')) :=
         add_le_add_right (dist_triangle_left ..) _
-      _ ≤ 5⁻¹ + (1 + l) := by gcongr; rw [← mp''.1]; exact mx₂.le
+      _ ≤ 5⁻¹ + (1 + l) := by
+        gcongr
+        · rw [← mp''.1]; exact mx₂.le
+        · exact mx₁.le
       _ = _ := by rw [inv_eq_one_div, ← add_assoc, add_comm _ l.toReal]; norm_num
   have vO : CoveredByBalls (ball_(p') (𝒬 p') (l + 6 / 5)) ⌊2 ^ (4 * a) * l ^ a⌋₊ 5⁻¹ := by
     apply (ballsCoverBalls_iterate (show 0 < 5⁻¹ by positivity) (𝒬 p')).mono_nat
@@ -360,8 +363,8 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
       (fun p'' mp'' ↦ ?_) (fun t _ o₁ mo₁ o₂ mo₂ ↦ ?_)).trans cT
   · have := (tO _ mp'').trans uT (mem_ball_self (by positivity))
     rwa [mem_iUnion₂, bex_def] at this
-  · simp_rw [mem_setOf_eq] at mo₁ mo₂; rw [@mem_ball_comm] at mo₁ mo₂
-    exact djO.elim mo₁.1 mo₂.1 (not_disjoint_iff.mpr ⟨t, mo₁.2, mo₂.2⟩)
+  · simp_rw [mem_setOf_eq] at mo₁ mo₂
+    exact djO.elim mo₁.1 mo₂.1 (not_disjoint_iff.mpr ⟨t, mem_ball_comm.mp mo₁.2, mem_ball_comm.mp mo₂.2⟩)
 
 section
 
@@ -461,7 +464,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   · have l1 : 𝓘 s₀.1 ≤ 𝓘 sl.1 := s.head_le_last.1
     have l2 : 𝓘 sl.1 ≤ 𝓘 b := 𝓘p'b ▸ sp'.1
     exact (l1.trans l2).trans lm.1
-  change ball_(m) (𝒬 m) 1 ⊆ ball_(s₀.1) (𝒬 s₀.1) 100; intro (θ : Θ X) mθ; rw [@mem_ball] at mθ ⊢
+  change ball_(m) (𝒬 m) 1 ⊆ ball_(s₀.1) (𝒬 s₀.1) 100; intro (θ : Θ X) mθ; rw [mem_ball] at mθ
   have aux : dist_(sl.1) (𝒬 sl.1) θ < 2 * l + 3 :=
     calc
       _ ≤ dist_(sl.1) (𝒬 sl.1) (𝒬 p') + dist_(sl.1) (𝒬 p') θ := dist_triangle ..
@@ -476,13 +479,12 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
         gcongr
         · rw [𝔒, Finset.mem_filter] at mb
           obtain ⟨(x : Θ X), x₁, x₂⟩ := not_disjoint_iff.mp mb.2.2
-          replace x₂ := _root_.subset_cball x₂
-          rw [@mem_ball] at x₁ x₂
           calc
             _ ≤ dist_(p') x (𝒬 p') + dist_(p') x (𝒬 b) := dist_triangle_left ..
             _ ≤ _ := by
               apply add_le_add x₁.le
-              change dist_{𝓘 p'} x (𝒬 b) ≤ 1; rw [𝓘p'b]; exact x₂.le
+              change dist_{𝓘 p'} x (𝒬 b) ≤ 1; rw [𝓘p'b]
+              exact (_root_.subset_cball x₂).le
         · change dist_{𝓘 p'} (𝒬 b) θ ≤ dist_{𝓘 b} (𝒬 b) θ; rw [𝓘p'b]
       _ ≤ l + (l + 1) + (dist_(b) (𝒬 m) (𝒬 b) + dist_(b) (𝒬 m) θ) :=
         add_le_add_right (dist_triangle_left ..) _
@@ -534,7 +536,7 @@ private instance : Preorder (ℭ₁' (X := X) k n j) where
 /-- Lemma 5.5.3 -/
 lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
   classical
-  by_contra h; rw [isAntichain_iff_forall_not_lt] at h; push_neg at h
+  by_contra h; rw [isAntichain_iff_forall_not_lt] at h; push Not at h
   obtain ⟨p', mp', p, mp, l⟩ := h
   have p200 : smul 2 p' ≤ smul 200 p := by
     calc
@@ -565,7 +567,7 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
     have s200 : smul 200 z.last.1 ≤ smul 200 q := by
       refine ⟨lq.le, (?_ : ball_(q) (𝒬 q) 200 ⊆ ball_(z.last.1) (𝒬 z.last.1) 200)⟩
       intro (r : Θ X) mr
-      rw [@mem_ball] at mr mϑ₁ mϑ₂ ⊢
+      rw [mem_ball] at mr mϑ₁
       calc
         _ ≤ dist_(z.last.1) r (𝒬 q) + dist_(z.last.1) (𝒬 q) ϑ + dist_(z.last.1) ϑ (𝒬 z.last.1) :=
           dist_triangle4 ..
@@ -579,7 +581,7 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
     have : z.last < ⟨q, mq⟩ := by
       refine ⟨s200, (?_ : ¬(smul 200 q ≤ smul 200 z.last.1))⟩
       rw [TileLike.le_def, not_and_or]; exact Or.inl (not_le_of_gt lq)
-    apply absurd maxz; push_neg; use z.snoc ⟨q, mq⟩ this, by simp [C, mz], by simp
+    apply absurd maxz; push Not; use z.snoc ⟨q, mq⟩ this, by simp [C, mz], by simp
 
 end L2Antichain
 
@@ -601,7 +603,7 @@ lemma carlesonSum_𝔓₁_compl_eq_𝔓pos_inter (f : X → ℂ) :
   have A p (hp : p ∈ (𝔓pos (X := X))ᶜ) : ∀ᵐ x, x ∈ G \ G' → x ∉ 𝓘 p := by
     simp only [𝔓pos, mem_compl_iff, mem_setOf_eq, not_lt, nonpos_iff_eq_zero] at hp
     filter_upwards [measure_eq_zero_iff_ae_notMem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
-    simp [h''x, h'x.1, h'x.2] at hx
+    exact hx ⟨⟨h''x, h'x.1⟩, h'x.2⟩
   rw [← ae_ball_iff (to_countable 𝔓posᶜ)] at A
   filter_upwards [A] with x hx h'x
   simp only [carlesonSum]
@@ -655,7 +657,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ_eq_add_sum {f : X → ℂ} {x : X} (hkn : k 
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    simp [𝔏₀_subset_ℭ hp]
+    exact fun _ _ ↦ mem_of_mem_inter_left hp
   · apply Subset.antisymm
     · rintro p ⟨⟨hp, Hp⟩, h'p⟩
       rcases exists_j_of_mem_𝔓pos_ℭ hp.1 Hp hkn with H
@@ -679,7 +681,8 @@ lemma carlesonSum_𝔓pos_inter_𝔏₀_eq_sum {f : X → ℂ} {x : X} :
   congr
   rw [← iUnion_L0']
   ext p
-  simp
+  simp only [mem_inter_iff, mem_iUnion, Finset.mem_Iio]
+  tauto
 
 /-- In each set `ℭ₁ k n j`, the Carleson sum can be decomposed as a sum over `ℭ₂ k n j` and over
 various `𝔏₁ k n j l`. -/
@@ -699,12 +702,13 @@ lemma carlesonSum_𝔓pos_inter_ℭ₁_eq_add_sum {f : X → ℂ} {x : X} :
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    simp [ℭ₂_subset_ℭ₁ hp]
+    exact fun _ _ ↦ mem_of_mem_inter_left hp
   · ext p
     simp only [ℭ₂, layersAbove, mem_inter_iff, mem_compl_iff, mem_diff, mem_iUnion, exists_prop,
       not_exists, not_and, not_forall, Decidable.not_not, Finset.mem_Iic, 𝔏₁]
     refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
-    · simpa [h.1.1] using h.2 h.1.2
+    · obtain ⟨i, hi, hmem⟩ := h.2 h.1.2
+      exact ⟨i, hi, h.1.1, hmem⟩
     · rcases h with ⟨i, hi, h'i⟩
       simp only [h'i.1, not_false_eq_true, and_self, minLayer_subset h'i.2, forall_const, true_and]
       exact ⟨i, hi, h'i.2⟩
@@ -726,15 +730,16 @@ lemma carlesonSum_𝔓pos_inter_ℭ₂_eq_add_sum {f : X → ℂ} {x : X} (hkn :
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    simp [𝔏₂_subset_ℭ₂ hp]
+    exact fun _ _ ↦ mem_of_mem_inter_left hp
   · ext p
     simp only [mem_inter_iff, mem_compl_iff,
       Finset.mem_Iic, mem_iUnion, exists_and_left, exists_prop]
     refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
     · refine ⟨h.1.1, ?_⟩
       simp only [𝔓₁, mem_iUnion, exists_prop, not_exists, not_and] at h
-      have : p ∉ ℭ₅ k n j := h.1.1.2 n k hkn j hj
-      simpa using (notMem_ℭ₅_iff_mem_𝔏₃ (X := X) hkn hj h.1.1.1 h.1.2 h.2).1 this
+      have := (notMem_ℭ₅_iff_mem_𝔏₃ (X := X) hkn hj h.1.1.1 h.1.2 h.2).1 (h.1.1.2 n k hkn j hj)
+      simp only [mem_iUnion, exists_prop] at this
+      exact this
     · rcases h.2 with ⟨l, lZ, hl⟩
       exact ⟨⟨h.1, ℭ₃_subset_ℭ₂ (maxLayer_subset hl)⟩,
         disjoint_right.1 𝔏₂_disjoint_ℭ₃ (maxLayer_subset hl)⟩
@@ -871,7 +876,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
         exact (hx.2.1.1 (W hx.1.1)).elim
       simp only [𝔓pos, mem_setOf_eq, this, measure_empty, lt_self_iff_false, not_false_eq_true]
     contrapose! this
-    have : p ∈ highDensityTiles := by simp [highDensityTiles, this]
+    have : p ∈ highDensityTiles := mem_preimage.mp this
     apply subset_biUnion_of_mem this
   calc
   dens₁ (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔄) ^ ((q - 1) / (8 * ↑a ^ 4)) *
