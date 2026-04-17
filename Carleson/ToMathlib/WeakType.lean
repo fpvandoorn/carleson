@@ -359,7 +359,7 @@ lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [E
       split_ifs
       apply lt_add_of_lt_of_nonneg _ (zero_le _)
       simpa [h]
-  · push_neg at ht
+  · push Not at ht
     congr 1 with x
     simp only [Pi.add_apply, mem_setOf_eq]
     rw [enorm_add, ENNReal.sub_lt_iff_lt_right hc ht]
@@ -842,6 +842,7 @@ lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 0 < p')
   fun f hf ↦
     ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
 
+set_option backward.isDefEq.respectTransparency false in
 lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞}
     (h : HasBoundedStrongType T p p' μ ν c) (r : ℝ≥0) :
     HasBoundedStrongType (r • T) p p' μ ν (r • c) := by

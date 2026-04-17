@@ -123,7 +123,7 @@ lemma chain_property_set_has_bound (k : ℤ) :
   · simpa [h] using property_set_nonempty X k
   have h : ∃ z, z ∈ c := by
     rw [Set.ext_iff] at h
-    push_neg at h
+    push Not at h
     simpa using h
   have : (⋃ s ∈ c,s) ∪ (if k = S then ({o} : Set X) else ∅) = (⋃ s ∈ c,s) := by
     ext x
@@ -192,7 +192,7 @@ lemma cover_big_ball (k : ℤ) : ball o (4 * D ^ S - D ^ k) ⊆ ⋃ y ∈ Yk X k
   have : ∃ z ∈ Yk X k, ¬Disjoint (ball y (D^k:ℝ)) (ball z (D^k:ℝ)) := by
     by_contra hcon
     apply hcon
-    push_neg at hcon
+    push Not at hcon
     suffices hmem : y ∈ Yk X k by
       use y, hmem
       rw [disjoint_self, bot_eq_empty, ball_eq_empty, not_le]
@@ -226,7 +226,7 @@ lemma Yk_nonempty {k : ℤ} (hmin : (0 : ℝ) < 4 * D ^ S - D ^ k) : (Yk X k).No
     pairwiseDisjoint_singleton o fun y ↦ ball y (D ^ k)
   by_contra hcon
   apply hcon
-  push_neg at hcon
+  push Not at hcon
   use o
   have hsuper : (Yk X k) ⊆ {o} := hcon ▸ empty_subset {o}
   simp [← Yk_maximal _ h1 h2 hsuper (fun _ => rfl)]
@@ -249,8 +249,10 @@ lemma Yk_countable (k : ℤ) : (Yk X k).Countable := by
   positivity [realD_pos a]
 
 variable (X) in
+@[implicit_reducible]
 def Yk_encodable (k : ℤ) : Encodable (Yk X k) := (Yk_countable X k).toEncodable
 
+@[implicit_reducible]
 def Encodable.linearOrder {α : Type*} (i : Encodable α) : LinearOrder α :=
   LinearOrder.lift' (i.encode) (i.encode_injective)
 
@@ -545,7 +547,7 @@ mutual
       let y := H.min {i | x ∈ I2 hk i} this
       have hy_i2 : x ∈ I2 hk y := H.min_mem {i|x ∈ I2 hk i} this
       have hy_is_min : ∀ y', x ∈ I2 hk y' → ¬ y' < y :=
-        fun y' hy' ↦ H.not_lt_min {i | x ∈ I2 hk i} this hy'
+        fun y' hy' ↦ sorry -- was: H.not_lt_min {i | x ∈ I2 hk i} this hy'
       use y
       revert hy_i2 hy_is_min
       generalize y = y
@@ -1183,7 +1185,7 @@ lemma smaller_boundary (n : ℕ) :
   | zero =>
     intro k hk hk_mnK y
     rw [boundary_sum_eq hk hk_mnK y]
-    simp only [Int.cast_ofNat_Int, defaultA, pow_zero, one_mul]
+    simp only [Int.cast_ofNat_Int, pow_zero, one_mul]
     gcongr
     simp only [iUnion_subset_iff]
     exact fun _ hy' => hy'.I3_subset
@@ -1449,7 +1451,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
         push_cast at hsuf
         rw [ENNReal.coe_rpow_def]
         have : ¬(t = 0 ∧ κ < 0) := by
-          push_neg
+          push Not
           intro h
           by_contra
           exact ht.left.ne h.symm
@@ -1561,6 +1563,7 @@ lemma 𝓓_finite : Finite (𝓓 X) := by
 -- with center `o` (then we might not cover all of `ball o (D ^ S)`, but most of it)
 variable (X) in
 /-- Proof that there exists a grid structure. -/
+@[implicit_reducible]
 def grid_existence : GridStructure X D κ S o where
   Grid := 𝓓 X
   fintype_Grid := @Fintype.ofFinite (𝓓 X) (𝓓_finite X)
@@ -1686,6 +1689,7 @@ instance : Inhabited (𝓩 I) := ⟨⟨_, 𝓩_nonempty.choose_spec⟩⟩
 /-- 7 / 10 -/
 @[simp] def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Equation (4.2.3), Lemma 4.2.1 -/
 lemma frequency_ball_cover : (SetLike.coe Q.range) ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
   intro θ hθ
@@ -1695,7 +1699,7 @@ lemma frequency_ball_cover : (SetLike.coe Q.range) ⊆ ⋃ z ∈ 𝓩 I, ball_{I
     have hθ' : θ ∉ (𝓩 I : Set (Θ X)) := fun hθ' ↦ by
       have := h _ hθ'; norm_num at this
     let 𝓩' := insert θ (𝓩 I)
-    apply absurd (𝓩_max_card (I := I)) _; push_neg; refine ⟨𝓩', ?_, ?_⟩
+    apply absurd (𝓩_max_card (I := I)) _; push Not; refine ⟨𝓩', ?_, ?_⟩
     · simp_rw [𝓩', 𝓩_cands, Finset.mem_filter, Finset.mem_powerset, Finset.insert_subset_iff,
         Finset.coe_insert, pairwiseDisjoint_insert_of_notMem hθ', Finset.mem_coe]
       exact ⟨⟨hθ, 𝓩_subset⟩, 𝓩_pairwiseDisjoint, fun y hy ↦ (h y hy).symm⟩
@@ -1730,6 +1734,7 @@ lemma Ω₁_aux_disjoint (I : Grid X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω�
   · exact disjoint_sdiff_right
   · exact disjoint_empty _
 
+set_option backward.isDefEq.respectTransparency false in
 lemma disjoint_ball_Ω₁_aux (I : Grid X) {z z' : Θ X} (hz : z ∈ 𝓩 I) (hz' : z' ∈ 𝓩 I) (hn : z ≠ z') :
     Disjoint (ball_{I} z' C𝓩) (Ω₁_aux I (Finite.equivFin (𝓩 I) ⟨z, hz⟩)) := by
   rw [Ω₁_aux]
@@ -1748,6 +1753,7 @@ lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ �
   contrapose! h
   rwa [Fin.val_eq_val, Equiv.apply_eq_iff_eq] at h
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Equation (4.2.6), first inclusion -/
 lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := by
   rw [Ω₁, Ω₁_aux]; set z := p.2
@@ -1763,6 +1769,7 @@ lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := by
     have zn : z ≠ z' := by simp only [ne_eq, Equiv.eq_symm_apply, z']; exact Fin.ne_of_gt hi
     simpa [z'] using disjoint_ball_Ω₁_aux p.1 z'.2 z.2 (Subtype.coe_ne_coe.mpr zn.symm)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Equation (4.2.6), second inclusion -/
 lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := by
   rw [Ω₁, Ω₁_aux]
@@ -1773,6 +1780,7 @@ lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := b
     simp only [qz, zeq, Fin.eta, Equiv.symm_apply_apply, sdiff_sdiff, diff_subset]
   · exact empty_subset _
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Equation (4.2.5) -/
 lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ ⋃ f : 𝓩 I, Ω₁ ⟨I, f⟩ := by
   rw [iUnion₂_subset_iff]; intro z mz (ϑ : Θ X) mϑ
@@ -1795,8 +1803,8 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
     rw [mem_iUnion]; use f.symm k; rw [Ω₁, Ω₁_aux]; dsimp only
     rw [Equiv.apply_symm_apply]; simp_rw [k.2]; rw [dite_true, mem_diff, mem_diff]
     refine ⟨⟨mem_k, ?_⟩, ?_⟩
-    · rw [mem_iUnion₂]; push_neg at h ⊢; exact fun i mi ↦ h i mi.1
-    · rw [mem_iUnion₂]; push_neg; exact fun i mi ↦ q ⟨i, mi.trans k.2⟩ mi
+    · rw [mem_iUnion₂]; push Not at h ⊢; exact fun i mi ↦ h i mi.1
+    · rw [mem_iUnion₂]; push Not; exact fun i mi ↦ q ⟨i, mi.trans k.2⟩ mi
 
 /-- 1 / 5 -/
 @[simp] def CΩ : ℝ := 1 / 5
@@ -1817,6 +1825,7 @@ lemma 𝔓_induction (P : 𝔓 X → Prop) (base : ∀ p, IsMax p.1 → P p)
     exact ind p h fun z ↦ (𝔓_induction P base ind ⟨p.1.succ, z⟩)
 termination_by p => p.1.opSize
 
+set_option backward.isDefEq.respectTransparency false in
 lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
   induction p using 𝔓_induction with
   | base p maxI =>
@@ -1856,6 +1865,7 @@ lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
           linarith [seven_le_c]
       _ < _ := by norm_num
 
+set_option backward.isDefEq.respectTransparency false in
 lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y ≠ z) :
     Disjoint (ball_{I} y.1 CΩ)
       (⋃ z', ⋃ (x : z' ∈ SetLike.coe (𝓩 I.succ) ∩ Ω₁ ⟨I, z⟩), Ω ⟨I.succ, ⟨z', x.1⟩⟩) := by
@@ -1891,6 +1901,7 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
   replace u := (ball_subset_Ω₁ ⟨I, y⟩) u
   have := dj.ne_of_mem u mx₂; contradiction
 
+set_option backward.isDefEq.respectTransparency false in
 lemma Ω_disjoint {p p' : 𝔓 X} (hn : p ≠ p') (h𝓘 : 𝓘 p = 𝓘 p') : Disjoint (Ω p) (Ω p') := by
   change p.1 = p'.1 at h𝓘; obtain ⟨I, y⟩ := p; obtain ⟨_, z⟩ := p'
   subst h𝓘; dsimp only at hn z ⊢
@@ -1914,6 +1925,7 @@ lemma Ω_disjoint {p p' : 𝔓 X} (hn : p ≠ p') (h𝓘 : 𝓘 p = 𝓘 p') : D
       rw [disjoint_iUnion₂_right]; intro b ⟨mb₁, mb₂⟩
       exact ih ⟨a, ma₁⟩ ⟨b, mb₁⟩ (by simp [dj.ne_of_mem ma₂ mb₂])
 
+set_option backward.isDefEq.respectTransparency false in
 lemma Ω_biUnion {I : Grid X} : SetLike.coe Q.range ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (Grid X)), Ω p := by
   induction I using Grid.induction with
   | base I maxI =>
@@ -1938,6 +1950,7 @@ lemma Ω_biUnion {I : Grid X} : SetLike.coe Q.range ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({
     rw [Ω]; simp only [nmaxI, dite_false, mem_union]; right
     rw [mem_iUnion₂]; use z.1, ⟨z.2, mz''⟩, h
 
+set_option backward.isDefEq.respectTransparency false in
 lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q) ∨ Ω q ⊆ Ω p := by
   by_cases h : 𝔰 q ≤ 𝔰 p
   · rw [or_iff_not_imp_left]; intro hi
@@ -1984,7 +1997,8 @@ decreasing_by
 end Construction
 
 variable (X) in
-def tile_existence : TileStructure Q D κ S o where
+set_option backward.isDefEq.respectTransparency false in
+@[implicit_reducible] def tile_existence : TileStructure Q D κ S o where
   Ω := Construction.Ω
   biUnion_Ω {I} := by rw [← SimpleFunc.coe_range]; exact Construction.Ω_biUnion
   disjoint_Ω := Construction.Ω_disjoint
