@@ -148,7 +148,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
       rw [mul_add, mul_assoc I n (π / n), mul_div_cancel₀ _ (by simpa), exp_add, mul_comm I π, exp_pi_mul_I]
       ring
     _ = ‖1 / 2 * ∫ x in a..b, cexp (I * ↑n * ↑x) * φ x - cexp (I * ↑n * (↑x + ↑π / ↑n)) * φ x‖ := by
-      rw [show (1/2 : ℂ) * ∫ x in a..b, cexp (I * ↑n * ↑x) * φ x - cexp (I * ↑n * (↑x + ↑π / ↑n)) * φ x = ∫ x in a..b, (1/2 : ℂ) * (cexp (I * ↑n * ↑x) * φ x - cexp (I * ↑n * (↑x + ↑π / ↑n)) * φ x) from (intervalIntegral.integral_const_mul (1/2 : ℂ) _).symm]
+      erw [← intervalIntegral.integral_const_mul]
       congr
       ext x
       ring

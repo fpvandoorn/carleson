@@ -343,10 +343,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * ((conj ∘ g) y * K x y * exp (I * n * y))‖ₑ := by
             congr 1
             · congr! 3 with y; ring
-            · rw [
-                ← RCLike.enorm_conj,
-                ← show _ = (starRingEnd ℂ) (∫ y in _, _) from integral_conj
-              ]
+            · erw [← RCLike.enorm_conj, ← integral_conj]
               congr! 3 with _ y
               simp
               ring

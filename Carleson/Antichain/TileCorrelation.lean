@@ -313,7 +313,7 @@ open GridStructure
 lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
     conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
     ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) := by
-  rw [show conj (∫ _ in _, _) = ∫ y1 in _, conj (_ * g y1) from integral_conj.symm]
+  erw [← integral_conj]
   simp only [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
   congr; ext x; rw [← exp_conj]; congr
   simp only [map_mul, conj_I, map_sub, conj_ofReal]
@@ -604,17 +604,12 @@ lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
     congr; ext y
     simp_rw [mul_add I, mul_sub I, sub_eq_add_neg, exp_add]
     ring_nf
-  have hx1 : ‖exp (I * Q x.1 x.1)‖ₑ = 1 := enorm_exp_I_mul_ofReal _
-  have hx2 : ‖exp (I * -Q x.2 x.2)‖ₑ = 1 := mod_cast enorm_exp_I_mul_ofReal _
   simp only [I12, enorm_mul]
-  have key2 : ∫ (y : X), conj (Ks (𝔰 p') x.1 y) * exp (I * (Q x.1 x.1 - Q x.1 y)) * g x.1 *
-      (Ks (𝔰 p) x.2 y * exp (I * (-Q x.2 x.2 + Q x.2 y)) * conj (g x.2)) =
-      (∫ (y : X), conj (Ks (𝔰 p') x.1 y) * exp (I * -Q x.1 y) *
-        (Ks (𝔰 p) x.2 y * exp (I * Q x.2 y))) *
-      (exp (I * Q x.1 x.1) * exp (I * -Q x.2 x.2) * g x.1 * conj (g x.2)) := by
-    rw [heq]; exact integral_mul_const _ _
-  rw [key2, enorm_mul, enorm_mul, enorm_mul, enorm_mul, hx1, hx2, RCLike.enorm_conj,
-      one_mul, one_mul, ← mul_assoc]
+  erw [
+    heq, integral_mul_const, enorm_mul, enorm_mul, enorm_mul, enorm_mul, enorm_exp_I_mul_ofReal,
+    show ‖exp (_)‖ₑ = 1 from mod_cast enorm_exp_I_mul_ofReal _,
+    RCLike.enorm_conj, one_mul, one_mul, ← mul_assoc
+  ]
   simp only [mul_neg, correlation]
   congr; ext y
   rw [mul_add I, exp_add]
@@ -629,27 +624,15 @@ lemma bound_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
       ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) :=
     complex_exp_lintegral
   simp_rw [adjointCarleson, haux]
-  have key : ∀ y, (∫ y1 in E p', conj (Ks (𝔰 p') y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) *
-      (∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1)) =
-      ∫ z in E p' ×ˢ E p,
-        conj (Ks (𝔰 p') z.1 y) * exp (I * (Q z.1 z.1 - Q z.1 y)) * g z.1 *
-        (Ks (𝔰 p) z.2 y * exp (I * (-Q z.2 z.2 + Q z.2 y)) * conj (g z.2)) := fun y =>
-    (setIntegral_prod_mul
-      (fun z1 ↦ conj (Ks (𝔰 p') z1 y) * exp (I * (Q z1 z1 - Q z1 y)) * g z1)
-      (fun z2 ↦ Ks (𝔰 p) z2 y * exp (I * (-Q z2 z2 + Q z2 y)) * conj (g z2))
-      (E p') (E p)).symm
-  simp_rw [key]; rw [← setIntegral_univ]
+  simp_rw [show ∀ y, (∫ y1 in E p', conj (Ks (𝔰 p') y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) * (∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1)) = _ from fun y => (setIntegral_prod_mul ..).symm]
+  rw [← setIntegral_univ]
   let f := fun (x, z1, z2) ↦
     conj (Ks (𝔰 p') z1 x) * exp (I * (Q z1 z1 - Q z1 x)) * g z1 *
     (Ks (𝔰 p) z2 x * exp (I * (-Q z2 z2 + Q z2 x)) * conj (g z2))
   have hf : IntegrableOn f (univ ×ˢ E p' ×ˢ E p) (volume.prod (volume.prod volume)) :=
     (boundedCompactSupport_aux_6_2_26 hg hg1).integrable.integrableOn
-  have hf' : IntegrableOn (f ·.swap) ((E p' ×ˢ E p) ×ˢ univ) ((volume.prod volume).prod volume) :=
-    hf.swap
-  change ‖∫ (x : X) in univ,
-      ∫ (z : X × X) in E p' ×ˢ E p, f (x, z) ∂(volume.prod volume) ∂volume‖ₑ ≤ _
-  rw [← setIntegral_prod _ hf, ← setIntegral_prod_swap, setIntegral_prod _ hf', restrict_univ]
-  simp_rw [Prod.swap_prod_mk, ← bound_6_2_26_aux]
+  erw [← setIntegral_prod _ hf, ← setIntegral_prod_swap, setIntegral_prod _ (hf.swap), restrict_univ]
+  simp_rw [← bound_6_2_26_aux]
   exact enorm_integral_le_lintegral_enorm _
 
 -- We assume 6.2.23.

@@ -139,10 +139,8 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   · have hl := (le_or_ge_or_disjoint.resolve_left h2u).resolve_right hd
     rw [disjoint_comm] at hd
     convert this hu₂ hu₁ hu.symm hg₂ hg₁ hd hl using 1
-    · rw [
-        ← RCLike.enorm_conj (z := ∫ x, adjointCarlesonSum _ g₂ x * _),
-        show (starRingEnd ℂ) (∫ x : X, adjointCarlesonSum (t.𝔗 u₂) g₂ x * (starRingEnd ℂ) (adjointCarlesonSum (t.𝔗 u₁) g₁ x)) = ∫ x : X, (starRingEnd ℂ) (adjointCarlesonSum (t.𝔗 u₂) g₂ x * (starRingEnd ℂ) (adjointCarlesonSum (t.𝔗 u₁) g₁ x)) from integral_conj.symm
-      ]
+    · rw [← RCLike.enorm_conj (z := ∫ x, adjointCarlesonSum _ g₂ x * _)]
+      erw [← integral_conj]
       congr
       simp only [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply, mul_comm]
     · rw [inter_comm]; ring

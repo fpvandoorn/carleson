@@ -252,11 +252,13 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
   congr with rle1
   norm_cast
   rw [← Real.enorm_eq_ofReal ha.le]
-  simp_rw [mul_assoc]
-  rw [show ∫ y in {y : ℝ | dist x y ∈ Set.Ioo r 1}, ↑(1 / a) * (f y * (K x y * Complex.exp (Complex.I * (↑n * ↑y)))) = ↑(1 / a) * ∫ y in {y : ℝ | dist x y ∈ Set.Ioo r 1}, f y * (K x y * Complex.exp (Complex.I * (↑n * ↑y))) from integral_const_mul _ _]
-  rw [enorm_mul, ← mul_assoc]
-  rw [← enorm_norm (Complex.ofReal (1 / a)), Complex.norm_real, enorm_norm, ← enorm_mul,
-    mul_one_div_cancel ha.ne', enorm_one, one_mul]
+  simp_rw [
+    mul_assoc,
+    show ∫ _ in _, _ = _ * ∫ y in _, f y * _ from integral_const_mul _ _,
+    enorm_mul, ← mul_assoc,
+    ← enorm_norm (Complex.ofReal (1 / a)), Complex.norm_real, enorm_norm, ← enorm_mul,
+    mul_one_div_cancel ha.ne', enorm_one, one_mul
+  ]
 
 lemma carlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ} (hx : x ∈ Set.Icc a b) : T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
   simp_rw [carlesonOperatorReal]

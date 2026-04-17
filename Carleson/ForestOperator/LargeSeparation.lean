@@ -607,12 +607,7 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     _ = ‖∫ y in E p,
         exp (.I * 𝒬 u x) * (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y) -
         exp (.I * 𝒬 u x') * (conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x')) * f y)‖ₑ := by
-      rw [
-        edist_eq_enorm_sub, adjointCarleson, adjointCarleson,
-        show cexp (I * ↑((𝒬 u) x)) * ∫ y in E p, (starRingEnd ℂ) (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x))) * f y = ∫ y in E p, cexp (I * ↑((𝒬 u) x)) * ((starRingEnd ℂ) (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x))) * f y) from (integral_const_mul ..).symm,
-        show cexp (I * ↑((𝒬 u) x')) * ∫ y in E p, (starRingEnd ℂ) (Ks (𝔰 p) y x') * cexp (I * (↑((Q y) y) - ↑((Q y) x'))) * f y = ∫ y in E p, cexp (I * ↑((𝒬 u) x')) * ((starRingEnd ℂ) (Ks (𝔰 p) y x') * cexp (I * (↑((Q y) y) - ↑((Q y) x'))) * f y) from (integral_const_mul ..).symm,
-        ← integral_sub (integrable_adjointCarleson_interior hf) (integrable_adjointCarleson_interior hf)
-      ]
+      erw [edist_eq_enorm_sub, adjointCarleson, adjointCarleson, ← integral_const_mul, ← integral_const_mul, ← integral_sub (integrable_adjointCarleson_interior hf) (integrable_adjointCarleson_interior hf)]
     _ = ‖∫ y in E p, f y *
           (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x + 𝒬 u x)) -
           conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x' + 𝒬 u x')))‖ₑ := by

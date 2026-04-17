@@ -821,10 +821,7 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   calc
     _ = ‖∫ x, conj (adjointCarlesonSum (t u₁) f₁ x) *
         adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x‖ₑ := by
-      rw [
-        ← RCLike.enorm_conj,
-        show (starRingEnd ℂ) (∫ (x : X), adjointCarlesonSum (t u₁) f₁ x * (starRingEnd ℂ) (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x)) = ∫ (x : X), (starRingEnd ℂ) (adjointCarlesonSum (t u₁) f₁ x * (starRingEnd ℂ) (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x)) from integral_conj.symm
-      ]
+      erw [← RCLike.enorm_conj, ← integral_conj]
       congr! 3 with x
       rw [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
     _ = ‖∫ x, conj (U.indicator (adjointCarlesonSum (t u₁) (U.indicator f₁)) x) *
