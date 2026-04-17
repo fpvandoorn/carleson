@@ -475,8 +475,7 @@ theorem cotlar_control (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport
     _ ≤ ‖czOperator K R g x - czOperator K R g x'‖ₑ + ‖czOperator K R g x'‖ₑ := by
       apply enorm_add_le
     _ = nndist (czOperator K R g x) (czOperator K R g x') + ‖czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ := by
-      simp only [enorm_eq_nnnorm, ← nndist_eq_nnnorm]
-      rw [cut_out_ball hr hx]
+      rw [enorm_eq_nnnorm, ← nndist_eq_nnnorm, cut_out_ball hr hx]
     _ ≤ C10_1_2 a * globalMaximalFunction volume 1 g x + (‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ + ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ) := by
       gcongr
       · apply estimate_x_shift ha hg R_pos

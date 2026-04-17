@@ -1299,7 +1299,7 @@ private lemma integral_g (hf : BoundedFiniteSupport f) (hα : 0 < α) (hX : Gene
   by_cases! hj : czRadius hX j ≤ 0
   · simp [Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hj]
   rw [integral_sub (integrableOn_g₀ hf hα hX j) (integrableOn_d hX j)]
-  simp only [d, setAverage_eq, integral_const, smul_smul, measureReal_restrict_apply_univ, mul_inv_cancel₀ (measureReal_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne', one_smul, sub_self]
+  simp [d, setAverage_eq, smul_smul, mul_inv_cancel₀ (measureReal_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne']
 
 private lemma lintegral_enorm_half_g (hf : BoundedFiniteSupport f) (hα : 0 < α)
     (hX : GeneralCase f (α' a α)) (j : ℕ) :

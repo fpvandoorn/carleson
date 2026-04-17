@@ -816,7 +816,7 @@ private lemma L7_1_6_integral_eq {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
     · simp_rw [average_smul_const, integral_smul_const, integral_smul, average_eq]
       have h : ∀ (A B : ℂ) (r : ℝ), A • r • B = (r • A) • B := by
         intro A B r
-        simp only [smul_eq_mul, Complex.real_smul]
+        simp
         ring
       exact h ..
   -- Check integrability to justify the last use of `integral_sub`

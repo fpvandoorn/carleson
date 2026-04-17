@@ -142,7 +142,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
     · rw [← RCLike.enorm_conj (z := ∫ x, adjointCarlesonSum _ g₂ x * _)]
       erw [← integral_conj]
       congr
-      simp only [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply, mul_comm]
+      simp [mul_comm]
     · rw [inter_comm]; ring
   exact correlation_separated_trees_of_subset hu₁ hu₂ hu h2u hg₁ hg₂
 

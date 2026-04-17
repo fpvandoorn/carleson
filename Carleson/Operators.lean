@@ -362,8 +362,7 @@ lemma adjointCarleson_adjoint
   calc
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
       congr 1; ext x; congr 1
-      simp only [carlesonOn]
-      rw [indicator_eq_indicator_one_mul, ← smul_eq_mul, ← integral_smul]
+      rw [carlesonOn, indicator_eq_indicator_one_mul, ← smul_eq_mul, ← integral_smul]
       congr 1; ext y; unfold MKD; simp [smul_eq_mul]; ring
     _ = ∫ x, ∫ y, H x y := by
       unfold H; congr 1; ext x

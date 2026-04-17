@@ -36,8 +36,7 @@ lemma χtilde_pos_iff : 0 < χtilde J u₁ x ↔ x ∈ 𝓘 u₁ ∧ x ∈ ball 
   · rw [indicator_of_notMem h]
     apply Iff.intro
     · simp
-    · simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, defaultD, Nat.cast_pow, Nat.cast_ofNat,
-      mem_ball, lt_self_iff_false, imp_false, not_and, not_lt]
+    · simp only [lt_self_iff_false, imp_false, not_and]
       intro h1
       exfalso
       exact h h1
@@ -1232,9 +1231,9 @@ lemma global_tree_control1_edist_part1
     _ ≤ ∑ p ∈ ℭ, edist (exp (.I * 𝒬 u x) * adjointCarleson p f x)
         (exp (.I * 𝒬 u x') * adjointCarleson p f x') := by
       simp_rw [adjointCarlesonSum, Finset.mul_sum]
-      have heq : Finset.univ.filter (· ∈ ℭ) = ℭ.toFinset :=
-        Finset.ext (fun x => by simp only [Finset.mem_filter, Finset.mem_univ, true_and,
-          Set.mem_toFinset])
+      have heq : Finset.univ.filter (· ∈ ℭ) = ℭ.toFinset := by
+        ext x
+        simp only [Finset.mem_filter, Finset.mem_univ, true_and, Set.mem_toFinset]
       rw [heq]
       exact ENNReal.edist_sum_le_sum_edist
     _ = ∑ p ∈ ℭ with ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (16 * D ^ s J)),

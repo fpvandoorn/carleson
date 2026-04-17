@@ -92,9 +92,7 @@ lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {c : ℂ} {
 @[simp]
 lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {n : ℤ} :
     fourierCoeffOn hab (-f) n = - (fourierCoeffOn hab f n):= by
-  simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
-    fourier_coe_apply', Complex.ofReal_sub, Pi.neg_apply, smul_eq_mul, mul_neg,
-    intervalIntegral.integral_neg, smul_neg]
+  simp [fourierCoeffOn_eq_integral]
 
 @[simp]
 lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}

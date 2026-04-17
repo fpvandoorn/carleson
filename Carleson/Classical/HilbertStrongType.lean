@@ -437,7 +437,7 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
     _ = (↑π)⁻¹ * 2⁻¹ * ∫ (x_1 : ℝ) in 0..2 * π, f x_1 * ((↑n)⁻¹ * (dirichletKernel i (x - x_1) * cexp (I * ↑i * (↑x - ↑x_1)))) := by
       congr
       ext y
-      simp only [modulationOperator, Int.cast_neg, Int.cast_natCast, mul_neg, neg_mul, mul_sub, exp_sub, div_eq_inv_mul, ← exp_neg]
+      simp [modulationOperator, mul_sub, exp_sub, div_eq_inv_mul, exp_neg]
       ring
 
 /-- The convolution with `dirichletApprox` is controlled on `(0, 2π]` in `L^2` norm. This
