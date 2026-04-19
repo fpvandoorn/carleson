@@ -1,6 +1,7 @@
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Integral.Layercake
 import Carleson.ToMathlib.Distribution
+import Carleson.ToMathlib.NoAtoms
 
 noncomputable section
 
@@ -1034,15 +1035,8 @@ lemma lintegral_rearrangement_eq'' {ε} [TopologicalSpace ε] [ContinuousENorm �
     -/
 -/
 
---TODO: not true with the current mathlib definition of mathlib which should be changed to the
---more common definition implying the theorem
-theorem NoAtoms.exists_between₀ [NoAtoms μ] {s t : Set α}
-  (hs : NullMeasurableSet s μ) (hs : NullMeasurableSet t μ)
-  {x : ℝ≥0∞} (lb : μ s ≤ x) (ub : x ≤ μ t) :
-    ∃ E, NullMeasurableSet E μ ∧ s ⊆ E ∧ E ⊆ t ∧ μ E = x := sorry
-
 --Theorem 4.17 in https://doi.org/10.1007/978-3-319-30034-4
-lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε] [NoAtoms μ] {f : α → ε}
+lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε] [NoAtoms' μ] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} :
     ∫⁻ s in Set.Iio t, rearrangement f s μ = ⨆ (E : Set α) (_ : NullMeasurableSet E μ) (_ : μ E ≤ t), ∫⁻ x in E, ‖f x‖ₑ ∂μ := by
   rw [lintegral_rearrangement_eq']
@@ -1074,8 +1068,8 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
         have ub : t ≤ μ (superlevelSet f a) := by
           rw [lt_rearrangement_iff] at ha
           exact ha.le
-        apply NoAtoms.exists_between₀ (nullMeasurableSet_superlevelSet hf)
-          (nullMeasurableSet_superlevelSet hf) lb ub
+        apply NoAtoms'.exists_between₀ (nullMeasurableSet_superlevelSet hf)
+          (nullMeasurableSet_superlevelSet hf) (superlevelSet_antitone ha.le) lb ub
       rcases this with ⟨E, measE, hE, hE', hμE⟩
       apply le_iSup_of_le E
       apply le_iSup_of_le measE
@@ -1154,7 +1148,7 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
       gcongr
       exact Set.inter_subset_left
 
-lemma lintegral_rearrangement_eq_and {ε} [TopologicalSpace ε] [ContinuousENorm ε] [NoAtoms μ] {f : α → ε}
+lemma lintegral_rearrangement_eq_and {ε} [TopologicalSpace ε] [ContinuousENorm ε] [NoAtoms' μ] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} :
     ∫⁻ s in Set.Iio t, rearrangement f s μ = ⨆ (E : Set α) (_ : NullMeasurableSet E μ ∧ μ E ≤ t), ∫⁻ x in E, ‖f x‖ₑ ∂μ := by
   rw [lintegral_rearrangement_eq hf]
@@ -1429,7 +1423,7 @@ lemma lintegral_rearrangement_eq''' {ε} [TopologicalSpace ε] [ContinuousENorm 
 -- with the unit interval (equipped with the Lebesgue measure)
 --Remark 4.18 in https://doi.org/10.1007/978-3-319-30034-4
 lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral {ε}
-  [TopologicalSpace ε] [ESeminormedAddMonoid ε] [ContinuousAdd ε] [NoAtoms μ] {f g : α → ε}
+  [TopologicalSpace ε] [ESeminormedAddMonoid ε] [ContinuousAdd ε] [NoAtoms' μ] {f g : α → ε}
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) {t : ℝ≥0∞} :
       ∫⁻ (s : ℝ≥0∞) in Set.Iio t, rearrangement (f + g) s μ
         ≤ (∫⁻ (s : ℝ≥0∞) in Set.Iio t, rearrangement f s μ)
