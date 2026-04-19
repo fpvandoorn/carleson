@@ -93,6 +93,25 @@ theorem exists_measurable_subset_lt {s : Set α} (hs : MeasurableSet s) (hs' : 0
   rw [this]
   use ht, hts
 
+theorem exists_measurable_between {s t : Set α}
+  (hs : MeasurableSet s) (ht : MeasurableSet t) (h : s ⊆ t) (h' : μ s < μ t) :
+    ∃ u, MeasurableSet u ∧ s ⊆ u ∧ u ⊆ t ∧ μ s < μ u ∧ μ u < μ t:= by
+  have : 0 < μ (t \ s) := by
+    calc _
+      _ < μ t - μ s := by
+        simpa
+      _ ≤ _ := le_measure_diff
+  rcases exists_measurable_subset_lt (by measurability) this with ⟨v, hv, meas_v, v_pos, v_lt⟩
+  use v ∪ s, by measurability, subset_union_right, by simp [h, subset_diff.mp hv]
+  have : v \ s = v := by grind
+  constructor
+  · rw [← diff_union_self, measure_union disjoint_sdiff_left hs, this, add_comm]
+    exact ENNReal.lt_add_right h'.ne_top v_pos.ne'
+  · rw [← diff_union_self, measure_union disjoint_sdiff_left hs,
+        ← diff_union_of_subset h, measure_union disjoint_sdiff_left hs, this]
+    apply ENNReal.add_lt_add_right h'.ne_top v_lt
+
+
 --#check PartialOrder.lift
 --#check PartialOrder.ofSetLike
 
@@ -193,10 +212,12 @@ lemma PFun.forall_existsUnique_iff {β : Type*} {r : α → β → Prop} :
 -/
 
 theorem PFun.graph_injective {β : Type*} : Function.Injective (@PFun.graph α β) := by
-  sorry
+  intro f g hfg
+  ext a b
+  exact Set.ext_iff.mp hfg (a, b)
 
-theorem PFun.graph'_injective {β : Type*} : Function.Injective (@PFun.graph' α β) := by
-  sorry
+theorem PFun.graph'_injective {β : Type*} : Function.Injective (@PFun.graph' α β) :=
+  PFun.graph_injective
 
 
 --#check CompleteLattice
@@ -302,17 +323,125 @@ theorem PFun.exists_fn_of_fn_sSup {β : Type*} {fs : Set (α →. β)} (h : IsCh
   symm
   apply fn_apply_eq_fn_apply_of_le (le_sSup h hf)
 
+--#check Monotone
+
+open Classical in
+noncomputable def PFun.insert {β : Type*} (f : α →. β) (a : α) (b : β) : α →. β :=
+  fun x ↦ if x = a then b else f x
+
+@[simp]
+theorem PFun.Dom_insert {β : Type*} {f : α →. β} {a : α} {b : β} :
+    (PFun.insert f a b).Dom = f.Dom.insert a := by
+  unfold PFun.insert PFun.Dom Set.insert
+  ext x
+  simp only [Part.coe_some, mem_setOf_eq]
+  split_ifs with hx <;> simp [hx]
+
+def PFun.Monotone [Preorder α] {β : Type*} [Preorder β] (f : α →. β) :=
+  ∀ ⦃a b⦄ (ha : a ∈ f.Dom) (hb : b ∈ f.Dom), a ≤ b → f.fn a ha ≤ f.fn b hb
+
+theorem PFun.Monotone.Monotone [Preorder α] {β : Type*} [Preorder β] {f : α →. β}
+  (hf : Monotone f) :
+    _root_.Monotone (fun x : f.Dom ↦ f.fn x x.2) := by
+  intro x y hxy
+  apply hf
+  simpa
+
+
+theorem PFun.Monotone.insert [Preorder α] {β : Type*} [Preorder β] {f : α →. β}
+  (hf : PFun.Monotone f) {a : α} {b : β}
+  (hb : ∀ x ≤ a, ∀ (hx : x ∈ f.Dom), f.fn x hx ≤ b)
+  (hb' : ∀ x ≥ a, ∀ (hx : x ∈ f.Dom), b ≤ f.fn x hx) :
+    PFun.Monotone (PFun.insert f a b) := by
+  intro x y hx hy hxy
+  rw [PFun.Dom_insert, Set.insert] at hx hy
+  unfold PFun.insert
+  simp only [Part.coe_some, PFun.fn_apply]
+  split_ifs with hx
+  · simp only [Part.get_some]
+    split_ifs with hy
+    · simp
+    · apply hb'
+      rwa [← hx]
+  · by_cases hy : y = a
+    · simp only [hy, ↓reduceIte, Part.get_some]
+      apply hb
+      rwa [← hy]
+    · simp only [hy, ↓reduceIte]
+      apply hf
+      exact hxy
+
 /-
 noncomputable instance {β : Type*} : CompleteSemilatticeSup (α →. β) where
   le_sSup s a hs := sorry
   sSup_le b hb := sorry
 -/
 
+--TODO: move
+instance TopologicalSpace.SeparableSpace.subtype {X : Type*} [TopologicalSpace X] [SeparableSpace X]
+    [PseudoMetrizableSpace X] {s : Set X} : SeparableSpace ↑s :=
+  (IsSeparable.of_separableSpace s).separableSpace
+
+/-
+instance [TopologicalSpace α] [Preorder α] [OrderTopology α] {p : α → Prop} : OrderTopology (Subtype p) := by
+  constructor
+  refine Eq.symm (TopologicalSpace.ext ?_)
+  unfold IsOpen TopologicalSpace.IsOpen instTopologicalSpaceSubtype
+  sorry
+-/
+  --refine Eq.symm ((fun {X} {t t'} ↦ TopologicalSpace.ext_iff.mpr) ?_)
+  /-
+  have this : Continuous fun p : Subtype p × Subtype p => ((p.fst : α), (p.snd : α)) :=
+    continuous_subtype_val.prodMap continuous_subtype_val
+  OrderClosedTopology.mk (t.isClosed_le'.preimage this)
+  -/
+
+--TODO: move
+instance ClosedIicTopology.subtype [TopologicalSpace α] [Preorder α] [ClosedIicTopology α] {p : α → Prop} :
+    ClosedIicTopology (Subtype p) where
+  isClosed_Iic := by
+    intro a
+    rw [← preimage_subtype_val_Iic]
+    exact isClosed_induced isClosed_Iic
+
+--TODO: move
+instance instIsCountablyGenerated_atTop [TopologicalSpace α] [LinearOrder α] [ClosedIicTopology α] [SeparableSpace α] :
+    IsCountablyGenerated (atTop : Filter α) := by
+  obtain (h | ⟨x, hx⟩) := Set.eq_empty_or_nonempty {x : α | IsTop x}
+  · obtain ⟨s, s_count, hs⟩ := exists_countable_dense α
+    have : atTop = generate (Ici '' s) := by
+      refine atTop_eq_generate_of_not_bddAbove fun ⟨x, hx⟩ ↦ ?_
+      simp only [eq_empty_iff_forall_notMem, IsTop, mem_setOf_eq, not_forall, not_le] at h
+      obtain ⟨y, hy, hxy⟩ := hs.exists_mem_open isOpen_Ioi (h x)
+      exact (hx hy).not_gt hxy
+    rw [this]
+    exact ⟨_, s_count.image _, rfl⟩
+  · rw [atTop_eq_pure_of_isTop hx]
+    exact isCountablyGenerated_pure x
+
+--TODO: move
+instance instIsCountablyGenerated_atBot [TopologicalSpace α] [LinearOrder α] [ClosedIciTopology α] [SeparableSpace α] :
+    IsCountablyGenerated (atBot : Filter α) :=
+  @NoAtoms'.instIsCountablyGenerated_atTop αᵒᵈ _ _ _ _
+
+/-
+--TODO: move
+theorem Dense.ciSup' {γ : Type*} {α : Type*} [TopologicalSpace α] [ConditionallyCompleteLinearOrder α]
+  [ClosedIicTopology α] {f : γ → α} [TopologicalSpace γ] {S : Set γ} (hS : Dense S) (hf : Continuous f) {x : γ} :
+    ⨆ (s : S) (hs : s ≤ x), ↑s = ⨆ i, f i := by
+  sorry
+-/
+
+theorem ENNReal.induction {p : ENNReal → Prop} (h_bot : p ⊥) (h_top : p ⊤)
+  (h_iSup : ∀ t, p (⨆ (x ≤ t) (hx : p x), x)) (h_iInf : ∀ t, p (⨅ (x ≥ t) (hx : p x), x))
+  (h_between : ∀ x y, p x → p y → ∃ z, x < z ∧ z < y ∧ p z) :
+    ∀ x, p x := by
+  sorry
+
 theorem exists_measurable_sets_measure_eq {s t : Set α} :
-    ∃ Ts : ENNReal → Set α, Monotone Ts ∧ ∀ x ≤ μ univ, MeasurableSet (Ts x) ∧ μ (Ts x) = x := by
-  set Γ := {S : ENNReal →. (Set α) |
-    ∀ x (hx : x ∈ S.Dom), MeasurableSet (S.fn x hx) ∧ μ (S.fn x hx) = x ∧
-      ∀ y (hy : y ∈ S.Dom), x ≤ y → S.fn x hx ⊆ S.fn y hy}
+    ∃ Ts : Set.Iic (μ univ) → Set α, Monotone Ts ∧ ∀ x, MeasurableSet (Ts x) ∧ μ (Ts x) = x := by
+  set Γ := {S : Set.Iic (μ univ) →. (Set α) | PFun.Monotone S ∧
+    ∀ x (hx : x ∈ S.Dom), MeasurableSet (S.fn x hx) ∧ μ (S.fn x hx) = x}
   have : ∃ S ∈ Γ, ∀ T ∈ Γ, S ≤ T → T ≤ S := by
     apply zorn_le₀
     intro Ts hTs hTs'
@@ -320,60 +449,135 @@ theorem exists_measurable_sets_measure_eq {s t : Set α} :
     constructor
     · unfold Γ
       simp only [PFun.mem_dom, forall_exists_index, mem_setOf_eq]
-      intro x T hT
-      rcases PFun.exists_fn_of_fn_sSup hTs' (PFun.mem_dom_of_mem hT) with ⟨f, hf, hfx, h⟩
-      have hfΓ := hTs hf
-      unfold Γ at hfΓ
-      simp only [mem_setOf_eq] at hfΓ --PFun.mem_dom, PFun.fn_apply, forall_exists_index,
-      rw [h]
-      use (hfΓ x hfx).1, (hfΓ x hfx).2.1
-      intro y R hR hxy
-      rcases PFun.exists_fn_of_fn_sSup hTs' (PFun.mem_dom_of_mem hR) with ⟨g, hg, hgy, h'⟩
-      have hgΓ := hTs hg
-      unfold Γ at hgΓ
-      simp only [mem_setOf_eq] at hgΓ --PFun.mem_dom, PFun.fn_apply, forall_exists_index,
-      rw [h']
-      by_cases! hfg : f = g
-      · grind
-      rcases hTs' hf hg hfg with h | h
-      · rw [PFun.fn_apply_eq_fn_apply_of_le h hfx]
-        exact (hgΓ x _).2.2 _ _ hxy
-      · rw [PFun.fn_apply_eq_fn_apply_of_le h hgy]
-        exact (hfΓ x _).2.2 _ _ hxy
+      constructor
+      · intro x y hx hy hxy
+        simp only [le_eq_subset]
+        rcases PFun.exists_fn_of_fn_sSup hTs' hx with ⟨f, hf, hfx, h⟩
+        rcases PFun.exists_fn_of_fn_sSup hTs' hy with ⟨g, hg, hgy, h'⟩
+        have hfΓ := hTs hf
+        unfold Γ at hfΓ
+        have hgΓ := hTs hg
+        unfold Γ at hgΓ
+        simp only [mem_setOf_eq] at hfΓ hgΓ --PFun.mem_dom, PFun.fn_apply, forall_exists_index,
+        rw [h, h']
+        by_cases! hfg : f = g
+        · simp only [hfg]
+          rw [hfg] at hfx
+          exact hgΓ.1 _ _ hxy
+        rcases hTs' hf hg hfg with h | h
+        · rw [PFun.fn_apply_eq_fn_apply_of_le h hfx]
+          --have hxy : (⟨x.1, PFun.Dom_mono h hfx⟩ : g.Dom) ≤ ⟨y.1, hgy⟩ := by simpa
+          exact hgΓ.1 _ _ hxy
+        · rw [PFun.fn_apply_eq_fn_apply_of_le h hgy]
+          --have hxy : (⟨x.1, hfx⟩ : f.Dom) ≤ ⟨y.1, PFun.Dom_mono h hgy⟩ := by simpa
+          exact hfΓ.1 _ _ hxy
+      · intro x T hT
+        rcases PFun.exists_fn_of_fn_sSup hTs' (PFun.mem_dom_of_mem hT) with ⟨f, hf, hfx, h⟩
+        have hfΓ := hTs hf
+        unfold Γ at hfΓ
+        simp only [mem_setOf_eq] at hfΓ --PFun.mem_dom, PFun.fn_apply, forall_exists_index,
+        rw [h]
+        use (hfΓ.2 x hfx).1, (hfΓ.2 x hfx).2
     · intro f hf
       apply PFun.le_sSup hTs' hf
   rcases this with ⟨S, hSΓ, S_maximal⟩
   unfold Γ at hSΓ
   simp only [mem_setOf_eq] at hSΓ
-  have S_total : ∀ x ≤ μ univ, x ∈ S.Dom := by
-    intro x hx
-    let s := ⋃ y ≤ x, ⨆ (hy : y ∈ S.Dom), S.fn y hy
-    have hsx : μ s = x := by
-      --rw [Antitone.measure_iUnion]
-      --rw [measure_iUnion_of_tendsto_zero]
-      --rw [Monotone.measure_iInter]
-      --apply tendsto_measure_iUnion_atTop
-      --apply tendsto_measure_biInter_gt
-      sorry
-    /-
-    let t := ⋃ y ≥ x, ⨆ (hx' : x ≤ μ univ) (hx : x ∈ S.Dom), S.fn x hx
-    have htx : x ≤ μ t := by
-      sorry
-    -/
-    have hsx' : x ≤ μ s := by
-      sorry
-    sorry
-    --TODO: use NoAtoms' and S_maximal
-  use fun x ↦ if hx : x ≤ μ univ then S.fn x (S_total x hx) else univ
+  /-
+  have dense_S_Dom : Dense S.Dom := by
+    by_cases h : Nontrivial ↑(Iic (μ univ))
+    · #check DenselyOrdered
+      apply dense_of_exists_between
+      intro x y hxy
+      have : MeasurableSet (S.fn x x.2) := by
+        sorry
+      rcases exists_measurable_between
+
+    · sorry
+  -/
+  have S_total : ∀ x, x ∈ S.Dom := by
+    intro x
+    contrapose! S_maximal
+    --let dom := S.Dom
+    let s := ⋃ (y : S.Dom) (hyx : y ≤ x), S.fn y y.2
+    let T : Set.Iic (μ univ) →. Set α := PFun.insert S x s
+    use T
+    constructor
+    · unfold T Γ
+      constructor
+      · apply PFun.Monotone.insert hSΓ.1
+        · intro y hyx hy
+          unfold s
+          apply subset_iUnion_of_subset (⟨y, hy⟩ : S.Dom)
+          apply subset_iUnion_of_subset hyx
+          rfl
+        · intro y hxy hy
+          apply iUnion_subset
+          intro t
+          apply iUnion_subset
+          intro ht
+          apply hSΓ.1 _ _ (ht.trans hxy)
+      intro y hy
+      simp only [PFun.fn_apply]
+      unfold PFun.insert
+      split_ifs with hyx
+      · let helper := S.Dom ∩ (Set.Iic x)
+        have : s = ⋃ (y : helper), S.fn y y.2.1 := by
+          unfold s
+          apply le_antisymm
+          · apply iSup_le
+            intro y
+            apply iSup_le
+            intro hyx
+            apply le_iSup_of_le ⟨y, ⟨y.2, hyx⟩⟩
+            rfl
+          · apply iSup_le
+            intro y
+            apply le_iSup_of_le ⟨y, y.2.1⟩
+            apply le_iSup_of_le y.2.2
+            rfl
+        simp only [Part.coe_some, Part.get_some]
+        rw [this]
+        have mono_S : Monotone (fun y : helper ↦ S.fn y y.2.1) := by
+          intro x y hxy
+          apply hSΓ.1
+          simpa
+        constructor
+        · apply MeasurableSet.iUnion_of_monotone mono_S
+          intro y
+          exact (hSΓ.2 y y.2.1).1
+        · rw [Monotone.measure_iUnion mono_S]
+          conv in μ _ => rw [(hSΓ.2 i i.2.1).2]
+          rw [hyx]
+          /-
+          calc _
+            _ = ⨆ (y : S.Dom), ↑y := by
+              sorry
+          -/
+          apply le_antisymm
+          · apply iSup_le
+            intro y
+            exact y.2.2
+          · rw [Dense.ciSup' _ continuous_subtype_val]
+            · sorry
+            · sorry
+            #check Dense.ciSup'
+
+      · simp only [PFun.Dom_insert, Set.insert, mem_setOf_eq, hyx, false_or] at hy
+        exact (hSΓ.2 y hy)
+    · unfold T PFun.insert
+      rw [PFun.le_iff', PFun.le_iff']
+      constructor
+      · aesop
+      · simp only [not_forall]
+        use x
+        aesop
+  use fun x : Set.Iic (μ univ) ↦ S.fn x (S_total x)
   constructor
   · intro x y hxy
-    simp only [le_eq_subset]
-    split_ifs with hx hy
-    · use (hSΓ x (S_total x hx)).2.2 y (S_total y hy) hxy
-    all_goals grind
-  intro x hx
-  simp only [hx, ↓reduceDIte]
-  use (hSΓ x (S_total x hx)).1, (hSΓ x (S_total x hx)).2.1
+    exact hSΓ.1 _ _ hxy
+  · intro x
+    exact hSΓ.2 x (S_total x)
 
 
 
