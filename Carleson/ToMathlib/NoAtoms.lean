@@ -337,6 +337,27 @@ theorem PFun.Dom_insert {β : Type*} {f : α →. β} {a : α} {b : β} :
   simp only [Part.coe_some, mem_setOf_eq]
   split_ifs with hx <;> simp [hx]
 
+theorem PFun.lt_insert {β : Type*} {f : α →. β} {a : α} {b : β} (ha : a ∉ f.Dom) :
+    f ≤ PFun.insert f a b ∧ ¬PFun.insert f a b ≤ f := by
+  unfold PFun.insert
+  constructor
+  · rw [PFun.le_iff']
+    aesop
+  · rw [PFun.le_iff', not_forall]
+    use a
+    aesop
+
+theorem PFun.Prop_insert {β : Type*} {f : α →. β} {a : α} {b : β} {p : α → β → Prop}
+  (hf : ∀ x, ∀ (hx : x ∈ f.Dom), p x (f.fn x hx)) (hb : p a b) :
+    let g := PFun.insert f a b;
+    ∀ x, ∀ (hx : x ∈ g.Dom), p x (g.fn x hx) := by
+  intro g x hx
+  unfold g PFun.insert
+  simp only [Part.coe_some, PFun.fn_apply]
+  split_ifs with hxa
+  · simpa [hxa]
+  · apply hf
+
 def PFun.Monotone [Preorder α] {β : Type*} [Preorder β] (f : α →. β) :=
   ∀ ⦃a b⦄ (ha : a ∈ f.Dom) (hb : b ∈ f.Dom), a ≤ b → f.fn a ha ≤ f.fn b hb
 
@@ -370,6 +391,8 @@ theorem PFun.Monotone.insert [Preorder α] {β : Type*} [Preorder β] {f : α �
     · simp only [hy, ↓reduceIte]
       apply hf
       exact hxy
+
+
 
 /-
 noncomputable instance {β : Type*} : CompleteSemilatticeSup (α →. β) where
@@ -438,6 +461,20 @@ theorem ENNReal.induction {p : ENNReal → Prop} (h_bot : p ⊥) (h_top : p ⊤)
     ∀ x, p x := by
   sorry
 
+protected theorem iInter_of_monotone_of_frequently
+    {ι : Type*} [Preorder ι] [(atBot : Filter ι).IsCountablyGenerated] {s : ι → Set α}
+    (hsm : Monotone s) (hs : ∃ᶠ i in atBot, MeasurableSet (s i)) : MeasurableSet (⋂ i, s i) := by
+  rcases exists_seq_forall_of_frequently hs with ⟨x, hx, hxm⟩
+  rw [← hsm.iInter_comp_tendsto_atBot hx]
+  exact .iInter hxm
+
+protected theorem iInter_of_monotone {ι : Type*} [Preorder ι] [IsCodirectedOrder ι]
+    [(atBot : Filter ι).IsCountablyGenerated] {s : ι → Set α}
+    (hsm : Monotone s) (hs : ∀ i, MeasurableSet (s i)) : MeasurableSet (⋂ i, s i) := by
+  cases isEmpty_or_nonempty ι with
+  | inl _ => simp
+  | inr _ => exact MeasureTheory.NoAtoms'.iInter_of_monotone_of_frequently hsm <| .of_forall hs
+
 theorem exists_measurable_sets_measure_eq {s t : Set α} :
     ∃ Ts : Set.Iic (μ univ) → Set α, Monotone Ts ∧ ∀ x, MeasurableSet (Ts x) ∧ μ (Ts x) = x := by
   set Γ := {S : Set.Iic (μ univ) →. (Set α) | PFun.Monotone S ∧
@@ -483,23 +520,164 @@ theorem exists_measurable_sets_measure_eq {s t : Set α} :
   rcases this with ⟨S, hSΓ, S_maximal⟩
   unfold Γ at hSΓ
   simp only [mem_setOf_eq] at hSΓ
-  /-
-  have dense_S_Dom : Dense S.Dom := by
-    by_cases h : Nontrivial ↑(Iic (μ univ))
-    · #check DenselyOrdered
-      apply dense_of_exists_between
-      intro x y hxy
-      have : MeasurableSet (S.fn x x.2) := by
-        sorry
-      rcases exists_measurable_between
-
-    · sorry
-  -/
   have S_total : ∀ x, x ∈ S.Dom := by
     intro x
-    contrapose! S_maximal
     --let dom := S.Dom
     let s := ⋃ (y : S.Dom) (hyx : y ≤ x), S.fn y y.2
+    let t := ⋂ (y : S.Dom) (hyx : y ≥ x), S.fn y y.2
+    let s_helper := S.Dom ∩ (Set.Iic x)
+    have s_eq : s = ⋃ (y : s_helper), S.fn y y.2.1 := by
+      unfold s
+      apply le_antisymm
+      · apply iSup_le
+        intro y
+        apply iSup_le
+        intro hyx
+        apply le_iSup_of_le ⟨y, ⟨y.2, hyx⟩⟩
+        rfl
+      · apply iSup_le
+        intro y
+        apply le_iSup_of_le ⟨y, y.2.1⟩
+        apply le_iSup_of_le y.2.2
+        rfl
+    have mono_S : Monotone (fun y : s_helper ↦ S.fn y y.2.1) := by
+      intro x y hxy
+      apply hSΓ.1
+      simpa
+    have meas_s : MeasurableSet s := by
+      rw [s_eq]
+      apply MeasurableSet.iUnion_of_monotone mono_S
+      intro y
+      exact (hSΓ.2 y y.2.1).1
+    let t_helper := S.Dom ∩ (Set.Ici x)
+    have t_eq : t = ⋂ (y : t_helper), S.fn y y.2.1 := by
+      unfold t
+      apply le_antisymm
+      · apply le_iInf
+        intro y
+        apply iInf_le_of_le ⟨y, y.2.1⟩
+        apply iInf_le_of_le y.2.2
+        rfl
+      · apply le_iInf
+        intro y
+        apply le_iInf
+        intro hyx
+        apply iInf_le_of_le ⟨y, ⟨y.2, hyx⟩⟩
+        rfl
+    have mono_T : Monotone (fun y : t_helper ↦ S.fn y y.2.1) := by
+      intro x y hxy
+      apply hSΓ.1
+      simpa
+    have meas_t : MeasurableSet t := by
+      rw [t_eq]
+      apply MeasureTheory.NoAtoms'.iInter_of_monotone mono_T
+      intro y
+      exact (hSΓ.2 y y.2.1).1
+    have hs : μ s ≤ x := by
+      rw [s_eq]
+      rw [Monotone.measure_iUnion mono_S]
+      apply iSup_le
+      intro y
+      rw [(hSΓ.2 y y.2.1).2]
+      exact y.2.2
+    have μt : μ t = ⨅ y : t_helper, μ (S.fn y y.2.1) := by
+      rw [t_eq]
+      --TODO: the following should probably be put into some lemma
+      --TODO: might not be true in all special cases
+      by_cases h : ∃ i : t_helper, μ (S.fn i i.2.1) ≠ ⊤
+      · rw [Monotone.measure_iInter mono_T _ h]
+        intro y
+        exact (hSΓ.2 y y.2.1).1.nullMeasurableSet
+      · push_neg at h
+        convert Eq.refl ⊤
+        · have : t_helper ⊆ {⊤} := by
+            intro y hy
+            simp only [mem_singleton_iff]
+            have := (hSΓ.2 y hy.1).2
+            rw [h ⟨y, hy⟩] at this
+            refine Eq.symm (SetCoe.ext ?_)
+            rw [← this]
+            simp
+            sorry
+          rw [eq_top_iff]
+          sorry
+        · by_cases h' : Nonempty t_helper
+          · convert iInf_const with y
+            · exact h y
+            exact h'
+          · rw [not_nonempty_iff] at h'
+            rw [iInf_of_empty]
+    /-
+    have : ∃ i : t_helper, μ (S.fn i i.2.1) ≠ ⊤ := by
+      contrapose! S_maximal
+      simp at S_maximal
+    -/
+    have ht : x ≤ μ t := by
+      rw [μt]
+      apply le_iInf
+      intro y
+      rw [(hSΓ.2 y y.2.1).2]
+      exact y.2.2
+    have hst : μ t ≤ μ s := by
+      contrapose! S_maximal
+      obtain ⟨u, meas_u, su, ut, μsu, μut⟩ : ∃ u, MeasurableSet u ∧ s ⊆ u ∧ u ⊆ t ∧ μ s < μ u ∧ μ u < μ t := by
+        apply exists_measurable_between meas_s meas_t _ S_maximal
+        rw [s_eq, t_eq]
+        intro a
+        simp only [mem_iUnion, mem_iInter, forall_exists_index]
+        intro y hy z
+        apply hSΓ.1 y.2.1 _ (y.2.2.trans z.2.2)
+        exact hy
+      use PFun.insert S ⟨μ u, measure_mono (subset_univ _)⟩ u
+      constructor
+      · constructor
+        · apply PFun.Monotone.insert hSΓ.1
+          · intro y hyu hy
+            have hyx : y ≤ x := by
+              contrapose! hyu
+              have : y = ⟨y, y.2⟩ := rfl
+              rw [this, Subtype.mk_lt_mk]
+              rw [← (hSΓ.2 y hy).2]
+              apply μut.trans_le
+              apply measure_mono
+              apply iInter_subset_of_subset ⟨y, hy⟩
+              apply iInter_subset_of_subset (by simp [hyu.le])
+              rfl
+            apply su.trans'
+            apply subset_iUnion_of_subset ⟨y, hy⟩
+            apply subset_iUnion_of_subset (by simpa)
+            rfl
+          · intro y huy hy
+            have hxy : x ≤ y := by
+              contrapose! huy
+              have : y = ⟨y, y.2⟩ := rfl
+              rw [this, Subtype.mk_lt_mk]
+              rw [← (hSΓ.2 y hy).2]
+              apply μsu.trans_le'
+              apply measure_mono
+              apply subset_iUnion_of_subset ⟨y, hy⟩
+              apply subset_iUnion_of_subset (by simp [huy.le])
+              rfl
+            apply ut.trans
+            apply iInter_subset_of_subset ⟨y, hy⟩
+            apply iInter_subset_of_subset (by simpa)
+            rfl
+        · apply PFun.Prop_insert (p := fun (t : Set.Iic (μ univ)) St ↦ MeasurableSet St ∧ μ St = t) hSΓ.2
+          use meas_u
+      apply PFun.lt_insert
+      --TODO: main case
+      rcases le_or_gt (μ u) x with hux | hux
+      · contrapose! μsu
+        rw [s_eq]
+        rw [Monotone.measure_iUnion mono_S]
+        apply le_iSup_of_le ⟨⟨μ u, _⟩, ⟨μsu, hux⟩⟩
+        rw [(hSΓ.2 _ μsu).2]
+      · contrapose! μut
+        rw [μt]
+        apply iInf_le_of_le ⟨⟨μ u, _⟩, ⟨μut, hux.le⟩⟩
+        rw [(hSΓ.2 _ μut).2]
+    have hs : μ s = x := le_antisymm hs (ht.trans hst)
+    contrapose! S_maximal
     let T : Set.Iic (μ univ) →. Set α := PFun.insert S x s
     use T
     constructor
@@ -517,61 +695,9 @@ theorem exists_measurable_sets_measure_eq {s t : Set α} :
           apply iUnion_subset
           intro ht
           apply hSΓ.1 _ _ (ht.trans hxy)
-      intro y hy
-      simp only [PFun.fn_apply]
-      unfold PFun.insert
-      split_ifs with hyx
-      · let helper := S.Dom ∩ (Set.Iic x)
-        have : s = ⋃ (y : helper), S.fn y y.2.1 := by
-          unfold s
-          apply le_antisymm
-          · apply iSup_le
-            intro y
-            apply iSup_le
-            intro hyx
-            apply le_iSup_of_le ⟨y, ⟨y.2, hyx⟩⟩
-            rfl
-          · apply iSup_le
-            intro y
-            apply le_iSup_of_le ⟨y, y.2.1⟩
-            apply le_iSup_of_le y.2.2
-            rfl
-        simp only [Part.coe_some, Part.get_some]
-        rw [this]
-        have mono_S : Monotone (fun y : helper ↦ S.fn y y.2.1) := by
-          intro x y hxy
-          apply hSΓ.1
-          simpa
-        constructor
-        · apply MeasurableSet.iUnion_of_monotone mono_S
-          intro y
-          exact (hSΓ.2 y y.2.1).1
-        · rw [Monotone.measure_iUnion mono_S]
-          conv in μ _ => rw [(hSΓ.2 i i.2.1).2]
-          rw [hyx]
-          /-
-          calc _
-            _ = ⨆ (y : S.Dom), ↑y := by
-              sorry
-          -/
-          apply le_antisymm
-          · apply iSup_le
-            intro y
-            exact y.2.2
-          · rw [Dense.ciSup' _ continuous_subtype_val]
-            · sorry
-            · sorry
-            #check Dense.ciSup'
-
-      · simp only [PFun.Dom_insert, Set.insert, mem_setOf_eq, hyx, false_or] at hy
-        exact (hSΓ.2 y hy)
-    · unfold T PFun.insert
-      rw [PFun.le_iff', PFun.le_iff']
-      constructor
-      · aesop
-      · simp only [not_forall]
-        use x
-        aesop
+      apply PFun.Prop_insert (p := fun (t : Set.Iic (μ univ)) St ↦ MeasurableSet St ∧ μ St = t) hSΓ.2
+      use meas_s, hs
+    · exact PFun.lt_insert S_maximal
   use fun x : Set.Iic (μ univ) ↦ S.fn x (S_total x)
   constructor
   · intro x y hxy
