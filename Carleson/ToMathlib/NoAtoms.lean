@@ -455,11 +455,13 @@ theorem Dense.ciSup' {γ : Type*} {α : Type*} [TopologicalSpace α] [Conditiona
   sorry
 -/
 
+/-
 theorem ENNReal.induction {p : ENNReal → Prop} (h_bot : p ⊥) (h_top : p ⊤)
   (h_iSup : ∀ t, p (⨆ (x ≤ t) (hx : p x), x)) (h_iInf : ∀ t, p (⨅ (x ≥ t) (hx : p x), x))
   (h_between : ∀ x y, p x → p y → ∃ z, x < z ∧ z < y ∧ p z) :
     ∀ x, p x := by
   sorry
+-/
 
 protected theorem iInter_of_monotone_of_frequently
     {ι : Type*} [Preorder ι] [(atBot : Filter ι).IsCountablyGenerated] {s : ι → Set α}
@@ -475,7 +477,7 @@ protected theorem iInter_of_monotone {ι : Type*} [Preorder ι] [IsCodirectedOrd
   | inl _ => simp
   | inr _ => exact MeasureTheory.NoAtoms'.iInter_of_monotone_of_frequently hsm <| .of_forall hs
 
-theorem exists_measurable_sets_measure_eq {s t : Set α} :
+theorem exists_measurable_sets_measure_eq :
     ∃ Ts : Set.Iic (μ univ) → Set α, Monotone Ts ∧ ∀ x, MeasurableSet (Ts x) ∧ μ (Ts x) = x := by
   set Γ := {S : Set.Iic (μ univ) →. (Set α) | PFun.Monotone S ∧
     ∀ x (hx : x ∈ S.Dom), MeasurableSet (S.fn x hx) ∧ μ (S.fn x hx) = x}
@@ -520,6 +522,20 @@ theorem exists_measurable_sets_measure_eq {s t : Set α} :
   rcases this with ⟨S, hSΓ, S_maximal⟩
   unfold Γ at hSΓ
   simp only [mem_setOf_eq] at hSΓ
+  have hμuniv : ⟨μ univ, self_mem_Iic⟩ ∈ S.Dom := by
+    contrapose! S_maximal
+    use PFun.insert S ⟨μ univ, self_mem_Iic⟩ univ
+    constructor
+    · unfold Γ
+      constructor
+      · apply PFun.Monotone.insert hSΓ.1
+        · simp
+        · intro x x_ge hx
+          rw [le_antisymm x.2 x_ge] at hx
+          contradiction
+      exact PFun.Prop_insert (p := fun (t : Set.Iic (μ univ)) St ↦ MeasurableSet St ∧ μ St = t)
+        hSΓ.2 ⟨MeasurableSet.univ, rfl⟩
+    exact PFun.lt_insert S_maximal
   have S_total : ∀ x, x ∈ S.Dom := by
     intro x
     --let dom := S.Dom
@@ -583,35 +599,35 @@ theorem exists_measurable_sets_measure_eq {s t : Set α} :
     have μt : μ t = ⨅ y : t_helper, μ (S.fn y y.2.1) := by
       rw [t_eq]
       --TODO: the following should probably be put into some lemma
-      --TODO: might not be true in all special cases
-      by_cases h : ∃ i : t_helper, μ (S.fn i i.2.1) ≠ ⊤
-      · rw [Monotone.measure_iInter mono_T _ h]
-        intro y
-        exact (hSΓ.2 y y.2.1).1.nullMeasurableSet
+      by_cases h : ∃ i : t_helper, μ (S.fn i i.2.1) ≠ μ univ
+      · rw [Monotone.measure_iInter mono_T]
+        · intro y
+          exact (hSΓ.2 y y.2.1).1.nullMeasurableSet
+        rcases h with ⟨y, hy⟩
+        use y
+        have hy : μ (S.fn y y.2.1) < μ univ := lt_of_le_of_ne (measure_mono (subset_univ _)) hy
+        rw [← lt_top_iff_ne_top]
+        order
       · push_neg at h
-        convert Eq.refl ⊤
-        · have : t_helper ⊆ {⊤} := by
-            intro y hy
-            simp only [mem_singleton_iff]
-            have := (hSΓ.2 y hy.1).2
-            rw [h ⟨y, hy⟩] at this
-            refine Eq.symm (SetCoe.ext ?_)
-            rw [← this]
-            simp
-            sorry
-          rw [eq_top_iff]
-          sorry
-        · by_cases h' : Nonempty t_helper
-          · convert iInf_const with y
-            · exact h y
-            exact h'
-          · rw [not_nonempty_iff] at h'
-            rw [iInf_of_empty]
-    /-
-    have : ∃ i : t_helper, μ (S.fn i i.2.1) ≠ ⊤ := by
-      contrapose! S_maximal
-      simp at S_maximal
-    -/
+        convert Eq.refl (μ univ) using 1
+        · have : t_helper = {⟨μ univ, self_mem_Iic⟩} := by
+            ext y
+            constructor
+            · intro hy
+              simp only [mem_singleton_iff]
+              have := (hSΓ.2 y hy.1).2
+              rw [h ⟨y, hy⟩] at this
+              simp [this]
+            · intro hy
+              rw [hy]
+              use hμuniv, x.2
+          simp only [iInter_coe_set, this, mem_singleton_iff, iInter_iInter_eq_left]
+          exact (hSΓ.2 _ _).2
+        · have h' : Nonempty t_helper := by
+            use ⟨μ univ, self_mem_Iic⟩, hμuniv, x.2
+          convert iInf_const with y
+          · exact h y
+          exact h'
     have ht : x ≤ μ t := by
       rw [μt]
       apply le_iInf
