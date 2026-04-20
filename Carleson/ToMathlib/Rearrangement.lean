@@ -1068,7 +1068,7 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
         have ub : t ≤ μ (superlevelSet f a) := by
           rw [lt_rearrangement_iff] at ha
           exact ha.le
-        apply NoAtoms'.exists_between₀ (nullMeasurableSet_superlevelSet hf)
+        apply NoAtoms'.exists_nullmeasurable_between_measure_eq (nullMeasurableSet_superlevelSet hf)
           (nullMeasurableSet_superlevelSet hf) (superlevelSet_antitone ha.le) lb ub
       rcases this with ⟨E, measE, hE, hE', hμE⟩
       apply le_iSup_of_le E

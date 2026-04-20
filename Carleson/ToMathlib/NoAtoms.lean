@@ -24,17 +24,17 @@ namespace MeasureTheory
 
 open Set Measure Filter TopologicalSpace
 
-variable {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α} {s : Set α}
+variable {α : Type*} {m0 : MeasurableSpace α}
 
 /-- Measure `μ` *has no atoms* if for any measurable set `s` with positive `μ`-measure,
 there exists a measurable `t ⊆ s` such that `0 < μ t < μ s`. While this implies `μ {x} = 0`,
 the converse is not true. -/
-class NoAtoms' {m0 : MeasurableSpace α} (μ : Measure α) : Prop where
+class NoAtoms' (μ : Measure α) : Prop where
   exists_subset_lt : ∀ s, 0 < μ s → ∃ t ⊆ s, 0 < μ t ∧ μ t < μ s
 
 export MeasureTheory.NoAtoms' (exists_subset_lt)
 
-variable [na : NoAtoms' μ]
+variable {μ : Measure α} [na : NoAtoms' μ]
 
 namespace NoAtoms'
 
@@ -52,27 +52,29 @@ instance : NoAtoms μ where
     · rw [h] at ht'
       simp at ht'
 
-theorem exists_nullmeasurable_subset_lt {s : Set α} (hs : NullMeasurableSet s μ) (hs' : 0 < μ s) :
-    ∃ t ⊆ s, NullMeasurableSet t μ ∧ 0 < μ t ∧ μ t < μ s := by
-  rcases exists_subset_lt _ hs' with ⟨t, hst, ht, hts⟩
-  rcases exists_measurable_superset μ t with ⟨u, htu, hu, hut⟩
-  use u ∩ s
-  use inter_subset_right
-  use hu.nullMeasurableSet.inter hs
-  have : μ (u ∩ s) = μ t := by
-    apply le_antisymm
-    · rw [← hut]
-      apply measure_mono inter_subset_left
-    · calc _
-        _ = μ (u ∩ t) := by
-          congr
-          symm
-          rwa [inter_eq_right]
-        _ ≤ μ (u ∩ s) := by gcongr
-  rw [this]
-  use ht, hts
+--TODO: move
+theorem measure_comap_eq_subtype_coe {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
+  {s : Set α} (hs : NullMeasurableSet s μ) {t : Set s} (ht : NullMeasurableSet t (μ.comap Subtype.val)) :
+    μ.comap Subtype.val t = μ (((↑) : s → α) '' t) :=
+  comap_apply₀ _ _ Subtype.coe_injective (fun _ => MeasurableSet.nullMeasurableSet_subtype_coe hs) ht
 
---TODO: proof is very similar to lemma above; can they be unified?
+
+instance subtype {s : Set α} (hs : MeasurableSet s) : NoAtoms' (μ.comap Subtype.val : Measure s) where
+  exists_subset_lt := by
+    intro t ht
+    rw [comap_subtype_coe_apply hs] at ht
+    rcases na.exists_subset_lt t ht with ⟨r, hrt, hr, hr'⟩
+    use Subtype.val ⁻¹' r, preimage_subset hrt injOn_subtype_val
+    rw [comap_subtype_coe_apply hs, comap_subtype_coe_apply hs, image_preimage_eq_of_subset]
+    · use hr, hr'
+    · intro x hx
+      apply image_subset_range _ t
+      exact hrt hx
+    --· rw [comap_subtype_coe_apply hs]
+      --nth_rw 2 [measure_comap_eq_subtype_coe hs]
+
+--μ.comap Subtype.val
+
 theorem exists_measurable_subset_lt {s : Set α} (hs : MeasurableSet s) (hs' : 0 < μ s) :
     ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ t ∧ μ t < μ s := by
   rcases exists_subset_lt _ hs' with ⟨t, hst, ht, hts⟩
@@ -93,15 +95,22 @@ theorem exists_measurable_subset_lt {s : Set α} (hs : MeasurableSet s) (hs' : 0
   rw [this]
   use ht, hts
 
-theorem exists_measurable_between {s t : Set α}
-  (hs : MeasurableSet s) (ht : MeasurableSet t) (h : s ⊆ t) (h' : μ s < μ t) :
-    ∃ u, MeasurableSet u ∧ s ⊆ u ∧ u ⊆ t ∧ μ s < μ u ∧ μ u < μ t:= by
+theorem exists_measurable_subset_lt₀ {s : Set α} (hs : NullMeasurableSet s μ) (hs' : 0 < μ s) :
+    ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ t ∧ μ t < μ s := by
+  rcases hs.exists_measurable_subset_ae_eq with ⟨r, hrs, hr, hrs'⟩
+  rw [← hrs'.measure_eq] at *
+  rcases exists_measurable_subset_lt hr hs' with ⟨t, hts, ht⟩
+  use t, hts.trans hrs
+
+theorem exists_measurable_between {s t : Set α} (hs : MeasurableSet s) (ht : NullMeasurableSet t μ)
+  (h : s ⊆ t) (h' : μ s < μ t) :
+    ∃ u, MeasurableSet u ∧ s ⊆ u ∧ u ⊆ t ∧ μ s < μ u ∧ μ u < μ t := by
   have : 0 < μ (t \ s) := by
     calc _
       _ < μ t - μ s := by
         simpa
       _ ≤ _ := le_measure_diff
-  rcases exists_measurable_subset_lt (by measurability) this with ⟨v, hv, meas_v, v_pos, v_lt⟩
+  rcases exists_measurable_subset_lt₀ (by measurability) this with ⟨v, hv, meas_v, v_pos, v_lt⟩
   use v ∪ s, by measurability, subset_union_right, by simp [h, subset_diff.mp hv]
   have : v \ s = v := by grind
   constructor
@@ -111,14 +120,23 @@ theorem exists_measurable_between {s t : Set α}
         ← diff_union_of_subset h, measure_union disjoint_sdiff_left hs, this]
     apply ENNReal.add_lt_add_right h'.ne_top v_lt
 
-
---#check PartialOrder.lift
---#check PartialOrder.ofSetLike
-
-#check Function.graph_injective
-#check forall_existsUnique_iff
-#check PFun.lift_graph
---#check Subsingleton
+theorem exists_nullmeasurable_between {s t : Set α} (hs : NullMeasurableSet s μ)
+  (ht : NullMeasurableSet t μ) (h : s ⊆ t) (h' : μ s < μ t) :
+    ∃ u, NullMeasurableSet u μ ∧ s ⊆ u ∧ u ⊆ t ∧ μ s < μ u ∧ μ u < μ t:= by
+  rcases hs.exists_measurable_subset_ae_eq with ⟨r, hrs, hr, hrs'⟩
+  rw [← hrs'.measure_eq] at *
+  rcases exists_measurable_between hr ht (hrs.trans h) h' with ⟨u, hu, hru, hut, hu'⟩
+  use u ∪ s, hu.nullMeasurableSet.union hs, subset_union_right, union_subset hut h
+  constructor
+  · apply hu'.1.trans_le
+    gcongr
+    simp
+  · calc _
+      _ = μ (u ∪ r) := by
+        apply measure_congr
+        exact eventuallyEq_of_mem hrs'.symm fun ⦃x⦄ ↦ congrArg (Or (x ∈ u))
+      _ = μ u := by congr; simpa
+      _ < μ t := hu'.2
 
 @[simp]
 theorem PFun.mem_graph'_iff {β : Type*} {f : α →. β} {a : α} {b : β} : (a, b) ∈ f.graph' ↔ b ∈ f a := by
@@ -637,7 +655,7 @@ theorem exists_measurable_sets_measure_eq :
     have hst : μ t ≤ μ s := by
       contrapose! S_maximal
       obtain ⟨u, meas_u, su, ut, μsu, μut⟩ : ∃ u, MeasurableSet u ∧ s ⊆ u ∧ u ⊆ t ∧ μ s < μ u ∧ μ u < μ t := by
-        apply exists_measurable_between meas_s meas_t _ S_maximal
+        apply exists_measurable_between meas_s meas_t.nullMeasurableSet _ S_maximal
         rw [s_eq, t_eq]
         intro a
         simp only [mem_iUnion, mem_iInter, forall_exists_index]
@@ -681,7 +699,7 @@ theorem exists_measurable_sets_measure_eq :
         · apply PFun.Prop_insert (p := fun (t : Set.Iic (μ univ)) St ↦ MeasurableSet St ∧ μ St = t) hSΓ.2
           use meas_u
       apply PFun.lt_insert
-      --TODO: main case
+      --main case
       rcases le_or_gt (μ u) x with hux | hux
       · contrapose! μsu
         rw [s_eq]
@@ -721,27 +739,53 @@ theorem exists_measurable_sets_measure_eq :
   · intro x
     exact hSΓ.2 x (S_total x)
 
-
-
-theorem exists_measurable_set_measure_eq {s t : Set α}
-  {x : ENNReal} (ub : x ≤ μ univ) :
+theorem exists_measurable_set_measure_eq {x : ENNReal} (ub : x ≤ μ univ) :
     ∃ s, MeasurableSet s ∧ μ s = x := by
-  sorry --TODO: use exists_measurable_sets_measure_eq
+  rcases exists_measurable_sets_measure_eq (μ := μ) with ⟨S, _, hS⟩
+  use S ⟨x, ub⟩
+  exact hS ⟨x, ub⟩
 
-theorem exists_subset_measure_eq {s t : Set α}
+theorem exists_measurable_subset_measure_eq {t : Set α} (ht : NullMeasurableSet t μ)
   {x : ENNReal} (ub : x ≤ μ t) :
-    ∃ s ⊆ t, μ s = x := by
-  sorry
+    ∃ s ⊆ t, MeasurableSet s ∧ μ s = x := by
+  rcases ht.exists_measurable_subset_ae_eq with ⟨u, hut, hu, hut'⟩
+  let ν : Measure u := μ.comap Subtype.val
+  have ub' : x ≤ ν univ := by
+    unfold ν
+    apply (measure_subtype_coe_le_comap hu.nullMeasurableSet univ).trans'
+    simpa [hut'.measure_eq]
+  have na' : NoAtoms' ν := NoAtoms'.subtype hu
+  rcases exists_measurable_set_measure_eq (μ := ν) ub' with ⟨r, meas_r, hrx⟩
+  use r, hut.trans' (by simp), hu.subtype_image meas_r
+  rwa [← comap_subtype_coe_apply hu]
 
-theorem exists_nullmeasurable_subset_measure_eq {s t : Set α} (ht : NullMeasurableSet t μ)
-  {x : ENNReal} (ub : x ≤ μ t) :
-    ∃ s, NullMeasurableSet s μ ∧ μ s = x := sorry
+theorem exists_measurable_between_measure_eq {s t : Set α} (hs : MeasurableSet s)
+  (ht : NullMeasurableSet t μ) (h : s ⊆ t) {x : ENNReal} (lb : μ s ≤ x) (ub : x ≤ μ t) :
+    ∃ u, MeasurableSet u ∧ s ⊆ u ∧ u ⊆ t ∧ μ u = x := by
+  have : x - μ s ≤ μ (t \ s) := by
+    calc _
+      _ ≤ μ t - μ s := by
+        gcongr
+      _ ≤ _ := le_measure_diff
+  rcases exists_measurable_subset_measure_eq (by measurability) this with ⟨v, hv, meas_v, hv'⟩
+  use v ∪ s, by measurability, subset_union_right, by simp [h, subset_diff.mp hv]
+  have : v \ s = v := by grind
+  rw [← diff_union_self, measure_union disjoint_sdiff_left hs, this, hv']
+  exact tsub_add_cancel_of_le lb
 
---more common definition implying the theorem
-theorem exists_between₀ [NoAtoms μ] {s t : Set α}
-  (hs : NullMeasurableSet s μ) (ht : NullMeasurableSet t μ) (h : s ⊆ t)
-  {x : ENNReal} (lb : μ s ≤ x) (ub : x ≤ μ t) :
-    ∃ E, NullMeasurableSet E μ ∧ s ⊆ E ∧ E ⊆ t ∧ μ E = x := sorry
+theorem exists_nullmeasurable_between_measure_eq {s t : Set α} (hs : NullMeasurableSet s μ)
+  (ht : NullMeasurableSet t μ) (h : s ⊆ t) {x : ENNReal} (lb : μ s ≤ x) (ub : x ≤ μ t) :
+    ∃ u, NullMeasurableSet u μ ∧ s ⊆ u ∧ u ⊆ t ∧ μ u = x := by
+  rcases hs.exists_measurable_subset_ae_eq with ⟨r, hrs, hr, hrs'⟩
+  rw [← hrs'.measure_eq] at *
+  rcases exists_measurable_between_measure_eq hr ht (hrs.trans h) lb ub with ⟨u, hu, hru, hut, hu'⟩
+  use u ∪ s, hu.nullMeasurableSet.union hs, subset_union_right, union_subset hut h
+  calc _
+    _ = μ (u ∪ r) := by
+      apply measure_congr
+      exact eventuallyEq_of_mem hrs'.symm fun ⦃x⦄ ↦ congrArg (Or (x ∈ u))
+    _ = μ u := by congr; simpa
+    _ = x := hu'
 
 --TODO: Lyapunovs convexity theorem
 
