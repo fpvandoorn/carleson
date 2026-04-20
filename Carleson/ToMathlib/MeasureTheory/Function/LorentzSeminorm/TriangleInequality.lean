@@ -362,7 +362,7 @@ lemma eLorentzNorm'_eq_lintegral_lorentz_helper_mul (p_ne_zero : p ≠ 0) (p_ne_
   simp
 
 open ENNReal in
-theorem eLorentzNorm_add_le [NoAtoms μ] [ContinuousAdd ε] (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
+theorem eLorentzNorm_add_le [ContinuousAdd ε] (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
      (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
       eLorentzNorm (f + g) p q μ ≤ eLorentzNorm f p q μ + eLorentzNorm g p q μ := by
   unfold eLorentzNorm
@@ -443,7 +443,7 @@ theorem LorentzAddConst_lt_top : LorentzAddConst p q < ∞ := by
   · apply ENNReal.mul_lt_top _ (LpAddConst_lt_top _)
     exact ENNReal.rpow_lt_top_of_nonneg (by simp) (by norm_num)
 
-lemma eLorentzNorm_add_le' [NoAtoms μ] [ContinuousAdd ε] (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
+lemma eLorentzNorm_add_le' [ContinuousAdd ε] (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
     eLorentzNorm (f + g) p q μ ≤ LorentzAddConst p q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
   unfold LorentzAddConst
   split_ifs with h
@@ -453,7 +453,7 @@ lemma eLorentzNorm_add_le' [NoAtoms μ] [ContinuousAdd ε] (hf : AEStronglyMeasu
     exact eLorentzNorm_add_le hr.1 hr.2 hf hg
   · apply eLorentzNorm_add_le''
 
-lemma eLorentzNorm_add_lt_top [NoAtoms μ] [ContinuousAdd ε] (hf : MemLorentz f p q μ) (hg : MemLorentz g p q μ) :
+lemma eLorentzNorm_add_lt_top [ContinuousAdd ε] (hf : MemLorentz f p q μ) (hg : MemLorentz g p q μ) :
     eLorentzNorm (f + g) p q μ < ⊤ := by
   calc
     eLorentzNorm (f + g) p q μ ≤ LorentzAddConst p q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) :=
@@ -462,7 +462,7 @@ lemma eLorentzNorm_add_lt_top [NoAtoms μ] [ContinuousAdd ε] (hf : MemLorentz f
       apply ENNReal.mul_lt_top LorentzAddConst_lt_top
       exact ENNReal.add_lt_top.2 ⟨hf.2, hg.2⟩
 
-lemma MemLorentz.add [NoAtoms μ] [ContinuousAdd ε] (hf : MemLorentz f p q μ)
+lemma MemLorentz.add [ContinuousAdd ε] (hf : MemLorentz f p q μ)
     (hg : MemLorentz g p q μ) : MemLorentz (f + g) p q μ :=
   ⟨AEStronglyMeasurable.add hf.1 hg.1, eLorentzNorm_add_lt_top hf hg⟩
 

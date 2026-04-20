@@ -1,3 +1,4 @@
+import Mathlib.MeasureTheory.Constructions.UnitInterval
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Integral.Layercake
 import Carleson.ToMathlib.Distribution
@@ -57,6 +58,13 @@ lemma rearrangement_antitone {f : α → ε} {μ : Measure α} :
 @[gcongr] lemma rearrangement_mono (h1 : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h2 : x ≤ y) :
     rearrangement f y μ ≤ rearrangement g x μ :=
   le_trans (rearrangement_mono_right h2) (rearrangement_mono_left h1)
+
+lemma rearrangment_eq_rearrangement_of_distribution_eq_distribution {β : Type*}
+  {m' : MeasurableSpace β} {ν : Measure β} {g : β → ε'} {t : ℝ≥0∞}
+  (h : ∀ ⦃s⦄, distribution f s μ = distribution g s ν) :
+    rearrangement f t μ = rearrangement g t ν := by
+  unfold rearrangement
+  simp_rw [h]
 
 @[measurability, fun_prop]
 lemma rearrangement_measurable₀ : Measurable (fun t ↦ rearrangement f t μ) :=
@@ -1419,15 +1427,51 @@ lemma lintegral_rearrangement_eq''' {ε} [TopologicalSpace ε] [ContinuousENorm 
       aesop
 -/
 
---TODO: we can probably get rid of the NoAtoms assumption here by taking a product
--- with the unit interval (equipped with the Lebesgue measure)
+--TODO: move
+lemma distribution_eq_distribution_prod {ε}
+  [ENorm ε] {f : α → ε} {t : ℝ≥0∞}
+  {β : Type*} {m' : MeasurableSpace β} {ν : Measure β} [IsProbabilityMeasure ν] :
+    distribution f t μ = distribution (fun x : α × β ↦ f x.1) t (μ.prod ν) := by
+  unfold distribution
+  have : {x : α × β | t < ‖f x.1‖ₑ} = {x | t < ‖f x‖ₑ} ×ˢ Set.univ := by
+    ext ⟨x, y⟩
+    rw [Set.mem_prod]
+    simp
+  rw [this, Measure.prod_prod, measure_univ, mul_one]
+
+--TODO: move up?
+lemma rearrangement_eq_rearrangement_prod {ε}
+  [ENorm ε] {f : α → ε} {t : ℝ≥0∞}
+  {β : Type*} {m' : MeasurableSpace β} {ν : Measure β} [IsProbabilityMeasure ν] :
+    rearrangement f t μ = rearrangement (fun x : α × β ↦ f x.1) t (μ.prod ν) := by
+  apply rearrangment_eq_rearrangement_of_distribution_eq_distribution
+  intro s
+  exact distribution_eq_distribution_prod
+
 --Remark 4.18 in https://doi.org/10.1007/978-3-319-30034-4
 lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral {ε}
-  [TopologicalSpace ε] [ESeminormedAddMonoid ε] [ContinuousAdd ε] [NoAtoms' μ] {f g : α → ε}
+  [TopologicalSpace ε] [ESeminormedAddMonoid ε] [ContinuousAdd ε] {f g : α → ε}
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) {t : ℝ≥0∞} :
       ∫⁻ (s : ℝ≥0∞) in Set.Iio t, rearrangement (f + g) s μ
         ≤ (∫⁻ (s : ℝ≥0∞) in Set.Iio t, rearrangement f s μ)
           + ∫⁻ (s : ℝ≥0∞) in Set.Iio t, rearrangement g s μ := by
+  wlog na : NoAtoms' μ
+  · -- This is a nice trick to get rid of the `NoAtoms` assumption
+    let ν := @volume unitInterval
+    simp_rw [rearrangement_eq_rearrangement_prod (ν := ν) (f := f),
+            rearrangement_eq_rearrangement_prod (ν := ν) (f := g),
+            rearrangement_eq_rearrangement_prod (ν := ν) (f := f + g)]
+    have h : (fun (x : α × unitInterval) ↦ (f + g) x.1)
+        = (fun (x : α × unitInterval) ↦ f x.1) + (fun (x : α × unitInterval) ↦ g x.1) := by
+      ext x
+      simp
+    rw [h]
+    --TODO: prove something along these lines :
+    --https://math.stackexchange.com/questions/3881683/does-mu-x-0-imply-non-atomic-for-radon-measure
+    --#check MeasureTheory.Measure.IsAddHaarMeasure.noAtoms
+    --#check MeasureTheory.Measure.prod.instNoAtoms_snd
+    have na : NoAtoms' (μ.prod ν) := by sorry
+    exact this hf.comp_fst hg.comp_fst na
   rw [lintegral_rearrangement_eq_and (hf.add hg), lintegral_rearrangement_eq_and hf, lintegral_rearrangement_eq_and hg]
   calc _
     _ ≤ ⨆ E, ⨆ (_ : NullMeasurableSet E μ ∧ μ E ≤ t), ∫⁻ (x : α) in E, ‖f x‖ₑ + ‖g x‖ₑ ∂μ := by
