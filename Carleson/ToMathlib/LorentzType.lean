@@ -10,8 +10,13 @@ import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
 import Carleson.ToMathlib.Rearrangement
 import Carleson.ToMathlib.RealInterpolation.Misc
 import Carleson.ToMathlib.Topology.Order.Basic
+import Carleson.ToMathlib.Order.Filter.ENNReal
+import Carleson.ToMathlib.Order.LiminfLimsup
+import Carleson.ToMathlib.Analysis.RCLike.Components
+import Carleson.ToMathlib.Analysis.RCLike.Misc
 
--- Upstreaming status: this file is actively being worked on; not ready yet
+
+-- Upstreaming status: proofs need cleanup
 
 noncomputable section
 
@@ -122,47 +127,6 @@ def HasRestrictedWeakType' [TopologicalSpace β] [ENorm β] [ENorm ε₂] (T : (
       eLpNorm (T f) 1 (ν.restrict G)
         ≤ c * eLorentzNorm f p 1 μ * (ν G) ^ q⁻¹.toReal
 
--- TODO: move
--- TODO: Could probably weaken assumption to (h : ∀ᶠ (x : β) in f, u x ≤ v x)
-theorem Filter.mono_limsup {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
-    {u v : β → α} (h : ∀ (x : β), u x ≤ v x) : Filter.limsup u f ≤ Filter.limsup v f := by
-  refine Filter.limsup_le_limsup ?_
-  apply Filter.Eventually.of_forall h
-
--- TODO: move?
-theorem Filter.limsup_le_of_le' {α : Type*} {β : Type*} [CompleteLattice α] {f : Filter β}
-    {u : β → α} {a : α} (h : ∀ᶠ (n : β) in f, u n ≤ a) :
-  Filter.limsup u f ≤ a := sInf_le h
-
--- TODO: move?
-theorem ENNReal.rpow_add_rpow_le_add' {p : ℝ} (a b : ℝ≥0∞) (hp1 : 1 ≤ p) :
-    a ^ p + b ^ p ≤ (a + b) ^ p := by
-  calc
-    _ = ((a ^ p + b ^ p) ^ (1 / p)) ^ p := by
-      rw [one_div, ENNReal.rpow_inv_rpow]
-      linarith
-    _ ≤ (a + b) ^ p := by
-      gcongr
-      exact ENNReal.rpow_add_rpow_le_add _ _ hp1
-
--- TODO: move
-theorem ENNReal.limsup_mul_const_of_ne_top {α : Type*} {f : Filter α} {u : α → ℝ≥0∞} {a : ℝ≥0∞} (ha_top : a ≠ ⊤) :
-    Filter.limsup (fun x ↦ u x * a) f = Filter.limsup u f * a := by
-  simp_rw [mul_comm]
-  exact ENNReal.limsup_const_mul_of_ne_top ha_top
-
--- TODO: move
-theorem ENNReal.limsup_mul_const {α : Type u_1} {f : Filter α} [CountableInterFilter f] {u : α → ℝ≥0∞} {a : ℝ≥0∞} :
-    limsup (fun x ↦ u x * a) f = limsup u f * a := by
-  simp_rw [mul_comm, limsup_const_mul]
-
-/-
-def WeaklyContinuous [TopologicalSpace ε] (T : (α → ε) → (α' → ε')) (μ : Measure α) (ν : Measure α') : Prop :=
-  ∀ {f : α → ε} {fs : ℕ → SimpleFunc α ε}
-  (hfs : ∀ (x : α), Filter.Tendsto (fun (n : ℕ) => (fs n) x) Filter.atTop (nhds (f x))) (G : Set α'),
-    eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T (fs n)) 1 (ν.restrict G)) Filter.atTop
--/
-
 variable {ε ε' : Type*}
 
 /-- The weak continuity assumption needed for `HasRestrictedWeakType.hasLorentzType_helper`. -/
@@ -172,7 +136,6 @@ def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε]
   let f := fun x ↦ ⨆ n, (fs n) x;
   ∀ (_ : MemLorentz f p 1 μ) (G : Set α'),
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T ⇑(fs n)) 1 (ν.restrict G)) Filter.atTop
-
 
 theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε'] [ENormedSpace ε']
     {c : ℝ≥0} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'} (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
@@ -328,7 +291,8 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         intro x
         apply SimpleFunc.nnapprox_le hf
       _ ≤ Filter.limsup (fun n ↦ (c / p) * eLorentzNorm' (SimpleFunc.nnapprox f n) p 1 μ * ν G ^ q⁻¹.toReal) Filter.atTop := by
-        apply Filter.mono_limsup
+        apply Filter.limsup_le_limsup'
+        filter_upwards
         intro n
         apply h n _
         use (by fun_prop)
@@ -351,7 +315,6 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         filter_upwards with x
         simp only [enorm_NNReal, ENNReal.coe_le_coe]
         exact SimpleFunc.approx_le hf bot_eq_zero'
-
 
 lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
   {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
@@ -475,368 +438,8 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
         apply toReal_pos hpq.symm.ne_zero hq
       · exact ENNReal.rpow_ne_top' G_zero G_finite.ne
 
-theorem RCLike.norm_I {K : Type u_1} [RCLike K] : ‖(RCLike.I : K)‖ = if RCLike.I ≠ (0 : K) then 1 else 0 := by
-  split_ifs with h
-  · apply RCLike.norm_I_of_ne_zero h
-  · push_neg at h
-    simpa
-
-/-
-theorem weakly_cont_implies_ae_eq [TopologicalSpace α] {𝕂 : Type*} [TopologicalSpace ε'] [RCLike 𝕂]
-  [ENormedSpace ε'] {T : (α → 𝕂) → α' → ε'} {p q : ℝ≥0∞}
-  {μ : Measure α} [IsLocallyFiniteMeasure μ] {ν : Measure α'}
-  (weakly_cont_T : ∀ {f : α → 𝕂} {fs : ℕ → α → 𝕂}
-                     (f_locInt : LocallyIntegrable f μ)
-                     (hF_meas : ∀ (n : ℕ), AEStronglyMeasurable (fs n) μ)
-                     (h_norm_monotone : ∀ (a : α), Monotone (fun n ↦ ‖fs n a‖))
-                     (h_lim : ∀ (a : α), Filter.Tendsto (fun (n : ℕ) => fs n a) Filter.atTop (nhds (f a)))
-                     (G : Set α'),
-    eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T (fs n)) 1 (ν.restrict G)) Filter.atTop)
-  (G : Set α') ⦃f g : α → 𝕂⦄ (hfg : f =ᶠ[ae μ] g) (f_locInt : LocallyIntegrable f μ) :
-  eLpNorm (T g) 1 (ν.restrict G) = eLpNorm (T f) 1 (ν.restrict G) := by
-  have g_locInt : LocallyIntegrable g μ := f_locInt.congr hfg
-  apply le_antisymm
-  · have : eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun (n : ℕ) ↦ eLpNorm (T g) 1 (ν.restrict G)) Filter.atTop := by
-      apply weakly_cont_T f_locInt
-      · intro n
-        --exact g_locInt.aestronglyMeasurable
-        sorry
-      · intro a
-        exact monotone_const
-
-      · intro a
-        rw [hfg]
-        apply Filter.Tendsto.congr' (by apply Filter.Eventually.of_forall; intro x; rw [hfg])
-        exact Filter.tendsto_nhds_nhds
-  --  := @weakly_cont_T _ (fun n ↦ g) f_locInt
-  sorry
--/
-
-/-- TODO: check whether this is the right approach -/
-def RCLike.Components {𝕂 : Type*} [RCLike 𝕂] : Finset 𝕂 := {1, -1, RCLike.I, -RCLike.I}
-
-lemma RCLike.Components.norm_eq_one {𝕂 : Type*} [RCLike 𝕂] {c : 𝕂} (hc : c ∈ Components) (hc' : c ≠ 0) :
-    ‖c‖ = 1 := by
-  unfold Components at hc
-  simp only [Finset.mem_insert, Finset.mem_singleton] at hc
-  rcases hc with hc | hc | hc | hc <;> rw [hc]
-  · simp
-  · simp
-  · rw [RCLike.norm_I_of_ne_zero]
-    rwa [← hc]
-  · rw [norm_neg, RCLike.norm_I_of_ne_zero]
-    rwa [← neg_ne_zero, ← hc]
-
-lemma RCLike.Components.norm_le_one {𝕂 : Type*} [RCLike 𝕂] {c : 𝕂} (hc : c ∈ Components) : ‖c‖ ≤ 1 := by
-  by_cases h : c = 0
-  · rw [h]
-    simp
-  rw [norm_eq_one hc h]
-
-open ComplexConjugate
-
-/-- TODO: check whether this is the right approach -/
-def RCLike.component {𝕂 : Type*} [RCLike 𝕂] (c : 𝕂) (a : 𝕂) : ℝ≥0 :=
-  Real.toNNReal (RCLike.re (a * conj c))
-
-lemma RCLike.component_le_norm {𝕂 : Type*} [RCLike 𝕂] {c a : 𝕂} (hc : c ∈ Components) :
-    component c a ≤ ‖a‖ := by
-  unfold component
-  rw [Real.coe_toNNReal']
-  apply max_le _ (by simp)
-  apply (RCLike.re_le_norm (a * (starRingEnd 𝕂) c)).trans
-  simp only [norm_mul, RCLike.norm_conj]
-  nth_rw 2 [← mul_one ‖a‖]
-  gcongr
-  exact Components.norm_le_one hc
-
-lemma RCLike.component_le_nnnorm {𝕂 : Type*} [RCLike 𝕂] {c a : 𝕂} (hc : c ∈ Components) :
-    component c a ≤ ‖a‖₊ := by
-  rw [← norm_toNNReal]
-  apply NNReal.le_toNNReal_of_coe_le
-  exact component_le_norm hc
-
-lemma RCLike.decomposition {𝕂 : Type*} [RCLike 𝕂] {a : 𝕂} :
-  1 * ((algebraMap ℝ 𝕂) (component 1 a).toReal)
-  + -1 * ((algebraMap ℝ 𝕂) (component (-1) a).toReal)
-  + RCLike.I * ((algebraMap ℝ 𝕂) (component RCLike.I a).toReal)
-  + -RCLike.I * ((algebraMap ℝ 𝕂) (component (-RCLike.I) a).toReal) = a := by
-  unfold component
-  simp only [map_one, mul_one, Real.coe_toNNReal', one_mul, map_neg, mul_neg, neg_mul,
-    RCLike.conj_I, RCLike.mul_re, RCLike.I_re, mul_zero, RCLike.I_im, zero_sub, neg_neg]
-  rw [← sub_eq_add_neg, ← sub_eq_add_neg, ← map_sub, add_sub_assoc, ← mul_sub, ← map_sub]
-  rw [max_zero_sub_eq_self, max_zero_sub_eq_self, mul_comm]
-  exact RCLike.re_add_im_ax a
-
-/-
---TODO: is this needed?
-@[simp]
-lemma RCLike.decomposition' {𝕂 : Type*} [RCLike 𝕂] {a : 𝕂} :
-  ∑ c ∈ RCLike.Components, c * ((algebraMap ℝ 𝕂) (RCLike.component c a).toReal) = a := by
-  unfold Components
-  rw [Finset.sum_insert sorry, Finset.sum_insert sorry, Finset.sum_insert sorry, Finset.sum_singleton,
-      ← add_assoc, ← add_assoc]
-  exact RCLike.decomposition
--/
-
-
-theorem RCLike.nnnorm_ofReal
-  {𝕂 : Type*} [RCLike 𝕂] {a : ℝ≥0} :
-  a = ‖(@RCLike.ofReal 𝕂 _) (NNReal.toReal a)‖₊ := by
-  apply NNReal.eq
-  simp
-
-theorem RCLike.enorm_ofReal
-  {𝕂 : Type*} [RCLike 𝕂] {a : ℝ≥0} :
-    ‖a‖ₑ = ‖(@RCLike.ofReal 𝕂 _) (NNReal.toReal a)‖ₑ := by
-  simp only [enorm_NNReal]
-  rw [enorm_eq_nnnorm]
-  simp
-
-
-/-
---TODO: move / generalize or find existing version
-theorem add_induction {β γ} [AddCommMonoid β] [AddCommMonoid γ]
-  {g : α → β} {f : β → γ} {motive : γ → γ → Prop}
-  (motive_trans : IsTrans γ motive)
-  (motive_add_left : ∀ {x y z : γ}, motive y z → motive (x + y) (x + z))
-  (zero : motive (f 0) 0)
-  (add : ∀ {x y : β}, motive (f (x + y)) (f x + f y))
-  {s : Finset α} :
-    motive (f (∑ x ∈ s, g x)) (∑ x ∈ s, f (g x)) := by
-  classical
-  induction s using Finset.induction_on with
-  | empty =>
-    simpa only [Finset.sum_empty]
-  | insert a s ha ih =>
-    rw [Finset.sum_insert ha, Finset.sum_insert ha]
-    have : motive (f (g a + ∑ x ∈ s, g x)) (f (g a) + f (∑ x ∈ s, g x)) := add
-    apply motive_trans.trans _ _ _ this
-    apply motive_add_left ih
-
-
---TODO: move / generalize or find existing version
-theorem vector_valued_induction {β γ} [AddCommMonoid β] [AddCommMonoid γ]
-  {M : Type*} [AddCommMonoid M] [Module ℝ M]
-  {Q : (α → M) → Prop} {motive : ℕ → (α → M) → Prop}
-  {f : α → M} (hf : Q f)
-  :
-  motive 1 f := sorry
--/
-
-/-! ### Helper lemmas for the RCLike component decomposition norm bounds -/
-
-section RCLikeComponentHelpers
-
-open _root_.RCLike RCLike in
-private lemma component_one_add_neg_one {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
-    algebraMap ℝ 𝕂 (component 1 a).toReal +
-      (-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal = algebraMap ℝ 𝕂 (re a) := by
-  unfold component
-  simp only [map_one, mul_one, map_neg, mul_neg, neg_mul, one_mul]
-  rw [← map_neg, ← map_add]; congr 1
-  simp only [Real.coe_toNNReal']
-  linarith [max_zero_sub_eq_self (re a)]
-
-open _root_.RCLike RCLike in
-private lemma component_I_add_neg_I {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
-    (I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal +
-      (-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal = algebraMap ℝ 𝕂 (im a) * I := by
-  unfold component
-  simp only [conj_I, mul_neg, Real.coe_toNNReal', map_neg]
-  ring_nf
-  rw [← mul_sub, ← map_sub,
-    show max (-re (I * a)) 0 - max (re (I * a)) 0 = im a from by
-      rw [show re (I * a) = -im a from by simp [mul_re, I_re], neg_neg]
-      exact max_zero_sub_eq_self _]
-
-open _root_.RCLike RCLike in
-/-- Norm of the real component part is at most `‖a‖`. -/
-private lemma norm_realPart_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
-    ‖algebraMap ℝ 𝕂 (component 1 a).toReal +
-      (-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal‖ ≤ ‖a‖ := by
-  rw [component_one_add_neg_one, norm_ofReal]
-  exact abs_re_le_norm a
-
-open _root_.RCLike RCLike in
-/-- Norm of the imaginary component part is at most `‖a‖`. -/
-private lemma norm_imPart_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
-    ‖(I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal +
-      (-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal‖ ≤ ‖a‖ := by
-  rw [component_I_add_neg_I]
-  calc ‖algebraMap ℝ 𝕂 (im a) * I‖
-      ≤ ‖algebraMap ℝ 𝕂 (im a)‖ * ‖(I : 𝕂)‖ := norm_mul_le _ _
-    _ ≤ |im a| * 1 := by
-        gcongr
-        · exact (norm_ofReal _).le
-        · rw [RCLike.norm_I]; split_ifs <;> simp
-    _ = |im a| := mul_one _
-    _ ≤ ‖a‖ := abs_im_le_norm a
-
-open _root_.RCLike RCLike in
-/-- `max(re a, 0)` embedded in 𝕂 has norm at most `|re a|`. -/
-private lemma norm_posReal_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
-    ‖(algebraMap ℝ 𝕂 (component 1 a).toReal : 𝕂)‖ ≤
-      ‖algebraMap ℝ 𝕂 (component 1 a).toReal +
-        (-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal‖ := by
-  rw [component_one_add_neg_one, norm_ofReal, norm_ofReal]
-  unfold component
-  simp only [map_one, mul_one, Real.coe_toNNReal']
-  rw [abs_of_nonneg (le_max_right _ _)]
-  exact max_le (le_abs_self _) (abs_nonneg _)
-
-open _root_.RCLike RCLike in
-/-- `max(-re a, 0)` negated and embedded in 𝕂 has norm at most `|re a|`. -/
-private lemma norm_negReal_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
-    ‖(-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal‖ ≤
-      ‖algebraMap ℝ 𝕂 (component 1 a).toReal +
-        (-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal‖ := by
-  rw [component_one_add_neg_one, norm_ofReal]
-  simp only [neg_mul, one_mul, norm_neg, norm_ofReal]
-  unfold component
-  simp only [map_neg, map_one, mul_neg, mul_one, Real.coe_toNNReal']
-  rw [abs_of_nonneg (le_max_right _ _)]
-  simp [abs_nonneg, neg_le_abs]
-
-open _root_.RCLike RCLike in
-/-- `I * max(im a, 0)` has norm at most `‖I * im⁺ - I * im⁻‖`. -/
-private lemma norm_posIm_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
-    ‖(I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal‖ ≤
-      ‖(I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal +
-        (-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal‖ := by
-  rw [component_I_add_neg_I, norm_mul, norm_mul, norm_ofReal, norm_ofReal,
-    mul_comm (‖(I : 𝕂)‖)]
-  apply mul_le_mul_of_nonneg_right _ (norm_nonneg _)
-  unfold component
-  simp only [conj_I, mul_neg, Real.coe_toNNReal']
-  change |max (re (-(a * I))) 0| ≤ |im a|
-  rw [show re (-(a * I)) = im a from by simp [mul_re, I_re, I_im]]
-  simp [abs_of_nonneg, le_abs_self]
-
-open _root_.RCLike RCLike in
-/-- `-I * max(-im a, 0)` has norm at most `‖I * im⁺ - I * im⁻‖`. -/
-private lemma norm_negIm_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
-    ‖(-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal‖ ≤
-      ‖(I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal +
-        (-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal‖ := by
-  rw [component_I_add_neg_I]
-  simp only [norm_neg, norm_mul, norm_ofReal, mul_comm (‖(I : 𝕂)‖)]
-  apply mul_le_mul_of_nonneg_right _ (norm_nonneg _)
-  unfold component
-  simp only [map_neg, conj_I, neg_neg, Real.coe_toNNReal']
-  rw [show re (a * I) = -im a from by simp [mul_re, I_re, I_im]]
-  rw [abs_of_nonneg (le_max_right _ _)]
-  exact max_le (neg_le_abs _) (abs_nonneg _)
-
-end RCLikeComponentHelpers
-
---TODO: clean up the proof
-theorem RCLike.induction {𝕂 : Type*} [RCLike 𝕂]
-  {β : Type*} [Mul β] {a b}
-  {P : (α → 𝕂) → Prop}
-  (P_add : ∀ {f g : α → 𝕂}, P f → P g → P (f + g))
-  (P_components : ∀ {f : α → 𝕂} {c : 𝕂} (_ : c ∈ RCLike.Components),
-    P f → P (algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ RCLike.component c ∘ f))
-  (P_mul_unit : ∀ {f : α → 𝕂} {c : 𝕂} (_ : c ∈ RCLike.Components), P f → P (c • f))
-  {motive : (α → 𝕂) → β → Prop}
-  (motive_nnreal : ∀ {f : α → ℝ≥0} (_ : P (algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ f)),
-    motive (algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ f) a)
-  (motive_add' : ∀ {n : β} {f g : α → 𝕂} (_ : ∀ {x}, ‖f x‖ ≤ ‖f x + g x‖) (_ : ∀ {x}, ‖g x‖ ≤ ‖f x + g x‖) (_ : P f) (_ : P g), motive f n → motive g n → motive (f + g) (n * b))
-  (motive_mul_unit : ∀ {f : α → 𝕂} {c : 𝕂} {n : β} (_ : c ∈ RCLike.Components) (_ : P f),
-    motive f n → motive (c • f) n)
-  ⦃f : α → 𝕂⦄ (hf : P f) :
-    motive f (a * b * b) := by
-  have f_decomposition :
-    (1 : 𝕂) • ((algebraMap ℝ 𝕂) ∘ toReal ∘ component 1 ∘ f)
-    + (-1 : 𝕂) • ((algebraMap ℝ 𝕂) ∘ toReal ∘ component (-1) ∘ f)
-    + (RCLike.I : 𝕂) • ((algebraMap ℝ 𝕂) ∘ toReal ∘ component RCLike.I ∘ f)
-    + (-RCLike.I : 𝕂) • ((algebraMap ℝ 𝕂) ∘ toReal ∘ component (-RCLike.I) ∘ f) = f := by
-    ext x
-    simp only [Pi.add_apply, comp_apply, Pi.smul_apply, smul_eq_mul]
-    exact RCLike.decomposition
-  -- Decompose f into real and imaginary parts, each further split into positive/negative parts
-  rw [← f_decomposition, add_assoc]
-  have hP_comp : ∀ {c : 𝕂} (_ : c ∈ Components),
-      P (c • ((algebraMap ℝ 𝕂) ∘ toReal ∘ component c ∘ f)) := fun hc =>
-    P_mul_unit hc (P_components hc hf)
-  -- Pointwise version of the decomposition
-  have f_decomp_pt : ∀ x, (algebraMap ℝ 𝕂) ((component 1 (f x)).toReal)
-      + (-1) * (algebraMap ℝ 𝕂) ((component (-1) (f x)).toReal)
-      + (RCLike.I * (algebraMap ℝ 𝕂) ((component RCLike.I (f x)).toReal)
-        + -RCLike.I * (algebraMap ℝ 𝕂) ((component (-RCLike.I) (f x)).toReal)) = f x := by
-    intro x
-    have := congr_fun f_decomposition x
-    simp only [Pi.add_apply, comp_apply, Pi.smul_apply, smul_eq_mul, one_mul] at this
-    rw [add_assoc] at this; exact this
-  -- Outer split: real part vs imaginary part
-  apply motive_add'
-  · -- ‖real_part x‖ ≤ ‖(real_part + imag_part) x‖
-    intro x
-    simp only [Pi.add_apply, comp_apply, Pi.smul_apply, smul_eq_mul, one_mul]
-    rw [f_decomp_pt]
-    exact norm_realPart_le (f x)
-  · -- ‖imag_part x‖ ≤ ‖(real_part + imag_part) x‖
-    intro x
-    simp only [Pi.add_apply, comp_apply, Pi.smul_apply, smul_eq_mul, one_mul]
-    rw [f_decomp_pt]
-    exact norm_imPart_le (f x)
-  · exact P_add (hP_comp (by unfold Components; simp)) (hP_comp (by unfold Components; simp))
-  · exact P_add (hP_comp (by unfold Components; simp)) (hP_comp (by unfold Components; simp))
-  · -- Inner split: positive real vs negative real
-    apply motive_add'
-    · -- ‖1 * pos_re x‖ ≤ ‖(1 * pos_re + (-1) * neg_re) x‖
-      intro x
-      simp only [comp_apply, Pi.smul_apply, smul_eq_mul, one_mul]
-      exact norm_posReal_le (f x)
-    · -- ‖(-1) * neg_re x‖ ≤ ‖(1 * pos_re + (-1) * neg_re) x‖
-      intro x
-      simp only [comp_apply, Pi.smul_apply, smul_eq_mul, one_mul]
-      exact norm_negReal_le (f x)
-    · exact hP_comp (by unfold Components; simp)
-    · exact hP_comp (by unfold Components; simp)
-    · exact motive_mul_unit (by unfold Components; simp) (P_components (by unfold Components; simp) hf)
-        (motive_nnreal (P_components (by unfold Components; simp) hf))
-    · exact motive_mul_unit (by unfold Components; simp) (P_components (by unfold Components; simp) hf)
-        (motive_nnreal (P_components (by unfold Components; simp) hf))
-  · -- Inner split: positive imaginary vs negative imaginary
-    apply motive_add'
-    · -- ‖I * pos_im x‖ ≤ ‖(I * pos_im + (-I) * neg_im) x‖
-      intro x
-      simp only [comp_apply, Pi.smul_apply, smul_eq_mul]
-      exact norm_posIm_le (f x)
-    · -- ‖(-I) * neg_im x‖ ≤ ‖(I * pos_im + (-I) * neg_im) x‖
-      intro x
-      simp only [comp_apply, Pi.smul_apply, smul_eq_mul]
-      exact norm_negIm_le (f x)
-    · exact hP_comp (by unfold Components; simp)
-    · exact hP_comp (by unfold Components; simp)
-    · exact motive_mul_unit (by unfold Components; simp) (P_components (by unfold Components; simp) hf)
-        (motive_nnreal (P_components (by unfold Components; simp) hf))
-    · exact motive_mul_unit (by unfold Components; simp) (P_components (by unfold Components; simp) hf)
-        (motive_nnreal (P_components (by unfold Components; simp) hf))
-
-theorem enorm_eq_enorm_embedRCLike {𝕂 : Type*} [RCLike 𝕂] {f : α → ℝ≥0} (x : α) :
-    ‖(⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) x‖ₑ = ‖f x‖ₑ := by
-  rw [← ofReal_norm]
-  simp
-
-theorem aestronglyMeasurable_iff_aestronglyMeasurable_embedRCLike {𝕂 : Type*} [RCLike 𝕂]
-  {f : α → ℝ≥0} :
-    AEStronglyMeasurable (⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) μ ↔ AEStronglyMeasurable f μ := by
-  constructor
-  · intro hf
-    have comp_eq : (⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) = fun x ↦ ⇑(algebraMap ℝ 𝕂) (f x).toReal := by
-      ext x
-      simp
-    rw [comp_eq] at hf
-    rwa [IsEmbedding.aestronglyMeasurable_comp_iff, IsEmbedding.aestronglyMeasurable_comp_iff] at hf
-    · exact (Isometry.isEmbedding fun _ ↦ congrFun rfl)
-    · exact (algebraMap_isometry ℝ 𝕂).isEmbedding
-  · intro hf
-    fun_prop
-
-theorem memLorentz_iff_memLorentz_embedRCLike {𝕂 : Type*} [RCLike 𝕂]
-  {f : α → ℝ≥0} :
+open RCLike in
+theorem memLorentz_iff_memLorentz_embedRCLike {𝕂 : Type*} [RCLike 𝕂] {f : α → ℝ≥0} :
     MemLorentz (⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) p q μ ↔ MemLorentz f p q μ := by
   constructor
   · intro hf
@@ -908,7 +511,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
   · rw [one_mul]
     intro f hf
     rw [memLorentz_iff_memLorentz_embedRCLike] at hf
-    rw [eLorentzNorm_congr_enorm_ae (Eventually.of_forall enorm_eq_enorm_embedRCLike)]
+    rw [eLorentzNorm_congr_enorm_ae (Eventually.of_forall RCLike.enorm_eq_enorm_embedRCLike)]
     apply (hT_nnreal f hf G hG).2
   · intro n f g hf_add hg_add hf hg hf' hg'
     calc _
@@ -979,15 +582,6 @@ lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*}
   (T_ae_eq_of_ae_eq : ∀ {f g : α → 𝕂} (_ : f =ᶠ[ae μ] g), T f =ᶠ[ae ν] T g) --TODO: incorporate into weakly_cont_T?
     :
     HasLorentzType T p 1 p ∞ μ ν (4 * c / p) := by
-  /-
-  by_cases p_ne_top : p = ⊤
-  · rw [p_ne_top] at hT
-    unfold HasRestrictedWeakType at hT
-    simp at hT
-    sorry
-  by_cases q_ne_top : q = ⊤
-  · sorry
-  -/
   rw [mul_div_assoc]
   apply HasRestrictedWeakType'.hasLorentzType hpq p_ne_top q_ne_top (by finiteness [hpq.ne_zero])
   apply HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal T_meas T_zero T_subadd T_submul
@@ -1015,30 +609,6 @@ lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*}
     apply T_ae_eq_of_ae_eq
     filter_upwards [hfg]
     simp
-  /-
-  · intro F hF F_finite
-    have := hT F hF F_finite
-    unfold T'
-    constructor
-    · apply T_meas
-      rw [memLorentz_iff_memLorentz_embedRCLike]
-      have : (1 : α → ℝ≥0) = fun _ ↦ 1 := rfl
-      constructor
-      · apply Measurable.aestronglyMeasurable
-        rwa [this, measurable_indicator_const_iff]
-      · rw [this, const_def, eLorentzNorm_indicator_const]
-        simp only [one_ne_zero, ↓reduceIte, one_ne_top, enorm_NNReal, ENNReal.coe_one, mul_one,
-          div_one, toReal_one, inv_one, ENNReal.rpow_one]
-        split_ifs
-        apply mul_lt_top (Ne.lt_top p_top)
-        exact rpow_lt_top_of_nonneg (by simp) F_finite.ne
-    · apply this.2.trans_eq'
-      congr
-      ext x
-      simp only [comp_apply, NNReal.coe_indicator, Pi.one_apply, NNReal.coe_one]
-      unfold indicator
-      split_ifs <;> simp
-  -/
   · simpa
   · intro F G hF F_finite hG G_finite
     have := hT F G hF F_finite hG G_finite
@@ -1091,7 +661,5 @@ lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*}
       apply Filter.Tendsto.comp (z := 𝓝 (toReal (f x))) _ this
       apply NNReal.continuous_coe.tendsto'
       rfl
-
-
 
 end MeasureTheory
