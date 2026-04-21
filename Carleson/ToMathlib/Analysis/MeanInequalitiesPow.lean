@@ -1,7 +1,7 @@
 import Mathlib.Analysis.MeanInequalitiesPow
 import Mathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 
--- Upstreaming status: looks useful and ready to go
+-- Upstreaming status: upstreamed in https://github.com/leanprover-community/mathlib4/pull/37547
 
 namespace ENNReal
 

@@ -1,6 +1,9 @@
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
--- Upstreaming status: useful and good to go. Easy generalisations of mathlib lemmas.
+-- Upstreaming status: `lintegral_eq_iSup_eapprox_lintegral'` and `lintegral_comp'`
+-- upstreamed in https://github.com/leanprover-community/mathlib4/pull/37558
+-- Remaining lemmas: shift/scaling aliases, `lintegral_set_mono_fn`
+-- (already `setLIntegral_mono'` in mathlib).
 
 open NNReal ENNReal MeasureTheory Set
 

@@ -2,7 +2,7 @@ import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 
 open MeasureTheory
 
--- Upstreaming status: rename to `memLp`, then ready for upstreaming.
+-- Upstreaming status: upstreamed in https://github.com/leanprover-community/mathlib4/pull/37560
 
 lemma ContinuousMap.memLp {α E : Type*} {m0 : MeasurableSpace α} {p : ENNReal} (μ : Measure α)
     [NormedAddCommGroup E] [TopologicalSpace α] [BorelSpace α] [SecondCountableTopologyEither α E]
