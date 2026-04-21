@@ -56,6 +56,11 @@ lemma measurableSet_superlevelSet {ε} [TopologicalSpace ε] [ContinuousENorm ε
   unfold superlevelSet
   measurability
 
+lemma superlevelSet_const {a : ε} :
+    superlevelSet (const α a) t = if t < ‖a‖ₑ then univ else ∅ := by
+  unfold superlevelSet
+  split_ifs with ht <;> simp [ht]
+
 /-! # The distribution function `d_f` -/
 
 /-- The distribution function of a function `f`.
@@ -236,7 +241,7 @@ lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (
     distribution f s μ ≤ distribution g t μ :=
   (distribution_mono_left h₁).trans (distribution_mono_right h₂)
 
-lemma distribution_snormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
+lemma distribution_eLpNormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
   meas_essSup_lt
 
 lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
@@ -290,33 +295,55 @@ lemma distribution_zero_eq_measure_support {ε} [TopologicalSpace ε] [ENormedAd
   congr with x
   simp
 
+lemma distribution_indicator_eq {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε}
+  {X : Set α} :
+    distribution (X.indicator f) x μ = μ (X ∩ superlevelSet f x) := by
+  unfold distribution superlevelSet
+  congr 1
+  ext y
+  unfold Set.indicator
+  simp only [Set.mem_setOf_eq, Set.mem_inter_iff]
+  split_ifs with hy <;> simp [hy]
+
+-- Lemma 1.1.24 of [Ian Tice]
+lemma distribution_indicator_le_measure {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
+  {f : α → ε} {X : Set α} :
+    distribution (X.indicator f) x μ ≤ μ X := by
+  rw [distribution_indicator_eq]
+  gcongr
+  simp
+
 lemma distribution_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
     distribution (s.indicator (Function.const α a)) t μ = (Set.Iio ‖a‖ₑ).indicator (fun _ ↦ μ s) t := by
-  unfold distribution indicator
-  split_ifs with h
-  · simp only [const_apply]
-    congr
-    ext x
-    rw [apply_ite enorm]
-    rw [enorm_zero]
-    constructor
-    · split_ifs with h'
-      · intro _
-        exact h'
-      · intro h''
-        exfalso
-        exact ENNReal.not_lt_zero h''
-    · intro hx
-      rwa [ite_cond_eq_true]
-      simpa only [eq_iff_iff, iff_true]
-  · convert measure_empty (μ := μ)
-    apply eq_empty_of_subset_empty
-    intro x
-    simp only [const_apply, mem_setOf_eq, mem_empty_iff_false, imp_false, not_lt]
-    split_ifs
-    · simp only [mem_Iio, not_lt] at h
-      exact h
-    · simp
+  rw [distribution_indicator_eq, superlevelSet_const]
+  unfold indicator
+  simp only [mem_Iio]
+  split_ifs with ht <;> simp
+
+lemma distribution_indicator_superlevelSet {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} {t : ℝ≥0∞} :
+    distribution ((superlevelSet f t).indicator f) x μ
+      = min (distribution f t μ) (distribution f x μ) := by
+  rw [distribution_indicator_eq]
+  by_cases h : t ≤ x
+  · rw [inter_eq_right.mpr (superlevelSet_antitone h), min_eq_right (distribution_mono_right h)]
+    rfl
+  · push_neg at h
+    rw [inter_eq_left.mpr (superlevelSet_antitone h.le), min_eq_left (distribution_mono_right h.le)]
+    rfl
+
+lemma distribution_indicator_superlevelSet_compl {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} (ht : distribution f t μ ≠ ∞) :
+    distribution ((superlevelSet f t)ᶜ.indicator f) x μ
+      = distribution f x μ - distribution f t μ := by
+  rw [distribution_indicator_eq]
+  by_cases h : t ≤ x
+  · rw [tsub_eq_zero_of_le (distribution_mono_right h), ← measure_empty (μ := μ)]
+    rw [← Set.diff_eq_compl_inter, Set.diff_eq_empty.mpr (superlevelSet_antitone h)]
+  · push_neg at h
+    rw [← Set.diff_eq_compl_inter,
+      measure_diff (superlevelSet_antitone h.le) (nullMeasurableSet_superlevelSet hf) ht]
+    rfl
 
 lemma distribution_eq_zero_iff {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} :
     distribution f t μ = 0 ↔ eLpNormEssSup f μ ≤ t := by
@@ -444,6 +471,17 @@ lemma distribution_indicator_add_of_support_subset_nnreal {f : α → ℝ≥0} {
     distribution (f + s.indicator (Function.const α c)) t μ
       = if t < c then μ s else distribution f (t - c) μ := by
   convert distribution_indicator_add_of_support_subset (by simp) (by simp) hfs
+
+lemma distribution_eq_distribution_prod {ε}
+  [ENorm ε] {f : α → ε} {t : ℝ≥0∞}
+  {β : Type*} {m' : MeasurableSpace β} {ν : Measure β} [IsProbabilityMeasure ν] :
+    distribution f t μ = distribution (fun x : α × β ↦ f x.1) t (μ.prod ν) := by
+  unfold distribution
+  have : {x : α × β | t < ‖f x.1‖ₑ} = {x | t < ‖f x‖ₑ} ×ˢ Set.univ := by
+    ext ⟨x, y⟩
+    rw [Set.mem_prod]
+    simp
+  rw [this, Measure.prod_prod, measure_univ, mul_one]
 
 end distribution
 

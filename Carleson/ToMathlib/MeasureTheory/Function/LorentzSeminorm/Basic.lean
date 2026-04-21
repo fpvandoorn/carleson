@@ -334,7 +334,7 @@ lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → 
     intro a x ha
     apply ContinuousWithinAt.ennreal_mul
     · fun_prop
-    · apply (continuousWithinAt_rearrangement (f := f) (μ := μ) x).congr_mono (Set.eqOn_refl _ _)
+    · apply continuousWithinAt_rearrangement.congr_mono (Set.eqOn_refl _ _)
       · simp
       · simp
     · rw [or_iff_not_imp_left]
@@ -420,7 +420,7 @@ lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → 
       simp only [Pi.one_apply, one_mul]
       apply Set.indicator_const_eq_indicator_const
       simp only [Set.mem_Iio]
-      apply lt_rearrangement_iff
+      apply lt_rearrangement_iff_lt_distribution
     _ = ∫⁻ l, (∫⁻ t in Set.Iio (distribution f l μ), t ^ ((q / p).toReal - 1)) * (q * l ^ (q.toReal - 1)) := by
       congr with l
       rw [← lintegral_mul_const _ (by fun_prop), ← lintegral_indicator measurableSet_Iio]

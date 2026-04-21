@@ -79,7 +79,7 @@ theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α →
         rw [← nonpos_iff_eq_zero]
         apply _root_.le_of_forall_pos_le_add
         intro ε hε
-        rw [zero_add, ← rearrangement_le_iff]
+        rw [zero_add, ← rearrangement_le_iff_distribution_le]
         rcases ha ε with h | h
         · order
         rw [h]
@@ -92,7 +92,7 @@ theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α →
     nth_rw 1 [← mul_one a]
     gcongr
     · exact a_ne_top
-    rw [ENNReal.lt_div_iff_mul_lt (by simp) (by simp), one_mul, lt_rearrangement_iff]
+    rw [ENNReal.lt_div_iff_mul_lt (by simp) (by simp), one_mul, lt_rearrangement_iff_lt_distribution]
     apply (ENNReal.lt_rpow_inv_iff hp).mp
     rwa [ENNReal.div_lt_iff (by right; assumption) (by right; assumption), mul_comm]
   · apply iSup_le
@@ -113,7 +113,7 @@ theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α →
         rw [← nonpos_iff_eq_zero]
         apply _root_.le_of_forall_pos_le_add
         intro ε hε
-        rw [zero_add, rearrangement_le_iff]
+        rw [zero_add, rearrangement_le_iff_distribution_le]
         rcases ha ε with h | h
         · order
         rw [h]
@@ -127,7 +127,7 @@ theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α →
     · exact a_ne_top
     rw [ENNReal.lt_div_iff_mul_lt (by simp) (by simp), one_mul]
     gcongr
-    rw [← lt_rearrangement_iff]
+    rw [← lt_rearrangement_iff_lt_distribution]
     rwa [ENNReal.div_lt_iff (by right; assumption) (by right; assumption), mul_comm]
 
 /-- The weak L^p norm of a function. -/
