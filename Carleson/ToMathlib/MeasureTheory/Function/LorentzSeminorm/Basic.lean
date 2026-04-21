@@ -1,3 +1,4 @@
+import Carleson.ToMathlib.MeasureTheory.Function.EssSup
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
 import Carleson.ToMathlib.RealInterpolation.Misc
@@ -197,98 +198,6 @@ lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
     _ = eLpNorm f (.ofReal p.toReal) μ := (eLpNorm_eq_distribution hf (ENNReal.toReal_pos p_zero p_eq_top)).symm
     _ = eLpNorm f p μ := by congr; exact p_eq.symm
 
---TODO: generalize, move?
-lemma essSup_le_iSup {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α} [CompleteLattice β]
-    (f : α → β) : essSup f μ ≤ ⨆ i, f i := by
-  apply essSup_le_of_ae_le
-  apply Filter.Eventually.of_forall
-  intro i
-  apply le_iSup
-
---TODO: generalize, move?
-lemma iSup_le_essSup {f : α → ℝ≥0∞} {μ : Measure α}
-  (h : ∀ {x}, ∀ {a}, a < f x → μ {y | a < f y} ≠ 0) :
-    ⨆ x, f x ≤ essSup f μ := by
-  apply iSup_le
-  intro i
-  rw [essSup_eq_sInf]
-  apply le_sInf
-  intro b hb
-  simp only [Set.mem_setOf_eq] at hb
-  apply le_of_forall_lt
-  intro c hc
-  have := h hc
-  contrapose! this
-  rw [← ENNReal.bot_eq_zero, ← le_bot_iff] at *
-  apply le_trans _ hb
-  apply measure_mono
-  intro x
-  simp only [Set.mem_setOf_eq]
-  intro hc
-  exact lt_of_le_of_lt this hc
-
---TODO: generalize, move?
-lemma ContinuousWithinAt.measure_lt_ne_zero [TopologicalSpace α] [LinearOrder α] [DenselyOrdered α]
-  [OrderTopology α] [ClosedIicTopology α] [μ.IsOpenPosMeasure] {f : α → ℝ≥0∞} {x : α}
-  (hx : ¬IsMax x) (hf : ContinuousWithinAt f (Set.Ioi x) x)
-  {a : ℝ≥0∞} (ha : a < f x) :
-    μ {y | a < f y} ≠ 0 := by
-  unfold ContinuousWithinAt at hf
-  set s := Set.Ioi a
-  have mem_nhds_s : s ∈ nhds (f x) := by
-    rw [IsOpen.mem_nhds_iff isOpen_Ioi]
-    simpa
-  have := hf mem_nhds_s
-  simp only [Filter.mem_map] at this
-  rw [← ENNReal.bot_eq_zero, ← bot_lt_iff_ne_bot]
-  rw [mem_nhdsWithin] at this
-  rcases this with ⟨u, u_open, x_in_u, u_inter_subset⟩
-  calc _
-    _ < μ (u ∩ Set.Ioi x) := by
-      rw [bot_lt_iff_ne_bot]
-      apply IsOpen.measure_ne_zero
-      · apply u_open.inter isOpen_Ioi
-      apply nonempty_nhds_inter_Ioi (IsOpen.mem_nhds u_open x_in_u) hx
-    _ ≤ μ (f ⁻¹' s) := by
-      apply measure_mono u_inter_subset
-    _ ≤ μ {y | a < f y} := by
-      apply measure_mono
-      unfold s Set.preimage
-      simp only [Set.mem_Ioi, Set.setOf_subset_setOf]
-      intro y h
-      exact h
-
---TODO: generalize, move?
---currently unused
-lemma eLpNormEssSup_eq_iSup' {f : ℝ≥0∞ → ℝ≥0∞}
-  (hf : ∀ (a : ℝ≥0∞) (x : ℝ≥0∞), a < f x → ContinuousWithinAt f (Set.Ioi x) x) (f_top : f ⊤ = ⊥) :
-    eLpNormEssSup f volume = ⨆ x, f x := by
-  apply le_antisymm
-  · apply essSup_le_iSup
-  · apply iSup_le_essSup
-    intro x a ha
-    apply (hf a x ha).measure_lt_ne_zero (x := x) (μ := volume) _ ha
-    contrapose! ha
-    rw [isMax_iff_eq_top] at ha
-    rw [ha, f_top]
-    exact zero_le _
-
---TODO: generalize, move?
-lemma eLpNormEssSup_nnreal_eq_iSup_nnreal {f : ℝ≥0∞ → ℝ≥0∞}
-  (hf : ∀ (a : ℝ≥0∞) (x : ℝ≥0), a < f x → ContinuousWithinAt f (Set.Ioi ↑x) ↑x) :
-    eLpNormEssSup (fun t : ℝ≥0 ↦ f t) volume = ⨆ (x : ℝ≥0), f x := by
-  apply le_antisymm
-  · apply essSup_le_iSup
-  · apply iSup_le_essSup
-    intro x a ha
-    apply ContinuousWithinAt.measure_lt_ne_zero (x := x) (μ := volume) (by simp) _ ha
-    have : ContinuousWithinAt (ENNReal.ofNNReal) Set.univ x := by
-      fun_prop
-    convert ContinuousWithinAt.comp_inter_of_eq (g := f) (hf a x ha) this rfl
-    simp only [Set.univ_inter]
-    ext y
-    simp
-
 lemma eLorentzNorm'_eq_wnorm (p_ne_top : p ≠ ∞) {f : α → ε} {μ : Measure α} :
     eLorentzNorm' f p ∞ μ = wnorm f p μ := by
   rw [wnorm_ne_top p_ne_top]
@@ -401,7 +310,6 @@ lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → 
           * (Set.Iio (rearrangement f t μ)).indicator (fun l ↦ q * l ^ (q.toReal - 1)) l) := by
       rw [lintegral_lintegral_swap]
       apply Measurable.aemeasurable
-      --apply?
       apply Measurable.mul (by fun_prop)
       apply Measurable.indicator (by fun_prop)
       change MeasurableSet {(a : ℝ≥0∞ × ℝ≥0∞) | a.2 ∈ Set.Iio (rearrangement f a.1 μ)}
@@ -506,7 +414,6 @@ lemma eLorentzNorm'_indicator_const {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
   simp only [Set.mem_Iio, eq_iff_iff]
   exact (ENNReal.coe_lt_iff_lt_toNNReal ha).symm
 
-
 lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
   (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) :
     eLorentzNorm' (s.indicator (Function.const α a)) p q μ
@@ -605,7 +512,6 @@ lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} :
     rw [wnorm_indicator_const h₀ h₁]
   · exact eLorentzNorm'_indicator_const' h₀ h₁ h₆ h₇
 
-
 lemma MemLorentz_iff_MemLp {f : α → ε} :
     MemLorentz f p p μ ↔ MemLp f p μ := by
   unfold MemLorentz MemLp
@@ -614,7 +520,6 @@ lemma MemLorentz_iff_MemLp {f : α → ε} :
     rwa [← eLorentzNorm_eq_eLpNorm h.1]
   · intro h
     rwa [eLorentzNorm_eq_eLpNorm h.1]
-
 
 -- TODO: could maybe be strengthened to ↔
 lemma MemLorentz_of_MemLorentz_ge {r₁ r₂ : ℝ≥0∞} (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) {f : α → ε}
