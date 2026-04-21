@@ -63,7 +63,7 @@ lemma eLorentzNorm'_eq_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α �
     eLorentzNorm' f p q μ = 0 := by
   unfold eLorentzNorm'
   conv in ↑t * distribution f _ μ ^ p⁻¹.toReal =>
-    rw [distribution_zero_enorm h,
+    rw [distribution_eq_zero_of_ae_zero_enorm h,
     ENNReal.zero_rpow_of_pos (by simp only [ENNReal.toReal_inv, inv_pos]; apply ENNReal.toReal_pos p_ne_zero p_ne_top),
     mul_zero]
   simp
@@ -541,7 +541,7 @@ lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0)
   rw [← this, ← ENNReal.mul_rpow_of_nonneg _ _ (by simp), ← ENNReal.rpow_mul]
   congr
   calc _
-    _ = ∫⁻ (a : ℝ) in ENNReal.ofReal ⁻¹' Set.Ico 0 (μ s) ∩ Set.Ioi 0,
+    _ = ∫⁻ (a : ℝ) in ENNReal.ofReal ⁻¹' Set.Iio (μ s) ∩ Set.Ioi 0,
           ENNReal.ofReal (a ^ (p.toReal⁻¹ * q.toReal - 1)) := by
       apply setLIntegral_congr_fun (by measurability)
       intro x hx
@@ -552,7 +552,7 @@ lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0)
       ring_nf
       rw [← ENNReal.ofReal_rpow_of_pos hx.2]
       congr
-  rw [ENNReal.ofReal_Ico_eq]
+  rw [ENNReal.ofReal_Iio_eq]
   have hpq : 0 < p.toReal⁻¹ * q.toReal := by
     apply mul_pos
     · rw [inv_pos]

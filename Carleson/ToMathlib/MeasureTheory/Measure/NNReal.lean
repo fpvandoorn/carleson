@@ -426,7 +426,7 @@ lemma ENNReal.ofReal_Ioo_eq {a b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ioo a
       rwa [lt_ofReal_iff_toReal_lt ha, ofReal_lt_iff_lt_toReal hx]
       aesop
 
-lemma ENNReal.ofReal_Ico_eq {b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ico 0 b
+lemma ENNReal.ofReal_Iio_eq {b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Iio b
     = if b = 0 then ∅ else if b = ∞ then Set.univ else Set.Iio b.toReal := by
   split_ifs with hb hb'
   · rw [hb]
@@ -434,12 +434,12 @@ lemma ENNReal.ofReal_Ico_eq {b : ℝ≥0∞} : ENNReal.ofReal ⁻¹' Set.Ico 0 b
   · rw [hb']
     simp only [preimage_eq_univ_iff]
     intro x hx
-    simp only [mem_Ico, zero_le, true_and]
+    simp only [mem_Iio]
     rcases hx with ⟨y, hy⟩
     rw [← hy]
     simp
   · ext x
-    simp only [mem_preimage, mem_Ico, zero_le, true_and, mem_Iio]
+    simp only [mem_preimage, mem_Iio]
     by_cases! hx : x < 0
     · rw [ENNReal.ofReal_of_nonpos hx.le]
       exact ⟨fun _ ↦ hx.trans_le (by positivity), fun _ ↦ by positivity⟩

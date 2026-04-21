@@ -37,6 +37,11 @@ lemma superlevelSet_antitone : Antitone (superlevelSet f) := by
   intro x hx
   exact lt_of_le_of_lt h hx
 
+lemma superlevelSet_zero_eq_support {ε} [TopologicalSpace ε] [ENormedAddCommMonoid ε] {f : α → ε} :
+    superlevelSet f 0 = f.support := by
+  unfold superlevelSet Function.support
+  simp
+
 @[measurability]
 lemma nullMeasurableSet_superlevelSet {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) :
@@ -251,7 +256,7 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {
     _ ≤ _ := measure_union_le _ _
 
 -- TODO: make this an iff?
-lemma distribution_zero_enorm {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
+lemma distribution_eq_zero_of_ae_zero_enorm {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
   unfold distribution
   rw [← nonpos_iff_eq_zero]
@@ -268,11 +273,15 @@ lemma distribution_zero_enorm {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     _ = 0 := by
       exact ae_iff.mp h
 
-lemma distribution_zero {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+lemma distribution_eq_zero_of_ae_zero {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε}
+  (h : f =ᵐ[μ] 0) :
     distribution f t μ = 0 := by
-  apply distribution_zero_enorm
-  simp only [EventuallyEq, comp_apply, Pi.ofNat_apply]
+  apply distribution_eq_zero_of_ae_zero_enorm
   filter_upwards [h] with x hx using (by simp [hx])
+
+@[simp] lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] :
+    distribution (0 : α → ε) t μ = 0 := by
+  apply distribution_eq_zero_of_ae_zero ae_eq_rfl
 
 lemma distribution_zero_eq_measure_support {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   {f : α → ε} :
@@ -369,7 +378,7 @@ lemma distribution_add {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g
       contrapose! this
       rw [this, enorm_zero]
 
-lemma distribution_smul_const {f : α → ℝ≥0∞}
+lemma distribution_const_smul {f : α → ℝ≥0∞}
   {a : ℝ≥0∞} (h : a ≠ 0 ∨ t ≠ 0) (h' : a ≠ ⊤ ∨ t ≠ ⊤) :
     distribution (a • f) t μ = distribution f (t / a) μ := by
   unfold distribution

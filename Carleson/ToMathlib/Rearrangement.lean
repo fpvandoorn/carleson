@@ -8,7 +8,6 @@ noncomputable section
 
 -- Upstreaming status: NOT READY; this file is being actively worked on.
 -- Needs significant clean-up (refactoring, code style, extracting lemmas etc.) first.
--- Warning: Lemmas might have missing assumptions.
 open scoped NNReal ENNReal
 
 variable {α ε ε' : Type*} {m : MeasurableSpace α}
@@ -36,28 +35,39 @@ variable {f : α → ε} {g : α → ε'} {μ : Measure α} {x y : ℝ≥0∞}
   unfold rearrangement
   simp
 
-@[gcongr] lemma rearrangement_mono_right (h : x ≤ y) :
+lemma rearrangement_eq_zero_of_ae_zero_enorm (h : enorm ∘ f =ᵐ[μ] 0) :
+    rearrangement f x μ = 0 := by
+  unfold rearrangement
+  simp_rw [distribution_eq_zero_of_ae_zero_enorm h]
+  simp
+
+lemma rearrangement_eq_zero_of_ae_zero {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε}
+  (h : f =ᵐ[μ] 0) :
+    rearrangement f x μ = 0 := by
+  apply rearrangement_eq_zero_of_ae_zero_enorm
+  filter_upwards [h] with x hx using (by simp [hx])
+
+@[simp] lemma rearrangement_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] :
+    rearrangement (0 : α → ε) x μ = 0 := by
+  apply rearrangement_eq_zero_of_ae_zero ae_eq_rfl
+
+@[gcongr] lemma rearrangement_antitone' (h : x ≤ y) :
     rearrangement f y μ ≤ rearrangement f x μ := by
   apply sInf_le_sInf
   intro σ hσ
   exact hσ.out.trans h
 
-lemma rearrangement_mono_right' : (Antitone (fun t ↦ rearrangement f t μ)) :=
-  fun _ _ h ↦ rearrangement_mono_right h
+lemma rearrangement_antitone : (Antitone (fun t ↦ rearrangement f t μ)) :=
+  fun _ _ h ↦ rearrangement_antitone' h
 
-@[gcongr] lemma rearrangement_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
+@[gcongr] lemma rearrangement_mono_fun (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     rearrangement f x μ ≤ rearrangement g x μ := by
   apply sInf_le_sInf
   exact fun σ hσ => (distribution_mono_left h).trans hσ
 
-/-
-lemma rearrangement_antitone {f : α → ε} {μ : Measure α} :
-  Antitone (rearrangement f · μ) := sorry
--/
-
-@[gcongr] lemma rearrangement_mono (h1 : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h2 : x ≤ y) :
+@[gcongr] lemma rearrangement_le_rearrangement (h1 : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h2 : x ≤ y) :
     rearrangement f y μ ≤ rearrangement g x μ :=
-  le_trans (rearrangement_mono_right h2) (rearrangement_mono_left h1)
+  le_trans (rearrangement_antitone' h2) (rearrangement_mono_fun h1)
 
 lemma rearrangment_eq_rearrangement_of_distribution_eq_distribution {β : Type*}
   {m' : MeasurableSpace β} {ν : Measure β} {g : β → ε'} {t : ℝ≥0∞}
@@ -68,17 +78,12 @@ lemma rearrangment_eq_rearrangement_of_distribution_eq_distribution {β : Type*}
 
 @[measurability, fun_prop]
 lemma rearrangement_measurable₀ : Measurable (fun t ↦ rearrangement f t μ) :=
-  Antitone.measurable (rearrangement_mono_right' (f := f) (μ := μ))
+  Antitone.measurable (rearrangement_antitone (f := f) (μ := μ))
 
 @[measurability, fun_prop]
 lemma rearrangement_measurable {α' : Type*} {m : MeasurableSpace α'} {g : α' → ℝ≥0∞}
   (hg : Measurable g) :
     Measurable (fun y : α' ↦ rearrangement f (g y) μ) := by fun_prop
-
-/-
-lemma rearrangement_smul_left (c : 𝕜) :
-  rearrangement (c • f) x μ = ‖c‖ₑ * rearrangement f x μ := sorry
--/
 
 lemma rearrangement_distribution_le : rearrangement f (distribution f x μ) μ ≤ x :=
   sInf_le (by simp)
@@ -205,6 +210,14 @@ lemma rearrangement_indicator_superlevelSet {ε} [TopologicalSpace ε] [ENormedA
   · push_neg at h
     rw [rearrangement_le_iff] at h
     simp [h]
+
+lemma support_rearrangement_eq {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
+  {f : α → ε} :
+    (rearrangement f · μ).support = Set.Iio (μ f.support) := by
+  ext x
+  simp only [Function.mem_support, ne_eq, Set.mem_Iio]
+  rw [← distribution_zero_eq_measure_support, ← lt_rearrangement_iff]
+  simp
 
 lemma rearrangement_indicator_superlevelSet_compl {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   {f : α → ε} (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} (ht : distribution f t μ ≠ ∞) :
@@ -739,7 +752,7 @@ lemma continuousWithinAt_rearrangement
   · intro y hy
     apply Filter.eventually_of_mem self_mem_nhdsWithin
     intro b hb
-    exact lt_of_le_of_lt (rearrangement_mono_right hb) hy
+    exact lt_of_le_of_lt (rearrangement_antitone' hb) hy
 
 -- Lemma 1.1.22 of [Ian Tice]
 lemma sSup_rearrangement :
@@ -750,7 +763,7 @@ lemma sSup_rearrangement :
   · intro i
     simp only [gt_iff_lt, iSup_le_iff]
     intro hi
-    exact rearrangement_mono_right hi.le
+    exact rearrangement_antitone' hi.le
   · intro w hw
     have := (h.eventually (lt_mem_nhds hw)).and self_mem_nhdsWithin
     obtain ⟨t, ht₁, ht₂⟩ := this.exists
@@ -796,11 +809,11 @@ lemma eLpNorm_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f 
 @[simp]
 lemma rearrangement_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {s : Set α} {a : ε} :
   rearrangement (s.indicator (Function.const _ a)) x μ
-    = ((Set.Ico 0 (μ s)).indicator (Function.const _ ‖a‖ₑ) x) := by
+    = ((Set.Iio (μ s)).indicator (Function.const _ ‖a‖ₑ) x) := by
   unfold rearrangement
   simp_rw [distribution_indicator_const]
   unfold Set.indicator
-  simp only [Set.mem_Iio, Set.mem_Ico, zero_le, true_and, Function.const_apply]
+  simp only [Set.mem_Iio, Function.const_apply]
   split_ifs with h
   · apply le_antisymm
     · apply sInf_le
@@ -817,6 +830,46 @@ lemma rearrangement_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMo
     split_ifs
     · assumption
     · simp
+
+lemma rearrangement_const_smul {f : α → ℝ≥0∞} {a : ℝ≥0∞} :
+    rearrangement (a • f) x μ = a * rearrangement f x μ := by
+  by_cases a_zero : a = 0
+  · rw [a_zero]
+    simp
+  by_cases a_top : a = ⊤
+  · have : ∞ • f = f.support.indicator (Function.const _ ∞) := by
+      ext x
+      unfold Set.indicator Function.support
+      split_ifs with h
+      · simp [ENNReal.top_mul h]
+      · simp_all
+    rw [a_top, this, rearrangement_indicator_const, ← distribution_zero_eq_measure_support]
+    unfold Set.indicator
+    simp only [Set.mem_Iio, enorm_eq_self, Function.const_apply]
+    split_ifs with hx
+    · rw [ENNReal.top_mul]
+      rw [← lt_rearrangement_iff] at hx
+      exact hx.ne'
+    · push_neg at hx
+      rw [← rearrangement_le_iff, nonpos_iff_eq_zero] at hx
+      rw [hx, mul_zero]
+  apply le_antisymm
+  · apply sInf_le
+    simp only [Set.mem_setOf_eq]
+    rw [distribution_const_smul (Or.inl a_zero) (Or.inl a_top),
+      mul_div_assoc, ENNReal.mul_div_cancel a_zero a_top]
+    apply distribution_rearrangement_le
+  · apply le_sInf
+    intro s hs
+    simp only [Set.mem_setOf_eq] at hs
+    rw [distribution_const_smul (Or.inl a_zero) (Or.inl a_top)] at hs
+    calc _
+      _ ≤ a * rearrangement f (distribution f (s / a) μ) μ := by gcongr
+      _ ≤ a * (s / a) := by
+        gcongr
+        apply rearrangement_distribution_le
+      _ = s := ENNReal.mul_div_cancel a_zero a_top
+
 
 /-
 lemma ae_eq_zero_of_rearrangement_eq_zero [TopologicalSpace ε] [ENormedAddMonoid ε]
@@ -1343,7 +1396,7 @@ lemma lintegral_rearrangement_eq''' {ε} [TopologicalSpace ε] [ContinuousENorm 
           dsimp only
           apply le_antisymm
           · rwa [rearrangement_le_iff]
-          · apply rearrangement_mono_right hs'.le
+          · apply rearrangement_antitone' hs'.le
         _ = rearrangement f t μ * (t - distribution f (rearrangement f t μ) μ) := by
           rw [setLIntegral_const]
           congr
@@ -1414,7 +1467,7 @@ lemma lintegral_rearrangement_eq''' {ε} [TopologicalSpace ε] [ContinuousENorm 
   · simp only [iSup_le_iff]
     intro d d_le_one d_int
     apply (lintegral_withDensity_le_lintegral_rearrangement_withDensity hf sorry).trans --TODO: assume measurability for d?
-    apply (Antitone.lintegral_withDensity_le rearrangement_mono_right' (by fun_prop) _ (by fun_prop)).trans_eq
+    apply (Antitone.lintegral_withDensity_le rearrangement_antitone (by fun_prop) _ (by fun_prop)).trans_eq
     · congr
       rw [← d_int, lintegral_rearrangement sorry] --TODO: assume measurability for d?
       simp

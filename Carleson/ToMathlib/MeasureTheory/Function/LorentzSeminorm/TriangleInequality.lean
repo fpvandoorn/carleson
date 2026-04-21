@@ -313,7 +313,7 @@ lemma antitone_lorentz_helper (hq : 1 ≤ q) (q_le_p : q ≤ p) (p_top : p ≠ �
     apply ENNReal.one_le_toReal hq (q_le_p.trans_lt p_top.lt_top)
   · gcongr 1
     · exact antitone_rpow_inv_sub_inv q_le_p (zero_lt_one.trans_le hq).ne' h
-    · apply rearrangement_mono_right (by simpa)
+    · apply rearrangement_antitone' (by simpa)
 
 @[measurability, fun_prop]
 lemma lorentz_helper_measurable : Measurable (lorentz_helper f p q μ) := by
