@@ -1,5 +1,8 @@
+import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
 import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
-import Carleson.ToMathlib.Rearrangement
+import Carleson.ToMathlib.WeakType
+import Carleson.ToMathlib.Topology.Order.Basic
+import Carleson.ToMathlib.Order.CompleteLattice.Basic
 
 -- Upstreaming status: NOT READY yet (mostly); this file is being actively worked on.
 -- Needs significant clean-up (refactoring, code style, extracting lemmas etc.) first.
@@ -38,18 +41,6 @@ def eLorentzNorm' (f : α → ε) (p : ℝ≥0∞) (q : ℝ≥0∞) (μ : Measur
 lemma eLorentzNorm'_exponent_zero' {f : α → ε} {μ : Measure α} : eLorentzNorm' f p 0 μ = 0 := by
   simp [eLorentzNorm']
 
-lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} {μ : Measure α} :
-  eLorentzNorm' f p q μ
-    = eLpNorm (fun (t : ℝ≥0) ↦ t ^ p⁻¹.toReal * rearrangement f t μ) q
-        (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
-  sorry
-
---TODO: probably need some assumptions on q here
-lemma eLorentzNorm'_eq' (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} {μ : Measure α} :
-  eLorentzNorm' f p q μ
-    = eLpNorm (fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement f t μ) q := by
-  sorry --should be an easy consequence of eLorentzNorm'_eq
-
 lemma eLorentzNorm'_eq_integral_distribution_rpow {_ : MeasurableSpace α} {f : α → ε}
   {μ : Measure α} :
     eLorentzNorm' f p 1 μ = p * ∫⁻ (t : ℝ≥0), distribution f t μ ^ p.toReal⁻¹ := by
@@ -86,17 +77,6 @@ lemma eLorentzNorm_eq_eLorentzNorm' (hp_ne_zero : p ≠ 0) (hp_ne_top : p ≠ �
     eLorentzNorm f p q μ = eLorentzNorm' f p q μ := by
   unfold eLorentzNorm
   simp [hp_ne_zero, hp_ne_top]
-
---TODO: remove this?
-lemma eLorentzNorm_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} :
-  eLorentzNorm f p q μ
-    = eLpNorm (fun (t : ℝ≥0) ↦ t ^ p⁻¹.toReal * rearrangement f t μ) q
-        (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
-  unfold eLorentzNorm
-  split_ifs with hp0
-  · contradiction
-  exact eLorentzNorm'_eq p_nonzero p_ne_top
-
 
 @[simp]
 lemma eLorentzNorm_exponent_zero {f : α → ε} : eLorentzNorm f 0 q μ = 0 := by simp [eLorentzNorm]

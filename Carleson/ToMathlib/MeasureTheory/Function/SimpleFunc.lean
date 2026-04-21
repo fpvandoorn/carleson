@@ -21,6 +21,17 @@ variable {α β γ δ : Type*}
 
 namespace SimpleFunc
 
+--TODO: tag this as @[fun_prop] (currently this gives an error)
+theorem measurable_comp [MeasurableSpace α] [MeasurableSpace γ] {f : SimpleFunc α β}
+  {g : β → γ} :
+    Measurable (g ∘ f) :=
+  SimpleFunc.measurable_bind _ (fun b _ ↦ g b) (fun _ ↦ measurable_const)
+
+theorem measurable_comp' [MeasurableSpace α] [MeasurableSpace γ] {f : SimpleFunc α β}
+  {g : β → γ} :
+    Measurable fun a ↦ g (f a) :=
+  SimpleFunc.measurable_bind _ (fun b _ ↦ g b) (fun _ ↦ measurable_const)
+
 /- Proof stolen from the mathlib `SimpleFunc.induction` with a minor modification
    that is even suggested there. -/
 --TODO: update notation in mathlib version to match this one
@@ -66,16 +77,17 @@ protected theorem induction₀ [MeasurableSpace α] [AddZeroClass γ]
     by_cases hy : y ∈ f ⁻¹' {x} <;> simp [g, hy]
 
 
---TODO: generalize this to not only work for ℝ≥0 ?
 open Pointwise in
-private lemma helper [MeasurableSpace α] {f : SimpleFunc α ℝ≥0} (hs : (f.range \ {0}).Nonempty) :
+private lemma helper [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β] [CanonicallyOrderedAdd β]
+  [OrderBot β] [Sub β] [OrderedSub β]
+  {f : SimpleFunc α β} (hs : (f.range \ {0}).Nonempty) :
   let s := f.range \ {0};
   ((f - (const α (s.min' hs)).restrict (support ⇑f)).range \ {0}).card + 1
     = (f.range \ {0}).card := by
   intro s
   have : f.range \ {0} =
     insert (s.min' hs)
-      ((((f - (const α (s.min' hs)).restrict (support ⇑f)).range \ {0})) + ({s.min' hs} : Finset ℝ≥0)) := by
+      ((((f - (const α (s.min' hs)).restrict (support ⇑f)).range \ {0})) + ({s.min' hs} : Finset β)) := by
     rw [← Finset.coe_inj]
     push_cast
     ext x
@@ -109,7 +121,7 @@ private lemma helper [MeasurableSpace α] {f : SimpleFunc α ℝ≥0} (hs : (f.r
           contradiction
         contrapose! this
         exact tsub_eq_zero_iff_le.mp this
-      · rw [← NNReal.coe_inj, NNReal.coe_add, NNReal.coe_sub this.le, sub_add_cancel]
+      · rw [tsub_add_cancel_of_le this.le]
     · rintro (x_eq | ⟨y', ⟨⟨⟨y, hy⟩, y'_ne_zero⟩ , h⟩⟩)
       · have x_mem := Finset.min'_mem s hs
         rw [← x_eq] at x_mem
@@ -125,32 +137,233 @@ private lemma helper [MeasurableSpace α] {f : SimpleFunc α ℝ≥0} (hs : (f.r
           · simp only [tsub_zero] at hy
             rw [hy] at hfy
             contradiction
-          · rw [← h, add_comm]
-            rwa [← NNReal.coe_inj, NNReal.coe_sub, sub_eq_iff_eq_add', ← NNReal.coe_add, NNReal.coe_inj] at hy
-            apply Finset.min'_le--TODO: generalize this to not only work for ℝ≥0 ?
+          · rw [← h, add_comm, ← hy]
+            simp only [coe_const, Function.const_apply]
+            symm
+            apply add_tsub_cancel_of_le
+            apply Finset.min'_le
             unfold s
             simpa
         · rw [← h, ← ne_eq]
-          apply @ne_zero_of_lt _ _ _ (0 : NNReal)
+          rw [← bot_eq_zero', ← bot_lt_iff_ne_bot, bot_eq_zero']
           apply add_pos_of_pos_of_nonneg _ (by simp)
-          rw [← NNReal.coe_pos]
           apply lt_of_le_of_ne (by simp)
-          rw [← NNReal.coe_inj, ← ne_eq] at y'_ne_zero
-          simp only [NNReal.coe_zero] at y'_ne_zero
-          exact y'_ne_zero.symm
-  rw [this, Finset.card_insert_of_notMem, Finset.card_add_singleton]
-  rw [Finset.add_def]
-  simp
+          symm
+          exact y'_ne_zero
+  rw [this, Finset.card_insert_of_notMem, Finset.add_def, Finset.card_image_of_injOn]
+  · simp
+  · simp only [Finset.product_singleton, Finset.coe_map, Function.Embedding.coeFn_mk,
+    Finset.coe_sdiff, coe_range, coe_sub, Finset.coe_singleton]
+    intro p hp q hq
+    simp only [mem_image, mem_diff, Set.mem_range, Pi.sub_apply, mem_singleton_iff, ↓existsAndEq,
+      true_and] at *
+    rcases hp with ⟨y, hy, hp⟩
+    rcases hq with ⟨z, hz, hq⟩
+    have hy : y ∈ support ⇑f := by
+      contrapose! hy
+      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]
+      split_ifs
+      simp at hy
+      simpa
+    have hy : ((const α (s.min' hs)).restrict (support ⇑f)) y = s.min' hs := by
+      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]
+      split_ifs
+      simp
+    have hz : z ∈ support ⇑f := by
+      contrapose! hz
+      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]
+      split_ifs
+      simp at hz
+      simpa
+    have hz : ((const α (s.min' hs)).restrict (support ⇑f)) z = s.min' hs := by
+      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]
+      split_ifs
+      simp
+    rw [← hp, ← hq]
+    simp only [Prod.mk.injEq, and_true]
+    rw [hy, hz, tsub_add_cancel_of_le, tsub_add_cancel_of_le]
+    · grind
+    · apply Finset.min'_le
+      unfold s
+      simpa
+    · apply Finset.min'_le
+      unfold s
+      simpa
+  · rw [Finset.add_def]
+    simp only [Finset.product_singleton, Finset.mem_image, Finset.mem_map, Finset.mem_sdiff,
+      mem_range, coe_sub, Set.mem_range, Pi.sub_apply, Finset.mem_singleton,
+      Function.Embedding.coeFn_mk, ↓existsAndEq, true_and, exists_exists_and_eq_and, not_exists,
+      not_and]
+    intro x
+    rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]
+    split_ifs with hx
+    · simp only [coe_const, Function.const_apply]
+      contrapose
+      intro h
+      rw [tsub_add_cancel_of_le] at h
+      · rw [h, tsub_self]
+      apply Finset.min'_le
+      unfold s
+      simpa
+    · simp only [tsub_zero]
+      contrapose
+      intro _
+      simp at hx
+      assumption
 
+--TODO: move
+--TODO: formulate this with `IsLowerSet` and write a separate lemma to distinguish the cases
+open Classical in
+lemma Antitone.support_eq [ConditionallyCompleteLinearOrderBot α] [AddMonoid β] [LinearOrder β] [CanonicallyOrderedAdd β] [OrderBot β]
+  {f : α → β} (hf : Antitone f) :
+    f.support = if (BddAbove f.support) then
+                  if (sSup f.support ∈ f.support)
+                    then Set.Iic (sSup f.support)
+                  else Set.Iio (sSup f.support)
+                else Set.univ
+    := by
+  ext x
+  simp only [Function.mem_support, ne_eq, ite_not]
+  split_ifs with h h'
+  · contrapose
+    simp only [mem_Iio, not_lt]
+    constructor
+    · intro h''
+      apply csSup_le'
+      rw [mem_upperBounds]
+      intro y hy
+      contrapose! hy
+      simp only [Function.mem_support, ne_eq, Decidable.not_not]
+      rw [← bot_eq_zero', ← le_bot_iff]
+      convert (hf hy.le).trans_eq h''
+      exact bot_eq_zero'
+    · intro h''
+      rw [← bot_eq_zero', ← le_bot_iff]
+      convert (hf h'').trans_eq h'
+      exact bot_eq_zero'
+  · contrapose
+    simp only [mem_Iic, not_le]
+    constructor
+    · intro h''
+      apply lt_of_le_of_ne
+      · apply csSup_le'
+        rw [mem_upperBounds]
+        intro y hy
+        contrapose! hy
+        simp only [Function.mem_support, ne_eq, Decidable.not_not]
+        rw [← bot_eq_zero', ← le_bot_iff]
+        convert (hf hy.le).trans_eq h''
+        exact bot_eq_zero'
+      · contrapose! h'
+        rwa [h']
+    · intro h''
+      contrapose! h''
+      rw [le_csSup_iff' h]
+      intro y hy
+      rw [mem_upperBounds] at hy
+      apply hy
+      simpa
+  · simp only [mem_univ, iff_true]
+    contrapose! h
+    use x
+    intro y hy
+    rw [Function.mem_support, ← bot_eq_zero', ← bot_lt_iff_ne_bot, bot_eq_zero'] at hy
+    have := h.trans_lt hy
+    contrapose! this
+    exact hf this.le
 
---TODO: generalize this to not only work for ℝ≥0 ?
 @[elab_as_elim]
-protected theorem induction'' [MeasurableSpace α]
-  {motive : (SimpleFunc α ℝ≥0) → Prop}
-  (const : ∀ (c : ℝ≥0) {s : Set α} (_ : MeasurableSet s), motive ((SimpleFunc.const α c).restrict s))
-  (add : ∀ ⦃f : SimpleFunc α ℝ≥0⦄ (c : ℝ≥0) ⦃s : Set α⦄ (_ : MeasurableSet s), (Function.support ⇑f) ⊆ s →
+protected theorem antitone_induction [MeasurableSpace α] [ConditionallyCompleteLinearOrderBot α]
+  [LinearOrder β] [AddCommMonoid β] [CanonicallyOrderedAdd β] [OrderBot β] [Sub β] [OrderedSub β]
+  {motive : (SimpleFunc α β) → Prop}
+  (const'' : ∀ (c : β) (b : α), motive ((SimpleFunc.const α c).restrict (Set.Iio b)))
+  (const' : ∀ (c : β) (b : α), motive ((SimpleFunc.const α c).restrict (Set.Iic b)))
+  (const : ∀ (c : β), motive (SimpleFunc.const α c))
+  (add : ∀ ⦃f : SimpleFunc α β⦄ (c : β) ⦃s : Set α⦄ (_ : MeasurableSet s), (Function.support ⇑f) ⊆ s →
     motive f → motive ((SimpleFunc.const α c).restrict s) →
-      motive (f + ((SimpleFunc.const α c).restrict s))) (f : SimpleFunc α ℝ≥0) :
+      motive (f + ((SimpleFunc.const α c).restrict s))) (f : SimpleFunc α β) (hf : Antitone f) :
+        motive f := by
+  classical
+  generalize h : (f.range \ {0}).card = n
+  induction n generalizing f with
+  | zero =>
+    rw [Finset.card_eq_zero] at h
+    rw [← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range] at h
+    rw [Finset.coe_empty, diff_eq_empty, Set.range_subset_singleton] at h
+    convert const 0
+    ext x
+    simp [h]
+  | succ n ih =>
+    have nonempty : (f.range \ {0}).Nonempty := by
+      rw [← Finset.card_ne_zero]
+      simp [h]
+    have my := f.measurableSet_support
+    let g := (SimpleFunc.const α (Finset.min' _ nonempty)).restrict (support ⇑f)
+    let f' := f - g
+    have Pg : motive g := by
+      unfold g
+      rw [Antitone.support_eq hf]
+      split_ifs
+      · apply const'
+      · apply const''
+      · simp only [restrict_univ]
+        apply const
+    have f_eq : f = f' + g := by
+      unfold f'
+      ext x
+      simp only [coe_add, coe_sub, Pi.add_apply, Pi.sub_apply]
+      rw [tsub_add_cancel_of_le]
+      unfold g
+      rw [restrict_apply _ my]
+      apply indicator_le
+      simp only [Function.mem_support, ne_eq]
+      intro y hy
+      apply Finset.min'_le
+      simpa
+    have Pf' : motive f' := by
+      let t := f'.range \ {0}
+      apply ih _
+      · unfold f'
+        intro x y hxy
+        simp only [coe_sub, Pi.sub_apply]
+        · rw [SimpleFunc.restrict_apply _ (measurableSet_support f),
+              SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator, Set.indicator]
+          split_ifs with hy hx hx
+          · gcongr
+            · exact hf hxy
+            simp
+          · exfalso
+            simp only [Function.mem_support, ne_eq, Decidable.not_not] at hx hy
+            apply hy
+            rw [← bot_eq_zero', ← le_bot_iff]
+            convert (hf hxy).trans_eq hx
+            exact bot_eq_zero'
+          · simp only [Function.mem_support, ne_eq, Decidable.not_not] at hy
+            rw [hy]
+            simp
+          · simp only [tsub_zero]
+            apply hf hxy
+      · apply @Nat.add_right_cancel _ 1
+        unfold f' g
+        rwa [SimpleFunc.helper]
+    rw [f_eq]
+    apply add _ my _ Pf' Pg
+    intro x
+    unfold f'
+    simp only [coe_sub, Function.mem_support, Pi.sub_apply, ne_eq]
+    intro h
+    contrapose! h
+    rw [h]
+    simp
+
+@[elab_as_elim]
+protected theorem induction'' [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β]
+  [CanonicallyOrderedAdd β] [OrderBot β] [Sub β] [OrderedSub β]
+  {motive : (SimpleFunc α β) → Prop}
+  (const : ∀ (c : β) {s : Set α} (_ : MeasurableSet s), motive ((SimpleFunc.const α c).restrict s))
+  (add : ∀ ⦃f : SimpleFunc α β⦄ (c : β) ⦃s : Set α⦄ (_ : MeasurableSet s), (Function.support ⇑f) ⊆ s →
+    motive f → motive ((SimpleFunc.const α c).restrict s) →
+      motive (f + ((SimpleFunc.const α c).restrict s))) (f : SimpleFunc α β) :
         motive f := by
   classical
   generalize h : (f.range \ {0}).card = n
@@ -180,9 +393,8 @@ protected theorem induction'' [MeasurableSpace α]
     have f_eq : f = f' + g := by
       unfold f'
       ext x
-      simp only [coe_add, coe_sub, Pi.add_apply, Pi.sub_apply, NNReal.coe_add]
-      rw [NNReal.coe_sub]
-      · simp
+      simp only [coe_add, coe_sub, Pi.add_apply, Pi.sub_apply]
+      rw [tsub_add_cancel_of_le]
       unfold g
       rw [restrict_apply _ my]
       apply indicator_le
@@ -334,5 +546,35 @@ protected theorem Measurable.ennreal_induction' {α : Type*} {mα : MeasurableSp
   · rw [SimpleFunc.iSup_eapprox_apply hf]
   · exact fun n =>
       @simpleFunc (SimpleFunc.eapprox f n)
+
+lemma Antitone.antitone_eapprox {α : Type*} [TopologicalSpace α] {mα : MeasurableSpace α} [BorelSpace α]
+  [LinearOrder α] [OrderClosedTopology α] ⦃f : α → ℝ≥0∞⦄ (hf : Antitone f) {n : ℕ} :
+    Antitone (SimpleFunc.eapprox f n) := by
+  unfold SimpleFunc.eapprox
+  intro x y hxy
+  rw [SimpleFunc.approx_apply _ hf.measurable, SimpleFunc.approx_apply _ hf.measurable]
+  gcongr with m hm
+  split_ifs with hy hx
+  · rfl
+  · exfalso
+    push_neg at hx
+    exact lt_irrefl _ ((hy.trans (hf hxy)).trans_lt hx)
+  · simp only [zero_le]
+  · rfl
+
+--modified from ennreal_induction
+@[elab_as_elim]
+protected theorem Antitone.ennreal_induction' {α : Type*} [TopologicalSpace α] {mα : MeasurableSpace α} [BorelSpace α]
+  [LinearOrder α] [OrderClosedTopology α]
+   {motive : (α → ℝ≥0∞) → Prop}
+    (simpleFunc : ∀ ⦃f : SimpleFunc α ℝ≥0∞⦄, Antitone f → motive f)
+    (iSup :
+      ∀ ⦃f : ℕ → (SimpleFunc α ℝ≥0∞)⦄,
+        Monotone f → (∀ (n : ℕ), motive (f n)) → motive fun x ↦ ⨆ n, f n x)
+    ⦃f : α → ℝ≥0∞⦄ (hf : Antitone f) : motive f := by
+  convert iSup (SimpleFunc.monotone_eapprox f) _ using 2
+  · rw [SimpleFunc.iSup_eapprox_apply hf.measurable]
+  · exact fun n =>
+      simpleFunc hf.antitone_eapprox
 
 end MeasureTheory

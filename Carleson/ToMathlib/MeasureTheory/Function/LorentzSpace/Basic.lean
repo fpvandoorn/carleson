@@ -13,7 +13,7 @@ namespace MeasureTheory
 
 
 /-- TODO: basic results -/
-def Lorentz {α ε : Type*} (p q : ℝ≥0∞) {m0 : MeasurableSpace α} (μ : Measure α) [NoAtoms μ]
+def Lorentz {α ε : Type*} (p q : ℝ≥0∞) {m0 : MeasurableSpace α} (μ : Measure α)
   [TopologicalSpace ε] [ESeminormedAddMonoid ε] [ContinuousAdd ε] :
     AddSubmonoid (α →ₘ[μ] ε) where
   carrier := {f | eLorentzNorm f p q μ < ⊤}
