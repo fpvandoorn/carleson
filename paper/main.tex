@@ -128,7 +128,7 @@ collaborative effort, written and developed in public.
 
 \subsection{Overview of the formalization project}\label{subsec:overview}
 % TODO: I assume that the classical and generalized Carleson theorems will already be mentioned in the previous subsection, so that I can cite them here.
-The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result. 
+The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result.
 
 The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization was since the beginning envisioned as a large scale collaborative project. This posed a problem, since there are not many experts in formalization that are also experts in harmonic analysis, so most of the potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
 
@@ -293,7 +293,6 @@ Some definitions only require the existence of an enorm; many results require su
 Most lemmas necessary in this project only require an \lean{ENormedAddCommMonoid}, i.e.\ an abelian monoid endowed with a continuous enorm that is positive definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions. % for instance, don't require positive definiteness
 
 Pursuing this approach required generalising all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalisation helped a lot by allowing to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
-%; while massive, this actually led to simplifications.
 The final phase involved generalising lemmas: often, this required small changes (such as, constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no more changes needed to be made.
 
 To illustrate the magnitude of this refactoring, let us give some statistics: phase two (changing the basic definitions) changed about 300 lines of code; phase three (changing lemma statements to enorms) about 1000, and the lemma generalisations so far touched about 2500 lines of code.
@@ -303,9 +302,22 @@ The last phase (generalising mathlib lemmas) is not exhaustive: while substantia
 The process of generalisation revealed that this abstraction is also useful on its own: previously, many proofs in mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using enorms provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics.
 
 \subsection{Working with $L^p$ functions}\label{subsec:Lp}
-\begin{itemize}
-	\item Working with \texttt{MemLp}, not functions on \texttt{Lp}.
-\end{itemize}
+
+% shorter version would start with
+% Experience in this project has demonstrated that working with $L^p$ functions as actual functions (using \lean{MemLp}) as opposed to their equivalence classes (\lean{MeasureTheory.Lp}) is much more ergonomic.
+Working with $L^p$ functions presents a design choice: should one work with members of $L^p$ space (i.e., equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}), or work with representatives (\lean{MemLp}) instead?
+The mathematical difference is very small: virtually all operations in the project respesct a.e.\ equality.
+Formalisation ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
+(For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
+While the \lean{filter_upwards} tactic simplifies reducing results form almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
+
+% is this true? is this useful to say? has this been observed already?
+Incidentally, many more lemmas in mathlib are stated for \lean{MemLp} than for \lean{Lp}: this underscores this choice.
+% Does this have other reasons, such as transitioning between different function properties?
+
+This relates well with the use of enorms (\ref{subsec:enorm}): \lean{Lp E p µ} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not posess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalisation to $\ennreal$ in the first place.
+
+This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalised as \lean{{f : X → Y} (hf : Continuous f)} instead of the bundled \lean{f : ContinuousMap X Y}.
 
 \subsection{The \texttt{BoundedCompactSupport} structure}\label{subsec:bdd_comp_supp}
 \begin{itemize}
