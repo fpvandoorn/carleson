@@ -1,6 +1,7 @@
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
 
--- Upstreaming status: ready to be upstreamed
+-- Upstreaming status: upstreamed as `measurable_iSup_of_lowerSemicontinuous` (generalized) in
+-- https://github.com/leanprover-community/mathlib4/pull/37552
 
 open Set TopologicalSpace ENNReal
 

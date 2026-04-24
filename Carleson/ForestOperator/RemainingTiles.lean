@@ -625,7 +625,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S), (D : ℝ≥0∞) ^ (-k * κ / 2)) *
     eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume := by
   have aem_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f) volume :=
-    (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
+    Measurable.maximalFunction.aemeasurable
   classical
   calc
     _ ≤ _ := e764_preCS hu₁ hu₂ hu h2u hf

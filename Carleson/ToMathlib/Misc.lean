@@ -87,7 +87,7 @@ lemma ENNReal.toReal_zpow (x : ℝ≥0∞) (z : ℤ) : x.toReal ^ z = (x ^ z).to
   rw [← rpow_intCast, ← toReal_rpow, Real.rpow_intCast]
 
 -- TODO: this helper lemma may be useful in other places to, for instance in `HardyLittlewood.lean`
-lemma iSup_rpow {f : ℕ → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
+lemma iSup_rpow {ι : Sort*} {f : ι → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
     (⨆ n, f n) ^ p = ⨆ n, f n ^ p := by
   apply le_antisymm
   · rw [← rpow_le_rpow_iff (z := p⁻¹) (by positivity), rpow_rpow_inv (by positivity)]

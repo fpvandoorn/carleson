@@ -218,7 +218,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith) hDpow_pos)
     _ ≤ C6_1_2 a * MB volume 𝔄 𝔠 (8 * D ^ 𝔰 ·) f x := by
       rw [ENNReal.mul_le_mul_iff_right (C6_1_2_ne_zero a) coe_ne_top, MB, maximalFunction,
-        inv_one, ENNReal.rpow_one, le_iSup_iff]
+        inv_one, le_iSup_iff]
       simp only [iSup_le_iff, ENNReal.rpow_one]
       exact (fun _ hc ↦ hc p.1 p.2)
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, not_not] at hx
@@ -294,7 +294,7 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
   have hp_coe : p.toNNReal.toReal = p := Real.coe_toNNReal _ (by positivity)
   conv_lhs => rw [eq_indicator_one_mul_of_norm_le hfF]
   refine eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' _
-    (AEStronglyMeasurable.maximalFunction 𝔄.to_countable) (ae_of_all _ <| fun x ↦ ?_)
+    Measurable.maximalFunction.aestronglyMeasurable (ae_of_all _ <| fun x ↦ ?_)
   simp only [enorm_eq_self, 𝓜, MB_def]
   apply iSup_le_iff.mpr <| fun 𝔭 ↦ iSup_le_iff.mpr <| fun h𝔭 ↦ ?_
   apply indicator_le <| fun x hx ↦ ?_
@@ -346,7 +346,6 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
       · rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by assumption) (by assumption),
           toReal_ofReal <| le_of_lt p_pos, 𝓜p, maximalFunction, one_div,
           ← div_rpow_of_nonneg _ _ (le_of_lt inv_p_pos), ← laverage_eq, hp_coe]
-        gcongr
         refine le_trans (le_of_eq ?_) <| le_iSup₂ 𝔭 h𝔭
         simp_rw [enorm_enorm]
         rw [indicator_of_mem hx]
