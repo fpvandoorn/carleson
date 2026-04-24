@@ -189,18 +189,18 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 %\item Level of mathematical detail to include.
 
 \section{Project organization}\label{sec:org}
-\textcolor{red}{[some of this can be reworded and moved to the introduction]}
 
 % To be more professional, let's try to avoid naming too many contributors by name.
 % terminology question: contributor vs author?
-The Carleson project was a large formalization project that the 14 authors of this paper
-contributed to over the space of 13 months,
-from June 2024 to July 2025, although most authors were not active for the whole duration of the project.
-This public formalization effort was predated by a period where this formalization was planned and prepared,
-which started in Fall 2023 by F.v.D. and the harmonic analysis group in Bonn,
+% The Carleson project was a large formalization project that the 14 authors of this paper
+% contributed to over the space of 13 months,
+% from June 2024 to July 2025, although most authors were not active for the whole duration of the project.
+The planning of the Carleson project started in Fall 2023 by
+F.v.D. and the harmonic analysis group in Bonn,
 consisting of L.B., Christoph Thiele and Rajula Srivastava.
-
-At that time L.B., Asgar Jamneshan, Rajula Srivastava and Christoph Thiele had written a preprint of the proof, that turned into \cite{ThieleCarlesonPreprint}. This preprint consisted of a 30-page proof of Theorem [ref].
+At that time L.B., Asgar Jamneshan, Rajula Srivastava and Christoph Thiele had written a preprint of the proof,
+that turned into \cite{ThieleCarlesonPreprint}.
+This preprint consisted of a 30-page proof of Theorem [ref].
 While the proof was precise and written with a lot of care,
 this paper had as intended audience experts in harmonic analysis.
 This meant that the proof omitted many arguments that are routine to experts,
@@ -261,7 +261,9 @@ We also ensured as much as we could that these concepts and theorems would be de
 so that it would have an appropriate generality for \texttt{Mathlib}.
 
 For the material specific to this formalization, we relaxed some of the contribution requirements a bit.
-This enabled some contributors that only had some Lean experience to contribute to this project.
+This made the barrier of entry to contribute to the Carleson project low.
+Indeed, some authors of this papers had not contributed to \texttt{Mathlib} or another collaborative formalization project
+prior to contributing to the Carleson project.
 
 When the project was finished, the project was 35.6k lines of code (excluding blank lines and comments), of which 9.6k were in the \texttt{ToMathlib} subfolder (using commit \texttt{\href{https://github.com/fpvandoorn/carleson/tree/32c2adc411c5c274ed8f19aa8041157e394fa38a}{32c2adc4}}).
 
