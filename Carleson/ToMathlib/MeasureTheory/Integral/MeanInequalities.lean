@@ -548,12 +548,17 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
   · rw [intervalIntegral.integral_of_le (by linarith [hT.out]),
       intervalIntegral.integral_of_le (by linarith [hT.out])]
     apply setIntegral_congr_fun measurableSet_Ioc (fun y hy ↦ ?_)
-    congr
-    exact (equivIoc_coe_of_mem a hy).symm
+    have : (L (f'' y)) = (L (f y)) := by
+      congr 1
+      symm
+      sorry
+    symm
+    apply congr($this (g (x - y)))
+    --exact (equivIoc_coe_of_mem a hy).symm
   · apply eLpNorm_congr_ae
     filter_upwards [self_mem_ae_restrict measurableSet_Ioc] with y hy
-    congr
-    exact (equivIoc_coe_of_mem a hy).symm
+    sorry /- congr
+    exact (equivIoc_coe_of_mem a hy).symm -/
 
 open Set in
 /-- **Young's convolution inequality** on (a, a + T]: the `L^r` seminorm of the convolution
