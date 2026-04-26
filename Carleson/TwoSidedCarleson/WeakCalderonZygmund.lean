@@ -789,7 +789,7 @@ protected lemma BoundedFiniteSupport.czApproximation {α : ℝ≥0∞} (hα : 0 
     · by_cases hx : ∃ j, x ∈ czPartition hX j
       · have ⟨j, hj⟩ := hx
         rw [czApproximation_def_of_mem hj]
-        exact (enorm_integral_le_lintegral_enorm _).trans (setLAverage_le_essSup _)
+        exact (enorm_integral_le_lintegral_enorm _).trans (setLAverage_le_essSup _ _)
       · simp [czApproximation, eLpNormEssSup, hX, hx, h]
     · simp only [czApproximation, hX, reduceDIte]
       exact (enorm_integral_le_lintegral_enorm _).trans (laverage_le_essSup _)
