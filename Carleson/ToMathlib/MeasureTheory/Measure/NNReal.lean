@@ -5,7 +5,7 @@ import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 open MeasureTheory NNReal ENNReal Set
 
 noncomputable
-instance NNReal.MeasureSpace : MeasureSpace ℝ≥0 := ⟨Measure.Subtype.measureSpace.volume⟩
+instance NNReal.MeasureSpace : MeasureSpace ℝ≥0 := ⟨Measure.comap Subtype.val (volume : Measure ℝ)⟩
 
 -- Upstreaming status:
 -- The results in this file are generally worth having, but the proofs can be golfed
@@ -16,22 +16,8 @@ lemma NNReal.volume_val {s : Set ℝ≥0} : volume s = volume (Subtype.val '' s)
 
 -- sanity check: this measure is what you expect
 example : volume (Ioo (3 : ℝ≥0) 5) = 2 := by
-  have : Subtype.val '' Ioo (3 : ℝ≥0) 5 = Ioo (3 : ℝ) 5 := by
-    ext x
-    constructor
-    · simp only [val_eq_coe, mem_image, mem_Ioo, Subtype.exists, coe_mk, exists_and_right,
-      exists_eq_right, forall_exists_index, and_imp]
-      intro hx1 hx2 hx3
-      exact ⟨hx2, hx3⟩
-    · intro hx
-      simp only [val_eq_coe, mem_image, mem_Ioo, Subtype.exists, coe_mk, exists_and_right,
-        exists_eq_right]
-      have : 0 ≤ x := by linarith [hx.1]
-      use this
-      rw [← Subtype.coe_lt_coe, ← Subtype.coe_lt_coe]
-      exact hx
-  rw [NNReal.volume_val, this]
-  simpa only [Real.volume_Ioo, ENNReal.ofReal_eq_ofNat] using by norm_num
+  erw [volume_val, NNReal.image_coe_Ioo, Real.volume_Ioo, ofReal_eq_ofNat]
+  norm_num
 
 -- integral over a function over NNReal equals the integral over the right set of real numbers
 
@@ -190,20 +176,14 @@ theorem NNReal.Ici_eq {a : ℝ≥0} :
     rwa [← Real.le_toNNReal_iff_coe_le hx2]
 
 lemma NNReal.volume_Iio {b : ℝ≥0} : volume (Set.Iio b) = b := by
-  rw [NNReal.volume_val]
-  simp only [val_eq_coe]
-  rw [toReal_Iio_eq_Ico, Real.volume_Ico]
-  simp
+  erw [volume_val, image_coe_Iio b, Real.volume_Ico, sub_zero, ofReal_coe_nnreal]
 
 lemma NNReal.volume_Ioi {b : ℝ≥0} : volume (Set.Ioi b) = ⊤ := by
-  rw [NNReal.volume_val]
-  simp only [val_eq_coe]
-  rw [toReal_Ioi_eq_Ioi, Real.volume_Ioi]
+  erw [volume_val, image_coe_Ioi, Real.volume_Ioi]
 
 lemma NNReal.volume_Ioo {a b : ℝ≥0} : volume (Set.Ioo a b) = b - a:= by
-  rw [NNReal.volume_val]
-  simp only [val_eq_coe]
-  rw [toReal_Ioo_eq_Ioo, Real.volume_Ioo, ENNReal.ofReal_sub] <;> simp
+  erw [volume_val, toReal_Ioo_eq_Ioo, Real.volume_Ioo, ofReal_sub (hq := by simp)]
+  simp
 
 -- TODO: the proofs in the following lemmas feel quite repetitive
 -- extract helper lemma to re-use some of the argument!

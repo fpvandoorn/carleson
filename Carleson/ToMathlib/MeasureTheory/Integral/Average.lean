@@ -1,6 +1,6 @@
 import Mathlib.MeasureTheory.Integral.Average
 
--- Upstreaming status: useful and good to go
+-- Upstreaming status: upstreamed in https://github.com/leanprover-community/mathlib4/pull/37551
 
 open MeasureTheory MeasureTheory.Measure Filter Set
 

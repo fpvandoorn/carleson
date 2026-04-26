@@ -64,7 +64,7 @@ lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonem
   suffices (S : ℤ) = -(S : ℤ) by exact_mod_cast eq_zero_of_neg_eq this.symm
   rw [𝓙₀, mem_setOf_eq, s, s_topCube] at h
   apply h.resolve_right
-  push_neg
+  push Not
   have ⟨p, hp⟩ := h𝔖
   refine ⟨p, hp, subset_topCube.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩
   apply mul_le_mul (by norm_num) (c0 := by positivity) (b0 := by norm_num)
@@ -127,16 +127,18 @@ lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ 
   have eq0 : ∑ i ∈ Finset.filter (¬ J = ·) (Finset.univ.filter (· ∈ C)),
       (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = 0 := by
     suffices ∀ i ∈ (Finset.univ.filter (· ∈ C)).filter (¬ J = ·),
-      (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = 0 by simp [Finset.sum_congr rfl this]
+      (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = 0 by exact Finset.sum_eq_zero this
     intro i hi
     rw [Finset.mem_filter, Finset.mem_filter_univ] at hi
     apply indicator_of_notMem <|
       Set.disjoint_left.mp ((hC.eq_or_disjoint hJ hi.1).resolve_left hi.2) xJ
   have eq_ave : ∑ i ∈ (Finset.univ.filter (· ∈ C)).filter (J = ·),
       (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = ⨍ y in J, f y := by
-    suffices (Finset.univ.filter (· ∈ C)).filter (J = ·) = {J} by simp [this, xJ, ← Grid.mem_def]
+    suffices (Finset.univ.filter (· ∈ C)).filter (J = ·) = {J} by
+      rw [this, Finset.sum_singleton, Set.indicator_of_mem xJ]
     exact subset_antisymm (fun _ h ↦ Finset.mem_singleton.mpr (Finset.mem_filter.mp h).2.symm)
-      (fun _ h ↦ by simp [Finset.mem_singleton.mp h, hJ])
+      (fun _ h ↦ Finset.mem_filter.mpr ⟨Finset.mem_filter.mpr ⟨Finset.mem_univ _,
+        (Finset.mem_singleton.mp h) ▸ hJ⟩, (Finset.mem_singleton.mp h).symm⟩)
   rw [eq0, eq_ave, zero_add]
 
 lemma boundedCompactSupport_approxOnCube {𝕜 : Type*} [RCLike 𝕜] {C : Set (Grid X)} {f : X → 𝕜} :
@@ -166,7 +168,13 @@ lemma lintegral_eq_lintegral_approxOnCube {C : Set (Grid X)}
   rw [eq, lintegral_const, average_eq, smul_eq_mul, ENNReal.ofReal_mul, ENNReal.ofReal_inv_of_pos,
     ofReal_integral_eq_lintegral_ofReal hf.norm.integrable.restrict nonneg, mul_comm,
     ← mul_assoc, Measure.restrict_apply MeasurableSet.univ, univ_inter]
-  · simp [volume_coeGrid_lt_top.ne, ENNReal.mul_inv_cancel vol_J_ne_zero]
+  · simp only [Measure.real,
+      Measure.restrict_apply_univ,
+      ENNReal.ofReal_toReal volume_coeGrid_lt_top.ne,
+      ENNReal.mul_inv_cancel vol_J_ne_zero volume_coeGrid_lt_top.ne,
+      one_mul,
+      ofReal_norm_eq_enorm
+    ]
   · simpa using ENNReal.toReal_pos vol_J_ne_zero volume_coeGrid_lt_top.ne
   · exact inv_nonneg.mpr ENNReal.toReal_nonneg
 
@@ -195,8 +203,9 @@ lemma cubeOf_spec {i : ℤ} (hi : i ∈ Icc (-S : ℤ) S) (I : Grid X) {x : X} (
   apply Classical.epsilon_spec (p := fun I ↦ x ∈ I ∧ s I = i)
   by_cases hiS : i = S
   · use topCube, subset_topCube hx, hiS ▸ s_topCube
-  simpa [and_comm] using Set.mem_iUnion₂.mp <| Grid_subset_biUnion i
+  have ⟨y, hy, hys⟩ := Set.mem_iUnion₂.mp <| Grid_subset_biUnion i
     ⟨hi.1, s_topCube (X := X) ▸ lt_of_le_of_ne hi.2 hiS⟩ (subset_topCube hx)
+  exact frequently_principal.mp fun a ↦ a hys hy
 
 /-- The definition `T_𝓝^θ f(x)`, given in (7.1.3).
 For convenience, the suprema are written a bit differently than in the blueprint
@@ -214,7 +223,7 @@ protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ
   let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
     ‖∑ i ∈ (Icc (s I) s₂), ∫ (y : X), Ks i x' y * f y‖ₑ
   have : (fun x ↦ ⨆ (_ : x ∈ I), c) = fun x ↦ ite (x ∈ I) c 0 := by
-    ext x; by_cases hx : x ∈ I <;> simp [hx]
+    ext x; by_cases hx : x ∈ I <;> simp only [hx, iSup_pos, iSup_neg, if_pos, if_neg, bot_eq_zero, not_false_eq_true]
   convert (measurable_const.ite coeGrid_measurable measurable_const) using 1
 
 -- Set used in definition of `boundaryOperator`
@@ -251,7 +260,8 @@ lemma boundaryOperator_lt_top (hf : BoundedCompactSupport f) : t.boundaryOperato
   by_cases hx : x ∈ (I : Set X)
   · rw [indicator_of_mem hx]
     exact ENNReal.sum_lt_top.mpr (fun _ _ ↦ ijIntegral_lt_top hf)
-  · simp [hx]
+  · rw [indicator_of_notMem hx]
+    exact ENNReal.zero_lt_top
 
 
 /-- The indexing set for the collection of balls 𝓑, defined above Lemma 7.1.3. -/
@@ -339,16 +349,17 @@ irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ ((𝕔 + 4) * a ^ 3)
 -- Used in the proof of `exp_sub_one_le`, which is used to prove Lemma 7.1.4
 private lemma exp_Lipschitz : LipschitzWith 1 (fun (t : ℝ) ↦ exp (.I * t)) := by
   have mul_I : Differentiable ℝ fun (t : ℝ) ↦ I * t := Complex.ofRealCLM.differentiable.const_mul I
-  refine lipschitzWith_of_nnnorm_deriv_le mul_I.cexp (fun x ↦ ?_)
-  have : (fun (t : ℝ) ↦ cexp (I * t)) = cexp ∘ (fun (t : ℝ) ↦ I * t) := rfl
-  rw [this, deriv_comp x differentiableAt_exp (mul_I x), Complex.deriv_exp, deriv_const_mul_field']
-  simp_rw [show deriv ofReal x = 1 from ofRealCLM.hasDerivAt.deriv, mul_one]
-  rw [nnnorm_mul, nnnorm_I, mul_one, ← norm_toNNReal, mul_comm, Complex.norm_exp_ofReal_mul_I]
+  refine lipschitzWith_of_nnnorm_deriv_le mul_I.cexp (fun x ↦ ?_) 
+  have key : HasDerivAt (fun t : ℝ ↦ cexp (I * ↑t)) (cexp (I * ↑x) * I) x := by
+    simpa using (Complex.hasDerivAt_exp _).comp x
+      (by simpa using Complex.ofRealCLM.hasDerivAt.const_mul I)
+  rw [key.deriv, nnnorm_mul, nnnorm_I, mul_one, ← norm_toNNReal, mul_comm, Complex.norm_exp_ofReal_mul_I]
   exact Real.toNNReal_one.le
 
 -- Used in the proof of Lemma 7.1.4
 private lemma exp_sub_one_le (t : ℝ) : ‖exp (.I * t) - 1‖ ≤ ‖t‖ := by
-  simpa [enorm_eq_nnnorm] using exp_Lipschitz t 0
+  have h := exp_Lipschitz.dist_le_mul t 0
+  simpa [dist_eq_norm, dist_zero_right] using h
 
 -- Used in the proofs of Lemmas 7.1.4 and 7.1.5
 private lemma dist_lt_5 (hu : u ∈ t) (mp : p ∈ t.𝔗 u) (Qxp : Q x ∈ Ω p) :
@@ -386,12 +397,13 @@ private lemma L7_1_4_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) {y : X
       simp_rw [← hp', ← hpₛ, 𝔰, _root_.s]; ring
     apply le_trans <| Grid.dist_strictMono_iterate' sub_ge_0 pₛ_le_p' this
     gcongr
-    calc  C2_1_2 a ^ (t.σMax u x ⟨s, hs⟩ - s)
+    · calc  C2_1_2 a ^ (t.σMax u x ⟨s, hs⟩ - s)
       _ ≤ C2_1_2 a ^ (t.σMax u x ⟨s, hs⟩ - s : ℝ)                     := by norm_cast
       _ ≤ (1 / 2 : ℝ) ^ (t.σMax u x ⟨s, hs⟩ - s : ℝ)                  :=
         Real.rpow_le_rpow (by rw [C2_1_2]; positivity)
           ((C2_1_2_le_inv_256 X).trans (by norm_num)) (by norm_cast)
       _ = 2 ^ (s - σMax t u x ⟨s, hs⟩)                                := by simp [← Int.cast_sub]
+    exact le_refl _
   calc ‖exp (.I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖
     _ ≤ dist_{x, D ^ s / 2} (𝒬 u) (Q x) :=
       exp_bound.trans <| oscillation_le_cdist x _ (𝒬 u) (Q x)
@@ -525,7 +537,7 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
   classical
   let Js := Set.toFinset { J ∈ 𝓙 (t u) | ((J : Set X) ∩ ball x (D ^ (𝔰 p) / 2)).Nonempty }
   have mem_Js {J : Grid X} : J ∈ Js ↔ J ∈ 𝓙 (t.𝔗 u) ∧ (↑J ∩ ball x (D ^ 𝔰 p / 2)).Nonempty := by
-    simp [Js]
+    simp only [Js, Set.mem_toFinset, Set.mem_setOf_eq]
   have Js_disj : (Js : Set (Grid X)).Pairwise (Disjoint on fun J ↦ (J : Set X)) :=
     fun i₁ hi₁ i₂ hi₂ h ↦ pairwiseDisjoint_𝓙 (mem_Js.mp hi₁).1 (mem_Js.mp hi₂).1 h
   calc
@@ -534,7 +546,7 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
       have h := ball_covered_by_𝓙 hu pu xp
       refine (subset_inter_iff.mpr ⟨h, subset_refl _⟩).trans fun y hy ↦ ?_
       have ⟨J, hJ, yJ⟩ := Set.mem_iUnion₂.mp hy.1
-      exact ⟨J, ⟨⟨J, by simp [mem_Js.mpr ⟨hJ, ⟨y, mem_inter yJ hy.2⟩⟩]⟩, yJ⟩⟩
+      exact Set.mem_biUnion (mem_Js.mpr ⟨hJ, ⟨y, mem_inter yJ hy.2⟩⟩) yJ
     _ = ∑ J ∈ Js, ∫⁻ y in J, ‖f y‖ₑ := by
       rw [lintegral_biUnion_finset Js_disj fun _ _ ↦ coeGrid_measurable]
     _ = ∑ J ∈ Js, ∫⁻ y in J, ‖approxOnCube (𝓙 (t u)) (‖f ·‖) y‖ₑ := by
@@ -564,7 +576,9 @@ private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' 
     {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p) :
     (∫⁻ y in ball (𝔠 p) (16 * D ^ 𝔰 p), ‖g y‖ₑ) / volume (ball (𝔠 p) (16 * D ^ 𝔰 p)) ≤
     MB volume 𝓑 c𝓑 r𝓑 g x' := by
-  have mem_𝓑 : (4, 0, 𝓘 p) ∈ 𝓑 := by simp [𝓑]
+  have mem_𝓑 : (4, 0, 𝓘 p) ∈ 𝓑 := by
+    simp only [𝓑, Set.mem_prod, Set.mem_Iic, Set.mem_univ, and_true]
+    omega
   convert le_biSup (hi := mem_𝓑) <| fun i ↦ ((ball (c𝓑 i) (r𝓑 i)).indicator (x := x') <|
     fun _ ↦ ⨍⁻ y in ball (c𝓑 i) (r𝓑 i), ‖g y‖ₑ ∂volume)
   · have x'_in_ball : x' ∈ ball (c𝓑 (4, 0, 𝓘 p)) (r𝓑 (4, 0, 𝓘 p)) := by
@@ -574,7 +588,7 @@ private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' 
       linarith [defaultD_pow_pos a (GridStructure.s (𝓘 p))]
     have hc𝓑 : 𝔠 p = c𝓑 (4, 0, 𝓘 p) := by simp [c𝓑, 𝔠]
     have hr𝓑 : 16 * D ^ 𝔰 p = r𝓑 (4, 0, 𝓘 p) := by rw [r𝓑, 𝔰]; norm_num
-    simp [-defaultD, laverage, x'_in_ball, ENNReal.div_eq_inv_mul, hc𝓑, hr𝓑]
+    rw [Set.indicator_of_mem x'_in_ball, ← hc𝓑, ← hr𝓑, MeasureTheory.setLAverage_eq]
   · simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
 
 /-- Lemma 7.1.4 -/
@@ -741,7 +755,10 @@ private lemma p_sum_eq_s_sum {α : Type*} [AddCommMonoid α] (I : ℤ → X → 
   let 𝔗' := Finset.univ.filter (fun p ↦ p ∈ t.𝔗 u ∧ x ∈ E p)
   have : ∑ p ∈ 𝔗', (E p).indicator (I (𝔰 p)) x =
       ∑ p ∈ Finset.univ.filter (· ∈ t.𝔗 u), (E p).indicator (I (𝔰 p)) x := by
-    apply Finset.sum_subset (fun p hp ↦ by simp [(Finset.mem_filter.mp hp).2.1])
+    apply Finset.sum_subset
+    · intro p hp
+      apply Finset.mem_filter.mpr
+      exact ⟨Finset.mem_univ _, (Finset.mem_filter.mp hp).2.1⟩
     intro p p𝔗 p𝔗'
     simp_rw [𝔗', Finset.mem_filter_univ, not_and] at p𝔗 p𝔗'
     exact indicator_of_notMem (p𝔗' p𝔗) (I (𝔰 p))
@@ -757,7 +774,8 @@ private lemma p_sum_eq_s_sum {α : Type*} [AddCommMonoid α] (I : ℤ → X → 
     exact Nonempty.not_disjoint ⟨Q x, ⟨hp.2.2.1.2, hp'.2.2.1.2⟩⟩ <| disjoint_Ω h <|
       (eq_or_disjoint hpp').resolve_right <| Nonempty.not_disjoint ⟨x, ⟨hp.2.2.1.1, hp'.2.2.1.1⟩⟩
   · intro s hs
-    simpa [𝔗', σ] using hs
+    obtain ⟨p, ⟨hp1, hp2⟩, hps⟩ := by simpa [σ] using hs
+    exact ⟨p, Finset.mem_filter.mpr ⟨Finset.mem_univ _, hp1, hp2⟩, hps⟩
   · intro p hp
     simp only [Finset.mem_filter, 𝔗'] at hp
     exact indicator_of_mem hp.2.2 (I (𝔰 p))
@@ -781,18 +799,29 @@ private lemma L7_1_6_integral_eq {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
       ((integrable_Ks_x (one_lt_realD (X := X))).smul_const _).restrict.to_average
   have μJ_neq_0 : NeZero (volume.restrict (J : Set X)) :=
     NeZero.mk fun h ↦ (volume_coeGrid_pos (defaultD_pos a) (i := J)).ne <|
-      by simpa [h] using Measure.restrict_apply_self volume (J : Set X)
+      by rw [← Measure.restrict_apply_univ, h, Measure.coe_zero, Pi.zero_apply]
   have μJ_finite := Restrict.isFiniteMeasure volume (hs := ⟨volume_coeGrid_lt_top (i := J)⟩)
   -- Split both sides into two separate integrals
   rw [setIntegral_congr_fun coeGrid_measurable eq1]
-  simp_rw [mul_sub, integral_sub i1 i2, ← smul_eq_mul, ← average_smul_const, sub_smul]
-  rw [setIntegral_congr_fun coeGrid_measurable eq2, integral_sub]
+  simp_rw [mul_sub, integral_sub i1 i2, ← smul_eq_mul]
+  have rhs_rw : ∫ (y : X) in ↑J, (⨍ (z : X) in ↑J, Ks i x y - Ks i x z) • f y =
+      ∫ (y : X) in ↑J, ⨍ (z : X) in ↑J, Ks i x y • f y - Ks i x z • f y := by
+    apply setIntegral_congr_fun coeGrid_measurable
+    intro y _
+    exact (average_smul_const (fun z ↦ Ks i x y - Ks i x z) (f y)).symm.trans
+      (by simp_rw [sub_smul])
+  rw [rhs_rw, setIntegral_congr_fun coeGrid_measurable eq2, integral_sub]
   · congr 1 -- Check that corresponding integrals are equal
     · exact setIntegral_congr_fun coeGrid_measurable (fun y hy ↦ (average_const _ _).symm)
     · simp_rw [average_smul_const, integral_smul_const, integral_smul, average_eq]
-      rw [smul_comm, smul_assoc]
+      have h : ∀ (A B : ℂ) (r : ℝ), A • r • B = (r • A) • B := by
+        intro A B r
+        simp
+        ring
+      exact h ..
   -- Check integrability to justify the last use of `integral_sub`
-  · simpa [average_const]
+  · simp only [average_const]
+    exact i1
   · simp_rw [average_smul_const]
     change Integrable ((⨍ z in (J : Set X), Ks i x z) • f) (volume.restrict J)
     exact hf.integrable.restrict.smul _
@@ -864,10 +893,11 @@ private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : �
       have ⟨J, hJ⟩ := Set.mem_iUnion.mp <| ball_covered_by_𝓙 hu hp hxp (mem_ball'.mpr hy)
       use J
       simpa using hJ
-    refine ⟨J, ⟨⟨J, ?_⟩, yJ⟩⟩
-    suffices J ∈ 𝓙' t u (𝔠 p) (𝔰 p) by simp [this]
-    simpa [𝓙', hJ] using And.intro (Grid_subset_ball' hp hxp ⟨hJ, y, yJ, mem_ball'.mpr hy⟩)
-      (s_le_s hp hxp ⟨hJ, ⟨y, ⟨yJ, mem_ball'.mpr hy⟩⟩⟩)
+    have hJ𝓙' : J ∈ 𝓙' t u (𝔠 p) (𝔰 p) := by
+      simp only [𝓙', Finset.mem_filter, Finset.mem_univ, true_and]
+      exact ⟨hJ, Grid_subset_ball' hp hxp ⟨hJ, y, yJ, mem_ball'.mpr hy⟩,
+             s_le_s hp hxp ⟨hJ, ⟨y, ⟨yJ, mem_ball'.mpr hy⟩⟩⟩⟩
+    exact Set.mem_biUnion (Finset.mem_coe.mpr hJ𝓙') yJ
   _ = ‖∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), ∫ y in J, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t u)) f y)‖ₑ := by
     refine congrArg _ (integral_biUnion_finset _ (fun _ _ ↦ coeGrid_measurable) ?_ ?_)
     · exact fun i hi j hj hij ↦ pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hi) (mem_𝓙_of_mem_𝓙' hj) hij
@@ -891,7 +921,12 @@ lemma sum_p_eq_sum_I_sum_p (f : X → ℤ → ℝ≥0∞) :
   set ps := fun (I : Grid X) ↦ Finset.univ.filter (fun p ↦ p ∈ t u ∧ 𝓘 p = I)
   calc
   _ = ∑ p ∈ Finset.univ.biUnion ps, (E p).indicator 1 x * f (𝔠 p) (𝔰 p) :=
-    Finset.sum_congr (by ext p; simp [ps]) (fun _ _ ↦ rfl)
+    have hps_eq : Finset.univ.filter (· ∈ t u) = Finset.univ.biUnion ps := by
+      ext p
+      simp only [ps, Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_biUnion,
+        exists_and_left]
+      exact ⟨fun h ↦ ⟨h, _, rfl⟩, And.left⟩
+    Finset.sum_congr hps_eq (fun _ _ ↦ rfl)
   _ = ∑ I : Grid X, ∑ p ∈ Finset.univ.filter (fun p ↦ p ∈ t u ∧ 𝓘 p = I),
         (E p).indicator 1 x * f (𝔠 p) (𝔰 p) := by
     refine (Finset.sum_biUnion ?_)
@@ -1062,8 +1097,12 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
           ∑ i ∈ t.σ u x, ∫ (y : X),
             (f y * ((exp (I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y) +
             (f y - g y) * Ks i x y + g y * Ks i x y) := by
-    simp_rw [← integral_const_mul, Ks, mul_sub, mul_add, sub_eq_add_neg, exp_add]
-    exact Finset.fold_congr (fun s hs ↦ integral_congr_ae (funext fun y ↦ by ring).eventuallyEq)
+    simp_rw [Ks, mul_sub, mul_add, sub_eq_add_neg, exp_add]
+    apply Finset.sum_congr rfl
+    intro _ _
+    apply (integral_const_mul ..).symm.trans
+    apply integral_congr_ae
+    exact (funext fun y ↦ by ring).eventuallyEq
   rw [this]
   -- It suffices to show that the integral splits into the three terms bounded by Lemmas 7.1.4-6
   suffices ∑ i ∈ t.σ u x, ∫ (y : X),
@@ -1092,7 +1131,10 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
       (c := ∑ J with J ∈ 𝓙 (t u), ‖⨍ y in J, f y‖)
     · exact (stronglyMeasurable_approxOnCube _ _).aestronglyMeasurable
     · refine ae_of_all _ fun x ↦ (norm_sum_le _ _).trans <| Finset.sum_le_sum (fun J hJ ↦ ?_)
-      by_cases h : x ∈ (J : Set X) <;> simp [h]
+      by_cases h : x ∈ (J : Set X)
+      · rw [Set.indicator_of_mem h]
+      · rw [Set.indicator_apply, if_neg h, norm_zero]
+        exact norm_nonneg _
   have : ∀ (y : X), ‖cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ ≤ 2 := by
     refine fun y ↦ le_of_le_of_eq (norm_sub_le _ _) ?_
     norm_cast

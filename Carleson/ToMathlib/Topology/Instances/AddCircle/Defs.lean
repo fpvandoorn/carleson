@@ -2,6 +2,8 @@ import Mathlib.Topology.Instances.AddCircle.Defs
 
 -- Upstreaming status: seems ready to go; lemmas are usually analogues of existing mathlib lemmas
 -- Sometimes, mathlib lemmas need to be renamed along with upstreaming this.
+-- Non-Periodic lemmas upstreamed in
+-- https://github.com/leanprover-community/mathlib4/pull/37570
 
 noncomputable section
 

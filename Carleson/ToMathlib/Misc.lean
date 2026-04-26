@@ -87,7 +87,7 @@ lemma ENNReal.toReal_zpow (x : ℝ≥0∞) (z : ℤ) : x.toReal ^ z = (x ^ z).to
   rw [← rpow_intCast, ← toReal_rpow, Real.rpow_intCast]
 
 -- TODO: this helper lemma may be useful in other places to, for instance in `HardyLittlewood.lean`
-lemma iSup_rpow {f : ℕ → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
+lemma iSup_rpow {ι : Sort*} {f : ι → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
     (⨆ n, f n) ^ p = ⨆ n, f n ^ p := by
   apply le_antisymm
   · rw [← rpow_le_rpow_iff (z := p⁻¹) (by positivity), rpow_rpow_inv (by positivity)]
@@ -313,7 +313,8 @@ open ComplexConjugate in
 lemma eLpNorm_two_eq_enorm_integral_mul_conj {f : α → ℂ} (lpf : MemLp f 2 μ) :
     eLpNorm f 2 μ ^ 2 = ‖∫ x, f x * conj (f x) ∂μ‖ₑ := by
   conv_rhs => enter [1, 2, x]; rw [RCLike.mul_conj, ← RCLike.ofReal_pow]
-  rw [integral_ofReal, integral_eq_lintegral_of_nonneg_ae (.of_forall fun _ ↦ by simp)]; swap
+  erw [integral_ofReal]
+  rw [integral_eq_lintegral_of_nonneg_ae (.of_forall fun _ ↦ by simp)]; swap
   · exact lpf.aestronglyMeasurable.norm.pow 2
   conv_rhs => enter [1, 1, 1, 2, x]; rw [ENNReal.ofReal_pow (norm_nonneg _), ofReal_norm]
   rw [← sq_eLpNorm_two, ← enorm_norm]
@@ -698,6 +699,7 @@ end MeasureTheory
 
 namespace ENNReal
 
+set_option backward.isDefEq.respectTransparency false in
 theorem lintegral_Lp_smul {α : Type*} [MeasurableSpace α] {μ : MeasureTheory.Measure α}
     {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) {p : ℝ} (hp : p > 0) (c : NNReal) :
     (∫⁻ x : α, (c • f) x ^ p ∂μ) ^ (1 / p) = c • (∫⁻ x : α, f x ^ p ∂μ) ^ (1 / p) := by

@@ -217,7 +217,8 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
 
 export KernelProofData (four_le_a)
 
-attribute [instance] KernelProofData.d KernelProofData.cf KernelProofData.hcz
+attribute [implicit_reducible, instance] KernelProofData.d KernelProofData.cf
+attribute [instance] KernelProofData.hcz
 
 section statements
 

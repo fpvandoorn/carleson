@@ -3,6 +3,8 @@ import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 open MeasureTheory
 
 -- Upstreaming status: looks ready for upstreaming; pay attention to the correct file to move to!
+-- `exists_ne_zero_of_setIntegral_ne_zero` and `exists_ne_zero_of_integral_ne_zero` upstreamed in
+-- https://github.com/leanprover-community/mathlib4/pull/37568
 
 -- Put after `setIntegral_re_add_im`
 
