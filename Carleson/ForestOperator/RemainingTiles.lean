@@ -810,6 +810,7 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
 Has value `2 ^ (232 * a ^ 3 + 21 * a + 5- 25/(101a) * Z n κ)` in the blueprint. -/
 irreducible_def C7_4_6 (a n : ℕ) : ℝ≥0 := C7_2_1 a * C7_6_2 a n
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 7.4.6 -/
 lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
@@ -821,7 +822,7 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   calc
     _ = ‖∫ x, conj (adjointCarlesonSum (t u₁) f₁ x) *
         adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x‖ₑ := by
-      erw [← RCLike.enorm_conj, ← integral_conj]
+      rw [← RCLike.enorm_conj, ← integral_conj]
       congr! 3 with x
       rw [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
     _ = ‖∫ x, conj (U.indicator (adjointCarlesonSum (t u₁) (U.indicator f₁)) x) *

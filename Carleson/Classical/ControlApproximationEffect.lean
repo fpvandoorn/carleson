@@ -223,6 +223,7 @@ lemma intervalIntegrable_mul_dirichletKernel'_specific {x : ℝ} (hx : x ∈ Set
 
 attribute [gcongr] iSup_congr
 
+set_option backward.isDefEq.respectTransparency false in
 lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (-π) (3 * π)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
     ‖∫ (y : ℝ) in x - π..x + π, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ
     ≤ T g x + T (conj ∘ g) x := by
@@ -343,7 +344,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * ((conj ∘ g) y * K x y * exp (I * n * y))‖ₑ := by
             congr 1
             · congr! 3 with y; ring
-            · erw [← RCLike.enorm_conj, ← integral_conj]
+            · rw [← RCLike.enorm_conj, ← integral_conj]
               congr! 3 with _ y
               simp
               ring

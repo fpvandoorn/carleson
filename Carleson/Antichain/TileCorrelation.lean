@@ -310,11 +310,11 @@ lemma C6_1_5_bound (ha : 4 ≤ a) :
 
 open GridStructure
 
+set_option backward.isDefEq.respectTransparency false in
 lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
     conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
     ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) := by
-  erw [← integral_conj]
-  simp only [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
+  simp only [← integral_conj, map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
   congr; ext x; rw [← exp_conj]; congr
   simp only [map_mul, conj_I, map_sub, conj_ofReal]
   ring
@@ -584,6 +584,7 @@ lemma boundedCompactSupport_aux_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
     · exact .inl (.inr (eq_zero_of_notMem_closedBall hg1 hx))
     · exact .inr (.inr (eq_zero_of_notMem_closedBall hg1 hx))
 
+set_option backward.isDefEq.respectTransparency false in
 lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
     let f := fun (x, z1, z2) ↦
       conj (Ks (𝔰 p') z1 x) * exp (I * (Q z1 z1 - Q z1 x)) * g z1 *
@@ -602,7 +603,7 @@ lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
     simp_rw [mul_add I, mul_sub I, sub_eq_add_neg, exp_add]
     ring_nf
   simp only [I12, enorm_mul]
-  erw [
+  rw [
     heq, integral_mul_const, enorm_mul, enorm_mul, enorm_mul, enorm_mul, enorm_exp_I_mul_ofReal,
     show ‖exp (_)‖ₑ = 1 from mod_cast enorm_exp_I_mul_ofReal _,
     RCLike.enorm_conj, one_mul, one_mul, ← mul_assoc

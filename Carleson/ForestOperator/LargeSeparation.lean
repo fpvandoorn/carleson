@@ -597,6 +597,7 @@ lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
 
 attribute [fun_prop] continuous_conj Continuous.comp_aestronglyMeasurable
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Sub-equations (7.5.10) and (7.5.11) in Lemma 7.5.5. -/
 lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     edist (exp (.I * 𝒬 u x) * adjointCarleson p f x) (exp (.I * 𝒬 u x') * adjointCarleson p f x') ≤
@@ -606,7 +607,7 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     _ = ‖∫ y in E p,
         exp (.I * 𝒬 u x) * (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y) -
         exp (.I * 𝒬 u x') * (conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x')) * f y)‖ₑ := by
-      erw [edist_eq_enorm_sub, adjointCarleson, adjointCarleson, ← integral_const_mul, ← integral_const_mul, ← integral_sub (integrable_adjointCarleson_interior hf) (integrable_adjointCarleson_interior hf)]
+      rw [edist_eq_enorm_sub, adjointCarleson, adjointCarleson, ← integral_const_mul, ← integral_const_mul, ← integral_sub (integrable_adjointCarleson_interior hf) (integrable_adjointCarleson_interior hf)]
     _ = ‖∫ y in E p, f y *
           (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x + 𝒬 u x)) -
           conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x' + 𝒬 u x')))‖ₑ := by
