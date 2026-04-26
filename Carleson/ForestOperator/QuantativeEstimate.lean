@@ -33,7 +33,7 @@ lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
       refine measure_mono fun x ⟨⟨mxL, mxG⟩, mxU⟩ ↦ ⟨⟨by apply lip ▸ mxL, mxG⟩, ?_⟩
       rw [mem_iUnion₂] at mxU; obtain ⟨q, mq, hq⟩ := mxU; rw [smul_snd, mem_preimage]
       have plq := lip ▸ le_of_mem_𝓛 hL mq (not_disjoint_iff.mpr ⟨x, E_subset_𝓘 hq, mxL⟩)
-      simp_rw [mem_ball']
+      apply (@mem_ball' ..).mpr
       calc
         _ ≤ dist_(p) (𝒬 p) (𝒬 u) + dist_(p) (𝒬 u) (𝒬 q) + dist_(p) (𝒬 q) (Q x) :=
           dist_triangle4 ..
@@ -87,7 +87,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
     volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
   by_cases hq : (L : Set X) ∩ ⋃ p ∈ t u, E p = ∅
   · rw [inter_comm (L : Set X), inter_assoc, hq, inter_empty, measure_empty]; exact zero_le _
-  rw [← disjoint_iff_inter_eq_empty, disjoint_iUnion₂_right] at hq; push_neg at hq
+  rw [← disjoint_iff_inter_eq_empty, disjoint_iUnion₂_right] at hq; push Not at hq
   by_cases! hp₂ : ∃ p ∈ t u, ¬Disjoint (L : Set X) (E p) ∧ 𝔰 p ≤ s L
   · exact local_dens1_tree_bound_exists hu hL hp₂
   obtain ⟨p, mp, hp⟩ := hq; have sLp := hp₂ p mp hp
@@ -101,9 +101,9 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
       by_contra h
       simp_rw [𝓛, mem_setOf, maximal_iff] at hL
       exact lL'.ne (hL.2 h lL'.le)
-    rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push_neg at L'nm
+    rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push Not at L'nm
     have nfa : ¬∀ p ∈ t u, ¬L' ≤ 𝓘 p := by
-      push_neg; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; lia
+      push Not; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; lia
     simp_rw [nfa, false_or] at L'nm; exact L'nm.2
   suffices ∃ p' ∈ lowerCubes (t u),
       𝓘 p' = L' ∧ dist_(p') (𝒬 p') (𝒬 u) < 4 ∧ smul 9 p'' ≤ smul 9 p' by
@@ -118,7 +118,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
           refine le_of_mem_of_mem ?_ mxp' (E_subset_𝓘 hq)
           change s (𝓘 p') ≤ 𝔰 q; rw [ip']; suffices s L < 𝔰 q by lia
           exact hp₂ q mq (not_disjoint_iff.mpr ⟨x, mxL, hq⟩)
-        simp_rw [mem_ball']
+        apply (@mem_ball' ..).mpr
         calc
           _ ≤ dist_(p') (𝒬 p') (𝒬 u) + dist_(p') (𝒬 u) (𝒬 q) + dist_(p') (𝒬 q) (Q x) :=
             dist_triangle4 ..
@@ -220,7 +220,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
   have ⟨J', hJJ', hsJ'⟩ := J.exists_scale_succ (J.scale_lt_scale_topCube J_top)
   have : J' ∉ 𝓙₀ (t u) := fun h ↦ succ_ne_self (s J) <| hJ.eq_of_le h hJJ' ▸ hsJ'.symm
   rw [𝓙₀, mem_setOf_eq] at this
-  push_neg at this
+  push Not at this
   obtain ⟨p, hpu, hp⟩ := this.2
   have d0 := realD_pos a
   have volume_le : volume (ball (c J') (204 * D ^ (s J' + 1))) ≤
@@ -302,7 +302,9 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
           (J : Set X).indicator (fun _ ↦ ENNReal.ofReal (⨍ y in J, ‖f y‖)) x) ^ 2 := by
       congr with x
       congr with J
-      by_cases hx : x ∈ (J : Set X) <;> simp [hx]
+      by_cases hx : x ∈ (J : Set X)
+      · rw [indicator_of_mem hx, indicator_of_mem hx]
+      · rw [indicator_of_notMem hx, indicator_of_notMem hx, ENNReal.ofReal_zero]
     _ = ∫⁻ x, ∑ J ∈ Finset.univ.filter (· ∈ C),
           (J : Set X).indicator (fun _ ↦ (ENNReal.ofReal (⨍ y in J, ‖f y‖)) ^ 2) x := by
       congr with x
@@ -335,7 +337,8 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
         div_eq_mul_inv, mul_pow, div_eq_mul_inv, mul_assoc]
       simp_rw [ofReal_norm_eq_enorm]
       by_cases hJ : volume (J : Set X) = 0
-      · simp [setLIntegral_measure_zero _ _ hJ]
+      · have h0 : ∫⁻ x in (J : Set X), ‖f x‖ₑ = 0 := setLIntegral_measure_zero _ _ hJ
+        rw [h0, zero_pow two_pos.ne', zero_mul, zero_mul]
       congr
       rw [sq, mul_assoc, ENNReal.inv_mul_cancel hJ volume_coeGrid_lt_top.ne, mul_one]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J ∩ s, ‖f y‖ₑ * 1) ^ 2 / volume (J : Set X) := by
@@ -370,7 +373,8 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
     _ ≤ _ := by
       rw [← setLIntegral_univ]
       have h : (GridStructure.coeGrid · ∩ s) ≤ GridStructure.coeGrid := fun _ ↦ inter_subset_left
-      have hC : C = (Finset.univ.filter (· ∈ C) : Set (Grid X)) := by simp
+      have hC : C = (Finset.univ.filter (· ∈ C) : Set (Grid X)) := by
+        rw [Finset.coe_filter_univ]; rfl
       rw [← lintegral_biUnion_finset (hC ▸ disj_C.mono h) (fun _ _ ↦ coeGrid_measurable.inter hs)]
       exact mul_right_mono <| lintegral_mono_set (subset_univ _)
 
@@ -398,7 +402,11 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
       · rw [indicator_of_mem hx]
       suffices carlesonSum (t u) f x = 0 by simp [hx, this]
       refine Finset.sum_eq_zero (fun p hp ↦ indicator_of_notMem (fun hxp ↦ ?_) _)
-      exact hx ⟨E p, ⟨p, by simp [Finset.mem_filter.mp hp]⟩, hxp⟩
+      apply hx
+      refine ⟨E p, ⟨p, ?_⟩, hxp⟩
+      rw [filter_mem_univ_eq_toFinset ((fun x ↦ t.𝔗 x) u)] at hp
+      have : Nonempty (p ∈ t.𝔗 u) := ⟨mem_toFinset.mp hp⟩
+      exact Set.iUnion_const (E p)
     _ ≤ _ := tree_projection_estimate hf hgℰ hu
     _ ≤ C7_2_1 a * (c * eLpNorm f 2 volume) *
         (2 ^ (((𝕔 / 2 : ℕ) + 1) * (a : ℝ) ^ 3) * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume) := by
@@ -406,7 +414,7 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
       have hgℰ' : ∀ x ∉ G ∩ ℰ, ℰ.indicator g x = 0 := by
         intro x hx
         rw [mem_inter_iff] at hx
-        push_neg at hx
+        push Not at hx
         by_cases xG : x ∈ G
         · apply indicator_of_notMem (hx xG)
         · have : g x = 0 := by rw [← notMem_support]; exact xG ∘ (h2g ·)

@@ -110,8 +110,8 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
   --   tauto
   intro f g hf hg
   simp_rw [AESubadditiveOn] at h
-  conv at hT' => enter [i]; rw [forall_swap]
-  rw [forall_swap] at hT'; rw [forall₂_swap] at h
+  conv at hT' => enter [i]; rw [forall_comm]
+  rw [forall_comm] at hT'; rw [forall₂_comm] at h
   simp_rw [imp.swap, ← imp_forall_iff] at h hT'
   specialize h f hf g hg
   simp_rw [enorm_eq_self] at h ⊢
@@ -170,8 +170,8 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
     rw [ne_eq, eq_top_iff] at hx ⊢
     exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
   refine ⟨AESubadditiveOn.biSup h𝓑 hT h_add (fun i hi ↦ (h i hi).1), fun f c hf ↦ ?_⟩
-  conv at hT' => enter [i]; rw [forall_swap]
-  rw [forall_swap] at hT'; simp_rw [imp.swap, ← imp_forall_iff] at hT'
+  conv at hT' => enter [i]; rw [forall_comm]
+  rw [forall_comm] at hT'; simp_rw [imp.swap, ← imp_forall_iff] at hT'
   filter_upwards [(ae_ball_iff h𝓑).mpr (fun i hi ↦ (h i hi).2 f c hf),
     (ae_ball_iff h𝓑).mpr (hT' f hf), (ae_ball_iff h𝓑).mpr (hT' (c • f) (h_smul hf))] with x hx hT'fx hT'cfx
   simp_rw [Pi.smul_apply, ENNReal.smul_iSup]
@@ -241,10 +241,11 @@ lemma toReal {T : (α → ε₁) → α' → ℝ≥0∞}
     AESublinearOn (T · · |>.toReal) P A ν := by
   refine ⟨fun f g hf hg ↦ ?_, fun f c hf ↦ ?_⟩
   · filter_upwards [h.1 f g hf hg, hP f hf, hP g hg] with x hx hfx hgx
-    simp only [enorm_eq_self, ne_eq, hfx, not_false_eq_true, enorm_toReal, hgx] at hx ⊢
+    simp only [ne_eq, hfx, not_false_eq_true, enorm_toReal, hgx] at hx ⊢
     exact enorm_toReal_le.trans hx
   · filter_upwards [h.2 f c hf, hP f hf] with x hx hfx
-    simp_rw [hx, Pi.smul_apply, toReal_smul]
+    rw [hx, Pi.smul_apply, toReal_smul]
+    rfl
 
 end AESublinearOn
 

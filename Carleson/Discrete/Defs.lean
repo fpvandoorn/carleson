@@ -154,8 +154,8 @@ lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n 
     (𝔅 k n p).toFinset.card ∈ Ico (2 ^ j) (2 ^ (j + 1)) := by
   simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, hp.1.1, true_and, not_le] at hp
   constructor
-  · convert hp.1; ext; simp
-  · convert hp.2; ext; simp
+  · convert hp.1; ext; simp only [Set.mem_toFinset, Finset.mem_filter, Finset.mem_univ, true_and]
+  · convert hp.2; ext; simp only [Set.mem_toFinset, Finset.mem_filter, Finset.mem_univ, true_and]
 
 /-- The subset `𝔏₀(k, n)` of `ℭ(k, n)`, given in (5.1.10).
 Not to be confused with `𝔏₀(k, n, j)` which is called `𝔏₀'` in Lean. -/
@@ -228,7 +228,7 @@ def ℭ₅ (k n j : ℕ) : Set (𝔓 X) :=
 lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
     p ∈ ℭ₅ k n j ↔ p ∈ ℭ₄ k n j ∧ ∀ u ∈ 𝔘₁ k n j, ¬(𝓘 p : Set X) ⊆ ⋃ (i ∈ 𝓛 (X := X) n u), i := by
   rw [ℭ₅, mem_diff, 𝔏₄, mem_setOf, not_and, and_congr_right_iff]; intro h
-  simp_rw [h, true_implies]; push_neg; rfl
+  simp_rw [h, true_implies]; push Not; rfl
 
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₅, mem_diff] at mt; exact mt.1
@@ -248,7 +248,8 @@ variable {k n j l : ℕ}
 lemma 𝔏₀_subset_ℭ : 𝔏₀ (X := X) k n ⊆ ℭ k n := fun _ mu ↦ mu.1
 lemma 𝔏₀_disjoint_ℭ₁ : Disjoint (𝔏₀ (X := X) k n) (ℭ₁ k n j) := by
   by_contra h; rw [not_disjoint_iff] at h; obtain ⟨p, ⟨_, b0⟩, ⟨⟨_, bp⟩ , _⟩⟩ := h
-  simp [b0] at bp
+  simp only [b0, Set.mem_empty_iff_false, Finset.filter_false, Finset.card_empty] at bp
+  linarith [Nat.two_pow_pos j]
 
 lemma 𝔏₁_subset_ℭ₁ : 𝔏₁ (X := X) k n j l ⊆ ℭ₁ k n j := minLayer_subset
 lemma 𝔏₁_subset_ℭ : 𝔏₁ (X := X) k n j l ⊆ ℭ k n := minLayer_subset.trans ℭ₁_subset_ℭ
@@ -274,7 +275,7 @@ def highDensityTiles : Set (𝔓 X) :=
   { p : 𝔓 X | 2 ^ (2 * a + 5) * volume F / volume G < dens₂ {p} }
 
 lemma highDensityTiles_empty (hF : volume F = 0) : highDensityTiles = (∅ : Set (𝔓 X)) := by
-  suffices ∀ (p : 𝔓 X), dens₂ {p} = 0 by simp [highDensityTiles, this]
+  suffices ∀ (p : 𝔓 X), dens₂ {p} = 0 by simp [highDensityTiles, this]; rfl
   simp_rw [dens₂, ENNReal.iSup_eq_zero, ENNReal.div_eq_zero_iff]
   exact fun _ _ _ r _ ↦ Or.inl <| measure_inter_null_of_null_left (ball (𝔠 _) r) hF
 
@@ -282,17 +283,17 @@ lemma highDensityTiles_empty' (hG : volume G = 0) :
     highDensityTiles = (∅ : Set (𝔓 X)) := by
   by_cases hF : volume F = 0
   · exact highDensityTiles_empty hF
-  suffices 2 ^ (2 * a + 5) * volume F / volume G = ⊤ by simp [highDensityTiles, this]
+  suffices 2 ^ (2 * a + 5) * volume F / volume G = ⊤ by simp [highDensityTiles, this]; rfl
   exact hG ▸ ENNReal.div_zero (mul_ne_zero (by simp) hF)
 
 /-- The exceptional set `G₁`, defined in (5.1.25). -/
 def G₁ : Set X := ⋃ (p : 𝔓 X) (_ : p ∈ highDensityTiles), 𝓘 p
 
 lemma G₁_empty (hF : volume F = 0) : G₁ = (∅ : Set X) := by
-  simp [G₁, highDensityTiles_empty hF]
+  simp only [G₁, highDensityTiles_empty hF, Set.biUnion_empty]
 
 lemma G₁_empty' (hG : volume G = 0) : G₁ = (∅ : Set X) := by
-  simp [G₁, highDensityTiles_empty' hG]
+  simp only [G₁, highDensityTiles_empty' hG, Set.biUnion_empty]
 
 lemma measurable_G₁ : MeasurableSet (G₁ (X := X)) :=
   Finite.measurableSet_biUnion highDensityTiles.toFinite fun _ _ ↦ coeGrid_measurable
