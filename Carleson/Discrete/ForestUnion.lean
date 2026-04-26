@@ -142,6 +142,7 @@ def URel (k n j : ℕ) (u u' : 𝔓 X) : Prop :=
 
 nonrec lemma URel.rfl : URel k n j u u := Or.inl rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 5.4.1, part 2. -/
 lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : URel k n j u u') :
     ¬Disjoint (ball_(u) (𝒬 u) 100) (ball_(u') (𝒬 u') 100) := by
@@ -167,12 +168,8 @@ lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) 
   have 𝔅dj : Disjoint (𝔅 k n u) (𝔅 k n u') := by
     simp_rw [𝔅, disjoint_left, mem_setOf, not_and]; intro q ⟨_, sl⟩ _
     simp_rw [TileLike.le_def, smul_fst, smul_snd, not_and_or] at sl ⊢; right
-    intro hs
-    apply disjoint_left.mp (h.mono_left sl.2) (mem_ball_self zero_lt_one)
-    apply hs
-    change dist_{𝔠 q, ↑D ^ 𝔰 q / 4} (𝒬 q) (𝒬 q) < 1
-    rw [dist_self]
-    positivity
+    have := disjoint_left.mp (h.mono_left sl.2) (mem_ball_self zero_lt_one)
+    rw [not_subset]; use 𝒬 q, mem_ball_self zero_lt_one
   have usp : 𝔅 k n u ⊆ 𝔅 k n p := fun q mq ↦ by
     rw [𝔅, mem_setOf] at mq ⊢; exact ⟨mq.1, plu.trans mq.2⟩
   have u'sp : 𝔅 k n u' ⊆ 𝔅 k n p := fun q mq ↦ by

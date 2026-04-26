@@ -734,6 +734,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
       have : 4 ≤ (a : ℝ) := by norm_cast; exact four_le_a X
       linarith
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 7.2.3. -/
 lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     eLpNorm (t.boundaryOperator u f) 2 volume ≤ C7_2_3 a * eLpNorm f 2 volume := by
@@ -751,24 +752,18 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
   nth_rw 1 [show ((2 : ℕ) : ℝ) = (2 : ℝ≥0) by rfl, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
     eLpNorm_nnreal_pow_eq_lintegral two_ne_zero]
   convert boundary_operator_bound_aux (t := t) (u := u) hf bcs.toComplex using 2
-  · simp_rw [RCLike.conj_mul]
-    norm_cast
-    simp only [← norm_pow, Real.norm_of_nonneg (sq_nonneg _)]
-    have hι : ∫ (x : X), (↑((t.boundaryOperator u f x).toReal ^ 2) : ℂ) ∂volume =
-        ↑(∫ (x : X), (t.boundaryOperator u f x).toReal ^ 2 ∂volume) := integral_ofReal
-    erw [hι]
-    rw [enorm_eq_nnnorm, nnnorm_real, ← enorm_eq_nnnorm,
-        Real.enorm_eq_ofReal (integral_nonneg (fun x ↦ sq_nonneg _)),
-        MeasureTheory.ofReal_integral_eq_lintegral_ofReal
-          (by simp_rw [sq]; exact (bcs.mul bcs).integrable)
-          (ae_of_all _ fun x ↦ sq_nonneg _)]
-    apply lintegral_congr
-    intro x
-    rw [
-      ENNReal.ofReal_pow ENNReal.toReal_nonneg,
-      ENNReal.ofReal_toReal (boundaryOperator_lt_top hf).ne
-    ]
-    norm_cast
+  · simp_rw [RCLike.conj_mul]; norm_cast
+    simp_rw [← norm_pow, integral_norm_eq_lintegral_enorm
+      (bcs.aestronglyMeasurable.aemeasurable.pow_const 2).aestronglyMeasurable, enorm_pow,
+      enorm_toReal (boundaryOperator_lt_top hf).ne, enorm_eq_self]
+    simp_rw [enorm_eq_nnnorm, coe_algebraMap, nnnorm_real, ← enorm_eq_nnnorm,
+      ← ENNReal.rpow_natCast, Nat.cast_ofNat]
+    refine (enorm_toReal ?_).symm
+    replace hv' := ENNReal.pow_lt_top (n := 2) hv'
+    rw [← ENNReal.rpow_natCast, show ((2 : ℕ) : ℝ) = (2 : ℝ≥0) by rfl,
+      show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, eLpNorm_nnreal_pow_eq_lintegral two_ne_zero,
+      show ((2 : ℝ≥0) : ℝ) = (2 : ℕ) by rfl] at hv'
+    simp_rw [enorm_eq_self] at hv'; exact hv'.ne
   · rw [← elpn_eq, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl]
     simp_rw [eLpNorm_nnreal_eq_lintegral two_ne_zero]; congr!
     simp [enorm_eq_nnnorm, nnnorm_real]

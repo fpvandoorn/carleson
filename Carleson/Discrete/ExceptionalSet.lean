@@ -1,5 +1,6 @@
 import Carleson.Discrete.Defs
 import Carleson.ToMathlib.HardyLittlewood
+
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
 
@@ -54,6 +55,7 @@ section first_exception
 
 open ENNReal
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 5.2.1 -/
 lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G := by
   -- Handle trivial cases
@@ -102,9 +104,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
       ∫⁻ (x : X) in ball (𝔠 p) (r p), u x := by
     intro p h
     simp_rw [𝓑, mem_toFinset] at h
-    have hr' := (hr h).2.le
-    simp only [r, dif_pos h] at hr' ⊢
-    simpa [u, lintegral_indicator, Measure.restrict_apply, measurableSet_F] using hr'
+    simpa [u, lintegral_indicator, Measure.restrict_apply, measurableSet_F, r, h] using (hr h).2.le
   have ineq := 𝓑.measure_biUnion_le_lintegral (A := defaultA a) K u h2u
   simp only [u, lintegral_indicator, measurableSet_F, Pi.one_apply, lintegral_const,
     MeasurableSet.univ, Measure.restrict_apply, univ_inter, one_mul] at ineq
@@ -191,6 +191,7 @@ lemma iUnion_MsetA_eq_setA : ⋃ i ∈ MsetA (X := X) l k n, ↑i = setA (X := X
   · obtain ⟨j, mj, lj⟩ := mx; exact mem_of_mem_of_subset lj mj
   · obtain ⟨j, mj, lj⟩ := dyadic_union mx; use j, lj, mj
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Equation (5.2.7) in the proof of Lemma 5.2.5. -/
 lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     (mx : x ∈ setA (l + 1) k n) (mx₂ : x ∈ L) : 2 ^ (n + 1) ≤
@@ -229,8 +230,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
         ext y; simp_rw [Q₂, mem_setOf_eq, Set.notMem_empty, iff_false, not_and, h, Grid.lt_def,
           not_and_or, not_lt]
         exact fun _ ↦ Or.inr (Grid.le_topCube).2
-      simp only [stackSize, this, Set.mem_empty_iff_false, Finset.filter_false,
-        Finset.sum_empty, Nat.zero_le]
+      simp [stackSize, this]
     have Lslq : ∀ q ∈ Q₂, L.succ ≤ 𝓘 q := fun q mq ↦ Grid.succ_le_of_lt mq.2
     have Lout : ¬(L.succ : Set X) ⊆ setA (X := X) l k n := by
       by_contra! hs
@@ -531,10 +531,11 @@ private lemma x_mem_𝓘u : x ∈ (𝓘 u) := by
   simp only [𝔘, mem_filter] at hu
   exact hu.2.1
 
+set_option backward.isDefEq.respectTransparency false in
 include hu in
 private lemma 𝒬m_mem_ball : 𝒬 m ∈ ball_(u) (𝒬 u) 100 := by
   simp only [𝔘, mem_filter, smul] at hu
-  exact hu.2.2.2 (@mem_ball_self (WithFunctionDistance (𝔠 m) (↑D ^ 𝔰 m / 4)) inferInstance (𝒬 m) 1 one_pos)
+  exact hu.2.2.2 (by simp)
 
 include hu hu' in
 private lemma 𝓘_not_lt_𝓘 : ¬𝓘 u < 𝓘 u' := by
@@ -562,14 +563,13 @@ private lemma disjoint_balls (h : u' ≠ u'') :
   nth_rewrite 1 [ball_eq_ball hu hu', ball_eq_ball hu hu'']
   convert cball_disjoint h (𝓘_eq_𝓘 hu' hu'') using 2 <;> norm_num
 
+set_option backward.isDefEq.respectTransparency false in
 include hu hu' in
 private lemma mem_big_ball : 𝒬 u' ∈ big_ball m u := by
   have : 𝒬 m ∈ ball_(u) (𝒬 u') 100 := ball_eq_ball hu hu' ▸ 𝒬m_mem_ball hu'
-  have h2 : 𝒬 u' ∈ ball_(u) (𝒬 m) 100 := @mem_ball_comm _ (instPseudoMetricSpaceWithFunctionDistance (x := 𝔠 u) (r := ↑D ^ 𝔰 u / 4)) _ _ _ |>.mp this
-  simp only [big_ball]
-  apply @ball_subset_ball (WithFunctionDistance (𝔠 u) (↑D ^ 𝔰 u / 4))
-    instPseudoMetricSpaceWithFunctionDistance (𝒬 m) 100 (2 ^ 9 * 0.2) (by norm_num)
-  exact h2
+  rw [@mem_ball_comm] at this
+  simp only [big_ball, mem_ball] at this ⊢
+  exact this.trans (by norm_num)
 
 open scoped Classical in
 include hu in
@@ -585,6 +585,7 @@ private lemma balls_cover_big_ball : CoveredByBalls (big_ball m u) (defaultA a ^
 private lemma 𝒬_injOn_𝔘m : InjOn 𝒬 (SetLike.coe (𝔘 k n j x m)) :=
   fun _ hu _ hu' h ↦ 𝒬_inj h (𝓘_eq_𝓘 hu hu')
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
   classical
   by_cases h : 𝔘 k n j x m = ∅
@@ -597,15 +598,11 @@ private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
   -- ≤ 1, so `(𝔘 k n j x m).card = ((𝔘 k n j x m).image 𝒬).card ≤ (𝓑.biUnion 𝓕).card ≤ 𝓑.card`
   have 𝒬𝔘_eq_union: (𝔘 k n j x m).image 𝒬 = 𝓑.biUnion 𝓕 := by
     ext f
-    simp only [𝓕]
-    constructor
-    · intro hf
-      obtain ⟨g, hg⟩ : ∃ g ∈ 𝓑, f ∈ @ball _ pm g 0.2 := by
-        simpa only [mem_iUnion, exists_prop] using 𝓑_cover (subset_big_ball hu f hf)
-      exact Finset.mem_biUnion.mpr ⟨g, hg.1, mem_filter.mpr ⟨hf, hg.2⟩⟩
-    · intro hf
-      obtain ⟨g, _, hfg⟩ := Finset.mem_biUnion.mp hf
-      exact (mem_filter.mp hfg).1
+    simp only [𝓕, Finset.mem_biUnion, mem_filter]
+    refine ⟨fun hf ↦ ?_, fun ⟨_, _, h, _⟩ ↦ h⟩
+    obtain ⟨g, hg⟩ : ∃ g ∈ 𝓑, f ∈ @ball _ pm g 0.2 := by
+      simpa only [mem_iUnion, exists_prop] using 𝓑_cover (subset_big_ball hu f hf)
+    exact ⟨g, hg.1, hf, hg.2⟩
   have card_le_one : ∀ f ∈ 𝓑, (𝓕 f).card ≤ 1 := by
     refine fun f _ ↦ card_le_one.mpr (fun g₁ hg₁ g₂ hg₂ ↦ ?_)
     by_contra! h
@@ -614,10 +611,8 @@ private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
     obtain ⟨u₂, hu₂, rfl⟩ := Finset.mem_image.mp hg₂.1
     apply Set.not_disjoint_iff.mpr ⟨f, mem_ball_comm.mp hg₁.2, mem_ball_comm.mp hg₂.2⟩
     exact disjoint_balls hu hu₁ hu₂ (ne_of_apply_ne 𝒬 h)
-  calc #(𝔘 k n j x m)
-      = #((𝔘 k n j x m).image 𝒬) := (card_image_iff.mpr 𝒬_injOn_𝔘m).symm
-    _ = #(𝓑.biUnion 𝓕) := by rw [𝒬𝔘_eq_union]; rfl
-    _ ≤ _ := (mul_one 𝓑.card ▸ card_biUnion_le_card_mul 𝓑 𝓕 1 card_le_one).trans 𝓑_card_le
+  rw [← card_image_iff.mpr 𝒬_injOn_𝔘m, 𝒬𝔘_eq_union]
+  exact (mul_one 𝓑.card ▸ card_biUnion_le_card_mul 𝓑 𝓕 1 card_le_one).trans 𝓑_card_le
 
 variable (k n j) (x) in
 open scoped Classical in
