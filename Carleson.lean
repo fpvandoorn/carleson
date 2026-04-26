@@ -48,7 +48,6 @@ import Carleson.Psi
 import Carleson.TileExistence
 import Carleson.TileStructure
 import Carleson.ToMathlib.Analysis.Convolution
-import Carleson.ToMathlib.Analysis.MeanInequalitiesPow
 import Carleson.ToMathlib.Annulus
 import Carleson.ToMathlib.BoundedCompactSupport
 import Carleson.ToMathlib.BoundedFiniteSupport
@@ -70,7 +69,6 @@ import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequal
 import Carleson.ToMathlib.MeasureTheory.Function.LorentzSpace.Basic
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.Indicator
 import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 import Carleson.ToMathlib.MeasureTheory.Integral.Average

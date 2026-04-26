@@ -1,5 +1,5 @@
 import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
-import Carleson.ToMathlib.Analysis.MeanInequalitiesPow
+import Mathlib.Analysis.MeanInequalitiesPow
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 
 /-!

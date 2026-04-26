@@ -1,7 +1,7 @@
 import Carleson.Classical.Helper
 import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
+import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Tactic.Field
