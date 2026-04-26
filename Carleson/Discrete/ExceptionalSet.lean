@@ -55,6 +55,7 @@ section first_exception
 
 open ENNReal
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 5.2.1 -/
 lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G := by
   -- Handle trivial cases
@@ -95,7 +96,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     suffices (𝓘 p : Set X) ⊆ ball (𝔠 p) (r p) from this xp
     apply Grid_subset_ball.trans ∘ ball_subset_ball
     convert (hr hp).1.le
-    simp [r, hp]
+    simp only [r, dif_pos hp]
   apply (OuterMeasureClass.measure_mono volume this).trans
   -- Apply `measure_biUnion_le_lintegral` to `u := F.indicator 1` to bound the volume of ⋃ 𝓑.
   let u := F.indicator (1 : X → ℝ≥0∞)
@@ -135,7 +136,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     simp_rw [𝓒]; intro q mq; rw [mem_iUnion₂] at mq ⊢; obtain ⟨i, hi, mi⟩ := mq
     rw [aux𝓒, mem_diff, mem_setOf] at hi; obtain ⟨j, hj, mj⟩ := hi.1
     use j, ?_, mem_of_mem_of_subset mi hj.1
-    simpa [M] using mj
+    simp only [M, Finset.mem_filter_univ]; exact mj
   let M' := Grid.maxCubes M
   have s₂ : ⋃ i ∈ M, (i : Set X) ⊆ ⋃ i ∈ M', ↑i := iUnion₂_mono' fun i mi ↦ by
     obtain ⟨j, mj, hj⟩ := Grid.exists_maximal_supercube mi; use j, mj, hj.1
@@ -190,6 +191,7 @@ lemma iUnion_MsetA_eq_setA : ⋃ i ∈ MsetA (X := X) l k n, ↑i = setA (X := X
   · obtain ⟨j, mj, lj⟩ := mx; exact mem_of_mem_of_subset lj mj
   · obtain ⟨j, mj, lj⟩ := dyadic_union mx; use j, lj, mj
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Equation (5.2.7) in the proof of Lemma 5.2.5. -/
 lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     (mx : x ∈ setA (l + 1) k n) (mx₂ : x ∈ L) : 2 ^ (n + 1) ≤
@@ -214,7 +216,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     simp_rw [mem_setOf_eq, and_congr_right_iff]
     refine fun _ ↦ ⟨fun h ↦ ?_, ?_⟩
     · apply lt_of_le_of_ne <| (le_or_ge_or_disjoint.resolve_left h.1).resolve_right h.2
-      by_contra k; subst k; simp at h
+      by_contra k; subst k; exact absurd le_rfl h.1
     · rw [Grid.lt_def, Grid.le_def, not_and_or, not_le]
       exact fun h ↦ ⟨Or.inr h.2, not_disjoint_iff.mpr ⟨x, mem_of_mem_of_subset mx₂ h.1, mx₂⟩⟩
   rw [req] at mx
@@ -529,6 +531,7 @@ private lemma x_mem_𝓘u : x ∈ (𝓘 u) := by
   simp only [𝔘, mem_filter] at hu
   exact hu.2.1
 
+set_option backward.isDefEq.respectTransparency false in
 include hu in
 private lemma 𝒬m_mem_ball : 𝒬 m ∈ ball_(u) (𝒬 u) 100 := by
   simp only [𝔘, mem_filter, smul] at hu
@@ -552,7 +555,7 @@ private lemma 𝓘_eq_𝓘 : 𝓘 u = 𝓘 u' :=
 
 include hu hu' in
 private lemma ball_eq_ball : ball_(u) = ball_(u') := by
-  rw [𝔠, 𝔰, 𝓘_eq_𝓘 hu hu']
+  delta 𝔠 𝔰; rw [𝓘_eq_𝓘 hu hu']
 
 include hu hu' hu'' in
 private lemma disjoint_balls (h : u' ≠ u'') :
@@ -560,6 +563,7 @@ private lemma disjoint_balls (h : u' ≠ u'') :
   nth_rewrite 1 [ball_eq_ball hu hu', ball_eq_ball hu hu'']
   convert cball_disjoint h (𝓘_eq_𝓘 hu' hu'') using 2 <;> norm_num
 
+set_option backward.isDefEq.respectTransparency false in
 include hu hu' in
 private lemma mem_big_ball : 𝒬 u' ∈ big_ball m u := by
   have : 𝒬 m ∈ ball_(u) (𝒬 u') 100 := ball_eq_ball hu hu' ▸ 𝒬m_mem_ball hu'
@@ -581,10 +585,11 @@ private lemma balls_cover_big_ball : CoveredByBalls (big_ball m u) (defaultA a ^
 private lemma 𝒬_injOn_𝔘m : InjOn 𝒬 (SetLike.coe (𝔘 k n j x m)) :=
   fun _ hu _ hu' h ↦ 𝒬_inj h (𝓘_eq_𝓘 hu hu')
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
   classical
   by_cases h : 𝔘 k n j x m = ∅
-  · simp [h]
+  · simp only [h, Finset.card_empty]; exact Nat.zero_le _
   have ⟨u, hu⟩ := Finset.nonempty_of_ne_empty h
   let pm := instPseudoMetricSpaceWithFunctionDistance (x := 𝔠 u) (r := (D ^ 𝔰 u / 4))
   have ⟨𝓑, 𝓑_card_le, 𝓑_cover⟩ := balls_cover_big_ball m u
@@ -601,9 +606,9 @@ private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
   have card_le_one : ∀ f ∈ 𝓑, (𝓕 f).card ≤ 1 := by
     refine fun f _ ↦ card_le_one.mpr (fun g₁ hg₁ g₂ hg₂ ↦ ?_)
     by_contra! h
-    simp only [mem_filter, 𝓕, Finset.mem_image] at hg₁ hg₂
-    rcases hg₁.1 with ⟨u₁, hu₁, rfl⟩
-    rcases hg₂.1 with ⟨u₂, hu₂, rfl⟩
+    simp only [mem_filter, 𝓕] at hg₁ hg₂
+    obtain ⟨u₁, hu₁, rfl⟩ := Finset.mem_image.mp hg₁.1
+    obtain ⟨u₂, hu₂, rfl⟩ := Finset.mem_image.mp hg₂.1
     apply Set.not_disjoint_iff.mpr ⟨f, mem_ball_comm.mp hg₁.2, mem_ball_comm.mp hg₂.2⟩
     exact disjoint_balls hu hu₁ hu₂ (ne_of_apply_ne 𝒬 h)
   rw [← card_image_iff.mpr 𝒬_injOn_𝔘m, 𝒬𝔘_eq_union]
@@ -630,9 +635,11 @@ private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ �
     (𝓘 u : Set X).indicator 1 x ≤ (2 : ℝ) ^ (-j : ℤ) * stackSize (𝔐' k n u) x := by
   intro u hu
   by_cases hx : x ∈ (𝓘 u : Set X); swap
-  · simp [hx]
+  · simp only [Set.indicator_of_notMem hx]
+    exact mul_nonneg (zpow_nonneg (by norm_num) _) (Nat.cast_nonneg _)
   suffices (2 : ℝ) ^ (j : ℤ) ≤ stackSize (𝔐' k n u) x by calc
-    _ ≤ (2 : ℝ) ^ (-j : ℤ) * (2 : ℝ) ^ (j : ℤ)       := by simp [hx]
+    _ ≤ (2 : ℝ) ^ (-j : ℤ) * (2 : ℝ) ^ (j : ℤ)       := by
+        rw [Set.indicator_of_mem hx, Pi.one_apply, ← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0), neg_add_cancel, zpow_zero]
     _ ≤ (2 : ℝ) ^ (-j : ℤ) * stackSize (𝔐' k n u) x := by gcongr
   norm_cast
   simp only [𝔘₁, Finset.mem_filter, toFinset_setOf] at hu
@@ -640,7 +647,7 @@ private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ �
   simp only [Finset.coe_filter, mem_toFinset, 𝔐', Finset.card_eq_sum_ones]
   refine Finset.sum_congr rfl (fun m hm ↦ ?_)
   simp only [TileLike.le_def, smul_fst, Finset.mem_filter] at hm
-  simp [hm.2.2.1.1 hx]
+  simp only [Set.indicator_of_mem (hm.2.2.1.1 hx), Pi.one_apply]
 
 open Finset in
 /-- Lemma 5.2.8 -/
@@ -652,7 +659,7 @@ lemma tree_count :
       ∑ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·), (𝓘 u : Set X).indicator (1 : X → ℝ) x := by
     rw [filter_mem_univ_eq_toFinset (𝔘₁ k n j), sum_filter]
     exact sum_congr rfl <|
-      fun u _ ↦ _root_.by_cases (p := x ∈ 𝓘 u) (fun hx ↦ by simp [hx]) (fun hx ↦ by simpa [hx])
+      fun u _ ↦ by simp [Membership.mem]
   rw [stackSize_real, this]
   -- Use inequality (5.2.20) to bound the LHS by a double sum, then interchange the sums.
   apply le_trans (sum_le_sum indicator_le)
@@ -707,8 +714,7 @@ lemma boundary_exception {u : 𝔓 X} :
                   · push_cast
                     rfl
                   · simp
-          rw [show ⋃ i ∈ 𝓛 (X := X) n u, (i : Set X) = ⋃ i : 𝓛 (X := X) n u, (i : Set X) by simp]
-          exact measure_mono <| Set.iUnion_subset_iff.mpr <| by simp [i_subset_X_u]
+          exact measure_mono (Set.iUnion₂_subset i_subset_X_u)
       _ ≤ 2 * (12 * D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0) ^ κ * volume (𝓘 u : Set X) := by
           have small_boundary_observation : ∀ i ∈ 𝓛 (X := X) n u, volume X_u ≤ 2 * (12 * D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0) ^ κ * volume (𝓘 u : Set X) := by
             intro i ⟨_, s_i_eq_stuff, _⟩
@@ -811,12 +817,12 @@ lemma boundary_exception {u : 𝔓 X} :
       have h1 : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤
         ∑' i : 𝓛 (X := X) n u, volume (i : Set X) := measure_biUnion_le _ (𝓛 n u).to_countable _
       have h2 : ∑' i : 𝓛 (X := X) n u, volume (i : Set X) = 0 := by
-        have : 𝓛 (X := X) n u = ∅ := Set.not_nonempty_iff_eq_empty'.mp <| by
-          rw [Set.Nonempty] at h_𝓛_n_u_non_empty
-          simp [h_𝓛_n_u_non_empty]
-        simp [this]
+        have : IsEmpty (𝓛 (X := X) n u) := by
+          rw [Set.isEmpty_coe_sort]
+          exact Set.not_nonempty_iff_eq_empty.mp h_𝓛_n_u_non_empty
+        exact tsum_empty
       exact (le_of_le_of_eq h1 h2).antisymm (by simp)
-    simp [this]
+    simp only [this, zero_le]
 
 lemma third_exception_aux :
     volume (⋃ p ∈ 𝔏₄ (X := X) k n j, (𝓘 p : Set X)) ≤

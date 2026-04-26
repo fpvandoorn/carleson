@@ -138,8 +138,8 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       gcongr
       · rw [rpow_mul]
         apply rpow_le_rpow _ (by positivity)
-        · norm_cast
-          exact est_edist y hy
+        · apply (est_edist y hy).trans_eq
+          simp [rpow_add, rpow_natCast, pow_succ]
       · exact est_vol y hy
     rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm]
     trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
@@ -474,7 +474,8 @@ theorem cotlar_control (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport
       ring
     _ ≤ ‖czOperator K R g x - czOperator K R g x'‖ₑ + ‖czOperator K R g x'‖ₑ := by
       apply enorm_add_le
-    _ = nndist (czOperator K R g x) (czOperator K R g x') + ‖czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ := by congr 2; exact cut_out_ball hr hx
+    _ = nndist (czOperator K R g x) (czOperator K R g x') + ‖czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ := by
+      rw [enorm_eq_nnnorm, ← nndist_eq_nnnorm, cut_out_ball hr hx]
     _ ≤ C10_1_2 a * globalMaximalFunction volume 1 g x + (‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ + ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ) := by
       gcongr
       · apply estimate_x_shift ha hg R_pos
@@ -750,9 +751,12 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
       (4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g) by rfl]
   apply le_trans <| eLpNorm_add_le (by fun_prop) (by fun_prop) one_le_two
   apply le_trans <| add_le_add (eLpNorm_add_le (by fun_prop) (by fun_prop) one_le_two) (by rfl)
-  simp_rw [eLpNorm_const_smul' (f := globalMaximalFunction volume 1 g),
-      eLpNorm_const_smul' (f := globalMaximalFunction volume 1 (czOperator K r g)),
-      enorm_NNReal, add_assoc, ← add_mul]
+  rw [
+    show eLpNorm ((4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g)) 2 volume = ‖(4 : ℝ≥0)‖ₑ * eLpNorm (globalMaximalFunction volume 1 (czOperator K r g)) 2 volume from eLpNorm_const_smul',
+    show eLpNorm (C10_1_5 a • globalMaximalFunction volume 1 g) 2 volume = ‖C10_1_5 a‖ₑ * eLpNorm (globalMaximalFunction volume 1 g) 2 volume from eLpNorm_const_smul',
+    show eLpNorm (C10_1_2 a • globalMaximalFunction volume 1 g) 2 volume = ‖C10_1_2 a‖ₑ * eLpNorm (globalMaximalFunction volume 1 g) 2 volume from eLpNorm_const_smul',
+    enorm_NNReal, enorm_NNReal, enorm_NNReal, add_assoc, ← add_mul
+  ]
   apply le_trans <| add_le_add
     (mul_le_mul_right (hst_gmf_czg.2.trans <| mul_le_mul_right (hT r hr g hg).2 _) _)
     (mul_le_mul_right hst_gmf_g.2 _)
