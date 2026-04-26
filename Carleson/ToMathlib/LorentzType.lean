@@ -9,7 +9,6 @@ import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
 import Carleson.ToMathlib.Rearrangement
 import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Topology.Order.Basic
 
 -- Upstreaming status: this file is actively being worked on; not ready yet
 
