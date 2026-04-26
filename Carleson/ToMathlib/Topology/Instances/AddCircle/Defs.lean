@@ -2,8 +2,6 @@ import Mathlib.Topology.Instances.AddCircle.Defs
 
 -- Upstreaming status: seems ready to go; lemmas are usually analogues of existing mathlib lemmas
 -- Sometimes, mathlib lemmas need to be renamed along with upstreaming this.
--- Non-Periodic lemmas upstreamed in
--- https://github.com/leanprover-community/mathlib4/pull/37570
 
 noncomputable section
 
@@ -14,21 +12,6 @@ open Topology
 variable {𝕜 B : Type*} [AddCommGroup 𝕜] [LinearOrder 𝕜] [IsOrderedAddMonoid 𝕜]
 
 namespace AddCircle
-
-section LinearOrderedAddCommGroup
-
-variable [Archimedean 𝕜]
-{p : 𝕜} [hp : Fact (0 < p)] {a : 𝕜}
-
--- Add after `liftIoc_coe_apply`
-theorem liftIoc_eq_liftIco_of_ne (f : 𝕜 → B) {x : AddCircle p}
-    (x_ne_a : x ≠ a) : liftIoc p a f x = liftIco p a f x := by
-  let b := QuotientAddGroup.equivIcoMod hp.out a x
-  have x_eq_b : x = ↑b := (QuotientAddGroup.equivIcoMod hp.out a).apply_eq_iff_eq_symm_apply.mp rfl
-  rw [x_eq_b, liftIco_coe_apply b.coe_prop]
-  exact liftIoc_coe_apply ⟨lt_of_le_of_ne b.coe_prop.1 (x_ne_a <| · ▸ x_eq_b), b.coe_prop.2.le⟩
-
-end LinearOrderedAddCommGroup
 
 section Periodic
 
@@ -68,33 +51,5 @@ theorem liftIco_eq_liftIoc : liftIco p a f = liftIoc p a' f :=
     rw [liftIco_coe_apply_of_periodic _ hf, liftIoc_coe_apply_of_periodic _ hf]
 
 end Periodic
-
-
-/-- Ioc version of mathlib `coe_eq_coe_iff_of_mem_Ico` -/
-lemma coe_eq_coe_iff_of_mem_Ioc {p : 𝕜} [hp : Fact (0 < p)]
-    {a : 𝕜} [Archimedean 𝕜] {x y : 𝕜} (hx : x ∈ Set.Ioc a (a + p)) (hy : y ∈ Set.Ioc a (a + p)) :
-    (x : AddCircle p) = y ↔ x = y := by
-  refine ⟨fun h => ?_, by tauto⟩
-  suffices (⟨x, hx⟩ : Set.Ioc a (a + p)) = ⟨y, hy⟩ by exact Subtype.mk.inj this
-  apply_fun equivIoc p a at h
-  rw [← (equivIoc p a).right_inv ⟨x, hx⟩, ← (equivIoc p a).right_inv ⟨y, hy⟩]
-  exact h
-
-/-- Ioc version of mathlib `eq_coe_Ico` -/
-lemma eq_coe_Ioc {p : 𝕜} [hp : Fact (0 < p)] [Archimedean 𝕜]
-    (a : AddCircle p) : ∃ b ∈ Set.Ioc 0 p, ↑b = a := by
-  let b := QuotientAddGroup.equivIocMod hp.out 0 a
-  exact ⟨b.1, by simpa only [zero_add] using b.2,
-    (QuotientAddGroup.equivIocMod hp.out 0).symm_apply_apply a⟩
-
-lemma coe_equivIoc {p : 𝕜} [hp : Fact (0 < p)] [Archimedean 𝕜] (a : 𝕜) {y : AddCircle p} :
-    (equivIoc p a y : AddCircle p) = y :=
-  (equivIoc p a).left_inv y
-
-lemma equivIoc_coe_of_mem {p : 𝕜} [hp : Fact (0 < p)] [Archimedean 𝕜] (a : 𝕜) {y : 𝕜}
-    (hy : y ∈ Set.Ioc a (a + p)) :
-    equivIoc p a y = y := by
-  have : equivIoc p a y = ⟨y, hy⟩ := (equivIoc p a).right_inv ⟨y, hy⟩
-  simp [this]
 
 end AddCircle

@@ -318,7 +318,6 @@ lemma interp_exp_between (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
     gcongr
     · finiteness
     · exact ht.1.ne'
-    · exact ht'
   · rw [hp]
     have : p₁⁻¹ = (1 - t) * p₁⁻¹ + t * p₁⁻¹ := by
       rw [← add_mul, tsub_add_eq_max, max_eq_left_of_lt, one_mul]

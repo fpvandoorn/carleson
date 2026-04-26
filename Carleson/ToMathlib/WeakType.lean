@@ -454,9 +454,7 @@ lemma wnorm'_mono_enorm_ae {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α →
   apply iSup_le
   intro t
   calc _
-    _ ≤ ↑t * distribution g (↑t) μ ^ p⁻¹ := by
-      gcongr
-      assumption
+    _ ≤ ↑t * distribution g (↑t) μ ^ p⁻¹ := by gcongr
   apply le_iSup _ t
 
 lemma wnorm_mono_enorm_ae {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α → ε'}
@@ -517,8 +515,7 @@ theorem wnorm_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid �
         apply ENNReal.div_lt_of_lt_mul'
         nth_rw 1 [← one_mul ‖a‖ₑ]
         gcongr
-        · exact ha'
-        · norm_num
+        norm_num
     apply le_of_forall_lt_imp_le_of_dense
     intro c hc
     apply le_iSup_of_le (c / (μ s ^ p.toReal⁻¹)).toNNReal
