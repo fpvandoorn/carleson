@@ -103,7 +103,7 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, mul_add]
   rw [intervalIntegral.integral_add
     (by ring_nf; exact hf.continuousOn_mul (by fun_prop))
-    (by ring_nf; exact hg.continuousOn_mul (Continuous.continuousOn (by fun_prop))),
+    (by ring_nf; exact hg.continuousOn_mul (by fun_prop)),
     smul_add]
 
 @[simp]
