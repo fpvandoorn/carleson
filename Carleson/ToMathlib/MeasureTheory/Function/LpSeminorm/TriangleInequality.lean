@@ -16,6 +16,7 @@ lemma MemLp.toLp_sum {α E : Type*} {m0 : MeasurableSpace α} {p : ENNReal}
 
 namespace MeasureTheory
 
+open ENNReal in
 theorem one_le_LpAddConst {p : ENNReal} : 1 ≤ LpAddConst p := by
   unfold LpAddConst
   split_ifs with h
