@@ -352,14 +352,14 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, (conj ∘ g) y * K x y * exp (I * n * y)‖ₑ := by
           congr 1
           · rw [
-              show ∫ y in _, _ = _ * ∫ y in _, g y * K x y * _ from integral_const_mul _ _,
+              integral_const_mul _ _,
               enorm_mul,
               show (-↑n * ↑x : ℂ) = ((-↑n * ↑x : ℝ) : ℂ) by norm_cast,
               enorm_exp_I_mul_ofReal,
               one_mul
             ]
           · rw [
-              show ∫ y in _, _ = _ * ∫ y in _, (conj ∘ g) y * K x y * _ from integral_const_mul _ _,
+              integral_const_mul _ _,
               enorm_mul,
               show (-↑n * ↑x : ℂ) = ((-↑n * ↑x : ℝ) : ℂ) by norm_cast,
               enorm_exp_I_mul_ofReal,
