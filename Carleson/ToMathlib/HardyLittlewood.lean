@@ -1,5 +1,5 @@
 import Carleson.Defs
-import Carleson.ToMathlib.MeasureTheory.Integral.Average
+import Mathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.RealInterpolation.Main
 import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
 import Mathlib.MeasureTheory.Covering.Vitali

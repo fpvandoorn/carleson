@@ -90,7 +90,6 @@ def spf_to_tc (spf : ScaledPowerFunction) : StrictRangeToneCouple where
       intro s t hst
       beta_reduce
       gcongr
-      exact this
     · simp only [Bool.false_eq_true, ↓reduceIte]
       intro s t hst
       rcases spf.hσ with σ_pos | σ_neg

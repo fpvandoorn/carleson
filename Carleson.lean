@@ -90,7 +90,6 @@ import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.Order.CompleteLattice.Basic
 import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
 import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
-import Carleson.ToMathlib.Order.LiminfLimsup
 import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
 import Carleson.ToMathlib.RealInterpolation.Main
