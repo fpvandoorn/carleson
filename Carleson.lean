@@ -71,7 +71,6 @@ import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.Indicator
 import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
-import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
