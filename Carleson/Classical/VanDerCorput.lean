@@ -80,14 +80,8 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
       _ = ‖(starRingEnd ℂ) (∫ x in a..b, cexp (I * ↑n * ↑x) * φ x)‖ :=
         (RCLike.norm_conj _).symm
       _ = ‖∫ x in a..b, cexp (I * ↑(-n) * ↑x) * ((starRingEnd ℂ) ∘ φ) x‖ := by
-        congr 1
-        have hconj : (starRingEnd ℂ) (∫ x in a..b, cexp (I * n * x) * φ x) = ∫ x in a..b, (starRingEnd ℂ) (cexp (I * n * x) * φ x) := by
-          change (starRingEnd ℂ) (∫ x in Ioc a b, cexp (I * n * x) * φ x ∂volume - ∫ x in Ioc b a, cexp (I * n * x) * φ x ∂volume) = _
-          rw [map_sub]
-          congr 1
-          · exact integral_conj.symm
-          · exact integral_conj.symm
-        rw [hconj]
+        rw [intervalIntegral.integral_of_le (by linarith), ← integral_conj,
+          ← intervalIntegral.integral_of_le (by linarith)]
         congr
         ext x
         rw [map_mul, ← exp_conj]

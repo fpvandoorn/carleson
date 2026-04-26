@@ -603,16 +603,15 @@ lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
     simp_rw [mul_add I, mul_sub I, sub_eq_add_neg, exp_add]
     ring_nf
   simp only [I12, enorm_mul]
-  rw [
-    heq, integral_mul_const, enorm_mul, enorm_mul, enorm_mul, enorm_mul, enorm_exp_I_mul_ofReal,
+  rw [heq, integral_mul_const, enorm_mul, enorm_mul, enorm_mul, enorm_mul, enorm_exp_I_mul_ofReal,
     show ‖exp (_)‖ₑ = 1 from mod_cast enorm_exp_I_mul_ofReal _,
-    RCLike.enorm_conj, one_mul, one_mul, ← mul_assoc
-  ]
+    RCLike.enorm_conj, one_mul, one_mul, ← mul_assoc]
   simp only [mul_neg, correlation]
   congr; ext y
   rw [mul_add I, exp_add]
   ring_nf
 
+set_option backward.isDefEq.respectTransparency false in
 lemma bound_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ ≤
@@ -621,8 +620,7 @@ lemma bound_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
       conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
       ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) :=
     complex_exp_lintegral
-  simp_rw [adjointCarleson, haux]
-  simp_rw [show ∀ y, (∫ y1 in E p', conj (Ks (𝔰 p') y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) * (∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1)) = _ from fun y => (setIntegral_prod_mul ..).symm]
+  simp_rw [adjointCarleson, haux, ← setIntegral_prod_mul]
   rw [← setIntegral_univ]
   let f := fun (x, z1, z2) ↦
     conj (Ks (𝔰 p') z1 x) * exp (I * (Q z1 z1 - Q z1 x)) * g z1 *
