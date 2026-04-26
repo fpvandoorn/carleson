@@ -397,11 +397,8 @@ lemma I12_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X �
   rw [← ENNReal.rpow_le_rpow_iff_of_neg hneg] at h623
   have h0 : ((2 : ℝ≥0∞) ^ (8 * a)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) ≠ 0 := by simp
   have h210 : (2 : ℝ≥0∞) ^ (1 : ℝ) ≠ 0 := by rw [ENNReal.rpow_one]; exact two_ne_zero
-  rw [
-    ENNReal.mul_rpow_of_ne_top (by finiteness) (by finiteness),
-    mul_comm,
-    ← ENNReal.le_div_iff_mul_le (.inl h0) (.inl (by finiteness))
-  ] at h623
+  rw [ENNReal.mul_rpow_of_ne_top (by finiteness) (by finiteness), mul_comm,
+    ← ENNReal.le_div_iff_mul_le (.inl h0) (.inl (by finiteness))] at h623
   apply h623.trans
   rw [ENNReal.div_eq_inv_mul, mul_comm _ 2]
   gcongr
