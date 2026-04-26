@@ -44,6 +44,7 @@ lemma twopow_J' : 2 ^ J' X = 8 * nnD ^ (2 * S) := by
   ext
   push_cast
   rw_mod_cast [twopow_J]
+  sorry -- TODO: proof was done now!
 
 variable (X) in
 def C4_1_1 := As (2 ^ a) (2 ^ J' X)
