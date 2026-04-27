@@ -323,14 +323,19 @@ Since most constructions appearing in the proof leave these function classes inv
 integrability and measurability considerations are usually mathematically trivial.
 
 It is desirable for this simplicity to be reflected in the formalization.
-This motivated implementing test function classes as
-structures \texttt{BoundedCompactSupport} and \texttt{BoundedFiniteSupport} in Lean and
-to implement an API supporting common operations.
-% We are not currently doing that consistently, various operations are still handled ad-hoc, so this description is in part aspirational.
+This motivated packaging the recurring side conditions into test function classes.
 
-%\todo{Include an example. Should there be code examples?}
-Many of these arguments could feasibly be further streamlined using \texttt{fun\_prop}.
-\todo{expand/change as desired}
+The structures \lean{BoundedCompactSupport} and \lean{BoundedFiniteSupport} record,
+respectively, essentially bounded measurable functions with compact support and with support of finite measure.
+Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
+reproving the same measure-theoretic facts. For example, from a hypothesis
+\lean{hf : BoundedCompactSupport f} one immediately obtains that \lean{f} is a member of
+any desired $L^p$ space, % in the context of this project
+or that \lean{s.indicator f} again has bounded compact support when \lean{s} is measurable.
+Lemmas such as \lean{hf.carlesonSum} show that the relevant
+operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
+
+Further API extensions and better support from \texttt{fun\_prop} could streamline these arguments even more.
 
 % \begin{itemize}
 % 	\item \texttt{BoundedCompactSupport} and packaging conditions.
