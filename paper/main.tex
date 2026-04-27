@@ -159,7 +159,7 @@ collaborative effort, written and developed in public.
 
 \subsection{Overview of the formalization project}\label{subsec:overview}
 % TODO: I assume that the classical and generalized Carleson theorems will already be mentioned in the previous subsection, so that I can cite them here.
-The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result. 
+The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result.
 
 The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization was since the beginning envisioned as a large scale collaborative project. This posed a problem, since there are not many experts in formalization that are also experts in harmonic analysis, so most of the potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
 
@@ -230,7 +230,29 @@ The specific statement is as follows:
 The formalization was approached through a recent result (blabla reference) which encompasses a number of generalizations of Carleson's original theorem.
 The context for this new result is called a \emph{doubling metric measure space}, accompanied by a \emph{cancellative compatible collection} of real valued continuous functions.
 For a \emph{one-sided} respectively \emph{two-sided Calder\'on--Zygmund kernel} $K$ on this space, one obtains bounds for certain \emph{generalized Carleson operators} involving the collection of functions and the kernel.
-Specific choices of these objects and structures are leveraged to derive the classical Carleson theorem.
+
+The classical Carleson theorem is obtained by choosing a specific Carleson operator, an approach that all proofs of Carleson's theorem share.
+The specific version that has been formalized is this one:
+
+\begin{theorem}[real Carleson]\label{real-Carleson}
+    Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
+\begin{equation}
+    \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
+\end{equation}
+where
+\begin{equation}
+    \label{define-T-carleson}
+    T f(x)=\sup_{n\in \mathbb{Z}}
+    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|\, .
+\end{equation}
+with $\kappa: \R\to\C$ defined as:
+\begin{equation}
+    \kappa(x)=\begin{cases}
+        0 & \text{if $x = 0$ or $|x| \ge 1$} \\
+        \frac { 1-|x|}{1-e^{ix}} & \text{if $0 < |x| < 1$}
+    \end{cases}
+\end{equation}
+\end{theorem}
 
 
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
@@ -406,34 +428,6 @@ In particular the two-sided case can be applied to derive the classical Carleson
         \label{two-sided-resweak}
             \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{474a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
         \end{equation}
-\end{theorem}
-
-\subsubsection{Metric space Carleson applied to the real line}\label{subsubsec:metric-carleson-real}
-
-In order to arrive at the classical result \Cref{classical-carleson}, we use the following specific instance of the main result.
-
-Let $\kappa:\R\to \C$ be the function defined by
-$\kappa(0)=0$ and for $0<|x|<1$
-\begin{equation}\label{eq-hilker}
-\kappa(x)=\frac { 1-|x|}{1-e^{ix}}\,
-\end{equation}
-and for $|x|\ge 1$,
-\begin{equation}\label{eq-hilker1}
-\kappa(x)=0\, .
-\end{equation}
-Note that this function is continuous at every point $x$ with $|x|>0$.
-
-\begin{theorem}[real Carleson]\label{real-Carleson}
-    Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
-\begin{equation}
-    \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
-\end{equation}
-where
-\begin{equation}
-    \label{define-T-carleson}
-    T f(x)=\sup_{n\in \mathbb{Z}}
-    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|\, .
-\end{equation}
 \end{theorem}
 
 %\begin{itemize}
