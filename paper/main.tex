@@ -8,6 +8,7 @@
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{enumitem}
+\usepackage{cleveref}
 
 \usepackage[]{minted}
 \newcommand{\lean}[1]{\mintinline{lean}{#1}}
@@ -66,6 +67,9 @@
 \newcommand{\mfb}{{\theta}}
 \newcommand{\Mf}{{\Theta}}
 \newcommand{\fcc}{{\mathcal{Q}}}
+\newcommand{\fp}{{\mathfrak p}}
+\newcommand{\fP}{{\mathfrak P}}
+\newcommand{\fq}{{\mathfrak q}}
 
 \title{\textbf{Formalizing Carleson's Theorem in Lean}}
 \author[Becker et al.]{Lars Becker}
@@ -257,7 +261,7 @@ with $\kappa: \R\to\C$ defined as:
 
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
 
-A doubling metric measure space $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
+Let $a \ge 4$ be a natural number. A doubling metric measure space $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
 equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
 \begin{equation}\label{doublingx}
     \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
@@ -365,6 +369,7 @@ where again $e(r)=e^{ir}$.
 
 \subsubsection{Metric space Carleson}\label{subsubsec:metric-carleson}
 
+We prove three versions of our main result.
 Our first main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
 which by interpolation techniques recovers $L^q$ estimates for the open range $1<q<2$.
 \begin{theorem}[metric space Carleson]
@@ -416,8 +421,8 @@ In particular the two-sided case can be applied to derive the classical Carleson
 \begin{theorem}[two-sided metric space Carleson]
     \label{two-sided-metric-space-Carleson}
         For all  integers $a \ge  4$ and real numbers $1<q\le 2$ the following holds.
-        Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
-        cancellative compatible  collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
+        Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
+        cancellative compatible collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
       \begin{equation}\label{two-sided-Hr-bound-assumption}
             \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
         \end{equation}
@@ -429,6 +434,148 @@ In particular the two-sided case can be applied to derive the classical Carleson
             \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{474a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
         \end{equation}
 \end{theorem}
+
+\subsubsection{Proof sketch}\label{subsubsec:proof-sketch}
+
+In order to highlight choices made in the proof and the formalization it is practical to give a brief proof sketch of the main results stated above.
+Of these three, the linearised version \Cref{linearised-metric-Carleson} implies the others. To prove it, the first step is a reduction to a finitary version.
+
+Let the assumptions of \Cref{linearised-metric-Carleson} be given.
+Let
+ $\psi:\R \to \R$ be the unique compactly supported, piece-wise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
+ \begin{equation}
+    \label{eq-psisum}
+    \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
+\end{equation}
+for all $x>0$. This function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
+$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$.
+
+\begin{theorem}[finitary Carleson]
+\label{finitary-Carleson}
+Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and ${\sigma_1}\leq \sigma_2$. Let $F,G$ be bounded Borel sets in $X$. Then there is a Borel set $G'$ in $X$ with $2\mu(G')\leq \mu(G)$ such that
+for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
+\begin{equation*}
+    \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right| \mathrm{d}\mu(x)
+\end{equation*}
+\begin{equation}
+    \label{eq-linearized}
+    \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac 1 q}
+\end{equation}
+where for $s \in \Z, K_s(x,y) = K(x,y)\psi(D^{-s}\rho(x,y))$.
+\end{theorem}
+
+As a next step in the proof, we break up the space in manageable pieces in both the spatial and frequency dimensions.
+To state this intermediate result, we need some definitions.
+
+%%JMS - Pure copy from blueprint, can be optimized
+
+A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$ of pairs $(I, k)$ of Borel
+sets in $X$ and integers $k \in [-S, S]$, the projection $s\colon \mathcal{D}\to [-S, S], (I, k) \mapsto k$ to the second component which is assumed to be surjective and
+called scale function, and a function $c:\mathcal{D}\to X$
+called center function such that the five properties
+\eqref{coverdyadic}, \eqref{dyadicproperty}, \eqref{subsetmaxcube},
+\eqref{eq-vol-sp-cube}, and \eqref{eq-small-boundary} hold. We call the elements of $\mathcal{D}$ dyadic cubes. By abuse of notation, we will usually write just $I$ for the cube $(I,k)$, and we will write $I \subset J$ to mean that for two cubes $(I,k), (J, l) \in \mathcal{D}$ we have $I \subset J$ and $k \le l$.
+
+For each dyadic cube $I$ and each $-S\le k<s(I)$ we have
+\begin{equation}\label{coverdyadic}
+    I\subset \bigcup_{J\in \mathcal {D}: s(J)=k}J\, .
+\end{equation}
+Any two non-disjoint dyadic cubes $I,J$ with $s(I)\le s(J)$ satisfy
+\begin{equation}\label{dyadicproperty}
+    I\subset J.
+\end{equation}
+There exists a $I_0 \in \mathcal{D}$ with $s(I_0) = S$ and $c(I_0) = o$
+%\begin{equation}\label{coverball}
+%    B(o, \frac{1}{4} D^{S}) \subset I\,,
+%\end{equation}
+and for all cubes $J \in \mathcal{D}$, we have
+\begin{equation}\label{subsetmaxcube}
+    J \subset I_0\,.
+\end{equation}
+%changed the above sentence on June 25, CT
+For any dyadic cube $I$,
+\begin{equation}
+    \label{eq-vol-sp-cube}
+    c(I)\in B(c(I), \frac{1}{4} D^{s(I)}) \subset I \subset B(c(I), 4 D^{s(I)})\,.
+\end{equation}
+For any dyadic cube $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
+\begin{equation}
+    \label{eq-small-boundary}
+    \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I)\,.
+\end{equation}
+
+A tile structure $(\fP,\scI,\fc,\fcc,\pc,\ps)$
+for a given grid structure $(\mathcal{D}, c, s)$
+is a finite set $\fP$ of elements called tiles with five maps
+\begin{align*}
+    \scI&\colon \fP\to {\mathcal{D}}\\
+    \fc&\colon \fP\to \mathcal{P}(\Mf) \\
+    \fcc &\colon \fP\to \tQ(X)\\
+    \pc &\colon \fP\to X\\
+    \ps &\colon \fP\to \mathbb{Z}
+\end{align*}
+with $\scI$ surjective and $\mathcal{P}(\Mf)$ denoting the power set of $\Mf$ such that the five properties \eqref{eq-dis-freq-cover}, \eqref{eq-freq-dyadic},
+\eqref{eq-freq-comp-ball}, \eqref{tilecenter}, and
+\eqref{tilescale} hold.
+For each dyadic cube $I$, the restriction of the map $\Omega$ to the set
+\begin{equation}\label{injective}
+    \fP(I)=\{\fp: \scI(\fp) =I\}
+\end{equation}
+is injective
+and we have the disjoint covering property (we use the union symbol with dot on top to denote a disjoint union)
+\begin{equation}\label{eq-dis-freq-cover}
+    \tQ(X)\subset \dot{\bigcup}_{\fp\in \fP(I)}\fc(\fp).
+\end{equation}
+For any tiles $\fp,\fq$ with $\scI(\fp)\subset \scI(\fq)$ and $\fc(\fp) \cap \fc(\fq) \neq \emptyset$ we have
+\begin{equation} \label{eq-freq-dyadic}
+    \fc(\fq)\subset \fc(\fp) .
+\end{equation}
+For each tile $\fp$,
+\begin{equation}\label{eq-freq-comp-ball}
+    \fcc(\fp)\in B_{\fp}(\fcc(\fp), 0.2) \subset \fc(\fp) \subset B_{\fp}(\fcc(\fp),1)\,,
+\end{equation}
+where
+\begin{equation}
+    B_{\fp} (\mfa, R) := \{\mfb \in \Mf \, : \, d_{\fp}(\mfa, \mfb) < R\,\} ,
+\end{equation}
+and
+\begin{equation}\label{defdp}
+    d_{\fp} := d_{B(\pc(\fp),\frac 14 D^{\ps(\fp)})}\, .
+\end{equation}
+We have for each tile $\fp$
+\begin{equation}\label{tilecenter}
+    \pc(\fp)=c(\scI(\fp)),
+\end{equation}
+\begin{equation}\label{tilescale}
+    \ps(\fp)=s(\scI(\fp)).
+\end{equation}
+%%JMS End copy
+
+\begin{theorem}[discrete Carleson]
+\label{discrete-Carleson}
+Let $(\mathcal{D}, c, s)$ be a grid structure and
+\begin{equation*}
+    (\fP,\scI,\fc,\fcc,\pc,\ps)
+\end{equation*}
+a tile structure for this grid structure.
+Define for $\fp\in \fP$
+\begin{equation}\label{defineep}
+    E(\fp)=\{x\in \scI(\fp): \tQ(x)\in \fc(\fp) , {\sigma_1}(x)\le \ps(\fp)\le {\sigma_2}(x)\}
+\end{equation}
+and
+\begin{equation}\label{definetp}
+    T_{\fp} f(x)= \mathbf{1}_{E(\fp)}(x) \int K_{\ps(\fp)}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y).
+\end{equation}
+Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$
+we have
+\begin{equation}
+    \label{disclesssim}
+   \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+\end{equation}
+\end{theorem}
+
+The proof of this last result is the heart of the matter. The pieces are categorized in one of three types, for each of which a separate analysis is required to establish a bound.
+These three branches of the proof are largely independent and handled in separate sections of the blueprint and formalization. %include reference? define the 'types' explicitly?
 
 %\begin{itemize}
 %	\item Statement of Theorem 1.0.2.
