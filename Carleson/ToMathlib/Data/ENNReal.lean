@@ -3,8 +3,10 @@ import Mathlib.Analysis.Normed.Group.Uniform
 import Mathlib.Analysis.Normed.Ring.Basic
 import Mathlib.Order.CompletePartialOrder
 
--- Upstreaming status: lemmas seem useful; proofs may need some polish
+-- Upstreaming status: lemmas seem useful; proofs may need some polish.
 -- At least three or four distinct PRs.
+-- `ofReal_inv_le` and `ofReal_div_le` upstreamed in
+-- https://github.com/leanprover-community/mathlib4/pull/37565
 
 /-! ## `ENNReal` manipulation lemmas -/
 
@@ -120,7 +122,7 @@ lemma exists_biSup_le_enorm_add_eps
   have M : ⨆ z ∈ s, ‖f z‖ₑ + ε ≤ ⨆ z ∈ s, ‖f z‖ₑ := by
     simpa only [iSup_le_iff] using fun i hi ↦ (H i hi).le
   have nt : ⨆ z ∈ s, ‖f z‖ₑ ≠ ⊤ := by -- boundedness of `f` used here
-    rw [ne_eq, iSup₂_eq_top]; push_neg
+    rw [ne_eq, iSup₂_eq_top]; push Not
     obtain ⟨C, pC, hC⟩ := hf.exists_pos_norm_le; lift C to ℝ≥0 using pC.le
     simp_rw [mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hC
     exact ⟨C, coe_lt_top, mod_cast hC⟩

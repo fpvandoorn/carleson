@@ -44,7 +44,9 @@ lemma carlesonOperator_eq_biSup_Θ'_J102 {x : X} (mf : Measurable f) (nf : (‖f
           carlesonOperatorIntegrand K θ' q₁ q₂ f x)‖ₑ := by rw [add_sub_cancel]
       _ ≤ ‖carlesonOperatorIntegrand K θ' q₁ q₂ f x‖ₑ +
           edist (carlesonOperatorIntegrand K θ' q₁ q₂ f x)
-          (carlesonOperatorIntegrand K θ R₁ R₂ f x) := by rw [edist_comm]; exact enorm_add_le _ _
+          (carlesonOperatorIntegrand K θ R₁ R₂ f x) := by
+          rw [edist_comm, edist_eq_enorm_sub]
+          exact enorm_add_le _ _
       _ ≤ _ := by
         gcongr
         · calc

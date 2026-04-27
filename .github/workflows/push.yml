@@ -47,10 +47,16 @@ jobs:
           mk_all-check: true
 
       - name: Upstreaming dashboard
-        run: python3 scripts/upstreaming_dashboard.py
+        uses: leanprover-community/upstreaming-dashboard-action@main
+        with:
+          website-directory: ./docs
+          project-name: Carleson
+          relevant-labels: carleson
+          include-drafts: true
+          branch-name: master
 
       - name: Generate the paper PDF and add it to the website
-        uses: xu-cheng/texlive-action@8268537fedf1198f3ed7000c544bfdbddcbae3b7 # v3
+        uses: xu-cheng/texlive-action@22c04326a5d855880f9d39bb955138bf11c6df80 # v3
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20251002
           run: |
@@ -61,7 +67,7 @@ jobs:
             cp paper/main.pdf docs/paper.pdf
 
       - name: Compile blueprint and documentation
-        uses: leanprover-community/docgen-action@deed0cdc44dd8e5de07a300773eb751d33e32fc8 # 2025-10-26
+        uses: leanprover-community/docgen-action@3dbd3475a9bc8d22fd786a8f8efe1869457da7cc # 2026-01-15
         with:
           blueprint: true
           homepage: docs

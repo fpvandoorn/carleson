@@ -221,14 +221,25 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
   rw [coveredByBalls_iff]
   by_cases! R'pos : 0 ≥ R'
   · -- trivial case
-    refine ⟨{f}, by norm_num, ?_⟩
-    simp only [Finset.mem_singleton, Set.iUnion_iUnion_eq_left]
-    rw [Metric.ball_eq_empty.mpr R'pos, Set.subset_empty_iff, Metric.ball_eq_empty]
+    refine ⟨{f}, Finset.card_singleton f ▸ by norm_num, ?_⟩
+    have hunion : (⋃ x_1 ∈ ({f} : Finset (WithFunctionDistance x R)), ball_{x, R} x_1 R') = ball_{x, R} f R' := by
+      ext y
+      simp only [Set.mem_iUnion, exists_prop]
+      constructor
+      · rintro ⟨i, hi, hb⟩; rwa [Finset.mem_singleton.mp hi] at hb
+      · intro h; exact ⟨f, Finset.mem_singleton_self f, h⟩
+    rw [hunion, Metric.ball_eq_empty.mpr R'pos, Set.subset_empty_iff, Metric.ball_eq_empty]
     linarith
   by_cases! Rpos : 0 ≥ R
   · -- trivial case
-    refine ⟨{f}, by norm_num, ?_⟩
-    simp only [Finset.mem_singleton, Set.iUnion_iUnion_eq_left]
+    refine ⟨{f}, Finset.card_singleton f ▸ by norm_num, ?_⟩
+    have hunion : (⋃ x_1 ∈ ({f} : Finset (WithFunctionDistance x R)), ball_{x, R} x_1 R') = ball_{x, R} f R' := by
+      ext y
+      simp only [Set.mem_iUnion, exists_prop]
+      constructor
+      · rintro ⟨i, hi, hb⟩; rwa [Finset.mem_singleton.mp hi] at hb
+      · intro h; exact ⟨f, Finset.mem_singleton_self f, h⟩
+    rw [hunion]
     convert Set.subset_univ _
     ext g
     refine ⟨by simp, ?_⟩
@@ -253,8 +264,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
   by_cases! h : φ ≤ f - R' / (2 * R)
   · use m₁
     constructor
-    · rw [balls_def]
-      simp
+    · apply Finset.mem_insert_self
     rw [dist_integer_linear_eq]
     calc 2 * max R 0 * |↑φ - ↑m₁|
       _ = 2 * R * |↑φ - ↑m₁| := by
@@ -293,8 +303,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
   by_cases! h' : φ < f + R' / (2 * R)
   · use m₂
     constructor
-    · rw [balls_def]
-      simp
+    · exact Finset.mem_insert.mpr (Or.inr (Finset.mem_insert_self m₂ _))
     rw [m₂def, dist_comm]
     rw [dist_integer_linear_eq]
     calc 2 * max R 0 * |↑f - ↑φ|
@@ -309,7 +318,9 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
       _ = R' := by field_simp
   use m₃
   constructor
-  · simp [balls_def]
+  · apply Finset.mem_insert.mpr; right
+    apply Finset.mem_insert.mpr; right
+    exact Finset.mem_singleton.mpr m₃def
   rw [dist_integer_linear_eq]
   calc 2 * max R 0 * |↑φ - ↑m₃|
     _ = 2 * R * (↑φ - ↑m₃) := by

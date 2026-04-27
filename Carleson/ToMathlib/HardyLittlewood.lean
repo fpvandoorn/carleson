@@ -1,6 +1,7 @@
 import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.RealInterpolation.Main
+import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
 import Mathlib.MeasureTheory.Covering.Vitali
 import Mathlib.Tactic.Field
 
@@ -137,8 +138,8 @@ lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStro
 M_{𝓑, p} in the blueprint. -/
 def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ)
     (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
-  (⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
-    fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖u y‖ₑ ^ p ∂μ) ^ p⁻¹
+  ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
+    fun _ ↦ (⨍⁻ y in ball (c i) (r i), ‖u y‖ₑ ^ p ∂μ) ^ p⁻¹
 
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑 with exponent 1.
 M_𝓑 in the blueprint. -/
@@ -149,13 +150,17 @@ lemma MB_def : MB μ 𝓑 c r f x = (⨆ i ∈ 𝓑, (ball (c i) (r i)).indicato
     fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖f y‖ₑ ∂μ) := by
   unfold MB maximalFunction; simp_rw [inv_one, rpow_one]
 
+lemma indicator_rpow {α : Type*} {p : ℝ} (hp : 0 < p) {s : Set α} {f : α → ℝ≥0∞} :
+    s.indicator (fun y ↦ f y ^ p) = (s.indicator f) ^ p :=
+  indicator_comp_of_zero (g := fun a => a ^ p) (ENNReal.zero_rpow_of_pos hp)
+
 lemma maximalFunction_eq_MB
-    {μ : Measure X} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → E} {x : X} (hp : 0 ≤ p) :
+    {μ : Measure X} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → E} {x : X} (hp : 0 < p) :
     maximalFunction μ 𝓑 c r p u x = (MB μ 𝓑 c r (‖u ·‖ ^ p) x) ^ p⁻¹ := by
-  rw [maximalFunction, MB_def]
+  simp only [maximalFunction, indicator_rpow (inv_pos_of_pos hp), Pi.pow_apply, MB_def,
+    iSup_rpow (inv_pos_of_pos hp)]
   congr! 8
-  rw [enorm_eq_nnnorm, enorm_eq_nnnorm, ← ENNReal.coe_rpow_of_nonneg _ hp, ENNReal.coe_inj,
-    Real.nnnorm_rpow_of_nonneg (by simp), nnnorm_norm]
+  rw [Real.enorm_rpow_of_nonneg (by positivity) hp.le, enorm_norm]
 
 -- We will replace the criterion `P` used in `MeasureTheory.AESublinearOn.maximalFunction` with the
 -- weaker criterion `LocallyIntegrable` that is closed under addition and scalar multiplication.
@@ -432,15 +437,26 @@ protected theorem Finset.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (
   let ⟨c, hc⟩ := 𝓑.exists_image_le r
   𝓑.countable_toSet.measure_biUnion_le_lintegral l u c hc h2u
 
-protected theorem MeasureTheory.AEStronglyMeasurable.maximalFunction [BorelSpace X] {p : ℝ}
-    {u : X → E} (h𝓑 : 𝓑.Countable) : AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ :=
-  (AEMeasurable.biSup 𝓑 h𝓑 fun _ _ ↦ aemeasurable_const.indicator measurableSet_ball).pow
-    aemeasurable_const |>.aestronglyMeasurable
+lemma lowerSemiContinuous_maximalFunction {p : ℝ} :
+    LowerSemicontinuous (maximalFunction μ 𝓑 c r p f) := by
+  intro x s hxr
+  have ⟨i, hi, hxr'⟩ := exists_lt_of_lt_ciSup₂' hxr
+  have hx : x ∈ ball (c i) (r i) :=
+    mem_of_indicator_ne_zero (hxr'.trans_le' bot_le |>.ne.symm)
+  rw [indicator_of_mem hx] at hxr'
+  apply eventually_of_mem (U := ball (c i) (r i))
+  · exact isOpen_ball.mem_nhds hx
+  · intro y hy
+    apply LT.lt.trans_le _ (le_iSup₂ i hi)
+    rwa [indicator_of_mem hy]
 
-theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal [BorelSpace X]
-    {p : ℝ} {u : X → E} (h𝓑 : 𝓑.Countable) :
-    AEStronglyMeasurable (fun x ↦ maximalFunction μ 𝓑 c r p u x |>.toReal) μ :=
-  AEStronglyMeasurable.maximalFunction h𝓑 |>.ennreal_toReal
+protected theorem MeasureTheory.Measurable.maximalFunction [BorelSpace X] {p : ℝ}
+    {u : X → E} : Measurable (maximalFunction μ 𝓑 c r p u) :=
+  lowerSemiContinuous_maximalFunction.measurable
+
+theorem MeasureTheory.Measurable.maximalFunction_toReal [BorelSpace X] {p : ℝ} {u : X → E} :
+    Measurable (fun x ↦ maximalFunction μ 𝓑 c r p u x |>.toReal) :=
+  Measurable.maximalFunction |>.ennreal_toReal
 
 theorem MB_le_eLpNormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ eLpNormEssSup u μ :=
   calc MB μ 𝓑 c r u x ≤
@@ -455,10 +471,10 @@ theorem MB_le_eLpNormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ eLpNo
     _ ≤ eLpNormEssSup u μ := by
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
-protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
+protected theorem HasStrongType.MB_top [BorelSpace X] :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) ⊤ ⊤ μ μ 1 := by
   intro f _
-  use AEStronglyMeasurable.maximalFunction h𝓑
+  use Measurable.maximalFunction.aestronglyMeasurable
   simp only [one_mul, eLpNorm_exponent_top]
   exact essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ MB_le_eLpNormEssSup)
 
@@ -467,7 +483,7 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
     HasWeakType (MB (E := E) μ 𝓑 c r) 1 1 μ μ (A ^ 2) := by
   intro f _
-  use AEStronglyMeasurable.maximalFunction h𝓑
+  use Measurable.maximalFunction.aestronglyMeasurable
   let Bₗ (ℓ : ℝ≥0∞) := { i ∈ 𝓑 | ∫⁻ y in (ball (c i) (r i)), ‖f y‖ₑ ∂μ ≥ ℓ * μ (ball (c i) (r i)) }
   simp only [wnorm, one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte, eLpNorm,
     one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self, iSup_le_iff]
@@ -544,8 +560,8 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
   · intro u hu
     filter_upwards [MB_ae_ne_top h𝓑 hR hu] with x hx
     simpa [MB, maximalFunction] using hx
-  · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
-  · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
+  · intro f c hf; exact hf.const_smul _
+  · intro f c hf; exact hf.const_smul _
   · intro i _
     refine AESublinearOn.const (T μ c r i) P (fun hf hg ↦ T.add_le i (hP hf))
       (fun f d hf ↦ T.smul i) |>.indicator _
@@ -590,8 +606,8 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp) (by simp)
-    (fun f _ ↦ AEStronglyMeasurable.maximalFunction h𝓑)
-    ?_ (HasStrongType.MB_top h𝓑 |>.hasWeakType zero_lt_top)
+    (fun f _ ↦ Measurable.maximalFunction.aestronglyMeasurable)
+    ?_ (HasStrongType.MB_top |>.hasWeakType zero_lt_top)
     (HasWeakType.MB_one h𝓑 hR)
   · exact ⟨ENNReal.inv_pos.mpr coe_ne_top, ENNReal.inv_lt_one.mpr <| one_lt_coe_iff.mpr hp⟩
   exact (AESublinearOn.maximalFunction h𝓑 hR).1
@@ -613,12 +629,12 @@ theorem hasStrongType_maximalFunction_aux
     {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
       p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := fun v mlpv ↦ by
-  refine ⟨AEStronglyMeasurable.maximalFunction h𝓑, ?_⟩; dsimp only
+  refine ⟨Measurable.maximalFunction.aestronglyMeasurable, ?_⟩; dsimp only
   have cp₁p : 0 < (p₁ : ℝ) := by positivity
   have p₁n : p₁ ≠ 0 := by exact_mod_cast cp₁p.ne'
   conv_lhs =>
     enter [1, x]
-    rw [maximalFunction_eq_MB cp₁p.le, ← enorm_eq_self (MB ..)]
+    rw [maximalFunction_eq_MB cp₁p, ← enorm_eq_self (MB ..)]
   rw [eLpNorm_enorm_rpow _ (by positivity), ENNReal.ofReal_inv_of_pos cp₁p,
     ENNReal.ofReal_coe_nnreal, ← div_eq_mul_inv, ← ENNReal.coe_div p₁n]
   calc
@@ -653,16 +669,14 @@ def maximalFunction_seq (μ : Measure X) {𝓑 : Set ι} (h𝓑 : 𝓑.Countable
     ℝ≥0∞ :=
   maximalFunction μ (tr h𝓑 k) c r q v z
 
-lemma maximalFunction_seq_mono {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (hp : 0 < p) (u : X → E) :
+lemma maximalFunction_seq_mono {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (u : X → E) :
   Monotone (maximalFunction_seq μ h𝓑 c r p u : ℕ → (X → ℝ≥0∞)) := by
   intro m n hmn x
-  unfold maximalFunction_seq maximalFunction
-  dsimp only
-  apply rpow_le_rpow _ (by positivity)
   apply iSup₂_le
   intro i Hi
   apply le_iSup₂ (f := fun j _ ↦ (ball (c j) (r j)).indicator
-    (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ‖u y‖ₑ ^ (ofNNReal p).toReal ∂μ) x)
+    (fun x ↦ (⨍⁻ (y : X) in ball (c j) (r j),
+    ‖u y‖ₑ ^ (ofNNReal p).toReal ∂μ) ^ (ofNNReal p).toReal⁻¹) x)
   obtain ⟨w, hw⟩ := Hi
   exact ⟨w, hw.1.trans hmn, hw.2⟩
 
@@ -672,12 +686,9 @@ lemma maximalFunction_seq_eq {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ�
   let g := Classical.choose (Set.countable_iff_exists_injective.mp h𝓑)
   let 𝓑' (k : ℕ) := Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})
   apply ge_antisymm
-  · exact iSup_le fun k ↦
-        rpow_le_rpow (iSup_le_iSup_of_subset (Subtype.coe_image_subset 𝓑 _)) (by positivity)
+  · exact iSup_le fun i => iSup_le_iSup_of_subset (Subtype.coe_image_subset 𝓑 _)
   · unfold maximalFunction_seq maximalFunction
     have p_pos : p.toReal > 0 := by positivity
-    refine (rpow_le_rpow_iff p_pos).mp ?_
-    rw [ENNReal.rpow_inv_rpow (by positivity)]
     apply iSup₂_le_iff.mpr
     intro i Hi
     let k₀ := g ⟨i, Hi⟩
@@ -688,20 +699,15 @@ lemma maximalFunction_seq_eq {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ�
       use Hi
     calc
     (ball (c i) (r i)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖ₑ ^ p.toReal ∂μ) x
+        (fun x ↦ (⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖ₑ ^ p.toReal ∂μ) ^ p.toReal⁻¹) x
       ≤ (⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ‖u y‖ₑ ^ p.toReal ∂μ) x) := by
+        (fun x ↦ (⨍⁻ (y : X) in ball (c j) (r j), ‖u y‖ₑ ^ p.toReal ∂μ) ^ p.toReal⁻¹) x) := by
       apply le_iSup₂ (i := i)
           (f := fun j _ ↦ (ball (c j) (r j)).indicator
-          (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ‖u y‖ₑ ^ p.toReal ∂μ) x) k₀large
-    _ = ((⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j),
-            ‖u y‖ₑ ^ p.toReal ∂μ) x)^p.toReal⁻¹ ) ^ p.toReal := by
-      rw [ENNReal.rpow_inv_rpow]; positivity
+          (fun x ↦ (⨍⁻ (y : X) in ball (c j) (r j), ‖u y‖ₑ ^ p.toReal ∂μ) ^ p.toReal⁻¹) x) k₀large
     _ ≤ _ := by
-      gcongr
       apply le_iSup (f := fun k ↦ (⨆ i ∈ 𝓑' k, (ball (c i) (r i)).indicator
-          (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖ₑ ^ p.toReal ∂μ) x) ^ (p.toReal)⁻¹)
+          (fun x ↦ (⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖ₑ ^ p.toReal ∂μ)  ^ (p.toReal)⁻¹) x))
 
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`.
 A proof for basically this result is given in Chapter 9, everything following after equation
@@ -715,7 +721,7 @@ theorem hasStrongType_maximalFunction
   · have := not_nonempty_iff.mp h; intro _ _; simp
   intro v mlpv
   dsimp only
-  constructor; · exact AEStronglyMeasurable.maximalFunction h𝓑
+  constructor; · exact Measurable.maximalFunction.aestronglyMeasurable
   have hp₂pos : (ofNNReal p₂).toReal > 0 :=
     toReal_pos (coe_ne_zero.mpr (ne_zero_of_lt hp₁₂)) coe_ne_top
   have hp₂neq_zero : (ofNNReal p₂).toReal ≠ 0 := hp₂pos.ne'
@@ -754,11 +760,10 @@ theorem hasStrongType_maximalFunction
       apply lintegral_iSup'
       · exact fun k ↦
         AEMeasurable.pow_const
-          (AEStronglyMeasurable.aemeasurable
-            (AEStronglyMeasurable.maximalFunction (Finite.countable (tr_finite h𝓑 k))))
+          Measurable.maximalFunction.aemeasurable
           (ofNNReal p₂).toReal
       · refine ae_of_all μ fun a ⦃k l⦄ hkl ↦ id (rpow_le_rpow ?_ (le_of_lt hp₂pos))
-        exact maximalFunction_seq_mono h𝓑 hp₁ v hkl a
+        exact maximalFunction_seq_mono h𝓑 v hkl a
     _ ≤ _ := by
       apply (rpow_le_rpow_iff hp₂pos).mp
       rw [one_div, ENNReal.rpow_inv_rpow hp₂neq_zero]
@@ -772,43 +777,18 @@ theorem hasStrongType_maximalFunction
       rw [one_div] at hestfin
       exact hestfin k
 
-lemma lowerSemiContinuous_MB :
-    LowerSemicontinuous (MB μ 𝓑 c r f) := by
-  apply lowerSemicontinuous_iff_isOpen_preimage.mpr
-  intro y
-  unfold MB maximalFunction
-  simp only [rpow_one, inv_one]
-  have : ((fun x ↦ (⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator
-      (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ‖f y‖ₑ ∂μ) x)) ⁻¹' Ioi y) =
-      ⋃ i ∈ 𝓑, (ball (c i) (r i)).indicator
-      (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ‖f y‖ₑ ∂μ) ⁻¹' Ioi y := by
-    ext x
-    push _ ∈ _
-    constructor
-    · intro h
-      by_contra! h₀
-      have := iSup₂_le_iff.mpr h₀
-      order
-    · intro h
-      obtain ⟨i, ⟨hi₀, hi₁⟩⟩ := h
-      exact lt_iSup_iff.mpr (by use i; refine lt_iSup_iff.mpr (by use hi₀))
-  rw [this]
-  refine isOpen_biUnion (fun i hi ↦ ?_)
-  refine LowerSemicontinuous.isOpen_preimage ?_ y
-  refine IsOpen.lowerSemicontinuous_indicator isOpen_ball (zero_le _)
-
 theorem hasWeakType_maximalFunction_equal_exponents₀ [BorelSpace X]
     {p : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp : 0 < p) :
     HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p u x)
       p p μ μ (A ^ ((2 / p : ℝ))) := by
   intro v mlpv
   dsimp only
-  constructor; · exact AEStronglyMeasurable.maximalFunction h𝓑
+  constructor; · exact Measurable.maximalFunction.aestronglyMeasurable
   have cp : 0 < (p : ℝ) := by positivity
   have p₁n : p ≠ 0 := by exact_mod_cast cp.ne'
   conv_lhs =>
     enter [1, x]
-    rw [maximalFunction_eq_MB cp.le]
+    rw [maximalFunction_eq_MB cp]
   have hmb_one : wnorm (MB μ 𝓑 c r fun x ↦ ‖v x‖ ^ (p : ℝ)) 1 μ ≤ ↑A ^ 2 * eLpNorm (fun x ↦ ‖v x‖ ^ (p : ℝ)) 1 μ := by
     apply (HasWeakType.MB_one h𝓑 hR
       (fun x : X ↦ ‖v x‖ ^ (p : ℝ)) _).2
@@ -834,7 +814,7 @@ theorem hasWeakType_maximalFunction_equal_exponents
     HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p u x)
       p p μ μ (A ^ ((2 / p : ℝ))) := by
   intro v mlpv; dsimp only
-  constructor; · exact AEStronglyMeasurable.maximalFunction h𝓑
+  constructor; · exact Measurable.maximalFunction.aestronglyMeasurable
   have p_pos : (p : ℝ) > 0 := NNReal.coe_pos.mpr hp
   have hestfin (k : ℕ) : wnorm
       (fun x ↦ maximalFunction_seq μ h𝓑 c r p v k x) p μ ≤
@@ -857,9 +837,9 @@ theorem hasWeakType_maximalFunction_equal_exponents
     exact le_rfl
   let f (k : ℕ) := fun x ↦ maximalFunction μ (tr h𝓑 k) c r (↑p) v x
   have f_mon : Monotone f := by
-    refine fun a b hab x ↦ rpow_le_rpow (iSup₂_le fun i Hi ↦ ?_) (by positivity)
+    refine fun a b hab x ↦ iSup₂_le fun i Hi ↦ ?_
     apply le_iSup₂ (f := fun j _ ↦ (ball (c j) (r j)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ‖v y‖ₑ ^ (ofNNReal p).toReal ∂μ) x)
+        (fun x ↦ (⨍⁻ (y : X) in ball (c j) (r j), ‖v y‖ₑ ^ (ofNNReal p).toReal ∂μ) ^ (ofNNReal p).toReal⁻¹) x)
     obtain ⟨w, hw⟩ := Hi; use w; exact ⟨hw.1.trans hab, hw.2⟩
   intro t
   have hm :
@@ -921,7 +901,7 @@ def globalMaximalFunction [μ.IsDoubling A] (p : ℝ) (u : X → E) (x : X) : �
 
 protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
     [BorelSpace X] {p : ℝ} {u : X → E} : AEStronglyMeasurable (globalMaximalFunction μ p u) μ :=
-  AEStronglyMeasurable.maximalFunction countable_globalMaximalFunction
+  Measurable.maximalFunction.aestronglyMeasurable
     |>.aemeasurable.const_mul _ |>.aestronglyMeasurable
 
 /-- Equation (2.0.45) -/
@@ -1015,7 +995,7 @@ lemma lowerSemiContinuous_globalMaximalFunction :
   have : globalMaximalFunction μ 1 f = fun x : X ↦
       ofNNReal A ^ 2 * MB μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ))
       (fun x ↦ x.1) (fun x ↦ 2 ^ x.2) (fun x ↦ ‖f x‖ ^ (1 : ℝ)) x ^ (1 : ℝ)⁻¹ :=
-    funext fun x ↦ congr_arg (HMul.hMul ((A : ℝ≥0∞) ^ 2)) (maximalFunction_eq_MB (zero_le_one' ℝ))
+    funext fun x ↦ congr_arg (HMul.hMul ((A : ℝ≥0∞) ^ 2)) (maximalFunction_eq_MB zero_lt_one)
   rw [this]
   simp only [gt_iff_lt, Real.rpow_one, inv_one, rpow_one]
   refine lowerSemicontinuous_iff_isOpen_preimage.mpr fun y ↦ ?_
@@ -1029,7 +1009,7 @@ lemma lowerSemiContinuous_globalMaximalFunction :
     refine ⟨fun h₀ ↦ div_lt_of_lt_mul' h₀, fun h₀ ↦ ?_⟩; rw [mul_comm]; exact
         (ENNReal.div_lt_iff (Or.inl (ENNReal.pow_ne_zero (coe_ne_zero.mpr h) 2)) (Or.inr hy)).mp h₀
   rw [this]
-  exact LowerSemicontinuous.isOpen_preimage lowerSemiContinuous_MB _
+  exact LowerSemicontinuous.isOpen_preimage lowerSemiContinuous_maximalFunction _
 
 theorem globalMaximalFunction_ae_lt_top [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂)
@@ -1044,7 +1024,7 @@ theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 0 < p)
     {u : X → E} (hu : MemLp u ⊤ μ) {x : X} :
     globalMaximalFunction μ p u x < ∞ := by
   unfold globalMaximalFunction
-  rw [maximalFunction_eq_MB (by simp)]
+  rw [maximalFunction_eq_MB (by positivity)]
   apply mul_lt_top (by simp) (rpow_lt_top_of_nonneg (by simp) (lt_top_iff_ne_top.mp _))
   have : MemLp (fun x ↦ ‖u x‖ ^ p.toReal) ⊤ μ := by
     have rw1 : p.toReal = (p : ℝ≥0∞).toReal := by simp

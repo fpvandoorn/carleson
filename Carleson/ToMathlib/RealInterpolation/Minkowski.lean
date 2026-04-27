@@ -690,8 +690,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       cases j
       · unfold sel
         dsimp only
-        rw [hspf]
-        simp only [Bool.if_false_right, Bool.and_true, Bool.false_bne, decide_eq_true_eq]
+        simp only [hspf, Bool.if_false_right, Bool.and_true, Bool.false_bne, decide_eq_true_eq]
         split_ifs with is_ζ_pos
         · apply toReal_strict_mono
           · exact interp_exp_ne_top hq₀q₁ ht hq
@@ -701,8 +700,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
             (le_of_not_gt is_ζ_pos)
       · unfold sel
         dsimp only
-        rw [hspf]
-        simp only [Bool.if_false_right, Bool.and_true, Bool.true_bne, Bool.not_eq_true',
+        simp only [hspf, Bool.if_false_right, Bool.and_true, Bool.true_bne, Bool.not_eq_true',
             decide_eq_false_iff_not]
         split_ifs with is_ζ_pos
         · apply toReal_strict_mono hq'
@@ -739,7 +737,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
     rw [← one_div]
-    refine (eLpNorm_eq_lintegral_rpow_enorm (ε := E₁) ?_ ?_).symm
+    refine (eLpNorm_eq_lintegral_rpow_enorm_toReal (ε := E₁) ?_ ?_).symm
     · exact (interpolated_pos' hp₀ hp₁ (ne_top_of_Ioo ht) hp).ne'
     · exact interp_exp_ne_top hp₀p₁.ne ht hp
 

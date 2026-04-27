@@ -11,6 +11,7 @@
 
 \usepackage[]{minted}
 \newcommand{\lean}[1]{\mintinline{lean}{#1}}
+\usepackage{xspace}
 
 \DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
 \newcommand*{\ud}{\, \mathrm{d}}
@@ -19,13 +20,15 @@
 \newcommand{\nnreal}{\real_{\ge0}}
 \newcommand{\ennreal}{\overline{\real_{\ge0}}}
 
+\newcommand{\mathlib}{\texttt{Mathlib}\xspace}
+
 % These options can be changed later; these may be personal preferences.
 \hypersetup{
   bookmarks,bookmarksopen,bookmarksnumbered,
   colorlinks = true,
   linkcolor  = blue,
   citecolor  = red,
-  urlcolor   = grey,
+  urlcolor   = gray,
   breaklinks
 }
 % maxbibnames: List all authors in the bibliography for up to 5 authors. Use up to 4 names for determining the label. Choose alphabetical style.
@@ -65,7 +68,76 @@
 \newcommand{\fcc}{{\mathcal{Q}}}
 
 \title{\textbf{Formalizing Carleson's Theorem in Lean}}
-\author{Authors}
+\author[Becker et al.]{Lars Becker}
+\address{Lars Becker,
+	University of Bonn}
+\email{becker@math.uni-bonn.de}
+
+\author[]{Mar\'ia In\'es de Frutos-Fern\'andez}
+\address{Mar\'ia In\'es de Frutos-Fern\'andez,
+	University of Bonn}
+\email{midff@math.uni-bonn.de}
+
+\author[]{Leo Diedering}
+\address{Leo Diedering,
+	University of Bonn}
+\email{leo.diedering@uni-bonn.de}
+
+\author[]{Floris van Doorn}
+\address{Floris van Doorn,
+	University of Bonn}
+\email{vdoorn@math.uni-bonn.de}
+
+\author[]{S\'ebastien Gou\"ezel}
+\address{S\'ebastien Gou\"ezel,
+	University of Rennes}
+\email{sebastien.gouezel@univ-rennes1.fr}
+
+\author[]{Evgenia Karunus}
+\address{Evgenia Karunus,
+  University of Bonn}
+\email{lakesare@gmail.com}
+
+\author[]{Edward van de Meent}
+\address{Edward van de Meent,
+  University of Utrecht}
+\email{edwardvdmeent@gmail.com}
+
+\author[]{Pietro Monticone}
+\address{Pietro Monticone,
+University of Trento}
+\email{pit.monticone@gmail.com}
+
+\author[]{Jasper Mulder-Sohn}
+\address{Jasper Mulder-Sohn,
+	The Hague}
+\email{jasper.mulder@planet.nl}
+
+\author[]{Jim Portegies}
+\address{Jim Portegies,
+  Eindhoven University of Technology}
+\email{j.w.portegies@tue.nl}
+
+\author[]{Joris Roos}
+\address{Joris Roos,
+  University of Massachusetts Lowell}
+\email{joris\_roos@uml.edu}
+
+\author[]{Michael Rothgang}
+\address{Michael Rothgang,
+	University of Bonn}
+\email{rothgang@math.uni-bonn.de}
+
+\author[]{James Sundstrom}
+\address{James Sundstrom,
+	Baruch College}
+\email{james.sundstrom@baruch.cuny.edu}
+
+\author[]{Jeremy Tan}
+\address{Jeremy Tan,
+	National University of Singapore}
+\email{jtjierui@comp.nus.edu.sg}
+
 \date{\today}
 
 \begin{document}
@@ -86,6 +158,19 @@ collaborative effort, written and developed in public.
 \subsection{Brief history of Carleson's theorem and significance}\label{subsec:history}
 
 \subsection{Overview of the formalization project}\label{subsec:overview}
+% TODO: I assume that the classical and generalized Carleson theorems will already be mentioned in the previous subsection, so that I can cite them here.
+The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result. 
+
+The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization was since the beginning envisioned as a large scale collaborative project. This posed a problem, since there are not many experts in formalization that are also experts in harmonic analysis, so most of the potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
+
+To address this challenge, before the formalization started, the authors of \cite{ThieleCarlesonPreprint} wrote a much more detailed document \cite{CarlesonBlueprint} intended as a blueprint for the formalization, which was modified as needed while the formalization process was taking place (see \S\ref{sec:blueprint}).
+
+The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and other smaller contributions were made by the 14 people listed in the acknowledgements section. This makes the Carleson project one of the largest scale formalization efforts up to date.
+
+The formalization was written in Lean 4, making extensive use of Lean's mathematical library, \mathlib. The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
+
+%TODO: update stats before submitting
+The project comprises around 38,000 lines of Lean code (not including spaces or comments), of which around 12,000 are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
 
 \subsection{Related work}\label{subsec:rel_work}
 \begin{itemize}
@@ -94,7 +179,8 @@ collaborative effort, written and developed in public.
 \end{itemize}
 
 \noindent \textit{Acknowledgement.}
-The authors acknowledge contributions in the form of small formalization additions,
+The authors are grateful to Asgar Jamneshan, Rajula Srivastava and Christoph Thiele for writing the mathematical paper [cite] and the blueprint [cite] on which this formalization is based.
+We furthermore acknowledge contributions in the form of small formalization additions,
 pointing out corrections to the blueprint,
 or supplying ideas to the Lean efforts by the following people:
 Michel Alexis,
@@ -112,9 +198,8 @@ Dennis Tsar,
 Andrew Yang, and
 Ruben van de Velde.
 
-L.B., M.I.d.F.F., L.D., F.v.D., M.R., R.S., and C.T. were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
-L.B., R.S., and C.T. were also supported by SFB 1060.
-A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
+L.B., M.I.d.F.F., L.D., F.v.D., M.R. were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
+L.B. was also supported by SFB 1060.
 J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the Fall 2024 trimester program in Bonn.
 
 \section{The Metric Space Carleson theorem}\label{sec:main_thm}
@@ -422,6 +507,25 @@ For further detail, we refer the reader to a separate article \cite{PortegiesRot
 
 \section{Design decisions}\label{sec:design}
 \subsection{Treatment of constants}\label{subsec:constants}
+In analysis papers, one often needs to compare the growth of two functions $f, g : X \to Y$, where $Y$ is a normed space such as the real numbers or the complex numbers. This is often expressed by statements of the form
+\begin{align}\label{eq:const}
+	\exists C > 0, \forall x \in X, \| f (x) \| \le \|g(x)\|.
+\end{align}
+In many cases, one only cares about the existence of the positive constant $C$, but not about its concrete value. The constant can even be hidden in the notation, by writing (\ref{eq:const}) as
+\[ \forall x \in X, \| f (x) \| \lesssim \|g(x)\|.\]
+
+This was also the case in the first version of \cite{ThieleCarlesonPreprint}. However, while Lean allows one to work with existential statements such as (\ref{eq:const}), this would have made the formalization harder. From the mathematical point of view, it would require the formalizers to figure out how large these constants needed to be and how the constants required to make each lemma hold were related to each other. From the technical side, it would require to work with witnesses for these existential statements, which can introduce some overhead.
+Therefore, while they were writing the blueprint, the authors of \cite{ThieleCarlesonPreprint} decided to make all of the constants explicit. At the beginning of the blueprint, they fixed a real number $1 < q \le 2$ and a natural number $a \ge 4$, which is used to define the constants $D = 2^{100a^2}, \kappa := 2 ^{-10a}$ and $Z := 2^{12a}$. The bounding constants that appear in the blueprint theorem statements are expressed as functions of these fundamental constants.
+
+% The character 𝕔 is not available
+In the formalization, we introduced a constant \lean{c} with a value of 100, coming from the exponent of $D$.
+%\begin{minted}[escapeinside=||, mathescape=true]{lean}
+%irreducible_def c : |$\mathbb{N}$| := 100
+%\end{minted}
+Every other constant is defined in terms of $a$, $q$ and \lean{c}, and we use the notation convention \lean{Cx_y_z} to denote the constant appearing in result \lean{x.y.z} of the blueprint.
+
+As a side effect of the formalization project, once the main result had been formalized we were able to check that, replacing $D := 2^{100a^2}$ by $2^{7a^2}$, the results still hold without needing to make any adjustments to the proofs. This improves the constant appearing in the main theorem by an order of magnitude.
+
 
 \subsection{The \texttt{ProofData} pattern}\label{subsec:proof_data}
 

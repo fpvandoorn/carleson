@@ -1,4 +1,7 @@
 import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
+
+-- Upstreaming status: upstreamed in
+-- https://github.com/leanprover-community/mathlib4/pull/37597
 import Mathlib.Analysis.SumIntegralComparisons
 
 open scoped Nat

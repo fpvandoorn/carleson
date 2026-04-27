@@ -37,7 +37,10 @@ lemma adjoint_tile_support1 : adjointCarleson p f =
   obtain ⟨y, my, Ky⟩ : ∃ y ∈ 𝓘 p, Ks (𝔰 p) y x ≠ 0 := by
     contrapose! hn
     refine setIntegral_eq_zero_of_forall_eq_zero fun y my ↦ ?_
-    simp [hn _ (E_subset_𝓘 my)]
+    simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, mul_eq_zero, map_eq_zero, exp_ne_zero,
+      or_false, indicator_apply_eq_zero]
+    left
+    exact hn _ (E_subset_𝓘 my)
   rw [mem_ball]
   calc
     _ ≤ dist y x + dist y (𝔠 p) := dist_triangle_left ..
@@ -209,7 +212,7 @@ lemma adjoint_tree_control
     eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤ C7_4_3 a * eLpNorm f 2 volume := by
   have m₁ : AEStronglyMeasurable (‖adjointCarlesonSum (t u) f ·‖ₑ) :=
     hf.aestronglyMeasurable.adjointCarlesonSum.enorm.aestronglyMeasurable
-  have m₂ : AEStronglyMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) := .maximalFunction 𝓑.to_countable
+  have m₂ : AEStronglyMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) := Measurable.maximalFunction.aestronglyMeasurable
   have m₃ : AEStronglyMeasurable (‖f ·‖ₑ) := hf.aestronglyMeasurable.enorm.aestronglyMeasurable
   calc
     _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) f x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume +
@@ -266,7 +269,7 @@ lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u
       · exact (t.lt_dist' hu₂ hu₁ hu.symm c (plu₁.trans h2u)).le
       · have : 𝒬 u₁ ∈ ball_(p) (𝒬 p) 4 :=
           (t.smul_four_le hu₁ c).2 (by convert mem_ball_self zero_lt_one)
-        rw [@mem_ball'] at this; exact this.le
+        exact (@mem_ball' _ (instPseudoMetricSpaceWithFunctionDistance (x := 𝔠 p) (r := ↑D ^ 𝔰 p / 4)) _ _ _).mp this |>.le
     _ ≥ _ := ha
   · calc
     _ ≥ dist_(p) (𝒬 p) (𝒬 u₁) - dist_(p) (𝒬 p) (𝒬 u₂) := by
@@ -276,7 +279,7 @@ lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u
       · exact (t.lt_dist' hu₁ hu₂ hu c plu₁).le
       · have : 𝒬 u₂ ∈ ball_(p) (𝒬 p) 4 :=
           (t.smul_four_le hu₂ c).2 (by convert mem_ball_self zero_lt_one)
-        rw [@mem_ball'] at this; exact this.le
+        exact (@mem_ball' _ (instPseudoMetricSpaceWithFunctionDistance (x := 𝔠 p) (r := ↑D ^ 𝔰 p / 4)) _ _ _).mp this |>.le
     _ ≥ _ := ha
 
 /-- Part 2 of Lemma 7.4.7. -/

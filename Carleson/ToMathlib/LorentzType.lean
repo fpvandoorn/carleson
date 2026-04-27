@@ -478,7 +478,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
 theorem RCLike.norm_I {K : Type u_1} [RCLike K] : ‖(RCLike.I : K)‖ = if RCLike.I ≠ (0 : K) then 1 else 0 := by
   split_ifs with h
   · apply RCLike.norm_I_of_ne_zero h
-  · push_neg at h
+  · push Not at h
     simpa
 
 /-
@@ -624,6 +624,112 @@ theorem vector_valued_induction {β γ} [AddCommMonoid β] [AddCommMonoid γ]
   motive 1 f := sorry
 -/
 
+/-! ### Helper lemmas for the RCLike component decomposition norm bounds -/
+
+section RCLikeComponentHelpers
+
+open _root_.RCLike RCLike in
+private lemma component_one_add_neg_one {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
+    algebraMap ℝ 𝕂 (component 1 a).toReal +
+      (-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal = algebraMap ℝ 𝕂 (re a) := by
+  unfold component
+  simp only [map_one, mul_one, map_neg, mul_neg, neg_mul, one_mul]
+  rw [← map_neg, ← map_add]; congr 1
+  simp only [Real.coe_toNNReal']
+  linarith [max_zero_sub_eq_self (re a)]
+
+open _root_.RCLike RCLike in
+private lemma component_I_add_neg_I {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
+    (I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal +
+      (-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal = algebraMap ℝ 𝕂 (im a) * I := by
+  unfold component
+  simp only [conj_I, mul_neg, Real.coe_toNNReal', map_neg]
+  ring_nf
+  rw [← mul_sub, ← map_sub,
+    show max (-re (I * a)) 0 - max (re (I * a)) 0 = im a from by
+      rw [show re (I * a) = -im a from by simp [mul_re, I_re], neg_neg]
+      exact max_zero_sub_eq_self _]
+
+open _root_.RCLike RCLike in
+/-- Norm of the real component part is at most `‖a‖`. -/
+private lemma norm_realPart_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
+    ‖algebraMap ℝ 𝕂 (component 1 a).toReal +
+      (-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal‖ ≤ ‖a‖ := by
+  rw [component_one_add_neg_one, norm_ofReal]
+  exact abs_re_le_norm a
+
+open _root_.RCLike RCLike in
+/-- Norm of the imaginary component part is at most `‖a‖`. -/
+private lemma norm_imPart_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
+    ‖(I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal +
+      (-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal‖ ≤ ‖a‖ := by
+  rw [component_I_add_neg_I]
+  calc ‖algebraMap ℝ 𝕂 (im a) * I‖
+      ≤ ‖algebraMap ℝ 𝕂 (im a)‖ * ‖(I : 𝕂)‖ := norm_mul_le _ _
+    _ ≤ |im a| * 1 := by
+        gcongr
+        · exact (norm_ofReal _).le
+        · rw [RCLike.norm_I]; split_ifs <;> simp
+    _ = |im a| := mul_one _
+    _ ≤ ‖a‖ := abs_im_le_norm a
+
+open _root_.RCLike RCLike in
+/-- `max(re a, 0)` embedded in 𝕂 has norm at most `|re a|`. -/
+private lemma norm_posReal_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
+    ‖(algebraMap ℝ 𝕂 (component 1 a).toReal : 𝕂)‖ ≤
+      ‖algebraMap ℝ 𝕂 (component 1 a).toReal +
+        (-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal‖ := by
+  rw [component_one_add_neg_one, norm_ofReal, norm_ofReal]
+  unfold component
+  simp only [map_one, mul_one, Real.coe_toNNReal']
+  rw [abs_of_nonneg (le_max_right _ _)]
+  exact max_le (le_abs_self _) (abs_nonneg _)
+
+open _root_.RCLike RCLike in
+/-- `max(-re a, 0)` negated and embedded in 𝕂 has norm at most `|re a|`. -/
+private lemma norm_negReal_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
+    ‖(-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal‖ ≤
+      ‖algebraMap ℝ 𝕂 (component 1 a).toReal +
+        (-1 : 𝕂) * algebraMap ℝ 𝕂 (component (-1) a).toReal‖ := by
+  rw [component_one_add_neg_one, norm_ofReal]
+  simp only [neg_mul, one_mul, norm_neg, norm_ofReal]
+  unfold component
+  simp only [map_neg, map_one, mul_neg, mul_one, Real.coe_toNNReal']
+  rw [abs_of_nonneg (le_max_right _ _)]
+  simp [abs_nonneg, neg_le_abs]
+
+open _root_.RCLike RCLike in
+/-- `I * max(im a, 0)` has norm at most `‖I * im⁺ - I * im⁻‖`. -/
+private lemma norm_posIm_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
+    ‖(I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal‖ ≤
+      ‖(I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal +
+        (-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal‖ := by
+  rw [component_I_add_neg_I, norm_mul, norm_mul, norm_ofReal, norm_ofReal,
+    mul_comm (‖(I : 𝕂)‖)]
+  apply mul_le_mul_of_nonneg_right _ (norm_nonneg _)
+  unfold component
+  simp only [conj_I, mul_neg, Real.coe_toNNReal']
+  change |max (re (-(a * I))) 0| ≤ |im a|
+  rw [show re (-(a * I)) = im a from by simp [mul_re, I_re, I_im]]
+  simp [abs_of_nonneg, le_abs_self]
+
+open _root_.RCLike RCLike in
+/-- `-I * max(-im a, 0)` has norm at most `‖I * im⁺ - I * im⁻‖`. -/
+private lemma norm_negIm_le {𝕂 : Type*} [RCLike 𝕂] (a : 𝕂) :
+    ‖(-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal‖ ≤
+      ‖(I : 𝕂) * algebraMap ℝ 𝕂 (component I a).toReal +
+        (-I : 𝕂) * algebraMap ℝ 𝕂 (component (-I) a).toReal‖ := by
+  rw [component_I_add_neg_I]
+  simp only [norm_neg, norm_mul, norm_ofReal, mul_comm (‖(I : 𝕂)‖)]
+  apply mul_le_mul_of_nonneg_right _ (norm_nonneg _)
+  unfold component
+  simp only [map_neg, conj_I, neg_neg, Real.coe_toNNReal']
+  rw [show re (a * I) = -im a from by simp [mul_re, I_re, I_im]]
+  rw [abs_of_nonneg (le_max_right _ _)]
+  exact max_le (neg_le_abs _) (abs_nonneg _)
+
+end RCLikeComponentHelpers
+
 --TODO: clean up the proof
 theorem RCLike.induction {𝕂 : Type*} [RCLike 𝕂]
   {β : Type*} [Mul β] {a b}
@@ -635,7 +741,7 @@ theorem RCLike.induction {𝕂 : Type*} [RCLike 𝕂]
   {motive : (α → 𝕂) → β → Prop}
   (motive_nnreal : ∀ {f : α → ℝ≥0} (_ : P (algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ f)),
     motive (algebraMap ℝ 𝕂 ∘ NNReal.toReal ∘ f) a)
-  (motive_add' : ∀ {n : β} {f g : α → 𝕂} (hf_add : ∀ {x}, ‖f x‖ ≤ ‖f x + g x‖) (hg_add : ∀ {x}, ‖g x‖ ≤ ‖f x + g x‖) (_ : P f) (_ : P g), motive f n → motive g n → motive (f + g) (n * b))
+  (motive_add' : ∀ {n : β} {f g : α → 𝕂} (_ : ∀ {x}, ‖f x‖ ≤ ‖f x + g x‖) (_ : ∀ {x}, ‖g x‖ ≤ ‖f x + g x‖) (_ : P f) (_ : P g), motive f n → motive g n → motive (f + g) (n * b))
   (motive_mul_unit : ∀ {f : α → 𝕂} {c : 𝕂} {n : β} (_ : c ∈ RCLike.Components) (_ : P f),
     motive f n → motive (c • f) n)
   ⦃f : α → 𝕂⦄ (hf : P f) :
@@ -648,51 +754,66 @@ theorem RCLike.induction {𝕂 : Type*} [RCLike 𝕂]
     ext x
     simp only [Pi.add_apply, comp_apply, Pi.smul_apply, smul_eq_mul]
     exact RCLike.decomposition
-  rw [← f_decomposition]
-  rw [add_assoc]
+  -- Decompose f into real and imaginary parts, each further split into positive/negative parts
+  rw [← f_decomposition, add_assoc]
+  have hP_comp : ∀ {c : 𝕂} (_ : c ∈ Components),
+      P (c • ((algebraMap ℝ 𝕂) ∘ toReal ∘ component c ∘ f)) := fun hc =>
+    P_mul_unit hc (P_components hc hf)
+  -- Pointwise version of the decomposition
+  have f_decomp_pt : ∀ x, (algebraMap ℝ 𝕂) ((component 1 (f x)).toReal)
+      + (-1) * (algebraMap ℝ 𝕂) ((component (-1) (f x)).toReal)
+      + (RCLike.I * (algebraMap ℝ 𝕂) ((component RCLike.I (f x)).toReal)
+        + -RCLike.I * (algebraMap ℝ 𝕂) ((component (-RCLike.I) (f x)).toReal)) = f x := by
+    intro x
+    have := congr_fun f_decomposition x
+    simp only [Pi.add_apply, comp_apply, Pi.smul_apply, smul_eq_mul, one_mul] at this
+    rw [add_assoc] at this; exact this
+  -- Outer split: real part vs imaginary part
   apply motive_add'
-  · sorry
-  · sorry
-  · apply P_add
-    · apply P_mul_unit (by unfold Components; simp)
-      apply P_components (by unfold Components; simp) hf
-    · apply P_mul_unit (by unfold Components; simp)
-      apply P_components (by unfold Components; simp) hf
-  · apply P_add
-    · apply P_mul_unit (by unfold Components; simp)
-      apply P_components (by unfold Components; simp) hf
-    · apply P_mul_unit (by unfold Components; simp)
-      apply P_components (by unfold Components; simp) hf
-  · apply motive_add'
-    · sorry
-    · sorry
-    · apply P_mul_unit (by unfold Components; simp)
-      apply P_components (by unfold Components; simp) hf
-    · apply P_mul_unit (by unfold Components; simp)
-      apply P_components (by unfold Components; simp) hf
-    · apply motive_mul_unit (by unfold Components; simp)
-      · apply P_components (by unfold Components; simp) hf
-      apply motive_nnreal (f := component _ ∘ f)
-      apply P_components (by unfold Components; simp) hf
-    · apply motive_mul_unit (by unfold Components; simp)
-      · apply P_components (by unfold Components; simp) hf
-      apply motive_nnreal (f := component _ ∘ f)
-      apply P_components (by unfold Components; simp) hf
-  · apply motive_add'
-    · sorry
-    · sorry
-    · apply P_mul_unit (by unfold Components; simp)
-      apply P_components (by unfold Components; simp) hf
-    · apply P_mul_unit (by unfold Components; simp)
-      apply P_components (by unfold Components; simp) hf
-    · apply motive_mul_unit (by unfold Components; simp)
-      · apply P_components (by unfold Components; simp) hf
-      apply motive_nnreal (f := component _ ∘ f)
-      apply P_components (by unfold Components; simp) hf
-    · apply motive_mul_unit (by unfold Components; simp)
-      · apply P_components (by unfold Components; simp) hf
-      apply motive_nnreal (f := component _ ∘ f)
-      apply P_components (by unfold Components; simp) hf
+  · -- ‖real_part x‖ ≤ ‖(real_part + imag_part) x‖
+    intro x
+    simp only [Pi.add_apply, comp_apply, Pi.smul_apply, smul_eq_mul, one_mul]
+    rw [f_decomp_pt]
+    exact norm_realPart_le (f x)
+  · -- ‖imag_part x‖ ≤ ‖(real_part + imag_part) x‖
+    intro x
+    simp only [Pi.add_apply, comp_apply, Pi.smul_apply, smul_eq_mul, one_mul]
+    rw [f_decomp_pt]
+    exact norm_imPart_le (f x)
+  · exact P_add (hP_comp (by unfold Components; simp)) (hP_comp (by unfold Components; simp))
+  · exact P_add (hP_comp (by unfold Components; simp)) (hP_comp (by unfold Components; simp))
+  · -- Inner split: positive real vs negative real
+    apply motive_add'
+    · -- ‖1 * pos_re x‖ ≤ ‖(1 * pos_re + (-1) * neg_re) x‖
+      intro x
+      simp only [comp_apply, Pi.smul_apply, smul_eq_mul, one_mul]
+      exact norm_posReal_le (f x)
+    · -- ‖(-1) * neg_re x‖ ≤ ‖(1 * pos_re + (-1) * neg_re) x‖
+      intro x
+      simp only [comp_apply, Pi.smul_apply, smul_eq_mul, one_mul]
+      exact norm_negReal_le (f x)
+    · exact hP_comp (by unfold Components; simp)
+    · exact hP_comp (by unfold Components; simp)
+    · exact motive_mul_unit (by unfold Components; simp) (P_components (by unfold Components; simp) hf)
+        (motive_nnreal (P_components (by unfold Components; simp) hf))
+    · exact motive_mul_unit (by unfold Components; simp) (P_components (by unfold Components; simp) hf)
+        (motive_nnreal (P_components (by unfold Components; simp) hf))
+  · -- Inner split: positive imaginary vs negative imaginary
+    apply motive_add'
+    · -- ‖I * pos_im x‖ ≤ ‖(I * pos_im + (-I) * neg_im) x‖
+      intro x
+      simp only [comp_apply, Pi.smul_apply, smul_eq_mul]
+      exact norm_posIm_le (f x)
+    · -- ‖(-I) * neg_im x‖ ≤ ‖(I * pos_im + (-I) * neg_im) x‖
+      intro x
+      simp only [comp_apply, Pi.smul_apply, smul_eq_mul]
+      exact norm_negIm_le (f x)
+    · exact hP_comp (by unfold Components; simp)
+    · exact hP_comp (by unfold Components; simp)
+    · exact motive_mul_unit (by unfold Components; simp) (P_components (by unfold Components; simp) hf)
+        (motive_nnreal (P_components (by unfold Components; simp) hf))
+    · exact motive_mul_unit (by unfold Components; simp) (P_components (by unfold Components; simp) hf)
+        (motive_nnreal (P_components (by unfold Components; simp) hf))
 
 theorem enorm_eq_enorm_embedRCLike {𝕂 : Type*} [RCLike 𝕂] {f : α → ℝ≥0} (x : α) :
     ‖(⇑(algebraMap ℝ 𝕂) ∘ toReal ∘ f) x‖ₑ = ‖f x‖ₑ := by

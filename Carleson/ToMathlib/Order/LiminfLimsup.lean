@@ -1,6 +1,6 @@
 import Mathlib.Order.LiminfLimsup
 
--- Upstreaming status: seems like a useful lemma; no obvious clean-up opportunities
+-- Upstreaming status: upstreamed in https://github.com/leanprover-community/mathlib4/pull/37549
 
 theorem Filter.iSup_liminf_le_liminf_iSup {α β : Type*} {ι : Sort*} [CompleteLattice α]
     {f : Filter β} {u : ι → β → α} :
