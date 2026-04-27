@@ -8,8 +8,6 @@ import Carleson.ToMathlib.Misc
 
 /-!
 
-EXPERIMENTAL
-
 # Bounded compactly supported functions
 
 The purpose of this file is to provide helper lemmas to streamline proofs that
@@ -30,7 +28,7 @@ Upstreaming status: should be upstreamed, but need to clarify design questions f
   there any operation which preserves `BoundedCompactSupport` but not `BoundedFiniteSupport`?
   Decide if we want both classes in mathlib or just one of them. If the latter, rewrite all of
   Carleson/ToMathlib to use that one class.
-
+  (Discussion on Zulip)
 -/
 
 open Bornology Function Set HasCompactSupport
@@ -401,6 +399,8 @@ variable {F : X × Y → E}
 
 variable {F : X × Y → E}
 
+/- This and other fiberwise constructions are problematic with the current
+choice of using a.e. boundedness in place of everywhere boundedness -/
 -- ---- adapt and prove below when needed
 -- theorem prod_left (hF : BoundedCompactSupport f μ) :
 --     ∀ y, BoundedCompactSupport (fun x ↦ F (x, y)) := fun y ↦ {
