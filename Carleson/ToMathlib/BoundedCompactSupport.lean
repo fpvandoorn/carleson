@@ -333,12 +333,12 @@ lemma sq_eLpNorm_le_sums [IsFiniteMeasureOnCompacts μ] {f : ι → X → ℂ}
     _ = ‖(∑ i ∈ s, ∫ x, f i x * conj (f i x) ∂μ) +
         ∑ i ∈ s, ∑ j ∈ s with i ≠ j, ∫ x, f i x * conj (f j x) ∂μ‖ₑ := by
       rw [integral_add]; rotate_left
-      · exact integrable_finset_sum _ fun i mi ↦ l₁
-      · refine integrable_finset_sum _ fun i mi ↦ integrable_finset_sum _ fun j mj ↦ l₂
+      · exact integrable_finsetSum _ fun i mi ↦ l₁
+      · refine integrable_finsetSum _ fun i mi ↦ integrable_finsetSum _ fun j mj ↦ l₂
       congr
-      · exact integral_finset_sum _ fun i mi ↦ l₁
-      · rw [integral_finset_sum _ fun i mi ↦ integrable_finset_sum _ fun j mj ↦ l₂]
-        congr! with i mi; rw [integral_finset_sum _ fun j mj ↦ l₂]
+      · exact integral_finsetSum _ fun i mi ↦ l₁
+      · rw [integral_finsetSum _ fun i mi ↦ integrable_finsetSum _ fun j mj ↦ l₂]
+        congr! with i mi; rw [integral_finsetSum _ fun j mj ↦ l₂]
     _ ≤ ‖∑ i ∈ s, ∫ x, f i x * conj (f i x) ∂μ‖ₑ +
         ‖∑ i ∈ s, ∑ j ∈ s with i ≠ j, ∫ x, f i x * conj (f j x) ∂μ‖ₑ := enorm_add_le _ _
     _ ≤ ∑ i ∈ s, ‖∫ x, f i x * conj (f i x) ∂μ‖ₑ +

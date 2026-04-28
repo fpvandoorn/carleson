@@ -329,7 +329,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
           Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C),
           ENNReal.ofReal (⨍ y in J, ‖f y‖) ^ 2 * volume (J : Set X) := by
-      rw [lintegral_finset_sum _ (fun _ _ ↦ measurable_const.indicator coeGrid_measurable)]
+      rw [lintegral_finsetSum _ (fun _ _ ↦ measurable_const.indicator coeGrid_measurable)]
       simp_rw [lintegral_indicator coeGrid_measurable, setLIntegral_const]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J, ‖f y‖ₑ) ^ 2 / volume (J : Set X) := by
       congr with J

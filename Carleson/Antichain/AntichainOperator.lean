@@ -35,9 +35,9 @@ lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
     _ = ‖∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄,
           ∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
       congr 1
-      rw [integral_finset_sum]
+      rw [integral_finsetSum]
       · congr! with p mp
-        exact integral_finset_sum _ fun p' mp' ↦ by
+        exact integral_finsetSum _ fun p' mp' ↦ by
           -- This smells like a fun_prop bug: removing the `change` makes fun_prop fail to prove
           -- `fails` below, even though it knows about `BoundedCompactSupport.integrable` and
           -- can prove that.
@@ -134,7 +134,7 @@ lemma dens1_antichain_dach (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.ind
       rw [← Finset.mul_sum, ← mul_assoc]; congr 1
       · rw [← mul_rotate, ← pow_succ, mul_comm]
       · congr! 1 with p mp; rw [mul_comm (lintegral ..), ← mul_assoc, dach]; congr 2
-        exact (lintegral_finset_sum _ fun p' mp' ↦
+        exact (lintegral_finsetSum _ fun p' mp' ↦
           (hg.enorm.indicator measurableSet_E).const_mul _).symm
 
 /-- The `maximalFunction` instance that appears in Lemma 6.1.4's proof. -/

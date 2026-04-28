@@ -983,7 +983,7 @@ lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu
     _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),
         ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset, ‖adjointCarleson p f x‖ₑ := by
       apply iSup₂_mono fun x mx ↦ ?_
-      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe, adjointCarlesonSum,
+      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe, adjointCarlesonSum,
         filter_mem_univ_eq_toFinset]
       exact nnnorm_sum_le ..
     _ = ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),

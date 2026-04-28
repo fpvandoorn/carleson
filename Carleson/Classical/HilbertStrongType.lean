@@ -415,7 +415,7 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
       (2 * π)⁻¹ * ∫ y in (0)..2 * π, f y * dirichletApprox n (x - y) := by
   simp only [approxHilbertTransform, Finset.mul_sum, mul_inv_rev, ofReal_mul, ofReal_inv,
     ofReal_ofNat, dirichletApprox, ofReal_sub]
-  rw [intervalIntegral.integral_finset_sum]; swap
+  rw [intervalIntegral.integral_finsetSum]; swap
   · intro i hi
     apply IntervalIntegrable.mul_continuousOn ?_ (by fun_prop)
     rw [intervalIntegrable_iff_integrableOn_Ioc_of_le (by simp [Real.pi_nonneg])]

@@ -251,7 +251,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
     2 * linearizedNontangentialOperator Q θ K f x +
     2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x := by
   refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ ms₂ ↦ iSup_le fun ls₂ ↦ ?_
-  rw [← integral_finset_sum]; swap
+  rw [← integral_finsetSum]; swap
   · intro i hi; simp_rw [mul_comm]
     exact hf.integrable_mul (integrable_Ks_x (one_lt_realD X))
   simp_rw [← Finset.sum_mul]
@@ -483,7 +483,7 @@ lemma e728_rearrange (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport 
       unfold indicator; split_ifs <;> simp
     _ = ∑ I : Grid X, ∫ x, (I : Set X).indicator
         (fun _ ↦ conj (g x) * ∑ J ∈ 𝓙' t u (c I) (s I), (ijIntegral f I J).toReal) x := by
-      refine integral_finset_sum _ fun I _ ↦ ?_
+      refine integral_finsetSum _ fun I _ ↦ ?_
       change Integrable ((I : Set X).indicator _)
       rw [integrable_indicator_iff coeGrid_measurable]
       dsimp only
@@ -534,13 +534,13 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       rw [e728_rearrange hf hg]
     _ ≤ ∑ I : Grid X, ‖((volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal * ∫ x in I, conj (g x)) *
         ∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal‖ₑ := by
-      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe]
+      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe]
       apply nnnorm_sum_le
     _ ≤ ∑ I : Grid X, (volume (ball (c I) (16 * D ^ s I)))⁻¹ * ‖∫ x in I, conj (g x)‖ₑ *
         ∑ J ∈ 𝓙' t u (c I) (s I), ‖(D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal‖ₑ := by
       simp_rw [enorm_mul]; gcongr <;> rw [← ofReal_norm, norm_real, ofReal_norm]
       · exact enorm_toReal_le
-      · simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe]
+      · simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe]
         apply nnnorm_sum_le
     _ ≤ ∑ I : Grid X, ((volume (ball (c I) (16 * D ^ s I)))⁻¹ * ∫⁻ x in I, ‖g x‖ₑ) *
         ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ := by
@@ -576,7 +576,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
           (⨍⁻ x in ball (c I) (16 * D ^ s I), ‖g x‖ₑ ∂volume) *
             D ^ ((s J - s I) / (a : ℝ)) * ‖f y‖ₑ else 0 := by
-      congr with J; refine (lintegral_finset_sum' _ fun I _ ↦ ?_).symm
+      congr with J; refine (lintegral_finsetSum' _ fun I _ ↦ ?_).symm
       exact (nfs.restrict.const_mul _).ite (.const _) aemeasurable_const
     _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ∑ I : Grid X,
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
