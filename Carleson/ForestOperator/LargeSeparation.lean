@@ -1974,7 +1974,7 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
           indicator_comp_of_zero (by simp), Function.comp_apply, ← sum_χ hu₁ hu₂ hu h2u x,
           NNReal.coe_sum, ofReal_sum, Finset.sum_mul]
       congr 1
-      refine integral_finset_sum _ fun J mJ ↦ ((BoundedCompactSupport.toComplex ?_).mul
+      refine integral_finsetSum _ fun J mJ ↦ ((BoundedCompactSupport.toComplex ?_).mul
         (hf₁.adjointCarlesonSum.mul hf₂.adjointCarlesonSum.conj)).integrable
       rw [mem_toFinset] at mJ; exact boundedCompactSupport_toReal_χ mJ
     _ ≤ ∑ J ∈ 𝓙₅ t u₁ u₂, ‖∫ x, χ t u₁ u₂ J x * (adjointCarlesonSum (t u₁) f₁ x *
