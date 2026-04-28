@@ -175,12 +175,12 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 \section{The Metric Space Carleson theorem}\label{sec:main_thm}
 
 \subsection{Mathematical background}\label{subsec:background}
-The basic object of study in Carleson's Theorem is the Fourier series of a periodic function on the real numbers.
-For a function $f : [0, 2\pi) \to \complex$, we first define its Fourier coefficients as
+The basic object of study in Carleson's theorem is the Fourier series of a periodic function on the real numbers.
+Given a function $f : [0, 2\pi) \to \complex$ and $n \in \mathbb{Z}$, we first define the $n$th Fourier coefficient of $f$ as
 \begin{equation}\label{eq:fourier-coefficients}
     c_n \coloneq \widehat{f}_n \coloneq \frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
 \end{equation}
-The Lean version \lean{fourierCoeff} uses mathlib's formalization of the Bochner integral and thus is well-defined if $f\in L^1(0,2\pi)$.
+The Lean version \lean{fourierCoeff} uses \mathlib's formalization of the Bochner integral and thus is well-defined if $f\in L^1(0,2\pi)$.
 
 We define the $N$-th partial Fourier sum of $f$ at $x\in [0,2\pi]$  as
 \begin{equation}\label{eq:trig-series}
@@ -198,7 +198,7 @@ For all $x\in X$ and all $R>0$ we have
 where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ centered at $x$ (see \lean{DoublingMeasure}).
 %In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
-The proof of the metric space Carleson theorem relies on several tools from real analysis and part of the formalization is a proof of the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Statement and proof require the following definitions for which we could rely on mathlib's measure theory (see e.g. \cite{vanDoornFormalizedHaarMeasure} for an overview).
+The proof of the metric space Carleson theorem relies on several tools from real analysis and part of the formalization is a proof of the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g. \cite{vanDoornFormalizedHaarMeasure} for an overview).
 For a function $f$ on a (not necessarily doubling) measure space $(X,\mu)$ taking values in some space $E$ endowed with an extended norm (see \ref{subsec:enorm}), we define its weak $L^p$ norm to be
 \begin{equation}
   \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X : t < |f(x)| \}) ^ \frac{1}{p}
