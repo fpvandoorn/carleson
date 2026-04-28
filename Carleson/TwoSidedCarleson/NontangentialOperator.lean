@@ -810,10 +810,10 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     apply iSup_const_mono (lt_of_le_of_lt _)
     rw [inv_le_inv₀ (by positivity) (by positivity)]
     simp [hmn]
-  have snt0 : ⨆ (n : ℕ), f n = simpleNontangentialOperator K 0 g := by
+  have snt0 : (fun x => ⨆ (n : ℕ), f n x) = simpleNontangentialOperator K 0 g := by
     ext x
     unfold f simpleNontangentialOperator
-    simp_rw [gt_iff_lt, iSup_apply]; rw [iSup_comm]
+    simp_rw [gt_iff_lt]; rw [iSup_comm]
     congr with R
     apply le_antisymm (iSup_le <| fun n ↦ iSup_const_mono (lt_trans (by positivity))) (iSup_le _)
     intro hR
@@ -826,7 +826,7 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
   have mct := eLpNorm_iSup' (p := 2) (f := f) (μ := volume)
     (fun n ↦ aestronglyMeasurable_simpleNontangentialOperator.aemeasurable)
     (by filter_upwards; exact f_mon)
-  rw [← snt0, ← mct]
+  rw [← snt0, mct]
   apply iSup_le
   intro n; unfold f
   apply simple_nontangential_operator ha hT (by positivity) g hg |>.2
