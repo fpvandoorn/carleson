@@ -548,12 +548,8 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
   · rw [intervalIntegral.integral_of_le (by linarith [hT.out]),
       intervalIntegral.integral_of_le (by linarith [hT.out])]
     apply setIntegral_congr_fun measurableSet_Ioc (fun y hy ↦ ?_)
-    have : (L (f'' y)) = (L (f y)) := by
-      congr 1
-      symm
-      exact (AddCircle.liftIoc_coe_apply hy).symm
-    symm
-    apply congr($this (g (x - y)))
+    congr 2
+    exact (AddCircle.liftIoc_coe_apply hy).symm
   · apply eLpNorm_congr_ae
     filter_upwards [self_mem_ae_restrict measurableSet_Ioc] with y hy
     exact (AddCircle.liftIoc_coe_apply hy).symm
