@@ -551,14 +551,12 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
     have : (L (f'' y)) = (L (f y)) := by
       congr 1
       symm
-      sorry
+      exact (AddCircle.liftIoc_coe_apply hy).symm
     symm
     apply congr($this (g (x - y)))
-    --exact (equivIoc_coe_of_mem a hy).symm
   · apply eLpNorm_congr_ae
     filter_upwards [self_mem_ae_restrict measurableSet_Ioc] with y hy
-    sorry /- congr
-    exact (equivIoc_coe_of_mem a hy).symm -/
+    exact (AddCircle.liftIoc_coe_apply hy).symm
 
 open Set in
 /-- **Young's convolution inequality** on (a, a + T]: the `L^r` seminorm of the convolution

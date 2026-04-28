@@ -855,23 +855,18 @@ private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤
     _ ≤ C7_1_3 a • ((CMB (defaultA a) 2) * eLpNorm aOC 2 μ + (C7_2_3 a) * eLpNorm aOC 2 μ) +
           (C7_2_2 a) * eLpNorm aOC 2 μ := by
       gcongr
-      · sorry /-
-      · apply mul_le_mul_of_nonneg_left _ (zero_le _)
-        gcongr
-        · exact eLpNorm_MB_le boundedCompactSupport_approxOnCube
-        · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube
-          congr 1
-          apply eLpNorm_congr_norm_ae
-          filter_upwards with x
-          convert Complex.norm_real (aOC x) using 2;
-          exact approxOnCube_ofReal _ _ _
+      · exact eLpNorm_MB_le boundedCompactSupport_approxOnCube
+      · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube
+        congr 1
+        apply eLpNorm_congr_norm_ae
+        filter_upwards with x
+        convert Complex.norm_real (aOC x) using 2
+        exact approxOnCube_ofReal _ _ _
       · apply le_trans <| nontangential_operator_bound boundedCompactSupport_approxOnCube (𝒬 u)
         refine mul_le_mul_right (eLpNorm_mono (fun x ↦ ?_)) _
         apply le_of_le_of_eq norm_approxOnCube_le_approxOnCube_norm
         rw [Real.norm_of_nonneg <| approxOnCube_nonneg (fun _ ↦ norm_nonneg _)]
-        simp_rw [norm_eI𝒬u_mul_eq] -/
-      · sorry
-      · sorry
+        simp_rw [norm_eI𝒬u_mul_eq]
     _ = (C7_1_3 a * CMB (defaultA a) 2 + C7_1_3 a * C7_2_3 a + C7_2_2 a) * eLpNorm aOC 2 μ := by
       rw [ENNReal.smul_def, smul_eq_mul]; ring
     _ ≤ _ := mul_le_mul_left (le_C7_2_1 (four_le_a X)) _

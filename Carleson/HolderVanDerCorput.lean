@@ -29,12 +29,12 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
   apply LipschitzWith.const_max
   apply LipschitzWith.of_le_add_mul
   intro a b
-  sorry /-
-  simp only [NNReal.coe_mk, tsub_le_iff_right, div_eq_inv_mul, mul_one]
+  change 1 - dist x a / (t * R) ≤ 1 - dist x b / (t * R) + (1 / (t * R)) * dist a b
+  simp only [tsub_le_iff_right, div_eq_inv_mul, mul_one]
   have : (t * R) ⁻¹ * dist x b ≤ (t * R)⁻¹ * (dist x a + dist a b) := by
     gcongr
     exact dist_triangle _ _ _
-  linarith -/
+  linarith
 
 @[fun_prop]
 lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff R t x y) :=

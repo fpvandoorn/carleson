@@ -22,7 +22,7 @@ instance AddCircle.noAtoms_volume : NoAtoms (volume : Measure (AddCircle T)) whe
 variable {B : Type*} {T a : ℝ} [hT : Fact (0 < T)] (f : ℝ → B)
 
 theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc T a f =ᵐ[volume] liftIco T a f :=
-  sorry -- was: .mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne f)
+  .mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne)
 
 end AE
 
