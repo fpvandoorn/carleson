@@ -205,6 +205,7 @@ lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j)
   · apply lt_of_le_of_ne (le_def.mpr ⟨h.1, h.2.le⟩)
     by_contra a; rw [a, lt_self_iff_false] at h; exact h.2
 
+set_option backward.isDefEq.respectTransparency false in
 lemma isMin_iff {i : Grid X} : IsMin i ↔ s i = - S := by
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
   · apply le_antisymm ?_ scale_mem_Icc.1
@@ -254,9 +255,11 @@ lemma succ_spec (h : ¬IsMax i) : i < i.succ ∧ ∀ j, i < j → i.succ ≤ j :
   simp only [succ, h, dite_false]
   classical exact Finset.choose_spec (hp := exists_unique_succ i h).2
 
+set_option backward.isDefEq.respectTransparency false in
 lemma succ_unique (h : ¬IsMax i) : i < j → (∀ j', i < j' → j ≤ j') → i.succ = j := fun k₁ k₂ ↦
   ((exists_unique_succ i h).unique ⟨by simp, k₁, k₂⟩ ⟨by simp, succ_spec h⟩).symm
 
+set_option backward.isDefEq.respectTransparency false in
 lemma le_succ : i ≤ i.succ := by
   by_cases h : IsMax i
   · simp [h, succ]

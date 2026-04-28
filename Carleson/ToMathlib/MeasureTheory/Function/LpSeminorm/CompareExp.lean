@@ -20,7 +20,7 @@ open NNReal
 --TODO: move?
 instance : ENormSMulClass ℝ≥0 ℝ≥0∞ where
   enorm_smul r x := by
-    simp only [enorm_smul_eq_smul, enorm_eq_self, enorm_NNReal]
+    simp only [enorm_eq_self, enorm_NNReal]
     rw [ENNReal.smul_def, smul_eq_mul]
 
 theorem eLpNorm_le_eLpNorm_top_mul_eLpNorm' (p : ℝ≥0∞) (f : α → E) {g : α → F}
@@ -76,7 +76,7 @@ theorem eLpNorm'_le_eLpNorm'_mul_eLpNorm'' {p q r : ℝ} (hf : AEStronglyMeasura
       simp only [eLpNorm']
       gcongr ?_ ^ _
       refine lintegral_mono_ae <| h.mono fun a ha ↦ ?_
-      simp only [Algebra.smul_mul_assoc, enorm_smul_eq_smul, enorm_eq_self]
+      simp only [Algebra.smul_mul_assoc, enorm_eq_self]
       gcongr
       rwa [ENNReal.smul_def, smul_eq_mul, ← mul_assoc]
     _ ≤ c * eLpNorm' f p μ * eLpNorm' g q μ := by

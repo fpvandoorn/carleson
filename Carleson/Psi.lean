@@ -289,7 +289,10 @@ lemma support_ψS_subset_Icc {b c : ℤ} {x : ℝ}
 
 lemma finsum_ψ (hx : 0 < x) : ∑ᶠ s : ℤ, ψ D (D ^ (-s) * x) = 1 := by
   refine Eq.trans ?_ (sum_ψ hD hx)
-  apply Eq.trans <| finsum_eq_sum _ <| support_ψS hD hx ▸ Finset.finite_toSet (nonzeroS D x)
+  have hfin : HasFiniteSupport (fun s : ℤ ↦ ψ D (D ^ (-s) * x)) := by
+    have h := Finset.finite_toSet (nonzeroS D x)
+    rwa [← support_ψS hD hx] at h
+  apply Eq.trans <| finsum_eq_sum _ hfin
   congr
   ext
   rw [Finite.mem_toFinset, support_ψS hD hx, Finset.mem_coe]

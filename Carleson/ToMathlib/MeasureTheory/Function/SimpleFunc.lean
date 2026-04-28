@@ -557,7 +557,7 @@ lemma Antitone.antitone_eapprox {α : Type*} [TopologicalSpace α] {mα : Measur
   split_ifs with hy hx
   · rfl
   · exfalso
-    push_neg at hx
+    push Not at hx
     exact lt_irrefl _ ((hy.trans (hf hxy)).trans_lt hx)
   · simp only [zero_le]
   · rfl

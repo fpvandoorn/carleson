@@ -23,10 +23,4 @@ theorem locallyIntegrable_congr'_enorm {f : X → ε} {g : X → ε'}
     LocallyIntegrable f μ ↔ LocallyIntegrable g μ :=
   ⟨fun h2f => h2f.congr'_enorm hg h, fun h2g => h2g.congr'_enorm hf <| Filter.EventuallyEq.symm h⟩
 
-theorem LocallyIntegrable.congr {f g : X → ε} (hf : LocallyIntegrable f μ) (h : f =ᵐ[μ] g) :
-  LocallyIntegrable g μ := fun x ↦ (hf x).congr h
-
-theorem locallyIntegrable_congr {f g : X → ε} (h : f =ᵐ[μ] g) : LocallyIntegrable f μ ↔ LocallyIntegrable g μ :=
-  ⟨fun hf => hf.congr h, fun hg => hg.congr h.symm⟩
-
 end MeasureTheory

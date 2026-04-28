@@ -328,7 +328,7 @@ lemma distribution_indicator_superlevelSet {ε} [TopologicalSpace ε] [ENormedAd
   by_cases h : t ≤ x
   · rw [inter_eq_right.mpr (superlevelSet_antitone h), min_eq_right (distribution_mono_right h)]
     rfl
-  · push_neg at h
+  · push Not at h
     rw [inter_eq_left.mpr (superlevelSet_antitone h.le), min_eq_left (distribution_mono_right h.le)]
     rfl
 
@@ -340,7 +340,7 @@ lemma distribution_indicator_superlevelSet_compl {ε} [TopologicalSpace ε] [ENo
   by_cases h : t ≤ x
   · rw [tsub_eq_zero_of_le (distribution_mono_right h), ← measure_empty (μ := μ)]
     rw [← Set.diff_eq_compl_inter, Set.diff_eq_empty.mpr (superlevelSet_antitone h)]
-  · push_neg at h
+  · push Not at h
     rw [← Set.diff_eq_compl_inter,
       measure_diff (superlevelSet_antitone h.le) (nullMeasurableSet_superlevelSet hf) ht]
     rfl
@@ -436,7 +436,7 @@ lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [E
       split_ifs
       apply lt_add_of_lt_of_nonneg _ (zero_le _)
       simpa [h]
-  · push_neg at ht
+  · push Not at ht
     congr 1 with x
     simp only [Pi.add_apply, mem_setOf_eq]
     rw [enorm_add, ENNReal.sub_lt_iff_lt_right hc ht]

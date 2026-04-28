@@ -198,7 +198,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
       refine lintegral_mono fun y ↦ ?_
       rw [enorm_mul]; gcongr
       by_cases hy : Ks (𝔰 p.1) x y = 0
-      · simp [hy]
+      · simp only [hy, enorm_zero, zero_le]
       · exact norm_Ks_le' _ hxE hy -- Composition of ineq. 6.1.6, 6.1.7, 6.1.8
     _ = 2 ^ (5 * a + (𝕔 + 1) * a ^ 3 + a) *
         ⨍⁻ y in ball (𝔠 p.1) (8 * D ^ 𝔰 p.1), ‖f y‖ₑ ∂volume := by

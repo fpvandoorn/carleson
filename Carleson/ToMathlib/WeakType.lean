@@ -559,6 +559,7 @@ lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 0 < p')
   fun f hf ↦
     ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
 
+set_option backward.isDefEq.respectTransparency false in
 lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞}
     (h : HasBoundedStrongType T p p' μ ν c) (r : ℝ≥0) :
     HasBoundedStrongType (r • T) p p' μ ν (r • c) := by

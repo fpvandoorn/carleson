@@ -61,14 +61,12 @@ theorem two_sided_metric_carleson_hasLorentzType [Countable (Θ X)] (ha : 4 ≤ 
   · intro f g hf hg
     apply Filter.Eventually.of_forall
     intro x
-    simp only [enorm_eq_self]
     apply carlesonOperator_add_le_add_carlesonOperator
     · apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le]
     · apply (hg.memLp _).locallyIntegrable <;> simp [hq.1.le]
   · intro a f
     apply Filter.Eventually.of_forall
     intro x
-    simp only [enorm_eq_self]
     apply le_of_eq
     rw [carlesonOperator_const_smul']
     rfl

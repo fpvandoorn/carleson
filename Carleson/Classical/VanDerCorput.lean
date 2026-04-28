@@ -46,6 +46,7 @@ lemma intervalIntegrable_continuous_mul_lipschitzOnWith
     apply mem_image_of_mem
     exact Ioo_subset_Icc_self hx
 
+set_option backward.isDefEq.respectTransparency false in
 lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B K : ℝ≥0}
     (h1 : LipschitzOnWith K φ (Ioo a b)) (h2 : ∀ x ∈ Ioo a b, ‖φ x‖ ≤ B) :
     ‖∫ x in a..b, exp (I * n * x) * φ x‖ ≤
@@ -93,7 +94,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
           simp only [Function.comp_apply]
           rw [edist_eq_enorm_sub, ← map_sub, starRingEnd_apply,
             enorm_eq_nnnorm, nnnorm_star]
-          apply h1 hx hy
+          simpa [edist_eq_enorm_sub, enorm_eq_nnnorm] using h1 hx hy
         · intro x hx
           rw [Function.comp_apply, RCLike.norm_conj]
           exact h2 x hx
@@ -142,7 +143,6 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
       rw [mul_add, mul_assoc I n (π / n), mul_div_cancel₀ _ (by simpa), exp_add, mul_comm I π, exp_pi_mul_I]
       ring
     _ = ‖1 / 2 * ∫ x in a..b, cexp (I * ↑n * ↑x) * φ x - cexp (I * ↑n * (↑x + ↑π / ↑n)) * φ x‖ := by
-      congr
       rw [← intervalIntegral.integral_const_mul]
       congr
       ext x

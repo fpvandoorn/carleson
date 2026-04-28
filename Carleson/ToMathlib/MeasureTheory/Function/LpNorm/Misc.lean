@@ -34,7 +34,7 @@ lemma eLpNormEssSup_nnreal_scale_constant' {f : ℝ≥0 → ℝ≥0∞} {a : ℝ
   rw [← eLpNormEssSup_map_measure _ (by fun_prop)]
   · apply eLpNormEssSup_congr_measure
     rw [NNReal.map_volume_mul_left h]
-    apply Measure.ae_smul_measure_eq (by simpa)
+    apply Measure.ae_ennreal_smul_measure_eq (by simpa)
   · rw [NNReal.map_volume_mul_left h]
     apply AEStronglyMeasurable.smul_measure hf
 
