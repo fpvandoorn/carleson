@@ -565,56 +565,11 @@ theorem hasStrongType_maximalFunction
 
 theorem hasWeakType_maximalFunction_equal_exponents
     [BorelSpace X] {p : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp : 0 < p) :
-    HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p u x)
-      p p μ μ (A ^ ((2 / p : ℝ))) := by
-  intro v mlpv; dsimp only
-  constructor; · exact Measurable.maximalFunction.aestronglyMeasurable
-  have p_pos : (p : ℝ) > 0 := NNReal.coe_pos.mpr hp
-  have hestfin (k : ℕ) : wnorm
-      (fun x ↦ maximalFunction_seq μ 𝓑 c r p v k x) p μ ≤
-      (A ^ (2 / p : ℝ)) * eLpNorm v p μ := by
-    obtain ⟨R, hR⟩ := Finite.exists_image_le (tr_finite h𝓑 k) r
-    exact (hasWeakType_maximalFunction_equal_exponents₀ (c := c)
-        (Finite.countable (tr_finite h𝓑 k)) hR hp v mlpv).2
-  unfold wnorm wnorm' at hestfin ⊢
-  simp only [coe_ne_top, ↓reduceIte, coe_toReal, iSup_le_iff] at hestfin ⊢
-  unfold distribution at hestfin ⊢
-  have hunion (t : ℝ≥0) :
-      {x | (t : ℝ≥0∞) < ‖ maximalFunction μ 𝓑 c r (↑p) v x‖ₑ } ⊆
-      ⋃ k : ℕ, {x | (t : ℝ≥0∞) < ‖ maximalFunction μ (tr h𝓑 k) c r (↑p) v x‖ₑ } := by
-    intro x
-    push _ ∈ _
-    intro hx
-    by_contra! h₀
-    refine (not_le_of_gt (lt_of_le_of_lt' ?_ hx)) (iSup_le h₀)
-    rw [maximalFunction_seq_eq 𝓑 hp]
-    exact le_rfl
-  let f (k : ℕ) := fun x ↦ maximalFunction μ (tr h𝓑 k) c r (↑p) v x
-  have f_mon : Monotone f := by
-    refine fun a b hab x ↦ iSup₂_le fun i Hi ↦ ?_
-    apply le_iSup₂ (f := fun j _ ↦ (ball (c j) (r j)).indicator
-        (fun x ↦ (⨍⁻ (y : X) in ball (c j) (r j), ‖v y‖ₑ ^ (ofNNReal p).toReal ∂μ) ^ (ofNNReal p).toReal⁻¹) x)
-    obtain ⟨w, hw⟩ := Hi; use w; exact ⟨hw.1.trans hab, hw.2⟩
-  intro t
-  have hm :
-      Monotone (fun k ↦ {x | (t : ℝ≥0∞) < ‖maximalFunction μ (tr h𝓑 k) c r p v x‖ₑ}) := by
-    intro m n hmn x
-    simp only [enorm_eq_self, mem_setOf_eq]
-    exact fun ht ↦ ht.trans_le (f_mon hmn x)
-  apply (rpow_le_rpow_iff p_pos).mp
-  rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity), rpow_inv_rpow p_pos.ne']
-  by_cases ht : t = 0
-  · rw [ht]; simp [(zero_rpow_of_pos p_pos)]
-  refine (mul_le_iff_le_inv (by positivity) (by finiteness)).mpr ?_
-  calc
-  _ ≤ _ := measure_mono (hunion t)
-  _ ≤ _ := by
-    have := MeasureTheory.tendsto_measure_iUnion_atTop (μ := μ) hm
-    refine le_of_tendsto_of_frequently this (.of_forall fun x ↦ ?_)
-    dsimp only [Function.comp_apply]
-    refine (mul_le_iff_le_inv (by positivity) (by finiteness)).mp ?_
-    rw [← rpow_inv_rpow (x := μ _) p_pos.ne', ← ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
-    exact (rpow_le_rpow_iff p_pos).mpr (hestfin x t)
+    HasWeakType (maximalFunction (E := E) μ 𝓑 c r p) p p μ μ (A ^ (2 / p : ℝ)) := by
+  rw [maximalFunction_seq_eq]
+  apply hasWeakType_iSup_of_monotone maximalFunction_seq_mono (by positivity)
+  intro n
+  exact hasWeakType_maximalFunction_equal_exponents_aux (h𝓑.mono (tr_subset n)) (tr_radius_le n) hp
 
 def C_weakType_maximalFunction (A p₁ p₂ : ℝ≥0) :=
   if p₁ = p₂ then (ofNNReal A) ^ (2 / p₁ : ℝ) else C2_0_6 A p₁ p₂
