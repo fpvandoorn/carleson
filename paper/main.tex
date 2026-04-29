@@ -22,6 +22,8 @@
 
 \newcommand{\mathlib}{\texttt{Mathlib}\xspace}
 
+\newcommand{\todo}[1]{{\color{blue}{TODO: {#1}}}}
+
 % These options can be changed later; these may be personal preferences.
 \hypersetup{
   bookmarks,bookmarksopen,bookmarksnumbered,
@@ -128,7 +130,7 @@ collaborative effort, written and developed in public.
 
 \subsection{Overview of the formalization project}\label{subsec:overview}
 % TODO: I assume that the classical and generalized Carleson theorems will already be mentioned in the previous subsection, so that I can cite them here.
-The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result. 
+The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result.
 
 The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization was since the beginning envisioned as a large scale collaborative project. This posed a problem, since there are not many experts in formalization that are also experts in harmonic analysis, so most of the potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
 
@@ -307,11 +309,38 @@ The process of generalisation revealed that this abstraction is also useful on i
 	\item Working with \texttt{MemLp}, not functions on \texttt{Lp}.
 \end{itemize}
 
-\subsection{The \texttt{BoundedCompactSupport} structure}\label{subsec:bdd_comp_supp}
-\begin{itemize}
-	\item \texttt{BoundedCompactSupport} and packaging conditions.
-	\item Ongoing experiments with \texttt{fun\_prop}. TODO: consider whether this should be a separate subsection.
-\end{itemize}
+\subsection{Test function classes}\label{subsec:bdd_comp_supp}
+A common task during the formalization was to prove the various integrability and measurability sidegoals
+arising when estimating integrals.
+As is typical in harmonic analysis, most technical estimates are {\it a priori} estimates involving
+input functions in suitable test function classes.
+
+In many parts of this project, bounded measurable compactly supported functions provided a convenient
+test function class. We also used the slightly larger class
+of bounded measurable functions supported on a set of finite measure in places where this weaker hypothesis
+matches the blueprint more closely.
+Since most constructions appearing in the proof leave these function classes invariant,
+integrability and measurability considerations are usually mathematically trivial.
+
+It is desirable for this simplicity to be reflected in the formalization.
+This motivated packaging the recurring side conditions into test function classes.
+
+The structures \lean{BoundedCompactSupport} and \lean{BoundedFiniteSupport} record,
+respectively, essentially bounded measurable functions with compact support and with support of finite measure.
+Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
+reproving the same measure-theoretic facts. For example, from a hypothesis
+\lean{hf : BoundedCompactSupport f} one immediately obtains that \lean{f} is a member of
+any desired $L^p$ space, % in the context of this project
+or that \lean{s.indicator f} again has bounded compact support when \lean{s} is measurable.
+Lemmas such as \lean{hf.carlesonSum} show that the relevant
+operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
+
+Further API extensions and better support from \texttt{fun\_prop} could streamline these arguments even more.
+
+% \begin{itemize}
+% 	\item \texttt{BoundedCompactSupport} and packaging conditions.
+% 	\item Ongoing experiments with \texttt{fun\_prop}. TODO: consider whether this should be a separate subsection.
+% \end{itemize}
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
 \begin{itemize}
