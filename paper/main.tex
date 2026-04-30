@@ -311,8 +311,8 @@ Formalization ergonomics, however, are greatly different: working with equivalen
 (For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
 While the \lean{filter_upwards} tactic simplifies reducing results from almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
 
-% is this true? is this useful to say? has this been observed already?
-Incidentally, many more lemmas in mathlib are stated for \lean{MemLp} than for \lean{Lp}: this underscores this choice.
+% is this useful to say? could be removed
+Incidentally, lemmas in Mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}: this underscores this choice.
 % Does this have other reasons, such as transitioning between different function properties?
 
 This relates well with the use of enorms (\ref{subsec:enorm}): \lean{Lp E p µ} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
