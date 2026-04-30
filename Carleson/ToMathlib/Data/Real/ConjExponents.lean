@@ -2,7 +2,7 @@ module
 
 public import Mathlib.Data.Real.ConjExponents
 
-@[expose] public section
+public section
 
 open scoped ENNReal
 

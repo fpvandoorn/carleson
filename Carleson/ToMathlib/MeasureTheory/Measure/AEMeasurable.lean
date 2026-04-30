@@ -3,7 +3,7 @@ module
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Mathlib.MeasureTheory.Function.AEEqOfLIntegral
 
-@[expose] public section
+public section
 
 -- Upstreaming status: useful and ready to go
 namespace MeasureTheory

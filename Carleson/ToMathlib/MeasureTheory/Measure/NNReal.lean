@@ -4,7 +4,7 @@ public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 public import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 
-@[expose] public section
+public section
 
 open MeasureTheory NNReal ENNReal Set
 

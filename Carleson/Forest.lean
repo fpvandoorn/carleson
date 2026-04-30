@@ -2,7 +2,7 @@ module
 
 public import Carleson.TileStructure
 
-@[expose] public section
+public section
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate

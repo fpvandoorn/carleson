@@ -4,7 +4,7 @@ public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
 public import Carleson.ToMathlib.RealInterpolation.Misc
 
-@[expose] public section
+public section
 
 /- Upstreaming status: still needs some cleanup, and more analogues to mathlib lemmas about eLpNorm
 could be added -/

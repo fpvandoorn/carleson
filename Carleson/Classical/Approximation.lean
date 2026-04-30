@@ -4,7 +4,7 @@ public import Carleson.Classical.Basic
 public import Mathlib.Analysis.Calculus.BumpFunction.Convolution
 public import Mathlib.Analysis.PSeries
 
-@[expose] public section
+public section
 
 /- This file contains the arguments from section 11.2 (smooth functions) from the blueprint. -/
 

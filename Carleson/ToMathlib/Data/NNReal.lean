@@ -2,7 +2,7 @@ module
 
 public import Mathlib.Analysis.Normed.Ring.Basic
 
-@[expose] public section
+public section
 
 -- Upstreaming status: This file is ready for upstreaming, but would need significant polish.
 

@@ -5,7 +5,7 @@ public import Mathlib.Order.ConditionallyCompleteLattice.Defs
 public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 public import Mathlib.Data.Set.Finite.Lattice
 
-@[expose] public section
+public section
 
 -- Upstreaming status: under active development by @ldiedering
 -- Wait for the file to stabilise first.

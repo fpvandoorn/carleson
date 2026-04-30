@@ -3,7 +3,7 @@ module
 public import Carleson.TileStructure
 public import Carleson.ToMathlib.MinLayer
 
-@[expose] public section
+public section
 
 noncomputable section
 

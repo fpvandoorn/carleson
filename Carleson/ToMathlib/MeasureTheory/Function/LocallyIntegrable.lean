@@ -3,7 +3,7 @@ module
 public import Mathlib.MeasureTheory.Function.LocallyIntegrable
 public import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
 
-@[expose] public section
+public section
 
 -- Upstreaming status: easy and useful; good to go
 

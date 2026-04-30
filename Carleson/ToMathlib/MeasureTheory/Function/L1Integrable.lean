@@ -3,7 +3,7 @@ module
 public import Mathlib.MeasureTheory.Function.L1Space.Integrable
 public import Carleson.ToMathlib.BoundedCompactSupport
 
-@[expose] public section
+public section
 
 -- Upstreaming status: both lemmas are useful, but need moving or comparing with other lemmas
 -- Do upstream, but only after putting in that work.

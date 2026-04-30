@@ -3,7 +3,7 @@ module
 public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
 
-@[expose] public section
+public section
 
 open MeasureTheory
 

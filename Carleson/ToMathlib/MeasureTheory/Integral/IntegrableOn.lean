@@ -2,7 +2,7 @@ module
 
 public import Mathlib.MeasureTheory.Integral.IntegrableOn
 
-@[expose] public section
+public section
 
 -- Upstreaming note: Hypotheses and variables have been matched to corresponding Mathlib file
 -- `IntegrableAtFilter.congr` already in mathlib.

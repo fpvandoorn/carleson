@@ -2,7 +2,7 @@ module
 
 public import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 
-@[expose] public section
+public section
 
 open MeasureTheory
 

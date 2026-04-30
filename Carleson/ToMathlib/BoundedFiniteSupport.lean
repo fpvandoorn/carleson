@@ -2,7 +2,7 @@ module
 
 public import Mathlib.MeasureTheory.Function.L1Space.Integrable
 
-@[expose] public section
+public section
 
 /-
 This file defines BoundedFiniteSupport.

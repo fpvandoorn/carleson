@@ -12,7 +12,7 @@ module
 public import Carleson.ProofData
 public import Mathlib.Tactic.Rify
 
-@[expose] public section
+public section
 
 open ShortVariables
 open scoped NNReal ENNReal

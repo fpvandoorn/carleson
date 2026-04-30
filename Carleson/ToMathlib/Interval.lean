@@ -4,7 +4,7 @@ public import Mathlib.Data.Set.Lattice
 public import Mathlib.Order.SuccPred.Basic
 public import Mathlib.Tactic.Common
 
-@[expose] public section
+public section
 
 -- Upstreaming status: results seem useful in general, some should be generalised
 

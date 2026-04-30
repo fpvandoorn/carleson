@@ -2,7 +2,7 @@ module
 
 public import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 
-@[expose] public section
+public section
 
 noncomputable section
 

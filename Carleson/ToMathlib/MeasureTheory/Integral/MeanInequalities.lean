@@ -5,7 +5,7 @@ public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 public import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 
-@[expose] public section
+public section
 
 -- Upstreaming status: results seems useful; proofs may need polish
 -- Needs dependencies to be upstreamed first.

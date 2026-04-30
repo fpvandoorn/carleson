@@ -5,7 +5,7 @@ public import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
 -- https://github.com/leanprover-community/mathlib4/pull/37597
 public import Mathlib.Analysis.SumIntegralComparisons
 
-@[expose] public section
+public section
 
 open scoped Nat
 open Real MeasureTheory

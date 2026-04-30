@@ -2,7 +2,7 @@ module
 
 public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
-@[expose] public section
+public section
 
 -- Upstreaming status: ready to go
 -- Remaining lemmas: shift/scaling aliases, `lintegral_set_mono_fn`

@@ -3,7 +3,7 @@ module
 public import Mathlib.Order.ConditionallyCompleteLattice.Basic
 public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 
-@[expose] public section
+public section
 
 -- Upstreaming status: under active development by @ldiedering
 -- Wait for the file to stabilise first.

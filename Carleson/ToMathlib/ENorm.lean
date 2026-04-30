@@ -3,7 +3,7 @@ module
 public import Mathlib.MeasureTheory.Function.LpSeminorm.Monotonicity
 public import Carleson.ToMathlib.Data.ENNReal
 
-@[expose] public section
+public section
 
 -- Upstreaming status: can be upstreamed/being worked on
 -- Many remaining declarations require PRing a new enorm class to mathlib first,

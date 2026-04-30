@@ -5,7 +5,7 @@ public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 public import Mathlib.Analysis.Normed.Group.Basic
 public import Carleson.ToMathlib.Misc
 
-@[expose] public section -- for iSup_rpow
+public section -- for iSup_rpow
 
 -- Upstreaming status: lemmas seem useful (mostly minor modifications of mathlib),
 -- a lot is ready to go already

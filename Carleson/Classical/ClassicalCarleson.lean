@@ -3,7 +3,7 @@ module
 public import Carleson.Classical.Approximation
 public import Carleson.Classical.ControlApproximationEffect
 
-@[expose] public section
+public section
 
 /- This file contains the proof of the classical Carleson theorem from Section 11.1. -/
 

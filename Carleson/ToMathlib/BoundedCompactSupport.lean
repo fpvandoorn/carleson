@@ -33,7 +33,7 @@ Upstreaming status: should be upstreamed, but need to clarify design questions f
   (Discussion on Zulip)
 -/
 
-@[expose] public section
+public section
 
 open Bornology Function Set HasCompactSupport
 open scoped ENNReal

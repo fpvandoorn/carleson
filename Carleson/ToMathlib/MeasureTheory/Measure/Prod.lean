@@ -5,7 +5,7 @@ public import Mathlib.MeasureTheory.MeasurableSpace.Defs
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 
-@[expose] public section
+public section
 
 namespace MeasureTheory
 

@@ -2,7 +2,7 @@ module
 
 public import Mathlib.Analysis.Convolution
 
-@[expose] public section
+public section
 
 -- Upstreaming status: seems ready to go
 

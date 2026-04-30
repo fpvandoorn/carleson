@@ -10,7 +10,7 @@ public import Mathlib.Order.CompletePartialOrder
 
 /-! ## `ENNReal` manipulation lemmas -/
 
-@[expose] public section
+public section
 
 open Function Set Bornology
 open scoped NNReal
