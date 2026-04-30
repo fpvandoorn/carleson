@@ -306,18 +306,18 @@ The process of generalisation revealed that this abstraction is also useful on i
 % shorter version would start with
 % Experience in this project has demonstrated that working with $L^p$ functions as actual functions (using \lean{MemLp}) as opposed to their equivalence classes (\lean{MeasureTheory.Lp}) is much more ergonomic.
 Working with $L^p$ functions presents a design choice: should one work with members of $L^p$ space (i.e., equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}), or work with representatives (\lean{MemLp}) instead?
-The mathematical difference is very small: virtually all operations in the project respesct a.e.\ equality.
-Formalisation ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
+The mathematical difference is very small: virtually all operations in the project respect a.e.\ equality.
+Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
 (For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
-While the \lean{filter_upwards} tactic simplifies reducing results form almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
+While the \lean{filter_upwards} tactic simplifies reducing results from almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
 
 % is this true? is this useful to say? has this been observed already?
 Incidentally, many more lemmas in mathlib are stated for \lean{MemLp} than for \lean{Lp}: this underscores this choice.
 % Does this have other reasons, such as transitioning between different function properties?
 
-This relates well with the use of enorms (\ref{subsec:enorm}): \lean{Lp E p µ} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not posess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalisation to $\ennreal$ in the first place.
+This relates well with the use of enorms (\ref{subsec:enorm}): \lean{Lp E p µ} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
 
-This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalised as \lean{{f : X → Y} (hf : Continuous f)} instead of the bundled \lean{f : ContinuousMap X Y}.
+This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lean{{f : X → Y} (hf : Continuous f)} instead of the bundled \lean{f : ContinuousMap X Y}.
 
 \subsection{The \texttt{BoundedCompactSupport} structure}\label{subsec:bdd_comp_supp}
 \begin{itemize}
