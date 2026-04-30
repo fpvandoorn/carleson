@@ -117,7 +117,7 @@ lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStro
         have : ∀ᶠ (n : ℕ) in atTop, dist z (ns n).1 - (ns n).2 < 0 := by
           rw [mem_ball, ← sub_lt_zero] at hz; exact Tendsto.eventually_lt_const hz this
         filter_upwards [this]; simp
-      filter_upwards [hz2]; intro a ha; split_ifs; rfl
+      filter_upwards [hz2] with a ha; split_ifs; rfl
     · simp
   calc
   ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ
@@ -259,7 +259,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
         have : ∀ᶠ (n : ℕ) in atTop, dist y (z n).1 - (z n).2 < 0 := by
           rw [← sub_lt_zero] at hy2; exact Tendsto.eventually_lt_const hy2 this
         filter_upwards [this]; simp
-      filter_upwards [hz2]; intro a ha; split_ifs; rfl
+      filter_upwards [hz2] with a ha; split_ifs; rfl
     · have hz2 : ∀ᶠ n : ℕ in atTop, dist y (z n).1 > (z n).2 := by
         let dist_sub (a : X × ℝ) := dist y a.1 - a.2
         have : ContinuousOn dist_sub (univ ×ˢ Ioi 0) := by fun_prop
