@@ -1,7 +1,7 @@
 import Carleson.DoublingMeasure
 import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Order.LiminfLimsup
 import Mathlib.Order.CompleteLattice.Group
+import Mathlib.Order.LiminfLimsup
 
 open scoped NNReal
 open ENNReal hiding one_lt_two
@@ -670,17 +670,17 @@ lemma linearizedCarlesonOperator_le_liminf_linearizedCarlesonOperator_of_tendsto
   gcongr with R₁
   apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
   gcongr with R₂
-  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
-  gcongr with R₁_pos
-  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
-  gcongr with R₁_lt_R₂
+  simp only [iSup_le_iff]
+  intro R₁_pos R₁_lt_R₂
+  simp_rw [iSup_pos R₁_pos, iSup_pos R₁_lt_R₂]
   apply le_of_eq
   symm
   apply Filter.Tendsto.liminf_eq
   apply Filter.Tendsto.enorm
-  apply tendsto_carlesonOperatorIntegrand_of_dominated_convergence R₁_pos bound hF_meas h_bound _ h_lim
-  apply IntegrableOn.mono_set _ (Annulus.oo_subset_ball)
-  apply IntegrableOn.mono_set _ (ball_subset_closedBall)
+  apply tendsto_carlesonOperatorIntegrand_of_dominated_convergence R₁_pos bound hF_meas h_bound _
+    h_lim
+  apply IntegrableOn.mono_set _ Annulus.oo_subset_ball
+  apply IntegrableOn.mono_set _ ball_subset_closedBall
   apply bound_integrable.integrableOn_isCompact (isCompact_closedBall _ _)
 
 lemma carlesonOperator_le_liminf_carlesonOperator_of_tendsto

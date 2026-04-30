@@ -499,7 +499,7 @@ lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁
         gcongr; exact my.1.le
       · rw [U302, sub_add_cancel]; gcongr; exact my.2.le
     _ = ‖∑ s ∈ BR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
-      congr 1; refine integral_finset_sum _ fun s ms ↦ ?_
+      congr 1; refine integral_finsetSum _ fun s ms ↦ ?_
       simp_rw [mul_rotate _ (f _)]; refine ((integrable_Ks_x Dg1).bdd_mul (c := 1) ?_ ?_).restrict
       · rw [aestronglyMeasurable_iff_aemeasurable]
         exact (mf.mul ((Complex.measurable_ofReal.comp (measurable_Q₁ _))

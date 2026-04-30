@@ -298,7 +298,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       rw [lcast, rcast, ENNReal.coe_le_coe]
       exact Real.toNNReal_le_toNNReal (Nat.cast_le.mpr this)
     _ ≤ ∫⁻ x, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := setLIntegral_le_lintegral _ _
-    _ = ∑ q ∈ Q₁, ∫⁻ x, (𝓘 q : Set X).indicator 1 x := lintegral_finset_sum _ Q₁m
+    _ = ∑ q ∈ Q₁, ∫⁻ x, (𝓘 q : Set X).indicator 1 x := lintegral_finsetSum _ Q₁m
     _ = ∑ q ∈ Q₁, volume (𝓘 q : Set X) := by
       congr!; exact lintegral_indicator_one coeGrid_measurable
     _ ≤ _ := e529
@@ -445,7 +445,7 @@ lemma top_tiles_aux : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X
     _ = ∑ m with m ∈ M, ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
       congr! with m; exact (lintegral_indicator_one coeGrid_measurable).symm
     _ = ∫⁻ x, ∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x :=
-      (lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
+      (lintegral_finsetSum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
     _ = ∫⁻ x, ENNReal.ofReal (∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x) := by
       congr! 2 with x; rw [ENNReal.ofReal_sum_of_nonneg]
       · congr!; unfold indicator; split_ifs <;> simp
@@ -842,7 +842,7 @@ lemma third_exception_aux :
         ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) := by
       rw [mul_assoc]; refine mul_le_mul_right ?_ _
       simp_rw [← lintegral_indicator_one coeGrid_measurable,
-        ← lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
+        ← lintegral_finsetSum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
       have c1 : ∀ C : Set (𝔓 X),
           ∫⁻ x, ∑ u with u ∈ C, (𝓘 u : Set X).indicator 1 x =
           ∫⁻ x, stackSize C x := fun C ↦ by

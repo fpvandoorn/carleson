@@ -1,5 +1,5 @@
 import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
-import Carleson.ToMathlib.Analysis.MeanInequalitiesPow
+import Mathlib.Analysis.MeanInequalitiesPow
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 
 /-!
@@ -187,6 +187,7 @@ theorem eLorentzNorm_add_le (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
       rw [eLpNorm_lorentz_helper, one_mul, one_mul,
         ← eLorentzNorm'_eq' p_zero p_top, ← eLorentzNorm'_eq' p_zero p_top]
 
+open ENNReal
 
 /-- A constant for the inequality `‖f + g‖_{L^{p,q}} ≤ C * (‖f‖_{L^{p,q}} + ‖g‖_{L^{p,q}})`. It is equal to `1`
 if `p = 0` or `1 ≤ r ≤ p` and `2^(1/p) * LpAddConst r` else. -/

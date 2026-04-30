@@ -108,7 +108,7 @@ lemma stronglyMeasurable_approxOnCube (C : Set (Grid X)) (f : X → E') :
     fun _ _ ↦ stronglyMeasurable_const.indicator coeGrid_measurable
 
 lemma integrable_approxOnCube (C : Set (Grid X)) {f : X → E'} : Integrable (approxOnCube C f) := by
-  refine integrable_finset_sum _ (fun i hi ↦ ?_)
+  refine integrable_finsetSum _ (fun i hi ↦ ?_)
   constructor
   · exact (aestronglyMeasurable_indicator_iff coeGrid_measurable).mpr aestronglyMeasurable_const
   · simp_rw [hasFiniteIntegral_iff_enorm, enorm_indicator_eq_indicator_enorm]
@@ -349,7 +349,7 @@ irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ ((𝕔 + 4) * a ^ 3)
 -- Used in the proof of `exp_sub_one_le`, which is used to prove Lemma 7.1.4
 private lemma exp_Lipschitz : LipschitzWith 1 (fun (t : ℝ) ↦ exp (.I * t)) := by
   have mul_I : Differentiable ℝ fun (t : ℝ) ↦ I * t := Complex.ofRealCLM.differentiable.const_mul I
-  refine lipschitzWith_of_nnnorm_deriv_le mul_I.cexp (fun x ↦ ?_) 
+  refine lipschitzWith_of_nnnorm_deriv_le mul_I.cexp (fun x ↦ ?_)
   have key : HasDerivAt (fun t : ℝ ↦ cexp (I * ↑t)) (cexp (I * ↑x) * I) x := by
     simpa using (Complex.hasDerivAt_exp _).comp x
       (by simpa using Complex.ofRealCLM.hasDerivAt.const_mul I)

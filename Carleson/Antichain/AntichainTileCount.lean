@@ -1045,7 +1045,7 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
       conv_lhs =>
         enter [2, x, 2, p]; rw [mul_assoc, ← inter_indicator_mul, ← indicator_const_mul]
         simp only [Pi.one_apply, mul_one]
-      rw [lintegral_finset_sum _ fun _ _ ↦ Measurable.indicator (by simp) meg]
+      rw [lintegral_finsetSum _ fun _ _ ↦ Measurable.indicator (by simp) meg]
       conv_lhs => enter [2, p]; rw [lintegral_indicator meg, setLIntegral_const]
       rw [Finset.mul_sum]
     _ ≤ (2 : ℝ≥0∞) ^ (-(n * a) - n : ℝ) * (C6_3_4 a n * dens₁ 𝔄 *

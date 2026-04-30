@@ -183,7 +183,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       congr with n
       exact (intervalIntegral.integral_mul_const _ _).symm
     _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), ∑ n ∈ Icc (-(N : ℤ)) N, (fourier (-n)) y • f y * (fourier n) x := by
-      rw [← intervalIntegral.integral_finset_sum]
+      rw [← intervalIntegral.integral_finsetSum]
       exact fun _ _ ↦ IntervalIntegrable.mul_const
         (h.continuousOn_mul fourier_uniformContinuous.continuous.continuousOn) _
     _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * ∑ n ∈ Icc (-(N : ℤ)) N, (fourier (-n)) y * (fourier n) x := by

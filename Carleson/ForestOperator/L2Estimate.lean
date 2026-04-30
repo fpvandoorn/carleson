@@ -251,7 +251,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
     2 * linearizedNontangentialOperator Q θ K f x +
     2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x := by
   refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ ms₂ ↦ iSup_le fun ls₂ ↦ ?_
-  rw [← integral_finset_sum]; swap
+  rw [← integral_finsetSum]; swap
   · intro i hi; simp_rw [mul_comm]
     exact hf.integrable_mul (integrable_Ks_x (one_lt_realD X))
   simp_rw [← Finset.sum_mul]
@@ -483,7 +483,7 @@ lemma e728_rearrange (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport 
       unfold indicator; split_ifs <;> simp
     _ = ∑ I : Grid X, ∫ x, (I : Set X).indicator
         (fun _ ↦ conj (g x) * ∑ J ∈ 𝓙' t u (c I) (s I), (ijIntegral f I J).toReal) x := by
-      refine integral_finset_sum _ fun I _ ↦ ?_
+      refine integral_finsetSum _ fun I _ ↦ ?_
       change Integrable ((I : Set X).indicator _)
       rw [integrable_indicator_iff coeGrid_measurable]
       dsimp only
@@ -534,13 +534,13 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       rw [e728_rearrange hf hg]
     _ ≤ ∑ I : Grid X, ‖((volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal * ∫ x in I, conj (g x)) *
         ∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal‖ₑ := by
-      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe]
+      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe]
       apply nnnorm_sum_le
     _ ≤ ∑ I : Grid X, (volume (ball (c I) (16 * D ^ s I)))⁻¹ * ‖∫ x in I, conj (g x)‖ₑ *
         ∑ J ∈ 𝓙' t u (c I) (s I), ‖(D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal‖ₑ := by
       simp_rw [enorm_mul]; gcongr <;> rw [← ofReal_norm, norm_real, ofReal_norm]
       · exact enorm_toReal_le
-      · simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe]
+      · simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe]
         apply nnnorm_sum_le
     _ ≤ ∑ I : Grid X, ((volume (ball (c I) (16 * D ^ s I)))⁻¹ * ∫⁻ x in I, ‖g x‖ₑ) *
         ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ := by
@@ -576,7 +576,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
           (⨍⁻ x in ball (c I) (16 * D ^ s I), ‖g x‖ₑ ∂volume) *
             D ^ ((s J - s I) / (a : ℝ)) * ‖f y‖ₑ else 0 := by
-      congr with J; refine (lintegral_finset_sum' _ fun I _ ↦ ?_).symm
+      congr with J; refine (lintegral_finsetSum' _ fun I _ ↦ ?_).symm
       exact (nfs.restrict.const_mul _).ite (.const _) aemeasurable_const
     _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ∑ I : Grid X,
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
@@ -851,21 +851,17 @@ private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤
       simpa [eLpNorm, eLpNorm'] using ENNReal.lintegral_Lp_smul (m₁.add m₂) two_pos (C7_1_3 a)
     _ ≤ C7_1_3 a • (eLpNorm g₁ 2 μ + eLpNorm g₂ 2 μ) + eLpNorm g₃ 2 μ := by
       gcongr
-      apply mul_le_mul_of_nonneg_left
-      · exact eLpNorm_add_le m₁.aestronglyMeasurable m₂.aestronglyMeasurable one_le_two
-      · apply zero_le
+      exact eLpNorm_add_le m₁.aestronglyMeasurable m₂.aestronglyMeasurable one_le_two
     _ ≤ C7_1_3 a • ((CMB (defaultA a) 2) * eLpNorm aOC 2 μ + (C7_2_3 a) * eLpNorm aOC 2 μ) +
           (C7_2_2 a) * eLpNorm aOC 2 μ := by
       gcongr
-      · apply mul_le_mul_of_nonneg_left _ (zero_le _)
-        gcongr
-        · exact eLpNorm_MB_le boundedCompactSupport_approxOnCube
-        · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube
-          congr 1
-          apply eLpNorm_congr_norm_ae
-          filter_upwards with x
-          convert Complex.norm_real (aOC x) using 2;
-          exact approxOnCube_ofReal _ _ _
+      · exact eLpNorm_MB_le boundedCompactSupport_approxOnCube
+      · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube
+        congr 1
+        apply eLpNorm_congr_norm_ae
+        filter_upwards with x
+        convert Complex.norm_real (aOC x) using 2
+        exact approxOnCube_ofReal _ _ _
       · apply le_trans <| nontangential_operator_bound boundedCompactSupport_approxOnCube (𝒬 u)
         refine mul_le_mul_right (eLpNorm_mono (fun x ↦ ?_)) _
         apply le_of_le_of_eq norm_approxOnCube_le_approxOnCube_norm

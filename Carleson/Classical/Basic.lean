@@ -1,7 +1,7 @@
 import Carleson.Classical.Helper
 import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
+import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Tactic.Field
@@ -175,7 +175,7 @@ lemma fourier_uniformContinuous {n : ℤ} :
 
 lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (S_ N f) := by
   apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
-    (Continuous.continuousOn (continuous_finset_sum ..))
+    (Continuous.continuousOn (continuous_finsetSum ..))
   continuity
 
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (π / 2) (π + π / 2)) Real.cos := by

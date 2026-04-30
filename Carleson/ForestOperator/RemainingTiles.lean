@@ -399,7 +399,7 @@ lemma btp_expansion (hf : BoundedCompactSupport f) :
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, ∫⁻ x in (J : Set X), (fun _ ↦
         ‖⨍ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖‖ₑ ^ 2) x) ^ (2 : ℝ)⁻¹ := by
       congr 1; simp_rw [← lintegral_indicator coeGrid_measurable]
-      exact lintegral_finset_sum _ fun J mJ ↦ measurable_const.indicator coeGrid_measurable
+      exact lintegral_finsetSum _ fun J mJ ↦ measurable_const.indicator coeGrid_measurable
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, ∫⁻ x in (J : Set X),
         (⨍⁻ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖ₑ ∂volume) ^ 2) ^ (2 : ℝ)⁻¹ := by
       simp only [lintegral_const]; congr! with J mJ
@@ -470,7 +470,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ s J - 𝔰 p = k,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with J mJ
-      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
+      exact lintegral_finsetSum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
         hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         volume (J : Set X) ^ (-2 : ℝ)⁻¹ * ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
@@ -601,7 +601,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
-      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
+      exact lintegral_finsetSum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
         hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
@@ -638,7 +638,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
           ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
         (ball (c I) (8 * D ^ s I)).indicator 1 y) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
-      rw [← lintegral_finset_sum']; swap
+      rw [← lintegral_finsetSum']; swap
       · fun_prop (discharger := measurability)
       congr with y; rw [mul_comm, Finset.sum_mul]
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),

@@ -768,7 +768,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
     simp [hx h'x]
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ k n) f x‖ₑ := by
     simp only [Finset.sum_sigma']
-    rw [← lintegral_finset_sum']; swap
+    rw [← lintegral_finsetSum']; swap
     · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.sum_sigma', carlesonSum_𝔓pos_eq_sum]
@@ -777,7 +777,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
       + ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₁ k n j) f x‖ₑ) := by
     gcongr with n hn k hkn
     simp only [Finset.mem_Iic] at hkn
-    rw [← lintegral_finset_sum']; swap
+    rw [← lintegral_finsetSum']; swap
     · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     rw [← lintegral_add_left']; swap
     · exact h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
@@ -794,7 +794,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
       + ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
         ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₁ k n j) f x‖ₑ := by
     gcongr with n hn k hk
-    rw [← lintegral_finset_sum']; swap
+    rw [← lintegral_finsetSum']; swap
     · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     rw [carlesonSum_𝔓pos_inter_𝔏₀_eq_sum]
@@ -804,7 +804,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
       ((∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₂ k n j) f x‖ₑ)
         + ∑ l ≤ Z * (n + 1), ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x‖ₑ) := by
     gcongr with n hn k hk j hj
-    rw [← lintegral_finset_sum']; swap
+    rw [← lintegral_finsetSum']; swap
     · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     rw [← lintegral_add_left']; swap
     · exact h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
@@ -828,7 +828,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
           + ∑ l ≤ Z * (n + 1), ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₃ k n j l) f x‖ₑ) := by
     gcongr with n hn k hkn j hj
     simp only [Finset.mem_Iic] at hkn hj
-    rw [← lintegral_finset_sum']; swap
+    rw [← lintegral_finsetSum']; swap
     · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     rw [← lintegral_add_left']; swap
     · exact h'f.aestronglyMeasurable.carlesonSum.restrict.enorm

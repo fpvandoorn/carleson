@@ -48,7 +48,6 @@ import Carleson.Psi
 import Carleson.TileExistence
 import Carleson.TileStructure
 import Carleson.ToMathlib.Analysis.Convolution
-import Carleson.ToMathlib.Analysis.MeanInequalitiesPow
 import Carleson.ToMathlib.Annulus
 import Carleson.ToMathlib.BoundedCompactSupport
 import Carleson.ToMathlib.BoundedFiniteSupport
@@ -70,17 +69,14 @@ import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequal
 import Carleson.ToMathlib.MeasureTheory.Function.LorentzSpace.Basic
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.Indicator
 import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
-import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
-import Carleson.ToMathlib.MeasureTheory.Measure.ENNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
@@ -90,7 +86,6 @@ import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.Order.CompleteLattice.Basic
 import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
 import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
-import Carleson.ToMathlib.Order.LiminfLimsup
 import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
 import Carleson.ToMathlib.RealInterpolation.Main
@@ -98,7 +93,6 @@ import Carleson.ToMathlib.RealInterpolation.Minkowski
 import Carleson.ToMathlib.RealInterpolation.Misc
 import Carleson.ToMathlib.Rearrangement
 import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
-import Carleson.ToMathlib.Topology.Order.Basic
 import Carleson.ToMathlib.WeakType
 import Carleson.TwoSidedCarleson.Basic
 import Carleson.TwoSidedCarleson.MainTheorem

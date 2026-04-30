@@ -5,8 +5,6 @@ import Mathlib.Order.CompletePartialOrder
 
 -- Upstreaming status: lemmas seem useful; proofs may need some polish.
 -- At least three or four distinct PRs.
--- `ofReal_inv_le` and `ofReal_div_le` upstreamed in
--- https://github.com/leanprover-community/mathlib4/pull/37565
 
 /-! ## `ENNReal` manipulation lemmas -/
 
@@ -19,15 +17,6 @@ namespace ENNReal
 
 attribute [simp] ofReal_of_nonpos
 -- protect ENNReal.mul_le_mul_left
-
-theorem ofReal_inv_le {x : ℝ} : ENNReal.ofReal x⁻¹ ≤ (ENNReal.ofReal x)⁻¹ := by
-  obtain hx|hx := lt_or_ge 0 x <;> simp [ofReal_inv_of_pos, hx]
-
-theorem ofReal_div_le {x y : ℝ} (hy : 0 ≤ y) :
-    ENNReal.ofReal (x / y) ≤ ENNReal.ofReal x / ENNReal.ofReal y := by
-  simp_rw [div_eq_mul_inv, ofReal_mul' (inv_nonneg.2 hy)]
-  gcongr
-  exact ofReal_inv_le
 
 theorem coe_lt_iff_lt_toNNReal {a : ℝ≥0∞} {t : ℝ≥0} (ha : a ≠ ⊤) :
     t < a ↔ t < a.toNNReal := by

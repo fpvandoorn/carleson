@@ -983,7 +983,7 @@ lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu
     _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),
         ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset, ‖adjointCarleson p f x‖ₑ := by
       apply iSup₂_mono fun x mx ↦ ?_
-      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe, adjointCarlesonSum,
+      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe, adjointCarlesonSum,
         filter_mem_univ_eq_toFinset]
       exact nnnorm_sum_le ..
     _ = ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),
@@ -1974,7 +1974,7 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
           indicator_comp_of_zero (by simp), Function.comp_apply, ← sum_χ hu₁ hu₂ hu h2u x,
           NNReal.coe_sum, ofReal_sum, Finset.sum_mul]
       congr 1
-      refine integral_finset_sum _ fun J mJ ↦ ((BoundedCompactSupport.toComplex ?_).mul
+      refine integral_finsetSum _ fun J mJ ↦ ((BoundedCompactSupport.toComplex ?_).mul
         (hf₁.adjointCarlesonSum.mul hf₂.adjointCarlesonSum.conj)).integrable
       rw [mem_toFinset] at mJ; exact boundedCompactSupport_toReal_χ mJ
     _ ≤ ∑ J ∈ 𝓙₅ t u₁ u₂, ‖∫ x, χ t u₁ u₂ J x * (adjointCarlesonSum (t u₁) f₁ x *
