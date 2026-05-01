@@ -1074,6 +1074,8 @@ private lemma six_mul_czRadius_le_of_mem_Ω (hx : x ∈ (Ω f α)ᶜ) (hX : Gene
 irreducible_def C10_2_6 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a ^ 3 + 3 * a + 2) * c10_0_3 a
 
 variable (a) in
+/-- Auxiliary constant used in the proofs of `estimate_good`, `estimate_bad` and
+`distribution_czOperatorBound`. -/
 @[no_expose] def α' (α : ℝ≥0∞) : ℝ≥0∞ := c10_0_3 a * α
 
 private lemma α'_pos {α : ℝ≥0∞} (hα : 0 < α) : 0 < α' a α :=
@@ -1753,8 +1755,8 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
           rw [C10_2_9, ← add_assoc, c10_0_3, div_inv_eq_mul, C10_2_8]; gcongr
           rw [← zpow_natCast, Nat.cast_pow]
           gcongr
-          exact one_le_two
-          lia
+          · exact one_le_two
+          · lia
         _ ≤ 3 * 2 ^ (a ^ 3 + 19 * a + 4) := by
           rw [← pow_add, show 7 * a + (a ^ 3 + 12 * a + 4) = a ^ 3 + 19 * a + 4 by ring,
             show (3 : ℝ≥0) = 1 + 1 + 1 by norm_num]
