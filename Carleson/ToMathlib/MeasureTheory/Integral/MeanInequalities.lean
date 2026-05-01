@@ -1,7 +1,11 @@
-import Carleson.ToMathlib.Data.Real.ConjExponents
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
-import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
+module
+
+public import Carleson.ToMathlib.Data.Real.ConjExponents
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
+public import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
+
+public section
 
 -- Upstreaming status: results seems useful; proofs may need polish
 -- Needs dependencies to be upstreamed first.

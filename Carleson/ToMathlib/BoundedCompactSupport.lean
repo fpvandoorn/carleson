@@ -3,8 +3,10 @@ Copyright (c) 2024 Joris Roos. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joris Roos, Sébastien Gouëzel
 -/
-import Carleson.ToMathlib.BoundedFiniteSupport
-import Carleson.ToMathlib.Misc
+module
+
+public import Carleson.ToMathlib.BoundedFiniteSupport
+public import Carleson.ToMathlib.Misc
 
 /-!
 
@@ -30,6 +32,8 @@ Upstreaming status: should be upstreamed, but need to clarify design questions f
   Carleson/ToMathlib to use that one class.
   (Discussion on Zulip)
 -/
+
+public section
 
 open Bornology Function Set HasCompactSupport
 open scoped ENNReal

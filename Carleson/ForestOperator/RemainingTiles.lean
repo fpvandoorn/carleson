@@ -1,5 +1,9 @@
-import Carleson.Calculations
-import Carleson.ForestOperator.AlmostOrthogonality
+module
+
+public import Carleson.Calculations
+public import Carleson.ForestOperator.AlmostOrthogonality
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}

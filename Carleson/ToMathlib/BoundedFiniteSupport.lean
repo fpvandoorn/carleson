@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Function.L1Space.Integrable
+module
+
+public import Mathlib.MeasureTheory.Function.L1Space.Integrable
+
+public section
 
 /-
 This file defines BoundedFiniteSupport.

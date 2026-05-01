@@ -1,5 +1,9 @@
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
+module
+
+public import Carleson.ToMathlib.Misc
+public import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
+
+public section
 
 open MeasureTheory
 

@@ -1,6 +1,10 @@
-import Mathlib.Analysis.Normed.Field.Basic
-import Mathlib.Topology.EMetricSpace.Lipschitz
-import Carleson.Defs
+module
+
+public import Mathlib.Analysis.Normed.Field.Basic
+public import Mathlib.Topology.EMetricSpace.Lipschitz
+public import Carleson.Defs
+
+@[expose] public section
 
 open Metric Function ENNReal
 open scoped NNReal

@@ -1,5 +1,7 @@
-import Carleson.Antichain.AntichainTileCount
-import Carleson.Antichain.TileCorrelation
+module
+
+public import Carleson.Antichain.AntichainTileCount
+public import Carleson.Antichain.TileCorrelation
 
 /-!
 # 6. Proof of the Antichain Operator Proposition
@@ -11,6 +13,8 @@ versions of the latter are provided.
 - `dens1_antichain` : Lemma 6.1.4.
 - `antichain_operator`: Proposition 2.0.3.
 -/
+
+@[expose] public section
 noncomputable section
 
 open scoped ShortVariables ComplexConjugate GridStructure

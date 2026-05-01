@@ -1,5 +1,9 @@
-import Carleson.Discrete.MainTheorem
-import Carleson.TileExistence
+module
+
+public import Carleson.Discrete.MainTheorem
+public import Carleson.TileExistence
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal

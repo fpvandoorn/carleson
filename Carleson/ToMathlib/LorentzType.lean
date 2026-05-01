@@ -1,14 +1,18 @@
-import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
-import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
-import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
-import Carleson.Defs
-import Carleson.ToMathlib.Data.ENNReal
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
-import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
-import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
-import Carleson.ToMathlib.Rearrangement
-import Carleson.ToMathlib.RealInterpolation.Misc
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
+public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
+public import Carleson.Defs
+public import Carleson.ToMathlib.Data.ENNReal
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
+public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
+public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
+public import Carleson.ToMathlib.Rearrangement
+public import Carleson.ToMathlib.RealInterpolation.Misc
+
+@[expose] public section
 
 -- Upstreaming status: this file is actively being worked on; not ready yet
 

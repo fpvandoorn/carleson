@@ -1,12 +1,16 @@
-import Mathlib.Analysis.Normed.Group.Bounded
-import Mathlib.Analysis.Normed.Group.Uniform
-import Mathlib.Analysis.Normed.Ring.Basic
-import Mathlib.Order.CompletePartialOrder
+module
+
+public import Mathlib.Analysis.Normed.Group.Bounded
+public import Mathlib.Analysis.Normed.Group.Uniform
+public import Mathlib.Analysis.Normed.Ring.Basic
+public import Mathlib.Order.CompletePartialOrder
 
 -- Upstreaming status: lemmas seem useful; proofs may need some polish.
 -- At least three or four distinct PRs.
 
 /-! ## `ENNReal` manipulation lemmas -/
+
+public section
 
 open Function Set Bornology
 open scoped NNReal

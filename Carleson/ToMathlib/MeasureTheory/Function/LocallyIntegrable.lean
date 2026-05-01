@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Function.LocallyIntegrable
-import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
+module
+
+public import Mathlib.MeasureTheory.Function.LocallyIntegrable
+public import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
+
+public section
 
 -- Upstreaming status: easy and useful; good to go
 

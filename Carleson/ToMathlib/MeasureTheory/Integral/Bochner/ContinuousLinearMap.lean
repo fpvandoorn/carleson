@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+module
+
+public import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+
+public section
 
 open MeasureTheory
 

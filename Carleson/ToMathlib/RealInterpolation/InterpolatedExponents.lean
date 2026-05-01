@@ -1,4 +1,6 @@
-import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 
 /-!
 # Results about working with (interpolated) exponents
@@ -15,6 +17,8 @@ Upstreaming status: mixed; some requires more design discussions
   If we prefer a proof about Lorentz spaces, using a different approach,
   it may not be worth upstreaming.
 -/
+
+@[expose] public section
 noncomputable section
 
 open ENNReal Real Set

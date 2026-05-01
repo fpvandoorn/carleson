@@ -1,5 +1,9 @@
-import Carleson.MetricCarleson.Basic
-import Carleson.MetricCarleson.Truncation
+module
+
+public import Carleson.MetricCarleson.Basic
+public import Carleson.MetricCarleson.Truncation
+
+@[expose] public section
 
 open scoped NNReal
 open MeasureTheory Set

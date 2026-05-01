@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+module
+
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+
+public section
 
 /- This file contains helper lemmas. Either they should be replaced by a mathlib version if there is
    one or they might be candidates to go there, possibly in a generalized form. -/
