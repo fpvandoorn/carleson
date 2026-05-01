@@ -157,7 +157,7 @@ private lemma nontangential_integral_bound₁
     ‖∫ y in Annulus.oc x' R₁ R₂, K x' y * f y‖ₑ ≤
     2 * linearizedNontangentialOperator Q θ K f x := by
   rcases le_or_gt R₂ R₁ with lR₂ | lR₂
-  · rw [Annulus.oc_eq_empty lR₂, setIntegral_empty, enorm_zero]; exact zero_le _
+  · rw [Annulus.oc_eq_empty lR₂, setIntegral_empty, enorm_zero]; exact zero_le
   have pR₁ : 0 < R₁ := dist_nonneg.trans_lt hR₁
   have pR₂ : 0 < R₂ := pR₁.trans lR₂
   choose R₃ hR₃ using exists_between hR₂
@@ -287,7 +287,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
         ∫⁻ y in Annulus.cc x' (D ^ (s₂ - 1) / 4) (D ^ s₂ / 2), ‖K x' y * f y‖ₑ) := by
       have norm_K'_f_le : ∀ (y : X), ‖K' (s I) s₂ x' y * f y‖ₑ ≤ ‖K x' y * f y‖ₑ := by
         simp_rw [enorm_mul]
-        exact fun y ↦ mul_le_mul_of_nonneg_right (K'.enorm_le_enorm_K _ _ _ _) (zero_le _)
+        exact fun y ↦ mul_le_mul_of_nonneg_right (K'.enorm_le_enorm_K _ _ _ _) zero_le
       gcongr
       · refine (congrArg (‖·‖ₑ) <| setIntegral_congr_fun Annulus.measurableSet_oc fun y hy ↦ ?_).le
         apply mul_eq_mul_right_iff.mpr ∘ Or.inl ∘ K'.eq_K (s I) s₂ x' y
@@ -629,7 +629,8 @@ lemma boundary_geometric_series :
       obtain ⟨k, h⟩ := kh
       set J' := (Grid.exists_supercube k h).choose
       have pJ' : s J' = k ∧ J ≤ J' := (Grid.exists_supercube k h).choose_spec
-      by_cases hs : k = s I; swap; · rw [if_neg (fun h => hs h.2)]; exact zero_le _
+      by_cases hs : k = s I; swap;
+      · rw [if_neg (fun h ↦ hs h.2)]; exact zero_le
       suffices (J : Set X) ⊆ ball (c I) (16 * D ^ s I) → I ∈ kissing J' by
         split_ifs; exacts [by simp_all, by tauto, by positivity, by rfl]
       intro mJ; simp_rw [kissing, Finset.mem_filter_univ]

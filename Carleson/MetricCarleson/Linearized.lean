@@ -24,7 +24,7 @@ lemma monotone_lcoConvergent : Monotone (lcoConvergent K Q f) := fun i j hl x �
   calc
     _ ≤ ‖T_R K Q R₁ R₂ (2 ^ j) f x‖ₑ := by
       simp_rw [T_R, enorm_indicator_eq_indicator_enorm]
-      exact indicator_le_indicator_of_subset (Metric.ball_subset_ball ub) (zero_le _) _
+      exact indicator_le_indicator_of_subset (Metric.ball_subset_ball ub) zero_le _
     _ ≤ ⨆ R₂ ∈ Ioo R₁ (2 ^ j), ‖T_R K Q R₁ R₂ (2 ^ j) f x‖ₑ := by apply le_biSup _ mR₂'
     _ ≤ _ := by apply le_biSup _ mR₁'
 

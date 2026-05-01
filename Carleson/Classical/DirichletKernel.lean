@@ -175,7 +175,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       rw [partialFourierSum]
     _ = ∑ n ∈ Icc (-(N : ℤ)) N, (1 / (2 * π - 0)) • ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
       congr 1 with n
-      rw [fourierCoeffOn_eq_integral, smul_mul_assoc]; rfl
+      rw [fourierCoeffOn_eq_integral, smul_mul_assoc]
     _ = (1 / (2 * π)) * ∑ n ∈ Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
       rw [show ∑ n ∈ Icc (-(N : ℤ)) ↑N, (1 / (2 * π - 0) : ℝ) • ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n)) ↑y • f y) * (fourier n) ↑x) = (1 / (2 * π - 0) : ℝ) • ∑ n ∈ Icc (-(N : ℤ)) ↑N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n)) ↑y • f y) * (fourier n) ↑x) from (Finset.smul_sum ..).symm]
       rw_mod_cast [real_smul, sub_zero]

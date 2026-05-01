@@ -734,7 +734,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos hpq.1.ne' p_ne_top)]
         exact hpq.1.ne'
       -- Thus, the left hand side vanishes and conclusion is trivially true.
-      refine le_of_eq_of_le ?_ (zero_le _)
+      refine le_of_eq_of_le ?_ zero_le
       rw [rpow_eq_zero_iff_of_pos]
       · rw [eLpNorm_eq_zero_iff _ hq'.ne']
         · -- TODO: missing API lemma

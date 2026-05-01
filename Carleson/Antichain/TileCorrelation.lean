@@ -658,7 +658,7 @@ lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
     C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) /
     volume (𝓘 p : Set X) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
   suffices ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ = 0 by
-    rw [this]; exact zero_le _
+    rw [this]; exact zero_le
   simp only [inter_nonempty, not_exists, not_and_or] at hinter
   rw [enorm_eq_zero]
   apply integral_eq_zero_of_ae (Eq.eventuallyEq _)

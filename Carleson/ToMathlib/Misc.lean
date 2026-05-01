@@ -4,7 +4,8 @@ import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 import Mathlib.MeasureTheory.Integral.Average
 import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 
-/-
+/-! # Miscellaneous additions to mathlib, to be sorted
+
 * This file can import all ToMathlib files.
 * If adding more than a few results, please put them in a more appropriate file in ToMathlib.
 
@@ -253,7 +254,7 @@ theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
     (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) : eLpNormEssSup f μ ≤ C := essSup_le_of_ae_le C hfC
 
 theorem restrict_absolutelyContinuous : μ.restrict s ≪ μ :=
-  fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm <| zero_le _
+  fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm zero_le
 
 section eLpNorm
 

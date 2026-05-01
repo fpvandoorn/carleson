@@ -1028,7 +1028,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
           simp only [ps, Finset.mem_filter] at hp hp'
           exact (indicator_eq_zero_iff_notMem _).mpr fun xEp' ↦
             disjoint_left.mp (disjoint_Ω p'_ne_p (hp'.2.2.trans hp.2.2.symm)) xEp'.2.1 xEp.2.1
-      · suffices ∑ p ∈ ps I, (E p).indicator (1 : X → ℝ≥0∞) x = 0 by rw [this]; exact zero_le _
+      · suffices ∑ p ∈ ps I, (E p).indicator (1 : X → ℝ≥0∞) x = 0 by rw [this]; exact zero_le
         exact Finset.sum_eq_zero (fun p hp ↦ indicator_of_notMem (ex p hp) _)
     _ = ∑ I : Grid X, ((I : Set X).indicator 1 x') *
           ((D2_1_3 a * defaultA a ^ 5 * 2 ^ (3 / a : ℝ)) /

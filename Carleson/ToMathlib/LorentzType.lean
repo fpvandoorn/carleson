@@ -386,7 +386,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
       have := hf.2.ne
       exact ENNReal.div_lt_top (by finiteness) (by simpa)
     rcases ν.exists_subset_measure_lt_top hG' this with ⟨H, hH, H_subset_G', H_gt, H_finite⟩
-    have H_pos := (zero_le _).trans_lt H_gt
+    have H_pos := zero_le.trans_lt H_gt
     apply (hT f hf H hH).2.not_gt
     calc _
       _ < l * ν H := by

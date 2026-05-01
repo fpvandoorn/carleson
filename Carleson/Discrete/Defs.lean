@@ -308,7 +308,7 @@ lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
   intro x mx
   simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at mx
-  replace mx := (zero_le _).trans_lt mx
+  replace mx := zero_le.trans_lt mx
   rw [Finset.card_pos] at mx
   obtain ⟨p, hp⟩ := mx
   simp_rw [Finset.mem_filter_univ, 𝔐, mem_setOf, maximal_iff, aux𝔐, mem_setOf, TilesAt,

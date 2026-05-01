@@ -134,7 +134,7 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
     exact ge_of_tendsto' δ'conv this
   -- Use results to prove the statement.
   rw [ae_restrict_iff' measurableSet_Icc]
-  apply le_antisymm _ (zero_le _)
+  apply le_antisymm _ zero_le
   apply le_trans' Emeasure
   apply measure_mono
   intro x hx

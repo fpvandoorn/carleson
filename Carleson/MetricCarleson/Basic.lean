@@ -403,7 +403,7 @@ lemma edist_carlesonOperatorIntegrand_le
     C3_0_1 a R₁ R₂ * edist_{x, dist o x + R₂} θ ϑ := by
   rcases le_or_gt R₂ R₁ with hR₂ | hR₂
   · iterate 2 rw [carlesonOperatorIntegrand, Annulus.oo_eq_empty (by simp [hR₂]), setIntegral_empty]
-    rw [edist_self]; exact zero_le _
+    rw [edist_self]; exact zero_le
   calc
     _ = ‖∫ y in Annulus.oo x R₁ R₂, K x y * f y * (exp (I * θ y) - exp (I * ϑ y))‖ₑ := by
       rw [edist_eq_enorm_sub, carlesonOperatorIntegrand, carlesonOperatorIntegrand, ← integral_sub]
@@ -472,7 +472,7 @@ lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖
     ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ ≤ C3_0_1 a R₁ R₂ := by
   rcases le_or_gt R₂ R₁ with hR₂ | hR₂
   · unfold carlesonOperatorIntegrand; rw [Annulus.oo_eq_empty (by simp [hR₂])]
-    rw [setIntegral_empty, enorm_zero]; exact zero_le _
+    rw [setIntegral_empty, enorm_zero]; exact zero_le
   calc
     _ ≤ ∫⁻ y in Annulus.oo x R₁ R₂, ‖K x y‖ₑ * ‖f y‖ₑ * ‖exp (I * θ y)‖ₑ := by
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _

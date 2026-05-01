@@ -308,8 +308,8 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
         simp_rw [Finset.mem_filter_univ, indicator_apply_eq_zero,
           Pi.one_apply, one_ne_zero] at h ⊢
         exact h)]
-      rw [Finset.sum_eq_zero (fun _ _ => rfl)]
-      exact zero_le _
+      rw [Finset.sum_eq_zero (fun _ _ ↦ rfl)]
+      exact zero_le
 
 /-- Part of Lemma 7.7.1 -/
 @[simp]
