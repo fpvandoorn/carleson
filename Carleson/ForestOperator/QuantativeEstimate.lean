@@ -244,16 +244,16 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
       rw [← pow_mul, mul_comm a, add_mul, mul_assoc, show a ^ 2 * a = a ^ 3 by rfl]
   by_cases hJB : (J : Set X) ⊆ ball (𝔠 p) (4 * D ^ (𝔰 p))
   · refine local_dens2_tree_bound_aux' hpu hJB <| (measure_mono ?_).trans volume_le
-    exact hp.trans <| ball_subset_ball (by gcongr; norm_num)
+    exact hp.trans <| by gcongr; norm_num
   have hcJ' : dist (c J') (𝔠 p) < 100 * (D : ℝ) ^ (s J' + 1) := by
     refine mem_ball'.mp <| hp <| ball_subset_Grid <| mem_ball.mpr ?_
     rw [𝔠, c, dist_self]
     positivity
   have hJp : (J : Set X) ⊆ ball (𝔠 p) (104 * D ^ (s J' + 1)) := by
     rw [show (104 : ℝ) = 4 + 100 by norm_num, add_mul]
-    refine (hJJ'.1.trans Grid_subset_ball).trans <| ball_subset_ball' <| add_le_add ?_ hcJ'.le
-    exact mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ (one_le_realD _) (Int.le.intro 1 rfl))
-      four_pos.le
+    refine (hJJ'.1.trans Grid_subset_ball).trans <| ball_subset_ball' ?_
+    gcongr
+    exacts [one_le_realD _, Int.le.intro 1 rfl, hcJ'.le]
   apply local_dens2_tree_bound_aux hpu (le_of_not_ge (hJB <| hJp.trans <| ball_subset_ball ·)) hJp
   have B_subset : ball (𝔠 p) (104 * D ^ (s J' + 1)) ⊆ ball (c J') (204 * D ^ (s J' + 1)) := by
     apply ball_subset_ball'

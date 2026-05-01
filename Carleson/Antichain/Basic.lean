@@ -134,7 +134,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
   have ha : 6 * a + (𝕔 + 1) * a ^ 3 = (5 * a + (𝕔 + 1) * a ^ 3) + a := by lia
   simp only [div_eq_mul_inv, ge_iff_le]
   rw [ha, pow_add _ (5 * a + (𝕔 + 1) * a ^ 3) a, mul_assoc]
-  apply mul_le_mul_of_nonneg_left _ (zero_le _)
+  gcongr
   suffices volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) ≤ 2 ^ a * volume (ball x (8 * D ^ 𝔰 p.1)) by
     grw [← inv_inv (2 ^ a), ← ENNReal.mul_inv (.inl (by simp)) (.inl (by finiteness)),
       ENNReal.inv_le_inv, ← ENNReal.div_eq_inv_mul, ENNReal.div_le_of_le_mul' this]

@@ -67,8 +67,10 @@ lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonem
   push Not
   have ⟨p, hp⟩ := h𝔖
   refine ⟨p, hp, subset_topCube.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩
-  apply mul_le_mul (by norm_num) (c0 := by positivity) (b0 := by norm_num)
-  exact zpow_le_zpow_right₀ (one_le_realD _) (scale_mem_Icc.2.trans (Int.le.intro 1 rfl))
+  gcongr
+  · norm_num
+  · exact one_le_realD _
+  · exact scale_mem_Icc.2.trans (Int.le.intro 1 rfl)
 
 /-- The definition of `𝓛₀(𝔖), defined above Lemma 7.1.2 -/
 def 𝓛₀ (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
@@ -681,8 +683,8 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
   have d5 : dist_(p') (𝒬 u) (Q x) < 5 := dist_lt_5 hu mp' Qxp'
   have d5' : dist_{x, D ^ s₂} (𝒬 u) (Q x) < 5 * defaultA a ^ 5 := by
     have i1 : dist x (𝔠 p) < 4 * D ^ 𝔰 p' :=
-      (mem_ball.mp (Grid_subset_ball xp)).trans_le <|
-        mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ (one_le_realD _) s_ineq) zero_le_four
+      (mem_ball.mp (Grid_subset_ball xp)).trans_le <| by
+        gcongr; exacts [one_le_realD _, s_ineq]
     have i2 : dist (𝔠 p') (𝔠 p) < 4 * D ^ 𝔰 p' :=
       mem_ball'.mp (ball_subset_Grid.trans (Grid.le_def.mp pinc).1 |>.trans Grid_subset_ball <|
         mem_ball_self (by unfold defaultD; positivity))

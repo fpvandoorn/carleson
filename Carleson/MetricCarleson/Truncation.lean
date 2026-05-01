@@ -246,8 +246,8 @@ lemma linearized_truncation
       refine lintegral_iSup (fun n ↦ ?_) (fun i j hl ↦ ?_)
       · exact (measurable_T_lin mf mσ₁ mσ₂ rσ₁ rσ₂).enorm.indicator
           (mG.diff (slice CP bG mG (n + 1)).mG)
-      · exact indicator_le_indicator_of_subset (sdiff_le_sdiff_left (antitone_slice_G (by lia)))
-          (zero_le _)
+      · gcongr
+        exact antitone_slice_G (by lia)
     _ ≤ C2_0_1 a q * (2 ^ 2 / (q - 1) : ℝ≥0) * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
       refine iSup_le fun n ↦ slice_integral_bound_sum.trans ?_
       gcongr; exact sum_le_four_div_q_sub_one hq hqq'

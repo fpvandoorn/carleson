@@ -694,7 +694,8 @@ lemma QQQQ_bound_real {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u)
         rw [← zpow_natCast]; congr; exact (Int.toNat_of_nonneg knn).symm
       rw [this, this]; exact le_cdist_iterate (by positivity) ..
     _ ≤ 2 ^ (-k) * dist_{x, 16 * D ^ 𝔰 p} (Q y) (𝒬 u) := by
-      refine mul_le_mul_of_nonneg_left (cdist_mono (ball_subset_ball ?_)) (by positivity)
+      gcongr
+      refine cdist_mono (ball_subset_ball ?_)
       calc
         _ ≤ ((2 : ℝ) ^ a) ^ (Real.logb 2 (10 * D ^ 𝔰 p / dist x x') / a) *
             (16 / 10 * dist x x') := by

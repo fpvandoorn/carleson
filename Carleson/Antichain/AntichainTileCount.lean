@@ -900,9 +900,9 @@ lemma global_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· �
   calc ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset, volume (E p ∩ G ∩ ↑L) +
           ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G)
     _ ≤ ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, ↑(C6_3_4' a N) * dens₁ 𝔄 * volume (L : Set X) +
-        2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) :=
-        add_le_add (Finset.sum_le_sum (fun L (hL : L ∈ (𝓛' 𝔄 ϑ N).toFinset) ↦
-          global_antichain_density_aux (mem_toFinset.mp hL) h𝔄)) (𝔄_min_sum_le _ _ _)
+        2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
+        gcongr with L hL
+        exacts [global_antichain_density_aux (mem_toFinset.mp hL) h𝔄, 𝔄_min_sum_le ..]
     _ = ↑(C6_3_4'  a N) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) +
         2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
       rw [volume_union_I_p_eq_sum 𝔄 ϑ N, Finset.mul_sum]

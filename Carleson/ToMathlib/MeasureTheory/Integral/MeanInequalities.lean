@@ -253,7 +253,7 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
     _ ≤ ENNReal.ofReal c * eLpNorm (F 0) (P 0) μ *
           (eLpNorm (F 1) (P 1) μ * eLpNorm (F 2) (P 2) μ) := by
       rw [lintegral_const_mul' _ _ ofReal_ne_top, mul_assoc]
-      refine mul_le_mul_of_nonneg_left ?_ (zero_le (ENNReal.ofReal c))
+      gcongr
       -- Check that the assumptions of `lintegral_prod_norm_pow_le'` apply
       have ae_meas_g := hg x
       have := (hf.pow_const p).mul (ae_meas_g.pow_const q)
