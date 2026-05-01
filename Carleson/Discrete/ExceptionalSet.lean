@@ -16,6 +16,7 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 variable (X) in
 /-- The constant in Lemma 5.2.9, with value `D ^ (1 - κ * Z * (n + 1))` -/
+@[nolint unusedArguments]
 def C5_2_9 [ProofData a q K σ₁ σ₂ F G] (n : ℕ) : ℝ≥0 := D ^ (1 - κ * Z * (n + 1))
 
 /-- A rearrangement for Lemma 5.2.9 that does not require the tile structure. -/
@@ -513,13 +514,14 @@ lemma top_tiles : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) �
 
 end TopTiles
 
+/-! Definition of function `𝔘(m)` used in the proof of Lemma 5.2.8, and some properties of `𝔘(m)` -/
 section 𝔘
--- Definition of function `𝔘(m)` used in the proof of Lemma 5.2.8, and some properties of `𝔘(m)`
 
 open Finset
 
 variable (k) (n) (j) (x)
 open scoped Classical in
+/-- The function `𝔘(m)` used in the proof of Lemma 5.2.8 -/
 def 𝔘 (m : 𝔓 X) := (𝔘₁ k n j).toFinset.filter (fun u ↦ x ∈ 𝓘 u ∧ smul 100 u ≤ smul 1 m)
 
 -- Ball that covers the image of `𝒬`. Radius chosen for convenience with `BallsCoverBalls.pow_mul`
