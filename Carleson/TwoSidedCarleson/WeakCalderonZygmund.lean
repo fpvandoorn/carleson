@@ -1074,7 +1074,7 @@ private lemma six_mul_czRadius_le_of_mem_Ω (hx : x ∈ (Ω f α)ᶜ) (hX : Gene
 irreducible_def C10_2_6 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a ^ 3 + 3 * a + 2) * c10_0_3 a
 
 variable (a) in
-@[no_expose] def α' (α : ℝ≥0∞) : ℝ≥0∞ := c10_0_3 a * α
+@[no_expose] private def α' (α : ℝ≥0∞) : ℝ≥0∞ := c10_0_3 a * α
 
 private lemma α'_pos {α : ℝ≥0∞} (hα : 0 < α) : 0 < α' a α :=
   ENNReal.mul_pos (by simp [c10_0_3]) hα.ne'
@@ -1088,7 +1088,7 @@ private lemma div_α'_eq {p : ℝ≥0∞} : p / α' a α = p / c10_0_3 a / α :=
   · left; rw [c10_0_3]; finiteness
 
 /-- Lemma 10.2.6 -/
-lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
+private lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     distribution (czOperator K r (czApproximation f (α' a α))) (α / 2) volume ≤
     C10_2_6 a / α * eLpNorm f 1 volume := by
@@ -1145,7 +1145,7 @@ private abbrev czOperatorBoundSummand (hX : GeneralCase f (α' a α)) (i : ℕ) 
     volume (czBall3 hX i)) / volume (ball x (dist x (czCenter hX i)))
 
 /-- The function `F` defined in Lemma 10.2.7. -/
-def czOperatorBound (hX : GeneralCase f (α' a α)) (x : X) : ℝ≥0∞ :=
+private def czOperatorBound (hX : GeneralCase f (α' a α)) (x : X) : ℝ≥0∞ :=
   C10_2_7 a * α * ∑' i, ((3 * czRadius hX i).toNNReal / nndist x (czCenter hX i)) ^ (a : ℝ)⁻¹ *
     volume (czBall3 hX i) / volume (ball x (dist x (czCenter hX i)))
 
@@ -1494,7 +1494,7 @@ private lemma czOperator_czRemainder (hf : BoundedFiniteSupport f) (hr : 0 < r) 
 
 /-- Lemma 10.2.7.
 Note that `hx` implies `hX`, but we keep the superfluous hypothesis to shorten the statement. -/
-lemma estimate_bad_partial (hf : BoundedFiniteSupport f) (hr : 0 < r)
+private lemma estimate_bad_partial (hf : BoundedFiniteSupport f) (hr : 0 < r)
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) :
     ‖czOperator K r (czRemainder f (α' a α)) x‖ₑ ≤ 3 * czOperatorBound hX x + α / 8 := calc
@@ -1507,7 +1507,7 @@ lemma estimate_bad_partial (hf : BoundedFiniteSupport f) (hr : 0 < r)
   _ ≤ _ + _ := add_le_add (tsum_𝒥₁ hf (pos_of_gt hα) hX hx) (tsum_𝒥₂ hf (pos_of_gt hα) hx hX)
   _ = 3 * czOperatorBound hX x + α / 8 := by ring
 
-lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f (α' a α)) {i : ℕ} :
+private lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f (α' a α)) {i : ℕ} :
     ∫⁻ x in (Ω f (α' a α))ᶜ, ((3 * czRadius hX i).toNNReal / edist x (czCenter hX i)) ^ (a : ℝ)⁻¹ /
       volume (ball x (dist x (czCenter hX i))) ≤ 2 ^ (3 * a) := by
   set r := 3 * czRadius hX i
@@ -1587,10 +1587,10 @@ lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f (α' a α)) {i
     _ = _ := by norm_cast; ring
 
 /-- The constant used in `distribution_czOperatorBound`. -/
-irreducible_def C10_2_8 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 11 * a + 4)
+@[no_expose] def C10_2_8 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 11 * a + 4)
 
 /-- Lemma 10.2.8 -/
-lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
+private lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) (hX : GeneralCase f (α' a α)) :
     volume ((Ω f (α' a α))ᶜ ∩ czOperatorBound hX ⁻¹' Ioi (α / 8)) ≤
     C10_2_8 a / α * eLpNorm f 1 volume := by
@@ -1642,10 +1642,10 @@ lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
       congr 4; ring
 
 /-- The constant used in `estimate_bad`. -/
-irreducible_def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (7 * a) / c10_0_3 a + C10_2_8 a
+@[no_expose] def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (7 * a) / c10_0_3 a + C10_2_8 a
 
 /-- Lemma 10.2.9 -/
-lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
+private lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
     (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
     distribution (czOperator K r (czRemainder f (α' a α))) (α / 2) volume ≤
     C10_2_9 a / α * eLpNorm f 1 volume := by
@@ -1753,8 +1753,8 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
           rw [C10_2_9, ← add_assoc, c10_0_3, div_inv_eq_mul, C10_2_8]; gcongr
           rw [← zpow_natCast, Nat.cast_pow]
           gcongr
-          exact one_le_two
-          lia
+          · exact one_le_two
+          · lia
         _ ≤ 3 * 2 ^ (a ^ 3 + 19 * a + 4) := by
           rw [← pow_add, show 7 * a + (a ^ 3 + 12 * a + 4) = a ^ 3 + 19 * a + 4 by ring,
             show (3 : ℝ≥0) = 1 + 1 + 1 by norm_num]
