@@ -311,12 +311,56 @@ As a side effect of the formalization project, once the main result had been for
 \subsection{The \texttt{ProofData} pattern}\label{subsec:proof_data}
 
 \subsection{Working with real numbers}\label{subsec:real}
-\begin{itemize}
-	\item \texttt{Real} vs.\ \texttt{NNReal} vs.\ \texttt{ENNReal}:
-	\begin{itemize}
-		\item Tactic support issues (\texttt{norm\_num}, \texttt{field\_simp}, \texttt{ring}).
-	\end{itemize}
-\end{itemize}
+
+The project differentiated between three different types of (extended) real numbers, $\real$, $\nnreal$ and $\ennreal$,
+which gave necessary benefits but also created difficulties in the formalization
+and tension in design decisions.
+Indeed, in which of the three types to put constants,
+subsets, integrands, and perform computations?
+
+A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type-theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
+The \texttt{norm\_cast} tactic can be really useful to normalize such casts.
+
+However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed,
+\texttt{
+Real.toNNReal (-2) * Real.toNNReal (-3) != Real.toNNReal ((-2) * (-3))
+}.
+Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
+in these situations.
+This can make conversions between number types quite painful,
+and puts some pressure to limit conversions and put as many numbers as possible in the same number type.
+
+Sometimes one is forced to add a conversion, because certain operations are not defined on all types.
+Consider for instance the example of performing a computation on exponents in $L^p$-function spaces.
+Around the real interpolation theorem, one needs to compute $p$ in terms of other exponents that
+naturally live in $\ennreal$.
+Yet there is no definition for $a^p$ if $p$ is in $\ennreal$, and therefore conversions to from
+$\ennreal$ to $\real$ are unavoidable.
+
+There are also advantages of differentiating between the spaces.
+An advantage of putting for instance a constant in \texttt{NNReal} over \texttt{ENNReal} or
+\texttt{Real}, is that it encodes that the constant cannot be infinity and that it needs to be positive.
+
+Another advantage of differentiating comes from the different levels of tactic support.
+For real numbers, computations are much easier to perform, using the \texttt{linarith} and \texttt{field\_simp} tactics.
+These tactics do not work for terms in $\ennreal$ or $\nnreal$.
+Fortunately, the tactic \texttt{ring} does work for these types.
+The \texttt{norm\_num} does work for also for numbers in $\ennreal$, but not as well as for real numbers,
+as even with the necessary side conditions it would not simplify a term of the form $a / a$.
+
+As a final example around considerations on which number types to use,
+consider the the supremum of a set.
+As one eventually is anyway interested in situations in which this supremum is finite and the set
+is bounded from above, one could consider a setup in which the sets considered are subsets of
+real numbers and the suprema are real numbers as well.
+This was the choice at the outset of the project.
+However, in this setup, one needs to constantly carry around a proof or assumption that the
+set is indeed bounded.
+This is cumbersome, and therefore it turned out to be much better to
+let suprema just take values in the \texttt{ENNReal}s.
+
+During the project, we gradually built up intuition on where to put constants and where
+to perform computations.
 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
 
