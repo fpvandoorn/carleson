@@ -176,7 +176,7 @@ lemma slice_integral_bound_sum :
     convert slice_integral_bound; simp [slice]
   | succ n ih =>
     rw [← diff_union_diff_cancel _ slice_G_subset]; swap
-    · exact antitone_slice_G (zero_le _)
+    · exact antitone_slice_G zero_le
     rw [lintegral_union ((slice CP bG mG _).mG.diff (slice CP bG mG _).mG)]; swap
     · exact disjoint_of_subset_right diff_subset disjoint_sdiff_left
     rw [Finset.sum_range_succ, mul_add, add_mul, add_mul]; gcongr
@@ -631,7 +631,7 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       · specialize hB R₁ mR₁ R₂ mR₂
         rcases lt_or_ge (U302 a R₂) (L302 a R₁) with hul | hul
         · rw [T_S, Finset.Icc_eq_empty (not_le.mpr hul), Finset.sum_empty, enorm_zero]
-          exact zero_le _
+          exact zero_le
         · trans ⨆ s₂ ∈ Finset.Icc (L302 a R₁) B, ‖T_S Q (L302 a R₁) s₂ f x‖ₑ
           · have : U302 a R₂ ∈ Finset.Icc (L302 a R₁) B :=
               Finset.mem_Icc.mpr ⟨hul, (Finset.mem_Icc.mp hB.2).2⟩

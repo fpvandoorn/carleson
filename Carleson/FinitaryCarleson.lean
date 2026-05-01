@@ -116,7 +116,5 @@ theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volum
   simp_rw [carlesonSum, mem_univ, Finset.filter_true, tile_sum_operator hx, mul_sub, exp_sub,
     mul_div, div_eq_mul_inv,
     ← smul_eq_mul, integral_smul_const, ← Finset.sum_smul, _root_.enorm_smul]
-  suffices ‖(cexp (I • ((Q x) x : ℂ)))⁻¹‖ₑ = 1 by
-    rw [this, mul_one]
-    congr 1
+  suffices ‖(cexp (I • ((Q x) x : ℂ)))⁻¹‖ₑ = 1 by rw [this, mul_one]
   simp [mul_comm I, enorm_eq_nnnorm]

@@ -63,7 +63,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   by_cases hF : volume F = 0
   · simp [G₁_empty hF]
   by_cases hG : volume G = 0
-  · exact (G₁_empty' hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le _
+  · exact (G₁_empty' hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le
   -- Define constant `K` and prove 0 < K < ⊤
   let K := 2 ^ (2 * a + 5) * volume F / volume G
   have K0 : K > 0 := by
@@ -289,7 +289,6 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       have : 2 ^ (n + 1) ≤ ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
         convert john_nirenberg_aux1 mL mx mx₂
         simp_rw [stackSize, Q₁, mem_setOf_eq]
-        congr
       have lcast : (2 : ℝ≥0∞) ^ (n + 1) = ((2 ^ (n + 1) : ℕ) : ℝ).toNNReal := by
         rw [Real.toNNReal_coe_nat, ENNReal.coe_natCast]; norm_cast
       have rcast : ∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℝ≥0∞) x =

@@ -500,12 +500,12 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
     simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one] at hx
     obtain ⟨i, ht⟩ := lt_iSup_iff.mp hx
     replace hx : x ∈ ball (c i) (r i) :=
-      by_contradiction <| fun h ↦ not_lt_of_ge (zero_le t) (ENNReal.coe_lt_coe.mp <| by simp [h] at ht)
+      by_contradiction <| fun h ↦ not_lt_of_ge (zero_le (a := t)) (ENNReal.coe_lt_coe.mp <| by simp [h] at ht)
     refine ⟨i, ?_, hx⟩
     -- It remains only to confirm that the chosen ball is actually in `Bₗ t`
     simp only [ge_iff_le, mem_setOf_eq, Bₗ]
     have hi : i ∈ 𝓑 :=
-      by_contradiction <| fun h ↦ not_lt_of_ge (zero_le t) (ENNReal.coe_lt_coe.mp <| by simp [h] at ht)
+      by_contradiction <| fun h ↦ not_lt_of_ge (zero_le (a := t)) (ENNReal.coe_lt_coe.mp <| by simp [h] at ht)
     exact ⟨hi, mul_le_of_le_div <| le_of_lt (by simpa [setLAverage_eq, hi, hx] using ht)⟩
   · exact fun i hi ↦ hR i (mem_of_mem_inter_left hi)
   · exact fun i hi ↦ hi.2.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)

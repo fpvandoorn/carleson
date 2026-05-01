@@ -90,7 +90,7 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderC
 theorem sq_lintegral_mul_le_mul_lintegral_sq {f g : α → ℝ≥0∞}
     (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     (∫⁻ a, f a * g a ∂μ) ^ 2 ≤ (∫⁻ a, f a ^ 2 ∂μ) * ∫⁻ a, g a ^ 2 ∂μ := by
-  convert pow_le_pow_left₀ (zero_le _)
+  convert pow_le_pow_left₀ zero_le
     (lintegral_mul_le_Lp_mul_Lq μ Real.HolderConjugate.two_two hf hg) 2
   rw [mul_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, ← ENNReal.rpow_natCast,
     ← ENNReal.rpow_mul, show (1 : ℝ) / 2 * (2 : ℕ) = 1 by norm_num, ENNReal.rpow_one,
@@ -419,7 +419,7 @@ private theorem eLpNorm_convolution_le_of_norm_le_mul_aux
     rw [hpqr]
     nth_rewrite 1 [← zero_add 1]
     apply ENNReal.add_lt_add_right ENNReal.one_ne_top
-    exact (zero_le r⁻¹).lt_or_eq.resolve_right (ENNReal.inv_ne_zero.mpr r_top).symm
+    exact zero_le.lt_or_eq.resolve_right (ENNReal.inv_ne_zero.mpr r_top).symm
   have p_ne_top : p ≠ ∞ := by contrapose! hq; simpa [hq] using hpq
   have q_ne_top : q ≠ ∞ := by contrapose! hp; simpa [hp] using hpq
   -- When all exponents are finite, apply `eLpNorm_convolution_le_ofReal`

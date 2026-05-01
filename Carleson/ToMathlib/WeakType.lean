@@ -147,7 +147,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
           rw [db_zero] at h₂
           change Icc 0 ε (distribution f z μ)
           rw [nonpos_iff_eq_zero.mp h₂]
-          exact ⟨zero_le 0, zero_le ε⟩
+          exact ⟨zero_le, zero_le⟩
       -- Case: 0 < distribution f t₀ μ
       · obtain ⟨n, wn⟩ :=
           select_neighborhood_distribution t₀ _
@@ -357,7 +357,7 @@ lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [E
       unfold indicator
       rw [enorm_add, add_comm]
       split_ifs
-      apply lt_add_of_lt_of_nonneg _ (zero_le _)
+      apply lt_add_of_lt_of_nonneg _ zero_le
       simpa [h]
   · push Not at ht
     congr 1 with x

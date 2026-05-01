@@ -284,7 +284,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
       rw [Set.toFinset_eq_empty]
       exact not_nonempty_iff_eq_empty.mp h𝔄'
     rw [this, Finset.sum_empty]
-    exact zero_le _
+    exact zero_le
 
 open Classical in
 /-- We prove inclusion 6.3.24 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
@@ -719,7 +719,7 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) :
           forall_exists_index] at hL2
         by_cases hp' : 𝓘 p = L' hL
         · rw [if_pos hp']
-          exact zero_le _
+          exact zero_le
         · have hs : 𝔰 (pΘ hL) < 𝔰 p := by
             have hpL' : (L' hL : Set X)  ∩ (𝓘 p : Set X) ≠ ∅ := by
               simp only [← Set.nonempty_iff_ne_empty] at hpL ⊢

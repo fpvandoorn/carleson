@@ -150,7 +150,7 @@ lemma depth_lt_iff_not_disjoint {d : ℝ} :
     simp_rw [depth, iSup_lt_iff, iSup_le_iff] at hd; obtain ⟨d', ld', hd'⟩ := hd
     have ns := (hd' d.toNNReal).mt; rw [not_le] at ns; specialize ns ld'
     rw [not_subset_iff_exists_mem_notMem] at ns; obtain ⟨y, my, ny⟩ := ns
-    have pd := (zero_le _).trans_lt ld'
+    have pd := zero_le.trans_lt ld'
     rw [ofReal_pos] at pd; replace pd := Real.coe_toNNReal d pd.le
     rw [pd] at my; exact not_disjoint_iff.mpr ⟨y, my, ny⟩
   mpr hd := by
@@ -978,7 +978,7 @@ private lemma eLpNorm_restrict_czRemainder'_le {hf : BoundedFiniteSupport f} {hX
 private lemma eLpNorm_czRemainder_le'
     (hf : BoundedFiniteSupport f) (hX : ¬ GeneralCase f α) (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
     eLpNorm (czRemainder f α) 1 volume ≤ 2 * ∫⁻ x, ‖f x‖ₑ :=
-  have := isFiniteMeasure_of_not_generalCase hf hX (lt_of_le_of_lt (zero_le _) hα)
+  have := isFiniteMeasure_of_not_generalCase hf hX (lt_of_le_of_lt zero_le hα)
   calc
     _ = ∫⁻ x, ‖f x - ⨍ y, f y‖ₑ := by simp [czRemainder, eLpNorm, eLpNorm', czApproximation, hX]
     _ ≤ ∫⁻ x, (‖f x‖ₑ + ‖⨍ y, f y‖ₑ) := lintegral_mono (fun x ↦ enorm_sub_le)
@@ -993,7 +993,7 @@ lemma eLpNorm_czRemainder_le {hf : BoundedFiniteSupport f}
     eLpNorm (czRemainder f α) 1 volume ≤ 2 ^ (2 * a + 1) * α * volume (univ : Set X) := by
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; simp
-  have := isFiniteMeasure_of_not_generalCase hf hX (lt_of_le_of_lt (zero_le _) hα)
+  have := isFiniteMeasure_of_not_generalCase hf hX (lt_of_le_of_lt zero_le hα)
   calc
     _ ≤ 2 * ∫⁻ x, ‖f x‖ₑ := eLpNorm_czRemainder_le' hf hX hα
     _ ≤ 2 * (α * volume (univ : Set X)) := by
@@ -1092,7 +1092,7 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
   · simp [hα_top, top_div_of_lt_top ENNReal.ofNat_lt_top]
   have ne0 : (c10_0_3 a : ℝ≥0∞) ≠ 0 := by simp [c10_0_3]
   have hα' : 0 < α' a α := α'_pos (pos_of_gt hα)
-  have hα'' := ((zero_le _).trans_lt hα).ne'
+  have hα'' := (zero_le.trans_lt hα).ne'
   calc distribution ((czOperator K r (czApproximation f (α' a α)))) (α / 2) volume
     _ = distribution ((czOperator K r (czApproximation f (α' a α))) ^ 2) ((α / 2) ^ 2) volume :=
       (distribution_pow _ _ _ _ two_pos.ne').symm
@@ -1299,7 +1299,11 @@ private lemma integral_g (hf : BoundedFiniteSupport f) (hα : 0 < α) (hX : Gene
   by_cases! hj : czRadius hX j ≤ 0
   · simp [Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hj]
   rw [integral_sub (integrableOn_g₀ hf hα hX j) (integrableOn_d hX j)]
-  simp [d, setAverage_eq, smul_smul, mul_inv_cancel₀ (measureReal_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne']
+  simp only [d, setAverage_eq, Complex.real_smul, Complex.ofReal_inv, integral_const,
+    MeasurableSet.univ, measureReal_restrict_apply, univ_inter, ← mul_assoc]
+  have : volume.real (czBall3 hX j) ≠ 0 := (measureReal_ball_pos (czCenter hX j) (mul_pos three_pos hj)).ne'
+  rw [mul_inv_cancel₀ (by simpa)]
+  simp
 
 private lemma lintegral_enorm_half_g (hf : BoundedFiniteSupport f) (hα : 0 < α)
     (hX : GeneralCase f (α' a α)) (j : ℕ) :
@@ -1507,7 +1511,7 @@ lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f (α' a α)) {i
   rcases le_or_gt r 0 with hr | hr
   · simp_rw [Real.toNNReal_of_nonpos hr, coe_zero, ENNReal.zero_div]
     rw [ENNReal.zero_rpow_of_pos (by rw [inv_pos, Nat.cast_pos]; exact zero_lt_four.trans_le ha)]
-    simp_rw [ENNReal.zero_div, lintegral_zero]; exact zero_le _
+    simp_rw [ENNReal.zero_div, lintegral_zero]; exact zero_le
   calc
     _ ≤ ∫⁻ x in (czBall6 hX i)ᶜ,
         (r.toNNReal / edist x c) ^ (a : ℝ)⁻¹ / volume (ball x (dist x c)) := by
@@ -1590,7 +1594,7 @@ lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
   rcases eq_top_or_lt_top α with rfl | αlt
   · have : czOperatorBound hX ⁻¹' Ioi (⊤ / 8) = ∅ := by
       rw [top_div_of_ne_top (by norm_num), isMax_top.Ioi_eq, preimage_empty]
-    rw [this, inter_empty, measure_empty]; exact zero_le _
+    rw [this, inter_empty, measure_empty]; exact zero_le
   calc
     _ ≤ (volume.restrict (Ω f (α' a α))ᶜ) {x | α / 8 ≤ czOperatorBound hX x} := by
       rw [inter_comm, ← Measure.restrict_apply']; swap
@@ -1744,7 +1748,9 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
         _ ≤ 2 ^ a ^ 3 + 2 ^ (7 * a) * 2 ^ (a ^ 3 + 12 * a + 4) + 2 ^ (a ^ 3 + 11 * a + 4) := by
           rw [C10_2_9, ← add_assoc, c10_0_3, div_inv_eq_mul, C10_2_8]; gcongr
           rw [← zpow_natCast, Nat.cast_pow]
-          exact zpow_le_zpow_right₀ one_le_two (by lia)
+          gcongr
+          exact one_le_two
+          lia
         _ ≤ 3 * 2 ^ (a ^ 3 + 19 * a + 4) := by
           rw [← pow_add, show 7 * a + (a ^ 3 + 12 * a + 4) = a ^ 3 + 19 * a + 4 by ring,
             show (3 : ℝ≥0) = 1 + 1 + 1 by norm_num]

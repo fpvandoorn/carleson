@@ -913,7 +913,7 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
   have hq₀ : 0 < q₀ := pos_of_rb_Ioc hp₀
   have hq₁ : 0 < q₁ := pos_of_rb_Ioc hp₁
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | hF
-  · refine le_of_eq_of_le ?_ (zero_le _)
+  · refine le_of_eq_of_le ?_ zero_le
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
   · let spf := spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf.2⟩
     apply combine_estimates₁ <;> try assumption
@@ -1025,7 +1025,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
     (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
   have p_eq_p₀ : p = p₀ := (interp_exp_eq hp₀p₁ ht hp).symm
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | snorm_pos
-  · refine le_of_eq_of_le ?_ (zero_le _)
+  · refine le_of_eq_of_le ?_ zero_le
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
   · have hF : eLpNorm f p μ ∈ Ioo 0 ⊤ := ⟨snorm_pos, hf.2⟩
     have M_pos : 0 < M := toReal_pos (d_pos hC₀ hC₁ hF).ne' (d_ne_top hC₀ hC₁ hF)

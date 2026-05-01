@@ -185,7 +185,7 @@ lemma four_lt_sum_χtilde
   have hx₀ := hx
   rw [Grid.mem_def, ← union_𝓙₅ hu₁ hu₂ hu h2u, mem_iUnion₂] at hx; obtain ⟨J, mJ, mx⟩ := hx
   refine (four_lt_χtilde mx hx₀).trans_le ?_
-  apply Finset.single_le_sum (f := fun J ↦ χtilde J u₁ x) (fun _ _ ↦ zero_le _)
+  apply Finset.single_le_sum (f := fun J ↦ χtilde J u₁ x) (fun _ _ ↦ zero_le)
   rwa [mem_toFinset]
 
 lemma bigger_than_𝓙_is_not_in_𝓙₀ {𝔖 : Set (𝔓 X)} {A B : Grid X}
@@ -248,7 +248,7 @@ lemma χ_le_indicator (hJ : J ∈ 𝓙₅ t u₁ u₂) :
   simp_rw [χ, indicator, Pi.one_apply]
   split_ifs with h
   · apply NNReal.div_le_of_le_mul; rw [one_mul]
-    apply Finset.single_le_sum (f := fun J ↦ χtilde J u₁ x) (fun _ _ ↦ zero_le _)
+    apply Finset.single_le_sum (f := fun J ↦ χtilde J u₁ x) (fun _ _ ↦ zero_le)
     rwa [mem_toFinset]
   · have : χtilde J u₁ x = 0 := by
       contrapose! h; rw [← zero_lt_iff, χtilde_pos_iff] at h; exact h.2
@@ -509,7 +509,7 @@ lemma le_of_mem_E {y : X} (hy : y ∈ E p) (hx' : x' ∉ ball (𝔠 p) (5 * D ^ 
 lemma enorm_ψ_le_edist {y : X} (my : y ∈ E p) (hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
     ‖ψ (D ^ (-𝔰 p) * dist y x)‖ₑ ≤ 4 * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
   by_cases h : 1 / 2 ≤ D ^ (-𝔰 p) * dist y x
-  · rw [ψ_formula₄ h, enorm_zero]; exact zero_le _
+  · rw [ψ_formula₄ h, enorm_zero]; exact zero_le
   replace h : 0 ≤ 2 - 4 * (D ^ (-𝔰 p) * dist y x) := by linarith
   calc
     _ ≤ ‖max 0 ((2 - 4 * (D ^ (-𝔰 p) * dist y x)) ^ (a : ℝ)⁻¹)‖ₑ :=
@@ -1528,7 +1528,7 @@ lemma P7_5_4_le_adjointBoundaryOperator_mul (mx : x ∈ ball (c J) (8⁻¹ * D ^
   conv_lhs => enter [1]; rw [← add_zero (_ + _)]
   conv_lhs => enter [2]; rw [← add_zero (_ + _)]
   gcongr
-  exacts [biInf_le _ mx, biInf_le _ mx', zero_le _, biInf_le _ mx, biInf_le _ mx', zero_le _]
+  exacts [biInf_le _ mx, biInf_le _ mx', zero_le, biInf_le _ mx, biInf_le _ mx', zero_le]
 
 /-- The support of `holderFunction` is in `𝓘 u₁`. -/
 lemma support_holderFunction_subset (u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J : Grid X) (hu₁ : u₁ ∈ t) :
@@ -1583,7 +1583,7 @@ lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       simp_rw [Finset.mem_filter_univ] at mp
       rw [adjoint_tile_support2 hu₁ mp]
       exact indicator_of_notMem mu₁ _
-    rw [this, enorm_zero, mul_zero, zero_mul]; exact zero_le _
+    rw [this, enorm_zero, mul_zero, zero_mul]; exact zero_le
   rw [not_not] at mu₁; rw [edist_dist]
   calc
     _ ≤ ENNReal.ofReal (C7_5_2 a * dist x x' / D ^ s J) *
@@ -1698,7 +1698,7 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
     I7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
   by_cases mu₁ : x ∉ 𝓘 u₁ ∧ x' ∉ 𝓘 u₁
   · have h0 := support_subset_iff'.mp (support_holderFunction_subset u₂ f₁ f₂ J hu₁)
-    rw [h0 _ mu₁.1, h0 _ mu₁.2, edist_self]; exact zero_le _
+    rw [h0 _ mu₁.1, h0 _ mu₁.2, edist_self]; exact zero_le
   rw [not_and_or, not_not, not_not] at mu₁
   wlog mu₁' : x' ∈ 𝓘 u₁ generalizing x x'
   · specialize this mx' mx mu₁.symm (mu₁.resolve_right mu₁')

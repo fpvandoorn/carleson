@@ -15,7 +15,6 @@ open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
 
-
 /-! ## Section 7.6 and Lemma 7.4.6 -/
 
 variable (t u₁) in
@@ -480,7 +479,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
       rw [← ENNReal.rpow_neg_one, show (-1 : ℝ) = (-2)⁻¹ * (2 : ℕ) by norm_num, ENNReal.rpow_mul,
         ENNReal.rpow_natCast, ← mul_pow, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast,
         Finset.mul_sum]
-      congr! 9 with k mk y p; lia
+      congr! 8 with k mk y p; lia
     _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X) ^ (-2 : ℝ)⁻¹ *
         ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
@@ -550,7 +549,7 @@ lemma btp_integral_bound :
         have : y ∈ ball (c I) (2 ^ 3 * (D : ℝ) ^ s I) := by rwa [show (2 : ℝ) ^ 3 = 8 by norm_num]
         simp_rw [c𝓑, r𝓑, Nat.cast_zero, add_zero, indicator_of_mem this, enorm_eq_nnnorm]
         norm_num
-      · rw [indicator_of_notMem my, zero_mul]; exact zero_le _
+      · rw [indicator_of_notMem my, zero_mul]; exact zero_le
 
 attribute [fun_prop] AEMeasurable.restrict
 
