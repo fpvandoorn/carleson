@@ -1,6 +1,10 @@
-import Carleson.Defs
-import Carleson.LipschitzNorm
-import Carleson.ToMathlib.Data.ENNReal
+module
+
+public import Carleson.Defs
+public import Carleson.LipschitzNorm
+public import Carleson.ToMathlib.Data.ENNReal
+
+@[expose] public section
 
 open MeasureTheory Measure Metric Complex Set Bornology Function
 open ENNReal hiding one_lt_two
@@ -320,6 +324,7 @@ lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x :
     (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
   apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma carlesonOperatorIntegrand_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
     carlesonOperatorIntegrand (z • K) θ R₁ R₂ f = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
@@ -342,12 +347,14 @@ lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ
   simp_rw [linearizedCarlesonOperator_const_smul, Pi.smul_apply, ← smul_iSup]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 lemma nontangentialOperator_const_smul (z : ℂ) {K : X → X → ℂ} :
     nontangentialOperator (z • K) = ‖z‖ₑ • nontangentialOperator K := by
   unfold nontangentialOperator
   simp_rw [Pi.smul_apply, smul_eq_mul, mul_assoc, integral_const_mul, enorm_mul, ← ENNReal.mul_iSup]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma carlesonOperatorIntegrand_const_smul' [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
     carlesonOperatorIntegrand K θ R₁ R₂ (z • f) = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
@@ -431,7 +438,7 @@ lemma enorm_K_le_ball_complement' [ProperSpace X] [IsFiniteMeasureOnCompacts (vo
   rw [ENNReal.coe_toNNReal ?ne_top]
   case ne_top =>
     rw [Ne, ENNReal.div_eq_top]
-    push_neg
+    push Not
     simp [ne_of_gt (measure_ball_pos volume x hr)]
   exact enorm_K_le_ball_complement hy
 

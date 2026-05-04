@@ -1,4 +1,8 @@
-import Carleson.FinitaryCarleson
+module
+
+public import Carleson.FinitaryCarleson
+
+@[expose] public section
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Filter Topology ShortVariables Bornology Metric Complex
@@ -176,7 +180,7 @@ lemma slice_integral_bound_sum :
     convert slice_integral_bound; simp [slice]
   | succ n ih =>
     rw [← diff_union_diff_cancel _ slice_G_subset]; swap
-    · exact antitone_slice_G (zero_le _)
+    · exact antitone_slice_G zero_le
     rw [lintegral_union ((slice CP bG mG _).mG.diff (slice CP bG mG _).mG)]; swap
     · exact disjoint_of_subset_right diff_subset disjoint_sdiff_left
     rw [Finset.sum_range_succ, mul_add, add_mul, add_mul]; gcongr
@@ -246,8 +250,8 @@ lemma linearized_truncation
       refine lintegral_iSup (fun n ↦ ?_) (fun i j hl ↦ ?_)
       · exact (measurable_T_lin mf mσ₁ mσ₂ rσ₁ rσ₂).enorm.indicator
           (mG.diff (slice CP bG mG (n + 1)).mG)
-      · exact indicator_le_indicator_of_subset (sdiff_le_sdiff_left (antitone_slice_G (by lia)))
-          (zero_le _)
+      · gcongr
+        exact antitone_slice_G (by lia)
     _ ≤ C2_0_1 a q * (2 ^ 2 / (q - 1) : ℝ≥0) * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
       refine iSup_le fun n ↦ slice_integral_bound_sum.trans ?_
       gcongr; exact sum_le_four_div_q_sub_one hq hqq'
@@ -499,7 +503,7 @@ lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁
         gcongr; exact my.1.le
       · rw [U302, sub_add_cancel]; gcongr; exact my.2.le
     _ = ‖∑ s ∈ BR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
-      congr 1; refine integral_finset_sum _ fun s ms ↦ ?_
+      congr 1; refine integral_finsetSum _ fun s ms ↦ ?_
       simp_rw [mul_rotate _ (f _)]; refine ((integrable_Ks_x Dg1).bdd_mul (c := 1) ?_ ?_).restrict
       · rw [aestronglyMeasurable_iff_aemeasurable]
         exact (mf.mul ((Complex.measurable_ofReal.comp (measurable_Q₁ _))
@@ -631,7 +635,7 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       · specialize hB R₁ mR₁ R₂ mR₂
         rcases lt_or_ge (U302 a R₂) (L302 a R₁) with hul | hul
         · rw [T_S, Finset.Icc_eq_empty (not_le.mpr hul), Finset.sum_empty, enorm_zero]
-          exact zero_le _
+          exact zero_le
         · trans ⨆ s₂ ∈ Finset.Icc (L302 a R₁) B, ‖T_S Q (L302 a R₁) s₂ f x‖ₑ
           · have : U302 a R₂ ∈ Finset.Icc (L302 a R₁) B :=
               Finset.mem_Icc.mpr ⟨hul, (Finset.mem_Icc.mp hB.2).2⟩

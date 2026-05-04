@@ -1,4 +1,8 @@
-import Carleson.ProofData
+module
+
+public import Carleson.ProofData
+
+@[expose] public section
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
@@ -205,6 +209,7 @@ lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j)
   · apply lt_of_le_of_ne (le_def.mpr ⟨h.1, h.2.le⟩)
     by_contra a; rw [a, lt_self_iff_false] at h; exact h.2
 
+set_option backward.isDefEq.respectTransparency false in
 lemma isMin_iff {i : Grid X} : IsMin i ↔ s i = - S := by
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
   · apply le_antisymm ?_ scale_mem_Icc.1
@@ -254,9 +259,11 @@ lemma succ_spec (h : ¬IsMax i) : i < i.succ ∧ ∀ j, i < j → i.succ ≤ j :
   simp only [succ, h, dite_false]
   classical exact Finset.choose_spec (hp := exists_unique_succ i h).2
 
+set_option backward.isDefEq.respectTransparency false in
 lemma succ_unique (h : ¬IsMax i) : i < j → (∀ j', i < j' → j ≤ j') → i.succ = j := fun k₁ k₂ ↦
   ((exists_unique_succ i h).unique ⟨by simp, k₁, k₂⟩ ⟨by simp, succ_spec h⟩).symm
 
+set_option backward.isDefEq.respectTransparency false in
 lemma le_succ : i ≤ i.succ := by
   by_cases h : IsMax i
   · simp [h, succ]
@@ -404,8 +411,10 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
     _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c I, 4 * D ^ s J} f g := by
       gcongr
       have : s I < s J := (Grid.lt_def.mp hpq).2
-      exact cdist_mono (ball_subset_ball (mul_le_mul_of_nonneg_left
-        (zpow_le_zpow_right₀ (one_le_realD _) (by lia)) zero_le_four))
+      apply cdist_mono
+      gcongr
+      · exact one_le_realD _
+      · lia
     _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
       gcongr
       have : c I ∈ ball (c J) (4 * D ^ s J) :=
@@ -414,7 +423,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       exact cdist_mono (ball_subset_ball' (by linarith))
     _ ≤ 2 ^ (-𝕔 * (a : ℝ) + 5 * a) * dist_{J} f g := by
       rw [Real.rpow_add zero_lt_two, mul_assoc]
-      refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+      gcongr
       rw [show (2 : ℝ) ^ (5 * (a : ℝ)) = (defaultA a) ^ 5 by norm_cast; ring]
       convert cdist_le_iterate _ f g 5 using 1
       · exact dist_congr rfl (by ring)

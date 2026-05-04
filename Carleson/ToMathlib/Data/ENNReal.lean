@@ -1,14 +1,16 @@
-import Mathlib.Analysis.Normed.Group.Bounded
-import Mathlib.Analysis.Normed.Group.Uniform
-import Mathlib.Analysis.Normed.Ring.Basic
-import Mathlib.Order.CompletePartialOrder
+module
+
+public import Mathlib.Analysis.Normed.Group.Bounded
+public import Mathlib.Analysis.Normed.Group.Uniform
+public import Mathlib.Analysis.Normed.Ring.Basic
+public import Mathlib.Order.CompletePartialOrder
 
 -- Upstreaming status: lemmas seem useful; proofs may need some polish.
 -- At least three or four distinct PRs.
--- `ofReal_inv_le` and `ofReal_div_le` upstreamed in
--- https://github.com/leanprover-community/mathlib4/pull/37565
 
 /-! ## `ENNReal` manipulation lemmas -/
+
+public section
 
 open Function Set Bornology
 open scoped NNReal
@@ -19,15 +21,6 @@ namespace ENNReal
 
 attribute [simp] ofReal_of_nonpos
 -- protect ENNReal.mul_le_mul_left
-
-theorem ofReal_inv_le {x : ℝ} : ENNReal.ofReal x⁻¹ ≤ (ENNReal.ofReal x)⁻¹ := by
-  obtain hx|hx := lt_or_ge 0 x <;> simp [ofReal_inv_of_pos, hx]
-
-theorem ofReal_div_le {x y : ℝ} (hy : 0 ≤ y) :
-    ENNReal.ofReal (x / y) ≤ ENNReal.ofReal x / ENNReal.ofReal y := by
-  simp_rw [div_eq_mul_inv, ofReal_mul' (inv_nonneg.2 hy)]
-  gcongr
-  exact ofReal_inv_le
 
 theorem coe_lt_iff_lt_toNNReal {a : ℝ≥0∞} {t : ℝ≥0} (ha : a ≠ ⊤) :
     t < a ↔ t < a.toNNReal := by
@@ -122,7 +115,7 @@ lemma exists_biSup_le_enorm_add_eps
   have M : ⨆ z ∈ s, ‖f z‖ₑ + ε ≤ ⨆ z ∈ s, ‖f z‖ₑ := by
     simpa only [iSup_le_iff] using fun i hi ↦ (H i hi).le
   have nt : ⨆ z ∈ s, ‖f z‖ₑ ≠ ⊤ := by -- boundedness of `f` used here
-    rw [ne_eq, iSup₂_eq_top]; push_neg
+    rw [ne_eq, iSup₂_eq_top]; push Not
     obtain ⟨C, pC, hC⟩ := hf.exists_pos_norm_le; lift C to ℝ≥0 using pC.le
     simp_rw [mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hC
     exact ⟨C, coe_lt_top, mod_cast hC⟩

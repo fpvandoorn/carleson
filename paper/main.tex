@@ -16,12 +16,15 @@
 
 \DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
 \newcommand*{\ud}{\, \mathrm{d}}
+\newcommand*{\nat}{\mathbb{N}} % set of natural numbers
 \newcommand*{\complex}{\mathbb{C}} % set of complex numbers
 \newcommand*{\real}{\mathbb{R}} % the set of real numbers
 \newcommand{\nnreal}{\real_{\ge0}}
 \newcommand{\ennreal}{\overline{\real_{\ge0}}}
 
 \newcommand{\mathlib}{\texttt{Mathlib}\xspace}
+
+\newcommand{\todo}[1]{{\color{blue}{TODO: {#1}}}}
 
 % These options can be changed later; these may be personal preferences.
 \hypersetup{
@@ -175,9 +178,43 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 \section{The Metric Space Carleson theorem}\label{sec:main_thm}
 
 \subsection{Mathematical background}\label{subsec:background}
-\begin{itemize}
-  \item Prerequisites: Fourier series, Real interpolation, Hardy--Littlewood maximal function, doubling measures (\texttt{IsDoubling}), \texttt{WeakType}, \texttt{wnorm}.
-\end{itemize}
+The basic object of study in Carleson's theorem is the Fourier series of a periodic function on the real numbers.
+Given a function $f : [0, 2\pi) \to \complex$ and $n \in \mathbb{Z}$, we first define the $n$th Fourier coefficient of $f$ as
+\begin{equation}\label{eq:fourier-coefficients}
+    c_n \coloneq \widehat{f}_n \coloneq \frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
+\end{equation}
+The Lean version \lean{fourierCoeff} uses \mathlib's formalization of the Bochner integral and thus is well-defined if $f\in L^1(0,2\pi)$.
+
+We define the $N$-th partial Fourier sum of $f$ at $x\in [0,2\pi]$  as
+\begin{equation}\label{eq:trig-series}
+    S_N f(x) \coloneq \sum_{n=-N}^N c_n e^{inx} \
+\end{equation}
+and its Fourier series as $\lim_{N\to\infty} S_N f (x)$.
+
+The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$. This is defined to be a complete
+and locally compact metric space $(X,\rho)$
+equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the following doubling condition for $a\in\nat$.
+For all $x\in X$ and all $R>0$ we have
+\begin{equation}\label{doublingx}
+    \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
+\end{equation}
+where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ centered at $x$ (see \lean{DoublingMeasure}).
+%In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
+
+The proof of the metric space Carleson theorem relies on several tools from real analysis and part of the formalization is a proof of the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g. \cite{vanDoornFormalizedHaarMeasure} for an overview).
+For a function $f$ on a (not necessarily doubling) measure space $(X,\mu)$ taking values in some space $E$ endowed with an extended norm (see \ref{subsec:enorm}), we define its weak $L^p$ norm to be
+\begin{equation}
+  \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X : t < |f(x)| \}) ^ \frac{1}{p}
+\end{equation}
+if $0<p<\infty$, and $\|f\|_{L^{\infty,\infty}} \coloneq \|f\|_{L^{\infty}}$.
+The function $f$ is said to be in weak $L^p$ (\lean{MemWLp}) if $f$ is $\mu$-a.e. strongly measurable with respect to a fixed topology on $E$ (see e.g. \cite{vanDoornFormalizedHaarMeasure, GouezelChangeOfVariables} for motivation of the different notions of measurability in mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
+An important consequence is that if $f$ is in weak $L^p$, then $|f|$ is finite almost everywhere (see \lean{MemWLp.ae_ne_top}).
+
+Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T : (X \to E) \to (Y \to F)$ is of weak type $(p,p')$ if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e. strongly measurable and
+\begin{equation}
+  \|T f\|_{L^{p',\infty}} \le C \cdot \|f\|_{L^p}.
+\end{equation}
+%TODO: should we state the real interpolation theorem here, in the dedicated subsection, or omit the exact formulation and just cite the paper that is to appear about its formalization?
 
 \subsection{Statement of the main results}\label{subsec:main_results}
 
@@ -288,14 +325,14 @@ To be written!
 \subsubsection{The Hardy--Littlewood maximal function} One main ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
 To recall: given $f\colon\real^d\to\complex$, the Hardy–Littlewood maximal function $M f$ of $f$ is usually defined as
 \begin{equation*}
-Mf\colon\real \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
+Mf\colon\real^d \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
 \end{equation*}
 If $f$ is integrable, then $M f$ is (weak) $L^1$, and hence finite almost everywhere. Initially, the blueprint only used a variant taking a supremum over finitely many balls: this ensured the resulting function was \emph{always} finite, hence real-valued. Applying it to a countable collection of balls required taking a limit and using the monotone convergence theorem.
 This is a somewhat inelegant solution: most results about the maximal function do hold for any suprema, hence should be proven in the appropriate generality. We also prefer to avoid a superfluous limiting argument.
 
 For the formal proof, we changed the definition to allow arbitrary suprema: this means the maximal function is $[0,\infty]$-valued. Being able to speak of $L^p$-functions valued in $[0,\infty]$ prompted the introduction of \emph{extended norms}, see Subsection~\ref{subsec:enorm}.
 
-\subsubsection{The real interpolation theorem}
+\subsubsection{The real interpolation theorem}\label{subsubsec:real_interpolation}
 The Marcinkiewicz real interpolation theorem is a standard result in functional analysis.
 It is also a key prerequisite for the proof of Carleson's theorem: for example, it is applied to the Hardy–Littlewood maximal function to deduce it is of strong type $L^p$, for $p\in(0,\infty)$.
 Our formalised version aims to reduce superfluous assumptions commonly found in the mathematical literature. For instance, it applies to any sub-additive function (not merely sub-linear ones) --- that is, there is no need for a scalar multiplication on the target. Similarly, any positive exponent $p$ is allowed (as opposed to demanding $p\geq 1$).
@@ -367,7 +404,6 @@ Some definitions only require the existence of an enorm; many results require su
 Most lemmas necessary in this project only require an \lean{ENormedAddCommMonoid}, i.e.\ an abelian monoid endowed with a continuous enorm that is positive definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions. % for instance, don't require positive definiteness
 
 Pursuing this approach required generalising all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalisation helped a lot by allowing to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
-%; while massive, this actually led to simplifications.
 The final phase involved generalising lemmas: often, this required small changes (such as, constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no more changes needed to be made.
 
 To illustrate the magnitude of this refactoring, let us give some statistics: phase two (changing the basic definitions) changed about 300 lines of code; phase three (changing lemma statements to enorms) about 1000, and the lemma generalisations so far touched about 2500 lines of code.
@@ -377,15 +413,55 @@ The last phase (generalising mathlib lemmas) is not exhaustive: while substantia
 The process of generalisation revealed that this abstraction is also useful on its own: previously, many proofs in mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using enorms provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics.
 
 \subsection{Working with $L^p$ functions}\label{subsec:Lp}
-\begin{itemize}
-	\item Working with \texttt{MemLp}, not functions on \texttt{Lp}.
-\end{itemize}
 
-\subsection{The \texttt{BoundedCompactSupport} structure}\label{subsec:bdd_comp_supp}
-\begin{itemize}
-	\item \texttt{BoundedCompactSupport} and packaging conditions.
-	\item Ongoing experiments with \texttt{fun\_prop}. TODO: consider whether this should be a separate subsection.
-\end{itemize}
+% shorter version would start with
+% Experience in this project has demonstrated that working with $L^p$ functions as actual functions (using \lean{MemLp}) as opposed to their equivalence classes (\lean{MeasureTheory.Lp}) is much more ergonomic.
+Working with $L^p$ functions presents a design choice: should one work with members of $L^p$ space (i.e., equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}), or work with representatives (\lean{MemLp}) instead?
+The mathematical difference is very small: virtually all operations in the project respect a.e.\ equality.
+Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
+(For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
+While the \lean{filter_upwards} tactic simplifies reducing results from almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
+
+% is this useful to say? could be removed
+Incidentally, lemmas in Mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}: this underscores this choice.
+% Does this have other reasons, such as transitioning between different function properties?
+
+This relates well with the use of enorms (\ref{subsec:enorm}): \lean{Lp E p µ} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
+
+This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lean{{f : X → Y} (hf : Continuous f)} instead of the bundled \lean{f : ContinuousMap X Y}.
+
+\subsection{Test function classes}\label{subsec:bdd_comp_supp}
+A common task during the formalization was to prove the various integrability and measurability sidegoals
+arising when estimating integrals.
+As is typical in harmonic analysis, most technical estimates are {\it a priori} estimates involving
+input functions in suitable test function classes.
+
+In many parts of this project, bounded measurable compactly supported functions provided a convenient
+test function class. We also used the slightly larger class
+of bounded measurable functions supported on a set of finite measure in places where this weaker hypothesis
+matches the blueprint more closely.
+Since most constructions appearing in the proof leave these function classes invariant,
+integrability and measurability considerations are usually mathematically trivial.
+
+It is desirable for this simplicity to be reflected in the formalization.
+This motivated packaging the recurring side conditions into test function classes.
+
+The structures \lean{BoundedCompactSupport} and \lean{BoundedFiniteSupport} record,
+respectively, essentially bounded measurable functions with compact support and with support of finite measure.
+Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
+reproving the same measure-theoretic facts. For example, from a hypothesis
+\lean{hf : BoundedCompactSupport f} one immediately obtains that \lean{f} is a member of
+any desired $L^p$ space, % in the context of this project
+or that \lean{s.indicator f} again has bounded compact support when \lean{s} is measurable.
+Lemmas such as \lean{hf.carlesonSum} show that the relevant
+operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
+
+Further API extensions and better support from \texttt{fun\_prop} could streamline these arguments even more.
+
+% \begin{itemize}
+% 	\item \texttt{BoundedCompactSupport} and packaging conditions.
+% 	\item Ongoing experiments with \texttt{fun\_prop}. TODO: consider whether this should be a separate subsection.
+% \end{itemize}
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
 \begin{itemize}

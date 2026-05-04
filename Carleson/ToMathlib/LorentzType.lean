@@ -1,15 +1,18 @@
-import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
-import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
-import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
-import Carleson.Defs
-import Carleson.ToMathlib.Data.ENNReal
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
-import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
-import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
-import Carleson.ToMathlib.Rearrangement
-import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Topology.Order.Basic
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
+public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
+public import Carleson.Defs
+public import Carleson.ToMathlib.Data.ENNReal
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
+public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
+public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
+public import Carleson.ToMathlib.Rearrangement
+public import Carleson.ToMathlib.RealInterpolation.Misc
+
+@[expose] public section
 
 -- Upstreaming status: this file is actively being worked on; not ready yet
 
@@ -387,7 +390,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
       have := hf.2.ne
       exact ENNReal.div_lt_top (by finiteness) (by simpa)
     rcases ν.exists_subset_measure_lt_top hG' this with ⟨H, hH, H_subset_G', H_gt, H_finite⟩
-    have H_pos := (zero_le _).trans_lt H_gt
+    have H_pos := zero_le.trans_lt H_gt
     apply (hT f hf H hH).2.not_gt
     calc _
       _ < l * ν H := by
@@ -478,7 +481,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
 theorem RCLike.norm_I {K : Type u_1} [RCLike K] : ‖(RCLike.I : K)‖ = if RCLike.I ≠ (0 : K) then 1 else 0 := by
   split_ifs with h
   · apply RCLike.norm_I_of_ne_zero h
-  · push_neg at h
+  · push Not at h
     simpa
 
 /-

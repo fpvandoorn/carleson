@@ -3,7 +3,9 @@ Copyright (c) 2024 Jeremy Tan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Tan, Joachim Breitner
 -/
-import Mathlib.Order.KrullDimension
+module
+
+public import Mathlib.Order.KrullDimension
 
 /-!
 # Minimal and maximal layers of a set
@@ -20,6 +22,8 @@ of `Minimal`/`Maximal` on a set, excluding earlier layers.
 * `Set.iUnion_minLayer_iff_bounded_series`: if the length of `LTSeries` in `A` is bounded,
   `A` equals the union of its `minLayer`s up to `n`.
 -/
+
+@[expose] public section
 
 -- Upstreaming status: the file generally looks useful and should go into mathlib;
 -- the code can probably be polished and golfed more
@@ -97,9 +101,9 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
     rw [minLayer, mem_setOf, minimal_iff] at ha nma
     have al : a ∈ A \ ⋃ (l < n), A.minLayer l := by
       have : a ∈ A \ ⋃ (k < n + 1), A.minLayer k := ha.1
-      push (_ ∈ _) at this ⊢; push_neg at this ⊢
+      push (_ ∈ _) at this ⊢; push Not at this ⊢
       exact ⟨this.1, fun l hl h ↦ this.2 l (Nat.lt_succ_of_lt hl) h⟩
-    simp_rw [al, true_and] at nma; push_neg at nma; obtain ⟨a', ha', la⟩ := nma
+    simp_rw [al, true_and] at nma; push Not at nma; obtain ⟨a', ha', la⟩ := nma
     have ma' : a' ∈ A.minLayer n := by
       by_contra h
       have a'l : a' ∈ A \ ⋃ (l < n + 1), A.minLayer l := by
@@ -189,7 +193,7 @@ lemma exists_le_in_layersAbove_of_le [Finite α] (ha : a ∈ A.layersAbove n) (h
   classical
   have ma : a ∈ A \ ⋃ (l' < n), A.minLayer l' := by
     simp only [layersAbove] at ha ⊢
-    push _ ∈ _ at ha ⊢; push_neg at ha ⊢
+    push _ ∈ _ at ha ⊢; push Not at ha ⊢
     exact ⟨ha.1, fun l' hl' h ↦ ha.2 l' hl'.le h⟩
   have := Fintype.ofFinite α
   let C : Finset α :=
@@ -201,7 +205,7 @@ lemma exists_le_in_layersAbove_of_le [Finite α] (ha : a ∈ A.layersAbove n) (h
   conv at mina' => enter [x]; rw [and_imp]
   have ma'₁ : a' ∈ A.minLayer n := by
     rw [minLayer, mem_setOf, minimal_iff]
-    push _ ∈ _; push_neg
+    push _ ∈ _; push Not
     exact ⟨ma'.1, fun y hy ly ↦ le_antisymm (mina' hy (ly.trans ma'.2) ly) ly⟩
   obtain ⟨c, mc, lc⟩ := exists_le_in_minLayer_of_le ma'₁ hm
   use c, mc, lc.trans ma'.2

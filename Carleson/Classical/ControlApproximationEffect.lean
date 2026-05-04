@@ -1,4 +1,8 @@
-import Carleson.Classical.CarlesonOnTheRealLine
+module
+
+public import Carleson.Classical.CarlesonOnTheRealLine
+
+@[expose] public section
 
 /- This file contains most of Section 11.6 (The error bound) from the blueprint.
    The main result is control_approximation_effect.
@@ -28,20 +32,18 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g 
     simp only [Set.mem_union, Set.mem_inter_iff, Set.mem_preimage, Set.mem_Ici]
     by_contra! hx'
     absurd le_refl a
-    push_neg
+    push Not
     calc a
       _ ≤ f x + g x := h x hx
       _ < a / 2 + a / 2 := by
-        gcongr
-        · exact hx'.1 hx
-        · exact hx'.2 hx
+        exact ENNReal.add_lt_add (hx'.1 hx) (hx'.2 hx)
       _ = a := by
         ring_nf
         apply ENNReal.div_mul_cancel <;> norm_num
   have : μ E ≤ 2 * μ Ef ∨ μ E ≤ 2 * μ Eg := by
     by_contra! hEfg
     absurd le_refl (2 * μ E)
-    push_neg
+    push Not
     calc 2 * μ E
     _ ≤ 2 * μ (Ef ∪ Eg) := by
       gcongr
@@ -50,9 +52,7 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g 
       exact measure_union_le _ _
     _ = 2 * μ Ef + 2 * μ Eg := by ring
     _ < μ E + μ E := by
-      gcongr
-      · exact hEfg.1
-      · exact hEfg.2
+      exact ENNReal.add_lt_add hEfg.1 hEfg.2
     _ = 2 * μ E := by ring
   rcases this with hEf | hEg
   · refine ⟨Ef, Set.inter_subset_left, hE.inter (hf measurableSet_Ici), hEf, Or.inl ?_⟩
@@ -201,14 +201,14 @@ lemma domain_reformulation {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (
       · trivial
       · dsimp at h₀ h₁
         rw [Real.dist_eq, Set.mem_Ioo] at h₀ h₁
-        push_neg at h₁
+        push Not at h₁
         rw [k_of_one_le_abs (h₁ h₀.1)]
         simp
       · rw [k_of_one_le_abs]
         · simp
         dsimp at h₀ h₂
         rw [Real.dist_eq, Set.mem_Ioo] at h₀ h₂
-        push_neg at h₀
+        push Not at h₀
         exact le_trans' (h₀ h₂.1) (by linarith [Real.two_le_pi])
       · trivial
 
@@ -227,6 +227,7 @@ lemma intervalIntegrable_mul_dirichletKernel'_specific {x : ℝ} (hx : x ∈ Set
 
 attribute [gcongr] iSup_congr
 
+set_option backward.isDefEq.respectTransparency false in
 lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (-π) (3 * π)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
     ‖∫ (y : ℝ) in x - π..x + π, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ
     ≤ T g x + T (conj ∘ g) x := by
@@ -347,11 +348,14 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * ((conj ∘ g) y * K x y * exp (I * n * y))‖ₑ := by
             congr 1
             · congr! 3 with y; ring
-            · rw [← RCLike.enorm_conj, ← integral_conj]; congr! 3 with _ y; simp; ring
+            · rw [← RCLike.enorm_conj, ← integral_conj]
+              congr! 3 with _ y
+              simp
+              ring
         _ =   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * K x y * exp (I * n * y)‖ₑ
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, (conj ∘ g) y * K x y * exp (I * n * y)‖ₑ := by
           congr 1 <;>
-          rw [integral_const_mul, enorm_mul, show (-n * x : ℂ) = (-n * x : ℝ) by norm_cast,
+          rw [integral_const_mul, enorm_mul, show (-n * x : ℂ) = ((-n * x : ℝ) : ℂ) by norm_cast,
             enorm_exp_I_mul_ofReal, one_mul]
     _ ≤ T g x + T (conj ∘ g) x := by
       simp_rw [carlesonOperatorReal]

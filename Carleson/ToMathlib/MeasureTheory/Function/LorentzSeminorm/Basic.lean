@@ -1,7 +1,10 @@
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
-import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Topology.Order.Basic
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
+public import Carleson.ToMathlib.RealInterpolation.Misc
+
+public section
 
 /- Upstreaming status: still needs some cleanup, and more analogues to mathlib lemmas about eLpNorm
 could be added -/
@@ -25,7 +28,6 @@ lemma eLorentzNorm'_mono_enorm_ae {f : α → ε'} {g : α → ε} (h : ∀ᵐ (
   intro x
   simp only [ENNReal.toReal_inv, enorm_eq_self]
   gcongr
-  exact h
 
 lemma eLorentzNorm_mono_enorm_ae {f : α → ε'} {g : α → ε} (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     eLorentzNorm f p q μ ≤ eLorentzNorm g p q μ := by
@@ -177,11 +179,9 @@ lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
         · rw[Filter.eventually_iff_exists_mem]
           use {x | x ≠ 0}
           constructor
-          · refine mem_ae_iff.mpr ?_
-            rw [NNReal.volume_val]
-            simp
+          · simp [mem_ae_iff]
           · intro x hx
-            rw[ENNReal.inv_lt_top, ENNReal.coe_pos]
+            rw [ENNReal.inv_lt_top, ENNReal.coe_pos]
             exact pos_of_ne_zero hx
         · simp
     _ = (ENNReal.ofReal p.toReal  * ∫⁻ t in Set.Ioi (0 : ℝ), distribution f (.ofReal t) μ *
@@ -311,7 +311,7 @@ lemma eLorentzNorm_eq_wnorm (hp : p ≠ 0) {f : α → ε} : eLorentzNorm f p �
       · apply ContinuousWithinAt.ennreal_mul continuous_id'.continuousWithinAt
           (continuousWithinAt_distribution _).ennrpow_const
         · rw [or_iff_not_imp_left]
-          push_neg
+          push Not
           intro h
           exfalso
           rw [h] at ha

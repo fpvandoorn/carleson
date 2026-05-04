@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Function.LpSeminorm.Monotonicity
-import Carleson.ToMathlib.Data.ENNReal
+module
+
+public import Mathlib.MeasureTheory.Function.LpSeminorm.Monotonicity
+public import Carleson.ToMathlib.Data.ENNReal
+
+public section
 
 -- Upstreaming status: can be upstreamed/being worked on
 -- Many remaining declarations require PRing a new enorm class to mathlib first,
@@ -41,6 +45,7 @@ export ENormedSpace (enorm_smul_eq_smul)
 -- mathlib has this (in the _root_ namespace), in a less general setting
 attribute [simp] ENormedSpace.enorm_smul_eq_smul
 
+set_option backward.isDefEq.respectTransparency false in
 instance : ENormedSpace ℝ≥0∞ where
   enorm := id
   enorm_zero := by simp
@@ -66,6 +71,7 @@ instance : ENormedSpace ℝ≥0 where
   continuous_enorm := by fun_prop
   enorm_smul_eq_smul c x := by simp [ENNReal.smul_def]
 
+set_option backward.isDefEq.respectTransparency false in
 instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormedSpace E where
   enorm_smul_eq_smul := by
     simp_rw [enorm_eq_nnnorm, ENNReal.smul_def, NNReal.smul_def, nnnorm_smul]; simp
@@ -109,6 +115,7 @@ theorem eLpNorm_const_smul' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0�
   refine le_antisymm eLpNorm_const_nnreal_smul_le <| ENNReal.mul_le_of_le_div' ?_
   simpa [ENNReal.div_eq_inv_mul, hc] using eLpNorm_const_nnreal_smul_le (c := c⁻¹) (f := c • f)
 
+set_option backward.isDefEq.respectTransparency false in
 theorem eLpNorm_top_smul {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
   {μ : Measure α} {f : α → ℝ≥0∞} (hf : AEStronglyMeasurable f μ) : eLpNorm (∞ • f) p μ = ⊤ * eLpNorm f p μ := by
   by_cases hp : p = 0
@@ -157,6 +164,7 @@ theorem _root_.ENNReal.toNNReal_smul {α : Type*} {c : ℝ≥0∞} (hc : c ≠ �
   simp [ENNReal.smul_def, hc]
 
 -- TODO: put next to eLpNorm_const_smul
+set_option backward.isDefEq.respectTransparency false in
 theorem eLpNorm_const_smul'' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
   {μ : Measure α} {c : ℝ≥0∞} (hc : c ≠ ⊤) {f : α → ℝ≥0∞} :
     eLpNorm (c • f) p μ = c * eLpNorm f p μ := by

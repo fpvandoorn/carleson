@@ -1,4 +1,8 @@
-import Mathlib.Analysis.Normed.Ring.Basic
+module
+
+public import Mathlib.Analysis.Normed.Ring.Basic
+
+public section
 
 -- Upstreaming status: This file is ready for upstreaming, but would need significant polish.
 

@@ -1,5 +1,9 @@
-import Carleson.Discrete.MainTheorem
-import Carleson.TileExistence
+module
+
+public import Carleson.Discrete.MainTheorem
+public import Carleson.TileExistence
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -28,14 +32,14 @@ variable [TileStructure Q D κ S o]
 @[reducible] -- Used to simplify notation in the proof of `tile_sum_operator`
 private def 𝔓X_s (s : ℤ) := (@Finset.univ (𝔓 X) _).filter (fun p ↦ 𝔰 p = s)
 
-private lemma 𝔰_eq {s : ℤ} {p : 𝔓 X} (hp : p ∈ 𝔓X_s s) : 𝔰 p = s := by simpa using hp
+private lemma 𝔰_eq {s : ℤ} {p : 𝔓 X} (hp : p ∈ 𝔓X_s s) : 𝔰 p = s := (Finset.mem_filter.mp hp).2
 
 open scoped Classical in
 private lemma 𝔓_biUnion : @Finset.univ (𝔓 X) _ = (Icc (-S : ℤ) S).toFinset.biUnion 𝔓X_s := by
   ext p
   refine ⟨fun _ ↦ ?_, fun _ ↦ Finset.mem_univ p⟩
   rw [Finset.mem_biUnion]
-  refine ⟨𝔰 p, ?_, by simp⟩
+  refine ⟨𝔰 p, ?_, Finset.mem_filter.mpr ⟨Finset.mem_univ _, rfl⟩⟩
   rw [toFinset_Icc, Finset.mem_Icc]
   exact range_s_subset ⟨𝓘 p, rfl⟩
 
@@ -79,7 +83,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} {x : X} (hx : x ∈ G \ G
     exact ⟨Finset.mem_Icc.2 (Icc_σ_subset_Icc_S hs), hs⟩
   · rcases exists_Grid hx.1 hs with ⟨I, Is, xI⟩
     obtain ⟨p, 𝓘pI, Qp⟩ : ∃ (p : 𝔓 X), 𝓘 p = I ∧ Q x ∈ Ω p := by simpa using biUnion_Ω ⟨x, rfl⟩
-    have p𝔓Xs : p ∈ 𝔓X_s s := by simpa [𝔰, 𝓘pI]
+    have p𝔓Xs : p ∈ 𝔓X_s s := Finset.mem_filter.mpr ⟨Finset.mem_univ _, by rw [𝔰, 𝓘pI]; exact Is⟩
     have : ∀ p' ∈ 𝔓X_s s, p' ≠ p → carlesonOn p' f x = 0 := by
       intro p' p'𝔓Xs p'p
       apply indicator_of_notMem

@@ -1,9 +1,13 @@
-import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
-import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
-import Carleson.TwoSidedCarleson.MainTheorem
+module
+
+public import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
+public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
+public import Carleson.TwoSidedCarleson.MainTheorem
 
 /-! This file contains a reformulation of Theorem 10.0.1.
 It is not officially part of the blueprint. -/
+
+@[expose] public section
 
 
 open MeasureTheory Set Bornology Function ENNReal Metric
@@ -61,14 +65,12 @@ theorem two_sided_metric_carleson_hasLorentzType [na : NoAtoms (@volume X d.toMe
   · intro f g hf hg
     apply Filter.Eventually.of_forall
     intro x
-    simp only [enorm_eq_self]
     apply carlesonOperator_add_le_add_carlesonOperator
     · apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le]
     · apply (hg.memLp _).locallyIntegrable <;> simp [hq.1.le]
   · intro a f
     apply Filter.Eventually.of_forall
     intro x
-    simp only [enorm_eq_self]
     apply le_of_eq
     rw [carlesonOperator_const_smul']
     rfl

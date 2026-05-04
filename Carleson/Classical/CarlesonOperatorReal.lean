@@ -1,5 +1,9 @@
-import Carleson.Classical.HilbertKernel
-import Mathlib.MeasureTheory.Integral.Prod
+module
+
+public import Carleson.Classical.HilbertKernel
+public import Mathlib.MeasureTheory.Integral.Prod
+
+@[expose] public section
 
 /- This file contains the definition and basic properties of the Carleson operator on the real line.
 -/
@@ -85,7 +89,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
              = fun x ↦ ⨆ (r : ℝ) (_ : r ∈ Set.Ioo 0 1), G x r := by
     ext
     congr with r
-    rw [iSup_and, Gdef, Fdef]
+    simp_rw [iSup_and', ← Set.mem_Ioo, Gdef, Fdef]
     congr
     rw [← integral_indicator annulus_measurableSet]
   rw [hFG]
@@ -252,9 +256,13 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
   congr with rle1
   norm_cast
   rw [← Real.enorm_eq_ofReal ha.le]
-  simp_rw [mul_assoc, integral_const_mul, enorm_mul, ← mul_assoc]
-  rw [← enorm_norm (Complex.ofReal (1 / a)), Complex.norm_real, enorm_norm, ← enorm_mul,
-    mul_one_div_cancel ha.ne', enorm_one, one_mul]
+  simp_rw [
+    mul_assoc,
+    show ∫ _ in _, _ = _ * ∫ y in _, f y * _ from integral_const_mul _ _,
+    enorm_mul, ← mul_assoc,
+    ← enorm_norm (Complex.ofReal (1 / a)), Complex.norm_real, enorm_norm, ← enorm_mul,
+    mul_one_div_cancel ha.ne', enorm_one, one_mul
+  ]
 
 lemma carlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ} (hx : x ∈ Set.Icc a b) : T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
   simp_rw [carlesonOperatorReal]

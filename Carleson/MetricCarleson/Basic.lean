@@ -1,7 +1,11 @@
-import Carleson.DoublingMeasure
-import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Order.LiminfLimsup
-import Mathlib.Order.CompleteLattice.Group
+module
+
+public import Carleson.DoublingMeasure
+public import Carleson.ToMathlib.RealInterpolation.Misc
+public import Mathlib.Order.CompleteLattice.Group
+public import Mathlib.Order.LiminfLimsup
+
+@[expose] public section
 
 open scoped NNReal
 open ENNReal hiding one_lt_two
@@ -403,7 +407,7 @@ lemma edist_carlesonOperatorIntegrand_le
     C3_0_1 a R₁ R₂ * edist_{x, dist o x + R₂} θ ϑ := by
   rcases le_or_gt R₂ R₁ with hR₂ | hR₂
   · iterate 2 rw [carlesonOperatorIntegrand, Annulus.oo_eq_empty (by simp [hR₂]), setIntegral_empty]
-    rw [edist_self]; exact zero_le _
+    rw [edist_self]; exact zero_le
   calc
     _ = ‖∫ y in Annulus.oo x R₁ R₂, K x y * f y * (exp (I * θ y) - exp (I * ϑ y))‖ₑ := by
       rw [edist_eq_enorm_sub, carlesonOperatorIntegrand, carlesonOperatorIntegrand, ← integral_sub]
@@ -472,7 +476,7 @@ lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖
     ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ ≤ C3_0_1 a R₁ R₂ := by
   rcases le_or_gt R₂ R₁ with hR₂ | hR₂
   · unfold carlesonOperatorIntegrand; rw [Annulus.oo_eq_empty (by simp [hR₂])]
-    rw [setIntegral_empty, enorm_zero]; exact zero_le _
+    rw [setIntegral_empty, enorm_zero]; exact zero_le
   calc
     _ ≤ ∫⁻ y in Annulus.oo x R₁ R₂, ‖K x y‖ₑ * ‖f y‖ₑ * ‖exp (I * θ y)‖ₑ := by
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
@@ -642,7 +646,7 @@ lemma tendsto_carlesonOperatorIntegrand_of_dominated_convergence
   · apply h_bound.mp
     apply Eventually.of_forall
     intro n hn
-    simp only [defaultA, Complex.norm_mul, norm_exp_I_mul_ofReal, mul_one, norm_real,
+    simp only [Complex.norm_mul, norm_exp_I_mul_ofReal, mul_one, norm_real,
       Real.norm_eq_abs]
     apply ae_restrict_le
     apply hn.mp
@@ -670,17 +674,17 @@ lemma linearizedCarlesonOperator_le_liminf_linearizedCarlesonOperator_of_tendsto
   gcongr with R₁
   apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
   gcongr with R₂
-  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
-  gcongr with R₁_pos
-  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
-  gcongr with R₁_lt_R₂
+  simp only [iSup_le_iff]
+  intro R₁_pos R₁_lt_R₂
+  simp_rw [iSup_pos R₁_pos, iSup_pos R₁_lt_R₂]
   apply le_of_eq
   symm
   apply Filter.Tendsto.liminf_eq
   apply Filter.Tendsto.enorm
-  apply tendsto_carlesonOperatorIntegrand_of_dominated_convergence R₁_pos bound hF_meas h_bound _ h_lim
-  apply IntegrableOn.mono_set _ (Annulus.oo_subset_ball)
-  apply IntegrableOn.mono_set _ (ball_subset_closedBall)
+  apply tendsto_carlesonOperatorIntegrand_of_dominated_convergence R₁_pos bound hF_meas h_bound _
+    h_lim
+  apply IntegrableOn.mono_set _ Annulus.oo_subset_ball
+  apply IntegrableOn.mono_set _ ball_subset_closedBall
   apply bound_integrable.integrableOn_isCompact (isCompact_closedBall _ _)
 
 lemma carlesonOperator_le_liminf_carlesonOperator_of_tendsto

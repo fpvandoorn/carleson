@@ -1,8 +1,12 @@
-import Carleson.ForestOperator.LargeSeparation
-import Carleson.ForestOperator.RemainingTiles
-import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import Mathlib.Data.Set.Pairwise.Chain
+module
+
+public import Carleson.ForestOperator.LargeSeparation
+public import Carleson.ForestOperator.RemainingTiles
+public import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
+public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+public import Mathlib.Data.Set.Pairwise.Chain
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -126,6 +130,7 @@ lemma cst_disjoint (hd : Disjoint (𝓘 u₁ : Set X) (𝓘 u₂)) (hu₁ : u₁
     ← comp_apply (f := conj) (g := indicator _ _), ← indicator_comp_of_zero (by simp),
     ← inter_indicator_mul, hd, indicator_empty]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 7.4.4 -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) :
@@ -139,8 +144,10 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   · have hl := (le_or_ge_or_disjoint.resolve_left h2u).resolve_right hd
     rw [disjoint_comm] at hd
     convert this hu₂ hu₁ hu.symm hg₂ hg₁ hd hl using 1
-    · rw [← RCLike.enorm_conj, ← integral_conj]; congr! 3
-      rw [map_mul, conj_conj, mul_comm]
+    · rw [← RCLike.enorm_conj (z := ∫ x, adjointCarlesonSum _ g₂ x * _)]
+      rw [← integral_conj]
+      congr
+      simp [mul_comm]
     · rw [inter_comm]; ring
   exact correlation_separated_trees_of_subset hu₁ hu₂ hu h2u hg₁ hg₂
 
@@ -232,12 +239,17 @@ lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x : X)
     1 ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j: Set _) x := by
   classical
   obtain ⟨𝔲', h𝔲'⟩ := hx
-  dsimp [stackSize]
-  rw [← Finset.sum_erase_add _ (a := 𝔲')]
-  · rw [indicator_apply, ← Grid.mem_def,if_pos h𝔲'.right, Pi.one_apply]
-    simp
-  simp_rw [Finset.mem_filter_univ, mem_inter_iff]
-  exact ⟨t.rowDecomp_𝔘_subset j h𝔲'.1, h𝔲'.1⟩
+  calc 1
+      = stackSize {𝔲'} x := by
+        rw [stackSize, Finset.sum_eq_single_of_mem]
+        · exact (Set.indicator_of_mem h𝔲'.2 (1 : X → ℕ)).symm
+        · rw [Finset.mem_filter_univ]
+          exact Set.mem_singleton_iff.mpr rfl
+        · intro b hb hbp
+          rw [Finset.mem_filter_univ, Set.mem_singleton_iff] at hb
+          exact absurd hb hbp
+    _ ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j : Set _) x :=
+        stackSize_mono (Set.singleton_subset_iff.mpr ⟨t.rowDecomp_𝔘_subset j h𝔲'.1, h𝔲'.1⟩)
 
 lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
     stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
@@ -258,7 +270,7 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
       apply tsub_le_tsub hinduct (stackSize_remainder_ge_one_of_exists t j x _)
       rw [mem_diff] at h𝔲
       apply (or_not).elim id
-      push_neg
+      push Not
       intro h
       apply this.elim
       intro _ ⟨hmax, hz⟩
@@ -295,13 +307,13 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
       · exact ⟨hmax, mem_rowDecomp_𝔘_maximal t j⟩
     else
       dsimp [stackSize]
-      push_neg at h
+      push Not at h
       rw [Finset.sum_congr rfl (g := fun _ => 0) (by
         simp_rw [Finset.mem_filter_univ, indicator_apply_eq_zero,
           Pi.one_apply, one_ne_zero] at h ⊢
         exact h)]
-      rw [Finset.sum_eq_zero (fun _ _ => rfl)]
-      exact zero_le _
+      rw [Finset.sum_eq_zero (fun _ _ ↦ rfl)]
+      exact zero_le
 
 /-- Part of Lemma 7.7.1 -/
 @[simp]
@@ -351,12 +363,12 @@ lemma adjointCarlesonRowSum_adjoint
     _ = ∫ x, ∑ u with u ∈ rowDecomp t j, conj (g x) * carlesonSum (t u) f x := by
       unfold carlesonRowSum; simp_rw [Finset.mul_sum]
     _ = ∑ u with u ∈ rowDecomp t j, ∫ x, conj (g x) * carlesonSum (t u) f x := by
-      apply integral_finset_sum; intro p _
+      apply integral_finsetSum; intro p _
       exact hg.conj.mul hf.carlesonSum |>.integrable
     _ = ∑ u with u ∈ rowDecomp t j, ∫ y, conj (adjointCarlesonSum (t u) g y) * f y := by
       simp_rw [adjointCarlesonSum_adjoint hf hg]
     _ = ∫ y, ∑ u with u ∈ rowDecomp t j, conj (adjointCarlesonSum (t u) g y) * f y := by
-      symm; apply integral_finset_sum; intro p _
+      symm; apply integral_finsetSum; intro p _
       refine BoundedCompactSupport.mul ?_ hf |>.integrable
       exact hg.adjointCarlesonSum.conj
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
@@ -575,13 +587,13 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
     _ = ‖∑ u with u ∈ rowDecomp t j, ∫ x, ∑ u' with u' ∈ rowDecomp t j',
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
       congr
-      exact integral_finset_sum _ fun u mu ↦
+      exact integral_finsetSum _ fun u mu ↦
         (BoundedCompactSupport.finset_sum fun u' mu' ↦
           hf₁.adjointCarlesonSum.mul hf₂.adjointCarlesonSum.conj).integrable
     _ = ‖∑ u with u ∈ rowDecomp t j, ∑ u' with u' ∈ rowDecomp t j', ∫ x,
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
       congr! with u mu
-      exact integral_finset_sum _ fun u' mu' ↦
+      exact integral_finsetSum _ fun u' mu' ↦
         (hf₁.adjointCarlesonSum.mul hf₂.adjointCarlesonSum.conj).integrable
     _ ≤ ∑ u with u ∈ rowDecomp t j, ‖∑ u' with u' ∈ rowDecomp t j', ∫ x,
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := enorm_sum_le _ _
@@ -650,8 +662,8 @@ lemma disjoint_of_ne_of_mem {i j : ℕ} {u u' : 𝔓 X} (hne : u ≠ u') (hu : u
       exact le_trans (le_abs_self _) <|
         abs_dist_sub_le (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)) _ _ _
   have : 𝒬 p' ∉ ball_(p) (𝒬 p) 1 := by
-    rw [mem_ball (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)),dist_comm]
-    exact not_lt_of_ge <| le_trans (calculation_7_7_4 (X := X)) this.le
+    intro hmem
+    apply not_lt_of_ge (le_trans (calculation_7_7_4 (X := X)) this.le) (mem_ball'.mp hmem)
   have : ¬(Ω p' ⊆ Ω p) := (fun hx => this <| subset_cball <| hx 𝒬_mem_Ω)
   exact (relative_fundamental_dyadic 𝓘_p_le).resolve_right this
 
@@ -682,13 +694,13 @@ lemma forest_operator_g_prelude
   have bg := bcs_of_measurable_of_le_indicator_g hg h2g
   calc
     _ = ‖∑ u with u ∈ t, ∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ := by
-      congr; rw [← integral_finset_sum]; swap
+      congr; rw [← integral_finsetSum]; swap
       · fun_prop
       simp_rw [Finset.mul_sum]
     _ = ‖∑ u with u ∈ t, ∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ := by
       congr! 2 with u mu; exact adjointCarlesonSum_adjoint bf bg _
     _ = ‖∫ x, f x * ∑ u with u ∈ t, conj (adjointCarlesonSum (t u) g x)‖ₑ := by
-      congr; rw [← integral_finset_sum]; swap
+      congr; rw [← integral_finsetSum]; swap
       · intro _ _
         fun_prop
       simp_rw [Finset.mul_sum, mul_comm (f _)]

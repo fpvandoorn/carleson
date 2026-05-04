@@ -1,8 +1,12 @@
-import Carleson.ToMathlib.Annulus
-import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
-import Carleson.ToMathlib.WeakType
-import Mathlib.Analysis.CStarAlgebra.Classes
-import Mathlib.Analysis.Fourier.AddCircle
+module
+
+public import Carleson.ToMathlib.Annulus
+public import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
+public import Carleson.ToMathlib.WeakType
+public import Mathlib.Analysis.CStarAlgebra.Classes
+public import Mathlib.Analysis.Fourier.AddCircle
+
+@[expose] public section
 
 open MeasureTheory Measure Metric Complex Set Function ENNReal
 open scoped NNReal
@@ -217,7 +221,8 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
 
 export KernelProofData (four_le_a)
 
-attribute [instance] KernelProofData.d KernelProofData.cf KernelProofData.hcz
+attribute [implicit_reducible, instance] KernelProofData.d KernelProofData.cf
+attribute [instance] KernelProofData.hcz
 
 section statements
 

@@ -1,5 +1,9 @@
-import Mathlib.Order.ConditionallyCompleteLattice.Basic
-import Mathlib.Order.ConditionallyCompleteLattice.Indexed
+module
+
+public import Mathlib.Order.ConditionallyCompleteLattice.Basic
+public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
+
+public section
 
 -- Upstreaming status: under active development by @ldiedering
 -- Wait for the file to stabilise first.
@@ -53,9 +57,8 @@ theorem ciSup_eq_ciSup {α : Type*} {ι ι' : Sort*} [ConditionallyCompleteLinea
     intro ⟨j⟩
     rcases h₁ j with ⟨i, _⟩
     exact hι ⟨i⟩
-  push_neg at hι hι'
+  push Not at hι hι'
   rw [iSup_of_empty', iSup_of_empty']
-
 
 @[simp]
 theorem WithTop.iSup_coe_eq_top' {α : Type*} [ConditionallyCompleteLinearOrderBot α] [NoTopOrder α] :

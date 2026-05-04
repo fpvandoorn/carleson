@@ -1,4 +1,6 @@
-import Carleson.ToMathlib.RealInterpolation.Minkowski
+module
+
+public import Carleson.ToMathlib.RealInterpolation.Minkowski
 
 /-!
 # The Marcinkiewisz real interpolation theorem
@@ -29,6 +31,8 @@ It may be nicer to generalise this to Lorentz spaces first, and then upstream th
 Prioritise other files first (e.g., about weak type or the prerequisites files).
 
 -/
+
+@[expose] public section
 
 noncomputable section
 
@@ -110,8 +114,8 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
   --   tauto
   intro f g hf hg
   simp_rw [AESubadditiveOn] at h
-  conv at hT' => enter [i]; rw [forall_swap]
-  rw [forall_swap] at hT'; rw [forall₂_swap] at h
+  conv at hT' => enter [i]; rw [forall_comm]
+  rw [forall_comm] at hT'; rw [forall₂_comm] at h
   simp_rw [imp.swap, ← imp_forall_iff] at h hT'
   specialize h f hf g hg
   simp_rw [enorm_eq_self] at h ⊢
@@ -170,8 +174,8 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
     rw [ne_eq, eq_top_iff] at hx ⊢
     exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
   refine ⟨AESubadditiveOn.biSup h𝓑 hT h_add (fun i hi ↦ (h i hi).1), fun f c hf ↦ ?_⟩
-  conv at hT' => enter [i]; rw [forall_swap]
-  rw [forall_swap] at hT'; simp_rw [imp.swap, ← imp_forall_iff] at hT'
+  conv at hT' => enter [i]; rw [forall_comm]
+  rw [forall_comm] at hT'; simp_rw [imp.swap, ← imp_forall_iff] at hT'
   filter_upwards [(ae_ball_iff h𝓑).mpr (fun i hi ↦ (h i hi).2 f c hf),
     (ae_ball_iff h𝓑).mpr (hT' f hf), (ae_ball_iff h𝓑).mpr (hT' (c • f) (h_smul hf))] with x hx hT'fx hT'cfx
   simp_rw [Pi.smul_apply, ENNReal.smul_iSup]
@@ -241,10 +245,11 @@ lemma toReal {T : (α → ε₁) → α' → ℝ≥0∞}
     AESublinearOn (T · · |>.toReal) P A ν := by
   refine ⟨fun f g hf hg ↦ ?_, fun f c hf ↦ ?_⟩
   · filter_upwards [h.1 f g hf hg, hP f hf, hP g hg] with x hx hfx hgx
-    simp only [enorm_eq_self, ne_eq, hfx, not_false_eq_true, enorm_toReal, hgx] at hx ⊢
+    simp only [ne_eq, hfx, not_false_eq_true, enorm_toReal, hgx] at hx ⊢
     exact enorm_toReal_le.trans hx
   · filter_upwards [h.2 f c hf, hP f hf] with x hx hfx
-    simp_rw [hx, Pi.smul_apply, toReal_smul]
+    rw [hx, Pi.smul_apply, toReal_smul]
+    rfl
 
 end AESublinearOn
 
@@ -912,7 +917,7 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
   have hq₀ : 0 < q₀ := pos_of_rb_Ioc hp₀
   have hq₁ : 0 < q₁ := pos_of_rb_Ioc hp₁
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | hF
-  · refine le_of_eq_of_le ?_ (zero_le _)
+  · refine le_of_eq_of_le ?_ zero_le
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
   · let spf := spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf.2⟩
     apply combine_estimates₁ <;> try assumption
@@ -1024,7 +1029,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
     (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
   have p_eq_p₀ : p = p₀ := (interp_exp_eq hp₀p₁ ht hp).symm
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | snorm_pos
-  · refine le_of_eq_of_le ?_ (zero_le _)
+  · refine le_of_eq_of_le ?_ zero_le
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
   · have hF : eLpNorm f p μ ∈ Ioo 0 ⊤ := ⟨snorm_pos, hf.2⟩
     have M_pos : 0 < M := toReal_pos (d_pos hC₀ hC₁ hF).ne' (d_ne_top hC₀ hC₁ hF)

@@ -1,5 +1,9 @@
-import Carleson.Calculations
-import Carleson.ForestOperator.AlmostOrthogonality
+module
+
+public import Carleson.Calculations
+public import Carleson.ForestOperator.AlmostOrthogonality
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -14,7 +18,6 @@ open Set MeasureTheory Metric Function Complex Bornology TileStructure Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
-
 
 /-! ## Section 7.6 and Lemma 7.4.6 -/
 
@@ -113,7 +116,7 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
   have qlt : 𝓘 q < 𝓘 u₁ := lt_of_le_of_ne (t.smul_four_le hu₁ mq).1 (t.𝓘_ne_𝓘 hu₁ mq)
   have u₁nm : 𝓘 u₁ ∉ 𝓙₆ t u₁ := by
     simp_rw [𝓙₆, mem_inter_iff, mem_Iic, le_rfl, and_true, 𝓙, mem_setOf, Maximal, not_and_or]; left
-    rw [𝓙₀, mem_setOf]; push_neg; rw [Grid.lt_def] at qlt
+    rw [𝓙₀, mem_setOf]; push Not; rw [Grid.lt_def] at qlt
     refine ⟨(scale_mem_Icc.1.trans_lt qlt.2).ne',
       ⟨q, mq, qlt.1.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩⟩
     change 4 * (D : ℝ) ^ (𝔰 u₁) ≤ 100 * D ^ (𝔰 u₁ + 1); gcongr
@@ -122,8 +125,8 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
   rw [Grid.lt_def] at Jlt; obtain ⟨J', lJ', sJ'⟩ := Grid.exists_scale_succ Jlt.2
   replace lJ' : J < J' := Grid.lt_def.mpr ⟨lJ'.1, by lia⟩
   have J'nm : J' ∉ 𝓙₀ (t u₁) := by
-    by_contra hh; apply absurd hJ.1.2; push_neg; use J', hh, lJ'.le, not_le_of_gt lJ'
-  rw [𝓙₀, mem_setOf] at J'nm; push_neg at J'nm; obtain ⟨p', mp', sp'⟩ := J'nm.2
+    by_contra hh; apply absurd hJ.1.2; push Not; use J', hh, lJ'.le, not_le_of_gt lJ'
+  rw [𝓙₀, mem_setOf] at J'nm; push Not at J'nm; obtain ⟨p', mp', sp'⟩ := J'nm.2
   exact ⟨b1, ⟨J', lJ', sJ', ⟨p', mp', sp'⟩⟩⟩
 
 /-- The key relation of Lemma 7.6.3, which will eventually be shown to lead to a contradiction. -/
@@ -243,7 +246,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   · suffices ({I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
         ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) } : Finset (Grid X)) = ∅ by
       rw [this]
-      simp
+      simp only [Finset.sum_empty, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, laverage_zero, zero_le]
     simp only [Finset.filter_eq_empty_iff, Finset.mem_univ, not_and, Decidable.not_not,
       true_implies]
     intros I hI
@@ -399,7 +402,7 @@ lemma btp_expansion (hf : BoundedCompactSupport f) :
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, ∫⁻ x in (J : Set X), (fun _ ↦
         ‖⨍ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖‖ₑ ^ 2) x) ^ (2 : ℝ)⁻¹ := by
       congr 1; simp_rw [← lintegral_indicator coeGrid_measurable]
-      exact lintegral_finset_sum _ fun J mJ ↦ measurable_const.indicator coeGrid_measurable
+      exact lintegral_finsetSum _ fun J mJ ↦ measurable_const.indicator coeGrid_measurable
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, ∫⁻ x in (J : Set X),
         (⨍⁻ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖ₑ ∂volume) ^ 2) ^ (2 : ℝ)⁻¹ := by
       simp only [lintegral_const]; congr! with J mJ
@@ -470,7 +473,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ s J - 𝔰 p = k,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with J mJ
-      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
+      exact lintegral_finsetSum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
         hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         volume (J : Set X) ^ (-2 : ℝ)⁻¹ * ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
@@ -480,7 +483,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
       rw [← ENNReal.rpow_neg_one, show (-1 : ℝ) = (-2)⁻¹ * (2 : ℕ) by norm_num, ENNReal.rpow_mul,
         ENNReal.rpow_natCast, ← mul_pow, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast,
         Finset.mul_sum]
-      congr! 9 with k mk y p; lia
+      congr! 8 with k mk y p; lia
     _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X) ^ (-2 : ℝ)⁻¹ *
         ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
@@ -543,12 +546,14 @@ lemma btp_integral_bound :
       refine mul_le_mul_right (lintegral_mono fun y ↦ ?_) _
       by_cases my : y ∈ ball (c I) (8 * D ^ s I)
       · refine mul_le_mul_right ?_ _; rw [MB_def]
-        have : (3, 0, I) ∈ 𝓑 := by simp [𝓑]
+        have : (3, 0, I) ∈ 𝓑 := by
+          simp only [𝓑, Set.mem_prod, mem_Iic, Set.mem_univ, and_true]
+          omega
         refine le_of_eq_of_le ?_ (le_biSup _ this)
         have : y ∈ ball (c I) (2 ^ 3 * (D : ℝ) ^ s I) := by rwa [show (2 : ℝ) ^ 3 = 8 by norm_num]
         simp_rw [c𝓑, r𝓑, Nat.cast_zero, add_zero, indicator_of_mem this, enorm_eq_nnnorm]
         norm_num
-      · rw [indicator_of_notMem my, zero_mul]; exact zero_le _
+      · rw [indicator_of_notMem my, zero_mul]; exact zero_le
 
 attribute [fun_prop] AEMeasurable.restrict
 
@@ -599,7 +604,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
-      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
+      exact lintegral_finsetSum' _ fun k mk ↦ Finset.aemeasurable_fun_sum _ fun p mp ↦
         hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
@@ -636,7 +641,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
           ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
         (ball (c I) (8 * D ^ s I)).indicator 1 y) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
-      rw [← lintegral_finset_sum']; swap
+      rw [← lintegral_finsetSum']; swap
       · fun_prop (discharger := measurability)
       congr with y; rw [mul_comm, Finset.sum_mul]
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
@@ -808,6 +813,7 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
 Has value `2 ^ (232 * a ^ 3 + 21 * a + 5- 25/(101a) * Z n κ)` in the blueprint. -/
 irreducible_def C7_4_6 (a n : ℕ) : ℝ≥0 := C7_2_1 a * C7_6_2 a n
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 7.4.6 -/
 lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
@@ -819,7 +825,8 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   calc
     _ = ‖∫ x, conj (adjointCarlesonSum (t u₁) f₁ x) *
         adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x‖ₑ := by
-      rw [← RCLike.enorm_conj, ← integral_conj]; congr! 3 with x
+      rw [← RCLike.enorm_conj, ← integral_conj]
+      congr! 3 with x
       rw [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
     _ = ‖∫ x, conj (U.indicator (adjointCarlesonSum (t u₁) (U.indicator f₁)) x) *
         adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x‖ₑ := by

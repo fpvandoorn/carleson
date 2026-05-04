@@ -1,6 +1,10 @@
-import Carleson.Classical.Basic
-import Mathlib.Analysis.Calculus.BumpFunction.Convolution
-import Mathlib.Analysis.PSeries
+module
+
+public import Carleson.Classical.Basic
+public import Mathlib.Analysis.Calculus.BumpFunction.Convolution
+public import Mathlib.Analysis.PSeries
+
+public section
 
 /- This file contains the arguments from section 11.2 (smooth functions) from the blueprint. -/
 
@@ -63,34 +67,21 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) :
     ∃ C, ∀ n, ‖fourierCoeffOn Real.two_pi_pos f n‖ ≤ C := by
   obtain ⟨C, f_bounded⟩ := continuous_bounded f_continuous.continuousOn
   refine ⟨C, fun n ↦ ?_⟩
-  simp only [fourierCoeffOn_eq_integral, sub_zero, one_div, mul_inv_rev, Complex.real_smul,
-    Complex.norm_real, Complex.norm_mul, norm_eq_abs, abs_mul, abs_inv, Nat.abs_ofNat]
-  field_simp
-  rw [abs_of_nonneg pi_pos.le, mul_comm π]
-  calc
-    _ = ‖∫ (x : ℝ) in (0 : ℝ)..(2 * π), (starRingEnd ℂ) (Complex.exp (2 * π * Complex.I * n * x / (2 * π))) * f x‖ := by simp
-    _ = ‖∫ (x : ℝ) in (0 : ℝ)..(2 * π), (starRingEnd ℂ) (Complex.exp (Complex.I * n * x)) * f x‖ := by
-      congr with x
-      congr
-      ring_nf
-      rw [mul_comm, ←mul_assoc, ← mul_assoc, ← mul_assoc, inv_mul_cancel₀]
-      · ring
-      · simp [pi_pos.ne.symm]
-    _ ≤ ∫ (x : ℝ) in (0 : ℝ)..(2 * π), ‖(starRingEnd ℂ) (Complex.exp (Complex.I * n * x)) * f x‖ :=
-      intervalIntegral.norm_integral_le_integral_norm Real.two_pi_pos.le
-    _ = ∫ (x : ℝ) in (0 : ℝ)..(2 * π), ‖(Complex.exp (Complex.I * n * x)) * f x‖ := by simp
-    _ = ∫ (x : ℝ) in (0 : ℝ)..(2 * π), ‖f x‖ := by
-      congr with x
-      simp only [norm_mul]
-      rw_mod_cast [mul_assoc, mul_comm Complex.I, Complex.norm_exp_ofReal_mul_I]
-      ring
-    _ ≤ ∫ (_ : ℝ) in (0 : ℝ)..(2 * π), C := by
-      refine intervalIntegral.integral_mono_on Real.two_pi_pos.le ?_ intervalIntegrable_const
-        fun x hx ↦ f_bounded x hx
-      /-Could specify `aestronglyMeasurable` and `intervalIntegrable` intead of `f_continuous`. -/
-      exact IntervalIntegrable.intervalIntegrable_norm_iff f_continuous.aestronglyMeasurable |>.mpr
-        (f_continuous.intervalIntegrable ..)
-    _ = _ := by simp
+  rw [fourierCoeffOn_eq_integral, norm_smul, sub_zero, Real.norm_of_nonneg (by positivity),
+      one_div, inv_mul_le_iff₀ Real.two_pi_pos]
+  calc ‖∫ (x : ℝ) in (0 : ℝ)..2 * π, fourier (-n) (↑x : AddCircle (2 * π)) • f x‖
+      ≤ ∫ (x : ℝ) in (0 : ℝ)..2 * π, ‖fourier (-n) (↑x : AddCircle (2 * π)) • f x‖ :=
+        intervalIntegral.norm_integral_le_integral_norm Real.two_pi_pos.le
+    _ = ∫ (x : ℝ) in (0 : ℝ)..2 * π, ‖f x‖ := by
+        apply intervalIntegral.integral_congr (fun x _ ↦ ?_)
+        simp only [norm_smul, fourier_apply, Circle.norm_coe, one_mul]
+    _ ≤ ∫ (_ : ℝ) in (0 : ℝ)..2 * π, C :=
+        intervalIntegral.integral_mono_on Real.two_pi_pos.le
+          (f_continuous.norm.intervalIntegrable 0 (2 * π))
+          intervalIntegrable_const
+          (fun x hx ↦ f_bounded x hx)
+    _ = 2 * π * C := by
+        rw [intervalIntegral.integral_const, smul_eq_mul, sub_zero]
 
 /-TODO: Assumptions might be weakened. -/
 lemma periodic_deriv {𝕜 : Type} [NontriviallyNormedField 𝕜] {F : Type} [NormedAddCommGroup F] [NormedSpace 𝕜 F]

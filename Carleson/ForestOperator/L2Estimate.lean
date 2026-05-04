@@ -1,5 +1,9 @@
-import Carleson.ForestOperator.PointwiseEstimate
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+module
+
+public import Carleson.ForestOperator.PointwiseEstimate
+public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+
+@[expose] public section
 
 noncomputable section
 
@@ -65,7 +69,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
   suffices ((D : ℝ) ^ s)⁻¹ * dist x y ∉ support ψ by simp [Ks, notMem_support.mp this, -defaultD]
   rw [support_ψ (one_lt_realD X), mem_Ioo, not_and_or]
   rcases lt_or_ge ((D : ℝ) ^ (b - 1) / 4) (dist x y) with h | h
-  · push_neg; right
+  · push Not; right
     calc
       _ ≥ ((D : ℝ) ^ c)⁻¹ * (D ^ c / 2) := by
         gcongr
@@ -74,7 +78,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
         · exact (Finset.mem_Icc.mp hs).2
         · exact hy h
       _ = _ := by field_simp
-  · push_neg; left
+  · push Not; left
     calc
       _ ≤ ((D : ℝ) ^ b)⁻¹ * (D ^ (b - 1) / 4) := by
         refine mul_le_mul ?_ h dist_nonneg ?_
@@ -157,7 +161,7 @@ private lemma nontangential_integral_bound₁
     ‖∫ y in Annulus.oc x' R₁ R₂, K x' y * f y‖ₑ ≤
     2 * linearizedNontangentialOperator Q θ K f x := by
   rcases le_or_gt R₂ R₁ with lR₂ | lR₂
-  · rw [Annulus.oc_eq_empty lR₂, setIntegral_empty, enorm_zero]; exact zero_le _
+  · rw [Annulus.oc_eq_empty lR₂, setIntegral_empty, enorm_zero]; exact zero_le
   have pR₁ : 0 < R₁ := dist_nonneg.trans_lt hR₁
   have pR₂ : 0 < R₂ := pR₁.trans lR₂
   choose R₃ hR₃ using exists_between hR₂
@@ -235,7 +239,8 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
     _ = ⨍⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ ∂volume := by rw [setLAverage_eq]
     _ ≤ MB volume 𝓑 c𝓑 r𝓑 f x := by
       rw [MB_def]
-      have : (4, 0, I) ∈ 𝓑 := by simp [𝓑]
+      have : (4, 0, I) ∈ 𝓑 := by
+        simp only [𝓑, Set.mem_prod, Set.mem_Iic, Set.mem_univ, le_add_iff_nonneg_left, zero_le, and_self]
       refine le_of_eq_of_le ?_ (le_biSup _ this)
       have : x ∈ ball (c I) (2 ^ 4 * (D : ℝ) ^ s I) := by
         refine (ball_subset_ball ?_) (Grid_subset_ball hx)
@@ -250,7 +255,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
     2 * linearizedNontangentialOperator Q θ K f x +
     2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x := by
   refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ ms₂ ↦ iSup_le fun ls₂ ↦ ?_
-  rw [← integral_finset_sum]; swap
+  rw [← integral_finsetSum]; swap
   · intro i hi; simp_rw [mul_comm]
     exact hf.integrable_mul (integrable_Ks_x (one_lt_realD X))
   simp_rw [← Finset.sum_mul]
@@ -286,7 +291,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
         ∫⁻ y in Annulus.cc x' (D ^ (s₂ - 1) / 4) (D ^ s₂ / 2), ‖K x' y * f y‖ₑ) := by
       have norm_K'_f_le : ∀ (y : X), ‖K' (s I) s₂ x' y * f y‖ₑ ≤ ‖K x' y * f y‖ₑ := by
         simp_rw [enorm_mul]
-        exact fun y ↦ mul_le_mul_of_nonneg_right (K'.enorm_le_enorm_K _ _ _ _) (zero_le _)
+        exact fun y ↦ mul_le_mul_of_nonneg_right (K'.enorm_le_enorm_K _ _ _ _) zero_le
       gcongr
       · refine (congrArg (‖·‖ₑ) <| setIntegral_congr_fun Annulus.measurableSet_oc fun y hy ↦ ?_).le
         apply mul_eq_mul_right_iff.mpr ∘ Or.inl ∘ K'.eq_K (s I) s₂ x' y
@@ -482,7 +487,7 @@ lemma e728_rearrange (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport 
       unfold indicator; split_ifs <;> simp
     _ = ∑ I : Grid X, ∫ x, (I : Set X).indicator
         (fun _ ↦ conj (g x) * ∑ J ∈ 𝓙' t u (c I) (s I), (ijIntegral f I J).toReal) x := by
-      refine integral_finset_sum _ fun I _ ↦ ?_
+      refine integral_finsetSum _ fun I _ ↦ ?_
       change Integrable ((I : Set X).indicator _)
       rw [integrable_indicator_iff coeGrid_measurable]
       dsimp only
@@ -508,11 +513,16 @@ lemma e728_rearrange (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport 
     _ = ∑ I : Grid X, (volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal *
         ∫ x in I, (conj (g x) * ∑ J ∈ 𝓙' t u (c I) (s I),
           (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal) := by
-      congr with I; rw [← integral_const_mul]
+      congr with I
+      have : ∫ x in (I : Set X), ↑(volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal * (conj (g x) * ↑(∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in (J : Set X), ‖f y‖ₑ).toReal)) = ↑(volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal * ∫ x in (I : Set X), conj (g x) * ↑(∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in (J : Set X), ‖f y‖ₑ).toReal) := integral_const_mul _ _
+      rw [← this]
       congr with x; rw [← mul_assoc, mul_comm _ (conj _), mul_assoc]
       congr 1; rw [ofReal_sum, ofReal_sum, Finset.mul_sum]
       congr with J; rw [mul_comm, ofReal_mul]
-    _ = _ := by simp_rw [integral_mul_const, mul_assoc]
+    _ = _ := by
+      congr with I
+      have : ∫ x in (I : Set X), conj (g x) * (↑(∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in (J : Set X), ‖f y‖ₑ).toReal) : ℂ) = (∫ x in (I : Set X), conj (g x)) * (↑(∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in (J : Set X), ‖f y‖ₑ).toReal) : ℂ) := integral_mul_const _ _
+      rw [this, ← mul_assoc]
 
 open scoped Classical in
 /-- Equation (7.2.8) in the proof of Lemma 7.2.3. -/
@@ -528,13 +538,13 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       rw [e728_rearrange hf hg]
     _ ≤ ∑ I : Grid X, ‖((volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal * ∫ x in I, conj (g x)) *
         ∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal‖ₑ := by
-      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe]
+      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe]
       apply nnnorm_sum_le
     _ ≤ ∑ I : Grid X, (volume (ball (c I) (16 * D ^ s I)))⁻¹ * ‖∫ x in I, conj (g x)‖ₑ *
         ∑ J ∈ 𝓙' t u (c I) (s I), ‖(D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal‖ₑ := by
       simp_rw [enorm_mul]; gcongr <;> rw [← ofReal_norm, norm_real, ofReal_norm]
       · exact enorm_toReal_le
-      · simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe]
+      · simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe]
         apply nnnorm_sum_le
     _ ≤ ∑ I : Grid X, ((volume (ball (c I) (16 * D ^ s I)))⁻¹ * ∫⁻ x in I, ‖g x‖ₑ) *
         ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ := by
@@ -556,7 +566,9 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
           D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ else 0 := by
       rw [Finset.sum_comm]; congr with I
       simp_rw [Finset.mul_sum, mul_assoc, ← Finset.sum_filter]
-      exact Finset.sum_congr (by ext; simp [𝓙']) fun _ _ ↦ rfl
+      refine Finset.sum_congr ?_ fun _ _ ↦ rfl
+      ext
+      simp only [𝓙', Finset.mem_filter, Finset.mem_univ, Set.mem_toFinset, true_and]
     _ = ∑ J ∈ 𝓙 (t u), ∑ I : Grid X, ∫⁻ y in J,
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
           (⨍⁻ x in ball (c I) (16 * D ^ s I), ‖g x‖ₑ ∂volume) *
@@ -568,7 +580,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
           (⨍⁻ x in ball (c I) (16 * D ^ s I), ‖g x‖ₑ ∂volume) *
             D ^ ((s J - s I) / (a : ℝ)) * ‖f y‖ₑ else 0 := by
-      congr with J; refine (lintegral_finset_sum' _ fun I _ ↦ ?_).symm
+      congr with J; refine (lintegral_finsetSum' _ fun I _ ↦ ?_).symm
       exact (nfs.restrict.const_mul _).ite (.const _) aemeasurable_const
     _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ∑ I : Grid X,
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
@@ -604,12 +616,12 @@ lemma boundary_geometric_series :
             ext k
             rw [Finset.mem_filter, Finset.mem_Icc, Finset.mem_singleton, and_iff_right_iff_imp]
             intro h'; subst h'; exact ⟨hs, scale_mem_Icc.2⟩
-          simp [this]
+          rw [Set.toFinset_Icc, this, Finset.sum_singleton]
         · have : (Finset.Icc (s J) S).filter (· = s I) = ∅ := by
             ext k
             simp_rw [Finset.mem_filter, Finset.mem_Icc, Finset.notMem_empty, iff_false, not_and]
             intro; lia
-          simp [this]
+          rw [Set.toFinset_Icc, this, Finset.sum_empty]
       · simp_rw [h, false_and, ite_false, Finset.sum_const_zero]
     _ = ∑ kh : Icc (s J) S, ∑ I : Grid X,
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ kh.1 = s I then
@@ -621,7 +633,8 @@ lemma boundary_geometric_series :
       obtain ⟨k, h⟩ := kh
       set J' := (Grid.exists_supercube k h).choose
       have pJ' : s J' = k ∧ J ≤ J' := (Grid.exists_supercube k h).choose_spec
-      by_cases hs : k = s I; swap; · simp [hs]
+      by_cases hs : k = s I; swap;
+      · rw [if_neg (fun h ↦ hs h.2)]; exact zero_le
       suffices (J : Set X) ⊆ ball (c I) (16 * D ^ s I) → I ∈ kissing J' by
         split_ifs; exacts [by simp_all, by tauto, by positivity, by rfl]
       intro mJ; simp_rw [kissing, Finset.mem_filter_univ]
@@ -726,6 +739,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
       have : 4 ≤ (a : ℝ) := by norm_cast; exact four_le_a X
       linarith
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 7.2.3. -/
 lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     eLpNorm (t.boundaryOperator u f) 2 volume ≤ C7_2_3 a * eLpNorm f 2 volume := by
@@ -842,13 +856,17 @@ private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤
       simpa [eLpNorm, eLpNorm'] using ENNReal.lintegral_Lp_smul (m₁.add m₂) two_pos (C7_1_3 a)
     _ ≤ C7_1_3 a • (eLpNorm g₁ 2 μ + eLpNorm g₂ 2 μ) + eLpNorm g₃ 2 μ := by
       gcongr
-      simpa [eLpNorm, eLpNorm'] using ENNReal.lintegral_Lp_add_le m₁ m₂ one_le_two
+      exact eLpNorm_add_le m₁.aestronglyMeasurable m₂.aestronglyMeasurable one_le_two
     _ ≤ C7_1_3 a • ((CMB (defaultA a) 2) * eLpNorm aOC 2 μ + (C7_2_3 a) * eLpNorm aOC 2 μ) +
           (C7_2_2 a) * eLpNorm aOC 2 μ := by
       gcongr
       · exact eLpNorm_MB_le boundedCompactSupport_approxOnCube
       · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube
-        simp [eLpNorm, eLpNorm', aOC, approxOnCube_ofReal, enorm_eq_nnnorm, μ]
+        congr 1
+        apply eLpNorm_congr_norm_ae
+        filter_upwards with x
+        convert Complex.norm_real (aOC x) using 2
+        exact approxOnCube_ofReal _ _ _
       · apply le_trans <| nontangential_operator_bound boundedCompactSupport_approxOnCube (𝒬 u)
         refine mul_le_mul_right (eLpNorm_mono (fun x ↦ ?_)) _
         apply le_of_le_of_eq norm_approxOnCube_le_approxOnCube_norm
@@ -881,7 +899,7 @@ lemma tree_projection_estimate
       refine lintegral_congr (fun x ↦ ?_)
       by_cases hx : x ∈ ⋃ p ∈ t u, 𝓘 p
       · rw [indicator_of_mem hx]
-      · simp [indicator_of_notMem hx, notMem_support.mp (hx <| support_carlesonSum_subset ·)]
+      · simp only [notMem_support.mp (hx <| support_carlesonSum_subset ·), enorm_zero, mul_zero, indicator_of_notMem hx]
     _ ≤ ∫⁻ x in (⋃ L ∈ 𝓛 (t u), (L : Set X)), ‖g x‖ₑ * ‖carlesonSum (t u) f x‖ₑ := by
       rw [biUnion_𝓛]
       refine lintegral_mono_set (fun x hx ↦ ?_)

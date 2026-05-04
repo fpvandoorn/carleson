@@ -1,7 +1,9 @@
-import Carleson.Calculations
-import Carleson.Operators
-import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+module
+
+public import Carleson.Calculations
+public import Carleson.Operators
+public import Carleson.ToMathlib.HardyLittlewood
+public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 
 /-!
 # 6.1. The density arguments
@@ -13,6 +15,8 @@ This file contains the proofs of lemmas 6.1.1, 6.1.2 and 6.1.3 from the blueprin
 - `maximal_bound_antichain`: Lemma 6.1.2.
 - `dens2_antichain`: Lemma 6.1.3.
 -/
+
+@[expose] public section
 
 open scoped ShortVariables
 
@@ -134,7 +138,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
   have ha : 6 * a + (𝕔 + 1) * a ^ 3 = (5 * a + (𝕔 + 1) * a ^ 3) + a := by lia
   simp only [div_eq_mul_inv, ge_iff_le]
   rw [ha, pow_add _ (5 * a + (𝕔 + 1) * a ^ 3) a, mul_assoc]
-  apply mul_le_mul_of_nonneg_left _ (zero_le _)
+  gcongr
   suffices volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) ≤ 2 ^ a * volume (ball x (8 * D ^ 𝔰 p.1)) by
     grw [← inv_inv (2 ^ a), ← ENNReal.mul_inv (.inl (by simp)) (.inl (by finiteness)),
       ENNReal.inv_le_inv, ← ENNReal.div_eq_inv_mul, ENNReal.div_le_of_le_mul' this]
@@ -198,7 +202,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
       refine lintegral_mono fun y ↦ ?_
       rw [enorm_mul]; gcongr
       by_cases hy : Ks (𝔰 p.1) x y = 0
-      · simp [hy]
+      · simp only [hy, enorm_zero, zero_le]
       · exact norm_Ks_le' _ hxE hy -- Composition of ineq. 6.1.6, 6.1.7, 6.1.8
     _ = 2 ^ (5 * a + (𝕔 + 1) * a ^ 3 + a) *
         ⨍⁻ y in ball (𝔠 p.1) (8 * D ^ 𝔰 p.1), ‖f y‖ₑ ∂volume := by

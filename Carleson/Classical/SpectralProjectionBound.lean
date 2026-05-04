@@ -3,8 +3,11 @@
    is still missing.
    Thus, the result here might not yet have the exact form needed later.
 -/
+module
 
-import Carleson.Classical.Basic
+public import Carleson.Classical.Basic
+
+@[expose] public section
 
 open MeasureTheory AddCircle
 open scoped InnerProductSpace

@@ -1,7 +1,11 @@
-import Carleson.TileStructure
-import Carleson.HolderNorm
+module
+
+public import Carleson.TileStructure
+public import Carleson.HolderNorm
 
 /-! This should roughly contain the contents of chapter 8. -/
+
+@[expose] public section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -29,7 +33,8 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
   apply LipschitzWith.const_max
   apply LipschitzWith.of_le_add_mul
   intro a b
-  simp only [NNReal.coe_mk, tsub_le_iff_right, div_eq_inv_mul, mul_one]
+  change 1 - dist x a / (t * R) ≤ 1 - dist x b / (t * R) + (1 / (t * R)) * dist a b
+  simp only [tsub_le_iff_right, div_eq_inv_mul, mul_one]
   have : (t * R) ⁻¹ * dist x b ≤ (t * R)⁻¹ * (dist x a + dist a b) := by
     gcongr
     exact dist_triangle _ _ _
@@ -179,7 +184,10 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 
     apply (closure_mono hφ).trans (closure_ball_subset_closedBall.trans ?_)
     exact closedBall_subset_ball (by linarith)
   have : (∫ y, cutoff R t x y * φ x) / (∫ y, (cutoff R t x y : ℂ)) = φ x := by
-    rw [integral_mul_const, mul_div_cancel_left₀]
+    rw [
+      show ∫ y, (cutoff R t x y : ℂ) * φ x = (∫ y, (cutoff R t x y : ℂ)) * φ x from integral_mul_const (φ x) _,
+      mul_div_cancel_left₀
+    ]
     simpa only [ne_eq, ofReal_eq_zero, integral_complex_ofReal] using (integral_cutoff_pos hR ht).ne'
   rw [dist_eq_norm, ← this, holderApprox, integral_complex_ofReal, ← sub_div,
     ← integral_sub]; rotate_left
@@ -539,7 +547,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {φ : X → ℂ}
   Lipschitz and the cancellativity assumption for the integral against Lipschitz functions. -/
   have : (ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + edist_{z, R} f g) ^ (- τ) ≤
       (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
-    simp only [defaultA, coe_nndist, defaultτ, t]
+    simp only [coe_nndist, defaultτ, t]
     rw [← ENNReal.ofReal_rpow_of_pos (by positivity),
       ENNReal.ofReal_add zero_le_one (by positivity), ← edist_dist, ENNReal.ofReal_one]
     rw [← ENNReal.rpow_mul, ← ENNReal.rpow_add]; rotate_left
@@ -583,7 +591,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {φ : X → ℂ}
     apply this.trans_eq
     rw [show - τ ^ 2 / (2 + a) = (-τ / (2 + a)) * τ by ring, ENNReal.rpow_mul]
     congr 1
-    simp only [defaultA, coe_nndist, defaultτ, t]
+    simp only [coe_nndist, defaultτ, t]
     rw [← ENNReal.ofReal_rpow_of_pos (by positivity),
       ENNReal.ofReal_add zero_le_one (by positivity), ← edist_dist, ENNReal.ofReal_one]
     congr

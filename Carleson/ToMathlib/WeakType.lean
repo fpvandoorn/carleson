@@ -1,8 +1,13 @@
-import Carleson.ToMathlib.BoundedFiniteSupport
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
-import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
-import Mathlib.Analysis.SpecialFunctions.Pow.Integral
+module
+
+public import Carleson.ToMathlib.BoundedFiniteSupport
+public import Carleson.ToMathlib.Misc
+public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Mathlib.Analysis.SpecialFunctions.Pow.Integral
+import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+
+@[expose] public section
 
 -- Upstreaming status: all of this should go into mathlib, eventually.
 -- Most lemmas have the right form, but proofs can often be golfed.
@@ -147,7 +152,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
           rw [db_zero] at h₂
           change Icc 0 ε (distribution f z μ)
           rw [nonpos_iff_eq_zero.mp h₂]
-          exact ⟨zero_le 0, zero_le ε⟩
+          exact ⟨zero_le, zero_le⟩
       -- Case: 0 < distribution f t₀ μ
       · obtain ⟨n, wn⟩ :=
           select_neighborhood_distribution t₀ _
@@ -357,9 +362,9 @@ lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [E
       unfold indicator
       rw [enorm_add, add_comm]
       split_ifs
-      apply lt_add_of_lt_of_nonneg _ (zero_le _)
+      apply lt_add_of_lt_of_nonneg _ zero_le
       simpa [h]
-  · push_neg at ht
+  · push Not at ht
     congr 1 with x
     simp only [Pi.add_apply, mem_setOf_eq]
     rw [enorm_add, ENNReal.sub_lt_iff_lt_right hc ht]
@@ -454,9 +459,7 @@ lemma wnorm'_mono_enorm_ae {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α →
   apply iSup_le
   intro t
   calc _
-    _ ≤ ↑t * distribution g (↑t) μ ^ p⁻¹ := by
-      gcongr
-      assumption
+    _ ≤ ↑t * distribution g (↑t) μ ^ p⁻¹ := by gcongr
   apply le_iSup _ t
 
 lemma wnorm_mono_enorm_ae {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α → ε'}
@@ -517,8 +520,7 @@ theorem wnorm_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid �
         apply ENNReal.div_lt_of_lt_mul'
         nth_rw 1 [← one_mul ‖a‖ₑ]
         gcongr
-        · exact ha'
-        · norm_num
+        norm_num
     apply le_of_forall_lt_imp_le_of_dense
     intro c hc
     apply le_iSup_of_le (c / (μ s ^ p.toReal⁻¹)).toNNReal
@@ -542,6 +544,22 @@ theorem wnorm_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid �
     · rw [ENNReal.coe_toNNReal hc']
       simp only [mem_Iio, eq_iff_iff, iff_true]
       apply ENNReal.div_lt_of_lt_mul' hc
+
+lemma wnorm_iSup_of_monotone {α : Type*} [MeasurableSpace α] {p : ℝ≥0∞} (hp : p ≠ 0) (f : ℕ → α → ℝ≥0∞)
+    (hf : Monotone f) (μ : Measure α) : wnorm (fun x => ⨆ n, f n x) p μ = ⨆ n, wnorm (f n) p μ := by
+  unfold wnorm wnorm' distribution
+  split_ifs with hp'
+  · exact eLpNormEssSup_iSup f
+  · rw [iSup_comm]; congr with t
+    rw [←ENNReal.mul_iSup]; congr
+    rw [←(iSup_rpow (toReal_pos hp hp' |> inv_pos_of_pos))]; congr
+    simp only [enorm_eq_self]
+    rw [←Monotone.measure_iUnion, iUnion_setOf]
+    · congr with x
+      exact lt_iSup_iff
+    · apply monotone_setOf
+      intro x
+      exact monotone_lt.comp (hf.apply₂ x)
 
 
 /-- A function is in weak-L^p if it is (strongly a.e.)-measurable and has finite weak L^p norm. -/
@@ -762,6 +780,19 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
+lemma hasWeakType_iSup_of_monotone {f : ℕ → (α → ε₁) → (α' → ℝ≥0∞)} (hf : Monotone f)
+    (hp' : p' ≠ 0) (hwtf : ∀ n, HasWeakType (f n) p p' μ ν c) :
+    HasWeakType (fun u x => ⨆ n, f n u x) p p' μ ν c := by
+  intro v mlpv
+  constructor
+  · apply AEMeasurable.aestronglyMeasurable
+    -- should StronglyMeasurable.iSup exist?
+    apply AEMeasurable.iSup
+    exact (hwtf · v mlpv |>.left.aemeasurable)
+  · rw [wnorm_iSup_of_monotone hp']
+    · exact iSup_le fun n => hwtf n v mlpv |>.right
+    · exact hf.apply₂ v
+
 -- lemma comp_left [MeasurableSpace ε₂] {ν' : Measure ε₂} {f : ε₂ → ε₃} (h : HasWeakType T p p' μ ν c)
 --     (hf : MemLp f p' ν') :
 --     HasWeakType (f ∘ T ·) p p' μ ν c := by
@@ -818,6 +849,22 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
+lemma hasStrongType_iSup_of_monotone {f : ℕ → (α → ε₁) → (α' → ℝ≥0∞)} (hf : Monotone f)
+    (hstf : ∀ n, HasStrongType (f n) p p' μ ν c) :
+    HasStrongType (fun u x => ⨆ n, f n u x) p p' μ ν c := by
+  intro v mlpv
+  constructor
+  · apply AEMeasurable.aestronglyMeasurable
+    -- should StronglyMeasurable.iSup exist?
+    apply AEMeasurable.iSup
+    exact (hstf · v mlpv |>.left.aemeasurable)
+  · rw [eLpNorm_iSup']
+    · exact iSup_le fun n => hstf n v mlpv |>.right
+    · exact fun n => hstf n v mlpv |>.left.aemeasurable
+    · apply ae_of_all
+      intro a
+      exact (hf.apply₂ _).apply₂ _
+
 end HasStrongType
 
 /-! ### Lemmas about `HasBoundedStrongType` -/
@@ -842,6 +889,7 @@ lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 0 < p')
   fun f hf ↦
     ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
 
+set_option backward.isDefEq.respectTransparency false in
 lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞}
     (h : HasBoundedStrongType T p p' μ ν c) (r : ℝ≥0) :
     HasBoundedStrongType (r • T) p p' μ ν (r • c) := by
