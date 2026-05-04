@@ -7,6 +7,7 @@ public import Mathlib.MeasureTheory.Covering.Vitali
 public import Mathlib.MeasureTheory.Integral.Average
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Mathlib.Tactic.Field
+import Carleson.ToMathlib.MeasureTheory.Covering.Vitali
 
 @[expose] public section
 
@@ -39,52 +40,9 @@ lemma countable_globalMaximalFunction :
     (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
   (covering_separable_space X).choose_spec.1.prod countable_univ
 
--- probably not suited for Mathlib in this form
-lemma exists_ball_subset_ball_two (c : X) {r : ℝ} (hr : 0 < r) :
-    ∃ c' ∈ (covering_separable_space X).choose,
-      ∃ m : ℤ, ball c r ⊆ ball c' (2 ^ m) ∧ 2 ^ m ≤ 2 * r ∧ ball c' (2 ^ m) ⊆ ball c (4 * r) := by
-  obtain ⟨_, hCr⟩ := (covering_separable_space X).choose_spec
-  let m := ⌊Real.logb 2 r⌋
-  have hm : 2 ^ m ≤ r := by
-    calc _ ≤ (2 : ℝ) ^ (Real.logb 2 r) := by
-          convert Real.monotone_rpow_of_base_ge_one one_le_two (Int.floor_le _)
-          exact (Real.rpow_intCast 2 m).symm
-      _ = _ := Real.rpow_logb zero_lt_two (OfNat.one_ne_ofNat 2).symm hr
-  have hm' : r < 2 ^ (m + 1) := by
-    calc _ = (2 : ℝ) ^ Real.logb 2 r := (Real.rpow_logb zero_lt_two (OfNat.one_ne_ofNat 2).symm hr).symm
-      _ < _ := by
-        rw [← Real.rpow_intCast 2 (m + 1)]
-        refine Real.strictMono_rpow_of_base_gt_one one_lt_two ?_
-        simp [m]
-  let a := ((2 : ℝ) ^ (m + 1) - r) / 2
-  have h_univ := hCr a (by simp [a, hm'])
-  obtain ⟨c', hc', hcc'⟩ := mem_iUnion₂.mp <| h_univ ▸ Set.mem_univ c
-  refine ⟨c', hc', m + 1, ball_subset_ball_of_le ?_, ?_, ?_⟩
-  · calc
-      _ ≤ a + r := by gcongr; exact (dist_comm c c' ▸ mem_ball.mp hcc').le
-      _ ≤ _ := by simp only [a, sub_div]; linarith
-  · rw [← Real.rpow_intCast 2 (m + 1)]
-    push_cast
-    rw [Real.rpow_add_one two_ne_zero m, mul_comm]
-    gcongr
-    exact_mod_cast hm
-  · refine ball_subset_ball_of_le ?_
-    calc
-      _ ≤ a + 2 ^ (m + 1) := by gcongr; exact (mem_ball.mp hcc').le
-      _ ≤ 2 ^ (m + 1) + 2 ^ (m + 1) := by
-        gcongr
-        simp only [a]
-        linarith
-      _ ≤ 2 * r + 2 * r := by
-        rw [← Real.rpow_intCast 2 (m + 1)]
-        push_cast
-        rw [Real.rpow_add_one two_ne_zero m, mul_comm]
-        gcongr <;> simp [hm]
-      _ = 4 * r := by ring
-
 end Prelude
 
-variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
+variable {X E : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X]
   {μ : Measure X} [μ.IsDoubling A] [NormedAddCommGroup E]
   {f : X → E} {x : X} {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ}
   -- feel free to assume `A ≥ 16` or similar
@@ -157,64 +115,7 @@ private lemma T.smul [NormedSpace ℝ E] (i : ι) {f : X → E} {d : ℝ≥0} :
     laverage_const_mul ENNReal.coe_ne_top]
   simp [_root_.enorm_smul]
 
--- move near `exists_disjoint_subfamily_covering_enlargement_closedBall`
--- slightly more general than the Mathlib version
--- the extra conclusion says that if there is a nonnegative radius, then we can choose `r b` to be
--- larger than `r a` (up to a constant)
-theorem exists_disjoint_subfamily_covering_enlargement_closedBall' {α} [MetricSpace α] (t : Set ι)
-    (x : ι → α) (r : ι → ℝ) (R : ℝ) (hr : ∀ a ∈ t, r a ≤ R) (τ : ℝ) (hτ : 3 < τ) :
-    ∃ u ⊆ t,
-      (u.PairwiseDisjoint fun a => closedBall (x a) (r a)) ∧
-        ∀ a ∈ t, ∃ b ∈ u, closedBall (x a) (r a) ⊆ closedBall (x b) (τ * r b) ∧
-        (∀ u ∈ t, 0 ≤ r u → r a ≤ (τ - 1) / 2 * r b) := by
-  rcases eq_empty_or_nonempty t with (rfl | _)
-  · exact ⟨∅, Subset.refl _, pairwiseDisjoint_empty, by simp⟩
-  by_cases! ht : ∀ a ∈ t, r a < 0
-  · refine ⟨t, .rfl, fun a ha b _ _ ↦ by
-      simp only [Function.onFun, closedBall_eq_empty.2 (ht a ha), empty_disjoint],
-      fun a ha => ⟨a, ha, by simp only [closedBall_eq_empty.2 (ht a ha), empty_subset],
-      fun u hut hu ↦ (ht u hut).not_ge hu |>.elim⟩⟩
-  let t' := { a ∈ t | 0 ≤ r a }
-  have h2τ : 1 < (τ - 1) / 2 := by linarith
-  rcases exists_disjoint_subfamily_covering_enlargement (fun a => closedBall (x a) (r a)) t' r
-      ((τ - 1) / 2) h2τ (fun a ha => ha.2) R (fun a ha => hr a ha.1) fun a ha =>
-      ⟨x a, mem_closedBall_self ha.2⟩ with
-    ⟨u, ut', u_disj, hu⟩
-  have A : ∀ a ∈ t', ∃ b ∈ u, closedBall (x a) (r a) ⊆ closedBall (x b) (τ * r b) ∧
-    ∀ u ∈ t, 0 ≤ r u → r a ≤ (τ - 1) / 2 * r b := by
-    intro a ha
-    rcases hu a ha with ⟨b, bu, hb, rb⟩
-    refine ⟨b, bu, ?_⟩
-    have : dist (x a) (x b) ≤ r a + r b := dist_le_add_of_nonempty_closedBall_inter_closedBall hb
-    exact ⟨closedBall_subset_closedBall' <| by linarith, fun _ _ _ ↦ rb⟩
-  refine ⟨u, ut'.trans fun a ha => ha.1, u_disj, fun a ha => ?_⟩
-  rcases le_or_gt 0 (r a) with (h'a | h'a)
-  · exact A a ⟨ha, h'a⟩
-  · rcases ht with ⟨b, rb⟩
-    rcases A b ⟨rb.1, rb.2⟩ with ⟨c, cu, _, hc⟩
-    refine ⟨c, cu, by simp only [closedBall_eq_empty.2 h'a, empty_subset], fun _ _ _ ↦ ?_⟩
-    have : 0 ≤ r c := nonneg_of_mul_nonneg_right (rb.2.trans <| hc b rb.1 rb.2) (by positivity)
-    exact h'a.le.trans <| by positivity
-
--- move to Vitali
-theorem Vitali.exists_disjoint_subfamily_covering_enlargement_ball {α} [MetricSpace α] (t : Set ι)
-    (x : ι → α) (r : ι → ℝ) (R : ℝ) (hr : ∀ a ∈ t, r a ≤ R) (τ : ℝ) (hτ : 3 < τ) :
-    ∃ u ⊆ t,
-      (u.PairwiseDisjoint fun a => ball (x a) (r a)) ∧
-        ∀ a ∈ t, ∃ b ∈ u, ball (x a) (r a) ⊆ ball (x b) (τ * r b) := by
-  obtain ⟨σ, hσ, hστ⟩ := exists_between hτ
-  obtain ⟨u, hut, hux, hu⟩ :=
-    exists_disjoint_subfamily_covering_enlargement_closedBall' t x r R hr σ hσ
-  refine ⟨u, hut, fun i hi j hj hij ↦ ?_, fun a ha => ?_⟩
-  · exact (hux hi hj hij).mono ball_subset_closedBall ball_subset_closedBall
-  obtain ⟨b, hbu, hb⟩ := hu a ha
-  refine ⟨b, hbu, ?_⟩
-  obtain h2a | h2a := le_or_gt (r a) 0
-  · simp_rw [ball_eq_empty.mpr h2a, empty_subset]
-  refine ball_subset_closedBall.trans hb.1 |>.trans <| closedBall_subset_ball ?_
-  gcongr
-  apply pos_of_mul_pos_right <| h2a.trans_le <| hb.2 a ha h2a.le
-  linarith
+-- note(04.05.26): Those exist as `Finset.exists_max_image` and `Set.exists_max_image`
 
 -- move next to Finset.exists_le
 lemma Finset.exists_image_le {α β} [Nonempty β] [Preorder β] [IsDirected β (· ≤ ·)]
@@ -227,13 +128,15 @@ lemma Set.Finite.exists_image_le {α β} [Nonempty β] [Preorder β] [IsDirected
     {s : Set α} (hs : s.Finite) (f : α → β) : ∃ b : β, ∀ a ∈ s, f a ≤ b := by
   simpa using hs.toFinset.exists_image_le f
 
-theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h𝓑 : 𝓑.Countable)
-    (l : ℝ≥0∞) (u : X → ℝ≥0∞) (R : ℝ) (hR : ∀ a ∈ 𝓑, r a ≤ R)
+theorem measure_biUnion_le_lintegral [OpensMeasurableSpace X] [SeparableSpace X]
+    (𝓑 : Set ι) (l : ℝ≥0∞) (u : X → ℝ≥0∞) (R : ℝ) (hR : ∀ a ∈ 𝓑, r a ≤ R)
     (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  := by
-  obtain ⟨B, hB𝓑, hB, h2B⟩ := Vitali.exists_disjoint_subfamily_covering_enlargement_ball
-    𝓑 c r R hR (2 ^ 2) (by norm_num)
-  have : Countable B := h𝓑.mono hB𝓑
+  let 𝓑' := { a ∈ 𝓑 | 0 < r a }
+  obtain ⟨B, hB𝓑, hB, h2B⟩ := exists_disjoint_subfamily_covering_enlargement_ball
+    𝓑' c r R (fun a ha => hR a ha.1) (2 ^ 2) (by norm_num)
+  have : Countable B := hB.countable_of_isOpen (fun _ _ => isOpen_ball)
+    (fun a ha => nonempty_ball.mpr (hB𝓑 ha).right)
   have disj := fun i j hij ↦
     hB (Subtype.coe_prop i) (Subtype.coe_prop j) (Subtype.coe_ne_coe.mpr hij)
   calc
@@ -241,10 +144,11 @@ theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h�
           refine mul_right_mono (μ.mono fun x hx ↦ ?_)
           push _ ∈ _ at hx
           rcases hx with ⟨i, i𝓑, hi⟩
-          obtain ⟨b, bB, hb⟩ := h2B i i𝓑
+          have i𝓑' : i ∈ 𝓑' := .intro i𝓑 (nonempty_ball.mp (nonempty_of_mem hi))
+          obtain ⟨b, bB, hb⟩ := h2B i i𝓑'
           exact mem_iUnion₂.mpr ⟨b, bB, hb <| mem_ball.mpr hi⟩
     _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) :=
-          mul_right_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
+          mul_right_mono <| measure_biUnion_le μ this fun i ↦ ball (c i) (2 ^ 2 * r i)
     _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
           refine mul_right_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
           rw [sq, sq, mul_assoc, mul_assoc]
@@ -253,18 +157,11 @@ theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h�
     _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
           rw [ENNReal.tsum_mul_left, ENNReal.tsum_mul_left, ← mul_assoc, ← mul_assoc, mul_comm l]
     _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
-          gcongr; exact h2u _ (hB𝓑 (Subtype.coe_prop _))
+          gcongr; exact h2u _ (hB𝓑 (Subtype.coe_prop _)).left
     _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := by
           congr; simpa using (lintegral_iUnion (fun i ↦ measurableSet_ball) disj u).symm
     _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := by
           gcongr; exact Measure.restrict_le_self
-
-protected theorem Finset.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (𝓑 : Finset ι)
-    (l : ℝ≥0∞) (u : X → ℝ≥0∞)
-    (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
-    l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  :=
-  let ⟨c, hc⟩ := 𝓑.exists_image_le r
-  𝓑.countable_toSet.measure_biUnion_le_lintegral l u c hc h2u
 
 lemma lowerSemiContinuous_maximalFunction {p : ℝ} :
     LowerSemicontinuous (maximalFunction μ 𝓑 c r p f) := by
@@ -308,7 +205,7 @@ protected theorem HasStrongType.MB_top [BorelSpace X] :
   exact essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ MB_le_eLpNormEssSup)
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
-protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
+protected theorem HasWeakType.MB_one [BorelSpace X] [SeparableSpace X]
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
     HasWeakType (MB (E := E) μ 𝓑 c r) 1 1 μ μ (A ^ 2) := by
   intro f _
@@ -319,8 +216,7 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
   intro t
   by_cases ht : t = 0
   · simp [ht]
-  have hBₗ : (Bₗ t).Countable := h𝓑.mono (fun i hi ↦ mem_of_mem_inter_left hi)
-  refine le_trans ?_ (hBₗ.measure_biUnion_le_lintegral (c := c) (r := r) (l := t)
+  refine le_trans ?_ (measure_biUnion_le_lintegral (𝓑 := Bₗ t) (c := c) (r := r) (l := t)
     (u := fun x ↦ ‖f x‖ₑ) (R := R) ?_ ?_)
   · refine mul_right_mono <| μ.mono (fun x hx ↦ mem_iUnion₂.mpr ?_)
     -- We need a ball in `Bₗ t` containing `x`. Since `MB μ 𝓑 c r f x` is large, such a ball exists
@@ -340,10 +236,9 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
   · exact fun i hi ↦ hi.2.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
 
 include A in
-theorem MB_ae_ne_top [BorelSpace X] (h𝓑 : 𝓑.Countable)
-    {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R)
+theorem MB_ae_ne_top [BorelSpace X] [SeparableSpace X] {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R)
     {u : X → E} (hu : MemLp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
-  simpa only [enorm_eq_self] using HasWeakType.MB_one h𝓑 hR |>.memWLp hu coe_lt_top |>.ae_ne_top
+  simpa only [enorm_eq_self] using HasWeakType.MB_one hR |>.memWLp hu coe_lt_top |>.ae_ne_top
 
 -- move
 lemma MeasureTheory.MemLp.eLpNormEssSup_lt_top {α} [MeasurableSpace α] {μ : Measure α}
@@ -352,7 +247,7 @@ lemma MeasureTheory.MemLp.eLpNormEssSup_lt_top {α} [MeasurableSpace α] {μ : M
   exact hu.2
 
 include A in
-theorem MB_ae_ne_top' [BorelSpace X] (h𝓑 : 𝓑.Countable)
+theorem MB_ae_ne_top' [BorelSpace X] [SeparableSpace X]
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R)
     ⦃u : X → E⦄ (hu : MemLp u ∞ μ ∨ MemLp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
   obtain hu|hu := hu
@@ -368,13 +263,12 @@ theorem MB_ae_ne_top' [BorelSpace X] (h𝓑 : 𝓑.Countable)
       _ ≤ ⨆ i : ι, eLpNormEssSup u μ := by gcongr; exact iSup_const_le
       _ ≤ eLpNormEssSup u μ := iSup_const_le
       _ < ∞ := hu.eLpNormEssSup_lt_top
-  · exact MB_ae_ne_top h𝓑 hR hu
+  · exact MB_ae_ne_top hR hu
 
 include A in
 protected theorem MeasureTheory.AESublinearOn.maximalFunction
     [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
-    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Countable)
-    {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
+    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
     AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x)
     (fun f ↦ MemLp f ∞ μ ∨ MemLp f 1 μ) 1 μ := by
   let P := fun g ↦ g ∈ {f : X → E | MemLp f ∞ μ} + {f | MemLp f 1 μ}
@@ -384,10 +278,10 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
   simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
   refine AESublinearOn.biSup2 h𝓑 ?_ ?_ MemLp.zero MemLp.zero MemLp.add MemLp.add ?_ ?_ ?_
   · intro u hu
-    filter_upwards [MB_ae_ne_top' h𝓑 hR (.inl hu)] with x hx
+    filter_upwards [MB_ae_ne_top' hR (.inl hu)] with x hx
     simpa [MB, maximalFunction] using hx
   · intro u hu
-    filter_upwards [MB_ae_ne_top h𝓑 hR hu] with x hx
+    filter_upwards [MB_ae_ne_top hR hu] with x hx
     simpa [MB, maximalFunction] using hx
   · intro f c hf; exact hf.const_smul _
   · intro f c hf; exact hf.const_smul _
@@ -425,7 +319,7 @@ lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 2 : ℝ
 Use the real interpolation theorem instead of following the blueprint. -/
 lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
-    (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) {p : ℝ≥0} (hp : 1 < p) :
+    {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) {p : ℝ≥0} (hp : 1 < p) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) p p μ μ (CMB A p) := by
   have h2p : 0 < p := by positivity
   rw [CMB]
@@ -437,15 +331,9 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     (by simp) (by simp)
     (fun f _ ↦ Measurable.maximalFunction.aestronglyMeasurable)
     ?_ (HasStrongType.MB_top |>.hasWeakType zero_lt_top)
-    (HasWeakType.MB_one h𝓑 hR)
+    (HasWeakType.MB_one hR)
   · exact ⟨ENNReal.inv_pos.mpr coe_ne_top, ENNReal.inv_lt_one.mpr <| one_lt_coe_iff.mpr hp⟩
-  exact (AESublinearOn.maximalFunction h𝓑 hR).1
-
-lemma hasStrongType_MB_finite [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
-    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
-    (h𝓑 : 𝓑.Finite) {p : ℝ≥0} (hp : 1 < p) :
-    HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) p p μ μ (CMB A p) :=
-  hasStrongType_MB h𝓑.countable (Finite.exists_image_le h𝓑 _).choose_spec hp
+  exact (AESublinearOn.maximalFunction hR).1
 
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
 irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) ^ (p₁⁻¹ : ℝ)
@@ -455,7 +343,7 @@ This is a special case of `hasStrongType_maximalFunction` below, which doesn't h
 `hR` (but uses this result in its proof). -/
 theorem hasStrongType_maximalFunction_aux
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
-    {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
+    {p₁ p₂ : ℝ≥0} {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) x ↦ maximalFunction μ 𝓑 c r p₁ u x) p₂ p₂ μ μ
       (C2_0_6 A p₁ p₂) := by
   by_cases h : Nonempty X; swap
@@ -472,7 +360,7 @@ theorem hasStrongType_maximalFunction_aux
   calc
     _ ≤ (CMB A (p₂ / p₁) * eLpNorm (fun y ↦ ‖v y‖ ^ (p₁ : ℝ)) (p₂ / p₁) μ) ^ p₁.toReal⁻¹ := by
       apply ENNReal.rpow_le_rpow _ (by positivity)
-      convert (hasStrongType_MB h𝓑 hR (μ := μ) _ (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
+      convert (hasStrongType_MB hR (μ := μ) _ (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
       · rw [ENNReal.coe_div p₁n]
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
       · rw [ENNReal.coe_div p₁n]; exact mlpv.norm_rpow_div p₁
@@ -520,8 +408,8 @@ lemma maximalFunction_seq_eq (𝓑 : Set ι) (p : ℝ) :
 
 /-- Version of `hasWeakType_maximalFunction_equal_exponents` with the additional assumption `hR`.
 -/
-theorem hasWeakType_maximalFunction_equal_exponents_aux [BorelSpace X]
-    {p : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp : 0 < p) :
+theorem hasWeakType_maximalFunction_equal_exponents_aux [BorelSpace X] [SeparableSpace X]
+    {p : ℝ≥0} {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp : 0 < p) :
     HasWeakType (maximalFunction (E := E) μ 𝓑 c r p) p p μ μ (A ^ ((2 / p : ℝ))) := by
   intro v mlpv
   constructor; · exact Measurable.maximalFunction.aestronglyMeasurable
@@ -531,8 +419,7 @@ theorem hasWeakType_maximalFunction_equal_exponents_aux [BorelSpace X]
     enter [1, x]
     rw [maximalFunction_eq_MB cp]
   have hmb_one : wnorm (MB μ 𝓑 c r fun x ↦ ‖v x‖ ^ (p : ℝ)) 1 μ ≤ ↑A ^ 2 * eLpNorm (fun x ↦ ‖v x‖ ^ (p : ℝ)) 1 μ := by
-    apply (HasWeakType.MB_one h𝓑 hR
-      (fun x : X ↦ ‖v x‖ ^ (p : ℝ)) _).2
+    apply (HasWeakType.MB_one hR (fun x : X ↦ ‖v x‖ ^ (p : ℝ)) _).2
     convert MemLp.norm_rpow_div mlpv p
     exact Eq.symm (ENNReal.div_self (coe_ne_zero.mpr p₁n) coe_ne_top)
   unfold wnorm wnorm' distribution at hmb_one ⊢
@@ -555,21 +442,20 @@ A proof for basically this result is given in Chapter 9, everything following af
 (9.0.36). -/
 theorem hasStrongType_maximalFunction
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
-    {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
-    HasStrongType (maximalFunction (E := E) μ 𝓑 c r p₁) p₂ p₂ μ μ
-      (C2_0_6 A p₁ p₂) := by
+    {p₁ p₂ : ℝ≥0} (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
+    HasStrongType (maximalFunction (E := E) μ 𝓑 c r p₁) p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
   rw [maximalFunction_seq_eq]
   apply hasStrongType_iSup_of_monotone maximalFunction_seq_mono
   intro n
-  exact hasStrongType_maximalFunction_aux (h𝓑.mono (tr_subset n)) (tr_radius_le n) hp₁ hp₁₂
+  exact hasStrongType_maximalFunction_aux (tr_radius_le n) hp₁ hp₁₂
 
 theorem hasWeakType_maximalFunction_equal_exponents
-    [BorelSpace X] {p : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp : 0 < p) :
+    [BorelSpace X] [SeparableSpace X] {p : ℝ≥0} (hp : 0 < p) :
     HasWeakType (maximalFunction (E := E) μ 𝓑 c r p) p p μ μ (A ^ (2 / p : ℝ)) := by
   rw [maximalFunction_seq_eq]
   apply hasWeakType_iSup_of_monotone maximalFunction_seq_mono (by positivity)
   intro n
-  exact hasWeakType_maximalFunction_equal_exponents_aux (h𝓑.mono (tr_subset n)) (tr_radius_le n) hp
+  exact hasWeakType_maximalFunction_equal_exponents_aux (tr_radius_le n) hp
 
 def C_weakType_maximalFunction (A p₁ p₂ : ℝ≥0) :=
   if p₁ = p₂ then (ofNNReal A) ^ (2 / p₁ : ℝ) else C2_0_6 A p₁ p₂
@@ -586,15 +472,15 @@ lemma C_weakType_maximalFunction_lt_top {A p₁ p₂ : ℝ≥0} :
 we only conclude a weak-type estimate. -/
 theorem hasWeakType_maximalFunction
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
-    {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp₁ : 0 < p₁) (hp₁₂ : p₁ ≤ p₂) :
+    {p₁ p₂ : ℝ≥0} (hp₁ : 0 < p₁) (hp₁₂ : p₁ ≤ p₂) :
     HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
       p₂ p₂ μ μ (C_weakType_maximalFunction A p₁ p₂) := by
   unfold C_weakType_maximalFunction
   split_ifs with hps
   · rw [← hps]
-    exact hasWeakType_maximalFunction_equal_exponents (A := A) h𝓑 hp₁
+    exact hasWeakType_maximalFunction_equal_exponents (A := A) hp₁
   · apply HasStrongType.hasWeakType (coe_lt_coe_of_lt (hp₁.trans_le hp₁₂))
-    exact hasStrongType_maximalFunction h𝓑 hp₁ (lt_of_le_of_ne hp₁₂ hps)
+    exact hasStrongType_maximalFunction hp₁ (lt_of_le_of_ne hp₁₂ hps)
 
 section GMF
 
@@ -679,7 +565,7 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
     HasStrongType (globalMaximalFunction μ p₁ (E := E))
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
   apply HasStrongType.const_mul (c := C2_0_6 A p₁ p₂)
-  exact hasStrongType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
+  exact hasStrongType_maximalFunction hp₁ hp₁₂
 
 def C_weakType_globalMaximalFunction (A p₁ p₂ : ℝ≥0) :=
   A ^ 2 * C_weakType_maximalFunction A p₁ p₂
@@ -695,7 +581,7 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
       p₂ p₂ μ μ (C_weakType_globalMaximalFunction A p₁ p₂) := by
   convert HasWeakType.const_mul (c := C_weakType_maximalFunction A p₁ p₂) (e := A ^ 2)
     (coe_ne_zero.mpr (hp₁.trans_le hp₁₂).ne') _
-  exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
+  exact hasWeakType_maximalFunction hp₁ hp₁₂
 
 /-- Use `lowerSemiContinuous_MB` -/
 lemma lowerSemiContinuous_globalMaximalFunction :
