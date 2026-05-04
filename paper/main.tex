@@ -273,11 +273,20 @@ For further detail, we refer the reader to a separate article \cite{PortegiesRot
 \subsection{Constant tweaking} To be written!
 
 \subsection{Dealing with mistakes}\label{subsec:blueprint_mistakes}
+Our formalization of the metric Carleson theorem certified that the main result in \cite{ThieleCarlesonPreprint}  was correct, and that its detailed proof provided in \cite{CarlesonBlueprint} did not contain any serious mathematical mistakes. However, it did contain several errors and imprecisions, most of which were not present in the original paper; instead they were introduced during the blueprint writing process, which required to provide a much higher level of detail than in a standard harmonic analysis paper. Moreover, many proofs in the blueprint relied on non-standard finitary arguments, which sometimes led to proofs that were not correct in the edge cases.
+
+In most cases, the mistakes detected in the blueprint were minor and could be resolved by the formalizers themselves, for instance by adding a missing hypothesis or by modifying a certain constant. Most of these errors were local in nature, meaning that they only affected the proof of a certain lemma, or at most a couple of results, if the lemma statement needed to be modified.
+
+However, fixing certain proofs required the assistance of harmonic analysis experts with a deep understanding of the overall proof strategy. For instance, the proof of an earlier version of \cite[Lemma 6.2.3]{CarlesonBlueprint} relied on the fact that a certain pair of dyadic cubes were not disjoint, which was not necessarily the case under the lemma assumptions. The non-obvious solution required to add an extra hypothesis that a certain pair of open balls were not disjoint, and to increase a constant appearing in the lemma statement, after which the previous proof could be adapted to conclude the result. Luckily this error did not propagate, since the only application of the lemma was still possible under the new hypotheses.
+
+A more involved fix was required for \cite[Lemma 6.3.4]{CarlesonBlueprint}, whose original proof presented several issues. The first needed change was simple, and consisted on further restricting the allowed values for the parameter $\vartheta$, so that a certain covering property could be applied. However, the proof was also incorrect in the case where the value $s(\mathfrak{p})$ associated to a certain tile $\mathfrak{p}$ took the minimum possible value, and it incorrectly assumed that a certain new tile constructed during the proof would always be distinct from $\mathfrak{p}$. To repair these issues, the statements of both Lemma 6.3.3 and Lemma 6.3.4 had to be modified, and significant changes had to be applied to the proof of Lemma 6.3.4.
+
+
+
+Still missing:
 \begin{itemize}
   \item Lemma 11.1.6.
-  \item Lemma 6.3.3/4.
   \item Hölder cancellation (radius $R \to 2R$).
-  \item Lemma 6.2.3: additional hypothesis.
 \end{itemize}
 
 \subsection{Lessons learned}\label{subsec:blueprint_lessons}
