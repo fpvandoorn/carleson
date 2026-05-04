@@ -71,15 +71,11 @@ section Suprema
 
 theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableSpace α]
     {μ : Measure α} (f : ι → α → ℝ≥0∞) :
-    ⨆ n, eLpNormEssSup (f n) μ = eLpNormEssSup (⨆ n, f n) μ := by
+    eLpNormEssSup (fun x => ⨆ n, f n x) μ = ⨆ n, eLpNormEssSup (f n) μ := by
   simp_rw [eLpNormEssSup, essSup_eq_sInf, enorm_eq_self]
   apply le_antisymm
-  · refine iSup_le fun i ↦ le_sInf fun b hb ↦ sInf_le ?_
-    simp only [iSup_apply, mem_setOf_eq] at hb ⊢
-    exact nonpos_iff_eq_zero.mp <|le_of_le_of_eq
-        (measure_mono fun ⦃x⦄ h ↦ lt_of_lt_of_le h (le_iSup (fun i ↦ f i x) i)) hb
   · apply sInf_le
-    simp only [iSup_apply, mem_setOf_eq]
+    simp only [mem_setOf_eq]
     apply nonpos_iff_eq_zero.mp
     calc
     _ ≤ μ (⋃ i, {x | ⨆ n, sInf {a | μ {x | a < f n x} = 0} < f i x}) := by
@@ -95,6 +91,10 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
       · simp
     _ = ∑' i, 0 := by congr with i; exact meas_eLpNormEssSup_lt
     _ = 0 := by simp
+  · refine iSup_le fun i ↦ le_sInf fun b hb ↦ sInf_le ?_
+    simp only [mem_setOf_eq] at hb ⊢
+    exact nonpos_iff_eq_zero.mp <|le_of_le_of_eq
+        (measure_mono fun ⦃x⦄ h ↦ lt_of_lt_of_le h (le_iSup (fun i ↦ f i x) i)) hb
 
 -- XXX: why does the lemma before assume a countable indexing type and this work with ℕ?
 -- make consistent!
@@ -103,7 +103,7 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
   statement in `eLpNormEssSup_iSup` holds. -/
 theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : ℝ≥0∞}
     {f : ℕ → α → ℝ≥0∞} (hf : ∀ n, AEMeasurable (f n) μ) (h_mono : ∀ᵐ x ∂μ, Monotone fun n => f n x) :
-    ⨆ n, eLpNorm (f n) p μ = eLpNorm (⨆ n, f n) p μ := by
+    eLpNorm (fun x => ⨆ n, f n x) p μ = ⨆ n, eLpNorm (f n) p μ := by
   unfold eLpNorm
   split_ifs with hp hp'
   · simp

@@ -5,6 +5,7 @@ public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
 public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Mathlib.Analysis.SpecialFunctions.Pow.Integral
+import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 
 @[expose] public section
 
@@ -544,6 +545,22 @@ theorem wnorm_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid �
       simp only [mem_Iio, eq_iff_iff, iff_true]
       apply ENNReal.div_lt_of_lt_mul' hc
 
+lemma wnorm_iSup_of_monotone {α : Type*} [MeasurableSpace α] {p : ℝ≥0∞} (hp : p ≠ 0) (f : ℕ → α → ℝ≥0∞)
+    (hf : Monotone f) (μ : Measure α) : wnorm (fun x => ⨆ n, f n x) p μ = ⨆ n, wnorm (f n) p μ := by
+  unfold wnorm wnorm' distribution
+  split_ifs with hp'
+  · exact eLpNormEssSup_iSup f
+  · rw [iSup_comm]; congr with t
+    rw [←ENNReal.mul_iSup]; congr
+    rw [←(iSup_rpow (toReal_pos hp hp' |> inv_pos_of_pos))]; congr
+    simp only [enorm_eq_self]
+    rw [←Monotone.measure_iUnion, iUnion_setOf]
+    · congr with x
+      exact lt_iSup_iff
+    · apply monotone_setOf
+      intro x
+      exact monotone_lt.comp (hf.apply₂ x)
+
 
 /-- A function is in weak-L^p if it is (strongly a.e.)-measurable and has finite weak L^p norm. -/
 def MemWLp [TopologicalSpace ε] (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
@@ -763,6 +780,19 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
+lemma hasWeakType_iSup_of_monotone {f : ℕ → (α → ε₁) → (α' → ℝ≥0∞)} (hf : Monotone f)
+    (hp' : p' ≠ 0) (hwtf : ∀ n, HasWeakType (f n) p p' μ ν c) :
+    HasWeakType (fun u x => ⨆ n, f n u x) p p' μ ν c := by
+  intro v mlpv
+  constructor
+  · apply AEMeasurable.aestronglyMeasurable
+    -- should StronglyMeasurable.iSup exist?
+    apply AEMeasurable.iSup
+    exact (hwtf · v mlpv |>.left.aemeasurable)
+  · rw [wnorm_iSup_of_monotone hp']
+    · exact iSup_le fun n => hwtf n v mlpv |>.right
+    · exact hf.apply₂ v
+
 -- lemma comp_left [MeasurableSpace ε₂] {ν' : Measure ε₂} {f : ε₂ → ε₃} (h : HasWeakType T p p' μ ν c)
 --     (hf : MemLp f p' ν') :
 --     HasWeakType (f ∘ T ·) p p' μ ν c := by
@@ -818,6 +848,22 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   refine .of_null <| measure_eq_zero_iff_ae_notMem.mpr ?_
   filter_upwards [hT f hf] with x hx
   simp [hx]
+
+lemma hasStrongType_iSup_of_monotone {f : ℕ → (α → ε₁) → (α' → ℝ≥0∞)} (hf : Monotone f)
+    (hstf : ∀ n, HasStrongType (f n) p p' μ ν c) :
+    HasStrongType (fun u x => ⨆ n, f n u x) p p' μ ν c := by
+  intro v mlpv
+  constructor
+  · apply AEMeasurable.aestronglyMeasurable
+    -- should StronglyMeasurable.iSup exist?
+    apply AEMeasurable.iSup
+    exact (hstf · v mlpv |>.left.aemeasurable)
+  · rw [eLpNorm_iSup']
+    · exact iSup_le fun n => hstf n v mlpv |>.right
+    · exact fun n => hstf n v mlpv |>.left.aemeasurable
+    · apply ae_of_all
+      intro a
+      exact (hf.apply₂ _).apply₂ _
 
 end HasStrongType
 
