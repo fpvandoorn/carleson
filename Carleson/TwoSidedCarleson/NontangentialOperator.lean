@@ -512,7 +512,7 @@ theorem cotlar_control (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport
         _ = 2 ^ (a ^ 3 + 4 * a + 1) := (pow_succ' 2 (a ^ 3 + 4 * a)).symm
 
 /-- The constant used in `cotlar_set_F₂`. -/
-irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 22 * a + 2)
+irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
 
 lemma globalMaximalFunction_zero_enorm_ae_zero (hR : 0 < R) {f : X → ℂ} (hf : AEStronglyMeasurable f)
     (hMzero : globalMaximalFunction volume 1 f x = 0) :
@@ -639,7 +639,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   rw [mul_comm, ← mul_assoc, ENNReal.mul_inv_cancel (by simp) (by simp), one_mul]
 
 /-- The constant used in `cotlar_estimate`. -/
-irreducible_def C10_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 22 * a + 3)
+irreducible_def C10_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 3)
 
 /-- Lemma 10.1.5 -/
 theorem cotlar_estimate (ha : 4 ≤ a)
@@ -717,7 +717,7 @@ lemma aestronglyMeasurable_simpleNontangentialOperator {g : X → ℂ} :
 
 /-- The constant used in `simple_nontangential_operator`.
 It is not tight and can be improved by some `a` + `constant`. -/
-irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 26 * a + 6)
+irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 24 * a + 6)
 
 /-- Lemma 10.1.6. The formal statement includes the measurability of the operator.
 See also `simple_nontangential_operator_le` -/
@@ -779,7 +779,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   apply le_trans <| mul_le_mul_right this _
   rw [C10_1_6_def, C_Ts, C10_1_5, C10_1_2]
   norm_cast
-  rw [show a ^ 3 + 26 * a + 6 = (a ^ 3 + 22 * a + 5) + (4 * a + 1) by ring]; nth_rw 4 [pow_add]
+  rw [show a ^ 3 + 24 * a + 6 = (a ^ 3 + 20 * a + 5) + (4 * a + 1) by ring]; nth_rw 4 [pow_add]
   gcongr
   nth_rw 6 [pow_succ]; rw [mul_two]
   apply add_le_add

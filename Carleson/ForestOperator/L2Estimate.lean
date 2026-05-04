@@ -145,7 +145,7 @@ namespace TileStructure.Forest
 
 lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedCompactSupport f) :
     eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume ≤ CMB (defaultA a : ℝ≥0) 2 * eLpNorm f 2 volume :=
-  hasStrongType_MB_finite 𝓑_finite one_lt_two f (hf.memLp 2) |>.2
+  hasStrongType_MB one_lt_two f (hf.memLp 2) |>.2
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
@@ -713,18 +713,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
         Measurable.maximalFunction.aemeasurable
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * (2 ^ (a + (3 / 2 : ℝ)) * eLpNorm g 2 volume) := by
       have ST : HasStrongType (α := X) (α' := X) (ε₁ := ℂ) (MB volume 𝓑 c𝓑 r𝓑) 2 2 volume volume
-          (CMB (defaultA a) 2) := by
-        refine hasStrongType_MB 𝓑.to_countable (R := 2 ^ (S + 5) * D ^ (3 * S + 3))
-          (fun ⟨bs, bi⟩ mb ↦ ?_) (by norm_num)
-        simp_rw [𝓑, mem_prod, mem_Iic, mem_univ, and_true] at mb
-        obtain ⟨mb1, mb2⟩ := mb
-        simp_rw [r𝓑, ← zpow_natCast (n := 3 * S + 3), Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat,
-          show 3 * (S : ℤ) + 3 = S + (2 * S + 3) by ring]
-        gcongr
-        · exact one_le_two
-        · exact one_le_realD _
-        · exact scale_mem_Icc.2
-        · exact_mod_cast mb2
+          (CMB (defaultA a) 2) := hasStrongType_MB (by norm_num)
       specialize ST g (hg.memLp 2)
       rw [CMB_defaultA_two_eq, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat] at ST
       exact mul_le_mul_right ST.2 _

@@ -279,7 +279,7 @@ def 𝓜p (p : ℝ) := maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ �
 /-- Maximal function bound needed in the proof -/
 lemma eLpNorm_𝓜p_le (hf : MemLp f 2) :
     eLpNorm (𝓜p 𝔄 (p X) f) 2 ≤ C2_0_6 (defaultA a) (p X).toNNReal 2 * eLpNorm f 2 :=
-  hasStrongType_maximalFunction 𝔄.to_countable
+  hasStrongType_maximalFunction
     (by simp [p_pos X]) (by simp [p_lt_two X]) f hf |>.2
 
 /-- A maximal function bound via an application of H\"older's inequality -/

@@ -208,6 +208,23 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} {T : ι → (α → ε₁) → α' → 
   congr! with i hi
   exact (h i hi).right f c hf ▸ rfl
 
+lemma indicator {T : (α → ε₁) → α' → ε} {P : (α → ε₁) → Prop} {A : ℝ≥0∞} (S : Set α')
+    (sl : SublinearOn T P A) :
+    SublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A := by
+  refine ⟨SubadditiveOn.indicator sl.1 S, fun f c hf ↦ ?_⟩
+  ext x
+  by_cases h : x ∈ S <;> simp [h, sl.2 f c hf]
+
+-- If `T` is constant in the second argument (but not necessarily the first) and satisfies
+-- certain requirements, then `SublinearOn T P 1`
+lemma const (T : (α → ε₁) → ε) (P : (α → ε₁) → Prop)
+    (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ₑ ≤ ‖T f‖ₑ + ‖T g‖ₑ)
+    (h_smul : ∀ f {c : ℝ≥0}, P f → T (c • f) = c • T f) :
+    SublinearOn (fun u (_ : α') ↦ T u) P 1 := by
+  refine ⟨SubadditiveOn.const h_add, fun f c hf ↦ ?_⟩
+  ext x
+  simp [h_smul f hf]
+
 end SublinearOn
 
 namespace AESublinearOn

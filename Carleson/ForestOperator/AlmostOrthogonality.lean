@@ -228,7 +228,7 @@ lemma adjoint_tree_control
         CMB (defaultA a) 2 * eLpNorm f 2 volume + eLpNorm f 2 volume := by
       gcongr
       · exact adjoint_tree_estimate hf h2f hu
-      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two) _ (hf.memLp _) |>.2
+      · exact (hasStrongType_MB one_lt_two) _ (hf.memLp _) |>.2
       · rfl
     _ ≤ (C7_3_1_1 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
       simp_rw [add_mul, one_mul]; gcongr; exact dens₁_le_one

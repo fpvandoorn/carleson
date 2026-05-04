@@ -233,7 +233,7 @@ lemma M14_bound (hg : MemLp g 2 volume) :
   have a4 := four_le_a X
   have ha22 : HasStrongType (M14 𝔄 (q₆ a).toNNReal) 2 2 volume volume
       (C2_0_6 (defaultA a) (q₆ a).toNNReal 2) := by
-    apply hasStrongType_maximalFunction 𝔄.to_countable
+    apply hasStrongType_maximalFunction
       (Real.toNNReal_pos.mpr <| zero_lt_one.trans (one_lt_q₆ a4))
     simp only [Nat.cast_ofNat, Real.toNNReal_lt_ofNat]
     exact (q₆_le_superparticular a4).trans_lt (by norm_num)
