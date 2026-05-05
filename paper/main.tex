@@ -286,8 +286,8 @@ The \texttt{norm\_cast} tactic can be really useful to normalize such casts.
 
 However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed,
 \texttt{
-Real.toNNReal (-2) * Real.toNNReal (-3) != Real.toNNReal ((-2) * (-3))
-}.
+Real.toNNReal (-2) * Real.toNNReal (-3) != Real.toNNReal ((-2) * (-3)).
+}
 Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
 in these situations.
 This can make conversions between number types quite painful,
@@ -297,7 +297,7 @@ Sometimes one is forced to add a conversion, because certain operations are not 
 Consider for instance the example of performing a computation on exponents in $L^p$-function spaces.
 Around the real interpolation theorem, one needs to compute $p$ in terms of other exponents that
 naturally live in $\ennreal$.
-Yet there is no definition for $a^p$ if $p$ is in $\ennreal$, and therefore conversions to from
+Yet there is no definition for $a^p$ if $p$ is in $\ennreal$, and therefore conversions from
 $\ennreal$ to $\real$ are unavoidable.
 
 There are also advantages of differentiating between the spaces.
