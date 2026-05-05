@@ -284,7 +284,7 @@ subsets, integrands, and perform computations?
 A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type-theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
 The \texttt{norm\_cast} tactic can be really useful to normalize such casts.
 
-However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed,
+However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal} maps negative numbers to zero, we get that
 \texttt{
 Real.toNNReal (-2) * Real.toNNReal (-3) != Real.toNNReal ((-2) * (-3)).
 }
@@ -307,12 +307,13 @@ An advantage of putting for instance a constant in \texttt{NNReal} over \texttt{
 Another advantage of differentiating comes from the different levels of tactic support.
 For real numbers, computations are much easier to perform, using the \texttt{linarith} and \texttt{field\_simp} tactics.
 These tactics do not work for terms in $\ennreal$ or $\nnreal$.
-Fortunately, the tactic \texttt{ring} does work for these types.
-The \texttt{norm\_num} does work for also for numbers in $\ennreal$, but not as well as for real numbers,
-as even with the necessary side conditions it would not simplify a term of the form $a / a$.
+The tactic \texttt{ring} \emph{does} work for these types, but not as well, and the performance for terms in $\ennreal$ is even worse than for terms in $\nnreal$.
+For both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs properties of subtraction: it even fails to prove that $x - x = 0$. If $x \in \nnreal$, the \texttt{ring} tactic can prove that $(x^{-1})^2 = (x ^ 2)^{-1}$, or that $3 / x = 3 x^{-1}$, but it fails if $x \in \ennreal$.
+Similarly \texttt{norm\_num} does work for also for numbers in $\ennreal$, but again not as well as for real numbers,
+as even with the necessary side conditions it would not simplify a term of the form $a / a$. Both \texttt{ring} and \texttt{norm\_num} fail to solve $(3/5) * (5/3) = 1$ when these numbers are viewed as numbers in $\ennreal$.
 
 As a final example around considerations on which number types to use,
-consider the the supremum of a set.
+consider the supremum of a set.
 As one eventually is anyway interested in situations in which this supremum is finite and the set
 is bounded from above, one could consider a setup in which the sets considered are subsets of
 real numbers and the suprema are real numbers as well.
@@ -322,8 +323,7 @@ set is indeed bounded.
 This is cumbersome, and therefore it turned out to be much better to
 let suprema just take values in the \texttt{ENNReal}s.
 
-During the project, we gradually built up intuition on where to put constants and where
-to perform computations.
+Gradually, we came to the conclusion that, with some exceptions, it was best to use $\ennreal$ as much as possible.
 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
 
