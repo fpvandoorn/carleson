@@ -403,7 +403,7 @@ The \texttt{norm\_cast} tactic can be really useful to normalize such casts.
 However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal} maps negative numbers to zero, we get that
 \texttt{
 Real.toNNReal (-2) * Real.toNNReal (-3) ≠ Real.toNNReal ((-2) * (-3)).
-}
+} % TODO: configure support for rendering ≠
 Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
 in these situations.
 This can make conversions between number types quite painful,
@@ -422,7 +422,7 @@ An advantage of putting for instance a constant in \texttt{NNReal} over \texttt{
 
 Another advantage of differentiating comes from the different levels of tactic support.
 For real numbers, computations are much easier to perform, using the \texttt{linarith} and \texttt{field\_simp} tactics.
-These tactics do not work for terms in $\ennreal$ or $\nnreal$.
+These tactics do not work for terms in $\ennreal$ or $\nnreal$.\footnote{Since February 2026, \texttt{linarith} also supports $\nnreal$: this change was made after the completion of this project.}
 The tactic \texttt{ring} \emph{does} work for these types, but not as well, and the performance for terms in $\ennreal$ is even worse than for terms in $\nnreal$.
 For both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs properties of subtraction: it even fails to prove that $x - x = 0$. If $x : \nnreal$, the \texttt{ring} tactic can prove that $(x^{-1})^2 = (x ^ 2)^{-1}$, or that $3 / x = 3 x^{-1}$, but it fails if $x : \ennreal$.
 Similarly \texttt{norm\_num} also works for numbers in $\ennreal$, but again not as well as for real numbers,
