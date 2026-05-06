@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\DeclareUnicodeCharacter{2260}{\ensuremath{\neq}}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage{hyperref}
@@ -401,9 +402,7 @@ A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\en
 The \texttt{norm\_cast} tactic can be really useful to normalize such casts.
 
 However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal} maps negative numbers to zero, we get that
-\texttt{
-Real.toNNReal (-2) * Real.toNNReal (-3) ≠ Real.toNNReal ((-2) * (-3)).
-}
+\lean{Real.toNNReal (-2) * Real.toNNReal (-3) ≠ Real.toNNReal ((-2) * (-3))}.
 Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
 in these situations.
 This can make conversions between number types quite painful,
