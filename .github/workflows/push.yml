@@ -51,6 +51,7 @@ jobs:
         with:
           website-directory: ./docs
           project-name: Carleson
+          search-root: Carleson.ToMathlib
           relevant-labels: carleson
           include-drafts: true
           branch-name: master
