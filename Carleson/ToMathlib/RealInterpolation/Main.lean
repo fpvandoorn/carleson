@@ -872,7 +872,7 @@ lemma simplify_factor₅ {D : ℝ≥0∞} [TopologicalSpace E₁] [ESeminormedAd
     simplify_factor₁ hq₁' hp₀ hp₁ ht hq₀q₁ hp hq hC₀ hC₁ hF hD]
 
 /-- The trivial case for the estimate in the real interpolation theorem
-    when the function `Lp` norm of `f` vanishes. -/
+when the `L^p` norm of `f` vanishes. -/
 lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
