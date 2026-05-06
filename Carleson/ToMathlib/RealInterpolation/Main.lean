@@ -516,12 +516,12 @@ lemma simplify_factor₁ {D : ℝ≥0∞}
       · exact ne_top_of_Ioo hF
       · exact (ENNReal.coe_pos.mpr hC₁).ne'
       · exact coe_ne_top
-    · exact ENNReal.inv_ne_zero.mpr (rpow_ne_top' ((ENNReal.coe_pos.mpr hC₁).ne') coe_ne_top)
+    · exact ENNReal.inv_ne_zero.mpr (by finiteness)
     · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF)
     · positivity
     · exact d_ne_zero_aux₀ hF
     · exact d_ne_zero_aux₂ hC₀ hF
-    · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁))
+    · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (by finiteness))
         (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF))
   · exact Or.inr (d_ne_top_aux₂ hF)
   · exact Or.inr (d_ne_zero_aux₀ hF)
