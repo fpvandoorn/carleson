@@ -168,7 +168,7 @@ def d :=
 
 lemma d_pos_aux₀ (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     0 < eLpNorm f p μ ^ p.toReal :=
-  ENNReal.rpow_pos (pos_of_Ioo hF) (ne_top_of_Ioo hF)
+  ENNReal.rpow_pos (pos_of_gt hF.1) (ne_top_of_Ioo hF)
 
 lemma d_ne_top_aux₀ {b : ℝ} {F : ℝ≥0∞} (hF : F ∈ Ioo 0 ⊤) : F ^ b ≠ ⊤ :=
   rpow_ne_top' hF.1.ne' hF.2.ne
