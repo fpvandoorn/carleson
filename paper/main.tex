@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\DeclareUnicodeCharacter{2260}{\ensuremath{\neq}}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage{hyperref}
@@ -46,8 +47,8 @@
 	University of Bonn}
 \email{becker@math.uni-bonn.de}
 
-\author[]{Mar\'ia In\'es de Frutos-Fern\'andez}
-\address{Mar\'ia In\'es de Frutos-Fern\'andez,
+\author[]{Mar\'ia Inés de Frutos-Fernández}
+\address{Mar\'ia Inés de Frutos-Fernández,
 	University of Bonn}
 \email{midff@math.uni-bonn.de}
 
@@ -61,8 +62,8 @@
 	University of Bonn}
 \email{vdoorn@math.uni-bonn.de}
 
-\author[]{S\'ebastien Gou\"ezel}
-\address{S\'ebastien Gou\"ezel,
+\author[]{Sébastien Gouëzel}
+\address{Sébastien Gouëzel,
 	University of Rennes}
 \email{sebastien.gouezel@univ-rennes1.fr}
 
@@ -160,7 +161,7 @@ Michel Alexis,
 Bolton Bailey,
 Julian Berman,
 Joachim Breitner,
-Martin Dvo\v{r}\'ak,
+Martin Dvořák,
 Georges Gonthier,
 Aaron Hill,
 Austin Letson,
@@ -382,15 +383,136 @@ Every other constant is defined in terms of $a$, $q$ and \lean{c}, and we use th
 As a side effect of the formalization project, once the main result had been formalized we were able to check that, replacing $D := 2^{100a^2}$ by $2^{7a^2}$, the results still hold without needing to make any adjustments to the proofs. This improves the constant appearing in the main theorem by an order of magnitude.
 
 
-\subsection{The \texttt{ProofData} pattern}\label{subsec:proof_data}
+\subsection{Standing assumptions and the \texttt{ProofData} pattern}\label{subsec:proof_data}
+
+Mathematical papers often contain standing assumptions, that are in place for
+all the statements in the paper, or in a specific section. This avoids
+tedious repetition in the statements, sometimes at a slight expense in
+readability as the reader has to locate the places where such standing
+assumptions are made. Such a practice is especially important when the
+standing assumptions are lengthy and technical.
+
+The standing assumptions for the statement of the generalization of
+Carleson's theorem are quite formidable. We will not repeat them here,
+see~\cite[Theorem~1.1.1]{CarlesonBlueprint} for details. Let us just mention
+that they involve a metric space $X$, a measure $\mu$ on $X$ which is
+doubling for a constant $2^a$, a family $\Theta$ of functions from $X$ to
+$\real$, a distance on $\Theta$ satisfying five properties as well as a
+cancellativity condition, and a kernel $K\colon X \times X \to \real$ with
+Calderón--Zygmund like properties. The proofs involve even more additional
+data, notably two bounded measurable sets $F$ and $G$, an integrability
+exponent $q \in (1, 2]$ and two measurable functions $\sigma_1$ and
+$\sigma_2$ with finite range.
+
+One possibility to solve this issue in the formalization would be to say that
+there is no issue, and include as assumptions in each lemma the minimal
+subset of the standing assumptions that is necessary for the statement to
+make sense. This would come at a high readability cost. Moreover, each time
+one applies such a lemma one would need to provide the individual assumptions
+as a long list of parameters to the lemma.
+
+It is a better idea to try to import in the formalization the practice of
+standing assumptions, in some form. One option would be to define a
+structure containing all these standing assumptions, and have it as a
+parameter in every lemma and every definition. The readability cost would be
+minor, but still there. In the Carleson project, we have used another
+strategy, making all the standing assumptions completely implicit --- in
+particular, we do not need to pass them between lemmas. The implementation
+takes advantage of a feature of the language, typeclasses, initially designed
+for a completely different purpose.
+
+The way to declare that a space is a metric space is the following line:
+\begin{minted}{lean}
+variable {X : Type*} [MetricSpace X]
+\end{minted}
+The declaration between square brackets is the typeclass. When one writes the
+distance \texttt{dist x y} between two points $x$ and $y$ of $X$, the system
+tries to locate such a metric space typeclass on $X$, and uses the distance
+provided by this typeclass. The same system is used to provide algebraic
+operations on types, and properties of these.
+
+Typeclasses can be used to capture standing assumptions as
+follows. Let us declare a new typeclass, of the form \texttt{[KernelProofData
+X]}, containing not a distance as in the above example, but a measure on $X$,
+a doubling constant, a family $\Theta$ of functions from $X \times X$ to
+$\real$, and so on, i.e., all our standing assumptions. Then, whenever one
+tries to use an object from the standing assumptions, the systems looks for a
+\texttt{KernelProofData} instance and fetches the object from the typeclass
+instance, just like it fetches the distance in a metric space.
+
+Another advantage of this approach is that typeclasses can extend each other
+(just like a normed space contains more information than a metric space).
+This means we can craft one typeclass containing the standing assumptions for
+the statements, and another extended typeclass \texttt{ProofData} with more
+objects for the proofs. When a \texttt{ProofData} instance is in scope but
+Lean needs a \texttt{KernelProofData} instance, typeclass inference
+automatically fetches the latter from the former, just as it transparently
+interprets a normed space as a metric space.
+
+The specific implementation of this idea in the Carleson project is slightly
+more involved, as it is written in the form \texttt{[ProofData a q K sigma1
+sigma2 F G]}. However, all the additional data $a$, $q$, $K$, $\sigma_1$,
+$\sigma_2$, $F$ and $G$ are associated automatically and uniquely to $X$ (in
+technical terms, they are \emph{outparams}). This means that the user never
+has to give one of them explicitly, as we expect of a suitable system to
+handle standing assumptions.
+
+
+
+
+
+
+
 
 \subsection{Working with real numbers}\label{subsec:real}
-\begin{itemize}
-	\item \texttt{Real} vs.\ \texttt{NNReal} vs.\ \texttt{ENNReal}:
-	\begin{itemize}
-		\item Tactic support issues (\texttt{norm\_num}, \texttt{field\_simp}, \texttt{ring}).
-	\end{itemize}
-\end{itemize}
+
+The project differentiated between three different types of (extended) real numbers, $\real$, $\nnreal$ and $\ennreal$,
+which gave necessary benefits but also created difficulties in the formalization
+and tension in design decisions.
+Indeed, in which of the three types to put constants,
+subsets, integrands, and perform computations?
+
+A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type-theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
+The \texttt{norm\_cast} tactic can be really useful to normalize such casts.
+
+However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal} maps negative numbers to zero, we get that
+\lean{Real.toNNReal (-2) * Real.toNNReal (-3) ≠ Real.toNNReal ((-2) * (-3))}.
+Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
+in these situations.
+This can make conversions between number types quite painful,
+and puts some pressure to limit conversions and put as many numbers as possible in the same number type.
+
+Sometimes one is forced to add a conversion, because certain operations are not defined on all types.
+Consider for instance the example of performing a computation on exponents in $L^p$-function spaces.
+Around the real interpolation theorem, one needs to compute $p$ in terms of other exponents that
+naturally live in $\ennreal$.
+Yet there is no definition for $a^p$ if $p$ is in $\ennreal$, and therefore conversions from
+$\ennreal$ to $\real$ are unavoidable.
+
+There are also advantages of differentiating between the spaces.
+An advantage of putting for instance a constant in \texttt{NNReal} over \texttt{ENNReal} or
+\texttt{Real}, is that it encodes that the constant cannot be infinity and that it needs to be positive.
+
+Another advantage of differentiating comes from the different levels of tactic support.
+For real numbers, computations are much easier to perform, using the \texttt{linarith} and \texttt{field\_simp} tactics.
+These tactics do not work for terms in $\ennreal$ or $\nnreal$.
+The tactic \texttt{ring} \emph{does} work for these types, but not as well, and the performance for terms in $\ennreal$ is even worse than for terms in $\nnreal$.
+For both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs properties of subtraction: it even fails to prove that $x - x = 0$. If $x : \nnreal$, the \texttt{ring} tactic can prove that $(x^{-1})^2 = (x ^ 2)^{-1}$, or that $3 / x = 3 x^{-1}$, but it fails if $x : \ennreal$.
+Similarly \texttt{norm\_num} also works for numbers in $\ennreal$, but again not as well as for real numbers,
+as even with the necessary side conditions it would not simplify a term of the form $a / a$. Both \texttt{ring} and \texttt{norm\_num} fail to solve $(3/5) * (5/3) = 1$ when these numbers are viewed as numbers in $\ennreal$.
+
+As a final example around considerations on which number types to use,
+consider the supremum of a set.
+As one eventually is anyway interested in situations in which this supremum is finite and the set
+is bounded from above, one could consider a setup in which the sets considered are subsets of
+real numbers and the suprema are real numbers as well.
+This was the choice at the outset of the project.
+However, in this setup, one needs to constantly carry around a proof or assumption that the
+set is indeed bounded.
+This is cumbersome, and therefore it turned out to be much better to
+let suprema just take values in the \texttt{ENNReal}s.
+
+Gradually, we came to the conclusion that, with some exceptions, it was best to use $\ennreal$ as much as possible.
 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
 

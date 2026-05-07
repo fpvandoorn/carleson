@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 1
 
       - name: Build and lint project
-        uses: leanprover/lean-action@c544e89643240c6b398f14a431bcdc6309e36b3e # 2025-07-02
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # 2025-07-02
         with:
           build: true
           lint: true
@@ -51,6 +51,7 @@ jobs:
         with:
           website-directory: ./docs
           project-name: Carleson
+          search-root: Carleson.ToMathlib
           relevant-labels: carleson
           include-drafts: true
           branch-name: master
@@ -67,7 +68,7 @@ jobs:
             cp paper/main.pdf docs/paper.pdf
 
       - name: Compile blueprint and documentation
-        uses: leanprover-community/docgen-action@3dbd3475a9bc8d22fd786a8f8efe1869457da7cc # 2026-01-15
+        uses: leanprover-community/docgen-action@7b5b9a1822650bd45aaeb4182d94bceba2030f89 # 2026-04-14
         with:
           blueprint: true
           homepage: docs
