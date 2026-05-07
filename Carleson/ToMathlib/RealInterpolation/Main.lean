@@ -72,9 +72,14 @@ def AESubadditiveOn [ENorm ε] (T : (α → ε₁) → α' → ε) (P : (α → 
 
 namespace SubadditiveOn
 
+variable {P : (α → ε₁) → Prop} {A : ℝ≥0∞}
+
+lemma aeSubadditiveOn {T : (α → ε₁) → α' → ℝ≥0∞} (h : SubadditiveOn T P A) {μ : Measure α'} :
+    AESubadditiveOn T P A μ :=
+  fun f g hf hg => ae_of_all μ fun x => h f g hf hg x
+
 lemma biSup {ι : Type*} {𝓑 : Set ι} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
-    {P : (α → ε₁) → Prop} {A : ℝ≥0∞} (h : ∀ i ∈ 𝓑, SubadditiveOn (T i) P A) :
-    SubadditiveOn (fun u x ↦ ⨆ i ∈ 𝓑, T i u x) P A := by
+    (h : ∀ i ∈ 𝓑, SubadditiveOn (T i) P A) : SubadditiveOn (fun u x ↦ ⨆ i ∈ 𝓑, T i u x) P A := by
   intro f g hf hg x
   simp_rw [SubadditiveOn, enorm_eq_self] at h ⊢
   refine iSup₂_le fun i hi => h i hi f g hf hg x |>.trans ?_
@@ -171,6 +176,12 @@ def AESublinearOn (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Pr
   AESubadditiveOn T P A ν ∧ ∀ (f : α → ε₁) (c : ℝ≥0), P f → T (c • f) =ᵐ[ν] c • T f
 
 namespace SublinearOn
+
+variable {P : (α → ε₁) → Prop} {A : ℝ≥0∞}
+
+lemma aeSublinearOn {T : (α → ε₁) → α' → ℝ≥0∞} (h : SublinearOn T P A) {μ : Measure α'} :
+    AESublinearOn T P A μ :=
+  ⟨h.left.aeSubadditiveOn, fun f c hf => ae_of_all μ <| congrFun <| h.right f c hf⟩
 
 lemma biSup {ι : Type*} {𝓑 : Set ι} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
     {P : (α → ε₁) → Prop}
