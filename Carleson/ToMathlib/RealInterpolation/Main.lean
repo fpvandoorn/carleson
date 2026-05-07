@@ -72,9 +72,10 @@ def AESubadditiveOn [ENorm ε] (T : (α → ε₁) → α' → ε) (P : (α → 
 
 namespace SubadditiveOn
 
-variable {P : (α → ε₁) → Prop} {A : ℝ≥0∞}
+variable {P : (α → ε₁) → Prop} {A : ℝ≥0∞} {T : (α → ε₁) → α' → ε}
+  [TopologicalSpace ε] [ESeminormedAddMonoid ε]
 
-lemma aeSubadditiveOn {T : (α → ε₁) → α' → ℝ≥0∞} (h : SubadditiveOn T P A) {μ : Measure α'} :
+lemma aeSubadditiveOn (h : SubadditiveOn T P A) {μ : Measure α'} :
     AESubadditiveOn T P A μ :=
   fun f g hf hg => ae_of_all μ fun x => h f g hf hg x
 
@@ -84,6 +85,18 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} {T : ι → (α → ε₁) → α' → 
   simp_rw [SubadditiveOn, enorm_eq_self] at h ⊢
   refine iSup₂_le fun i hi => h i hi f g hf hg x |>.trans ?_
   gcongr <;> apply le_biSup _ hi
+
+lemma indicator (sa : SubadditiveOn T P A) (s : Set α') :
+    SubadditiveOn (fun u x ↦ (s.indicator (fun y ↦ T u y) x)) P A := by
+  intro f g hf hg x
+  have := sa f g hf hg x
+  by_cases hx : x ∈ s <;> simp [hx, this]
+
+/- If `T` is constant in the second argument (but not necessarily the first) and satisfies
+a subadditivity criterion, then `SubadditiveOn T P 1` -/
+lemma const {T : (α → ε₁) → ℝ≥0∞} (h_add : ∀ {f g}, P f → P g → T (f + g) ≤ T f + T g) :
+    SubadditiveOn (fun u (_ : α') ↦ T u) P 1 :=
+  fun f g hf hg x ↦ (by simpa using h_add hf hg)
 
 end SubadditiveOn
 
