@@ -1,10 +1,16 @@
-import Carleson.ToMathlib.ENorm
-import Mathlib.Analysis.SpecialFunctions.Log.Base
-import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
-import Mathlib.MeasureTheory.Integral.Average
-import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+module
 
-/-
+public import Carleson.ToMathlib.ENorm
+public import Mathlib.Analysis.SpecialFunctions.Log.Base
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
+public import Mathlib.MeasureTheory.Integral.Average
+public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+import Mathlib.Algebra.Order.Group.Pointwise.Bounds
+
+@[expose] public section
+
+/-! # Miscellaneous additions to mathlib, to be sorted
+
 * This file can import all ToMathlib files.
 * If adding more than a few results, please put them in a more appropriate file in ToMathlib.
 
@@ -253,7 +259,7 @@ theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
     (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) : eLpNormEssSup f μ ≤ C := essSup_le_of_ae_le C hfC
 
 theorem restrict_absolutelyContinuous : μ.restrict s ≪ μ :=
-  fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm <| zero_le _
+  fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm zero_le
 
 section eLpNorm
 
@@ -669,16 +675,16 @@ theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [Measura
   have meas : MeasurableSet {x | 0 ≤ g x} :=
     have : {x | 0 ≤ g x} = g ⁻¹' (Ici 0) := by simp [preimage, mem_Ici]
     this ▸ (AEMeasurable.measurable_mk int_f.aemeasurable) measurableSet_Ici
-  rw [← integral_finset_sum_measure int_g]
+  rw [← integral_finsetSum_measure int_g]
   set μ₀ : ι → Measure X := fun i ↦ ite (i ∈ s) (μ.restrict (S i)) 0
-  refine integral_mono_measure ?_ ?_ (integrable_finset_sum_measure.mpr int_g)
+  refine integral_mono_measure ?_ ?_ (integrable_finsetSum_measure.mpr int_g)
   · refine Measure.le_iff.mpr (fun T hT ↦ ?_)
-    simp_rw [μ.restrict_apply hT, Measure.coe_finset_sum, s.sum_apply, inter_iUnion]
+    simp_rw [μ.restrict_apply hT, Measure.coe_finsetSum, s.sum_apply, inter_iUnion]
     apply le_trans <| measure_biUnion_finset_le s (T ∩ S ·)
     exact s.sum_le_sum (fun _ _ ↦ ge_of_eq (μ.restrict_apply hT))
   · have : ∑ i ∈ s, μ.restrict (S i) = Measure.sum μ₀ := by
       ext T hT
-      simp only [Measure.sum_apply (hs := hT), Measure.coe_finset_sum, s.sum_apply, μ₀]
+      simp only [Measure.sum_apply (hs := hT), Measure.coe_finsetSum, s.sum_apply, μ₀]
       rw [tsum_eq_sum (s := s) (fun b hb ↦ by simp [hb])]
       exact Finset.sum_congr rfl (fun i hi ↦ by simp [hi])
     rw [Filter.EventuallyLE, this, Measure.ae_sum_iff' (by exact meas)]

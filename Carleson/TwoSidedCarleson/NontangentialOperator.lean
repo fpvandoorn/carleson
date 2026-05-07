@@ -1,7 +1,11 @@
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Carleson.TwoSidedCarleson.WeakCalderonZygmund
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+public import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.TwoSidedCarleson.WeakCalderonZygmund
+
+@[expose] public section
 
 open MeasureTheory Set Bornology Function Metric
 open ENNReal hiding one_lt_two
@@ -528,7 +532,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
     volume (ball x (R / 4)) / 4 := by
   let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
   by_cases hMzero : MTrgx = 0
-  · apply le_of_eq_of_le _ (zero_le _)
+  · apply le_of_eq_of_le _ zero_le
     rw [measure_eq_zero_iff_ae_notMem]
     have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
     filter_upwards [czzero] with x' hx'
@@ -569,7 +573,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
         ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
   by_cases hMzero : globalMaximalFunction volume 1 g x = 0
-  · apply le_of_eq_of_le _ (zero_le _)
+  · apply le_of_eq_of_le _ zero_le
     rw [measure_eq_zero_iff_ae_notMem]
     have gzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 2)
         (by simp [lt_of_lt_of_le hr hR]) hg.aestronglyMeasurable hMzero
@@ -806,10 +810,10 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     apply iSup_const_mono (lt_of_le_of_lt _)
     rw [inv_le_inv₀ (by positivity) (by positivity)]
     simp [hmn]
-  have snt0 : ⨆ (n : ℕ), f n = simpleNontangentialOperator K 0 g := by
+  have snt0 : (fun x => ⨆ (n : ℕ), f n x) = simpleNontangentialOperator K 0 g := by
     ext x
     unfold f simpleNontangentialOperator
-    simp_rw [gt_iff_lt, iSup_apply]; rw [iSup_comm]
+    simp_rw [gt_iff_lt]; rw [iSup_comm]
     congr with R
     apply le_antisymm (iSup_le <| fun n ↦ iSup_const_mono (lt_trans (by positivity))) (iSup_le _)
     intro hR
@@ -822,7 +826,7 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
   have mct := eLpNorm_iSup' (p := 2) (f := f) (μ := volume)
     (fun n ↦ aestronglyMeasurable_simpleNontangentialOperator.aemeasurable)
     (by filter_upwards; exact f_mon)
-  rw [← snt0, ← mct]
+  rw [← snt0, mct]
   apply iSup_le
   intro n; unfold f
   apply simple_nontangential_operator ha hT (by positivity) g hg |>.2

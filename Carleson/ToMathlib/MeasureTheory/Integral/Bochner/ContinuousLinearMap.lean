@@ -1,10 +1,12 @@
-import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+module
+
+public import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+
+public section
 
 open MeasureTheory
 
 -- Upstreaming status: looks ready for upstreaming; pay attention to the correct file to move to!
--- `exists_ne_zero_of_setIntegral_ne_zero` and `exists_ne_zero_of_integral_ne_zero` upstreamed in
--- https://github.com/leanprover-community/mathlib4/pull/37568
 
 -- Put after `setIntegral_re_add_im`
 
@@ -56,17 +58,3 @@ theorem MeasureTheory.setIntegral_union_2
   setIntegral_union hst ht hfst.left_of_union hfst.right_of_union
 
 end SetIntegral_Union_2
-
--- move to Mathlib.MeasureTheory.Integral.Bochner.Set
-theorem MeasureTheory.exists_ne_zero_of_setIntegral_ne_zero {α E : Type*} [NormedAddCommGroup E]
-    [NormedSpace ℝ E] [MeasurableSpace α] {μ : MeasureTheory.Measure α} {f : α → E} {U : Set α}
-    (hU : ∫ (u : α) in U, f u ∂μ ≠ 0) : ∃ u : α, u ∈ U ∧ f u ≠ 0 := by
-  contrapose! hU
-  exact setIntegral_eq_zero_of_forall_eq_zero hU
-
--- move to Mathlib.MeasureTheory.Integral.Bochner.Basic
-theorem MeasureTheory.exists_ne_zero_of_integral_ne_zero {α E : Type*} [NormedAddCommGroup E]
-    [NormedSpace ℝ E] [MeasurableSpace α] {μ : MeasureTheory.Measure α} {f : α → E}
-    (h : ∫ (u : α), f u ∂μ ≠ 0) : ∃ u : α, f u ≠ 0 := by
-  contrapose! h
-  exact integral_eq_zero_of_ae ((Set.eqOn_univ f 0).mp fun ⦃x⦄ a ↦ h x).eventuallyEq

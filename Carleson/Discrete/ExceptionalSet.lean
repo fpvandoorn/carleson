@@ -1,5 +1,9 @@
-import Carleson.Discrete.Defs
-import Carleson.ToMathlib.HardyLittlewood
+module
+
+public import Carleson.Discrete.Defs
+public import Carleson.ToMathlib.HardyLittlewood
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
@@ -12,6 +16,7 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 variable (X) in
 /-- The constant in Lemma 5.2.9, with value `D ^ (1 - κ * Z * (n + 1))` -/
+@[nolint unusedArguments]
 def C5_2_9 [ProofData a q K σ₁ σ₂ F G] (n : ℕ) : ℝ≥0 := D ^ (1 - κ * Z * (n + 1))
 
 /-- A rearrangement for Lemma 5.2.9 that does not require the tile structure. -/
@@ -63,7 +68,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   by_cases hF : volume F = 0
   · simp [G₁_empty hF]
   by_cases hG : volume G = 0
-  · exact (G₁_empty' hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le _
+  · exact (G₁_empty' hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le
   -- Define constant `K` and prove 0 < K < ⊤
   let K := 2 ^ (2 * a + 5) * volume F / volume G
   have K0 : K > 0 := by
@@ -289,7 +294,6 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       have : 2 ^ (n + 1) ≤ ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
         convert john_nirenberg_aux1 mL mx mx₂
         simp_rw [stackSize, Q₁, mem_setOf_eq]
-        congr
       have lcast : (2 : ℝ≥0∞) ^ (n + 1) = ((2 ^ (n + 1) : ℕ) : ℝ).toNNReal := by
         rw [Real.toNNReal_coe_nat, ENNReal.coe_natCast]; norm_cast
       have rcast : ∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℝ≥0∞) x =
@@ -298,7 +302,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       rw [lcast, rcast, ENNReal.coe_le_coe]
       exact Real.toNNReal_le_toNNReal (Nat.cast_le.mpr this)
     _ ≤ ∫⁻ x, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := setLIntegral_le_lintegral _ _
-    _ = ∑ q ∈ Q₁, ∫⁻ x, (𝓘 q : Set X).indicator 1 x := lintegral_finset_sum _ Q₁m
+    _ = ∑ q ∈ Q₁, ∫⁻ x, (𝓘 q : Set X).indicator 1 x := lintegral_finsetSum _ Q₁m
     _ = ∑ q ∈ Q₁, volume (𝓘 q : Set X) := by
       congr!; exact lintegral_indicator_one coeGrid_measurable
     _ ≤ _ := e529
@@ -445,7 +449,7 @@ lemma top_tiles_aux : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X
     _ = ∑ m with m ∈ M, ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
       congr! with m; exact (lintegral_indicator_one coeGrid_measurable).symm
     _ = ∫⁻ x, ∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x :=
-      (lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
+      (lintegral_finsetSum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
     _ = ∫⁻ x, ENNReal.ofReal (∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x) := by
       congr! 2 with x; rw [ENNReal.ofReal_sum_of_nonneg]
       · congr!; unfold indicator; split_ifs <;> simp
@@ -510,14 +514,15 @@ lemma top_tiles : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) �
 
 end TopTiles
 
+/-! Definition of function `𝔘(m)` used in the proof of Lemma 5.2.8, and some properties of `𝔘(m)` -/
 section 𝔘
--- Definition of function `𝔘(m)` used in the proof of Lemma 5.2.8, and some properties of `𝔘(m)`
 
 open Finset
 
 variable (k) (n) (j) (x)
 open scoped Classical in
-private def 𝔘 (m : 𝔓 X) := (𝔘₁ k n j).toFinset.filter (fun u ↦ x ∈ 𝓘 u ∧ smul 100 u ≤ smul 1 m)
+/-- The function `𝔘(m)` used in the proof of Lemma 5.2.8 -/
+def 𝔘 (m : 𝔓 X) := (𝔘₁ k n j).toFinset.filter (fun u ↦ x ∈ 𝓘 u ∧ smul 100 u ≤ smul 1 m)
 
 -- Ball that covers the image of `𝒬`. Radius chosen for convenience with `BallsCoverBalls.pow_mul`
 private def big_ball (m : 𝔓 X) (u : 𝔓 X) := ball_(u) (𝒬 m) (2 ^ 9 * 0.2)
@@ -842,7 +847,7 @@ lemma third_exception_aux :
         ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) := by
       rw [mul_assoc]; refine mul_le_mul_right ?_ _
       simp_rw [← lintegral_indicator_one coeGrid_measurable,
-        ← lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
+        ← lintegral_finsetSum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
       have c1 : ∀ C : Set (𝔓 X),
           ∫⁻ x, ∑ u with u ∈ C, (𝓘 u : Set X).indicator 1 x =
           ∫⁻ x, stackSize C x := fun C ↦ by

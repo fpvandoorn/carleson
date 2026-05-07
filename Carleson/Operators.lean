@@ -1,6 +1,10 @@
-import Carleson.Psi
-import Carleson.TileStructure
-import Carleson.ToMathlib.BoundedCompactSupport
+module
+
+public import Carleson.Psi
+public import Carleson.TileStructure
+public import Carleson.ToMathlib.BoundedCompactSupport
+
+@[expose] public section
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped ComplexConjugate
@@ -406,11 +410,11 @@ lemma adjointCarlesonSum_adjoint
   simp_rw [Finset.mul_sum]
   classical calc
     _ = ∑ p with p ∈ ℭ, ∫ x, conj (g x) * carlesonOn p f x :=
-      integral_finset_sum _ fun p _ ↦ by fun_prop
+      integral_finsetSum _ fun p _ ↦ by fun_prop
     _ = ∑ p with p ∈ ℭ, ∫ y, conj (adjointCarleson p g y) * f y := by
       simp_rw [adjointCarleson_adjoint hf hg]
     _ = ∫ y, ∑ p with p ∈ ℭ, conj (adjointCarleson p g y) * f y :=
-      (integral_finset_sum _ fun p _ ↦ by fun_prop).symm
+      (integral_finsetSum _ fun p _ ↦ by fun_prop).symm
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
 
 lemma integrable_adjointCarlesonSum (s : Set (𝔓 X)) {f : X → ℂ} (hf : BoundedCompactSupport f) :

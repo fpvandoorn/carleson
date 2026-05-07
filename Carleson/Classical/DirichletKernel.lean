@@ -1,8 +1,11 @@
 /- This file contains definitions and lemmas regarding the Dirichlet kernel. -/
+module
 
-import Carleson.Classical.Basic
-import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
-import Mathlib.Tactic.Field
+public import Carleson.Classical.Basic
+public import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 open scoped Real
 open Finset Complex MeasureTheory
@@ -175,7 +178,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       rw [partialFourierSum]
     _ = ∑ n ∈ Icc (-(N : ℤ)) N, (1 / (2 * π - 0)) • ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
       congr 1 with n
-      rw [fourierCoeffOn_eq_integral, smul_mul_assoc]; rfl
+      rw [fourierCoeffOn_eq_integral, smul_mul_assoc]
     _ = (1 / (2 * π)) * ∑ n ∈ Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
       rw [show ∑ n ∈ Icc (-(N : ℤ)) ↑N, (1 / (2 * π - 0) : ℝ) • ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n)) ↑y • f y) * (fourier n) ↑x) = (1 / (2 * π - 0) : ℝ) • ∑ n ∈ Icc (-(N : ℤ)) ↑N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n)) ↑y • f y) * (fourier n) ↑x) from (Finset.smul_sum ..).symm]
       rw_mod_cast [real_smul, sub_zero]
@@ -183,7 +186,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       congr with n
       exact (intervalIntegral.integral_mul_const _ _).symm
     _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), ∑ n ∈ Icc (-(N : ℤ)) N, (fourier (-n)) y • f y * (fourier n) x := by
-      rw [← intervalIntegral.integral_finset_sum]
+      rw [← intervalIntegral.integral_finsetSum]
       exact fun _ _ ↦ IntervalIntegrable.mul_const
         (h.continuousOn_mul fourier_uniformContinuous.continuous.continuousOn) _
     _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * ∑ n ∈ Icc (-(N : ℤ)) N, (fourier (-n)) y * (fourier n) x := by

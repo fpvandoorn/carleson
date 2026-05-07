@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+module
+
+public import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+
+public section
 
 noncomputable section
 

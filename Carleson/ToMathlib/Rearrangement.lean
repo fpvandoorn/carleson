@@ -1,5 +1,9 @@
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.WeakType
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.WeakType
+
+@[expose] public section
 
 noncomputable section
 
@@ -34,7 +38,7 @@ variable {f : α → ε} {g : α → ε'} {μ : Measure α} {x y : ℝ≥0∞}
   apply csInf_le_csInf
   · use 0
     intro σ hσ
-    exact zero_le _
+    exact zero_le
   · use ⊤
     simp
   · intro x hx
@@ -46,7 +50,7 @@ lemma rearrangement_mono_right' : (Antitone (fun t ↦ rearrangement f t μ)) :=
 @[gcongr] lemma rearrangement_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     rearrangement f x μ ≤ rearrangement g x μ := by
   apply csInf_le_csInf
-  · exact ⟨0, fun σ hσ => zero_le _⟩
+  · exact ⟨0, fun σ hσ ↦ zero_le⟩
   · exact ⟨⊤, by simp⟩
   · exact fun σ hσ => le_trans (distribution_mono_left h) hσ
 
@@ -74,7 +78,7 @@ lemma rearrangement_smul_left (c : 𝕜) :
 -/
 
 lemma rearrangement_distribution_le : rearrangement f (distribution f x μ) μ ≤ x :=
-  csInf_le ⟨0, fun y hy => zero_le _⟩ (by simp)
+  csInf_le ⟨0, fun y hy ↦ zero_le⟩ (by simp)
 
 lemma distribution_rearrangement_le : distribution f (rearrangement f x μ) μ ≤ x := by
   by_cases hx : rearrangement f x μ = ⊤;

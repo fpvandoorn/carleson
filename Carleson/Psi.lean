@@ -1,5 +1,9 @@
-import Carleson.ProofData
-import Mathlib.Tactic.Field
+module
+
+public import Carleson.ProofData
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
 open scoped ENNReal
@@ -541,7 +545,7 @@ lemma enorm_Ks_le {s : ℤ} {x y : X} :
 lemma enorm_Ks_le' {s : ℤ} {x y : X} :
     ‖Ks s x y‖ₑ ≤ C2_1_3 a / volume (ball x (D ^ s)) * ‖ψ (D ^ (-s) * dist x y)‖ₑ := by
   by_cases hK : Ks s x y = 0
-  · rw [hK, enorm_zero]; exact zero_le _
+  · rw [hK, enorm_zero]; exact zero_le
   rw [Ks, enorm_mul]; nth_rw 2 [← enorm_norm]; rw [norm_real, enorm_norm]
   gcongr
   apply le_trans <| enorm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
@@ -753,7 +757,7 @@ private lemma enorm_Ks_sub_Ks_le_far {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0
     ENNReal.div_add_div_same, ← two_mul, ← pow_one 2]
   apply ENNReal.div_le_div_right
   replace h := ENNReal.div_lt_of_lt_mul' <| not_le.mp h
-  have edist_pos : 0 < edist y y' := zero_le _ |>.trans_lt h
+  have edist_pos : 0 < edist y y' := zero_le.trans_lt h
   have : D ^ (s - 1) / 8 < edist y y' := by --lower bound 2.1.2 combined with `h`
     apply lt_of_le_of_lt _ h
     have : (2 : ℝ≥0∞) / 8 = 1 / 4 := by apply ENNReal.div_eq_div_iff .. |>.mpr (by norm_num) <;> simp

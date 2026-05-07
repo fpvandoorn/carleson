@@ -1,5 +1,9 @@
-import Carleson.Calculations
-import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
+module
+
+public import Carleson.Calculations
+public import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
+
+@[expose] public section
 
 open MeasureTheory Set Metric Function Topology NNReal ENNReal
 
@@ -99,20 +103,18 @@ lemma czOperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     · conv =>
         arg 1; arg 2;
         rw [← inter_assoc]
-        refine Eq.symm (left_eq_inter.mpr ?_)
-        · apply inter_subset_left.trans
-          apply setOf_subset.mpr
-          apply tmp_Kxg
+        refine (left_eq_inter.mpr ?_).symm
+        exact inter_subset_left.trans <| setOf_subset.mpr tmp_Kxg
       rw [← Measure.restrict_apply₀' (by measurability), ← ae_iff]
       exact hM
     · apply NullMeasurableSet.inter
       · exact measurableSet_ball.compl.nullMeasurableSet
       · exact mKxg.nullMeasurableSet_support
   obtain ⟨M, hM⟩ := bdd_Kxg
-  apply integrableOn_of_integrableOn_inter_support measurableSet_ball.compl
+  apply IntegrableOn.of_inter_support measurableSet_ball.compl
   apply Measure.integrableOn_of_bounded ?_ mKxg hM
   apply ne_top_of_le_ne_top (hg.measure_support_lt.ne)
-  apply measure_mono
+  gcongr
   trans support Kxg
   · exact inter_subset_right
   · exact support_mul_subset_right (K x) g

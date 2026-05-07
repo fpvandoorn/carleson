@@ -1,6 +1,10 @@
-import Carleson.Discrete.ExceptionalSet
-import Carleson.Discrete.ForestComplement
-import Carleson.Discrete.ForestUnion
+module
+
+public import Carleson.Discrete.ExceptionalSet
+public import Carleson.Discrete.ForestComplement
+public import Carleson.Discrete.ForestUnion
+
+@[expose] public section
 
 open MeasureTheory NNReal Set
 open scoped ShortVariables

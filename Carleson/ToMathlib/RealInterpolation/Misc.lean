@@ -1,7 +1,9 @@
-import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
-import Carleson.ToMathlib.WeakType
-import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+module
+
+public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
+public import Carleson.ToMathlib.WeakType
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 
 /-!
 This file contains some miscellaneous prerequisites for proving the Marcinkiewisz real interpolation
@@ -21,6 +23,8 @@ Upstreaming status:
 - except for using `distribution_lt_top`, this file does not use WeakType;
   it does use helper lemmas in `InterpolatedExponents`, though.
 -/
+
+@[expose] public section
 
 noncomputable section
 
@@ -90,7 +94,6 @@ def spf_to_tc (spf : ScaledPowerFunction) : StrictRangeToneCouple where
       intro s t hst
       beta_reduce
       gcongr
-      exact this
     · simp only [Bool.false_eq_true, ↓reduceIte]
       intro s t hst
       rcases spf.hσ with σ_pos | σ_neg
@@ -735,7 +738,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos hpq.1.ne' p_ne_top)]
         exact hpq.1.ne'
       -- Thus, the left hand side vanishes and conclusion is trivially true.
-      refine le_of_eq_of_le ?_ (zero_le _)
+      refine le_of_eq_of_le ?_ zero_le
       rw [rpow_eq_zero_iff_of_pos]
       · rw [eLpNorm_eq_zero_iff _ hq'.ne']
         · -- TODO: missing API lemma

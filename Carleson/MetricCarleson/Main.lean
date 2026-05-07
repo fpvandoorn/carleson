@@ -1,4 +1,8 @@
-import Carleson.MetricCarleson.Linearized
+module
+
+public import Carleson.MetricCarleson.Linearized
+
+@[expose] public section
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Metric
@@ -180,7 +184,7 @@ lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}
       rw [EAnnulus.oo_eq_annulus mR₁.1.le]
       apply le_iSup₂ _ mx'
     · rcases le_or_gt (upperRadius Q θ x') (ENNReal.ofReal R₁) with hur | hur
-      · rw [EAnnulus.oo_eq_empty hur, setIntegral_empty, enorm_zero]; exact zero_le _
+      · rw [EAnnulus.oo_eq_empty hur, setIntegral_empty, enorm_zero]; exact zero_le
       rw [not_le] at h
       have urnt : upperRadius Q θ x' ≠ ⊤ := by
         rw [← lt_top_iff_ne_top]; exact h.trans (by finiteness)
@@ -208,7 +212,7 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
       congr with x; exact carlesonOperator_eq_biSup_Θ'_J102 mf nf'
     _ ≤ _ := ?_
   rcases (Θ' X).eq_empty_or_nonempty with eΘ' | nΘ'
-  · simp_rw [eΘ', iSup_emptyset, bot_eq_zero, lintegral_zero]; exact zero_le _
+  · simp_rw [eΘ', iSup_emptyset, bot_eq_zero, lintegral_zero]; exact zero_le
   let g (θ : Θ X) (x : X) := ⨆ j ∈ J102, ‖carlesonOperatorIntegrand K θ j.1 j.2 f x‖ₑ
   have mg (θ : Θ X) : Measurable (g θ) :=
     Measurable.biSup _ J102.to_countable fun j mj ↦

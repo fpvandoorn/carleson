@@ -1,12 +1,17 @@
-import Carleson.Classical.DirichletKernel
-import Carleson.Classical.HilbertKernel
-import Carleson.Classical.SpectralProjectionBound
-import Carleson.Defs
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
-import Carleson.TwoSidedCarleson.Basic
-import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
-import Mathlib.Analysis.Real.Pi.Bounds
-import Mathlib.Tactic.Field
+module
+
+public import Carleson.Classical.DirichletKernel
+public import Carleson.Classical.HilbertKernel
+public import Carleson.Classical.SpectralProjectionBound
+public import Carleson.Defs
+public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+public import Carleson.TwoSidedCarleson.Basic
+public import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
+public import Mathlib.Analysis.Real.Pi.Bounds
+public import Mathlib.Tactic.Field
+import Mathlib.Algebra.Order.Interval.Set.Group
+
+@[expose] public section
 
 /- This file contains the proof that the Hilbert kernel is a bounded operator. -/
 
@@ -415,7 +420,7 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
       (2 * π)⁻¹ * ∫ y in (0)..2 * π, f y * dirichletApprox n (x - y) := by
   simp only [approxHilbertTransform, Finset.mul_sum, mul_inv_rev, ofReal_mul, ofReal_inv,
     ofReal_ofNat, dirichletApprox, ofReal_sub]
-  rw [intervalIntegral.integral_finset_sum]; swap
+  rw [intervalIntegral.integral_finsetSum]; swap
   · intro i hi
     apply IntervalIntegrable.mul_continuousOn ?_ (by fun_prop)
     rw [intervalIntegrable_iff_integrableOn_Ioc_of_le (by simp [Real.pi_nonneg])]

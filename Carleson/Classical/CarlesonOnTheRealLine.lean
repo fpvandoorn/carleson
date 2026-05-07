@@ -1,7 +1,11 @@
-import Carleson.Classical.CarlesonOperatorReal
-import Carleson.Classical.HilbertStrongType
-import Carleson.Classical.VanDerCorput
-import Carleson.TwoSidedCarleson.MainTheorem
+module
+
+public import Carleson.Classical.CarlesonOperatorReal
+public import Carleson.Classical.HilbertStrongType
+public import Carleson.Classical.VanDerCorput
+public import Carleson.TwoSidedCarleson.MainTheorem
+
+@[expose] public section
 
 /-
 This file contains the proof of Lemma 11.1.4 (real Carleson), from section 11.7.

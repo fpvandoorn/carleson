@@ -1,6 +1,10 @@
-import Carleson.Forest
-import Carleson.Operators
-import Carleson.ToMathlib.HardyLittlewood
+module
+
+public import Carleson.Forest
+public import Carleson.Operators
+public import Carleson.ToMathlib.HardyLittlewood
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -67,8 +71,10 @@ lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonem
   push Not
   have ⟨p, hp⟩ := h𝔖
   refine ⟨p, hp, subset_topCube.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩
-  apply mul_le_mul (by norm_num) (c0 := by positivity) (b0 := by norm_num)
-  exact zpow_le_zpow_right₀ (one_le_realD _) (scale_mem_Icc.2.trans (Int.le.intro 1 rfl))
+  gcongr
+  · norm_num
+  · exact one_le_realD _
+  · exact scale_mem_Icc.2.trans (Int.le.intro 1 rfl)
 
 /-- The definition of `𝓛₀(𝔖), defined above Lemma 7.1.2 -/
 def 𝓛₀ (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
@@ -108,7 +114,7 @@ lemma stronglyMeasurable_approxOnCube (C : Set (Grid X)) (f : X → E') :
     fun _ _ ↦ stronglyMeasurable_const.indicator coeGrid_measurable
 
 lemma integrable_approxOnCube (C : Set (Grid X)) {f : X → E'} : Integrable (approxOnCube C f) := by
-  refine integrable_finset_sum _ (fun i hi ↦ ?_)
+  refine integrable_finsetSum _ (fun i hi ↦ ?_)
   constructor
   · exact (aestronglyMeasurable_indicator_iff coeGrid_measurable).mpr aestronglyMeasurable_const
   · simp_rw [hasFiniteIntegral_iff_enorm, enorm_indicator_eq_indicator_enorm]
@@ -349,7 +355,7 @@ irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ ((𝕔 + 4) * a ^ 3)
 -- Used in the proof of `exp_sub_one_le`, which is used to prove Lemma 7.1.4
 private lemma exp_Lipschitz : LipschitzWith 1 (fun (t : ℝ) ↦ exp (.I * t)) := by
   have mul_I : Differentiable ℝ fun (t : ℝ) ↦ I * t := Complex.ofRealCLM.differentiable.const_mul I
-  refine lipschitzWith_of_nnnorm_deriv_le mul_I.cexp (fun x ↦ ?_) 
+  refine lipschitzWith_of_nnnorm_deriv_le mul_I.cexp (fun x ↦ ?_)
   have key : HasDerivAt (fun t : ℝ ↦ cexp (I * ↑t)) (cexp (I * ↑x) * I) x := by
     simpa using (Complex.hasDerivAt_exp _).comp x
       (by simpa using Complex.ofRealCLM.hasDerivAt.const_mul I)
@@ -681,8 +687,8 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
   have d5 : dist_(p') (𝒬 u) (Q x) < 5 := dist_lt_5 hu mp' Qxp'
   have d5' : dist_{x, D ^ s₂} (𝒬 u) (Q x) < 5 * defaultA a ^ 5 := by
     have i1 : dist x (𝔠 p) < 4 * D ^ 𝔰 p' :=
-      (mem_ball.mp (Grid_subset_ball xp)).trans_le <|
-        mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ (one_le_realD _) s_ineq) zero_le_four
+      (mem_ball.mp (Grid_subset_ball xp)).trans_le <| by
+        gcongr; exacts [one_le_realD _, s_ineq]
     have i2 : dist (𝔠 p') (𝔠 p) < 4 * D ^ 𝔰 p' :=
       mem_ball'.mp (ball_subset_Grid.trans (Grid.le_def.mp pinc).1 |>.trans Grid_subset_ball <|
         mem_ball_self (by unfold defaultD; positivity))
@@ -1026,7 +1032,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
           simp only [ps, Finset.mem_filter] at hp hp'
           exact (indicator_eq_zero_iff_notMem _).mpr fun xEp' ↦
             disjoint_left.mp (disjoint_Ω p'_ne_p (hp'.2.2.trans hp.2.2.symm)) xEp'.2.1 xEp.2.1
-      · suffices ∑ p ∈ ps I, (E p).indicator (1 : X → ℝ≥0∞) x = 0 by rw [this]; exact zero_le _
+      · suffices ∑ p ∈ ps I, (E p).indicator (1 : X → ℝ≥0∞) x = 0 by rw [this]; exact zero_le
         exact Finset.sum_eq_zero (fun p hp ↦ indicator_of_notMem (ex p hp) _)
     _ = ∑ I : Grid X, ((I : Set X).indicator 1 x') *
           ((D2_1_3 a * defaultA a ^ 5 * 2 ^ (3 / a : ℝ)) /

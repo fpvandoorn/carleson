@@ -1,5 +1,7 @@
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.RealInterpolation.Misc
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.RealInterpolation.Misc
 
 /-!
 # Minkowski's integral inequality
@@ -15,6 +17,8 @@ Upstreaming status:
 Lemma names often need to be improved a bit; perhaps the code can also be golfed.
 
 -/
+
+@[expose] public section
 
 noncomputable section
 
@@ -42,8 +46,8 @@ lemma truncCut_mono {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} (
   · exact min_le_min_left (f x) (Nat.cast_le.mpr hmn)
   · contrapose! is_fx_le_n
     exact monotone_spanningSets _ hmn is_fx_le_m
-  · exact zero_le _
-  · exact zero_le _
+  · exact zero_le
+  · exact zero_le
 
 lemma truncCut_mono₀ {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
     Monotone (truncCut f μ) := by
@@ -57,7 +61,7 @@ lemma truncCut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} (x
   · intro n; unfold truncCut indicator
     split_ifs
     · exact min_le_left (f x) ↑n
-    · exact zero_le _
+    · exact zero_le
   · intro w hw
     unfold truncCut
     have : ∃ m : ℕ, x ∈ spanningSets μ m := by
@@ -140,7 +144,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     intro n
     rcases eq_or_ne (∫⁻ x : α, (g n x) ^ p ∂μ) 0  with int_eq_zero | int_ne_zero
     · rw [int_eq_zero, ENNReal.zero_rpow_of_pos]
-      · exact zero_le _
+      · exact zero_le
       · exact inv_pos_of_pos (by positivity)
     · calc
       _ = (∫⁻ x : α, (f x) * (g n x) ^ (p - 1) ∂μ) * (
@@ -776,7 +780,7 @@ lemma wnorm_eq_zero_iff [ENormedAddMonoid ε] {f : α → ε} {p : ℝ≥0∞} (
     · refine iSup_eq_zero.mpr fun t ↦ mul_eq_zero.mpr
         (Or.inr ((rpow_eq_zero_iff_of_pos (inv_pos_of_pos (toReal_pos hp h₀))).mpr (nonpos_iff_eq_zero.mp ?_)))
       calc
-        _ ≤ distribution f 0 μ := by gcongr; exact zero_le _
+        _ ≤ distribution f 0 μ := by gcongr; exact zero_le
         _ = distribution f (eLpNormEssSup f μ) μ := by congr; exact h.symm
         _ = 0 := distribution_snormEssSup
 
@@ -875,7 +879,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
       gcongr
       exact trunc_eLpNormEssSup_le _
     _ ≤ _ := by
-      rw [max_eq_right (zero_le _),
+      rw [max_eq_right zero_le,
         ENNReal.mul_div_cancel (ENNReal.coe_ne_zero.mpr hC₁.ne') (by finiteness)]
   calc
   _ ≤ distribution (T' (trunc f (t / C₁))) (eLpNormEssSup (T' (trunc f (t / C₁))) ν) ν :=
@@ -897,8 +901,8 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
       exact eLpNorm_trnc_est (p := ⊤)
     have obs : eLpNorm (T' (trnc ⊥ f a)) ⊤ ν = 0 :=
       weaktype_aux₀ hp₀ (hq₀ ▸ zero_lt_top) zero_lt_top zero_lt_top h₀T hf.1.truncCompl this
-    exact nonpos_iff_eq_zero.mp (Trans.trans (distribution_mono_right (Trans.trans obs
-      (zero_le t))) meas_eLpNormEssSup_lt)
+    exact nonpos_iff_eq_zero.mp
+      (Trans.trans (distribution_mono_right (Trans.trans obs zero_le)) meas_eLpNormEssSup_lt)
   · have p_pos : 0 < p := hp₀.trans hp₀p
     have snorm_p_pos : eLpNorm f p μ ≠ 0 := fun snorm_0 ↦ snorm_pos.ne' <|
       eLpNormEssSup_eq_zero_iff.mpr <| (eLpNorm_eq_zero_iff hf.1 p_pos.ne').mp snorm_0
