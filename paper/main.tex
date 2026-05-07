@@ -232,7 +232,7 @@ The specific statement is as follows:
 \end{theorem}
 
 The formalization was approached through a recent result (blabla reference) which encompasses a number of generalizations of Carleson's original theorem.
-The context for this new result is called a \emph{doubling metric measure space}, accompanied by a \emph{cancellative compatible collection} of real valued continuous functions.
+The context for this new result is called a \emph{doubling metric measure space}, accompanied by a \emph{cancellative compatible collection} of real-valued continuous functions.
 For a \emph{one-sided} respectively \emph{two-sided Calder\'on--Zygmund kernel} $K$ on this space, one obtains bounds for certain \emph{generalized Carleson operators} involving the collection of functions and the kernel.
 
 The classical Carleson theorem is obtained by choosing a specific Carleson operator, an approach that all proofs of Carleson's theorem share.
@@ -272,7 +272,7 @@ where we have denoted by $B(x,R)$ the open ball of radius $R$ centered at $x$.
 %\end{equation}
 %In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
-A collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
+A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
 if there is a point $o\in X$ where all the functions are equal to $0$,
 and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$,
 such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied.
@@ -357,7 +357,7 @@ and define further
 \begin{equation}
     \label{def-lin-star-op}
     T_{\tQ}^\mfa f(x):=\sup_{R_1<R_2} \ \sup_{\rho(x,x')<R_1}
-    \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
 \end{equation}
 Define further the linearized generalized Carleson operator $T_\tQ$ by
 \begin{equation}
@@ -393,7 +393,7 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
 In some applications, such as the Walsh-case of Carleson's theorem, the kernel $K$ naturally depends also on the modulation functions $\mfa$.
 The fact that we don't assume H\"older-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
 
-We now state another Theorem with a slightly weaker replacement of the assumption \eqref{nontanbound}.
+We now state another theorem with a slightly weaker replacement of the assumption \eqref{nontanbound}.
 It implies the Walsh-case of Carleson's theorem.
 
 \begin{theorem}[linearised metric Carleson]
@@ -575,14 +575,7 @@ we have
 \end{theorem}
 
 The proof of this last result is the heart of the matter. The pieces are categorized in one of three types, for each of which a separate analysis is required to establish a bound.
-These three branches of the proof are largely independent and handled in separate sections of the blueprint and formalization. %include reference? define the 'types' explicitly?
-
-%\begin{itemize}
-%	\item Statement of Theorem 1.0.2.
-%	\item Main propositions in Chapter 2.
-%
-%\end{itemize}
-%\item Level of mathematical detail to include.
+These three branches of the proof are largely independent and handled in separate sections 5, 6, and 7 of the blueprint \cite{CarlesonBlueprint}.
 
 \section{Project organization}\label{sec:org}
 \begin{itemize}
