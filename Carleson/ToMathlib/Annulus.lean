@@ -6,6 +6,7 @@ Authors: James Sundstrom
 module
 
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
+public import Mathlib.Order.SuccPred.IntervalSucc
 public import Carleson.ToMathlib.Interval
 
 /-!
@@ -241,13 +242,43 @@ lemma cc_union_oi {x : X} {r R : ℝ} (h : r ≤ R) : cc x r R ∪ oi x R = ci x
 lemma co_union_ci {x : X} {r R : ℝ} (h : r ≤ R) : co x r R ∪ ci x R = ci x r := by
   ext; simp_rw [co, ci, mem_union, mem_setOf_eq, ← mem_union, Ico_union_Ici_eq_Ici h]
 
+variable {α : Type*} [LinearOrder α]
+open Order
+/-- Union formula for `Set.co (f i) (f (Order.succ i))` over `i ∈ Ici a`. See also
+`iUnion_Ico_map_succ_eq_ci` for the specialization `a = ⊥`. -/
+theorem biUnion_Ici_co_map_succ [SuccOrder α] [IsSuccArchimedean α] {x : X} {f : α → ℝ}
+    {a : α} (hf : ∀ i ∈ Ici a, f a ≤ f i) (h2f : ¬BddAbove (f '' Ici a)) :
+    ⋃ i ∈ Ici a, co x (f i) (f (succ i)) = ci x (f a) := by
+  simp [co, ci, iUnion_setOf, ← biUnion_Ici_Ico_map_succ hf h2f]
+
+/-- Union formula for `Set.Ioc (f i) (f (Order.succ i))` over `i ∈ Ici a`. See also
+`iUnion_Ioc_map_succ_eq_oi` for the specialization `a = ⊥`. -/
+theorem biUnion_Ici_oc_map_succ [SuccOrder α] [IsSuccArchimedean α] {x : X} {f : α → ℝ}
+    {a : α} (hf : ∀ i ∈ Ici a, f a ≤ f i) (h2f : ¬BddAbove (f '' Ici a)) :
+    ⋃ i ∈ Ici a, oc x (f i) (f (succ i)) = oi x (f a) := by
+  simp [oc, oi, iUnion_setOf, ← biUnion_Ici_Ioc_map_succ hf h2f]
+
+/-- Special case `a = ⊥` of `biUnion_Ici_co_map_succ`. -/
+theorem iUnion_Ico_map_succ_eq_ci [OrderBot α] [SuccOrder α] [IsSuccArchimedean α] {x : X}
+    {f : α → ℝ} (hf : ∀ a, f ⊥ ≤ f a) (h2f : ¬BddAbove (range f)) :
+    (⋃ a : α, co x (f a) (f (succ a))) = ci x (f ⊥) := by
+  simpa using biUnion_Ici_co_map_succ (f := f) (a := ⊥) (by simpa) (by simpa)
+
+/-- Special case `a = ⊥` of `biUnion_Ici_oc_map_succ`. -/
+theorem iUnion_Ioc_map_succ_eq_oi [OrderBot α] [SuccOrder α] [IsSuccArchimedean α] {x : X}
+    {f : α → ℝ} (hf : ∀ a, f ⊥ ≤ f a) (h2f : ¬BddAbove (range f)) :
+    (⋃ a : α, oc x (f a) (f (succ a))) = oi x (f ⊥) := by
+  simpa using biUnion_Ici_oc_map_succ (f := f) (a := ⊥) (by simpa) (by simpa)
+
 theorem iUnion_co_eq_ci {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), co x (f i) (f (i+1)) = ci x (f 0) := by
-  simp [co, ci, iUnion_setOf, ← iUnion_Ico_eq_Ici hf h2f]
+  simp_rw [← Nat.bot_eq_zero, ← Nat.succ_eq_add_one]
+  exact iUnion_Ico_map_succ_eq_ci hf h2f
 
 theorem iUnion_oc_eq_oi {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), oc x (f i) (f (i+1)) = oi x (f 0) := by
-  simp [oc, oi, iUnion_setOf, ← iUnion_Ioc_eq_Ioi hf h2f]
+  simp_rw [← Nat.bot_eq_zero, ← Nat.succ_eq_add_one]
+  exact iUnion_Ioc_map_succ_eq_oi hf h2f
 
 variable {ι : Type*} [LinearOrder ι] [SuccOrder ι]
 
