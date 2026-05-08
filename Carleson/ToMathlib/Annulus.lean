@@ -7,7 +7,6 @@ module
 
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
 public import Mathlib.Order.SuccPred.IntervalSucc
-public import Carleson.ToMathlib.Interval
 
 /-!
 # Annulus
@@ -245,54 +244,54 @@ lemma co_union_ci {x : X} {r R : ℝ} (h : r ≤ R) : co x r R ∪ ci x R = ci x
 variable {α : Type*} [LinearOrder α]
 open Order
 /-- Union formula for `Set.co (f i) (f (Order.succ i))` over `i ∈ Ici a`. See also
-`iUnion_Ico_map_succ_eq_ci` for the specialization `a = ⊥`. -/
+`iUnion_co_map_succ_eq_ci` for the specialization `a = ⊥`. -/
 theorem biUnion_Ici_co_map_succ [SuccOrder α] [IsSuccArchimedean α] {x : X} {f : α → ℝ}
     {a : α} (hf : ∀ i ∈ Ici a, f a ≤ f i) (h2f : ¬BddAbove (f '' Ici a)) :
     ⋃ i ∈ Ici a, co x (f i) (f (succ i)) = ci x (f a) := by
   simp [co, ci, iUnion_setOf, ← biUnion_Ici_Ico_map_succ hf h2f]
 
 /-- Union formula for `Set.Ioc (f i) (f (Order.succ i))` over `i ∈ Ici a`. See also
-`iUnion_Ioc_map_succ_eq_oi` for the specialization `a = ⊥`. -/
+`iUnion_oc_map_succ_eq_oi` for the specialization `a = ⊥`. -/
 theorem biUnion_Ici_oc_map_succ [SuccOrder α] [IsSuccArchimedean α] {x : X} {f : α → ℝ}
     {a : α} (hf : ∀ i ∈ Ici a, f a ≤ f i) (h2f : ¬BddAbove (f '' Ici a)) :
     ⋃ i ∈ Ici a, oc x (f i) (f (succ i)) = oi x (f a) := by
   simp [oc, oi, iUnion_setOf, ← biUnion_Ici_Ioc_map_succ hf h2f]
 
 /-- Special case `a = ⊥` of `biUnion_Ici_co_map_succ`. -/
-theorem iUnion_Ico_map_succ_eq_ci [OrderBot α] [SuccOrder α] [IsSuccArchimedean α] {x : X}
+theorem iUnion_co_map_succ_eq_ci [OrderBot α] [SuccOrder α] [IsSuccArchimedean α] {x : X}
     {f : α → ℝ} (hf : ∀ a, f ⊥ ≤ f a) (h2f : ¬BddAbove (range f)) :
     (⋃ a : α, co x (f a) (f (succ a))) = ci x (f ⊥) := by
   simpa using biUnion_Ici_co_map_succ (f := f) (a := ⊥) (by simpa) (by simpa)
 
 /-- Special case `a = ⊥` of `biUnion_Ici_oc_map_succ`. -/
-theorem iUnion_Ioc_map_succ_eq_oi [OrderBot α] [SuccOrder α] [IsSuccArchimedean α] {x : X}
+theorem iUnion_oc_map_succ_eq_oi [OrderBot α] [SuccOrder α] [IsSuccArchimedean α] {x : X}
     {f : α → ℝ} (hf : ∀ a, f ⊥ ≤ f a) (h2f : ¬BddAbove (range f)) :
     (⋃ a : α, oc x (f a) (f (succ a))) = oi x (f ⊥) := by
   simpa using biUnion_Ici_oc_map_succ (f := f) (a := ⊥) (by simpa) (by simpa)
 
-theorem iUnion_co_eq_ci {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
-    ⋃ (i : Nat), co x (f i) (f (i+1)) = ci x (f 0) := by
-  simp_rw [← Nat.bot_eq_zero, ← Nat.succ_eq_add_one]
-  exact iUnion_Ico_map_succ_eq_ci hf h2f
+-- theorem iUnion_co_eq_ci {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
+--     ⋃ (i : Nat), co x (f i) (f (i+1)) = ci x (f 0) := by
+--   simp_rw [← Nat.bot_eq_zero, ← Nat.succ_eq_add_one]
+--   exact iUnion_Ico_map_succ_eq_ci hf h2f
 
-theorem iUnion_oc_eq_oi {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
-    ⋃ (i : Nat), oc x (f i) (f (i+1)) = oi x (f 0) := by
-  simp_rw [← Nat.bot_eq_zero, ← Nat.succ_eq_add_one]
-  exact iUnion_Ioc_map_succ_eq_oi hf h2f
+-- theorem iUnion_oc_eq_oi {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
+--     ⋃ (i : Nat), oc x (f i) (f (i+1)) = oi x (f 0) := by
+--   simp_rw [← Nat.bot_eq_zero, ← Nat.succ_eq_add_one]
+--   exact iUnion_oc_map_succ_eq_oi hf h2f
 
 variable {ι : Type*} [LinearOrder ι] [SuccOrder ι]
 
-theorem pairwise_disjoint_co_monotone {x : X} {f : ι → ℝ} (hf : Monotone f) :
+theorem pairwise_disjoint_on_co_succ {x : X} {f : ι → ℝ} (hf : Monotone f) :
     Pairwise (Function.onFun Disjoint fun (i : ι) => co x (f i) (f (Order.succ i))) := by
   intro i j hij
   apply Disjoint.preimage
-  exact pairwise_disjoint_Ico_monotone hf hij
+  exact Monotone.pairwise_disjoint_on_Ico_succ hf hij
 
-theorem pairwise_disjoint_oc_monotone {x : X} {f : ι → ℝ} (hf : Monotone f) :
+theorem pairwise_disjoint_on_oc_succ {x : X} {f : ι → ℝ} (hf : Monotone f) :
     Pairwise (Function.onFun Disjoint fun (i : ι) => oc x (f i) (f (Order.succ i))) := by
   intro i j hij
   apply Disjoint.preimage
-  exact pairwise_disjoint_Ioc_monotone hf hij
+  exact Monotone.pairwise_disjoint_on_Ioc_succ hf hij
 
 variable [MeasurableSpace X] [OpensMeasurableSpace X]
 
