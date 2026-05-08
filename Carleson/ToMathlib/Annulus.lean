@@ -18,7 +18,7 @@ for `Iio` and `Iic`, as they would be balls.
 
 We also define `EAnnulus` similarly using `edist` instead of `dist`.
 
-Upstreaming status: looks ready (once the dependent file is upstreamed);
+Upstreaming status: ready;
 two style questions should be answered in the process (see below).
 
 ## Tags
