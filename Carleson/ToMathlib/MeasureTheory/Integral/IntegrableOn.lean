@@ -4,7 +4,7 @@ public import Mathlib.MeasureTheory.Integral.IntegrableOn
 
 public section
 
--- Upstreaming note: Hypotheses and variables have been matched to corresponding Mathlib file
+-- Upstreaming status: Hypotheses and variables have been matched to corresponding Mathlib file
 -- `IntegrableAtFilter.congr` already in mathlib.
 
 variable {α β ε ε' : Type*} [MeasurableSpace α]
