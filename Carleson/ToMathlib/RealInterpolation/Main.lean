@@ -56,6 +56,7 @@ namespace MeasureTheory
 
 variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace ε₂] [ESeminormedAddMonoid ε₂]
 
+/-- The operator is subadditive on functions satisfying `P` with constant `A`. -/
 def SubadditiveOn [ENorm ε] (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞) : Prop :=
   ∀ (f g : α → ε₁), P f → P g → ∀ (x : α'), ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
 
