@@ -1,6 +1,11 @@
-import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
-import Mathlib.Analysis.Convolution
-import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
+module
+
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
+public import Mathlib.Analysis.Convolution
+public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
+import Mathlib.Algebra.Order.Interval.Set.Group
+
+@[expose] public section
 
 -- Upstreaming status: looks nice and clean
 -- First lemmas augment mathlib ones (or replace some proofs),
@@ -22,7 +27,7 @@ instance AddCircle.noAtoms_volume : NoAtoms (volume : Measure (AddCircle T)) whe
 variable {B : Type*} {T a : ℝ} [hT : Fact (0 < T)] (f : ℝ → B)
 
 theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc T a f =ᵐ[volume] liftIco T a f :=
-  .mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne f)
+  .mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne)
 
 end AE
 

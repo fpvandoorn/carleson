@@ -1,11 +1,14 @@
-import Carleson.ToMathlib.MeasureTheory.Function.EssSup
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
-import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Topology.Order.Basic
-import Carleson.ToMathlib.Topology.ContinuousOn
-import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
-import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
+public import Carleson.ToMathlib.RealInterpolation.Misc
+
+public section
+public import Carleson.ToMathlib.Topology.ContinuousOn
+public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 
 /- Upstreaming status: still needs some cleanup, and more analogues to mathlib lemmas about eLpNorm
 could be added -/
@@ -29,7 +32,6 @@ lemma eLorentzNorm'_mono_enorm_ae {f : α → ε'} {g : α → ε} (h : ∀ᵐ (
   intro x
   simp only [ENNReal.toReal_inv, enorm_eq_self]
   gcongr
-  exact h
 
 lemma eLorentzNorm_mono_enorm_ae {f : α → ε'} {g : α → ε} (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     eLorentzNorm f p q μ ≤ eLorentzNorm g p q μ := by

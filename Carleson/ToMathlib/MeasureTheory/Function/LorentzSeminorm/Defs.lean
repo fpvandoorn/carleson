@@ -1,8 +1,10 @@
-import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
-import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
-import Carleson.ToMathlib.WeakType
-import Carleson.ToMathlib.Topology.Order.Basic
-import Carleson.ToMathlib.Order.CompleteLattice.Basic
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
+public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
+public import Carleson.ToMathlib.WeakType
+public import Carleson.ToMathlib.Topology.Order.Basic
+public import Carleson.ToMathlib.Order.CompleteLattice.Basic
 
 -- Upstreaming status: NOT READY yet (mostly); this file is being actively worked on.
 -- Needs significant clean-up (refactoring, code style, extracting lemmas etc.) first.
@@ -21,6 +23,8 @@ and is almost everywhere strongly measurable.
 * TODO
 
 -/
+
+@[expose] public section
 
 noncomputable section
 

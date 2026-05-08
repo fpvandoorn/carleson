@@ -1,7 +1,11 @@
-import Carleson.TileStructure
-import Carleson.HolderNorm
+module
+
+public import Carleson.TileStructure
+public import Carleson.HolderNorm
 
 /-! This should roughly contain the contents of chapter 8. -/
+
+@[expose] public section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -29,7 +33,8 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
   apply LipschitzWith.const_max
   apply LipschitzWith.of_le_add_mul
   intro a b
-  simp only [NNReal.coe_mk, tsub_le_iff_right, div_eq_inv_mul, mul_one]
+  change 1 - dist x a / (t * R) ≤ 1 - dist x b / (t * R) + (1 / (t * R)) * dist a b
+  simp only [tsub_le_iff_right, div_eq_inv_mul, mul_one]
   have : (t * R) ⁻¹ * dist x b ≤ (t * R)⁻¹ * (dist x a + dist a b) := by
     gcongr
     exact dist_triangle _ _ _

@@ -1,4 +1,8 @@
-import Carleson.ForestOperator.QuantativeEstimate
+module
+
+public import Carleson.ForestOperator.QuantativeEstimate
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -130,7 +134,7 @@ lemma adjoint_tree_estimate
     eLpNorm (adjointCarlesonSum (t u) g) 2 volume ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
   by_cases h : eLpNorm (adjointCarlesonSum (t u) g) 2 = 0
-  · rw [h]; exact zero_le _
+  · rw [h]; exact zero_le
   have bcs : BoundedCompactSupport (adjointCarlesonSum (t u) g) := hg.adjointCarlesonSum
   rw [← ENNReal.mul_le_mul_iff_left h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
     eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
@@ -152,7 +156,7 @@ lemma indicator_adjoint_tree_estimate
     eLpNorm (F.indicator (adjointCarlesonSum (t u) g)) 2 ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 := by
   by_cases h : eLpNorm (F.indicator (adjointCarlesonSum (t u) g)) 2 = 0
-  · rw [h]; exact zero_le _
+  · rw [h]; exact zero_le
   have bcs : BoundedCompactSupport (F.indicator (adjointCarlesonSum (t u) g)) :=
     hg.adjointCarlesonSum.indicator measurableSet_F
   rw [← ENNReal.mul_le_mul_iff_left h (bcs.memLp 2).eLpNorm_ne_top, ← sq,

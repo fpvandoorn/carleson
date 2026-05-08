@@ -1,6 +1,10 @@
-import Mathlib.MeasureTheory.Measure.Haar.OfBasis
-import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
-import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
+module
+
+public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+public import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
+
+public section
 
 open MeasureTheory NNReal ENNReal Set
 
@@ -318,7 +322,6 @@ lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ 
     rw [← hxy]
     constructor <;> gcongr
     · exact ne_top_of_le_ne_top hb hy₂
-    · assumption
   · rintro hx
     use ENNReal.ofReal x
     constructor
@@ -336,7 +339,6 @@ lemma ENNReal.toReal_Ioo_eq_Ioo {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ 
     rw [← hyx]
     constructor <;> gcongr
     · finiteness
-    · assumption
   · rintro hx
     use ENNReal.ofReal x
     constructor
@@ -371,7 +373,7 @@ lemma ENNReal.toReal_Ioi_eq_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
       rw [← hyx, h, ENNReal.toReal_top]
     right
     rw [← hyx]
-    gcongr; assumption
+    gcongr
   · rintro (x_zero | hxa)
     · exact ⟨⊤, by finiteness, by simp [x_zero]⟩
     use ENNReal.ofReal x

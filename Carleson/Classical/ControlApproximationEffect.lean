@@ -1,4 +1,8 @@
-import Carleson.Classical.CarlesonOnTheRealLine
+module
+
+public import Carleson.Classical.CarlesonOnTheRealLine
+
+@[expose] public section
 
 /- This file contains most of Section 11.6 (The error bound) from the blueprint.
    The main result is control_approximation_effect.

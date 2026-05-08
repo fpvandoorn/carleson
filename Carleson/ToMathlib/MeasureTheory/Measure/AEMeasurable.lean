@@ -1,6 +1,10 @@
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.Order.Interval.Set.Disjoint
-import Mathlib.MeasureTheory.Function.AEEqOfLIntegral
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.Order.Interval.Set.Disjoint
+public import Mathlib.MeasureTheory.Function.AEEqOfLIntegral
+
+public section
 
 -- Upstreaming status: useful and ready to go
 namespace MeasureTheory

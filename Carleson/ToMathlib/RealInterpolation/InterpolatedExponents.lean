@@ -1,4 +1,6 @@
-import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 
 /-!
 # Results about working with (interpolated) exponents
@@ -15,6 +17,8 @@ Upstreaming status: mixed; some requires more design discussions
   If we prefer a proof about Lorentz spaces, using a different approach,
   it may not be worth upstreaming.
 -/
+
+@[expose] public section
 noncomputable section
 
 open ENNReal Real Set
@@ -77,7 +81,7 @@ lemma ne_top_of_Ioc {p q r : ℝ≥0∞} (hq : q ∈ Ioc p r) (hr : r < ⊤) : q
   hq.2.trans_lt hr |>.ne_top
 
 lemma pos_of_rb_Ioc {p q r : ℝ≥0∞} (hr : q ∈ Ioc p r) : 0 < r :=
-  zero_le p |>.trans_lt hr.1 |>.trans_le hr.2
+  zero_le.trans_lt hr.1 |>.trans_le hr.2
 
 lemma pos_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : 0 < q := pos_of_gt hq.1
 
@@ -113,8 +117,8 @@ lemma preservation_positivity₀ (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ ∨ q ≠
     0 < (1 - t) * p⁻¹ + t * q⁻¹ := by
   obtain dir|dir := hpq
   · exact Left.add_pos_of_pos_of_nonneg (mul_pos ((tsub_pos_of_lt ht.2).ne')
-      (ENNReal.inv_ne_zero.mpr dir)) (zero_le _)
-  · exact Right.add_pos_of_nonneg_of_pos (zero_le _)
+      (ENNReal.inv_ne_zero.mpr dir)) zero_le
+  · exact Right.add_pos_of_nonneg_of_pos zero_le
       <| ENNReal.mul_pos ht.1.ne' (ENNReal.inv_ne_zero.mpr dir)
 
 lemma preservation_positivity (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
@@ -254,7 +258,7 @@ lemma rpow_le_rpow_of_exponent_le_base_ge_enorm {a b : ℝ} {t γ : ℝ≥0∞} 
     · simp_all
     · simpa using by order
     · rw [ENNReal.top_mul]
-      · exact zero_le ⊤
+      · exact zero_le
       simp_all
     · positivity
     · simp
@@ -318,7 +322,6 @@ lemma interp_exp_between (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
     gcongr
     · finiteness
     · exact ht.1.ne'
-    · exact ht'
   · rw [hp]
     have : p₁⁻¹ = (1 - t) * p₁⁻¹ + t * p₁⁻¹ := by
       rw [← add_mul, tsub_add_eq_max, max_eq_left_of_lt, one_mul]

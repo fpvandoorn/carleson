@@ -11,11 +11,11 @@ weak.linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible ta
 weak.linter.mathlibStandardSet = true
 # Disable the long line linter, for now.
 weak.linter.style.longLine = false
+weak.linter.style.header = false
 
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "v4.29.1"
 
 [[require]]
 name = "checkdecls"

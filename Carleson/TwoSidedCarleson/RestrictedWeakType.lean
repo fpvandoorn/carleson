@@ -1,9 +1,13 @@
-import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
-import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
-import Carleson.TwoSidedCarleson.MainTheorem
+module
+
+public import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
+public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
+public import Carleson.TwoSidedCarleson.MainTheorem
 
 /-! This file contains a reformulation of Theorem 10.0.1.
 It is not officially part of the blueprint. -/
+
+@[expose] public section
 
 
 open MeasureTheory Set Bornology Function ENNReal Metric

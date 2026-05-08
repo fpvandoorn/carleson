@@ -1,4 +1,8 @@
-import Carleson.ProofData
+module
+
+public import Carleson.ProofData
+
+@[expose] public section
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
@@ -407,8 +411,10 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
     _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c I, 4 * D ^ s J} f g := by
       gcongr
       have : s I < s J := (Grid.lt_def.mp hpq).2
-      exact cdist_mono (ball_subset_ball (mul_le_mul_of_nonneg_left
-        (zpow_le_zpow_right₀ (one_le_realD _) (by lia)) zero_le_four))
+      apply cdist_mono
+      gcongr
+      · exact one_le_realD _
+      · lia
     _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
       gcongr
       have : c I ∈ ball (c J) (4 * D ^ s J) :=
@@ -417,7 +423,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       exact cdist_mono (ball_subset_ball' (by linarith))
     _ ≤ 2 ^ (-𝕔 * (a : ℝ) + 5 * a) * dist_{J} f g := by
       rw [Real.rpow_add zero_lt_two, mul_assoc]
-      refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+      gcongr
       rw [show (2 : ℝ) ^ (5 * (a : ℝ)) = (defaultA a) ^ 5 by norm_cast; ring]
       convert cdist_le_iterate _ f g 5 using 1
       · exact dist_congr rfl (by ring)

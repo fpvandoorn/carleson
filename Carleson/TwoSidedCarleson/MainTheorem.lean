@@ -1,5 +1,9 @@
-import Carleson.MetricCarleson.Main
-import Carleson.TwoSidedCarleson.NontangentialOperator
+module
+
+public import Carleson.MetricCarleson.Main
+public import Carleson.TwoSidedCarleson.NontangentialOperator
+
+@[expose] public section
 
 open MeasureTheory Set Bornology Function ENNReal Metric
 open scoped NNReal

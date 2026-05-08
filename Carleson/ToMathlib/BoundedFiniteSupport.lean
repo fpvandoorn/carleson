@@ -1,11 +1,14 @@
-import Mathlib.MeasureTheory.Function.L1Space.Integrable
+module
+
+public import Mathlib.MeasureTheory.Function.L1Space.Integrable
+
+public section
 
 /-
 This file defines BoundedFiniteSupport.
 
-Upstreaming status: something like this is useful, but the precise form is not final yet
-- decide of this or BoundedCompactSupport is better (see comment there)
-  and possibly rewrite Carleson in favour of the one class we prefer
+Upstreaming status: this will remain in place but not be upstreamed, only BoundedCompactSupport.
+- rationale on Zulip: https://leanprover.zulipchat.com/#narrow/with/591174350
 - TODO: can other proofs be golfed using fun_prop now?
 -/
 

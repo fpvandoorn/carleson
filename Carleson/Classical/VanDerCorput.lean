@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+module
+
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+
+public section
 
 /- This file formalizes section 11.4 (The proof of the van der Corput Lemma) from the paper. -/
 

@@ -1,9 +1,11 @@
-import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
-import Carleson.ToMathlib.Analysis.MeanInequalitiesPow
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
-import Carleson.ToMathlib.MeasureTheory.Integral.Misc
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
+public import Mathlib.Analysis.MeanInequalitiesPow
+public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+public import Carleson.ToMathlib.MeasureTheory.Integral.Misc
 
 /-!
 # Triangle inequality for `Lorentz`-seminorm
@@ -11,6 +13,10 @@ import Carleson.ToMathlib.MeasureTheory.Integral.Misc
 In this file we prove several versions of the triangle inequality for the `Lorentz` seminorm,
 as well as simple corollaries.
 -/
+
+@[expose] public section
+
+@[expose] public section
 
 -- Upstreaming status: statements should be checked to closely match the corresponding statements
 -- for `eLpNorm`; proofs might still need some cleanup
@@ -276,6 +282,8 @@ theorem eLorentzNorm_add_le [ContinuousAdd ε] (one_le_q : 1 ≤ q) (q_le_p : q 
     _ = eLorentzNorm' f p q μ + eLorentzNorm' g p q μ := by
       rw [eLpNorm_lorentz_helper p_zero p_top one_le_q q_top hfg hfg', one_mul, one_mul,
         ← eLorentzNorm'_eq' p_zero p_top, ← eLorentzNorm'_eq' p_zero p_top]
+
+open ENNReal
 
 /-- A constant for the inequality `‖f + g‖_{L^{p,q}} ≤ C * (‖f‖_{L^{p,q}} + ‖g‖_{L^{p,q}})`. It is equal to `1`
 if `p = 0` or `1 ≤ r ≤ p` and `2^(1/p) * LpAddConst r` else. -/

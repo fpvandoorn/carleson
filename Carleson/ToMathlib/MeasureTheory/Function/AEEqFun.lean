@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Function.AEEqFun
-import Carleson.ToMathlib.Misc
+module
+
+public import Mathlib.MeasureTheory.Function.AEEqFun
+public import Carleson.ToMathlib.Misc
+
+public section
 
 open MeasureTheory Finset
 

@@ -1,4 +1,6 @@
-import Carleson.Antichain.Basic
+module
+
+public import Carleson.Antichain.Basic
 
 /-!
 # 6.3. Proof of the Antichain Tile Count Lemma
@@ -12,6 +14,8 @@ This file contains the proofs of lemmas 6.3.1, 6.3.2, 6.3.3, 6.3.4 and 6.1.6 fro
 - `Antichain.global_antichain_density` : Lemma 6.3.4.
 - `Antichain.tile_count`: Lemma 6.1.6.
 -/
+
+@[expose] public section
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
@@ -284,7 +288,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
       rw [Set.toFinset_eq_empty]
       exact not_nonempty_iff_eq_empty.mp h𝔄'
     rw [this, Finset.sum_empty]
-    exact zero_le _
+    exact zero_le
 
 open Classical in
 /-- We prove inclusion 6.3.24 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
@@ -612,7 +616,7 @@ private lemma exists_p''_le_L' : ∃ (p : 𝔓 X), p ∈ 𝔄' 𝔄 ϑ N ∧ �
   use p
 
 /-- p'' in the blueprint -/
-def p'' : 𝔓 X := (exists_p''_le_L' hL).choose
+@[no_expose] def p'' : 𝔓 X := (exists_p''_le_L' hL).choose
 
 lemma p''_mem : p'' hL ∈ 𝔄' 𝔄 ϑ N := (exists_p''_le_L' hL).choose_spec.1
 
@@ -631,7 +635,7 @@ private lemma exists_pΘ_eq_L' : ∃! (p : 𝔓 X), 𝓘 p = L' hL ∧ ϑ.val �
   exact absurd this (nonempty_iff_ne_empty.mp ⟨ϑ, hp.2, qΩ⟩)
 
 /-- p_Θ in the blueprint -/
-def pΘ : 𝔓 X := by
+@[no_expose] def pΘ : 𝔓 X := by
   classical exact if 𝓘 (p'' hL) = L' hL then p'' hL else (exists_pΘ_eq_L' hL).choose
 
 lemma I_pΘ_eq_L' : 𝓘 (pΘ hL) = L' hL := by
@@ -719,7 +723,7 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) :
           forall_exists_index] at hL2
         by_cases hp' : 𝓘 p = L' hL
         · rw [if_pos hp']
-          exact zero_le _
+          exact zero_le
         · have hs : 𝔰 (pΘ hL) < 𝔰 p := by
             have hpL' : (L' hL : Set X)  ∩ (𝓘 p : Set X) ≠ ∅ := by
               simp only [← Set.nonempty_iff_ne_empty] at hpL ⊢
@@ -900,9 +904,9 @@ lemma global_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· �
   calc ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset, volume (E p ∩ G ∩ ↑L) +
           ∑ p ∈ (𝔄_min 𝔄 ϑ N).toFinset, volume (E p ∩ G)
     _ ≤ ∑ L ∈ (𝓛' 𝔄 ϑ N).toFinset, ↑(C6_3_4' a N) * dens₁ 𝔄 * volume (L : Set X) +
-        2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) :=
-        add_le_add (Finset.sum_le_sum (fun L (hL : L ∈ (𝓛' 𝔄 ϑ N).toFinset) ↦
-          global_antichain_density_aux (mem_toFinset.mp hL) h𝔄)) (𝔄_min_sum_le _ _ _)
+        2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
+        gcongr with L hL
+        exacts [global_antichain_density_aux (mem_toFinset.mp hL) h𝔄, 𝔄_min_sum_le ..]
     _ = ↑(C6_3_4'  a N) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) +
         2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
       rw [volume_union_I_p_eq_sum 𝔄 ϑ N, Finset.mul_sum]
@@ -1045,7 +1049,7 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
       conv_lhs =>
         enter [2, x, 2, p]; rw [mul_assoc, ← inter_indicator_mul, ← indicator_const_mul]
         simp only [Pi.one_apply, mul_one]
-      rw [lintegral_finset_sum _ fun _ _ ↦ Measurable.indicator (by simp) meg]
+      rw [lintegral_finsetSum _ fun _ _ ↦ Measurable.indicator (by simp) meg]
       conv_lhs => enter [2, p]; rw [lintegral_indicator meg, setLIntegral_const]
       rw [Finset.mul_sum]
     _ ≤ (2 : ℝ≥0∞) ^ (-(n * a) - n : ℝ) * (C6_3_4 a n * dens₁ 𝔄 *

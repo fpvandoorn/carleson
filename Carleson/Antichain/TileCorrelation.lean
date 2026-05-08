@@ -1,7 +1,9 @@
-import Carleson.Calculations
-import Carleson.HolderVanDerCorput
-import Carleson.Operators
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+module
+
+public import Carleson.Calculations
+public import Carleson.HolderVanDerCorput
+public import Carleson.Operators
+public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 
 /-!
 # 6.2. Proof of the Tile Correlation Lemma
@@ -17,6 +19,8 @@ This file contains the proofs of lemmas 6.2.1, 6.2.2, 6.2.3 and 6.1.5 from the b
 - `Tile.uncertainty` : Lemma 6.2.3.
 - `Tile.correlation_le` and `Tile.correlation_zero_of_ne_subset`: Lemma 6.1.5.
 -/
+
+@[expose] public section
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
@@ -658,7 +662,7 @@ lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
     C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) /
     volume (𝓘 p : Set X) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
   suffices ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ = 0 by
-    rw [this]; exact zero_le _
+    rw [this]; exact zero_le
   simp only [inter_nonempty, not_exists, not_and_or] at hinter
   rw [enorm_eq_zero]
   apply integral_eq_zero_of_ae (Eq.eventuallyEq _)

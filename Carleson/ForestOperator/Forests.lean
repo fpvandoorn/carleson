@@ -1,8 +1,12 @@
-import Carleson.ForestOperator.LargeSeparation
-import Carleson.ForestOperator.RemainingTiles
-import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import Mathlib.Data.Set.Pairwise.Chain
+module
+
+public import Carleson.ForestOperator.LargeSeparation
+public import Carleson.ForestOperator.RemainingTiles
+public import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
+public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+public import Mathlib.Data.Set.Pairwise.Chain
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -308,8 +312,8 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
         simp_rw [Finset.mem_filter_univ, indicator_apply_eq_zero,
           Pi.one_apply, one_ne_zero] at h ⊢
         exact h)]
-      rw [Finset.sum_eq_zero (fun _ _ => rfl)]
-      exact zero_le _
+      rw [Finset.sum_eq_zero (fun _ _ ↦ rfl)]
+      exact zero_le
 
 /-- Part of Lemma 7.7.1 -/
 @[simp]
@@ -359,12 +363,12 @@ lemma adjointCarlesonRowSum_adjoint
     _ = ∫ x, ∑ u with u ∈ rowDecomp t j, conj (g x) * carlesonSum (t u) f x := by
       unfold carlesonRowSum; simp_rw [Finset.mul_sum]
     _ = ∑ u with u ∈ rowDecomp t j, ∫ x, conj (g x) * carlesonSum (t u) f x := by
-      apply integral_finset_sum; intro p _
+      apply integral_finsetSum; intro p _
       exact hg.conj.mul hf.carlesonSum |>.integrable
     _ = ∑ u with u ∈ rowDecomp t j, ∫ y, conj (adjointCarlesonSum (t u) g y) * f y := by
       simp_rw [adjointCarlesonSum_adjoint hf hg]
     _ = ∫ y, ∑ u with u ∈ rowDecomp t j, conj (adjointCarlesonSum (t u) g y) * f y := by
-      symm; apply integral_finset_sum; intro p _
+      symm; apply integral_finsetSum; intro p _
       refine BoundedCompactSupport.mul ?_ hf |>.integrable
       exact hg.adjointCarlesonSum.conj
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
@@ -583,13 +587,13 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
     _ = ‖∑ u with u ∈ rowDecomp t j, ∫ x, ∑ u' with u' ∈ rowDecomp t j',
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
       congr
-      exact integral_finset_sum _ fun u mu ↦
+      exact integral_finsetSum _ fun u mu ↦
         (BoundedCompactSupport.finset_sum fun u' mu' ↦
           hf₁.adjointCarlesonSum.mul hf₂.adjointCarlesonSum.conj).integrable
     _ = ‖∑ u with u ∈ rowDecomp t j, ∑ u' with u' ∈ rowDecomp t j', ∫ x,
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
       congr! with u mu
-      exact integral_finset_sum _ fun u' mu' ↦
+      exact integral_finsetSum _ fun u' mu' ↦
         (hf₁.adjointCarlesonSum.mul hf₂.adjointCarlesonSum.conj).integrable
     _ ≤ ∑ u with u ∈ rowDecomp t j, ‖∑ u' with u' ∈ rowDecomp t j', ∫ x,
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := enorm_sum_le _ _
@@ -690,13 +694,13 @@ lemma forest_operator_g_prelude
   have bg := bcs_of_measurable_of_le_indicator_g hg h2g
   calc
     _ = ‖∑ u with u ∈ t, ∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ := by
-      congr; rw [← integral_finset_sum]; swap
+      congr; rw [← integral_finsetSum]; swap
       · fun_prop
       simp_rw [Finset.mul_sum]
     _ = ‖∑ u with u ∈ t, ∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ := by
       congr! 2 with u mu; exact adjointCarlesonSum_adjoint bf bg _
     _ = ‖∫ x, f x * ∑ u with u ∈ t, conj (adjointCarlesonSum (t u) g x)‖ₑ := by
-      congr; rw [← integral_finset_sum]; swap
+      congr; rw [← integral_finsetSum]; swap
       · intro _ _
         fun_prop
       simp_rw [Finset.mul_sum, mul_comm (f _)]

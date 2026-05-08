@@ -1,5 +1,9 @@
-import Carleson.ForestOperator.L2Estimate
-import Carleson.ToMathlib.BoundedCompactSupport
+module
+
+public import Carleson.ForestOperator.L2Estimate
+public import Carleson.ToMathlib.BoundedCompactSupport
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -86,7 +90,7 @@ lemma volume_bound_of_Grid_lt {L L' : Grid X} (lL : L ≤ L') (sL : s L' = s L +
 lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
     volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
   by_cases hq : (L : Set X) ∩ ⋃ p ∈ t u, E p = ∅
-  · rw [inter_comm (L : Set X), inter_assoc, hq, inter_empty, measure_empty]; exact zero_le _
+  · rw [inter_comm (L : Set X), inter_assoc, hq, inter_empty, measure_empty]; exact zero_le
   rw [← disjoint_iff_inter_eq_empty, disjoint_iUnion₂_right] at hq; push Not at hq
   by_cases! hp₂ : ∃ p ∈ t u, ¬Disjoint (L : Set X) (E p) ∧ 𝔰 p ≤ s L
   · exact local_dens1_tree_bound_exists hu hL hp₂
@@ -216,7 +220,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
     have S0 : S = 0 := S_eq_zero_of_topCube_mem_𝓙₀ (t.nonempty hu) (𝓙_subset_𝓙₀ (J_top ▸ hJ))
     have 𝓘p_eq_J : 𝓘 p = J := ((𝓘 p).eq_topCube_of_S_eq_zero S0).trans J_top.symm
     apply local_dens2_tree_bound_aux' hpu (𝓘p_eq_J ▸ Grid_subset_ball)
-    exact 𝓘p_eq_J ▸ le_mul_of_one_le_left (zero_le _) (one_le_pow_of_one_le' one_le_two _)
+    exact 𝓘p_eq_J ▸ le_mul_of_one_le_left zero_le (one_le_pow_of_one_le' one_le_two _)
   have ⟨J', hJJ', hsJ'⟩ := J.exists_scale_succ (J.scale_lt_scale_topCube J_top)
   have : J' ∉ 𝓙₀ (t u) := fun h ↦ succ_ne_self (s J) <| hJ.eq_of_le h hJJ' ▸ hsJ'.symm
   rw [𝓙₀, mem_setOf_eq] at this
@@ -244,16 +248,16 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
       rw [← pow_mul, mul_comm a, add_mul, mul_assoc, show a ^ 2 * a = a ^ 3 by rfl]
   by_cases hJB : (J : Set X) ⊆ ball (𝔠 p) (4 * D ^ (𝔰 p))
   · refine local_dens2_tree_bound_aux' hpu hJB <| (measure_mono ?_).trans volume_le
-    exact hp.trans <| ball_subset_ball (by gcongr; norm_num)
+    exact hp.trans <| by gcongr; norm_num
   have hcJ' : dist (c J') (𝔠 p) < 100 * (D : ℝ) ^ (s J' + 1) := by
     refine mem_ball'.mp <| hp <| ball_subset_Grid <| mem_ball.mpr ?_
     rw [𝔠, c, dist_self]
     positivity
   have hJp : (J : Set X) ⊆ ball (𝔠 p) (104 * D ^ (s J' + 1)) := by
     rw [show (104 : ℝ) = 4 + 100 by norm_num, add_mul]
-    refine (hJJ'.1.trans Grid_subset_ball).trans <| ball_subset_ball' <| add_le_add ?_ hcJ'.le
-    exact mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ (one_le_realD _) (Int.le.intro 1 rfl))
-      four_pos.le
+    refine (hJJ'.1.trans Grid_subset_ball).trans <| ball_subset_ball' ?_
+    gcongr
+    exacts [one_le_realD _, Int.le.intro 1 rfl, hcJ'.le]
   apply local_dens2_tree_bound_aux hpu (le_of_not_ge (hJB <| hJp.trans <| ball_subset_ball ·)) hJp
   have B_subset : ball (𝔠 p) (104 * D ^ (s J' + 1)) ⊆ ball (c J') (204 * D ^ (s J' + 1)) := by
     apply ball_subset_ball'
@@ -329,7 +333,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
           Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C),
           ENNReal.ofReal (⨍ y in J, ‖f y‖) ^ 2 * volume (J : Set X) := by
-      rw [lintegral_finset_sum _ (fun _ _ ↦ measurable_const.indicator coeGrid_measurable)]
+      rw [lintegral_finsetSum _ (fun _ _ ↦ measurable_const.indicator coeGrid_measurable)]
       simp_rw [lintegral_indicator coeGrid_measurable, setLIntegral_const]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J, ‖f y‖ₑ) ^ 2 / volume (J : Set X) := by
       congr with J

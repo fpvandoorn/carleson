@@ -44,3 +44,4 @@ docs/_includes/sorries.md
 *.synctex.gz(busy)
 *.pdfsync
 *.pdf
+*.pyg
