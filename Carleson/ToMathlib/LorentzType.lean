@@ -12,7 +12,6 @@ public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
 public import Carleson.ToMathlib.Rearrangement
 public import Carleson.ToMathlib.RealInterpolation.Misc
 public import Carleson.ToMathlib.Order.Filter.ENNReal
-public import Carleson.ToMathlib.Order.LiminfLimsup
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
 
