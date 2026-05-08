@@ -6,6 +6,8 @@ public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
 public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 
+--Upstreaming status: some results should probably be generalized, see TODOs
+
 public section
 
 open NNReal ENNReal

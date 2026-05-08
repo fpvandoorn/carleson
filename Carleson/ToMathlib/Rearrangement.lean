@@ -10,8 +10,8 @@ public import Carleson.ToMathlib.NoAtoms
 
 noncomputable section
 
--- Upstreaming status: NOT READY; this file is being actively worked on.
--- Needs significant clean-up (refactoring, code style, extracting lemmas etc.) first.
+-- Upstreaming status: Needs significant clean-up (refactoring, code style, extracting lemmas etc.)
+
 open scoped NNReal ENNReal
 
 variable {α ε ε' : Type*} {m : MeasurableSpace α}

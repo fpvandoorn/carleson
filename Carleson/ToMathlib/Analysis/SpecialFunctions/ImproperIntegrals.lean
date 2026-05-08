@@ -2,6 +2,8 @@ module
 
 public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 
+--Upstreaming status: ready
+
 public section
 
 open Real Set Filter MeasureTheory intervalIntegral

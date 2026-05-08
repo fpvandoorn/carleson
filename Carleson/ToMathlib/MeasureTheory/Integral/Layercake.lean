@@ -11,6 +11,13 @@ public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
 public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.Distribution
 
+/-
+Upstreaming status: This ports the corresponding mathlib file to use `ℝ≥0` and integrals over `ℝ≥0`
+instead of `ℝ≥0∞` and integrals over `ℝ≥0∞`. TODO: check if both of these changes are desirable for
+the mathlib version
+-/
+
+
 /-!
 # The layer cake formula / Cavalieri's principle / tail probability formula
 

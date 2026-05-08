@@ -1,6 +1,8 @@
 module
 public import Mathlib.Order.Interval.Set.Disjoint
 
+--Upstreaming status: ready
+
 public section
 
 open Set

@@ -2,6 +2,8 @@ module
 
 public import Mathlib.MeasureTheory.Function.EssSup
 
+--Upstreaming status: proofs might be shortened, otherwiseready
+
 public section
 
 open MeasureTheory ENNReal
@@ -10,8 +12,7 @@ lemma essSup_le_iSup {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Me
   [CompleteLattice β] {f : α → β} :
     essSup f μ ≤ ⨆ i, f i := by
   apply essSup_le_of_ae_le
-  apply Filter.Eventually.of_forall
-  intro i
+  filter_upwards [] with i
   apply le_iSup
 
 lemma iSup_le_essSup {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α}

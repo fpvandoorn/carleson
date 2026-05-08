@@ -4,6 +4,8 @@ public import Carleson.ToMathlib.ENorm
 public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 
+--Upstreaming status: not sure if this should go to mathlib; proof might be shortened
+
 public section
 
 open NNReal ENNReal MeasureTheory

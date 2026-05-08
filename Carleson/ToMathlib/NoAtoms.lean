@@ -8,6 +8,8 @@ module
 public import Mathlib.MeasureTheory.Measure.Typeclasses.NoAtoms
 public import Mathlib.Data.PFun
 
+--Upstreaming status: The new definition for `NoAtoms` will be developed in a separate project.
+
 /-!
 # Measures having no atoms
 -/

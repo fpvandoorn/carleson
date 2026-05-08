@@ -2,6 +2,8 @@ module
 
 public import Mathlib.Order.Filter.ENNReal
 
+--Upstreaming status: ready
+
 public section
 
 open ENNReal Filter

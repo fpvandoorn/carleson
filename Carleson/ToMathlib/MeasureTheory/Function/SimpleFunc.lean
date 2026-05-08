@@ -6,8 +6,7 @@ public import Mathlib.MeasureTheory.Function.SimpleFunc
 
 @[expose] public section
 
--- Upstreaming status: under active development by @ldiedering.
--- Wait for the file to stabilise first.
+-- Upstreaming status: needs cleanup (lemma names, shorter proofs, etc.)
 
 noncomputable section
 
@@ -416,9 +415,7 @@ protected theorem induction'' [MeasurableSpace α] [LinearOrder β] [AddCommMono
     rw [h]
     simp
 
-
 variable [MeasurableSpace α]
-
 
 section Approx
 

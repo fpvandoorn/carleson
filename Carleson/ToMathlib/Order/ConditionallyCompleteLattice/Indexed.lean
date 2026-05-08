@@ -2,6 +2,8 @@ module
 
 public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 
+-- Upstreaming status: ready
+
 public section ConditionallyCompleteLinearOrderBot
 
 variable {α : Type*} {ι : Sort*} {κ : ι → Sort*}

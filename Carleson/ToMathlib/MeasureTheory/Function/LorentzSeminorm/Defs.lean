@@ -5,9 +5,7 @@ public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
 public import Carleson.ToMathlib.WeakType
 public import Carleson.ToMathlib.Order.CompleteLattice.Basic
 
--- Upstreaming status: NOT READY yet (mostly); this file is being actively worked on.
--- Needs significant clean-up (refactoring, code style, extracting lemmas etc.) first.
-
+-- Upstreaming status: mostly ready but things should be more closely aligned with mathlib Lp spaces
 
 /-!
 # Lorentz space

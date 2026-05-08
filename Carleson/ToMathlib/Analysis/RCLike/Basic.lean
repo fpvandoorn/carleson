@@ -2,6 +2,8 @@ module
 
 public import Mathlib.Analysis.RCLike.Basic
 
+--Upstreaming status: ready
+
 public section
 
 theorem RCLike.norm_I {K : Type*} [RCLike K] :
