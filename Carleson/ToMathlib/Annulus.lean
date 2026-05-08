@@ -243,14 +243,14 @@ lemma co_union_ci {x : X} {r R : ℝ} (h : r ≤ R) : co x r R ∪ ci x R = ci x
 
 variable {α : Type*} [LinearOrder α]
 open Order
-/-- Union formula for `Set.co (f i) (f (Order.succ i))` over `i ∈ Ici a`. See also
+/-- Union formula for `Set.co x (f i) (f (Order.succ i))` over `i ∈ Ici a`. See also
 `iUnion_co_map_succ_eq_ci` for the specialization `a = ⊥`. -/
 theorem biUnion_Ici_co_map_succ [SuccOrder α] [IsSuccArchimedean α] {x : X} {f : α → ℝ}
     {a : α} (hf : ∀ i ∈ Ici a, f a ≤ f i) (h2f : ¬BddAbove (f '' Ici a)) :
     ⋃ i ∈ Ici a, co x (f i) (f (succ i)) = ci x (f a) := by
   simp [co, ci, iUnion_setOf, ← biUnion_Ici_Ico_map_succ hf h2f]
 
-/-- Union formula for `Set.Ioc (f i) (f (Order.succ i))` over `i ∈ Ici a`. See also
+/-- Union formula for `Set.oc x (f i) (f (Order.succ i))` over `i ∈ Ici a`. See also
 `iUnion_oc_map_succ_eq_oi` for the specialization `a = ⊥`. -/
 theorem biUnion_Ici_oc_map_succ [SuccOrder α] [IsSuccArchimedean α] {x : X} {f : α → ℝ}
     {a : α} (hf : ∀ i ∈ Ici a, f a ≤ f i) (h2f : ¬BddAbove (f '' Ici a)) :
