@@ -1,4 +1,7 @@
-import Mathlib.Order.Interval.Set.Disjoint
+module
+public import Mathlib.Order.Interval.Set.Disjoint
+
+public section
 
 open Set
 

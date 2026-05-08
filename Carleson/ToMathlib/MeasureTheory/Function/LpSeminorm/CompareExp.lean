@@ -1,4 +1,6 @@
-import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+module
+
+public import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 
 public section

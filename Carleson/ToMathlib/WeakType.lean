@@ -1,6 +1,7 @@
 module
 
-publicimport Carleson.ToMathlib.Rearrangement
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.Rearrangement
 
 @[expose] public section
 
@@ -57,7 +58,7 @@ theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α →
       rw [ENNReal.iSup_ennreal]
       simp only [distibution_top, left_eq_sup]
       rw [ENNReal.zero_rpow_of_pos hp', mul_zero]
-      exact zero_le _
+      exact zero_le
   symm
   calc _
     _ = ⨆ t, t ^ p⁻¹ * rearrangement f t μ := by
@@ -87,7 +88,7 @@ theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α →
         rcases ha ε with h | h
         · order
         rw [h]
-        exact zero_le t
+        exact zero_le
     have a_ne_top : a ≠ ∞ := ha.ne_top
     rw [lt_iSup_iff]
     use (a / t) ^ p
@@ -95,7 +96,6 @@ theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α →
     rw [ENNReal.mul_comm_div]
     nth_rw 1 [← mul_one a]
     gcongr
-    · exact a_ne_top
     rw [ENNReal.lt_div_iff_mul_lt (by simp) (by simp), one_mul, lt_rearrangement_iff_lt_distribution]
     apply (ENNReal.lt_rpow_inv_iff hp).mp
     rwa [ENNReal.div_lt_iff (by right; assumption) (by right; assumption), mul_comm]
@@ -121,14 +121,13 @@ theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α →
         rcases ha ε with h | h
         · order
         rw [h]
-        exact zero_le t
+        exact zero_le
     have a_ne_top : a ≠ ∞ := ha.ne_top
     rw [lt_iSup_iff]
     use a / t ^ p⁻¹
     rw [ENNReal.mul_comm_div]
     nth_rw 1 [← mul_one a]
     gcongr
-    · exact a_ne_top
     rw [ENNReal.lt_div_iff_mul_lt (by simp) (by simp), one_mul]
     gcongr
     rw [← lt_rearrangement_iff_lt_distribution]
@@ -265,7 +264,7 @@ lemma wnorm_iSup_of_monotone {α : Type*} [MeasurableSpace α] {p : ℝ≥0∞} 
     (hf : Monotone f) (μ : Measure α) : wnorm (fun x => ⨆ n, f n x) p μ = ⨆ n, wnorm (f n) p μ := by
   unfold wnorm wnorm' distribution
   split_ifs with hp'
-  · exact eLpNormEssSup_iSup f
+  · apply eLpNormEssSup_iSup
   · rw [iSup_comm]; congr with t
     rw [←ENNReal.mul_iSup]; congr
     rw [←(iSup_rpow (toReal_pos hp hp' |> inv_pos_of_pos))]; congr

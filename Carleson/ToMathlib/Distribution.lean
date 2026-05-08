@@ -1,14 +1,18 @@
-import Carleson.ToMathlib.BoundedFiniteSupport
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
-import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
-import Mathlib.Analysis.SpecialFunctions.Pow.Integral
+module
+
+public import Carleson.ToMathlib.BoundedFiniteSupport
+public import Carleson.ToMathlib.Misc
+public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 -- Upstreaming status: all of this should go into mathlib, eventually.
 -- Most lemmas have the right form, but proofs can often be golfed.
 -- Some enorm lemmas require some mathlib refactoring first, so they can be unified with their
 -- analogue in current mathlib. Such refactorings include (1) adding a Weak(Pseudo)EMetricSpace
 -- class, (2) generalising all lemmas about enorms and • to this setting.
+
+@[expose] public section
 
 noncomputable section
 
@@ -158,14 +162,11 @@ lemma select_neighborhood_distribution (t₀ : ℝ≥0∞) (l : ℝ≥0∞)
 
 lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
     ContinuousWithinAt (distribution f · μ) (Ioi t₀) t₀ := by
-  rcases (eq_top_or_lt_top t₀) with t₀top | t₀nottop
-  · rw [t₀top]
-    apply continuousWithinAt_of_notMem_closure
-    simp
-  · unfold ContinuousWithinAt
-    rcases (eq_top_or_lt_top (distribution f t₀ μ)) with db_top | db_not_top
+  rcases (eq_top_or_lt_top t₀) with rfl | t₀nottop
+  · exact continuousWithinAt_of_notMem_closure (by simp)
+  · rcases (eq_top_or_lt_top (distribution f t₀ μ)) with db_top | db_not_top
     -- Case: distribution f t₀ μ = ⊤
-    · simp only [db_top, ENNReal.tendsto_nhds_top_iff_nnreal]
+    · simp only [ContinuousWithinAt, db_top, ENNReal.tendsto_nhds_top_iff_nnreal]
       intro b
       have h₀ : ∃ n : ℕ, ↑b < distribution f (t₀ + (↑n)⁻¹) μ :=
         select_neighborhood_distribution _ _ (db_top ▸ coe_lt_top)
@@ -174,7 +175,8 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
       · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top (ENNReal.inv_ne_zero.mpr (by finiteness)))
       · exact ⟨Ioi t₀, by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩
     -- Case: distribution f t₀ μ < ⊤
-    · refine (ENNReal.tendsto_nhds db_not_top.ne_top).mpr fun ε ε_gt_0 ↦
+    · refine (ENNReal.tendsto_nhds db_not_top.ne_top).mpr fun ε ε_gt_0 ↦ ?_
+      refine
         eventually_mem_set.mpr (mem_inf_iff_superset.mpr ?_)
       rcases eq_zero_or_pos (distribution f t₀ μ) with db_zero | db_not_zero
       -- Case: distribution f t₀ μ = 0
@@ -191,7 +193,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
           rw [db_zero] at h₂
           change Icc 0 ε (distribution f z μ)
           rw [nonpos_iff_eq_zero.mp h₂]
-          exact ⟨zero_le 0, zero_le ε⟩
+          exact ⟨zero_le, zero_le⟩
       -- Case: 0 < distribution f t₀ μ
       · obtain ⟨n, wn⟩ :=
           select_neighborhood_distribution t₀ _
@@ -434,7 +436,7 @@ lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [E
       unfold indicator
       rw [enorm_add, add_comm]
       split_ifs
-      apply lt_add_of_lt_of_nonneg _ (zero_le _)
+      apply lt_add_of_lt_of_nonneg _ zero_le
       simpa [h]
   · push Not at ht
     congr 1 with x

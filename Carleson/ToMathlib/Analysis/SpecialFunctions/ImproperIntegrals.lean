@@ -1,4 +1,8 @@
-import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+module
+
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+
+public section
 
 open Real Set Filter MeasureTheory intervalIntegral
 

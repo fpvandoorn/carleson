@@ -3,13 +3,13 @@ Copyright (c) 2022 Kalle Kytölä. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kalle Kytölä
 -/
---module
+module
 
-import Mathlib.MeasureTheory.Integral.Layercake
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
-import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
-import Carleson.ToMathlib.Distribution
+public import Mathlib.MeasureTheory.Integral.Layercake
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
+public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
+public import Carleson.ToMathlib.Distribution
 
 /-!
 # The layer cake formula / Cavalieri's principle / tail probability formula
@@ -405,7 +405,7 @@ theorem lintegral_comp_eq_lintegral_distribution_mul (μ : Measure α)
             simp
           contrapose! disjoint
           rw [@not_disjoint_iff]
-          push_neg at hω hω'
+          push Not at hω hω'
           use ω
         _ = ∫⁻ (t : ℝ≥0∞), (distribution (⇑f) t μ + distribution (⇑F) t μ) * g t := by
           simp_rw [add_mul]

@@ -1,9 +1,12 @@
-import Mathlib.Analysis.SpecialFunctions.Pow.Continuity
-import Mathlib.MeasureTheory.Measure.OpenPos
-import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
-import Carleson.ToMathlib.MeasureTheory.Function.EssSup
-import Carleson.ToMathlib.Topology.Order.Basic
-import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Pow.Continuity
+public import Mathlib.MeasureTheory.Measure.OpenPos
+public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
+public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+
+public section
 
 open NNReal ENNReal
 
@@ -60,7 +63,7 @@ lemma eLpNormEssSup_eq_iSup' {f : ℝ≥0∞ → ℝ≥0∞}
     contrapose! ha
     rw [isMax_iff_eq_top] at ha
     rw [ha, f_top]
-    exact zero_le _
+    exact zero_le
 
 --TODO: generalize?
 lemma eLpNormEssSup_nnreal_eq_iSup_nnreal {f : ℝ≥0∞ → ℝ≥0∞}

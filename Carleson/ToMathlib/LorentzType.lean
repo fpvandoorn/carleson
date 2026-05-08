@@ -294,7 +294,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         intro x
         apply SimpleFunc.nnapprox_le hf
       _ ≤ Filter.limsup (fun n ↦ (c / p) * eLorentzNorm' (SimpleFunc.nnapprox f n) p 1 μ * ν G ^ q⁻¹.toReal) Filter.atTop := by
-        apply Filter.limsup_le_limsup'
+        apply Filter.limsup_le_limsup _
         filter_upwards
         intro n
         apply h n _
@@ -312,7 +312,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         gcongr
         rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG')]
         gcongr
-        apply Filter.limsup_le_of_le'
+        apply Filter.limsup_le_of_le (f := _)
         filter_upwards with n
         apply eLorentzNorm'_mono_enorm_ae
         filter_upwards with x

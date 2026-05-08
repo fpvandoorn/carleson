@@ -159,8 +159,8 @@ theorem NNReal.smul_map_volume_mul_left {a : ℝ≥0} (h : a ≠ 0) :
   · exact (MeasurableEmbedding.subtype_coe measurableSet_Ici).measurableSet_image.mpr hs
   congr 1
   ext x
-  simp only [val_eq_coe, mem_image, mem_preimage, Subtype.exists, coe_mk, exists_and_right,
-    exists_eq_right]
+  simp only [val_eq_coe, mem_image, mem_preimage, Subtype.exists]
+  simp_rw [← val_eq_coe, exists_and_right, exists_eq_right]
   constructor
   · rintro ⟨hx, hax⟩
     apply Exists.intro
@@ -170,8 +170,8 @@ theorem NNReal.smul_map_volume_mul_left {a : ℝ≥0} (h : a ≠ 0) :
     apply Exists.intro
     · exact hax
     rwa [mul_nonneg_iff_right_nonneg_of_pos] at hx
-    simp only [NNReal.coe_pos]
-    exact lt_of_le_of_ne (zero_le _) h.symm
+    simp only [val_eq_coe, coe_pos]
+    exact h.pos
 
 theorem NNReal.map_volume_mul_left {a : ℝ≥0} (h : a ≠ 0) :
     Measure.map (a * ·) volume = a⁻¹ • volume := by

@@ -244,7 +244,7 @@ lemma rearrangement_const_smul {f : α → ℝ≥0∞} {a : ℝ≥0∞} :
     · rw [ENNReal.top_mul]
       rw [← lt_rearrangement_iff_lt_distribution] at hx
       exact hx.ne'
-    · push_neg at hx
+    · push Not at hx
       rw [← rearrangement_le_iff_distribution_le, nonpos_iff_eq_zero] at hx
       rw [hx, mul_zero]
   apply le_antisymm
@@ -280,7 +280,7 @@ lemma rearrangement_indicator_superlevelSet {ε} [TopologicalSpace ε] [ENormedA
     unfold rearrangement
     congr with σ
     simp [h]
-  · push_neg at h
+  · push Not at h
     rw [rearrangement_le_iff_distribution_le] at h
     simp [h]
 
@@ -621,7 +621,7 @@ lemma lintegral_comp_rearrangement' {ε} [TopologicalSpace ε] [ENormedAddMonoid
     exact hs.trans_le' (distribution_mono_right hsσ.le)
   unfold T at hT
   rw [← ENNReal.bot_eq_zero, sInf_eq_bot] at hT
-  simp only [bot_eq_zero', gt_iff_lt, Set.mem_setOf_eq, not_forall, not_exists,
+  simp only [bot_eq_zero', Set.mem_setOf_eq, not_forall, not_exists,
     not_and, not_lt] at hT
   simp_rw [← not_lt, imp_not_comm, not_lt, top_le_iff] at hT
   rcases hT with ⟨u, u_pos, hu⟩

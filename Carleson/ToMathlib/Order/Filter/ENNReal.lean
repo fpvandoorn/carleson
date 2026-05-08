@@ -1,4 +1,8 @@
-import Mathlib.Order.Filter.ENNReal
+module
+
+public import Mathlib.Order.Filter.ENNReal
+
+public section
 
 open ENNReal Filter
 

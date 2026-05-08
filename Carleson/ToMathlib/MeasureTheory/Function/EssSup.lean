@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Function.EssSup
+module
+
+public import Mathlib.MeasureTheory.Function.EssSup
+
+public section
 
 open MeasureTheory ENNReal
 

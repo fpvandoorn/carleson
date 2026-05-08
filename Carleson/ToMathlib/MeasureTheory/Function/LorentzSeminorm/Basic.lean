@@ -4,14 +4,14 @@ public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
 public import Carleson.ToMathlib.RealInterpolation.Misc
-
-public section
 public import Carleson.ToMathlib.Topology.ContinuousOn
 public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 
 /- Upstreaming status: still needs some cleanup, and more analogues to mathlib lemmas about eLpNorm
 could be added -/
+
+public section
 
 noncomputable section
 

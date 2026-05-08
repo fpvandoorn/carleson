@@ -1,18 +1,23 @@
-import Mathlib.Algebra.EuclideanDomain.Field
-import Mathlib.Analysis.InnerProductSpace.Basic
-import Carleson.ToMathlib.Analysis.RCLike.Basic
-import Carleson.ToMathlib.ENorm
+module
+
+public import Mathlib.Algebra.EuclideanDomain.Field
+public import Mathlib.Analysis.InnerProductSpace.Basic
+public import Carleson.ToMathlib.Analysis.RCLike.Basic
+public import Carleson.ToMathlib.ENorm
 
 /-
 Upstreaming status: Not sure whether `Components` is the right definition and `RCLike.induction`
 really is a good statement; if it should go to mathlib, this file needs significant cleanup
 -/
 
+public section
+
 namespace RCLike
 
 open NNReal
 
 /-- TODO: check whether this is the right approach -/
+@[expose]
 def Components {𝕂 : Type*} [RCLike 𝕂] : Finset 𝕂 := {1, -1, RCLike.I, -RCLike.I}
 
 lemma Components.norm_eq_one {𝕂 : Type*} [RCLike 𝕂] {c : 𝕂} (hc : c ∈ Components) (hc' : c ≠ 0) :
@@ -36,6 +41,7 @@ lemma Components.norm_le_one {𝕂 : Type*} [RCLike 𝕂] {c : 𝕂} (hc : c ∈
 open ComplexConjugate
 
 /-- TODO: check whether this is the right approach -/
+@[expose]
 def component {𝕂 : Type*} [RCLike 𝕂] (c : 𝕂) (a : 𝕂) : ℝ≥0 :=
   Real.toNNReal (RCLike.re (a * conj c))
 
