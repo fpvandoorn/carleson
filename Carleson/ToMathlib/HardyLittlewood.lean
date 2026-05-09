@@ -449,7 +449,7 @@ section GMF
 variable (μ) in
 /-- The transformation `M` characterized in Proposition 2.0.6.
 `p` is `1` in the blueprint, and `globalMaximalFunction μ p u = (M (u ^ p)) ^ p⁻¹ ` -/
-def globalMaximalFunction [μ.IsDoubling A] (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
+def globalMaximalFunction (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
   maximalFunction μ (univ : Set (X × ℝ)) (·.1) (·.2) p u x
 
 protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
