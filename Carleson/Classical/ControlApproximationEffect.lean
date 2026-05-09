@@ -1,6 +1,8 @@
 module
 
 public import Carleson.Classical.CarlesonOnTheRealLine
+public import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+public import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 
 @[expose] public section
 
@@ -370,11 +372,13 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
 
 lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measurable_g : AEStronglyMeasurable g)
     (periodic_g : Function.Periodic g (2 * π))
-    (bound_g : eLpNorm g 1 (volume.restrict (Set.Ico 0 (2 * π))) ≤ δ.toNNReal)
     {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
     ‖S_ N g x‖ₑ ≤
-    (T g x + T (conj ∘ g) x) / (ENNReal.ofReal (2 * π)) + ENNReal.ofReal (π * δ) := by
-  have intervalIntegrable_g : IntervalIntegrable g volume (-π) (3 * π) := sorry --intervalIntegrable_of_bdd measurable_g bound_g
+      (T g x + T (conj ∘ g) x) / (ENNReal.ofReal (2 * π))
+        + eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) / 2 := by
+  have intervalIntegrable_g : IntervalIntegrable g volume (-π) (3 * π) := by
+    --TODO: add assumption for this
+    sorry --intervalIntegrable_of_bdd measurable_g bound_g
   have decomposition : S_ N g x
       = (  (∫ (y : ℝ) in (x - π)..(x + π),
               g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))
@@ -409,35 +413,36 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
       norm_cast; gcongr
       · apply enorm_add_le
       · rw [Real.enorm_eq_ofReal Real.two_pi_pos.le]
-    _ ≤ (T g x + T (⇑conj ∘ g) x + ENNReal.ofReal (π * δ * (2 * π))) / ENNReal.ofReal (2 * π) := by
+    _ ≤ (T g x + T (⇑conj ∘ g) x
+          + ENNReal.ofReal π * eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))))
+            / ENNReal.ofReal (2 * π) := by
       gcongr
       · apply le_CarlesonOperatorReal intervalIntegrable_g hx
-      · rw [ENNReal.ofReal]
-        norm_cast
-        apply NNReal.le_toNNReal_of_coe_le
-        rw [coe_nnnorm]
-        calc ‖∫ (y : ℝ) in x - π..x + π, g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖
-          _ ≤ (δ * π) * |(x + π) - (x - π)| := by
-            /-
-            apply intervalIntegral.norm_integral_le_of_norm_le_const
+      · apply intervalIntegral.enorm_integral_le_lintegral_enorm_uIoc.trans
+        rw [Set.uIoc_of_le (by linarith [pi_pos])]
+        simp_rw [enorm_mul]
+        calc _
+          _ ≤ ∫⁻ (y : ℝ) in Set.Ioc (x - π) (x + π), ‖g y‖ₑ * ‖π‖ₑ := by
+            apply setLIntegral_mono' (measurableSet_Ioc)
             intro y hy
-            rw [Set.uIoc_of_le (by linarith [pi_pos])] at hy
-            rw [norm_mul]
             gcongr
-            · apply bound_g
-            · rw [Dirichlet_Hilbert_eq]
-              apply Dirichlet_Hilbert_diff
-              constructor <;> linarith [hy.1, hy.2]
-            -/
-            sorry
-          _ = π * δ * (2 * π) := by
-            simp only [add_sub_sub_cancel]
-            rw [←two_mul, _root_.abs_of_nonneg Real.two_pi_pos.le]
-            ring
-    _ = (T g x + T (conj ∘ g) x) / ENNReal.ofReal (2 * π) + ENNReal.ofReal (π * δ) := by
-      rw [ENNReal.add_div]
+            rw [enorm_le_iff_norm_le, Real.norm_of_nonneg (by linarith [pi_pos])]
+            rw [Dirichlet_Hilbert_eq]
+            apply Dirichlet_Hilbert_diff
+            constructor <;> linarith [hy.1, hy.2]
+          _ = ENNReal.ofReal π * eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) := by
+            simp_rw [Real.enorm_eq_ofReal pi_pos.le, mul_comm _ (ENNReal.ofReal _)]
+            rw [lintegral_const_mul' _ _ ENNReal.ofReal_ne_top]
+            congr
+            have : x + π = x - π + 2 * π := by linarith
+            rw [this, Function.Periodic.setLIntegral_Ioc_add_eq periodic_g _ 0, zero_add,
+              eLpNorm_one_eq_lintegral_enorm]
+    _ = (T g x + T (conj ∘ g) x) / ENNReal.ofReal (2 * π)
+      + eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) / 2 := by
+      rw [ENNReal.add_div, mul_comm (ENNReal.ofReal _), mul_div_assoc]
       congr
-      rw [← ENNReal.ofReal_div_of_pos Real.two_pi_pos, mul_div_assoc, div_self Real.two_pi_pos.ne', mul_one]
+      rw [← ENNReal.ofReal_div_of_pos Real.two_pi_pos, div_mul_cancel_right₀ Real.pi_pos.ne']
+      simp
 
 end
 
@@ -674,6 +679,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) --{δ : ℝ} (hδ
         ← NNReal.rpow_mul, div_mul_cancel₀ _ (by simp only [ne_eq, NNReal.coe_eq_zero]; intro p_zero; rw [p_zero] at hp; simp at hp),
         NNReal.rpow_add (by simpa), NNReal.rpow_one, NNReal.div_rpow]
       push_cast
+      /-
       rw [ENNReal.coe_div (by simp), ENNReal.coe_div (by simp)]
       rw [ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul]
       simp only [ENNReal.coe_ofNat]
@@ -688,4 +694,6 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) --{δ : ℝ} (hδ
         NNReal.coe_eq_zero, not_and, Decidable.not_not]
         intro h
         linarith
+      -/
+      sorry
 end
