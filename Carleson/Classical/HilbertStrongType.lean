@@ -1,12 +1,17 @@
-import Carleson.Classical.DirichletKernel
-import Carleson.Classical.HilbertKernel
-import Carleson.Classical.SpectralProjectionBound
-import Carleson.Defs
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
-import Carleson.TwoSidedCarleson.Basic
-import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
-import Mathlib.Analysis.Real.Pi.Bounds
-import Mathlib.Tactic.Field
+module
+
+public import Carleson.Classical.DirichletKernel
+public import Carleson.Classical.HilbertKernel
+public import Carleson.Classical.SpectralProjectionBound
+public import Carleson.Defs
+public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+public import Carleson.TwoSidedCarleson.Basic
+public import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
+public import Mathlib.Analysis.Real.Pi.Bounds
+public import Mathlib.Tactic.Field
+import Mathlib.Algebra.Order.Interval.Set.Group
+
+@[expose] public section
 
 /- This file contains the proof that the Hilbert kernel is a bounded operator. -/
 
@@ -193,10 +198,9 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
     eLpNorm ((Ioc 0 (2 * π)).indicator (partialFourierSum n f)) 2 ≤
     eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 := by
   -- Proof by massaging the statement of `spectral_projection_bound_lp` into this.
-  by_cases hf_L2 : eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 = ⊤
+  by_cases! hf_L2 : eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 = ⊤
   · rw [hf_L2]
     exact OrderTop.le_top _
-  push_neg at hf_L2
   rw [← lt_top_iff_ne_top] at hf_L2
   have : Fact (0 < 2 * π) := ⟨by positivity⟩
   have lift_MemLp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
@@ -212,17 +216,15 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
       apply ENNReal.rpow_lt_top_of_nonneg ENNReal.toReal_nonneg ENNReal.ofReal_ne_top
   let F : Lp ℂ 2 haarAddCircle :=
     MemLp.toLp (AddCircle.liftIoc (2 * π) 0 f) lift_MemLp
-
   have lp_version := spectral_projection_bound_lp (N := n) F
   rw [Lp.norm_def, Lp.norm_def,
     ENNReal.toReal_le_toReal (Lp.eLpNorm_ne_top (partialFourierSumLp 2 n F)) (Lp.eLpNorm_ne_top F)]
     at lp_version
-
   rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable,
     ← eLpNorm_liftIoc _ _ partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable,
     volume_eq_smul_haarAddCircle,
     eLpNorm_smul_measure_of_ne_top (by trivial), eLpNorm_smul_measure_of_ne_top (by trivial),
-    smul_eq_mul, smul_eq_mul, ENNReal.mul_le_mul_left (by simp [Real.pi_pos]) (by finiteness)]
+    smul_eq_mul, smul_eq_mul, ENNReal.mul_le_mul_iff_right (by simp [Real.pi_pos]) (by finiteness)]
   have ae_eq_right : F =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 f := MemLp.coeFn_toLp _
   have ae_eq_left : partialFourierSumLp 2 n F =ᶠ[ae haarAddCircle]
       liftIoc (2 * π) 0 (partialFourierSum n f) :=
@@ -260,7 +262,7 @@ lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} (hmg : AEMeasura
   rw [eLpNorm_const_smul _ _ _ _, ← Finset.sum_fn, Finset.indicator_sum,
     enorm_inv (Nat.cast_ne_zero.mpr hn), ← one_mul (eLpNorm (indicator _ _) _ _),
     ← ENNReal.inv_mul_cancel (by simp [hn]) (enorm_ne_top (x := (n : ℂ))), mul_assoc]
-  refine mul_le_mul_left' (le_trans (eLpNorm_sum_le ?_ one_le_two) ?_) _
+  refine mul_le_mul_right (le_trans (eLpNorm_sum_le ?_ one_le_two) ?_) _
   · refine fun i _ ↦ Measurable.indicator ?_ measurableSet_Ioc |>.aestronglyMeasurable
     exact partialFourierSum_uniformContinuous.continuous.measurable.modulationOperator _
   trans ∑ i ∈ Finset.Ico n (2 * n), eLpNorm ((Ioc 0 (2 * π)).indicator g) 2 volume; swap
@@ -308,8 +310,6 @@ lemma integrable_bump_convolution {f g : ℝ → ℝ}
     apply ContinuousOn.intervalIntegrable_of_Icc hrπ.le
     have (x) (hx : x ∈ Icc r π) : x ^ 2 ≠ 0 := pow_ne_zero 2 (by linarith [mem_Icc.mp hx])
     fun_prop (disch := assumption)
-
-
   grw [young_convolution hf.1.aemeasurable hg.1.aemeasurable periodic_g, mul_comm]
   gcongr
   have: eLpNorm g 1 (volume.restrict (Ioc 0 (2 * π))) ≠ ⊤ := by
@@ -318,7 +318,6 @@ lemma integrable_bump_convolution {f g : ℝ → ℝ}
     exact ENNReal.mul_lt_top (hg.restrict _).eLpNorm_lt_top
       (by norm_num; simp [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_mul])
   rw [← ENNReal.toReal_le_toReal this (by norm_num)]
-
   calc
     _ ≤ ∫ x in (0)..2 * π, niceKernel r x := by
       simp_rw [eLpNorm_one_eq_lintegral_enorm]
@@ -389,10 +388,10 @@ lemma norm_dirichletApprox_le {n : ℕ} {x : ℝ} :
     have : (i : ℕ) < 2 * n := by
       simp only [Finset.mem_Ico] at hi
       exact hi.2
-    have : 2 * i + 1 ≤ 4 * n := by cutsat
+    have : 2 * i + 1 ≤ 4 * n := by lia
     exact_mod_cast this
   _ ≤ _ := by
-    simp only [Finset.sum_const, Nat.card_Ico, show 2 * n - n = n by cutsat, nsmul_eq_mul,
+    simp only [Finset.sum_const, Nat.card_Ico, show 2 * n - n = n by lia, nsmul_eq_mul,
       ← mul_assoc]
     rcases eq_zero_or_pos n with rfl | hn
     · simp
@@ -421,7 +420,7 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
       (2 * π)⁻¹ * ∫ y in (0)..2 * π, f y * dirichletApprox n (x - y) := by
   simp only [approxHilbertTransform, Finset.mul_sum, mul_inv_rev, ofReal_mul, ofReal_inv,
     ofReal_ofNat, dirichletApprox, ofReal_sub]
-  rw [intervalIntegral.integral_finset_sum]; swap
+  rw [intervalIntegral.integral_finsetSum]; swap
   · intro i hi
     apply IntervalIntegrable.mul_continuousOn ?_ (by fun_prop)
     rw [intervalIntegrable_iff_integrableOn_Ioc_of_le (by simp [Real.pi_nonneg])]
@@ -433,12 +432,18 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} (hf : MemLp f 
   · apply IntervalIntegrable.mul_continuousOn ?_ (by fun_prop)
     rw [intervalIntegrable_iff_integrableOn_Ioc_of_le (by simp [Real.pi_nonneg])]
     exact (hf.restrict _).integrable le_top
-  simp only [one_div, mul_inv_rev, ← intervalIntegral.integral_const_mul, ←
-    intervalIntegral.integral_mul_const]
-  congr with y
-  simp only [modulationOperator, Int.cast_neg, Int.cast_natCast, mul_neg, neg_mul, mul_sub, exp_sub,
-    div_eq_inv_mul, ← exp_neg]
-  ring
+  simp only [one_div, mul_inv_rev]
+  calc
+    _ = (↑π)⁻¹ * 2⁻¹ * ((↑n)⁻¹ * cexp (I * ↑i * ↑x) * ∫ (y : ℝ) in 0..2 * π, modulationOperator (-↑i) f y * dirichletKernel i (x - y)) := by
+      ring
+    _ = (↑π)⁻¹ * 2⁻¹ * ∫ (y : ℝ) in (0 : ℝ)..2 * π, (↑n : ℂ)⁻¹ * cexp (I * ↑i * ↑x) * (modulationOperator (-↑i) f y * dirichletKernel i (x - y)) := by
+      congr
+      exact (intervalIntegral.integral_const_mul _ _).symm
+    _ = (↑π)⁻¹ * 2⁻¹ * ∫ (x_1 : ℝ) in 0..2 * π, f x_1 * ((↑n)⁻¹ * (dirichletKernel i (x - x_1) * cexp (I * ↑i * (↑x - ↑x_1)))) := by
+      congr
+      ext y
+      simp [modulationOperator, mul_sub, exp_sub, div_eq_inv_mul, exp_neg]
+      ring
 
 /-- The convolution with `dirichletApprox` is controlled on `(0, 2π]` in `L^2` norm. This
 follows from the fact that it coincides (up to a constant) with `approxHilbertTransform`,
@@ -453,7 +458,13 @@ lemma eLpNorm_convolution_dirichletApprox {g : ℝ → ℂ} {n : ℕ} (hg : MemL
     simp only [Pi.smul_apply, real_smul, ofReal_mul, ofReal_ofNat, ofReal_inv,
       approxHilbertTransform_eq_dirichletApprox hg, ← mul_assoc, Pi.smul_apply]
     rw [mul_inv_cancel₀ (by simp [Real.pi_ne_zero]), one_mul]
-  rw [this, eLpNorm_const_smul]
+  rw [
+    this,
+    show
+    eLpNorm ((2 * π : ℝ) • fun x ↦ approxHilbertTransform n g x) 2 (volume.restrict (Ioc 0 (2 * π))) =
+    ‖(2 * π : ℝ)‖ₑ * eLpNorm (fun x ↦ approxHilbertTransform n g x) 2 (volume.restrict (Ioc 0 (2 * π)))
+    from eLpNorm_const_smul ..
+  ]
   gcongr
   · have A : ‖2 * π‖ₑ = ENNReal.ofReal (2 * π) := by
       refine Real.enorm_of_nonneg ?_

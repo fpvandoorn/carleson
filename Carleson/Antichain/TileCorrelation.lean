@@ -1,7 +1,9 @@
-import Carleson.Calculations
-import Carleson.HolderVanDerCorput
-import Carleson.Operators
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+module
+
+public import Carleson.Calculations
+public import Carleson.HolderVanDerCorput
+public import Carleson.Operators
+public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 
 /-!
 # 6.2. Proof of the Tile Correlation Lemma
@@ -17,6 +19,8 @@ This file contains the proofs of lemmas 6.2.1, 6.2.2, 6.2.3 and 6.1.5 from the b
 - `Tile.uncertainty` : Lemma 6.2.3.
 - `Tile.correlation_le` and `Tile.correlation_zero_of_ne_subset`: Lemma 6.1.5.
 -/
+
+@[expose] public section
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
@@ -95,7 +99,7 @@ private lemma e625 {s₁ s₂ : ℤ} {x₁ x₂ y y' : X} (hy' : y ≠ y') (hs :
       rw [mul_comm (volume _), edist_comm]
     _ ≤ 2 ^ ((2 * 𝕔 + 4 + 𝕔 / 4) * a ^ 3) / (volume (ball x₁ (D ^ s₁)) *
         volume (ball x₂ (D ^ s₂))) * (2 * (edist y y' ^ τ / (D ^ s₁) ^ τ)) := by
-      simp only [two_mul, defaultA, defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultτ]
+      simp only [two_mul, defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultτ]
       gcongr
       exact_mod_cast one_le_realD _
     _ = 2 ^ ((2 * 𝕔 + 4 + 𝕔 / 4) * a ^ 3) * 2 / (volume (ball x₁ (D ^ s₁)) *
@@ -154,9 +158,9 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
       rw [← pow_mul]
       apply add_le_pow_two ?_ le_rfl ?_
       · ring_nf
-        cutsat
+        lia
       · ring_nf
-        suffices 1 ≤ a ^ 3 by cutsat
+        suffices 1 ≤ a ^ 3 by lia
         exact one_le_pow₀ (by linarith [four_le_a X])
 
 variable [TileStructure Q D κ S o]
@@ -171,7 +175,7 @@ lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson 
   have hyx : dist y x ≤ 1 / 2 * D ^ 𝔰 p := by -- 6.2.14
     have hK : Ks (𝔰 p) x y ≠ 0 := by
       by_contra h0
-      simp [h0] at hx0
+      simp only [h0, map_zero, zero_mul, ne_eq, not_true] at hx0
     rw [dist_comm]
     convert (dist_mem_Icc_of_Ks_ne_zero hK).2 using 1
     ring
@@ -269,16 +273,16 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
       have hpow : (2 : ℝ) + 2 ^ (6 * a) ≤ 2 ^ (a * 8) :=
         calc
           _ ≤ (2 : ℝ) ^ (6 * a) + 2 ^ (6 * a) := by
-            apply add_le_add_right
+            apply add_le_add_left
             norm_cast
             nth_rw 1 [← pow_one 2]
-            exact Nat.pow_le_pow_right zero_lt_two (by cutsat)
+            exact Nat.pow_le_pow_right zero_lt_two (by lia)
           _ = 2 * (2 : ℝ) ^ (6 * a) := by ring
           _ ≤ _ := by
             nth_rw 1 [← pow_one 2, ← pow_add]
             norm_cast
-            exact Nat.pow_le_pow_right zero_lt_two (by cutsat)
-      have h38 : 3 ≤ 8 := by cutsat
+            exact Nat.pow_le_pow_right zero_lt_two (by lia)
+      have h38 : 3 ≤ 8 := by lia
       have h12 : (1 : ℝ) ≤ 2 := by norm_num
       rw [C6_2_3]
       conv_rhs => ring_nf
@@ -310,6 +314,7 @@ lemma C6_1_5_bound (ha : 4 ≤ a) :
 
 open GridStructure
 
+set_option backward.isDefEq.respectTransparency false in
 lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
     conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
     ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) := by
@@ -367,7 +372,7 @@ lemma I12_le' {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (x1 : E
     norm_cast
     gcongr
     · exact one_le_two
-    · cutsat
+    · lia
 
 private lemma exp_ineq (ha : 4 ≤ a) : 0 < (8 * a : ℕ) * -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹ + 1 := by
   have hpos : 0 < (a : ℝ) ^ 2 * 2 + a ^ 3 := by positivity
@@ -389,15 +394,15 @@ lemma I12_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X �
   rw [pow_add 2 _ 1, pow_one, mul_comm _ 2, mul_assoc, mul_comm 2 (_ * _), mul_assoc]
   gcongr
   -- Now we need to use Lemma 6.2.3 to conclude this inequality.
-  have h623 := uncertainty (by cutsat) hle hinter x1.2 x2.2
+  have h623 := uncertainty (by lia) hle hinter x1.2 x2.2
   rw [C6_2_3, ENNReal.coe_pow, ENNReal.coe_ofNat] at h623
   have hneg : -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹ < 0 :=
     neg_neg_iff_pos.mpr (inv_pos.mpr (by norm_cast; nlinarith))
   rw [← ENNReal.rpow_le_rpow_iff_of_neg hneg] at h623
   have h0 : ((2 : ℝ≥0∞) ^ (8 * a)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) ≠ 0 := by simp
   have h210 : (2 : ℝ≥0∞) ^ (1 : ℝ) ≠ 0 := by rw [ENNReal.rpow_one]; exact two_ne_zero
-  rw [ENNReal.mul_rpow_of_ne_top (Ne.symm (not_eq_of_beq_eq_false rfl)) (by simp [edist_dist]),
-    mul_comm, ← ENNReal.le_div_iff_mul_le (.inl h0) (.inr (by simp [edist_dist]))] at h623
+  rw [ENNReal.mul_rpow_of_ne_top (by finiteness) (by finiteness), mul_comm,
+    ← ENNReal.le_div_iff_mul_le (.inl h0) (.inl (by finiteness))] at h623
   apply h623.trans
   rw [ENNReal.div_eq_inv_mul, mul_comm _ 2]
   gcongr
@@ -430,7 +435,7 @@ lemma bound_6_2_29 (ha : 4 ≤ a) {p p' : 𝔓 X} (x2 : E p) :
     C6_1_5 a *
     (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) / volume (𝓘 p : Set X) := by
   rw [mul_comm, mul_div_assoc, mul_comm (C6_1_5 a : ℝ≥0∞), mul_div_assoc]
-  refine mul_le_mul_left' ?_ _
+  refine mul_le_mul_right ?_ _
   calc
     _ = 2 ^ ((2 * 𝕔 + 6 + 𝕔 / 4) * a ^ 3 + 1) * 2 ^ (11 * a) * 2 ^ (-(3 : ℤ) * a) /
         volume (ball x2.1 (D ^ 𝔰 p)) := by
@@ -583,6 +588,7 @@ lemma boundedCompactSupport_aux_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
     · exact .inl (.inr (eq_zero_of_notMem_closedBall hg1 hx))
     · exact .inr (.inr (eq_zero_of_notMem_closedBall hg1 hx))
 
+set_option backward.isDefEq.respectTransparency false in
 lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
     let f := fun (x, z1, z2) ↦
       conj (Ks (𝔰 p') z1 x) * exp (I * (Q z1 z1 - Q z1 x)) * g z1 *
@@ -600,16 +606,16 @@ lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
     congr; ext y
     simp_rw [mul_add I, mul_sub I, sub_eq_add_neg, exp_add]
     ring_nf
-  have hx1 : ‖exp (I * Q x.1 x.1)‖ₑ = 1 := enorm_exp_I_mul_ofReal _
-  have hx2 : ‖exp (I * -Q x.2 x.2)‖ₑ = 1 := mod_cast enorm_exp_I_mul_ofReal _
   simp only [I12, enorm_mul]
-  simp_rw [heq, integral_mul_const, enorm_mul, RCLike.enorm_conj, ← mul_assoc]
-  rw [hx1, hx2]
-  simp only [mul_neg, mul_one, correlation]
+  rw [heq, integral_mul_const, enorm_mul, enorm_mul, enorm_mul, enorm_mul, enorm_exp_I_mul_ofReal,
+    show ‖exp (_)‖ₑ = 1 from mod_cast enorm_exp_I_mul_ofReal _,
+    RCLike.enorm_conj, one_mul, one_mul, ← mul_assoc]
+  simp only [mul_neg, correlation]
   congr; ext y
   rw [mul_add I, exp_add]
   ring_nf
 
+set_option backward.isDefEq.respectTransparency false in
 lemma bound_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ ≤
@@ -618,16 +624,15 @@ lemma bound_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
       conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
       ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) :=
     complex_exp_lintegral
-  simp_rw [adjointCarleson, haux, ← setIntegral_prod_mul]; rw [← setIntegral_univ]
+  simp_rw [adjointCarleson, haux, ← setIntegral_prod_mul]
+  rw [← setIntegral_univ]
   let f := fun (x, z1, z2) ↦
     conj (Ks (𝔰 p') z1 x) * exp (I * (Q z1 z1 - Q z1 x)) * g z1 *
     (Ks (𝔰 p) z2 x * exp (I * (-Q z2 z2 + Q z2 x)) * conj (g z2))
   have hf : IntegrableOn f (univ ×ˢ E p' ×ˢ E p) (volume.prod (volume.prod volume)) :=
     (boundedCompactSupport_aux_6_2_26 hg hg1).integrable.integrableOn
-  have hf' : IntegrableOn (f ·.swap) ((E p' ×ˢ E p) ×ˢ univ) ((volume.prod volume).prod volume) :=
-    hf.swap
-  rw [← setIntegral_prod _ hf, ← setIntegral_prod_swap, setIntegral_prod _ hf', restrict_univ]
-  simp_rw [Prod.swap_prod_mk, ← bound_6_2_26_aux]
+  erw [← setIntegral_prod _ hf, ← setIntegral_prod_swap, setIntegral_prod _ (hf.swap), restrict_univ]
+  simp_rw [← bound_6_2_26_aux]
   exact enorm_integral_le_lintegral_enorm _
 
 -- We assume 6.2.23.
@@ -657,7 +662,7 @@ lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
     C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) /
     volume (𝓘 p : Set X) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
   suffices ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ = 0 by
-    rw [this]; exact zero_le _
+    rw [this]; exact zero_le
   simp only [inter_nonempty, not_exists, not_and_or] at hinter
   rw [enorm_eq_zero]
   apply integral_eq_zero_of_ae (Eq.eventuallyEq _)

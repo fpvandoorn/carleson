@@ -1,10 +1,16 @@
-import Carleson.ToMathlib.ENorm
-import Mathlib.Analysis.SpecialFunctions.Log.Base
-import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
-import Mathlib.MeasureTheory.Integral.Average
-import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+module
 
-/-
+public import Carleson.ToMathlib.ENorm
+public import Mathlib.Analysis.SpecialFunctions.Log.Base
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
+public import Mathlib.MeasureTheory.Integral.Average
+public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+import Mathlib.Algebra.Order.Group.Pointwise.Bounds
+
+@[expose] public section
+
+/-! # Miscellaneous additions to mathlib, to be sorted
+
 * This file can import all ToMathlib files.
 * If adding more than a few results, please put them in a more appropriate file in ToMathlib.
 
@@ -36,10 +42,9 @@ section ENNReal
 open ENNReal
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
-  if hfin : s.Finite then
-    lift s to Finset α using hfin
+  by_cases hfin : s.Finite
+  · lift s to Finset α using hfin
     simp
-  else
   have : Infinite s := infinite_coe_iff.mpr hfin
   rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num), Set.encard_eq_top_iff.mpr hfin]
   simp only [ENat.toENNReal_top]
@@ -88,7 +93,7 @@ lemma ENNReal.toReal_zpow (x : ℝ≥0∞) (z : ℤ) : x.toReal ^ z = (x ^ z).to
   rw [← rpow_intCast, ← toReal_rpow, Real.rpow_intCast]
 
 -- TODO: this helper lemma may be useful in other places to, for instance in `HardyLittlewood.lean`
-lemma iSup_rpow {f : ℕ → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
+lemma iSup_rpow {ι : Sort*} {f : ι → ℝ≥0∞} {p : ℝ} (hp : 0 < p) :
     (⨆ n, f n) ^ p = ⨆ n, f n ^ p := by
   apply le_antisymm
   · rw [← rpow_le_rpow_iff (z := p⁻¹) (by positivity), rpow_rpow_inv (by positivity)]
@@ -107,6 +112,28 @@ lemma _root_.ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNR
   ext; simp [ENNReal.toReal]
 
 end NNReal
+
+
+namespace Function
+section support
+
+lemma support_rpow_of_pos {α : Type*} {f : α → ℝ≥0∞} {p : ℝ} (p_pos : 0 < p) :
+    support (fun x ↦ f x ^ p) = support f := by
+  ext x
+  simp [ENNReal.rpow_eq_zero_iff_of_pos p_pos]
+
+lemma support_rpow_of_neg {α : Type*} {f : α → ℝ≥0∞} {p : ℝ} (p_neg : p < 0) :
+    support (fun x ↦ f x ^ p) = {x | f x ≠ ⊤} := by
+  ext x
+  simp [p_neg]
+  grind
+
+@[simp] lemma support_ofNNReal : Function.support ENNReal.ofNNReal = Set.Ioi 0 := by
+  ext x
+  simp
+
+end support
+end Function
 
 namespace MeasureTheory
 
@@ -137,14 +164,14 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
     ∫⁻ t in Ioc (a * c) (b * c), f t =
     ∑ l ∈ Finset.Ico a b, ∫⁻ t in Ioc (l * c) ((l + 1 : ℕ) * c), f t := by
   rcases lt_or_ge b a with h | h
-  · rw [Finset.Ico_eq_empty (by cutsat), Ioc_eq_empty (by rw [not_lt]; gcongr),
+  · rw [Finset.Ico_eq_empty (by lia), Ioc_eq_empty (by rw [not_lt]; gcongr),
       setLIntegral_empty, Finset.sum_empty]
   induction b, h using Nat.le_induction with
   | base =>
     rw [Finset.Ico_self, Ioc_self, setLIntegral_empty, Finset.sum_empty]
   | succ b h ih =>
     have li : a * c ≤ b * c := by gcongr
-    rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; cutsat),
+    rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; lia),
       lintegral_union measurableSet_Ioc (Ioc_disjoint_Ioc_of_le le_rfl),
       ← Order.succ_eq_add_one, ← Finset.insert_Ico_right_eq_Ico_succ h,
       Finset.sum_insert Finset.right_notMem_Ico,
@@ -232,7 +259,7 @@ theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
     (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) : eLpNormEssSup f μ ≤ C := essSup_le_of_ae_le C hfC
 
 theorem restrict_absolutelyContinuous : μ.restrict s ≪ μ :=
-  fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm <| zero_le _
+  fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm zero_le
 
 section eLpNorm
 
@@ -292,7 +319,8 @@ open ComplexConjugate in
 lemma eLpNorm_two_eq_enorm_integral_mul_conj {f : α → ℂ} (lpf : MemLp f 2 μ) :
     eLpNorm f 2 μ ^ 2 = ‖∫ x, f x * conj (f x) ∂μ‖ₑ := by
   conv_rhs => enter [1, 2, x]; rw [RCLike.mul_conj, ← RCLike.ofReal_pow]
-  rw [integral_ofReal, integral_eq_lintegral_of_nonneg_ae (.of_forall fun _ ↦ by simp)]; swap
+  erw [integral_ofReal]
+  rw [integral_eq_lintegral_of_nonneg_ae (.of_forall fun _ ↦ by simp)]; swap
   · exact lpf.aestronglyMeasurable.norm.pow 2
   conv_rhs => enter [1, 1, 1, 2, x]; rw [ENNReal.ofReal_pow (norm_nonneg _), ofReal_norm]
   rw [← sq_eLpNorm_two, ← enorm_norm]
@@ -571,12 +599,10 @@ lemma isBounded_iff_bddAbove_norm' {E} [SeminormedCommGroup E] {s : Set E} :
     IsBounded s ↔ BddAbove (Norm.norm '' s) := by
   simp [isBounded_iff_forall_norm_le', bddAbove_def]
 
-@[to_additive isBounded_range_iff_bddAbove_norm]
 lemma isBounded_range_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} :
     IsBounded (range f) ↔ BddAbove (range (‖f ·‖)) := by
   rw [isBounded_iff_bddAbove_norm, ← range_comp, Function.comp_def]
 
-@[to_additive isBounded_image_iff_bddAbove_norm]
 lemma isBounded_image_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} {s : Set ι} :
     IsBounded (f '' s) ↔ BddAbove ((‖f ·‖) '' s) := by
   rw [isBounded_iff_bddAbove_norm, ← image_comp, Function.comp_def]
@@ -649,16 +675,16 @@ theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [Measura
   have meas : MeasurableSet {x | 0 ≤ g x} :=
     have : {x | 0 ≤ g x} = g ⁻¹' (Ici 0) := by simp [preimage, mem_Ici]
     this ▸ (AEMeasurable.measurable_mk int_f.aemeasurable) measurableSet_Ici
-  rw [← integral_finset_sum_measure int_g]
+  rw [← integral_finsetSum_measure int_g]
   set μ₀ : ι → Measure X := fun i ↦ ite (i ∈ s) (μ.restrict (S i)) 0
-  refine integral_mono_measure ?_ ?_ (integrable_finset_sum_measure.mpr int_g)
+  refine integral_mono_measure ?_ ?_ (integrable_finsetSum_measure.mpr int_g)
   · refine Measure.le_iff.mpr (fun T hT ↦ ?_)
-    simp_rw [μ.restrict_apply hT, Measure.coe_finset_sum, s.sum_apply, inter_iUnion]
+    simp_rw [μ.restrict_apply hT, Measure.coe_finsetSum, s.sum_apply, inter_iUnion]
     apply le_trans <| measure_biUnion_finset_le s (T ∩ S ·)
     exact s.sum_le_sum (fun _ _ ↦ ge_of_eq (μ.restrict_apply hT))
   · have : ∑ i ∈ s, μ.restrict (S i) = Measure.sum μ₀ := by
       ext T hT
-      simp only [Measure.sum_apply (hs := hT), Measure.coe_finset_sum, s.sum_apply, μ₀]
+      simp only [Measure.sum_apply (hs := hT), Measure.coe_finsetSum, s.sum_apply, μ₀]
       rw [tsum_eq_sum (s := s) (fun b hb ↦ by simp [hb])]
       exact Finset.sum_congr rfl (fun i hi ↦ by simp [hi])
     rw [Filter.EventuallyLE, this, Measure.ae_sum_iff' (by exact meas)]
@@ -679,6 +705,7 @@ end MeasureTheory
 
 namespace ENNReal
 
+set_option backward.isDefEq.respectTransparency false in
 theorem lintegral_Lp_smul {α : Type*} [MeasurableSpace α] {μ : MeasureTheory.Measure α}
     {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) {p : ℝ} (hp : p > 0) (c : NNReal) :
     (∫⁻ x : α, (c • f) x ^ p ∂μ) ^ (1 / p) = c • (∫⁻ x : α, f x ^ p ∂μ) ^ (1 / p) := by
@@ -744,7 +771,7 @@ lemma Finset.pow_sum_comm {ι R : Type*} [Semiring R] {s : Finset ι} {f : ι �
     simp_rw [pow_succ, ih, sum_mul, mul_sum]
     congr! 1 with x mx
     refine Finset.sum_eq_single _ (fun y my hn ↦ ?_) (fun _ ↦ by contradiction)
-    rw [← Nat.sub_one_add_one (show n ≠ 0 by cutsat), pow_succ, mul_assoc, hf _ mx _ my hn.symm,
+    rw [← Nat.sub_one_add_one (show n ≠ 0 by lia), pow_succ, mul_assoc, hf _ mx _ my hn.symm,
       mul_zero]
 
 namespace MeasureTheory

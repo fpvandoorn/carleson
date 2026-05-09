@@ -1,5 +1,11 @@
-import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
-import Mathlib.Analysis.SumIntegralComparisons
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
+-- Upstreaming status: upstreamed in
+-- https://github.com/leanprover-community/mathlib4/pull/37597
+public import Mathlib.Analysis.SumIntegralComparisons
+
+public section
 
 open scoped Nat
 open Real MeasureTheory

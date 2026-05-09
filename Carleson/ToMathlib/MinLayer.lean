@@ -3,7 +3,9 @@ Copyright (c) 2024 Jeremy Tan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Tan, Joachim Breitner
 -/
-import Mathlib.Order.KrullDimension
+module
+
+public import Mathlib.Order.KrullDimension
 
 /-!
 # Minimal and maximal layers of a set
@@ -20,6 +22,8 @@ of `Minimal`/`Maximal` on a set, excluding earlier layers.
 * `Set.iUnion_minLayer_iff_bounded_series`: if the length of `LTSeries` in `A` is bounded,
   `A` equals the union of its `minLayer`s up to `n`.
 -/
+
+@[expose] public section
 
 -- Upstreaming status: the file generally looks useful and should go into mathlib;
 -- the code can probably be polished and golfed more
@@ -67,7 +71,7 @@ lemma minLayer_zero : A.minLayer 0 = {a | Minimal (· ∈ A) a} := by rw [minLay
 lemma maxLayer_zero : A.maxLayer 0 = {a | Maximal (· ∈ A) a} := by rw [maxLayer_def]; simp
 
 lemma disjoint_minLayer_of_ne (h : m ≠ n) : Disjoint (A.minLayer m) (A.minLayer n) := by
-  wlog hl : m < n generalizing m n; · exact (this h.symm (by cutsat)).symm
+  wlog hl : m < n generalizing m n; · exact (this h.symm (by lia)).symm
   rw [disjoint_right]; intro p hp
   rw [minLayer] at hp; replace hp := hp.1.2; contrapose! hp
   exact mem_iUnion₂_of_mem hl hp
@@ -93,17 +97,17 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
   | base => use a
   | succ n _ ih =>
     have nma : a ∉ A.minLayer n :=
-      disjoint_right.mp (disjoint_minLayer_of_ne (by cutsat)) ha
+      disjoint_right.mp (disjoint_minLayer_of_ne (by lia)) ha
     rw [minLayer, mem_setOf, minimal_iff] at ha nma
     have al : a ∈ A \ ⋃ (l < n), A.minLayer l := by
       have : a ∈ A \ ⋃ (k < n + 1), A.minLayer k := ha.1
-      simp only [mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at this ⊢
-      exact ⟨this.1, fun l hl h => this.2 l (Nat.lt_succ_of_lt hl) h⟩
-    simp_rw [al, true_and] at nma; push_neg at nma; obtain ⟨a', ha', la⟩ := nma
+      push (_ ∈ _) at this ⊢; push Not at this ⊢
+      exact ⟨this.1, fun l hl h ↦ this.2 l (Nat.lt_succ_of_lt hl) h⟩
+    simp_rw [al, true_and] at nma; push Not at nma; obtain ⟨a', ha', la⟩ := nma
     have ma' : a' ∈ A.minLayer n := by
       by_contra h
       have a'l : a' ∈ A \ ⋃ (l < n + 1), A.minLayer l := by
-        have : ∀ l, l < n + 1 ↔ l < n ∨ l = n := by cutsat
+        have : ∀ l, l < n + 1 ↔ l < n ∨ l = n := by lia
         simp_all [iUnion_or, iUnion_union_distrib]
       exact absurd (ha.2 a'l la.1) (ne_eq _ _ ▸ la.2)
     obtain ⟨c, mc, lc⟩ := ih ma'; use c, mc, lc.trans la.1
@@ -149,20 +153,21 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
     cases height (⟨y, hys⟩ : A)
     · simp
     · simp only [Nat.cast_inj, Nat.cast_le]
-      exact ⟨fun h ↦ by contrapose! h; simp [h], fun h m hm ↦ by cutsat⟩
+      exact ⟨fun h ↦ by contrapose! h; simp [h], fun h m hm ↦ by lia⟩
 
 lemma iUnion_lt_minLayer_iff_bounded_series :
     ⋃ (k < n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length < n := by
   refine ⟨fun h p ↦ ?_, fun hlength ↦ ?_⟩
   · have hx : p.last.1 ∈ ⋃ (k < n), A.minLayer k := h.symm ▸ p.last.2
-    simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, Subtype.coe_eta,
-      Subtype.coe_prop, exists_const, exists_prop] at hx
+    simp only [minLayer_eq_setOf_height] at hx
+    push _ ∈ _ at hx
+    simp only [Subtype.coe_eta, Subtype.coe_prop, exists_const] at hx
     obtain ⟨i, hix, hi⟩ := hx
     have hh := length_le_height_last (p := p)
     rw [hi, Nat.cast_le] at hh
     exact hh.trans_lt hix
   · ext x
-    simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, exists_prop]
+    simp only [minLayer_eq_setOf_height]; push _ ∈ _
     wlog hxs : x ∈ A; · simp [hxs]
     simp only [hxs, exists_true_left, iff_true]
     suffices height (⟨x, hxs⟩ : A) < n by
@@ -181,16 +186,16 @@ lemma iUnion_lt_minLayer_iff_bounded_series :
 all `LTSeries` in `A` have length at most `n`. -/
 lemma iUnion_minLayer_iff_bounded_series :
     ⋃ (k ≤ n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length ≤ n := by
-  simp [← lt_succ_iff, iUnion_lt_minLayer_iff_bounded_series]
+  simp_rw [← Nat.lt_succ_iff, iUnion_lt_minLayer_iff_bounded_series]
 
-variable [Fintype α]
-
-lemma exists_le_in_layersAbove_of_le (ha : a ∈ A.layersAbove n) (hm : m ≤ n) :
+lemma exists_le_in_layersAbove_of_le [Finite α] (ha : a ∈ A.layersAbove n) (hm : m ≤ n) :
     ∃ c ∈ A.minLayer m, c ≤ a := by
   classical
   have ma : a ∈ A \ ⋃ (l' < n), A.minLayer l' := by
-    simp only [layersAbove, mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at ha ⊢
+    simp only [layersAbove] at ha ⊢
+    push _ ∈ _ at ha ⊢; push Not at ha ⊢
     exact ⟨ha.1, fun l' hl' h ↦ ha.2 l' hl'.le h⟩
+  have := Fintype.ofFinite α
   let C : Finset α :=
     (A.toFinset \ (Finset.range n).biUnion fun l ↦ (A.minLayer l).toFinset).filter (· ≤ a)
   have Cn : C.Nonempty := by use a; simp_all [C]
@@ -200,12 +205,12 @@ lemma exists_le_in_layersAbove_of_le (ha : a ∈ A.layersAbove n) (hm : m ≤ n)
   conv at mina' => enter [x]; rw [and_imp]
   have ma'₁ : a' ∈ A.minLayer n := by
     rw [minLayer, mem_setOf, minimal_iff]
-    simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and]
+    push _ ∈ _; push Not
     exact ⟨ma'.1, fun y hy ly ↦ le_antisymm (mina' hy (ly.trans ma'.2) ly) ly⟩
   obtain ⟨c, mc, lc⟩ := exists_le_in_minLayer_of_le ma'₁ hm
   use c, mc, lc.trans ma'.2
 
-lemma exists_le_in_layersBelow_of_le (ha : a ∈ A.layersBelow n) (hm : m ≤ n) :
+lemma exists_le_in_layersBelow_of_le [Finite α] (ha : a ∈ A.layersBelow n) (hm : m ≤ n) :
     ∃ c ∈ A.maxLayer m, a ≤ c := exists_le_in_layersAbove_of_le (α := αᵒᵈ) ha hm
 
 end Set

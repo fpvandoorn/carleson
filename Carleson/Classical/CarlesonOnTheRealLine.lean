@@ -1,8 +1,12 @@
-import Carleson.Classical.CarlesonOperatorReal
-import Carleson.Classical.HilbertStrongType
-import Carleson.Classical.VanDerCorput
-import Carleson.TwoSidedCarleson.MainTheorem
-import Carleson.TwoSidedCarleson.RestrictedWeakType
+module
+
+public import Carleson.Classical.CarlesonOperatorReal
+public import Carleson.Classical.HilbertStrongType
+public import Carleson.Classical.VanDerCorput
+public import Carleson.TwoSidedCarleson.MainTheorem
+public import Carleson.TwoSidedCarleson.RestrictedWeakType
+
+@[expose] public section
 
 
 /-
@@ -157,10 +161,9 @@ lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
 lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g) := by
-  by_cases r_pos : r ≤ 0
+  by_cases! r_pos : r ≤ 0
   · rw [ball_eq_empty.mpr r_pos]
     simp [localOscillation]
-  push_neg at r_pos
   simp_rw [dist_integer_linear_eq]
   calc ⨆ z ∈ ball x r ×ˢ ball x r, ENNReal.ofReal ‖↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2‖
     _ = ⨆ z ∈ ball x r ×ˢ ball x r, ENNReal.ofReal |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)| := by
@@ -187,12 +190,11 @@ lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
 
 lemma frequency_monotone {x₁ x₂ r R : ℝ} {f g : Θ ℝ} (h : ball x₁ r ⊆ ball x₂ R) : dist_{x₁,r} f g ≤ dist_{x₂,R} f g := by
   rw [dist_integer_linear_eq, dist_integer_linear_eq]
-  by_cases r_pos : r ≤ 0
+  by_cases! r_pos : r ≤ 0
   · rw [ball_eq_empty.mpr r_pos] at h
     rw [max_eq_right r_pos]
     gcongr
     apply le_max_right
-  push_neg at r_pos
   gcongr
   rw [Real.ball_eq_Ioo, Real.ball_eq_Ioo, Set.Ioo_subset_Ioo_iff (by linarith)] at h
   linarith [h.1, h.2]
@@ -223,36 +225,36 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
     CoveredByBalls (ball f (2 * R')) 3 R' := by
   unfold WithFunctionDistance at f
   rw [coveredByBalls_iff]
-  by_cases R'pos : 0 ≥ R'
-  · --trivial case
-    use {f}
-    constructor
-    · norm_num
-    simp only [Finset.mem_singleton, Set.iUnion_iUnion_eq_left]
-    rw [Metric.ball_eq_empty.mpr R'pos, Set.subset_empty_iff, Metric.ball_eq_empty]
+  by_cases! R'pos : 0 ≥ R'
+  · -- trivial case
+    refine ⟨{f}, Finset.card_singleton f ▸ by norm_num, ?_⟩
+    have hunion : (⋃ x_1 ∈ ({f} : Finset (WithFunctionDistance x R)), ball_{x, R} x_1 R') = ball_{x, R} f R' := by
+      ext y
+      simp only [Set.mem_iUnion, exists_prop]
+      constructor
+      · rintro ⟨i, hi, hb⟩; rwa [Finset.mem_singleton.mp hi] at hb
+      · intro h; exact ⟨f, Finset.mem_singleton_self f, h⟩
+    rw [hunion, Metric.ball_eq_empty.mpr R'pos, Set.subset_empty_iff, Metric.ball_eq_empty]
     linarith
-  push_neg at R'pos
-  by_cases Rpos : 0 ≥ R
-  · --trivial case
-    use {f}
-    constructor
-    · norm_num
-    simp only [Finset.mem_singleton, Set.iUnion_iUnion_eq_left]
+  by_cases! Rpos : 0 ≥ R
+  · -- trivial case
+    refine ⟨{f}, Finset.card_singleton f ▸ by norm_num, ?_⟩
+    have hunion : (⋃ x_1 ∈ ({f} : Finset (WithFunctionDistance x R)), ball_{x, R} x_1 R') = ball_{x, R} f R' := by
+      ext y
+      simp only [Set.mem_iUnion, exists_prop]
+      constructor
+      · rintro ⟨i, hi, hb⟩; rwa [Finset.mem_singleton.mp hi] at hb
+      · intro h; exact ⟨f, Finset.mem_singleton_self f, h⟩
+    rw [hunion]
     convert Set.subset_univ _
     ext g
-    constructor
-    · simp
-    simp only [Set.mem_univ, mem_ball, true_implies]
-    rw [dist_integer_linear_eq]
+    refine ⟨by simp, ?_⟩
+    simp only [Set.mem_univ, mem_ball, true_implies, dist_integer_linear_eq]
     convert R'pos
-    simp only [mul_eq_zero, OfNat.ofNat_ne_zero, max_eq_right_iff, false_or, abs_eq_zero]
-    left
-    exact Rpos
-  push_neg at Rpos
+    simpa using Or.inl Rpos
   set m₁ := Int.floor (f - R' / (2 * R)) with m₁def
   set! m₂ := f with m₂def
   set m₃ := Int.ceil (f + R' / (2 * R)) with m₃def
-
   /- classical is necessary to be able to build a Finset of WithFunctionDistance. -/
   classical
   set balls : Finset (WithFunctionDistance x R) := {m₁, m₂, m₃} with balls_def
@@ -262,15 +264,13 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
     apply Finset.card_le_three
   intro φ hφ
   unfold WithFunctionDistance at φ
-  rw [mem_ball] at hφ
-  rw [dist_comm] at hφ
+  rw [mem_ball, dist_comm] at hφ
   /- m₁, m₂, m₃ each correspond to one case. -/
   simp only [Set.mem_iUnion, mem_ball, exists_prop]
-  by_cases h : φ ≤ f - R' / (2 * R)
+  by_cases! h : φ ≤ f - R' / (2 * R)
   · use m₁
     constructor
-    · rw [balls_def]
-      simp
+    · apply Finset.mem_insert_self
     rw [dist_integer_linear_eq]
     calc 2 * max R 0 * |↑φ - ↑m₁|
       _ = 2 * R * |↑φ - ↑m₁| := by
@@ -306,12 +306,10 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
               rw [max_eq_left_iff]
               exact Rpos.le
       _ = R' := by ring
-  push_neg at h
-  by_cases h' : φ < f + R' / (2 * R)
+  by_cases! h' : φ < f + R' / (2 * R)
   · use m₂
     constructor
-    · rw [balls_def]
-      simp
+    · exact Finset.mem_insert.mpr (Or.inr (Finset.mem_insert_self m₂ _))
     rw [m₂def, dist_comm]
     rw [dist_integer_linear_eq]
     calc 2 * max R 0 * |↑f - ↑φ|
@@ -324,10 +322,11 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
         rw [abs_sub_lt_iff]
         constructor <;> linarith
       _ = R' := by field_simp
-  push_neg at h'
   use m₃
   constructor
-  · simp [balls_def]
+  · apply Finset.mem_insert.mpr; right
+    apply Finset.mem_insert.mpr; right
+    exact Finset.mem_singleton.mpr m₃def
   rw [dist_integer_linear_eq]
   calc 2 * max R 0 * |↑φ - ↑m₃|
     _ = 2 * R * (↑φ - ↑m₃) := by
@@ -364,7 +363,6 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
             rw [mul_comm, ←mul_assoc, inv_mul_cancel₀ Rpos.ne.symm, one_mul]
     _ = R' := by ring
 
-
 instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
   eq_zero := by
     use 0
@@ -381,10 +379,9 @@ instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
     intro x₁ x₂ r f g _
     apply le_trans (@frequency_ball_growth x₁ x₂ r _ _)
     rw [dist_integer_linear_eq, dist_integer_linear_eq]
-    by_cases r_nonneg : 0 ≤ r
+    by_cases! r_nonneg : 0 ≤ r
     · gcongr; norm_num
-    · push_neg at r_nonneg
-      rw [max_eq_right (by linarith), max_eq_right (by norm_num; linarith)]
+    · rw [max_eq_right (by linarith), max_eq_right (by norm_num; linarith)]
   allBallsCoverBalls := by
     intro x R R' f
     exact integer_ball_cover.mono_nat (by norm_num)
@@ -393,21 +390,21 @@ open scoped NNReal
 
 instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) := by
   apply isCancellative_of_norm_integral_exp_le
-  intro x r ϕ r_pos hK hϕ f g
+  intro x r φ r_pos hK hφ f g
   rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball,
     ENNReal.toReal_ofReal (by linarith [r_pos]), Real.ball_eq_Ioo, ← integral_Ioc_eq_integral_Ioo,
     ← intervalIntegral.integral_of_le (by linarith [r_pos]), dist_integer_linear_eq,
     max_eq_left r_pos.le]
-  calc ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * (↑(f x) - ↑(g x))).exp * ϕ x‖
-    _ = ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * ((↑f - ↑g) : ℤ) * x).exp * ϕ x‖ := by
+  calc ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * (↑(f x) - ↑(g x))).exp * φ x‖
+    _ = ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * ((↑f - ↑g) : ℤ) * x).exp * φ x‖ := by
       congr with x
       rw [mul_assoc]
       congr
       push_cast
       rw [_root_.sub_mul]
       norm_cast
-    _ ≤ 2 * π * ((x + r) - (x - r)) * (iLipNNNorm ϕ x r +
-          (iLipNNNorm ϕ x r / r.toNNReal : ℝ≥0) * ((x + r) - (x - r)) / 2) *
+    _ ≤ 2 * π * ((x + r) - (x - r)) * (iLipNNNorm φ x r +
+          (iLipNNNorm φ x r / r.toNNReal : ℝ≥0) * ((x + r) - (x - r)) / 2) *
       (1 + |((↑f - ↑g) : ℤ)| * ((x + r) - (x - r)))⁻¹ := by
       apply van_der_Corput (by linarith)
       · rw [Ioo_eq_ball]
@@ -416,15 +413,15 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) := by
       · intro y hy
         apply norm_le_iLipNNNorm_of_mem hK
         rwa [Real.ball_eq_Ioo]
-    _ = 2 * π * (2 * r) * (iLipNNNorm ϕ x r + r * (iLipNNNorm ϕ x r / r.toNNReal : ℝ≥0))
+    _ = 2 * π * (2 * r) * (iLipNNNorm φ x r + r * (iLipNNNorm φ x r / r.toNNReal : ℝ≥0))
           * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
       ring
-    _ = 2 * π * (2 * r) * (iLipNNNorm ϕ x r + iLipNNNorm ϕ x r)
+    _ = 2 * π * (2 * r) * (iLipNNNorm φ x r + iLipNNNorm φ x r)
           * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
       congr
       rw [NNReal.coe_div, Real.coe_toNNReal _ r_pos.le, mul_div_cancel₀ _ r_pos.ne']
-    _ = 4 * π * (2 * r) * iLipNNNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|)⁻¹ := by ring
-    _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNNNorm ϕ x r *
+    _ = 4 * π * (2 * r) * iLipNNNorm φ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|)⁻¹ := by ring
+    _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNNNorm φ x r *
       (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / (4 : ℝ))) := by
       gcongr
       · norm_num

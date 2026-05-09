@@ -1,5 +1,9 @@
-import Carleson.Discrete.Defs
-import Carleson.ToMathlib.HardyLittlewood
+module
+
+public import Carleson.Discrete.Defs
+public import Carleson.ToMathlib.HardyLittlewood
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
@@ -12,6 +16,7 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 variable (X) in
 /-- The constant in Lemma 5.2.9, with value `D ^ (1 - κ * Z * (n + 1))` -/
+@[nolint unusedArguments]
 def C5_2_9 [ProofData a q K σ₁ σ₂ F G] (n : ℕ) : ℝ≥0 := D ^ (1 - κ * Z * (n + 1))
 
 /-- A rearrangement for Lemma 5.2.9 that does not require the tile structure. -/
@@ -55,6 +60,7 @@ section first_exception
 
 open ENNReal
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 5.2.1 -/
 lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G := by
   -- Handle trivial cases
@@ -62,7 +68,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   by_cases hF : volume F = 0
   · simp [G₁_empty hF]
   by_cases hG : volume G = 0
-  · exact (G₁_empty' hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le _
+  · exact (G₁_empty' hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le
   -- Define constant `K` and prove 0 < K < ⊤
   let K := 2 ^ (2 * a + 5) * volume F / volume G
   have K0 : K > 0 := by
@@ -70,7 +76,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     exact mul_pos_iff.2 ⟨ENNReal.pow_pos two_pos _, measure_pos_of_superset subset_rfl hF⟩
   have K_ne_top : K ≠ ⊤ := by
     simp only [K]
-    exact (div_lt_top (mul_ne_top (pow_ne_top ofNat_ne_top) volume_F_ne_top) hG).ne
+    finiteness [volume_F_ne_top (X := X)]
   -- Define function `r : 𝔓 X → ℝ`, with garbage value `0` for `p ∉ highDensityTiles`
   have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
       volume (F ∩ (ball (𝔠 p) r)) ≥ K * volume (ball (𝔠 p) r) := by
@@ -95,7 +101,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     suffices (𝓘 p : Set X) ⊆ ball (𝔠 p) (r p) from this xp
     apply Grid_subset_ball.trans ∘ ball_subset_ball
     convert (hr hp).1.le
-    simp [r, hp]
+    simp only [r, dif_pos hp]
   apply (OuterMeasureClass.measure_mono volume this).trans
   -- Apply `measure_biUnion_le_lintegral` to `u := F.indicator 1` to bound the volume of ⋃ 𝓑.
   let u := F.indicator (1 : X → ℝ≥0∞)
@@ -107,7 +113,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   have ineq := 𝓑.measure_biUnion_le_lintegral (A := defaultA a) K u h2u
   simp only [u, lintegral_indicator, measurableSet_F, Pi.one_apply, lintegral_const,
     MeasurableSet.univ, Measure.restrict_apply, univ_inter, one_mul] at ineq
-  rw [← mul_le_mul_left K0.ne.symm K_ne_top]
+  rw [← ENNReal.mul_le_mul_iff_right K0.ne.symm K_ne_top]
   apply ineq.trans_eq
   -- Prove that the desired bound for the volume of ⋃ 𝓑 is equal to the bound proven above.
   simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ENNReal.coe_pow, coe_ofNat, K]
@@ -135,7 +141,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     simp_rw [𝓒]; intro q mq; rw [mem_iUnion₂] at mq ⊢; obtain ⟨i, hi, mi⟩ := mq
     rw [aux𝓒, mem_diff, mem_setOf] at hi; obtain ⟨j, hj, mj⟩ := hi.1
     use j, ?_, mem_of_mem_of_subset mi hj.1
-    simpa [M] using mj
+    simp only [M, Finset.mem_filter_univ]; exact mj
   let M' := Grid.maxCubes M
   have s₂ : ⋃ i ∈ M, (i : Set X) ⊆ ⋃ i ∈ M', ↑i := iUnion₂_mono' fun i mi ↦ by
     obtain ⟨j, mj, hj⟩ := Grid.exists_maximal_supercube mi; use j, mj, hj.1
@@ -154,7 +160,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
       congr; refine (measure_biUnion_finset (fun _ mi _ mj hn ↦ ?_) (fun _ _ ↦ ?_)).symm
       · exact ((Grid.maxCubes_pairwiseDisjoint mi mj hn).inter_right' G).inter_left' G
       · exact measurableSet_G.inter coeGrid_measurable
-    _ ≤ _ := mul_le_mul_left' (measure_mono (iUnion₂_subset fun _ _ ↦ inter_subset_left)) _
+    _ ≤ _ := mul_le_mul_right (measure_mono (iUnion₂_subset fun _ _ ↦ inter_subset_left)) _
 
 /-- Lemma 5.2.3 -/
 lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p mp p' mp' h ↦ by
@@ -190,6 +196,7 @@ lemma iUnion_MsetA_eq_setA : ⋃ i ∈ MsetA (X := X) l k n, ↑i = setA (X := X
   · obtain ⟨j, mj, lj⟩ := mx; exact mem_of_mem_of_subset lj mj
   · obtain ⟨j, mj, lj⟩ := dyadic_union mx; use j, lj, mj
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Equation (5.2.7) in the proof of Lemma 5.2.5. -/
 lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     (mx : x ∈ setA (l + 1) k n) (mx₂ : x ∈ L) : 2 ^ (n + 1) ≤
@@ -214,7 +221,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     simp_rw [mem_setOf_eq, and_congr_right_iff]
     refine fun _ ↦ ⟨fun h ↦ ?_, ?_⟩
     · apply lt_of_le_of_ne <| (le_or_ge_or_disjoint.resolve_left h.1).resolve_right h.2
-      by_contra k; subst k; simp at h
+      by_contra k; subst k; exact absurd le_rfl h.1
     · rw [Grid.lt_def, Grid.le_def, not_and_or, not_le]
       exact fun h ↦ ⟨Or.inr h.2, not_disjoint_iff.mpr ⟨x, mem_of_mem_of_subset mx₂ h.1, mx₂⟩⟩
   rw [req] at mx
@@ -247,7 +254,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
         refine stackSize_mono <| sep_subset ..
       _ ≤ l * 2 ^ (n + 1) := by rwa [setA, mem_setOf_eq, not_lt] at nx'
   -- so the (unchanged) first sum of RHS is at least `2 ^ (n + 1)`
-  rw [add_one_mul] at mx; cutsat
+  rw [add_one_mul] at mx; lia
 
 /-- Equation (5.2.11) in the proof of Lemma 5.2.5. -/
 lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) :
@@ -278,8 +285,8 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
           ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
           ← ENNReal.rpow_neg, neg_neg] at mq
         exact_mod_cast mq.le
-      _ ≤ _ := by rw [← Finset.mul_sum]; exact mul_le_mul_left' e528 _
-  rw [← ENNReal.mul_le_mul_left (a := 2 ^ n) (by simp) (by simp), ← mul_assoc, ← pow_succ]
+      _ ≤ _ := by rw [← Finset.mul_sum]; exact mul_le_mul_right e528 _
+  rw [← ENNReal.mul_le_mul_iff_right (a := 2 ^ n) (by simp) (by simp), ← mul_assoc, ← pow_succ]
   calc
     _ = ∫⁻ x in setA (X := X) (l + 1) k n ∩ L, 2 ^ (n + 1) := (setLIntegral_const _ _).symm
     _ ≤ ∫⁻ x in setA (X := X) (l + 1) k n ∩ L, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
@@ -287,7 +294,6 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       have : 2 ^ (n + 1) ≤ ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
         convert john_nirenberg_aux1 mL mx mx₂
         simp_rw [stackSize, Q₁, mem_setOf_eq]
-        congr
       have lcast : (2 : ℝ≥0∞) ^ (n + 1) = ((2 ^ (n + 1) : ℕ) : ℝ).toNNReal := by
         rw [Real.toNNReal_coe_nat, ENNReal.coe_natCast]; norm_cast
       have rcast : ∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℝ≥0∞) x =
@@ -296,7 +302,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       rw [lcast, rcast, ENNReal.coe_le_coe]
       exact Real.toNNReal_le_toNNReal (Nat.cast_le.mpr this)
     _ ≤ ∫⁻ x, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := setLIntegral_le_lintegral _ _
-    _ = ∑ q ∈ Q₁, ∫⁻ x, (𝓘 q : Set X).indicator 1 x := lintegral_finset_sum _ Q₁m
+    _ = ∑ q ∈ Q₁, ∫⁻ x, (𝓘 q : Set X).indicator 1 x := lintegral_finsetSum _ Q₁m
     _ = ∑ q ∈ Q₁, volume (𝓘 q : Set X) := by
       congr!; exact lintegral_indicator_one coeGrid_measurable
     _ ≤ _ := e529
@@ -312,9 +318,10 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
         exact_mod_cast dense_cover k
   | succ l ih =>
     suffices 2 * volume (setA (X := X) (l + 1) k n) ≤ volume (setA (X := X) l k n) by
-      rw [← ENNReal.mul_le_mul_left (a := 2) (by simp) (by simp), ← mul_assoc]; apply this.trans
+      rw [← ENNReal.mul_le_mul_iff_right (a := 2) (by simp) (by simp), ← mul_assoc]
+      apply this.trans
       convert ih using 2; nth_rw 1 [← zpow_one 2, ← ENNReal.zpow_add (by simp) (by simp)]
-      congr 1; cutsat
+      congr 1; lia
     calc
       _ = 2 * ∑ L ∈ Grid.maxCubes (MsetA (X := X) l k n),
           volume (setA (X := X) (l + 1) k n ∩ L) := by
@@ -358,11 +365,11 @@ lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-2 : ℤ) * volume G :=
       rw [ENNReal.tsum_comm]; congr!; split_ifs <;> simp
     _ ≤ ∑' (k : ℕ) (n : ℕ), if k ≤ n then 2 ^ (k - 5 - 2 * n : ℤ) * volume G else 0 := by
       gcongr; split_ifs
-      · convert john_nirenberg using 3; cutsat
+      · convert john_nirenberg using 3; lia
       · rfl
     _ = ∑' (k : ℕ), 2 ^ (-k - 5 : ℤ) * volume G * ∑' (n' : ℕ), 2 ^ (- 2 * n' : ℤ) := by
       congr with k -- n' = n - k - 1; n = n' + k + 1
-      have rearr : ∀ n : ℕ, (k - 5 - 2 * n : ℤ) = (-k - 5 + (-2 * (n - k)) : ℤ) := by cutsat
+      have rearr : ∀ n : ℕ, (k - 5 - 2 * n : ℤ) = (-k - 5 + (-2 * (n - k)) : ℤ) := by lia
       conv_lhs =>
         enter [1, n]
         rw [rearr, ENNReal.zpow_add (by simp) (by simp), ← mul_rotate,
@@ -413,7 +420,7 @@ lemma lintegral_Ioc_layervol_one {l : ℕ} :
       unfold layervol; congr with x; constructor <;> intro h
       · rw [indicator_sum_eq_natCast, ← Nat.cast_one, ← Nat.cast_add, Nat.cast_le]
         rw [indicator_sum_eq_natCast, ← Nat.ceil_le] at h; convert h; symm
-        rwa [Nat.ceil_eq_iff (by cutsat), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]
+        rwa [Nat.ceil_eq_iff (by lia), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]
       · exact ht.2.trans h
     _ = layervol k n (l + 1) * volume (Ioc (l : ℝ) (l + 1)) := setLIntegral_const ..
     _ = _ := by rw [Real.volume_Ioc, add_sub_cancel_left, ENNReal.ofReal_one, mul_one]
@@ -442,7 +449,7 @@ lemma top_tiles_aux : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X
     _ = ∑ m with m ∈ M, ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
       congr! with m; exact (lintegral_indicator_one coeGrid_measurable).symm
     _ = ∫⁻ x, ∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x :=
-      (lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
+      (lintegral_finsetSum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
     _ = ∫⁻ x, ENNReal.ofReal (∑ m with m ∈ M, (𝓘 m : Set X).indicator 1 x) := by
       congr! 2 with x; rw [ENNReal.ofReal_sum_of_nonneg]
       · congr!; unfold indicator; split_ifs <;> simp
@@ -490,9 +497,9 @@ lemma top_tiles : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) �
       rw [mem_setOf, mem_setOf, indicator_sum_eq_natCast, Nat.cast_le]
       exact Nat.add_one_le_iff
     _ ≤ 2 ^ (n + 1) * ∑ l ∈ Finset.range Mc, 2 ^ (k + 1 - l : ℤ) * volume G :=
-      mul_le_mul_left' (Finset.sum_le_sum fun _ _ ↦ john_nirenberg) _
+      mul_le_mul_right (Finset.sum_le_sum fun _ _ ↦ john_nirenberg) _
     _ ≤ 2 ^ (n + 1) * ∑' (l : ℕ), 2 ^ (k + 1 - l : ℤ) * volume G :=
-      mul_le_mul_left' (ENNReal.sum_le_tsum _) _
+      mul_le_mul_right (ENNReal.sum_le_tsum _) _
     _ = 2 ^ (n + 1) * (volume G * 2 ^ (k + 1) * 2) := by
       conv_lhs =>
         enter [2, 1, l]
@@ -503,18 +510,19 @@ lemma top_tiles : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) �
     _ = _ := by
       nth_rw 3 [← pow_one 2]
       rw [mul_rotate, ← pow_add, ← mul_assoc, ← pow_add,
-        show n + 1 + (k + 1 + 1) = n + k + 3 by cutsat]
+        show n + 1 + (k + 1 + 1) = n + k + 3 by lia]
 
 end TopTiles
 
+/-! Definition of function `𝔘(m)` used in the proof of Lemma 5.2.8, and some properties of `𝔘(m)` -/
 section 𝔘
--- Definition of function `𝔘(m)` used in the proof of Lemma 5.2.8, and some properties of `𝔘(m)`
 
 open Finset
 
 variable (k) (n) (j) (x)
 open scoped Classical in
-private def 𝔘 (m : 𝔓 X) := (𝔘₁ k n j).toFinset.filter (fun u ↦ x ∈ 𝓘 u ∧ smul 100 u ≤ smul 1 m)
+/-- The function `𝔘(m)` used in the proof of Lemma 5.2.8 -/
+def 𝔘 (m : 𝔓 X) := (𝔘₁ k n j).toFinset.filter (fun u ↦ x ∈ 𝓘 u ∧ smul 100 u ≤ smul 1 m)
 
 -- Ball that covers the image of `𝒬`. Radius chosen for convenience with `BallsCoverBalls.pow_mul`
 private def big_ball (m : 𝔓 X) (u : 𝔓 X) := ball_(u) (𝒬 m) (2 ^ 9 * 0.2)
@@ -528,6 +536,7 @@ private lemma x_mem_𝓘u : x ∈ (𝓘 u) := by
   simp only [𝔘, mem_filter] at hu
   exact hu.2.1
 
+set_option backward.isDefEq.respectTransparency false in
 include hu in
 private lemma 𝒬m_mem_ball : 𝒬 m ∈ ball_(u) (𝒬 u) 100 := by
   simp only [𝔘, mem_filter, smul] at hu
@@ -551,7 +560,7 @@ private lemma 𝓘_eq_𝓘 : 𝓘 u = 𝓘 u' :=
 
 include hu hu' in
 private lemma ball_eq_ball : ball_(u) = ball_(u') := by
-  rw [𝔠, 𝔰, 𝓘_eq_𝓘 hu hu']
+  delta 𝔠 𝔰; rw [𝓘_eq_𝓘 hu hu']
 
 include hu hu' hu'' in
 private lemma disjoint_balls (h : u' ≠ u'') :
@@ -559,6 +568,7 @@ private lemma disjoint_balls (h : u' ≠ u'') :
   nth_rewrite 1 [ball_eq_ball hu hu', ball_eq_ball hu hu'']
   convert cball_disjoint h (𝓘_eq_𝓘 hu' hu'') using 2 <;> norm_num
 
+set_option backward.isDefEq.respectTransparency false in
 include hu hu' in
 private lemma mem_big_ball : 𝒬 u' ∈ big_ball m u := by
   have : 𝒬 m ∈ ball_(u) (𝒬 u') 100 := ball_eq_ball hu hu' ▸ 𝒬m_mem_ball hu'
@@ -580,10 +590,11 @@ private lemma balls_cover_big_ball : CoveredByBalls (big_ball m u) (defaultA a ^
 private lemma 𝒬_injOn_𝔘m : InjOn 𝒬 (SetLike.coe (𝔘 k n j x m)) :=
   fun _ hu _ hu' h ↦ 𝒬_inj h (𝓘_eq_𝓘 hu hu')
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
   classical
   by_cases h : 𝔘 k n j x m = ∅
-  · simp [h]
+  · simp only [h, Finset.card_empty]; exact Nat.zero_le _
   have ⟨u, hu⟩ := Finset.nonempty_of_ne_empty h
   let pm := instPseudoMetricSpaceWithFunctionDistance (x := 𝔠 u) (r := (D ^ 𝔰 u / 4))
   have ⟨𝓑, 𝓑_card_le, 𝓑_cover⟩ := balls_cover_big_ball m u
@@ -600,9 +611,9 @@ private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
   have card_le_one : ∀ f ∈ 𝓑, (𝓕 f).card ≤ 1 := by
     refine fun f _ ↦ card_le_one.mpr (fun g₁ hg₁ g₂ hg₂ ↦ ?_)
     by_contra! h
-    simp only [mem_filter, 𝓕, Finset.mem_image] at hg₁ hg₂
-    rcases hg₁.1 with ⟨u₁, hu₁, rfl⟩
-    rcases hg₂.1 with ⟨u₂, hu₂, rfl⟩
+    simp only [mem_filter, 𝓕] at hg₁ hg₂
+    obtain ⟨u₁, hu₁, rfl⟩ := Finset.mem_image.mp hg₁.1
+    obtain ⟨u₂, hu₂, rfl⟩ := Finset.mem_image.mp hg₂.1
     apply Set.not_disjoint_iff.mpr ⟨f, mem_ball_comm.mp hg₁.2, mem_ball_comm.mp hg₂.2⟩
     exact disjoint_balls hu hu₁ hu₂ (ne_of_apply_ne 𝒬 h)
   rw [← card_image_iff.mpr 𝒬_injOn_𝔘m, 𝒬𝔘_eq_union]
@@ -629,9 +640,11 @@ private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ �
     (𝓘 u : Set X).indicator 1 x ≤ (2 : ℝ) ^ (-j : ℤ) * stackSize (𝔐' k n u) x := by
   intro u hu
   by_cases hx : x ∈ (𝓘 u : Set X); swap
-  · simp [hx]
+  · simp only [Set.indicator_of_notMem hx]
+    exact mul_nonneg (zpow_nonneg (by norm_num) _) (Nat.cast_nonneg _)
   suffices (2 : ℝ) ^ (j : ℤ) ≤ stackSize (𝔐' k n u) x by calc
-    _ ≤ (2 : ℝ) ^ (-j : ℤ) * (2 : ℝ) ^ (j : ℤ)       := by simp [hx]
+    _ ≤ (2 : ℝ) ^ (-j : ℤ) * (2 : ℝ) ^ (j : ℤ)       := by
+        rw [Set.indicator_of_mem hx, Pi.one_apply, ← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0), neg_add_cancel, zpow_zero]
     _ ≤ (2 : ℝ) ^ (-j : ℤ) * stackSize (𝔐' k n u) x := by gcongr
   norm_cast
   simp only [𝔘₁, Finset.mem_filter, toFinset_setOf] at hu
@@ -639,7 +652,7 @@ private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ �
   simp only [Finset.coe_filter, mem_toFinset, 𝔐', Finset.card_eq_sum_ones]
   refine Finset.sum_congr rfl (fun m hm ↦ ?_)
   simp only [TileLike.le_def, smul_fst, Finset.mem_filter] at hm
-  simp [hm.2.2.1.1 hx]
+  simp only [Set.indicator_of_mem (hm.2.2.1.1 hx), Pi.one_apply]
 
 open Finset in
 /-- Lemma 5.2.8 -/
@@ -651,7 +664,7 @@ lemma tree_count :
       ∑ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·), (𝓘 u : Set X).indicator (1 : X → ℝ) x := by
     rw [filter_mem_univ_eq_toFinset (𝔘₁ k n j), sum_filter]
     exact sum_congr rfl <|
-      fun u _ ↦ _root_.by_cases (p := x ∈ 𝓘 u) (fun hx ↦ by simp [hx]) (fun hx ↦ by simpa [hx])
+      fun u _ ↦ by simp [Membership.mem]
   rw [stackSize_real, this]
   -- Use inequality (5.2.20) to bound the LHS by a double sum, then interchange the sums.
   apply le_trans (sum_le_sum indicator_le)
@@ -668,16 +681,14 @@ lemma tree_count :
 lemma boundary_exception {u : 𝔓 X} :
     volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by
   by_cases  h_𝓛_n_u_non_empty : Set.Nonempty (𝓛 (X := X) n u)
-  · set X_u := { x ∈ GridStructure.coeGrid (𝓘 u) | EMetric.infEdist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ 12 * (D ^ (𝔰 u - Z * (n + 1) - 1 : ℤ) : ℝ≥0∞)} with h_X_u -- 5.2.25
+  · set X_u := { x ∈ GridStructure.coeGrid (𝓘 u) | Metric.infEDist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ 12 * (D ^ (𝔰 u - Z * (n + 1) - 1 : ℤ) : ℝ≥0∞)} with h_X_u -- 5.2.25
     calc volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X))
       _ ≤ volume X_u := by
           have i_subset_X_u : ∀ i ∈ 𝓛 (X := X) n u, GridStructure.coeGrid i ⊆ X_u := by
             intro i ⟨⟨i_subset_I_u, _⟩, s_i_eq_stuff, I_not_contain_8_ball⟩ ipt hipt
             refine ⟨i_subset_I_u hipt, ?_⟩
             rw [show 𝔰 u - Z * (n + 1) - 1 = s i by norm_cast; linarith]
-
             obtain ⟨bpt, hbpt, h_bpt_not_in_I_u⟩ : ∃ b ∈ ball (c i) (8 * ↑D ^ s i), b ∉ ↑(𝓘 u) := not_subset.mp I_not_contain_8_ball
-
             -- triangle inequality between ipt, bpt, c i
             have ipt_bpt_triangle_ineq : dist ipt bpt ≤ (12 * D ^ s i : ℝ) :=
               calc dist ipt bpt
@@ -693,10 +704,9 @@ lemma boundary_exception {u : 𝔓 X} :
                       simp_all only [le_eq_subset, ball, mem_setOf_eq, Grid.mem_def]
                     rel [dist_bpt_c_i_le]
                 _ ≤ 12 * D ^ s i := by linarith
-
             -- show the the triangle inequality implies distance between ipt and (𝓘 u)ᶜ <= 12 * D ^ s i
-            calc EMetric.infEdist ipt (GridStructure.coeGrid (𝓘 u))ᶜ
-              _ ≤ edist ipt bpt := EMetric.infEdist_le_edist_of_mem <| Set.mem_compl h_bpt_not_in_I_u
+            calc Metric.infEDist ipt (GridStructure.coeGrid (𝓘 u))ᶜ
+              _ ≤ edist ipt bpt := Metric.infEDist_le_edist_of_mem <| Set.mem_compl h_bpt_not_in_I_u
               _ ≤ ENNReal.ofReal (12 * D ^ s i) := by
                 rw [edist_dist]
                 exact ENNReal.ofReal_le_ofReal ipt_bpt_triangle_ineq
@@ -709,15 +719,12 @@ lemma boundary_exception {u : 𝔓 X} :
                   · push_cast
                     rfl
                   · simp
-
-          rw [show ⋃ i ∈ 𝓛 (X := X) n u, (i : Set X) = ⋃ i : 𝓛 (X := X) n u, (i : Set X) by simp]
-          exact measure_mono <| Set.iUnion_subset_iff.mpr <| by simp [i_subset_X_u]
+          exact measure_mono (Set.iUnion₂_subset i_subset_X_u)
       _ ≤ 2 * (12 * D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0) ^ κ * volume (𝓘 u : Set X) := by
           have small_boundary_observation : ∀ i ∈ 𝓛 (X := X) n u, volume X_u ≤ 2 * (12 * D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0) ^ κ * volume (𝓘 u : Set X) := by
             intro i ⟨_, s_i_eq_stuff, _⟩
             -- choose t for small boundary property
             set t := 12 * (D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0) with ht
-
             -- algebra useful in multiple steps of the proof
             have D_pow_algebra : 12 * (D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0)  * (D ^ (𝔰 u : ℤ) : ℝ≥0) = 12 * (D ^ ( 𝔰 u - Z * (n + 1) - 1 : ℤ) : ℝ≥0) := by
               have : 12 * (D ^ (- Z * (n + 1) - 1 : ℤ) : ℝ≥0)  * (D ^ (𝔰 u : ℤ) : ℝ≥0) = 12 * (D ^ (- Z * (n + 1) - 1 + 𝔰 u : ℤ) : ℝ≥0) := by
@@ -725,7 +732,6 @@ lemma boundary_exception {u : 𝔓 X} :
                 ring
               rw [this]
               rw [show - Z * (n + 1) - 1 + 𝔰 u = 𝔰 u - Z * (n + 1) - 1 by linarith]
-
             -- small boundary property assumption for 𝓘 u
             have small_boundary_h : D ^ ((- S - s (𝓘 u)) : ℤ) ≤ t := by
               have one_le_nnreal_D : 1 ≤ (D : ℝ≥0) := by
@@ -744,10 +750,8 @@ lemma boundary_exception {u : 𝔓 X} :
               rwa [this, mul_neg_one, ← zpow_add₀ (show (D : ℝ≥0) ≠ 0 by norm_num),
                    show 𝔰 u = s (𝓘 u) from rfl, add_comm,
                    neg_add_eq_sub] at small_boundary_h_intermediate
-
             have small_b := GridStructure.small_boundary small_boundary_h
-
-            have X_u_in_terms_of_t : X_u = { x ∈ GridStructure.coeGrid (𝓘 u) | EMetric.infEdist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ ((t * D ^ (s (𝓘 u))):ℝ≥0∞)} := by
+            have X_u_in_terms_of_t : X_u = { x ∈ GridStructure.coeGrid (𝓘 u) | Metric.infEDist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ ((t * D ^ (s (𝓘 u))):ℝ≥0∞)} := by
               rw [ht, show s (𝓘 u) = 𝔰 u from rfl,
                   show (D ^ 𝔰 u : ℝ≥0∞) = (D ^ 𝔰 u : ℝ≥0) by simp]
               rw_mod_cast [D_pow_algebra, h_X_u]
@@ -773,10 +777,8 @@ lemma boundary_exception {u : 𝔓 X} :
                 exact WithTop.mul_lt_top (by apply WithTop.coe_lt_top) <|
                   (ENNReal.rpow_lt_top_of_nonneg κ_nonneg) (lt_top_iff_ne_top.mp (by apply WithTop.coe_lt_top))
               exact WithTop.mul_lt_top t_k_lt_top volume_coeGrid_lt_top
-
           obtain ⟨i, hi⟩ := h_𝓛_n_u_non_empty
           exact small_boundary_observation i hi
-
       _ ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by -- choosing the right k and D
         have coeff_lt : 2 * (12 * D ^ (-Z * (n + 1) - 1 : ℝ)) ^ κ
             ≤ (D ^ (1 - κ * Z * (n + 1)) : ℝ≥0) := by
@@ -815,17 +817,17 @@ lemma boundary_exception {u : 𝔓 X} :
             OfNat.ofNat_ne_zero, false_or]
           positivity
         rw [← ENNReal.coe_rpow_of_ne_zero (by exact this)]
-        exact_mod_cast mul_le_mul_right' coeff_lt (volume (𝓘 u : Set X))
+        exact_mod_cast mul_le_mul_left coeff_lt (volume (𝓘 u : Set X))
   · have : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) = 0 := by
       have h1 : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤
         ∑' i : 𝓛 (X := X) n u, volume (i : Set X) := measure_biUnion_le _ (𝓛 n u).to_countable _
       have h2 : ∑' i : 𝓛 (X := X) n u, volume (i : Set X) = 0 := by
-        have : 𝓛 (X := X) n u = ∅ := Set.not_nonempty_iff_eq_empty'.mp <| by
-          rw [Set.Nonempty] at h_𝓛_n_u_non_empty
-          simp [h_𝓛_n_u_non_empty]
-        simp [this]
+        have : IsEmpty (𝓛 (X := X) n u) := by
+          rw [Set.isEmpty_coe_sort]
+          exact Set.not_nonempty_iff_eq_empty.mp h_𝓛_n_u_non_empty
+        exact tsum_empty
       exact (le_of_le_of_eq h1 h2).antisymm (by simp)
-    simp [this]
+    simp only [this, zero_le]
 
 lemma third_exception_aux :
     volume (⋃ p ∈ 𝔏₄ (X := X) k n j, (𝓘 p : Set X)) ≤
@@ -843,9 +845,9 @@ lemma third_exception_aux :
       rw [tsum_fintype]; convert (Finset.sum_subtype _ (fun u ↦ mem_toFinset) _).symm; rfl
     _ ≤ C5_2_9 X n * 2 ^ (9 * a - j : ℤ) *
         ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) := by
-      rw [mul_assoc]; refine mul_le_mul_left' ?_ _
+      rw [mul_assoc]; refine mul_le_mul_right ?_ _
       simp_rw [← lintegral_indicator_one coeGrid_measurable,
-        ← lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
+        ← lintegral_finsetSum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
       have c1 : ∀ C : Set (𝔓 X),
           ∫⁻ x, ∑ u with u ∈ C, (𝓘 u : Set X).indicator 1 x =
           ∫⁻ x, stackSize C x := fun C ↦ by
@@ -896,7 +898,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       gcongr with k n; split_ifs with hnk
       · refine ENNReal.rpow_le_rpow ?_ (by simpa using hnk)
         calc
-          _ ≤ 2 * (2 : ℝ≥0∞) ^ (-100 : ℝ) := mul_le_mul_left' (DκZ_le_two_rpow_100 (X := X)) 2
+          _ ≤ 2 * (2 : ℝ≥0∞) ^ (-100 : ℝ) := mul_le_mul_right (DκZ_le_two_rpow_100 (X := X)) 2
           _ ≤ _ := by
             nth_rw 1 [← ENNReal.rpow_one 2, ← ENNReal.rpow_add _ _ (by simp) (by simp),
               ← ENNReal.rpow_neg_one 2]
@@ -931,7 +933,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       gcongr _ * ∑' _, ?_
       refine pow_le_pow_left' ?_ _
       calc
-        _ ≤ 2 ^ 2 * (2 : ℝ≥0∞) ^ (-100 : ℝ) := mul_le_mul_left' (DκZ_le_two_rpow_100 (X := X)) _
+        _ ≤ 2 ^ 2 * (2 : ℝ≥0∞) ^ (-100 : ℝ) := mul_le_mul_right (DκZ_le_two_rpow_100 (X := X)) _
         _ ≤ _ := by
           nth_rw 1 [← ENNReal.rpow_natCast, ← ENNReal.rpow_add _ _ (by simp) (by simp),
             ← ENNReal.rpow_neg_one 2]
@@ -957,7 +959,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := 
       calc
       4 + (9 * a + 6)
       _ = 9 * a + 10 := by ring
-      _ ≤ 3 * 4 * a + 4 * 4 := by cutsat
+      _ ≤ 3 * 4 * a + 4 * 4 := by lia
       _ ≤ 3 * a * a + a * a := by gcongr <;> linarith [four_le_a X]
       _ = 4 * a ^ 2 := by ring
       _ ≤ 𝕔 * a ^ 2 := by

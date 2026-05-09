@@ -1,4 +1,8 @@
-import Carleson.FinitaryCarleson
+module
+
+public import Carleson.FinitaryCarleson
+
+@[expose] public section
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Filter Topology ShortVariables Bornology Metric Complex
@@ -176,7 +180,7 @@ lemma slice_integral_bound_sum :
     convert slice_integral_bound; simp [slice]
   | succ n ih =>
     rw [← diff_union_diff_cancel _ slice_G_subset]; swap
-    · exact antitone_slice_G (zero_le _)
+    · exact antitone_slice_G zero_le
     rw [lintegral_union ((slice CP bG mG _).mG.diff (slice CP bG mG _).mG)]; swap
     · exact disjoint_of_subset_right diff_subset disjoint_sdiff_left
     rw [Finset.sum_range_succ, mul_add, add_mul, add_mul]; gcongr
@@ -230,7 +234,7 @@ lemma linearized_truncation
     _ = ∫⁻ x in ⋃ n, G \ (slice CP bG mG (n + 1)).G, ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ := by
       apply setLIntegral_congr; rw [← diff_iInter]; refine (diff_null_ae_eq_self ?_).symm
       rw [Antitone.measure_iInter]; rotate_left
-      · exact fun _ _ _ ↦ antitone_slice_G (by cutsat)
+      · exact fun _ _ _ ↦ antitone_slice_G (by lia)
       · exact fun n ↦ (slice CP bG mG (n + 1)).mG.nullMeasurableSet
       · use 0; rw [← lt_top_iff_ne_top]
         exact (measure_mono slice_G_subset).trans_lt bG.measure_lt_top
@@ -240,14 +244,14 @@ lemma linearized_truncation
       rw [← lintegral_indicator (MeasurableSet.iUnion fun n ↦ mG.diff (slice CP bG mG (n + 1)).mG)]
       congr! with x
       rw [← iSup_apply, iSup_indicator rfl monotone_const]; swap
-      · exact fun _ _ _ ↦ sdiff_le_sdiff_left (antitone_slice_G (by cutsat))
+      · exact fun _ _ _ ↦ sdiff_le_sdiff_left (antitone_slice_G (by lia))
       rw [iSup_const]
     _ = ⨆ n, ∫⁻ x, (G \ (slice CP bG mG (n + 1)).G).indicator (‖T_lin CP.Q σ₁ σ₂ f ·‖ₑ) x := by
       refine lintegral_iSup (fun n ↦ ?_) (fun i j hl ↦ ?_)
       · exact (measurable_T_lin mf mσ₁ mσ₂ rσ₁ rσ₂).enorm.indicator
           (mG.diff (slice CP bG mG (n + 1)).mG)
-      · exact indicator_le_indicator_of_subset (sdiff_le_sdiff_left (antitone_slice_G (by cutsat)))
-          (zero_le _)
+      · gcongr
+        exact antitone_slice_G (by lia)
     _ ≤ C2_0_1 a q * (2 ^ 2 / (q - 1) : ℝ≥0) * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
       refine iSup_le fun n ↦ slice_integral_bound_sum.trans ?_
       gcongr; exact sum_le_four_div_q_sub_one hq hqq'
@@ -280,7 +284,7 @@ lemma S_truncation
   have scσ₁ (x : X) : candσ₁ x ⊆ Finset.Icc (-B) B := by simp [candσ₁]
   have mcσ₁ {n : ℤ} : Measurable (n ∈ candσ₁ ·) := by
     simp_rw [candσ₁, Finset.mem_filter, Finset.mem_Icc]
-    apply measurable_const.and; rw [← measurableSet_setOf]; exact measurableSet_eq_fun' mT1 mT1'
+    apply measurable_const.and; rw [← measurableSet_setOf]; exact measurableSet_eq_fun mT1 mT1'
   -- Define `σ₁` and prove its measurability and finite range
   let σ₁ (x : X) := (candσ₁ x).min' (necσ₁ x)
   have eσ₁ (x : X) : σ₁ x ∈ candσ₁ x := (candσ₁ x).min'_mem (necσ₁ x)
@@ -324,7 +328,7 @@ lemma S_truncation
     apply Measurable.and
     · apply Measurable.and ?_ measurable_const
       rw [← measurableSet_setOf]; exact measurableSet_le mσ₁ measurable_const
-    · rw [← measurableSet_setOf]; apply measurableSet_eq_fun'
+    · rw [← measurableSet_setOf]; apply measurableSet_eq_fun
       · apply Measurable.comp (f := fun x ↦ (x, σ₁ x)) (g := fun p ↦ T1' p.1 p.2)
         · exact measurable_from_prod_countable_left fun _ ↦ mT1'
         · exact measurable_id.prodMk mσ₁
@@ -381,7 +385,7 @@ lemma R₁_le_D_zpow_div_four {R₁ : ℝ} : R₁ ≤ D ^ (L302 a R₁ - 1) / 4 
       · linarith only [four_le_realD X]
       · exact Dg1.le
       · push_cast; exact (Int.lt_floor_add_one _).le
-    _ = _ := by rw [← zpow_one_add₀ (realD_pos a).ne']; congr 1; cutsat
+    _ = _ := by rw [← zpow_one_add₀ (realD_pos a).ne']; congr 1; lia
 
 include K in
 lemma D_zpow_div_two_le_R₂ {R₂ : ℝ} (hR₂ : 0 < R₂) : D ^ (U302 a R₂) / 2 ≤ R₂ := by
@@ -390,7 +394,7 @@ lemma D_zpow_div_two_le_R₂ {R₂ : ℝ} (hR₂ : 0 < R₂) : D ^ (U302 a R₂)
   calc
     _ = (D : ℝ)⁻¹ * D ^ (⌈Real.logb D (4 * R₂)⌉ - 1) := by
       conv_rhs => rw [mul_comm, ← zpow_sub_one₀ (realD_pos a).ne']
-      congr 1; cutsat
+      congr 1; lia
     _ ≤ 2⁻¹ * (4 * R₂) := by
       gcongr; · linarith only [four_le_realD X]
       have : 0 < 4 * R₂ := by positivity
@@ -431,12 +435,12 @@ lemma exists_uniform_annulus_bound {R : ℝ} (hR : 0 < R) :
     simp_rw [Finset.mem_Icc, B₁, B₂]
     have h₁ : L302 a R⁻¹ ≤ L302 a R₁ := monotoneOn_L302 (X := X) iRpos R₁pos mR₁.1.le
     have h₂ : L302 a R₁ ≤ L302 a R := monotoneOn_L302 (X := X) R₁pos hR mR₁.2.le
-    cutsat
+    lia
   · suffices U302 a R₂ ∈ Finset.Icc (-B₃ : ℤ) B₄ by rw [Finset.mem_Icc] at this ⊢; omega
     simp_rw [Finset.mem_Icc, B₃, B₄]
     have h₃ : U302 a R⁻¹ ≤ U302 a R₂ := monotoneOn_U302 (X := X) iRpos R₂pos (mR₁.1.trans mR₂.1).le
     have h₄ : U302 a R₂ ≤ U302 a R := monotoneOn_U302 (X := X) R₂pos hR mR₂.2.le
-    cutsat
+    lia
 
 lemma enorm_setIntegral_annulus_le {x : X} {R₁ R₂ : ℝ} {s : ℤ} (nf : (‖f ·‖) ≤ F.indicator 1) :
     ‖∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤
@@ -499,16 +503,16 @@ lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁
         gcongr; exact my.1.le
       · rw [U302, sub_add_cancel]; gcongr; exact my.2.le
     _ = ‖∑ s ∈ BR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
-      congr 1; refine integral_finset_sum _ fun s ms ↦ ?_
-      simp_rw [mul_rotate _ (f _)]; refine ((integrable_Ks_x Dg1).bdd_mul ?_ ?_).restrict
+      congr 1; refine integral_finsetSum _ fun s ms ↦ ?_
+      simp_rw [mul_rotate _ (f _)]; refine ((integrable_Ks_x Dg1).bdd_mul (c := 1) ?_ ?_).restrict
       · rw [aestronglyMeasurable_iff_aemeasurable]
         exact (mf.mul ((Complex.measurable_ofReal.comp (measurable_Q₁ _))
           |>.const_mul I).cexp).aemeasurable
       · simp_rw [norm_mul, norm_exp_I_mul_ofReal, mul_one]
-        use 1; exact fun y ↦ (nf y).trans (indicator_one_le_one y)
+        exact ae_of_all _ fun y ↦ (nf y).trans (indicator_one_le_one y)
     _ ≤ ‖∑ s ∈ SR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ +
         ‖∑ s ∈ BR \ SR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
-      have : SR ⊆ BR := Finset.Icc_subset_Icc (by cutsat) (by cutsat)
+      have : SR ⊆ BR := Finset.Icc_subset_Icc (by lia) (by lia)
       rw [← Finset.inter_eq_right] at this
       rw [← Finset.sum_inter_add_sum_diff BR SR, this]
       exact enorm_add_le _ _
@@ -590,7 +594,7 @@ lemma le_C1_0_2 (a4 : 4 ≤ a) (hq : q ∈ Ioc 1 2) :
   simp only [← pow_add, ← pow_succ]
   apply add_le_pow_two le_rfl ?_ ?_
   · ring_nf
-    suffices 2 + 4 * a ≤ a ^ 3 by cutsat
+    suffices 2 + 4 * a ≤ a ^ 3 by lia
     linarith [sixteen_times_le_cube a4]
   · linarith [sixteen_times_le_cube a4]
 
@@ -631,7 +635,7 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       · specialize hB R₁ mR₁ R₂ mR₂
         rcases lt_or_ge (U302 a R₂) (L302 a R₁) with hul | hul
         · rw [T_S, Finset.Icc_eq_empty (not_le.mpr hul), Finset.sum_empty, enorm_zero]
-          exact zero_le _
+          exact zero_le
         · trans ⨆ s₂ ∈ Finset.Icc (L302 a R₁) B, ‖T_S Q (L302 a R₁) s₂ f x‖ₑ
           · have : U302 a R₂ ∈ Finset.Icc (L302 a R₁) B :=
               Finset.mem_Icc.mpr ⟨hul, (Finset.mem_Icc.mp hB.2).2⟩
@@ -688,7 +692,7 @@ lemma R_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
         calc
           _ ≤ dist x y + dist x o := dist_triangle_left ..
           _ < R₂ + R := add_lt_add my.2 sG
-          _ < _ := by rw [two_mul]; exact add_lt_add_right mR₂.2 _
+          _ < _ := by rw [two_mul]; exact add_lt_add_left mR₂.2 _
       _ ≤ _ :=
         this (mF.inter measurableSet_ball) (mf.indicator measurableSet_ball) nf' inter_subset_right
       _ ≤ _ := by gcongr; exact inter_subset_left

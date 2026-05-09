@@ -3,12 +3,12 @@ Copyright (c) 2024 Joris Roos. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joris Roos, Sébastien Gouëzel
 -/
-import Carleson.ToMathlib.BoundedFiniteSupport
-import Carleson.ToMathlib.Misc
+module
+
+public import Carleson.ToMathlib.BoundedFiniteSupport
+public import Carleson.ToMathlib.Misc
 
 /-!
-
-EXPERIMENTAL
 
 # Bounded compactly supported functions
 
@@ -30,8 +30,10 @@ Upstreaming status: should be upstreamed, but need to clarify design questions f
   there any operation which preserves `BoundedCompactSupport` but not `BoundedFiniteSupport`?
   Decide if we want both classes in mathlib or just one of them. If the latter, rewrite all of
   Carleson/ToMathlib to use that one class.
-
+  (Discussion on Zulip)
 -/
+
+public section
 
 open Bornology Function Set HasCompactSupport
 open scoped ENNReal
@@ -124,15 +126,15 @@ theorem restrict {s : Set X} (hf : BoundedCompactSupport f μ) :
 end ContinuousENorm
 
 
-section  ENormedAddCommMonoid
-variable [TopologicalSpace E] [ENormedAddCommMonoid E]
+section ESeminormedAddCommMonoid
+variable [TopologicalSpace E] [ESeminormedAddCommMonoid E]
 
 /-- Bounded compactly supported functions are in all `Lᵖ` spaces. -/
 theorem memLp [IsFiniteMeasureOnCompacts μ] (hf : BoundedCompactSupport f μ) (p : ℝ≥0∞) :
     MemLp f p μ :=
   hf.boundedFiniteSupport.memLp p
 
-end ENormedAddCommMonoid
+end ESeminormedAddCommMonoid
 
 section NormedAddCommGroup
 
@@ -333,12 +335,12 @@ lemma sq_eLpNorm_le_sums [IsFiniteMeasureOnCompacts μ] {f : ι → X → ℂ}
     _ = ‖(∑ i ∈ s, ∫ x, f i x * conj (f i x) ∂μ) +
         ∑ i ∈ s, ∑ j ∈ s with i ≠ j, ∫ x, f i x * conj (f j x) ∂μ‖ₑ := by
       rw [integral_add]; rotate_left
-      · exact integrable_finset_sum _ fun i mi ↦ l₁
-      · refine integrable_finset_sum _ fun i mi ↦ integrable_finset_sum _ fun j mj ↦ l₂
+      · exact integrable_finsetSum _ fun i mi ↦ l₁
+      · refine integrable_finsetSum _ fun i mi ↦ integrable_finsetSum _ fun j mj ↦ l₂
       congr
-      · exact integral_finset_sum _ fun i mi ↦ l₁
-      · rw [integral_finset_sum _ fun i mi ↦ integrable_finset_sum _ fun j mj ↦ l₂]
-        congr! with i mi; rw [integral_finset_sum _ fun j mj ↦ l₂]
+      · exact integral_finsetSum _ fun i mi ↦ l₁
+      · rw [integral_finsetSum _ fun i mi ↦ integrable_finsetSum _ fun j mj ↦ l₂]
+        congr! with i mi; rw [integral_finsetSum _ fun j mj ↦ l₂]
     _ ≤ ‖∑ i ∈ s, ∫ x, f i x * conj (f i x) ∂μ‖ₑ +
         ‖∑ i ∈ s, ∑ j ∈ s with i ≠ j, ∫ x, f i x * conj (f j x) ∂μ‖ₑ := enorm_add_le _ _
     _ ≤ ∑ i ∈ s, ‖∫ x, f i x * conj (f i x) ∂μ‖ₑ +
@@ -401,6 +403,8 @@ variable {F : X × Y → E}
 
 variable {F : X × Y → E}
 
+/- This and other fiberwise constructions are problematic with the current
+choice of using a.e. boundedness in place of everywhere boundedness -/
 -- ---- adapt and prove below when needed
 -- theorem prod_left (hF : BoundedCompactSupport f μ) :
 --     ∀ y, BoundedCompactSupport (fun x ↦ F (x, y)) := fun y ↦ {

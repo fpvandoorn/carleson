@@ -1,4 +1,8 @@
-import Carleson.GridStructure
+module
+
+public import Carleson.GridStructure
+
+@[expose] public section
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
@@ -88,6 +92,7 @@ notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 
 @[simp] lemma cball_subset {p : 𝔓 X} : ball_(p) (𝒬 p) 5⁻¹ ⊆ Ω p := TileStructure.cball_subset
 @[simp] lemma subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := TileStructure.subset_cball
 
+set_option backward.isDefEq.respectTransparency false in
 lemma ball_eq_of_grid_eq {p q : 𝔓 X} {ϑ : Θ X} {r : ℝ} (h : 𝓘 p = 𝓘 q) :
     ball_(p) ϑ r = ball_(q) ϑ r := by rw [← ball_𝓘, h]
 
@@ -105,8 +110,8 @@ lemma volume_xDsp_bound {x : X} (hx : x ∈ 𝓘 p) :
         gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
       _ = _ := by rw [← add_mul]; norm_num
   convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
-  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
-  rw [show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.clog_pow]; norm_num
+  unfold As defaultA; norm_cast
+  rw [← pow_mul', show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.clog_pow]; norm_num
 
 /-- A bound used in Lemma 7.6.2. -/
 lemma volume_xDsp_bound_4 {x : X} (hx : x ∈ 𝓘 p) :
@@ -118,8 +123,8 @@ lemma volume_xDsp_bound_4 {x : X} (hx : x ∈ 𝓘 p) :
         gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
       _ ≤ _ := by rw [← add_mul]; gcongr; norm_num
   convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
-  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
-  rw [show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow]; norm_num
+  unfold As defaultA; norm_cast
+  rw [← pow_mul', show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow]; norm_num
 
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
@@ -172,12 +177,15 @@ def smul (l : ℝ) (p : 𝔓 X) : TileLike X :=
 @[simp] lemma smul_fst (l : ℝ) (p : 𝔓 X) : (smul l p).fst = 𝓘 p := by rfl
 @[simp] lemma smul_snd (l : ℝ) (p : 𝔓 X) : (smul l p).snd = ball_(p) (𝒬 p) l := by rfl
 
+set_option backward.isDefEq.respectTransparency false in
 lemma smul_mono_left {l l' : ℝ} {p : 𝔓 X} (h : l ≤ l') : smul l' p ≤ smul l p := by
   simp [TileLike.le_def, h, ball_subset_ball]
 
+set_option backward.isDefEq.respectTransparency false in
 lemma smul_le_toTileLike : smul 1 p ≤ toTileLike p := by
   simp [TileLike.le_def, subset_cball (p := p)]
 
+set_option backward.isDefEq.respectTransparency false in
 lemma toTileLike_le_smul : toTileLike p ≤ smul 5⁻¹ p := by
   simp [TileLike.le_def, cball_subset (p := p)]
 
@@ -187,6 +195,7 @@ lemma 𝒬_inj {p' : 𝔓 X} (h : 𝒬 p = 𝒬 p') (h𝓘 : 𝓘 p = 𝓘 p') :
   contrapose! h
   exact fun h𝒬 ↦ (not_disjoint_iff.2 ⟨𝒬 p, 𝒬_mem_Ω, h𝒬 ▸ 𝒬_mem_Ω⟩) (disjoint_Ω h h𝓘)
 
+set_option backward.isDefEq.respectTransparency false in
 lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
   intros p p' h
   simp_rw [toTileLike, TileLike, Prod.ext_iff] at h
@@ -220,6 +229,7 @@ lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) 
     smul n' p ≤ smul m' p' :=
   smul_mono_left hn |>.trans hp |>.trans <| smul_mono_left hm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 5.3.2 (generalizing `1` to `k > 0`) -/
 lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p ≤ smul k p') :
     smul (n + C2_1_2 a * m) p ≤ smul m p' := by
@@ -244,7 +254,7 @@ lemma dist_LTSeries {n : ℕ} {u : Set (𝔓 X)} {s : LTSeries u} (hs : s.length
     let s' : LTSeries u := s.eraseLast
     specialize ih (show s'.length = n by simp [s', hs])
     have link : dist_(s'.last.1) f g ≤ C2_1_2 a * dist_(s.last.1) f g :=
-      Grid.dist_strictMono <| 𝓘_strictMono <| s.eraseLast_last_rel_last (by cutsat)
+      Grid.dist_strictMono <| 𝓘_strictMono <| s.eraseLast_last_rel_last (by lia)
     apply ih.trans; rw [pow_succ, mul_assoc]; gcongr; unfold C2_1_2; positivity
 
 end
@@ -363,6 +373,7 @@ lemma le_dens₂ (𝔓' : Set (𝔓 X)) {p : 𝔓 X} (hp : p ∈ 𝔓') {r : ℝ
     volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r) ≤ dens₂ 𝔓' :=
   le_trans (le_iSup₂ (α := ℝ≥0∞) r hr) (le_iSup₂ p hp)
 
+set_option backward.isDefEq.respectTransparency false in
 lemma dens₂_eq_biSup_dens₂ (𝔓' : Set (𝔓 X)) :
     dens₂ (𝔓') = ⨆ (p ∈ 𝔓'), dens₂ ({p}) := by
   simp [dens₂]
@@ -429,10 +440,12 @@ lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 
   rw [Finset.mem_filter_univ] at hp
   simp_rw [indicator, h p hp, Pi.one_apply]
 
+set_option backward.isDefEq.respectTransparency false in
 lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
   apply Finset.sum_le_sum_of_subset (fun x ↦ ?_)
   simp [iff_true_intro (@h x)]
 
+set_option backward.isDefEq.respectTransparency false in
 open scoped Classical in
 -- Simplify the cast of `stackSize C x` from `ℕ` to `ℝ`
 lemma stackSize_real (C : Set (𝔓 X)) (x : X) :
@@ -445,6 +458,7 @@ lemma stackSize_measurable : Measurable fun x ↦ (stackSize C x : ℝ≥0∞) :
   simp_rw [stackSize, Nat.cast_sum, indicator, Nat.cast_ite]
   refine Finset.measurable_sum _ fun _ _ ↦ Measurable.ite coeGrid_measurable ?_ ?_ <;> simp
 
+set_option backward.isDefEq.respectTransparency false in
 lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
     (h : C.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X))) : stackSize C x ≤ 1 := by
   by_cases hx : ∃ p ∈ C, x ∈ (𝓘 p : Set X)
@@ -476,6 +490,7 @@ lemma eq_empty_of_forall_stackSize_zero (s : Set (𝔓 X)) :
 
 /-! ### Decomposing a set of tiles into disjoint subfamilies -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Given any family of tiles, one can extract a maximal disjoint subfamily, covering everything. -/
 lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
     ∃ (B : Set (𝔓 X)), B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧
@@ -534,11 +549,12 @@ lemma iteratedMaximalSubfamily_subset (A : Set (𝔓 X)) (n : ℕ) :
   rw [iteratedMaximalSubfamily]
   exact (exists_maximal_disjoint_covering_subfamily (X := X) _).choose_spec.2.1.trans diff_subset
 
+set_option backward.isDefEq.respectTransparency false in
 lemma pairwiseDisjoint_iteratedMaximalSubfamily (A : Set (𝔓 X)) :
     univ.PairwiseDisjoint (iteratedMaximalSubfamily A) := by
   intro m hm n hn hmn
   wlog h'mn : m < n generalizing m n with H
-  · exact (H (mem_univ n) (mem_univ m) hmn.symm (by cutsat)).symm
+  · exact (H (mem_univ n) (mem_univ m) hmn.symm (by lia)).symm
   have : iteratedMaximalSubfamily A n
       ⊆ A \ ⋃ (i : {i | i < n}), iteratedMaximalSubfamily A i := by
     conv_lhs => rw [iteratedMaximalSubfamily]
@@ -550,6 +566,7 @@ lemma pairwiseDisjoint_iteratedMaximalSubfamily (A : Set (𝔓 X)) :
   apply subset_iUnion_of_subset ⟨m, h'mn⟩
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Any set of tiles can be written as the union of disjoint subfamilies, their number being
 controlled by the maximal stack size. -/
 lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀ x, stackSize A x ≤ N) :
@@ -609,4 +626,4 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
     simp only [Finset.coe_Iio, mem_Iio] at ha hb
     have := pairwiseDisjoint_iteratedMaximalSubfamily A (mem_univ a) (mem_univ b) hab
     exact disjoint_iff_forall_ne.1 this (hu a ha) (hu b hb)
-  cutsat
+  lia

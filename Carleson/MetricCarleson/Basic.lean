@@ -1,7 +1,10 @@
-import Carleson.DoublingMeasure
-import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Order.LiminfLimsup
-import Mathlib.Order.CompleteLattice.Group
+module
+
+public import Carleson.DoublingMeasure
+public import Carleson.ToMathlib.RealInterpolation.Misc
+public import Mathlib.Order.CompleteLattice.Group
+
+@[expose] public section
 
 open scoped NNReal
 open ENNReal hiding one_lt_two
@@ -42,7 +45,45 @@ end MetricΘ
 
 open MetricΘ
 
-variable [KernelProofData a K] {θ ϑ : Θ X} {Q : SimpleFunc X (Θ X)} {R₁ R₂ : ℝ} {f : X → ℂ} {x : X}
+variable [KernelProofData a K] {θ ϑ : Θ X} {Q : SimpleFunc X (Θ X)} {R₁ R₂ : ℝ} {f g : X → ℂ} {x : X}
+
+@[simp]
+theorem carlesonOperator_zero : carlesonOperator K 0 = 0 := by
+  unfold carlesonOperator linearizedCarlesonOperator carlesonOperatorIntegrand
+  simp
+  rfl
+
+theorem carlesonOperatorIntegrand_congr_ae (h : f =ᶠ[ae volume] g) {x : X} {θ : Θ X} {R₁ R₂ : ℝ} :
+    carlesonOperatorIntegrand K ((fun _ ↦ θ) x) R₁ R₂ f x
+      = carlesonOperatorIntegrand K ((fun _ ↦ θ) x) R₁ R₂ g x := by
+  unfold carlesonOperatorIntegrand
+  apply integral_congr_ae
+  apply ae_restrict_le
+  filter_upwards [h] with y h'
+  congr
+
+theorem linearizedCarlesonOperator_congr_ae (h : f =ᶠ[ae volume] g)
+  (x : X) (θ : Θ X) :
+    linearizedCarlesonOperator (fun _ ↦ θ) K f x = linearizedCarlesonOperator (fun _ ↦ θ) K g x := by
+  unfold linearizedCarlesonOperator
+  congr with R₁
+  congr with R₂
+  congr with hR₁
+  congr with hR₂
+  congr 1
+  apply carlesonOperatorIntegrand_congr_ae h
+
+theorem carlesonOperator_congr_ae (h : f =ᶠ[ae volume] g) :
+    carlesonOperator K f = carlesonOperator K g := by
+  ext x
+  unfold carlesonOperator
+  congr with θ
+  apply linearizedCarlesonOperator_congr_ae h
+
+theorem carlesonOperator_zero_of_ae_zero (hf : f =ᶠ[ae volume] 0) :
+    carlesonOperator K f = 0 := by
+  rw [carlesonOperator_congr_ae hf]
+  simp
 
 @[fun_prop]
 lemma measurable_carlesonOperatorIntegrand (mf : Measurable f) :
@@ -81,7 +122,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     rw [dist_eq_norm']; convert nb
     rw [sub_eq_iff_eq_add, ← setIntegral_union _ measurableSet_oo]; rotate_left
     · exact iof.mono_set (oc_subset_oo le_rfl dy.2)
-    · exact iof.mono_set (oo_subset_oo ly le_rfl)
+    · exact iof.mono_set (by gcongr)
     · simp_rw [disjoint_left, oc, oo, mem_setOf, mem_Ioc, mem_Ioo, not_and_or, not_lt]
       exact fun z mz ↦ .inl mz.2
     rw [oc_union_oo ly dy.2]
@@ -98,7 +139,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     rw [dist_eq_norm, Real.norm_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_right] at dy
     rw [Function.comp_apply, Measure.restrict_apply measurableSet_oc,
       inter_eq_self_of_subset_left (oc_subset_oo le_rfl (dy.trans (mu n).2))]
-    exact (measure_mono (oc_subset_oc le_rfl dy.le)).trans hn
+    exact (measure_mono (by gcongr)).trans hn
   -- Split the annulus along the `u n`...
   let s (n : ℕ) := oc x (u (n + 1)) (u n)
   have us (k : ℕ) : ⋃ n, s (k + n) = oc x R₁ (u k) := by
@@ -117,15 +158,15 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       have minT_mem := wfT.min_mem neT; simp_rw [T, mem_setOf] at minT_mem
       have minT_pos : wfT.min neT ≠ 0 := by
         by_contra! h'; rw [h'] at minT_mem; exact absurd h.2 (not_le.mpr minT_mem)
-      nth_rw 1 [← Nat.add_sub_assoc (by cutsat), Nat.sub_add_cancel (by cutsat), ← not_lt]
+      nth_rw 1 [← Nat.add_sub_assoc (by lia), Nat.sub_add_cancel (by lia), ← not_lt]
       refine ⟨minT_mem, ?_⟩; change wfT.min neT - 1 ∉ T; contrapose! minT_pos
-      replace minT_pos := wfT.min_le neT minT_pos; cutsat
+      replace minT_pos := wfT.min_le neT minT_pos; lia
   have ds (k : ℕ) : Pairwise (Function.onFun Disjoint fun n ↦ s (k + n)) := fun i j hn ↦ by
     change Disjoint (s (k + i)) (s (k + j))
-    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by cutsat)).symm
+    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by lia)).symm
     simp_rw [s, disjoint_left, oc, mem_setOf, mem_Ioc]; intro y my
     rw [not_and_or, not_le]; right
-    exact (sau.antitone (show k + i + 1 ≤ k + j by cutsat)).trans_lt my.1
+    exact (sau.antitone (show k + i + 1 ≤ k + j by lia)).trans_lt my.1
   -- ...and appeal to `ENNReal.tendsto_sum_nat_add`
   conv =>
     enter [1, n]; rw [← us, measure_iUnion (ds n) (fun _ ↦ measurableSet_oc)]
@@ -163,7 +204,7 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       integral_indicator measurableSet_co] at nb
     rw [dist_eq_norm']; convert nb
     rw [sub_eq_iff_eq_add', ← setIntegral_union _ measurableSet_co]; rotate_left
-    · exact iof.mono_set (oo_subset_oo le_rfl ly)
+    · exact iof.mono_set (by gcongr)
     · exact iof.mono_set (co_subset_oo dy.2 le_rfl)
     · simp_rw [disjoint_left, co, oo, mem_setOf, mem_Ico, mem_Ioo, not_and_or, not_le]
       exact fun z mz ↦ .inl mz.2
@@ -181,7 +222,7 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     rw [dist_eq_norm', Real.norm_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_left] at dy
     rw [Function.comp_apply, Measure.restrict_apply measurableSet_co,
       inter_eq_self_of_subset_left (co_subset_oo ((mu n).1.trans dy) le_rfl)]
-    exact (measure_mono (co_subset_co dy.le le_rfl)).trans hn
+    exact (measure_mono (by gcongr)).trans hn
   -- Split the annulus along the `u n`...
   let s (n : ℕ) := co x (u n) (u (n + 1))
   have us (k : ℕ) : ⋃ n, s (k + n) = co x (u k) R₂ := by
@@ -200,15 +241,15 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       have minT_mem := wfT.min_mem neT; simp_rw [T, mem_setOf] at minT_mem
       have minT_pos : wfT.min neT ≠ 0 := by
         by_contra! h'; rw [h'] at minT_mem; exact absurd h.1 (not_le.mpr minT_mem)
-      nth_rw 2 [← Nat.add_sub_assoc (by cutsat)]; rw [Nat.sub_add_cancel (by cutsat), ← not_lt]
+      nth_rw 2 [← Nat.add_sub_assoc (by lia)]; rw [Nat.sub_add_cancel (by lia), ← not_lt]
       refine ⟨?_, minT_mem⟩; change wfT.min neT - 1 ∉ T; contrapose! minT_pos
-      replace minT_pos := wfT.min_le neT minT_pos; cutsat
+      replace minT_pos := wfT.min_le neT minT_pos; lia
   have ds (k : ℕ) : Pairwise (Function.onFun Disjoint fun n ↦ s (k + n)) := fun i j hn ↦ by
     change Disjoint (s (k + i)) (s (k + j))
-    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by cutsat)).symm
+    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by lia)).symm
     simp_rw [s, disjoint_left, co, mem_setOf, mem_Ico]; intro y my
     rw [not_and_or, not_le]; left
-    exact my.2.trans_le (smu.monotone (show k + i + 1 ≤ k + j by cutsat))
+    exact my.2.trans_le (smu.monotone (show k + i + 1 ≤ k + j by lia))
   -- ...and appeal to `ENNReal.tendsto_sum_nat_add`
   conv =>
     enter [1, n]; rw [← us, measure_iUnion (ds n) (fun _ ↦ measurableSet_co)]
@@ -240,10 +281,9 @@ lemma integrableOn_coi_inner_annulus' (nf : IntegrableOn f (Annulus.oo x R₁ R�
   simp_rw [mul_assoc]; refine integrableOn_K_mul ?_ _ hR₁ fun y my ↦ ?_
   · conv => congr; ext y; rw [mul_comm]
     rw [IntegrableOn]
-    apply nf.bdd_mul
+    apply nf.bdd_mul (c := 1)
     · exact ((Complex.measurable_ofReal.comp (by fun_prop)).const_mul I).cexp.aestronglyMeasurable
-    · use 1
-      intro x
+    · refine ae_of_all _ fun x => ?_
       rw [mul_comm, norm_exp_ofReal_mul_I]
   · rw [Annulus.oo, mem_setOf, mem_Ioo] at my
     rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le
@@ -303,10 +343,7 @@ lemma exists_rat_near_carlesonOperatorIntegrand'
   specialize hq₁ lbq₁.le dq₁
   -- Shift `R₂` to a smaller rational with error less than `ε / 2`
   have q₁pos : (0 : ℝ) < q₁ := hR₁.trans lbq₁
-  have mf' : IntegrableOn f (Annulus.oo x q₁ R₂) volume := by
-    apply mf.mono_set
-    apply Annulus.oo_subset_oo lbq₁.le (le_refl _)
-  have lcon := @leftContinuous_carlesonOperatorIntegrand' _ _ _ _ _ θ q₁ R₂ _ x mf' q₁pos
+  have lcon := leftContinuous_carlesonOperatorIntegrand' (θ := θ) (mf.mono_set (by gcongr)) q₁pos
   rw [Metric.continuousWithinAt_iff] at lcon; specialize lcon _ (half_pos εpos)
   obtain ⟨δ₂, δ₂pos, hq₂⟩ := lcon
   have lt₂ : max (R₂ - δ₂) q₁ < R₂ := by rw [max_lt_iff]; constructor <;> linarith
@@ -369,7 +406,7 @@ lemma edist_carlesonOperatorIntegrand_le
     C3_0_1 a R₁ R₂ * edist_{x, dist o x + R₂} θ ϑ := by
   rcases le_or_gt R₂ R₁ with hR₂ | hR₂
   · iterate 2 rw [carlesonOperatorIntegrand, Annulus.oo_eq_empty (by simp [hR₂]), setIntegral_empty]
-    rw [edist_self]; exact zero_le _
+    rw [edist_self]; exact zero_le
   calc
     _ = ‖∫ y in Annulus.oo x R₁ R₂, K x y * f y * (exp (I * θ y) - exp (I * ϑ y))‖ₑ := by
       rw [edist_eq_enorm_sub, carlesonOperatorIntegrand, carlesonOperatorIntegrand, ← integral_sub]
@@ -438,7 +475,7 @@ lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖
     ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ ≤ C3_0_1 a R₁ R₂ := by
   rcases le_or_gt R₂ R₁ with hR₂ | hR₂
   · unfold carlesonOperatorIntegrand; rw [Annulus.oo_eq_empty (by simp [hR₂])]
-    rw [setIntegral_empty, enorm_zero]; exact zero_le _
+    rw [setIntegral_empty, enorm_zero]; exact zero_le
   calc
     _ ≤ ∫⁻ y in Annulus.oo x R₁ R₂, ‖K x y‖ₑ * ‖f y‖ₑ * ‖exp (I * θ y)‖ₑ := by
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
@@ -516,7 +553,7 @@ theorem linearizedCarlesonOperator_measurable {θ : Θ X} (hf : LocallyIntegrabl
       have : ‖carlesonOperatorIntegrand K ((fun x ↦ θ) x) R₁ R₂ f x‖
               ≤ ε + ‖carlesonOperatorIntegrand K ((fun x ↦ θ) x) q₁ q₂ f x‖ := by
         simp only
-        apply le_trans _ (add_le_add_right h_dist.le _)
+        apply le_trans _ (add_le_add_left h_dist.le _)
         rw [add_comm]
         apply norm_le_norm_add_norm_sub
       apply le_trans (sub_le_sub_right this _)
@@ -608,7 +645,7 @@ lemma tendsto_carlesonOperatorIntegrand_of_dominated_convergence
   · apply h_bound.mp
     apply Eventually.of_forall
     intro n hn
-    simp only [defaultA, Complex.norm_mul, norm_exp_I_mul_ofReal, mul_one, norm_real,
+    simp only [Complex.norm_mul, norm_exp_I_mul_ofReal, mul_one, norm_real,
       Real.norm_eq_abs]
     apply ae_restrict_le
     apply hn.mp
@@ -636,17 +673,17 @@ lemma linearizedCarlesonOperator_le_liminf_linearizedCarlesonOperator_of_tendsto
   gcongr with R₁
   apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
   gcongr with R₂
-  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
-  gcongr with R₁_pos
-  apply le_trans _ Filter.iSup_liminf_le_liminf_iSup
-  gcongr with R₁_lt_R₂
+  simp only [iSup_le_iff]
+  intro R₁_pos R₁_lt_R₂
+  simp_rw [iSup_pos R₁_pos, iSup_pos R₁_lt_R₂]
   apply le_of_eq
   symm
   apply Filter.Tendsto.liminf_eq
   apply Filter.Tendsto.enorm
-  apply tendsto_carlesonOperatorIntegrand_of_dominated_convergence R₁_pos bound hF_meas h_bound _ h_lim
-  apply IntegrableOn.mono_set _ (Annulus.oo_subset_ball)
-  apply IntegrableOn.mono_set _ (ball_subset_closedBall)
+  apply tendsto_carlesonOperatorIntegrand_of_dominated_convergence R₁_pos bound hF_meas h_bound _
+    h_lim
+  apply IntegrableOn.mono_set _ Annulus.oo_subset_ball
+  apply IntegrableOn.mono_set _ ball_subset_closedBall
   apply bound_integrable.integrableOn_isCompact (isCompact_closedBall _ _)
 
 lemma carlesonOperator_le_liminf_carlesonOperator_of_tendsto

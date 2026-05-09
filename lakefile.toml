@@ -1,5 +1,6 @@
 name = "carleson"
 defaultTargets = ["Carleson"]
+lintDriver = "batteries/runLinter"
 
 [leanOptions]
 relaxedAutoImplicit = false
@@ -10,6 +11,7 @@ weak.linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible ta
 weak.linter.mathlibStandardSet = true
 # Disable the long line linter, for now.
 weak.linter.style.longLine = false
+weak.linter.style.header = false
 
 [[require]]
 name = "mathlib"

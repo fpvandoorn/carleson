@@ -1,8 +1,12 @@
-import Carleson.ToMathlib.Annulus
-import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
-import Carleson.ToMathlib.WeakType
-import Mathlib.Analysis.CStarAlgebra.Classes
-import Mathlib.Analysis.Fourier.AddCircle
+module
+
+public import Carleson.ToMathlib.Annulus
+public import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
+public import Carleson.ToMathlib.WeakType
+public import Mathlib.Analysis.CStarAlgebra.Classes
+public import Mathlib.Analysis.Fourier.AddCircle
+
+@[expose] public section
 
 open MeasureTheory Measure Metric Complex Set Function ENNReal
 open scoped NNReal
@@ -116,19 +120,19 @@ variable [hXA : DoublingMeasure X A]
 
 /-- The inhomogeneous Lipschitz norm on a ball. -/
 def iLipENorm {𝕜 X : Type*} [NormedField 𝕜] [PseudoMetricSpace X]
-  (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
-  (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
-  ENNReal.ofReal R * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), ‖ϕ x - ϕ y‖ₑ / edist x y
+  (φ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
+  (⨆ x ∈ ball x₀ R, ‖φ x‖ₑ) +
+  ENNReal.ofReal R * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), ‖φ x - φ y‖ₑ / edist x y
 
 variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
 class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
   /- We register a definition with strong assumptions, which makes them easier to prove.
   However, `enorm_integral_exp_le` removes them for easier application. -/
-  enorm_integral_exp_le' {x : X} {r : ℝ} {ϕ : X → ℂ} (hr : 0 < r) (h1 : iLipENorm ϕ x r ≠ ∞)
-    (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
-    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ)
+  enorm_integral_exp_le' {x : X} {r : ℝ} {φ : X → ℂ} (hr : 0 < r) (h1 : iLipENorm φ x r ≠ ∞)
+    (h2 : support φ ⊆ ball x r) {f g : Θ X} :
+    ‖∫ x, exp (I * (f x - g x)) * φ x‖ₑ ≤
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm φ x r * (1 + edist_{x, r} f g) ^ (- τ)
 
 /-- The "volume function" `V`. Preferably use `vol` instead. -/
 protected def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
@@ -217,7 +221,8 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
 
 export KernelProofData (four_le_a)
 
-attribute [instance] KernelProofData.d KernelProofData.cf KernelProofData.hcz
+attribute [implicit_reducible, instance] KernelProofData.d KernelProofData.cf
+attribute [instance] KernelProofData.hcz
 
 section statements
 

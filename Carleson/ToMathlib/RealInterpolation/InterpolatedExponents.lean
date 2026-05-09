@@ -1,4 +1,6 @@
-import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 
 /-!
 # Results about working with (interpolated) exponents
@@ -6,7 +8,17 @@ import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 This files contains convenience results for working with interpolated exponents,
 as well as results about a particular choice of exponent that we will use for the proof
 of the real interpolation theorem.
+
+Upstreaming status: mixed; some requires more design discussions
+- the ENNReal section is ready to go
+- the ComputationsInterpolatedExponents sections is also generally useful;
+  need to find a better naming scheme for the lemmas (and address a few TODOs)
+- the ComputationsChoiceExponent section is specific to this particular proof of real interpolation.
+  If we prefer a proof about Lorentz spaces, using a different approach,
+  it may not be worth upstreaming.
 -/
+
+@[expose] public section
 noncomputable section
 
 open ENNReal Real Set
@@ -69,7 +81,7 @@ lemma ne_top_of_Ioc {p q r : ℝ≥0∞} (hq : q ∈ Ioc p r) (hr : r < ⊤) : q
   hq.2.trans_lt hr |>.ne_top
 
 lemma pos_of_rb_Ioc {p q r : ℝ≥0∞} (hr : q ∈ Ioc p r) : 0 < r :=
-  zero_le p |>.trans_lt hr.1 |>.trans_le hr.2
+  zero_le.trans_lt hr.1 |>.trans_le hr.2
 
 lemma pos_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : 0 < q := pos_of_gt hq.1
 
@@ -83,10 +95,10 @@ lemma pos_rb_of_Icc_1_inh {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : 0 < q :=
   lt_of_lt_of_le zero_lt_one (le_trans hp.1 hp.2)
 
 lemma toReal_pos_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : 0 < p.toReal :=
-  toReal_pos (ne_zero_of_lt hp.1) hp.2.ne_top
+  toReal_pos (ne_zero_of_Ioo hp) hp.2.ne_top
 
 lemma toReal_ne_zero_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : p.toReal ≠ 0 :=
-  toReal_ne_zero.mpr ⟨ne_zero_of_lt hp.1, hp.2.ne_top⟩
+  toReal_ne_zero.mpr ⟨ne_zero_of_Ioo hp, hp.2.ne_top⟩
 
 -- TODO: check which ones are actually used
 lemma eq_of_rpow_eq (a b : ℝ≥0∞) (c : ℝ) (hc : c ≠ 0) (h : a ^ c = b ^ c) : a = b := by
@@ -98,41 +110,187 @@ lemma le_of_rpow_le {a b : ℝ≥0∞} {c : ℝ} (hc : 0 < c) (h : a ^ c ≤ b ^
   exact (ENNReal.rpow_le_rpow_iff (inv_pos_of_pos hc)).mpr h
 
 lemma coe_inv_exponent (hp₀ : 0 < p₀) : ENNReal.ofReal (p₀⁻¹.toReal) = p₀⁻¹ :=
-  ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₀.ne')
+  ofReal_toReal_eq_iff.mpr (by finiteness)
+
+-- TODO: find a better name for the next three lemmas!
+lemma preservation_positivity₀ (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ ∨ q ≠ ⊤) :
+    0 < (1 - t) * p⁻¹ + t * q⁻¹ := by
+  obtain dir|dir := hpq
+  · exact Left.add_pos_of_pos_of_nonneg (mul_pos ((tsub_pos_of_lt ht.2).ne')
+      (ENNReal.inv_ne_zero.mpr dir)) zero_le
+  · exact Right.add_pos_of_nonneg_of_pos zero_le
+      <| ENNReal.mul_pos ht.1.ne' (ENNReal.inv_ne_zero.mpr dir)
+
+lemma preservation_positivity (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
+    0 < (1 - t) * p⁻¹ + t * q⁻¹ := by
+  apply preservation_positivity₀ ht
+  cases (lt_or_gt_of_ne hpq) <;> exact Ne.ne_or_ne ⊤ hpq
+
+lemma preservation_positivity' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (ht : t ≠ ⊤)
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 0 < p := by
+  rw [← inv_inv p, hp]
+  simp [ENNReal.mul_eq_top, hp₀.ne', hp₁.ne', ht]
+
+lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : 0 < c) (hd : 0 < d) :
+    a ^ (c + d) = a ^ c * a ^ d := by
+  have hcd : 0 < c + d := by linarith
+  rcases (eq_or_ne a 0) with a_eq_zero | a_ne_zero
+  · rw [a_eq_zero, zero_rpow_of_pos hcd, zero_rpow_of_pos hc, zero_rpow_of_pos hd, mul_zero]
+  · rcases (eq_or_ne a ⊤) with a_eq_top | a_ne_top
+    · rw [a_eq_top, top_rpow_of_pos hcd, top_rpow_of_pos hc, top_rpow_of_pos hd, top_mul_top]
+    · rw [ENNReal.rpow_add c d a_ne_zero a_ne_top]
+
+lemma eq_of_le_of_le (a b : ℝ≥0∞) (hab : a ≤ b) (hab' : b ≤ a) : a = b := by
+  rcases (eq_or_ne a b) with a_eq_b | a_ne_b
+  · exact a_eq_b
+  · rcases lt_or_gt_of_ne a_ne_b with a_lt_b | b_lt_a
+    · contrapose! a_lt_b; exact hab'
+    · contrapose! b_lt_a; exact hab
+
+open scoped NNReal
+
+-- TODO: should some of the following lemmas be tagged with finiteness?
+lemma rpow_apply_coe {x : ℝ≥0} {y : ℝ} :
+    ENNReal.ofNNReal x ^ y = if x = 0 ∧ y < 0 then ∞ else (x ^ y : ℝ≥0) := rfl
+
+lemma rpow_apply_coe' {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ ⊤) :
+    x ^ y = if x = 0 ∧ y < 0 then ∞ else (x.toNNReal ^ y : ℝ≥0) := by
+  convert ENNReal.rpow_apply_coe
+  · exact Eq.symm (coe_toNNReal hx)
+  · rw [ENNReal.toNNReal_eq_zero_iff]
+    simp [hx]
+
+lemma rpow_lt_rpow_iff_neg {x y : ℝ≥0∞} (hx : x ≠ 0) (hy : y ≠ ∞) (hxy : x < y) {z : ℝ} (hz : z < 0) :
+    y ^ z < x ^ z := by
+  rw [ENNReal.rpow_apply_coe' hy, ENNReal.rpow_apply_coe' hxy.ne_top]
+  simpa [(pos_of_gt hxy).ne', hx] using
+    NNReal.rpow_lt_rpow_of_neg (toNNReal_pos hx hxy.ne_top) (toNNReal_strict_mono hy hxy) hz
+
+lemma div_lt_div {a b c : ℝ≥0∞} (hc : 0 < c) (hc' : c ≠ ∞) : a / c < b / c ↔ a < b := by
+  rw [ENNReal.div_lt_iff (Or.inl hc.ne') (Or.inl hc'), ENNReal.div_mul_cancel hc.ne' hc']
+
+lemma rpow_lt_top_of_neg {x : ℝ≥0∞} {y : ℝ} (hx : 0 < x) (hy : y < 0) : x ^ y < ⊤ := by
+  refine ENNReal.inv_lt_inv.mp ?_
+  have := hx.ne'
+  have := hy.le
+  simp only [inv_top, ENNReal.inv_pos, ne_eq, rpow_eq_top_iff, not_or, not_and, not_lt]
+  tauto
+
+lemma rpow_lt_top_of_pos_ne_top_ne_zero {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (hx' : x ≠ ⊤) (hy : y ≠ 0) :
+    x ^ y < ⊤ := by
+  rcases lt_or_gt_of_ne hy with y_pos | y_neg
+  · exact rpow_lt_top_of_neg (hx.bot_lt) y_pos
+  · exact rpow_lt_top_of_nonneg (y_neg.le) hx'
+
+lemma rpow_pos_of_pos_ne_top_ne_zero {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (hx' : x ≠ ⊤) (hy : y ≠ 0) :
+    0 < x ^ y := by
+  refine ENNReal.inv_lt_inv.mp ?_
+  rw [← rpow_neg, inv_zero]
+  exact rpow_lt_top_of_pos_ne_top_ne_zero hx hx' (neg_ne_zero.mpr hy)
+
+-- TODO: better name!
+lemma power_estimate {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
+    (t / γ) ^ a ≤ (t / γ) ^ b := by
+  gcongr
+  exact (one_le_div hγ).mpr htγ
+
+-- TODO: better name!
+lemma power_estimate' {a b t γ : ℝ} (ht : 0 < t) (htγ : t ≤ γ) (hab : a ≤ b) :
+    (t / γ) ^ b ≤ (t / γ) ^ a := by
+  have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
+  exact Real.rpow_le_rpow_of_exponent_ge (div_pos ht (γ_pos)) (div_le_one_of_le₀ htγ γ_pos.le) hab
+
+lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : 0 < t) (htγ : t ≤ γ) (hab : a ≤ b) :
+    ENNReal.ofReal (t ^ b) ≤ ENNReal.ofReal (t ^ a) * ENNReal.ofReal (γ ^ (b - a)) := by
+  rw [mul_comm]
+  have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
+  rw [Real.rpow_sub γ_pos]
+  refine (ENNReal.mul_le_mul_iff_right (a := ENNReal.ofReal (γ ^ (-b) )) ?_ coe_ne_top).mp ?_
+  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos γ_pos (-b))).ne'
+  · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
+        Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
+    nth_rw 2 [mul_comm]
+    rw [← neg_one_mul, Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow] <;> try positivity
+    rw [one_div]
+    nth_rw 2 [← Real.rpow_neg_one]
+    rw [← Real.rpow_mul (by positivity)]
+    nth_rw 3 [mul_comm]
+    rw [Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow, ← div_eq_mul_inv] <;> try positivity
+    exact ofReal_le_ofReal (power_estimate' ht htγ hab)
+
+-- Note: this lemma is false if t = γ = ∞ and a < 0 ≤ b, as then t ^ a = ∞ ^ a = 0 and
+-- the statement becomes ∞ ≤ 0 * ∞ = 0.
+lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} (ht : 0 < t) (ht' : t ≠ ∞) (htγ : t ≤ γ) (hab : a ≤ b) :
+    t ^ b ≤ t ^ a * γ ^ (b - a) := by
+  calc
+  _ = t ^ (a + (b - a)) := by ring_nf
+  _ = t ^ a * t ^ (b - a) := by rw [ENNReal.rpow_add _ _ ht.ne' ht']
+  _ ≤ t ^ a * γ ^ (b - a) := by gcongr; linarith
+
+-- TODO: there is a lot of overlap between above proof and below
+lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
+    ENNReal.ofReal (t ^ a) ≤ ENNReal.ofReal (t ^ b) * ENNReal.ofReal (γ ^ (a - b)) := by
+  rw [mul_comm]
+  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
+  rw [Real.rpow_sub hγ]
+  refine (ENNReal.mul_le_mul_iff_right (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
+  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne'
+  · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
+        Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
+    nth_rw 2 [mul_comm]
+    rw [← neg_one_mul, Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow] <;> try positivity
+    rw [one_div]
+    nth_rw 2 [← Real.rpow_neg_one]
+    rw [← Real.rpow_mul (by positivity)]
+    nth_rw 3 [mul_comm]
+    rw [Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow, ← div_eq_mul_inv] <;> try positivity
+    exact ofReal_le_ofReal (Real.rpow_le_rpow_of_exponent_le ((one_le_div hγ).mpr htγ) hab)
+
+lemma rpow_le_rpow_of_exponent_le_base_ge_enorm {a b : ℝ} {t γ : ℝ≥0∞} (hγ : 0 < γ) (hγ' : γ ≠ ∞) (htγ : γ ≤ t) (hab : a ≤ b) :
+    t ^ a ≤ (t ^ b) * (γ ^ (a - b)) := by
+  by_cases ht' : t = ∞
+  · simp_all only [le_top, top_rpow_def, ite_mul, sub_zero, one_mul, zero_mul]
+    split_ifs with ha hb hb' ha'
+    · simp_all
+    · exact False.elim (by linarith [hb, hb'])
+    · exact False.elim (by linarith [hb, hb'])
+    · simp_all
+    · simp_all
+    · simpa using by order
+    · rw [ENNReal.top_mul]
+      · exact zero_le
+      simp_all
+    · positivity
+    · simp
+  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
+  rw [mul_comm, ← ENNReal.inv_mul_le_iff, ← ENNReal.rpow_neg, mul_comm, ENNReal.mul_le_iff_le_inv,
+    ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
+  · gcongr
+    linarith
+  · positivity
+  · assumption
+  · simp_all only [ne_eq, ENNReal.rpow_eq_zero_iff, false_and, or_false, not_and, not_lt]
+    contrapose
+    exact fun _ ↦ t_pos.ne'
+  · simpa [ht'] using fun hfalse ↦ by simp_all
+  · simp_all
+  · simpa using ⟨fun h ↦ by simp_all, fun h ↦ by simp_all⟩
 
 end ENNReal
 
 /-! ## Convenience results for working with (interpolated) exponents -/
 namespace ComputationsInterpolatedExponents
 
-lemma ENNReal_preservation_positivity₀ (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ ∨ q ≠ ⊤) :
-    0 < (1 - t) * p⁻¹ + t * q⁻¹ := by
-  obtain dir|dir := hpq
-  · exact Left.add_pos_of_pos_of_nonneg (mul_pos ((tsub_pos_of_lt ht.2).ne')
-      (ENNReal.inv_ne_zero.mpr dir)) (zero_le _)
-  · exact Right.add_pos_of_nonneg_of_pos (zero_le _)
-      <| ENNReal.mul_pos ht.1.ne' (ENNReal.inv_ne_zero.mpr dir)
-
-lemma ENNReal_preservation_positivity (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
-    0 < (1 - t) * p⁻¹ + t * q⁻¹ := by
-  apply ENNReal_preservation_positivity₀ ht
-  cases (lt_or_gt_of_ne hpq) <;> exact Ne.ne_or_ne ⊤ hpq
-
-lemma ENNReal_preservation_positivity' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (ht : t ≠ ⊤)
-    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 0 < p := by
-  rw [← inv_inv p, hp]
-  simp [ENNReal.mul_eq_top, hp₀.ne', hp₁.ne', ht]
-
 lemma interp_exp_ne_top (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : p ≠ ⊤ := by
   apply ENNReal.inv_ne_zero.mp
-  refine hp ▸ (ENNReal_preservation_positivity₀ ht ?_).ne'
+  refine hp ▸ (preservation_positivity₀ ht ?_).ne'
   by_contra! h
   exact hp₀p₁ (h.1.trans h.2.symm)
 
 lemma interp_exp_ne_top' (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : p ≠ ⊤ :=
-  ENNReal.inv_ne_zero.mp (hp ▸ (ENNReal_preservation_positivity₀ ht hp₀p₁).ne')
+  ENNReal.inv_ne_zero.mp (hp ▸ (preservation_positivity₀ ht hp₀p₁).ne')
 
 lemma interp_exp_eq (hp₀p₁ : p₀ = p₁)
     (ht : t ∈ Ioo 0 1) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
@@ -162,16 +320,15 @@ lemma interp_exp_between (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
       exact ht.2
     nth_rw 2 [this]
     gcongr
-    · exact mul_ne_top (sub_ne_top top_ne_one.symm) (inv_ne_top.mpr hp₀.ne')
+    · finiteness
     · exact ht.1.ne'
-    · exact ht'
   · rw [hp]
     have : p₁⁻¹ = (1 - t) * p₁⁻¹ + t * p₁⁻¹ := by
       rw [← add_mul, tsub_add_eq_max, max_eq_left_of_lt, one_mul]
       exact ht.2
     nth_rw 1 [this]
     gcongr
-    · exact mul_ne_top ht' (inv_ne_top.mpr hp₁.ne')
+    · finiteness
     · exact (tsub_pos_iff_lt.mpr ht.2).ne'
     · exact (mem_sub_Ioo (one_ne_top) ht).2.trans one_lt_top |>.ne
 
@@ -211,7 +368,7 @@ lemma inv_of_interpolated_pos' (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
 -- TODO: remove, this is redundant, but for now mirror the development for reals...
 lemma interpolated_pos' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (ht : t ≠ ∞)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 0 < p :=
-  ENNReal_preservation_positivity' hp₀ hp₁ ht hp
+  preservation_positivity' hp₀ hp₁ ht hp
 
 lemma exp_toReal_pos (hp₀ : 0 < p₀) (hp₀' : p₀ ≠ ⊤) : 0 < p₀.toReal :=
   toReal_pos hp₀.ne' hp₀'
@@ -629,8 +786,7 @@ lemma ζ_pos_iff_aux₀ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q�
 
 lemma inv_toReal_iff (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) :
     p₀⁻¹.toReal < p₁⁻¹.toReal ↔ p₁ < p₀ :=
-  Iff.trans (toReal_lt_toReal (ne_of_lt (inv_lt_top.mpr hp₀))
-    (ne_of_lt (inv_lt_top.mpr hp₁))) ENNReal.inv_lt_inv
+  Iff.trans (toReal_lt_toReal (inv_lt_top.mpr hp₀).ne (inv_lt_top.mpr hp₁).ne) ENNReal.inv_lt_inv
 
 lemma ζ_pos_iff (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :

@@ -1,5 +1,9 @@
-import Carleson.Classical.HilbertKernel
-import Mathlib.MeasureTheory.Integral.Prod
+module
+
+public import Carleson.Classical.HilbertKernel
+public import Mathlib.MeasureTheory.Integral.Prod
+
+@[expose] public section
 
 /- This file contains the definition and basic properties of the Carleson operator on the real line.
 -/
@@ -85,7 +89,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
              = fun x ↦ ⨆ (r : ℝ) (_ : r ∈ Set.Ioo 0 1), G x r := by
     ext
     congr with r
-    rw [iSup_and, Gdef, Fdef]
+    simp_rw [iSup_and', ← Set.mem_Ioo, Gdef, Fdef]
     congr
     rw [← integral_indicator annulus_measurableSet]
   rw [hFG]
@@ -156,17 +160,12 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         intro s hs t ht
         rw [Fdef]
         simp only [Set.mem_Ioo]
-        by_cases h : dist x y < 1
+        by_cases! h : dist x y < 1
         · rw [Set.indicator_apply, ite_cond_eq_true, Set.indicator_apply, ite_cond_eq_true]
-          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
-            use ht
-          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
-            use hs
-        · push_neg at h
-          rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
-          all_goals
-            simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
-            exact fun _ ↦ h
+          · simpa using ⟨ht, h⟩
+          · simpa using ⟨hs, h⟩
+        · rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
+          all_goals simpa using fun _ ↦ h
       have contOn2 : ∀ (y : ℝ), ContinuousOn (fun s ↦ F x s y) (Set.Ioi (min (dist x y) 1)) := by
         intro y
         rw [continuousOn_iff_continuous_restrict]
@@ -192,10 +191,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
           · exact (h'.trans h).le
       have contOn : ∀ y, ∀ t ≠ dist x y, ContinuousAt (F x · y) t := by
         intro y t ht
-        by_cases h : t < dist x y
+        by_cases! h : t < dist x y
         · exact_mod_cast (contOn1 y).continuousAt (Iio_mem_nhds h)
-        · push_neg at h
-          exact ContinuousOn.continuousAt (contOn2 y) (Ioi_mem_nhds
+        · exact ContinuousOn.continuousAt (contOn2 y) (Ioi_mem_nhds
             ((min_le_left _ _).trans_lt (lt_of_le_of_ne h ht.symm)))
       have subset_finite :
           {y | ¬ContinuousAt (F x · y) r} ⊆ ({x - r, x + r} : Finset ℝ) := by
@@ -265,9 +263,13 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
   congr with rle1
   norm_cast
   rw [← Real.enorm_eq_ofReal ha.le]
-  simp_rw [mul_assoc, integral_const_mul, enorm_mul, ← mul_assoc]
-  rw [← enorm_norm (Complex.ofReal (1 / a)), Complex.norm_real, enorm_norm, ← enorm_mul,
-    mul_one_div_cancel ha.ne', enorm_one, one_mul]
+  simp_rw [
+    mul_assoc,
+    show ∫ _ in _, _ = _ * ∫ y in _, f y * _ from integral_const_mul _ _,
+    enorm_mul, ← mul_assoc,
+    ← enorm_norm (Complex.ofReal (1 / a)), Complex.norm_real, enorm_norm, ← enorm_mul,
+    mul_one_div_cancel ha.ne', enorm_one, one_mul
+  ]
 
 lemma carlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ}
   (hx : x ∈ Set.Icc a b) :

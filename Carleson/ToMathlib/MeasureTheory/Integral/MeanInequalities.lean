@@ -1,7 +1,14 @@
-import Carleson.ToMathlib.Data.Real.ConjExponents
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
-import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
+module
+
+public import Carleson.ToMathlib.Data.Real.ConjExponents
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
+public import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
+
+public section
+
+-- Upstreaming status: results seems useful; proofs may need polish
+-- Needs dependencies to be upstreamed first.
 
 open NNReal ENNReal MeasureTheory Finset
 
@@ -44,7 +51,7 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
         lintegral_congr (fun a ↦ (Finset.mul_prod_erase s (f · a) hi₀).symm)
       _ ≤ eLpNorm (f i₀) (p i₀) μ * ∫⁻ (a : α), ∏ i ∈ s.erase i₀, f i a ∂μ := by
         rw [← lintegral_const_mul'', pi₀_eq_top]
-        · exact lintegral_mono_ae <| (ae_le_essSup (f i₀)).mono (fun a ha ↦ mul_le_mul_right' ha _)
+        · exact lintegral_mono_ae <| (ae_le_essSup (f i₀)).mono (fun a ha ↦ mul_le_mul_left ha _)
         · exact Finset.aemeasurable_fun_prod _ (fun i hi ↦ hf i (Finset.mem_of_mem_erase hi))
       _ ≤ eLpNorm (f i₀) (p i₀) μ * ∏ i ∈ s.erase i₀, eLpNorm (f i) (p i) μ := by
         apply mul_right_mono
@@ -72,13 +79,12 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
 theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderConjugate q)
     {f g : α → ENNReal} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     ∫⁻ (a : α), (f * g) a ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
-  by_cases pq_top : p = ∞ ∨ q = ∞
+  by_cases! pq_top : p = ∞ ∨ q = ∞
   · wlog hp : p = ∞
     · have hq := pq_top.resolve_left hp
       simpa only [mul_comm] using this hpq.symm hg hf (Or.inl hq) hq
     apply le_of_le_of_eq <| lintegral_mono_ae ((ae_le_essSup f).mono (fun a ha ↦ mul_left_mono ha))
     simp [eLpNorm, eLpNorm', eLpNormEssSup, hp, hpq.conj_eq, lintegral_const_mul'' _ hg]
-  push_neg at pq_top
   have hp : p ≠ 0 := HolderConjugate.ne_zero p q
   have hq : q ≠ 0 := HolderConjugate.ne_zero q p
   convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal_of_ne_top pq_top.1 pq_top.2) hf hg
@@ -88,7 +94,7 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderC
 theorem sq_lintegral_mul_le_mul_lintegral_sq {f g : α → ℝ≥0∞}
     (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     (∫⁻ a, f a * g a ∂μ) ^ 2 ≤ (∫⁻ a, f a ^ 2 ∂μ) * ∫⁻ a, g a ^ 2 ∂μ := by
-  convert pow_le_pow_left₀ (zero_le _)
+  convert pow_le_pow_left₀ zero_le
     (lintegral_mul_le_Lp_mul_Lq μ Real.HolderConjugate.two_two hf hg) 2
   rw [mul_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, ← ENNReal.rpow_natCast,
     ← ENNReal.rpow_mul, show (1 : ℝ) / 2 * (2 : ℕ) = 1 by norm_num, ENNReal.rpow_one,
@@ -106,7 +112,7 @@ open scoped Convolution
 private lemma r_sub_p_nonneg {p q r : ℝ} (p0 : 0 < p) (hq : 1 ≤ q) (r0 : 0 < r)
     (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1) : 0 ≤ r - p := by
   rw [sub_nonneg, ← inv_le_inv₀ r0 p0, ← add_le_add_iff_right, hpqr]
-  exact add_le_add_left ((inv_le_one₀ (lt_of_lt_of_le one_pos hq)).mpr hq) r⁻¹
+  exact add_le_add_right ((inv_le_one₀ (lt_of_lt_of_le one_pos hq)).mpr hq) r⁻¹
 
 namespace ENNReal
 
@@ -160,9 +166,8 @@ private theorem eLpNorm_top_convolution_le_aux [AddGroup G] {p q : ℝ≥0∞}
     (hg' : ∀ x : G, eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  by_cases hc : c ≤ 0
+  by_cases! hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
-  push_neg at hc
   rw [eLpNorm_exponent_top, eLpNormEssSup]
   refine essSup_le_of_ae_le _ (Filter.Eventually.of_forall fun x ↦ ?_)
   apply le_trans <| enorm_integral_le_lintegral_enorm _
@@ -210,12 +215,10 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
       .ofReal c * eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (.ofReal r) μ *
       ((eLpNorm f (.ofReal p) μ) ^ ((r - p) / r) *
       (eLpNorm g (.ofReal q) μ) ^ ((r - q) / r)) := by
-  by_cases hc : c ≤ 0
+  by_cases! hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
-  push_neg at hc
-  by_cases μ0 : μ = 0
+  by_cases! μ0 : μ = 0
   · simp [μ0, convolution]
-  push_neg at μ0
   let F (i : Fin 3) : G → ℝ≥0∞ :=
     match i with
     | 0 => fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)
@@ -254,7 +257,7 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
     _ ≤ ENNReal.ofReal c * eLpNorm (F 0) (P 0) μ *
           (eLpNorm (F 1) (P 1) μ * eLpNorm (F 2) (P 2) μ) := by
       rw [lintegral_const_mul' _ _ ofReal_ne_top, mul_assoc]
-      refine mul_le_mul_of_nonneg_left ?_ (zero_le (ENNReal.ofReal c))
+      gcongr
       -- Check that the assumptions of `lintegral_prod_norm_pow_le'` apply
       have ae_meas_g := hg x
       have := (hf.pow_const p).mul (ae_meas_g.pow_const q)
@@ -420,7 +423,7 @@ private theorem eLpNorm_convolution_le_of_norm_le_mul_aux
     rw [hpqr]
     nth_rewrite 1 [← zero_add 1]
     apply ENNReal.add_lt_add_right ENNReal.one_ne_top
-    exact (zero_le r⁻¹).lt_or_eq.resolve_right (ENNReal.inv_ne_zero.mpr r_top).symm
+    exact zero_le.lt_or_eq.resolve_right (ENNReal.inv_ne_zero.mpr r_top).symm
   have p_ne_top : p ≠ ∞ := by contrapose! hq; simpa [hq] using hpq
   have q_ne_top : q ≠ ∞ := by contrapose! hp; simpa [hp] using hpq
   -- When all exponents are finite, apply `eLpNorm_convolution_le_ofReal`
@@ -549,12 +552,11 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
   · rw [intervalIntegral.integral_of_le (by linarith [hT.out]),
       intervalIntegral.integral_of_le (by linarith [hT.out])]
     apply setIntegral_congr_fun measurableSet_Ioc (fun y hy ↦ ?_)
-    congr
-    exact (equivIoc_coe_of_mem a hy).symm
+    congr 2
+    exact (AddCircle.liftIoc_coe_apply hy).symm
   · apply eLpNorm_congr_ae
     filter_upwards [self_mem_ae_restrict measurableSet_Ioc] with y hy
-    congr
-    exact (equivIoc_coe_of_mem a hy).symm
+    exact (AddCircle.liftIoc_coe_apply hy).symm
 
 open Set in
 /-- **Young's convolution inequality** on (a, a + T]: the `L^r` seminorm of the convolution

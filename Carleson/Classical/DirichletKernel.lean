@@ -1,8 +1,11 @@
 /- This file contains definitions and lemmas regarding the Dirichlet kernel. -/
+module
 
-import Carleson.Classical.Basic
-import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
-import Mathlib.Tactic.Field
+public import Carleson.Classical.Basic
+public import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 open scoped Real
 open Finset Complex MeasureTheory
@@ -26,7 +29,7 @@ lemma continuous_dirichletKernel : Continuous (dirichletKernel N) := by
 
 lemma dirichletKernel_periodic : Function.Periodic (dirichletKernel N) (2 * π) := by
   intro x
-  simp only [dirichletKernel, Int.ofNat_eq_coe, AddSubgroup.mem_zmultiples,
+  simp only [dirichletKernel, Int.ofNat_eq_natCast, AddSubgroup.mem_zmultiples,
     QuotientAddGroup.mk_add_of_mem, fourier_apply, fourier_coe_apply', ofReal_mul, ofReal_ofNat]
 
 lemma dirichletKernel'_periodic : Function.Periodic (dirichletKernel' N) (2 * π) := by
@@ -159,11 +162,10 @@ lemma norm_dirichletKernel_le {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 
       ring
 
 lemma norm_dirichletKernel'_le {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by
-  by_cases h : cexp (I * x) ≠ 1
+  by_cases! h : cexp (I * x) ≠ 1
   · simp only [ne_eq, h, not_false_eq_true, ← dirichletKernel_eq]
     exact norm_dirichletKernel_le
-  · push_neg at h
-    rw [dirichletKernel'_eq_zero h, norm_zero]
+  · rw [dirichletKernel'_eq_zero h, norm_zero]
     linarith
 
 /-- First part of lemma 11.1.8 (Dirichlet kernel) from the blueprint. -/
@@ -178,12 +180,13 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       congr 1 with n
       rw [fourierCoeffOn_eq_integral, smul_mul_assoc]
     _ = (1 / (2 * π)) * ∑ n ∈ Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
-      rw_mod_cast [← smul_sum, real_smul, sub_zero]
+      rw [show ∑ n ∈ Icc (-(N : ℤ)) ↑N, (1 / (2 * π - 0) : ℝ) • ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n)) ↑y • f y) * (fourier n) ↑x) = (1 / (2 * π - 0) : ℝ) • ∑ n ∈ Icc (-(N : ℤ)) ↑N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n)) ↑y • f y) * (fourier n) ↑x) from (Finset.smul_sum ..).symm]
+      rw_mod_cast [real_smul, sub_zero]
     _ = (1 / (2 * π)) * ∑ n ∈ Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y) * (fourier n) ↑x)) := by
       congr with n
       exact (intervalIntegral.integral_mul_const _ _).symm
     _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), ∑ n ∈ Icc (-(N : ℤ)) N, (fourier (-n)) y • f y * (fourier n) x := by
-      rw [← intervalIntegral.integral_finset_sum]
+      rw [← intervalIntegral.integral_finsetSum]
       exact fun _ _ ↦ IntervalIntegrable.mul_const
         (h.continuousOn_mul fourier_uniformContinuous.continuous.continuousOn) _
     _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * ∑ n ∈ Icc (-(N : ℤ)) N, (fourier (-n)) y * (fourier n) x := by

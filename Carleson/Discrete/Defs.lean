@@ -1,5 +1,9 @@
-import Carleson.TileStructure
-import Carleson.ToMathlib.MinLayer
+module
+
+public import Carleson.TileStructure
+public import Carleson.ToMathlib.MinLayer
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
@@ -21,11 +25,11 @@ def 𝓒 (k : ℕ) : Set (Grid X) :=
 def TilesAt (k : ℕ) : Set (𝔓 X) := 𝓘 ⁻¹' 𝓒 k
 
 lemma disjoint_TilesAt_of_ne {m n : ℕ} (h : m ≠ n) : Disjoint (TilesAt (X := X) m) (TilesAt n) := by
-  wlog hl : m < n generalizing m n; · exact (this h.symm (by cutsat)).symm
+  wlog hl : m < n generalizing m n; · exact (this h.symm (by lia)).symm
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
   simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at mp₁ mp₂
   apply absurd _ mp₂.2; obtain ⟨j, lj, vj⟩ := mp₁.1; use j, lj; apply lt_of_le_of_lt _ vj
-  exact mul_le_mul_right' (ENNReal.zpow_le_of_le one_le_two (by cutsat)) _
+  exact mul_le_mul_left (ENNReal.zpow_le_of_le one_le_two (by lia)) _
 
 lemma pairwiseDisjoint_TilesAt : univ.PairwiseDisjoint (TilesAt (X := X)) := fun _ _ _ _ ↦
   disjoint_TilesAt_of_ne
@@ -56,11 +60,11 @@ lemma ℭ_subset_TilesAt {k n : ℕ} : ℭ k n ⊆ TilesAt (X := X) k := fun t m
   rw [ℭ, mem_setOf] at mt; exact mt.1
 
 lemma disjoint_ℭ_of_ne {k m n : ℕ} (h : m ≠ n) : Disjoint (ℭ (X := X) k m) (ℭ k n) := by
-  wlog hl : m < n generalizing m n; · exact (this h.symm (by cutsat)).symm
+  wlog hl : m < n generalizing m n; · exact (this h.symm (by lia)).symm
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
   apply absurd _ (not_disjoint_iff.mpr ⟨_, mp₁.2, mp₂.2⟩)
   rw [Ioc_disjoint_Ioc, le_max_iff]; left; rw [min_le_iff]; right
-  exact ENNReal.zpow_le_of_le one_le_two (by cutsat)
+  exact ENNReal.zpow_le_of_le one_le_two (by lia)
 
 lemma pairwiseDisjoint_ℭ :
     (univ : Set (ℕ × ℕ)).PairwiseDisjoint (fun kn ↦ ℭ (X := X) kn.1 kn.2) :=
@@ -130,11 +134,11 @@ lemma ℭ₁_subset_ℭ {k n j : ℕ} : ℭ₁ k n j ⊆ ℭ (X := X) k n := fun
   rw [ℭ₁, preℭ₁, mem_diff, mem_setOf] at mt; exact mt.1.1
 
 lemma disjoint_ℭ₁_of_ne {k n j l : ℕ} (h : j ≠ l) : Disjoint (ℭ₁ (X := X) k n j) (ℭ₁ k n l) := by
-  wlog hl : j < l generalizing j l; · exact (this h.symm (by cutsat)).symm
+  wlog hl : j < l generalizing j l; · exact (this h.symm (by lia)).symm
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
   simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, mp₁.1.1, true_and, not_le] at mp₁ mp₂
   have := mp₂.1.trans_lt mp₁.2
-  rw [pow_lt_pow_iff_right₀ one_lt_two] at this; cutsat
+  rw [pow_lt_pow_iff_right₀ one_lt_two] at this; lia
 
 lemma pairwiseDisjoint_ℭ₁ {k n : ℕ} : univ.PairwiseDisjoint (ℭ₁ (X := X) k n) := fun _ _ _ _ ↦
   disjoint_ℭ₁_of_ne
@@ -154,8 +158,8 @@ lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n 
     (𝔅 k n p).toFinset.card ∈ Ico (2 ^ j) (2 ^ (j + 1)) := by
   simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, hp.1.1, true_and, not_le] at hp
   constructor
-  · convert hp.1; ext; simp
-  · convert hp.2; ext; simp
+  · convert hp.1; ext; simp only [Set.mem_toFinset, Finset.mem_filter, Finset.mem_univ, true_and]
+  · convert hp.2; ext; simp only [Set.mem_toFinset, Finset.mem_filter, Finset.mem_univ, true_and]
 
 /-- The subset `𝔏₀(k, n)` of `ℭ(k, n)`, given in (5.1.10).
 Not to be confused with `𝔏₀(k, n, j)` which is called `𝔏₀'` in Lean. -/
@@ -228,7 +232,7 @@ def ℭ₅ (k n j : ℕ) : Set (𝔓 X) :=
 lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
     p ∈ ℭ₅ k n j ↔ p ∈ ℭ₄ k n j ∧ ∀ u ∈ 𝔘₁ k n j, ¬(𝓘 p : Set X) ⊆ ⋃ (i ∈ 𝓛 (X := X) n u), i := by
   rw [ℭ₅, mem_diff, 𝔏₄, mem_setOf, not_and, and_congr_right_iff]; intro h
-  simp_rw [h, true_implies]; push_neg; rfl
+  simp_rw [h, true_implies]; push Not; rfl
 
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₅, mem_diff] at mt; exact mt.1
@@ -248,7 +252,8 @@ variable {k n j l : ℕ}
 lemma 𝔏₀_subset_ℭ : 𝔏₀ (X := X) k n ⊆ ℭ k n := fun _ mu ↦ mu.1
 lemma 𝔏₀_disjoint_ℭ₁ : Disjoint (𝔏₀ (X := X) k n) (ℭ₁ k n j) := by
   by_contra h; rw [not_disjoint_iff] at h; obtain ⟨p, ⟨_, b0⟩, ⟨⟨_, bp⟩ , _⟩⟩ := h
-  simp [b0] at bp
+  simp only [b0, Set.mem_empty_iff_false, Finset.filter_false, Finset.card_empty] at bp
+  linarith [Nat.two_pow_pos j]
 
 lemma 𝔏₁_subset_ℭ₁ : 𝔏₁ (X := X) k n j l ⊆ ℭ₁ k n j := minLayer_subset
 lemma 𝔏₁_subset_ℭ : 𝔏₁ (X := X) k n j l ⊆ ℭ k n := minLayer_subset.trans ℭ₁_subset_ℭ
@@ -274,7 +279,7 @@ def highDensityTiles : Set (𝔓 X) :=
   { p : 𝔓 X | 2 ^ (2 * a + 5) * volume F / volume G < dens₂ {p} }
 
 lemma highDensityTiles_empty (hF : volume F = 0) : highDensityTiles = (∅ : Set (𝔓 X)) := by
-  suffices ∀ (p : 𝔓 X), dens₂ {p} = 0 by simp [highDensityTiles, this]
+  suffices ∀ (p : 𝔓 X), dens₂ {p} = 0 by simp [highDensityTiles, this]; rfl
   simp_rw [dens₂, ENNReal.iSup_eq_zero, ENNReal.div_eq_zero_iff]
   exact fun _ _ _ r _ ↦ Or.inl <| measure_inter_null_of_null_left (ball (𝔠 _) r) hF
 
@@ -282,17 +287,17 @@ lemma highDensityTiles_empty' (hG : volume G = 0) :
     highDensityTiles = (∅ : Set (𝔓 X)) := by
   by_cases hF : volume F = 0
   · exact highDensityTiles_empty hF
-  suffices 2 ^ (2 * a + 5) * volume F / volume G = ⊤ by simp [highDensityTiles, this]
+  suffices 2 ^ (2 * a + 5) * volume F / volume G = ⊤ by simp [highDensityTiles, this]; rfl
   exact hG ▸ ENNReal.div_zero (mul_ne_zero (by simp) hF)
 
 /-- The exceptional set `G₁`, defined in (5.1.25). -/
 def G₁ : Set X := ⋃ (p : 𝔓 X) (_ : p ∈ highDensityTiles), 𝓘 p
 
 lemma G₁_empty (hF : volume F = 0) : G₁ = (∅ : Set X) := by
-  simp [G₁, highDensityTiles_empty hF]
+  simp only [G₁, highDensityTiles_empty hF, Set.biUnion_empty]
 
 lemma G₁_empty' (hG : volume G = 0) : G₁ = (∅ : Set X) := by
-  simp [G₁, highDensityTiles_empty' hG]
+  simp only [G₁, highDensityTiles_empty' hG, Set.biUnion_empty]
 
 lemma measurable_G₁ : MeasurableSet (G₁ (X := X)) :=
   Finite.measurableSet_biUnion highDensityTiles.toFinite fun _ _ ↦ coeGrid_measurable
@@ -307,7 +312,7 @@ lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
   intro x mx
   simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at mx
-  replace mx := (zero_le _).trans_lt mx
+  replace mx := zero_le.trans_lt mx
   rw [Finset.card_pos] at mx
   obtain ⟨p, hp⟩ := mx
   simp_rw [Finset.mem_filter_univ, 𝔐, mem_setOf, maximal_iff, aux𝔐, mem_setOf, TilesAt,
@@ -317,7 +322,7 @@ lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
 lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n := by
   refine setOf_subset_setOf.mpr fun x hx ↦ ?_
   calc
-    _ ≤ _ := by gcongr; cutsat
+    _ ≤ _ := by gcongr; lia
     _ < _ := hx
 
 lemma measurable_setA {l k n : ℕ} : MeasurableSet (setA (X := X) l k n) :=

@@ -1,6 +1,10 @@
-import Carleson.Discrete.ExceptionalSet
-import Carleson.Discrete.ForestComplement
-import Carleson.Discrete.ForestUnion
+module
+
+public import Carleson.Discrete.ExceptionalSet
+public import Carleson.Discrete.ForestComplement
+public import Carleson.Discrete.ForestUnion
+
+@[expose] public section
 
 open MeasureTheory NNReal Set
 open scoped ShortVariables
@@ -27,10 +31,10 @@ lemma le_C2_0_2 (ha : 4 ≤ a) {q : ℝ≥0} (hq : q ∈ Ioc 1 2) :
   simp only [← add_div, ge_iff_le]
   gcongr
   apply (add_le_pow_two_add_cube ha le_rfl ?_).trans_eq (by ring)
-  have : 𝕔 / 8 ≤ 𝕔 / 4 := by cutsat
+  have : 𝕔 / 8 ≤ 𝕔 / 4 := by lia
   grw [this]
   ring_nf
-  cutsat
+  lia
 
 omit [TileStructure Q D κ S o] in
 lemma C2_0_2_pos : 0 < C2_0_2 a nnq := by

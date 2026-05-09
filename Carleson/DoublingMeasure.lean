@@ -1,6 +1,10 @@
-import Carleson.Defs
-import Carleson.LipschitzNorm
-import Carleson.ToMathlib.Data.ENNReal
+module
+
+public import Carleson.Defs
+public import Carleson.LipschitzNorm
+public import Carleson.ToMathlib.Data.ENNReal
+
+@[expose] public section
 
 open MeasureTheory Measure Metric Complex Set Bornology Function
 open ENNReal hiding one_lt_two
@@ -55,7 +59,7 @@ lemma realD_nonneg : 0 ≤ (defaultD a : ℝ) := le_of_lt (realD_pos a)
 
 lemma one_le_realD : 1 ≤ (defaultD a : ℝ) := by
   rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
-  exact pow_le_pow_right₀ (one_le_two) (by cutsat)
+  exact pow_le_pow_right₀ (one_le_two) (by lia)
 
 lemma defaultD_pow_pos (z : ℤ) : 0 < (defaultD a : ℝ) ^ z := by
   positivity [realD_pos a]
@@ -199,7 +203,6 @@ end FunctionDistances
 notation3 "nndist_{" x ", " r "}" => @nndist (WithFunctionDistance x r) _
 /-- The ball with center `x` and radius `r` in `WithFunctionDistance x r`. -/
 notation3 "ball_{" x ", " r "}" => @ball (WithFunctionDistance x r) _ in
-
 instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
   obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
   use x
@@ -239,9 +242,9 @@ lemma cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X
 variable [hXA : DoublingMeasure X A]
 
 lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancellative X τ]
-    {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
-    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ) := by
+    {x : X} {r : ℝ} {φ : X → ℂ} (h2 : support φ ⊆ ball x r) {f g : Θ X} :
+    ‖∫ x, exp (I * (f x - g x)) * φ x‖ₑ ≤
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm φ x r * (1 + edist_{x, r} f g) ^ (- τ) := by
   rcases le_or_gt r 0 with hr | hr
   · simp only [ball_eq_empty.2 hr, subset_empty_iff, support_eq_empty_iff] at h2
     simp [h2]
@@ -251,7 +254,7 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
       simp at this
       apply eq_zero_of_isDoubling_zero
     simp [this]
-  rcases eq_or_ne (iLipENorm ϕ x r) ∞ with h1 | h1
+  rcases eq_or_ne (iLipENorm φ x r) ∞ with h1 | h1
   · apply le_top.trans_eq
     symm
     simp [h1, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
@@ -259,18 +262,18 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
 
 /-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
 lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ X A]
-    (h : ∀ {x : X} {r : ℝ} {ϕ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm ϕ x r ≠ ∞)
-    (_h2 : support ϕ ⊆ ball x r) {f g : Θ X},
-      ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
-      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (-τ)) :
+    (h : ∀ {x : X} {r : ℝ} {φ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm φ x r ≠ ∞)
+    (_h2 : support φ ⊆ ball x r) {f g : Θ X},
+      ‖∫ x in ball x r, exp (I * (f x - g x)) * φ x‖ ≤
+      A * volume.real (ball x r) * iLipNNNorm φ x r * (1 + dist_{x, r} f g) ^ (-τ)) :
     IsCancellative X τ := by
   constructor
-  intro x r ϕ hr h1 h2 f g
-  convert ENNReal.ofReal_le_ofReal (h (x := x) (r := r) (ϕ := ϕ) hr h1 h2 (f := f) (g := g))
+  intro x r φ hr h1 h2 f g
+  convert ENNReal.ofReal_le_ofReal (h (x := x) (r := r) (φ := φ) hr h1 h2 (f := f) (g := g))
   · rw [ofReal_norm_eq_enorm]
     congr 1
     rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
-    have : ϕ y = 0 := by
+    have : φ y = 0 := by
       apply notMem_support.1
       contrapose! hy
       exact h2 hy
@@ -321,6 +324,7 @@ lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x :
     (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
   apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma carlesonOperatorIntegrand_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
     carlesonOperatorIntegrand (z • K) θ R₁ R₂ f = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
@@ -343,12 +347,14 @@ lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ
   simp_rw [linearizedCarlesonOperator_const_smul, Pi.smul_apply, ← smul_iSup]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 lemma nontangentialOperator_const_smul (z : ℂ) {K : X → X → ℂ} :
     nontangentialOperator (z • K) = ‖z‖ₑ • nontangentialOperator K := by
   unfold nontangentialOperator
   simp_rw [Pi.smul_apply, smul_eq_mul, mul_assoc, integral_const_mul, enorm_mul, ← ENNReal.mul_iSup]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma carlesonOperatorIntegrand_const_smul' [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
     carlesonOperatorIntegrand K θ R₁ R₂ (z • f) = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
@@ -432,7 +438,7 @@ lemma enorm_K_le_ball_complement' [ProperSpace X] [IsFiniteMeasureOnCompacts (vo
   rw [ENNReal.coe_toNNReal ?ne_top]
   case ne_top =>
     rw [Ne, ENNReal.div_eq_top]
-    push_neg
+    push Not
     simp [ne_of_gt (measure_ball_pos volume x hr)]
   exact enorm_K_le_ball_complement hy
 
@@ -461,7 +467,7 @@ lemma integrableOn_K_mul [IsOpenPosMeasure (volume : Measure X)]
     _ = ∫⁻ y in s, ‖K x y‖ₑ * ‖f y‖ₑ := by simp
     _ ≤ ∫⁻ y in s, C_K a / volume (ball x r) * ‖f y‖ₑ := by
       exact setLIntegral_mono_ae (hf.aemeasurable.enorm.const_mul _) <| Filter.Eventually.of_forall
-        fun y hy ↦ mul_le_mul_right' (enorm_K_le_ball_complement (hs hy)) _
+        fun y hy ↦ mul_le_mul_left (enorm_K_le_ball_complement (hs hy)) _
     _ = _ * ∫⁻ y in s, ‖f y‖ₑ := by exact lintegral_const_mul'' _ hf.aemeasurable.enorm
     _ < ∞ := ENNReal.mul_lt_top (ENNReal.div_lt_top coe_ne_top (measure_ball_pos _ x hr).ne') hf.2
 
@@ -544,11 +550,8 @@ variable [KernelProofData a K] {Q : SimpleFunc X (Θ X)}
 lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
   have : (fun p : X × X ↦ (Q p.1) p.2) ⁻¹' s = ⋃ θ ∈ Q.range, (Q ⁻¹' {θ}) ×ˢ (θ ⁻¹' s) := by
     ext ⟨x, y⟩
-    simp only [mem_preimage, SimpleFunc.mem_range, mem_range, iUnion_exists, iUnion_iUnion_eq',
-      mem_iUnion, mem_prod, mem_singleton_iff]
-    constructor <;> intro h
-    · use x
-    · obtain ⟨j, hj⟩ := h; exact congr($(hj.1) y).symm ▸ hj.2
+    push _ ∈ _
+    simp
   rw [this]
   exact Q.range.measurableSet_biUnion fun θ _ ↦
     (Q.measurableSet_fiber θ).prod (meass.preimage (map_continuous θ).measurable)

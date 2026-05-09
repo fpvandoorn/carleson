@@ -1,8 +1,12 @@
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.CoveredByBalls
-import Mathlib.Data.Real.StarOrdered
-import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
-import Mathlib.Order.CompletePartialOrder
+module
+
+public import Carleson.ToMathlib.Misc
+public import Carleson.ToMathlib.CoveredByBalls
+public import Mathlib.Data.Real.StarOrdered
+public import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
+public import Mathlib.Order.CompletePartialOrder
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Filter Topology TopologicalSpace
 open ENNReal hiding one_lt_two
@@ -74,7 +78,7 @@ lemma eq_zero_of_isDoubling_lt_one [ProperSpace X] [IsFiniteMeasureOnCompacts μ
       _ ≤ A * μ (ball x r) := by gcongr; linarith
     by_contra H
     have : μ (ball x r) < 1 * μ (ball x r) := by
-      apply I.trans_lt (ENNReal.mul_lt_mul_right' H measure_ball_lt_top.ne (mod_cast hA))
+      apply I.trans_lt (ENNReal.mul_lt_mul_left H measure_ball_lt_top.ne (mod_cast hA))
     simp at this
   rw [← measure_univ_eq_zero, ← iUnion_ball_nat x]
   exact measure_iUnion_null_iff.mpr fun i ↦ M i (by positivity)
@@ -92,7 +96,7 @@ lemma measure_ball_two_le_same_iterate (x : X) (r : ℝ) (n : ℕ) :
   | zero => simp
   | succ m ih =>
       simp_rw [add_comm m 1, pow_add, pow_one, mul_assoc]
-      exact le_trans (measure_ball_two_le_same x _) (mul_le_mul_left' ih A)
+      exact le_trans (measure_ball_two_le_same x _) (mul_le_mul_right ih A)
 
 lemma measure_ball_four_le_same (x : X) (r : ℝ) :
     μ (ball x (4 * r)) ≤ A ^ 2 * μ (ball x r) := by
@@ -103,12 +107,11 @@ lemma measure_ball_four_le_same (x : X) (r : ℝ) :
 lemma measure_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     μ (ball x r') ≤ As A s * μ (ball x r) := by
   /- If the large ball is empty, all balls are -/
-  by_cases hr : r < 0
+  by_cases! hr : r < 0
   · have hr' : r' < 0 := by
       calc r' ≤ s * r := hs
       _ < 0 := mul_neg_of_pos_of_neg hsp hr
     simp [ball_eq_empty.mpr hr.le, ball_eq_empty.mpr hr'.le]
-  push_neg at hr
   /- Show inclusion in larger ball -/
   have haux : s * r ≤ 2 ^ ⌈Real.logb 2 s⌉₊ * r := by
     gcongr
@@ -157,11 +160,10 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
     letI : Nonempty X := ⟨x⟩
     by_cases hr : r ≤ 0
     · have cball_eq : closedBall x (2 * r) = closedBall x r:= by
-        by_cases hr' : r < 0
+        by_cases! hr' : r < 0
         · have : 2 * r < 0 := by linarith
           simp [*]
-        · push_neg at hr'
-          simp [le_antisymm hr hr']
+        · simp [le_antisymm hr hr']
       rw [cball_eq]
       nth_rw 1 [← one_mul (μ (closedBall x r))]
       gcongr
@@ -278,7 +280,8 @@ lemma IsDoubling.allBallsCoverBalls [OpensMeasurableSpace X] [NeZero μ]
   have := hs; obtain ⟨h1s, h2s⟩ := this
   use s, h1 s hs
   intro y hy
-  simp only [Set.mem_iUnion, mem_ball, exists_prop]
+  push _ ∈ _
+  simp only [mem_ball]
   by_contra! h2y
   have hys : y ∉ s := by intro h3y; simpa [hr.not_ge] using h2y y h3y
   have h2 : insert y s ∈ S := by

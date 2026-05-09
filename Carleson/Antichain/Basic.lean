@@ -1,7 +1,9 @@
-import Carleson.Calculations
-import Carleson.Operators
-import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+module
+
+public import Carleson.Calculations
+public import Carleson.Operators
+public import Carleson.ToMathlib.HardyLittlewood
+public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 
 /-!
 # 6.1. The density arguments
@@ -13,6 +15,8 @@ This file contains the proofs of lemmas 6.1.1, 6.1.2 and 6.1.3 from the blueprin
 - `maximal_bound_antichain`: Lemma 6.1.2.
 - `dens2_antichain`: Lemma 6.1.3.
 -/
+
+@[expose] public section
 
 open scoped ShortVariables
 
@@ -131,10 +135,10 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
   apply h.trans
   rw [zpow_sub₀ (by simp), zpow_one, div_div]
   apply (ineq_6_1_7 x p).trans
-  have ha : 6 * a + (𝕔 + 1) * a ^ 3 = (5 * a + (𝕔 + 1) * a ^ 3) + a := by cutsat
+  have ha : 6 * a + (𝕔 + 1) * a ^ 3 = (5 * a + (𝕔 + 1) * a ^ 3) + a := by lia
   simp only [div_eq_mul_inv, ge_iff_le]
   rw [ha, pow_add _ (5 * a + (𝕔 + 1) * a ^ 3) a, mul_assoc]
-  apply mul_le_mul_of_nonneg_left _ (zero_le _)
+  gcongr
   suffices volume (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)) ≤ 2 ^ a * volume (ball x (8 * D ^ 𝔰 p.1)) by
     grw [← inv_inv (2 ^ a), ← ENNReal.mul_inv (.inl (by simp)) (.inl (by finiteness)),
       ENNReal.inv_le_inv, ← ENNReal.div_eq_inv_mul, ENNReal.div_le_of_le_mul' this]
@@ -198,7 +202,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
       refine lintegral_mono fun y ↦ ?_
       rw [enorm_mul]; gcongr
       by_cases hy : Ks (𝔰 p.1) x y = 0
-      · simp [hy]
+      · simp only [hy, enorm_zero, zero_le]
       · exact norm_Ks_le' _ hxE hy -- Composition of ineq. 6.1.6, 6.1.7, 6.1.8
     _ = 2 ^ (5 * a + (𝕔 + 1) * a ^ 3 + a) *
         ⨍⁻ y in ball (𝔠 p.1) (8 * D ^ 𝔰 p.1), ‖f y‖ₑ ∂volume := by
@@ -212,13 +216,13 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
         rw [C6_1_2, add_comm (5 * a), add_assoc]; norm_cast
         apply pow_le_pow_right₀ one_le_two
         ring_nf
-        suffices 6 * a ≤ a ^ 3 by cutsat
+        suffices 6 * a ≤ a ^ 3 by lia
         linarith [sixteen_times_le_cube (four_le_a X)]
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith) hDpow_pos)
     _ ≤ C6_1_2 a * MB volume 𝔄 𝔠 (8 * D ^ 𝔰 ·) f x := by
-      rw [mul_le_mul_left (C6_1_2_ne_zero a) coe_ne_top, MB, maximalFunction,
-        inv_one, ENNReal.rpow_one, le_iSup_iff]
+      rw [ENNReal.mul_le_mul_iff_right (C6_1_2_ne_zero a) coe_ne_top, MB, maximalFunction,
+        inv_one, le_iSup_iff]
       simp only [iSup_le_iff, ENNReal.rpow_one]
       exact (fun _ hc ↦ hc p.1 p.2)
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, not_not] at hx
@@ -294,7 +298,7 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
   have hp_coe : p.toNNReal.toReal = p := Real.coe_toNNReal _ (by positivity)
   conv_lhs => rw [eq_indicator_one_mul_of_norm_le hfF]
   refine eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' _
-    (AEStronglyMeasurable.maximalFunction 𝔄.to_countable) (ae_of_all _ <| fun x ↦ ?_)
+    Measurable.maximalFunction.aestronglyMeasurable (ae_of_all _ <| fun x ↦ ?_)
   simp only [enorm_eq_self, 𝓜, MB_def]
   apply iSup_le_iff.mpr <| fun 𝔭 ↦ iSup_le_iff.mpr <| fun h𝔭 ↦ ?_
   apply indicator_le <| fun x hx ↦ ?_
@@ -327,7 +331,7 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
       ring
     _ ≤ _ := by
       gcongr
-      · rw [eLpNorm_eq_lintegral_rpow_enorm (by assumption) (by assumption), toReal_ofReal <|
+      · rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by assumption) (by assumption), toReal_ofReal <|
           le_of_lt p'_pos, one_div, ← div_rpow_of_nonneg _ _ (le_of_lt inv_p'_pos), dens₂]
         gcongr
         refine le_trans ?_ <| le_iSup₂ 𝔭 h𝔭
@@ -343,10 +347,9 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
           rw [Pi.one_apply, mul_one, enorm_indicator_eq_indicator_enorm, indicator, indicator]
           split_ifs <;> simp [p'_pos]
         · exact Measure.restrict_apply_univ B
-      · rw [eLpNorm_eq_lintegral_rpow_enorm (by assumption) (by assumption),
+      · rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by assumption) (by assumption),
           toReal_ofReal <| le_of_lt p_pos, 𝓜p, maximalFunction, one_div,
           ← div_rpow_of_nonneg _ _ (le_of_lt inv_p_pos), ← laverage_eq, hp_coe]
-        gcongr
         refine le_trans (le_of_eq ?_) <| le_iSup₂ 𝔭 h𝔭
         simp_rw [enorm_enorm]
         rw [indicator_of_mem hx]
@@ -450,6 +453,6 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) �
     _ ≤ eLpNorm g 2 * (C6_1_2 a * ((dens₂ 𝔄) ^ (p'⁻¹) * (C2_0_6' * eLpNorm f 2))) := by gcongr
     _ = (C6_1_2 a * C2_0_6') * (dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm f 2 * eLpNorm g 2 := by ring
     _ ≤ _ := by
-      gcongr ?_ * ?_ * eLpNorm f 2 * eLpNorm g 2
+      gcongr ?_ * ?_ * eLpNorm f 2 _ * eLpNorm g 2 _
       · exact_mod_cast const_check
       · rw [hp'_inv, inv_nnqt_eq]; simp

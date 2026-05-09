@@ -1,10 +1,14 @@
-import Carleson.Classical.Helper
-import Carleson.Defs
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
-import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
-import Mathlib.Analysis.Fourier.AddCircle
-import Mathlib.Tactic.Field
+module
+
+public import Carleson.Classical.Helper
+public import Carleson.Defs
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
+public import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
+public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
+public import Mathlib.Analysis.Fourier.AddCircle
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 /- This file contains basic definitions and lemmas. -/
 
@@ -20,7 +24,6 @@ theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : 
   apply integral_congr_ae
   change @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * f =ᶠ[ae haarAddCircle] @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * g
   have fourier_measurable : AEStronglyMeasurable (⇑(@fourier T (-n))) haarAddCircle := (ContinuousMap.measurable _).aestronglyMeasurable
-
   rw [← AEEqFun.mk_eq_mk (hf := fourier_measurable.mul hf) (hg := fourier_measurable.mul hg),
       ← AEEqFun.mk_mul_mk _ _ fourier_measurable hf, ← AEEqFun.mk_mul_mk _ _ fourier_measurable hg]
   congr 1
@@ -37,7 +40,7 @@ lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N :
   ext x
   unfold partialFourierSum partialFourierSum' liftIoc
   simp only [
-    Function.comp_apply, Set.restrict_apply, Int.ofNat_eq_coe, ContinuousMap.coe_sum,
+    Function.comp_apply, Set.restrict_apply, Int.ofNat_eq_natCast, ContinuousMap.coe_sum,
     ContinuousMap.coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
   congr
   ext n
@@ -63,20 +66,21 @@ lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0
 
 
 lemma partialFourierSum'_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) :
-    partialFourierSumLp p N f = MemLp.toLp (partialFourierSum' N f) ((partialFourierSum' N f).MemLp haarAddCircle ℂ)  := by
+    partialFourierSumLp p N f = MemLp.toLp (partialFourierSum' N f) ((partialFourierSum' N f).memLp haarAddCircle ℂ)  := by
   unfold partialFourierSumLp partialFourierSum'
   unfold fourierLp
   simp_rw [ContinuousMap.coe_sum, ContinuousMap.coe_smul]
-  rw [MemLp.toLp_sum _ (by intro n hn; apply MemLp.const_smul (ContinuousMap.MemLp haarAddCircle ℂ (fourier n)))]
-  rw [Finset.univ_eq_attach]
-  rw [← Finset.sum_attach]
+  rw [MemLp.toLp_sum _ (by
+      intro n hn; apply MemLp.const_smul (ContinuousMap.memLp haarAddCircle ℂ (fourier n))),
+    Finset.univ_eq_attach, ← Finset.sum_attach]
   rfl
 
 
 lemma partialFourierSum_aeeq_partialFourierSumLp [hT : Fact (0 < 2 * Real.pi)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_Lp : MemLp (liftIoc (2 * Real.pi) 0 f) 2 haarAddCircle) :
     liftIoc (2 * Real.pi) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (MemLp.toLp (liftIoc (2 * Real.pi) 0 f) h_mem_Lp)) := by
-  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Lp.aestronglyMeasurable _) h_mem_Lp.aestronglyMeasurable (MemLp.coeFn_toLp h_mem_Lp)]
-  rw [partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
+  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Lp.aestronglyMeasurable _)
+      h_mem_Lp.aestronglyMeasurable (MemLp.coeFn_toLp h_mem_Lp),
+    partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
   symm
   apply MemLp.coeFn_toLp
 
@@ -86,18 +90,13 @@ local notation "S_" => partialFourierSum
 
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {c : ℂ} {n : ℤ} :
-  fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n):= by
-  simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
-    fourier_coe_apply', mul_comm, Complex.ofReal_sub, smul_eq_mul, mul_assoc,
-    intervalIntegral.integral_const_mul, Complex.real_smul, Complex.ofReal_inv]
-  ring
+    fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n) :=
+  fourierCoeffOn.const_mul f c n hab
 
 @[simp]
 lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f : ℝ → ℂ} {n : ℤ} :
-  fourierCoeffOn hab (-f) n = - (fourierCoeffOn hab f n):= by
-  simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
-    fourier_coe_apply', Complex.ofReal_sub, Pi.neg_apply, smul_eq_mul, mul_neg,
-    intervalIntegral.integral_neg, smul_neg, Complex.real_smul, Complex.ofReal_inv]
+    fourierCoeffOn hab (-f) n = - (fourierCoeffOn hab f n):= by
+  simp [fourierCoeffOn_eq_integral]
 
 @[simp]
 lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
@@ -105,14 +104,11 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     (hg : IntervalIntegrable g MeasureTheory.volume a b) :
     fourierCoeffOn hab (f + g) n = fourierCoeffOn hab f n + fourierCoeffOn hab g n:= by
   simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
-    fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, mul_add, Complex.real_smul,
-    Complex.ofReal_inv]
-  rw [← mul_add, ← intervalIntegral.integral_add]
-  · ring_nf
-    apply hf.continuousOn_mul (Continuous.continuousOn _)
-    exact Complex.continuous_conj.comp' (by fun_prop)
-  · apply hg.continuousOn_mul (Continuous.continuousOn _)
-    exact Complex.continuous_conj.comp' (by fun_prop)
+    fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, mul_add]
+  rw [intervalIntegral.integral_add
+    (by ring_nf; exact hf.continuousOn_mul (by fun_prop))
+    (by ring_nf; exact hg.continuousOn_mul (by fun_prop)),
+    smul_add]
 
 @[simp]
 lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
@@ -183,7 +179,7 @@ lemma fourier_uniformContinuous {n : ℤ} :
 
 lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (S_ N f) := by
   apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
-    (Continuous.continuousOn (continuous_finset_sum ..))
+    (Continuous.continuousOn (continuous_finsetSum ..))
   continuity
 
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (π / 2) (π + π / 2)) Real.cos := by
@@ -224,11 +220,10 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
 
 lemma lower_secant_bound' {η : ℝ} {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * π - η) :
     (2 / π) * η ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
-  by_cases ηpos : η ≤ 0
+  by_cases! ηpos : η ≤ 0
   · calc (2 / π) * η
     _ ≤ 0 := mul_nonpos_of_nonneg_of_nonpos (div_nonneg zero_le_two pi_pos.le) ηpos
     _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := norm_nonneg _
-  push_neg at ηpos
   wlog x_nonneg : 0 ≤ x generalizing x
   · convert (@this (-x) _ (by simpa) (by linarith)) using 1
     · rw [← Complex.norm_conj, map_sub, map_one, Complex.ofReal_neg, mul_neg,
@@ -242,7 +237,7 @@ lemma lower_secant_bound' {η : ℝ} {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le
       simp [← Complex.exp_conj, mul_sub, Complex.conj_ofReal, Complex.exp_sub,
         mul_comm Complex.I (2 * π), ← Complex.exp_neg]
     all_goals linarith
-  by_cases h : x ≤ π / 2
+  by_cases! h : x ≤ π / 2
   · calc (2 / π) * η
     _ ≤ (2 / π) * x := by gcongr
     _ = (1 - (2 / π) * x) * Real.sin 0 + ((2 / π) * x) * Real.sin (π / 2) := by simp
@@ -266,17 +261,15 @@ lemma lower_secant_bound' {η : ℝ} {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le
         apply (Real.sqrt_le_sqrt_iff _).mpr
         · simp [pow_two_nonneg]
         · linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
-  · push_neg at h
-    exact lower_secant_bound_aux ηpos le_abs_x abs_x_le x_le_pi h
+  · exact lower_secant_bound_aux ηpos le_abs_x abs_x_le x_le_pi h
 
 /- Slightly weaker version of Lemma 11..1.9 (lower secant bound) with simplified constant. -/
 lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + η) (2 * π - η)) (xAbs : η ≤ |x|) :
     η / 2 ≤ ‖(1 - Complex.exp (Complex.I * x))‖ := by
-  by_cases ηpos : η < 0
+  by_cases! ηpos : η < 0
   · calc η / 2
     _ ≤ 0 := by linarith
     _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := norm_nonneg _
-  push_neg at ηpos
   calc η / 2
   _ ≤ (2 / π) * η := by
     ring_nf
@@ -286,5 +279,4 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + �
     norm_num [pi_le_four]
   _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
     apply lower_secant_bound' xAbs
-    rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]
-    exact xIcc
+    rwa [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]

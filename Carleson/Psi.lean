@@ -1,5 +1,9 @@
-import Carleson.ProofData
-import Mathlib.Tactic.Field
+module
+
+public import Carleson.ProofData
+public import Mathlib.Tactic.Field
+
+@[expose] public section
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
 open scoped ENNReal
@@ -91,19 +95,16 @@ lemma continuous_ψ : Continuous (ψ D) := by
 include hD in
 lemma support_ψ : support (ψ D) = Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
   ext x
-  by_cases hx₀ : x ≤ 1 / (4 * D)
+  by_cases! hx₀ : x ≤ 1 / (4 * D)
   · suffices x ≤ (D : ℝ)⁻¹ * 4⁻¹ by simp [ψ_formula₀ hx₀, this]
     rwa [one_div, mul_inv_rev] at hx₀
-  push_neg at hx₀
   have hx₀_inv : (D : ℝ)⁻¹ * 4⁻¹ < x := by convert hx₀ using 1; simp
   have ne₀ : 4 * D * x - 1 ≠ 0 := ne_of_gt (by rwa [sub_pos, ← div_lt_iff₀' (by linarith)])
-  by_cases hx₁ : x ≤ 1 / (2 * D)
+  by_cases! hx₁ : x ≤ 1 / (2 * D)
   · suffices (D : ℝ)⁻¹ * 4⁻¹ < x ∧ x < 2⁻¹ by simpa [ne₀, ψ_formula₁ hD ⟨hx₀.le, hx₁⟩]
     exact ⟨hx₀_inv, lt_of_le_of_lt hx₁ (by simp [_root_.inv_lt_one_iff₀, hD])⟩
-  push_neg at hx₁
-  by_cases hx₂ : x ≤ 1 / 4
+  by_cases! hx₂ : x ≤ 1 / 4
   · simpa [ψ_formula₂ hD ⟨hx₁.le, hx₂⟩, hx₀_inv] using lt_of_le_of_lt hx₂ (by norm_num)
-  push_neg at hx₂
   by_cases hx₃ : x < 1 / 2
   · have : ¬ 2 - 4 * x = 0 := by linarith
     simpa [ψ_formula₃ hD ⟨hx₂.le, hx₃.le⟩, hx₀, hx₃, ← one_div]
@@ -197,7 +198,7 @@ private lemma endpoint_sub_one (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) < 1
   rw [one_add_logb hD hx]
   apply le_antisymm
   · rw [← inv_eq_one_div, zpow_neg, inv_lt_inv₀ (by positivity) (cDx0 hD two_pos hx)] at h
-    rw [Int.floor_le_sub_one_iff, ← rpow_lt_rpow_left_iff hD,
+    rw [Int.le_sub_one_iff, Int.floor_lt, ← rpow_lt_rpow_left_iff hD,
       rpow_logb (D0 hD) (ne_of_gt hD) (cDx0 hD two_pos hx)]
     exact_mod_cast h
   · apply sub_le_iff_le_add.2 ∘ Int.ceil_le.2
@@ -292,7 +293,10 @@ lemma support_ψS_subset_Icc {b c : ℤ} {x : ℝ}
 
 lemma finsum_ψ (hx : 0 < x) : ∑ᶠ s : ℤ, ψ D (D ^ (-s) * x) = 1 := by
   refine Eq.trans ?_ (sum_ψ hD hx)
-  apply Eq.trans <| finsum_eq_sum _ <| support_ψS hD hx ▸ Finset.finite_toSet (nonzeroS D x)
+  have hfin : HasFiniteSupport (fun s : ℤ ↦ ψ D (D ^ (-s) * x)) := by
+    have h := Finset.finite_toSet (nonzeroS D x)
+    rwa [← support_ψS hD hx] at h
+  apply Eq.trans <| finsum_eq_sum _ hfin
   congr
   ext
   rw [Finite.mem_toFinset, support_ψS hD hx, Finset.mem_coe]
@@ -470,7 +474,7 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
 private lemma div_vol_le' {x y : X} {c : ℝ≥0∞} (hxy : dist x y ≥ D ^ (s - 1) / 4) (n : ℕ) :
     c / vol x y ≤ (2 ^ ((2 + n) * a + 𝕔 * a ^ 3)) * c / volume (ball x (2 ^ n * D ^ s)) := by
   rw [ENNReal.div_eq_inv_mul, ENNReal.mul_div_right_comm]
-  apply mul_le_mul_right'
+  apply mul_le_mul_left
   rw [ENNReal.inv_le_iff_inv_le, ENNReal.inv_div (by left; finiteness) (by right; positivity)]
   unfold vol
   apply le_trans _ <| measure_mono <| ball_subset_ball <| hxy
@@ -483,7 +487,7 @@ private lemma div_vol_le' {x y : X} {c : ℝ≥0∞} (hxy : dist x y ≥ D ^ (s 
 private lemma div_vol_le₀ {x y : X} {c : ℝ≥0∞} (hK : Ks s x y ≠ 0) :
     c / vol x y ≤ (2 ^ (2 * a + 𝕔 * a ^ 3)) * c / volume (ball x (D ^ s)) := by
   rw [ENNReal.div_eq_inv_mul, ENNReal.mul_div_right_comm]
-  apply mul_le_mul_right'
+  apply mul_le_mul_left
   rw [ENNReal.inv_le_iff_inv_le, ENNReal.inv_div (by left; finiteness) (by right; positivity)]
   unfold vol
   apply le_trans _ <| measure_mono <| ball_subset_ball <| dist_mem_Icc_of_Ks_ne_zero hK |>.1
@@ -541,7 +545,7 @@ lemma enorm_Ks_le {s : ℤ} {x y : X} :
 lemma enorm_Ks_le' {s : ℤ} {x y : X} :
     ‖Ks s x y‖ₑ ≤ C2_1_3 a / volume (ball x (D ^ s)) * ‖ψ (D ^ (-s) * dist x y)‖ₑ := by
   by_cases hK : Ks s x y = 0
-  · rw [hK, enorm_zero]; exact zero_le _
+  · rw [hK, enorm_zero]; exact zero_le
   rw [Ks, enorm_mul]; nth_rw 2 [← enorm_norm]; rw [norm_real, enorm_norm]
   gcongr
   apply le_trans <| enorm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
@@ -593,13 +597,12 @@ include K in
 private lemma ψ_ineq {x y y' : X} :
     ‖ψ (D ^ (-s) * dist x y) - ψ (D ^ (-s) * dist x y')‖ₑ ≤
     4 * D * (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
-  by_cases h : edist y y' / D ^ s ≥ 1    -- If `dist y y'` is large, then the RHS is large while
+  by_cases! h : edist y y' / D ^ s ≥ 1    -- If `dist y y'` is large, then the RHS is large while
   · apply le_trans enorm_ψ_sub_ψ_le_two  -- the LHS remains bounded.
     rw [← mul_one 2]
     gcongr
     · norm_cast; linarith [defaultD_pos a]
     · apply ENNReal.one_le_rpow h <| inv_pos_of_pos <| Nat.cast_pos.mpr (by linarith [four_le_a X])
-  push_neg at h
   -- If `dist y y'` is small, then `(dist y y') ^ (a : ℝ)⁻¹` is comparable with `dist y y'`,
   -- so the Lipschitz bound for `ψ` is enough to finish the proof.
   have D1 : 1 ≤ D := by exact_mod_cast one_le_realD (a := a)
@@ -610,7 +613,7 @@ private lemma ψ_ineq {x y y' : X} :
   simp_rw [zpow_neg, ← smul_eq_mul, edist_smul₀, ENNReal.smul_def, ← enorm_eq_nnnorm, smul_eq_mul]
   calc _
     _ ≤ ‖((D : ℝ) ^ s)⁻¹‖ₑ * edist y y' := by
-      apply mul_le_mul_left'
+      apply mul_le_mul_right
       rw [edist_dist, edist_dist, ENNReal.ofReal_le_ofReal_iff (by positivity)]
       exact dist_dist_dist_le_right ..
     _ = (edist y y' / D ^ s) ^ (1 : ℝ) := by
@@ -652,7 +655,7 @@ private lemma enorm_Ks_sub_Ks_le_close_pt1 {s : ℤ} {x y y' : X} (hK : Ks s x y
     2 ^ (1 + (𝕔 + 2) * a + (𝕔 + 1) * a ^ 3) / volume (ball x (D ^ s)) *
     (edist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   have D0 : (D : ℝ≥0∞) ≠ 0 := by unfold defaultD; positivity
-  apply le_trans <| mul_le_mul_left' (enorm_ψ_le_one D _) _
+  apply le_trans <| mul_le_mul_right (enorm_ψ_le_one D _) _
   rw [mul_one]
   have : 2 * dist y y' ≤ dist x y := by
     simp_rw [dist_edist, ← ENNReal.toReal_ofNat, ← ENNReal.toReal_mul]
@@ -670,7 +673,7 @@ private lemma enorm_Ks_sub_Ks_le_close_pt1 {s : ℤ} {x y y' : X} (hK : Ks s x y
     rw [ENNReal.zpow_sub D0 (by finiteness), zpow_one, ENNReal.mul_inv (by simp) (by simp),
       ENNReal.mul_inv (by simp) (by simp), mul_comm, mul_assoc]
     congr; simp; ring
-  apply le_trans <| mul_le_mul_left' (div_vol_le₀ hK) _
+  apply le_trans <| mul_le_mul_right (div_vol_le₀ hK) _
   rw [this]
   nth_rw 2 [mul_comm]
   rw [mul_assoc, ← ENNReal.mul_comm_div]
@@ -740,7 +743,7 @@ private lemma enorm_Ks_sub_Ks_le_close {s : ℤ} {x y y' : X} (hK : Ks s x y ≠
         conv_rhs => rw [add_assoc, ← Nat.add_mul, Nat.add_sub_cancel' (by linarith)]
     apply add_le_add (by nlinarith)
     trans (𝕔 / 4 * 4) * a ^ 2
-    · rw [Nat.div_mul_self_eq_mod_sub_self]; gcongr; rw [← Nat.lt_succ]; simp [Nat.mod_lt]
+    · rw [Nat.div_mul_self_eq_mod_sub_self]; gcongr; rw [← Nat.lt_succ_iff]; simp [Nat.mod_lt]
     rw [mul_assoc]; gcongr; nlinarith
   linarith
 
@@ -754,7 +757,7 @@ private lemma enorm_Ks_sub_Ks_le_far {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0
     ENNReal.div_add_div_same, ← two_mul, ← pow_one 2]
   apply ENNReal.div_le_div_right
   replace h := ENNReal.div_lt_of_lt_mul' <| not_le.mp h
-  have edist_pos : 0 < edist y y' := zero_le _ |>.trans_lt h
+  have edist_pos : 0 < edist y y' := zero_le.trans_lt h
   have : D ^ (s - 1) / 8 < edist y y' := by --lower bound 2.1.2 combined with `h`
     apply lt_of_le_of_lt _ h
     have : (2 : ℝ≥0∞) / 8 = 1 / 4 := by apply ENNReal.div_eq_div_iff .. |>.mpr (by norm_num) <;> simp
@@ -803,7 +806,7 @@ private lemma enorm_Ks_sub_Ks_le_far {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0
     _ ≤ 2 * a ^ 2 * 𝕔 := by nlinarith
     _ ≤ (2 * a ^ 2) * (2 * a * (𝕔 / 4)) := by
       gcongr; rw [mul_assoc]
-      apply le_trans (b := (4 + 4) * (𝕔 / 4)) (by cutsat) (by rw [← mul_assoc, two_mul]; gcongr)
+      apply le_trans (b := (4 + 4) * (𝕔 / 4)) (by lia) (by rw [← mul_assoc, two_mul]; gcongr)
     _ = 4 * a ^ 3 * (𝕔 / 4) := by ring
     _ ≤ a * a ^ 3 * (𝕔 / 4) := by gcongr
   linarith

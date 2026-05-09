@@ -1,9 +1,12 @@
-import Mathlib.Data.Set.Lattice
-import Mathlib.Order.SuccPred.Basic
-import Mathlib.Tactic.Common
+module
+
+public import Mathlib.Data.Set.Lattice
+public import Mathlib.Order.SuccPred.Basic
+public import Mathlib.Tactic.Common
+
+public section
 
 -- Upstreaming status: results seem useful in general, some should be generalised
--- Proofs can probaby be polished and golfed significantly
 
 open Function Order Set
 
@@ -34,21 +37,14 @@ section LinearOrder
 variable [LinearOrder α]
 
 -- TODO: can or should these lemmas take a more general indexing type?
--- TODO: the proofs below can probably be golfed significantly, do so!
 theorem iUnion_Ico_eq_Ici {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), Ico (f i) (f (i+1)) = Ici (f 0) := by
   apply subset_antisymm
   · exact iUnion_subset fun i ↦ Ico_subset_Ici (hf i)
   · intro a ha
     by_contra! hcontra
-    apply h2f
-    rw [bddAbove_def]
-    use a
-    suffices ∀ i, f i ≤ a by simp [this]
-    intro i
-    induction i with
-    | zero => exact ha
-    | succ i hind => simp_all
+    simp only [mem_iUnion, mem_Ico, not_exists, not_and, not_lt] at hcontra
+    exact h2f ⟨a, forall_mem_range.mpr (Nat.rec ha hcontra)⟩
 
 theorem iUnion_Ioc_eq_Ioi {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), Ioc (f i) (f (i+1)) = Ioi (f 0) := by
@@ -56,48 +52,26 @@ theorem iUnion_Ioc_eq_Ioi {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬Bd
   · exact iUnion_subset fun i ↦ Ioc_subset_Ioi (hf i)
   · intro a ha
     by_contra! hcontra
-    apply h2f
-    use a
-    suffices ∀ i, f i < a by
-      intro y hy
-      obtain ⟨i, rfl⟩ := hy
-      exact (this i).le
-    intro i
-    induction i with
-      | zero => exact ha
-      | succ i hind => simp_all
+    simp only [mem_iUnion, mem_Ioc, not_exists, not_and, not_le] at hcontra
+    exact h2f ⟨a, forall_mem_range.mpr (fun i ↦ le_of_lt (Nat.rec ha hcontra i))⟩
 
 variable {ι : Type*} [LinearOrder ι] [SuccOrder ι]
 
 theorem pairwise_disjoint_Ico_monotone {f : ι → α} (hf : Monotone f) :
     Pairwise (Function.onFun Disjoint fun (i : ι) => Ico (f i) (f (Order.succ i))) := by
-  unfold Function.onFun
-  simp_rw [Set.disjoint_iff]
-  intro i j hinej
-  wlog hij : i < j generalizing i j
-  · rw [not_lt] at hij
-    have := this hinej.symm (hij.lt_of_ne hinej.symm)
-    rwa [inter_comm]
-  intro a
-  simp only [mem_empty_iff_false, mem_inter_iff, mem_Ico, imp_false, not_and, not_lt, and_imp]
-  intro ha ha2 ha3
-  have : ¬f j ≤ a := not_le.mpr (lt_of_lt_of_le ha2 (hf (SuccOrder.succ_le_of_lt hij)))
-  contradiction
+  intro i j hij
+  wlog h : i < j with H
+  · exact (H hf hij.symm (hij.lt_or_gt.resolve_left h)).symm
+  exact disjoint_left.mpr fun _a hai haj ↦
+    not_le.mpr (hai.2.trans_le (hf (Order.succ_le_of_lt h))) haj.1
 
 theorem pairwise_disjoint_Ioc_monotone {f : ι → α} (hf : Monotone f) :
-    Pairwise (Function.onFun Disjoint fun (i : ι) => Ioc (f i) (f (Order.succ i))) := by
-  unfold Function.onFun
-  simp_rw [Set.disjoint_iff]
-  intro i j hinej
-  wlog hij : i < j generalizing i j
-  · rw [not_lt] at hij
-    have := this hinej.symm (hij.lt_of_ne hinej.symm)
-    rwa [inter_comm]
-  intro a
-  simp only [mem_empty_iff_false, mem_inter_iff, mem_Ioc, imp_false, not_and, and_imp]
-  intro ha ha2 ha3
-  have : ¬f j < a := not_lt.mpr (le_trans ha2 (hf (SuccOrder.succ_le_of_lt hij)))
-  contradiction
+    Pairwise (Function.onFun Disjoint fun (i : ι) ↦ Ioc (f i) (f (Order.succ i))) := by
+  intro i j hij
+  wlog h : i < j with H
+  · exact (H hf hij.symm (hij.lt_or_gt.resolve_left h)).symm
+  exact disjoint_left.mpr fun _a hai haj ↦
+    not_lt.mpr (hai.2.trans (hf (Order.succ_le_of_lt h))) haj.1
 
 end LinearOrder
 

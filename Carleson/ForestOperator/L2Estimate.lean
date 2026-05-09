@@ -1,5 +1,9 @@
-import Carleson.ForestOperator.PointwiseEstimate
-import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+module
+
+public import Carleson.ForestOperator.PointwiseEstimate
+public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+
+@[expose] public section
 
 noncomputable section
 
@@ -21,7 +25,7 @@ lemma integrableOn_K_mul_f {x' : X} (hf : BoundedCompactSupport f volume) {r : �
   have : support (fun y ↦ f y * K x' y) ⊆ closedBall x' (dist x' x'' + C) := by
     intro y hy
     have : y ∈ support f := by contrapose! hy; simp [hy]
-    exact mem_closedBall'.mp <| (dist_triangle x' x'' y).trans <| add_le_add_left (hC hx'' this) _
+    exact mem_closedBall'.mp <| (dist_triangle x' x'' y).trans <| add_le_add_right (hC hx'' this) _
   simp_rw [mul_comm (K x' _), IntegrableOn, ← integrableOn_iff_integrable_of_support_subset this]
   apply hf.restrict.restrict.integrable_mul
   rw [Measure.restrict_restrict measurableSet_closedBall, inter_comm, ← IntegrableOn]
@@ -45,11 +49,11 @@ private lemma eq_K (b : ℤ) (c : ℤ) (x y : X)
 private lemma integrableOn_mul_f {x' : X} (hf : BoundedCompactSupport f) {r : ℝ≥0∞} (hr : 0 < r)
     (s₁ s₂ : ℤ) : IntegrableOn (fun y ↦ K' s₁ s₂ x' y * f y) (EAnnulus.ci x' r) := by
   simp_rw [K', Ks, mul_comm (K x' _) (ψ _), ← Finset.sum_mul, mul_assoc]
-  apply Integrable.bdd_mul (integrableOn_K_mul_f hf hr)
+  apply Integrable.bdd_mul (integrableOn_K_mul_f hf hr) (c := (s₂ + 1 - s₁).toNat)
   · refine (Finset.aestronglyMeasurable_fun_sum _ (fun i hi ↦ ?_)).restrict
     apply continuous_ofReal.comp_aestronglyMeasurable ∘ continuous_ψ.comp_aestronglyMeasurable
     exact (continuous_const.dist continuous_id').aestronglyMeasurable.const_mul _
-  · refine ⟨(s₂ + 1 - s₁).toNat, fun _ ↦ le_trans (norm_sum_le ..) ?_⟩
+  · refine ae_of_all _ fun _ ↦ le_trans (norm_sum_le ..) ?_
     simp_rw [norm_real]
     exact le_of_le_of_eq (Finset.sum_le_sum fun _ _ ↦ abs_ψ_le_one _ _) (by simp)
 
@@ -65,7 +69,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
   suffices ((D : ℝ) ^ s)⁻¹ * dist x y ∉ support ψ by simp [Ks, notMem_support.mp this, -defaultD]
   rw [support_ψ (one_lt_realD X), mem_Ioo, not_and_or]
   rcases lt_or_ge ((D : ℝ) ^ (b - 1) / 4) (dist x y) with h | h
-  · push_neg; right
+  · push Not; right
     calc
       _ ≥ ((D : ℝ) ^ c)⁻¹ * (D ^ c / 2) := by
         gcongr
@@ -74,7 +78,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
         · exact (Finset.mem_Icc.mp hs).2
         · exact hy h
       _ = _ := by field_simp
-  · push_neg; left
+  · push Not; left
     calc
       _ ≤ ((D : ℝ) ^ b)⁻¹ * (D ^ (b - 1) / 4) := by
         refine mul_le_mul ?_ h dist_nonneg ?_
@@ -88,7 +92,7 @@ private lemma enorm_le_enorm_K (a : ℤ) (b : ℤ) (x y : X) : ‖K' a b x y‖�
   by_cases hxy : 0 = dist x y
   · simp [← hxy, psi_zero]
   rw [← mul_one ‖K x y‖ₑ, ← Finset.mul_sum, enorm_mul]
-  apply mul_le_mul_left'
+  apply mul_le_mul_right
   rw [enorm_eq_nnnorm]
   norm_cast
   apply le_trans <| nnnorm_sum_le _ _
@@ -157,7 +161,7 @@ private lemma nontangential_integral_bound₁
     ‖∫ y in Annulus.oc x' R₁ R₂, K x' y * f y‖ₑ ≤
     2 * linearizedNontangentialOperator Q θ K f x := by
   rcases le_or_gt R₂ R₁ with lR₂ | lR₂
-  · rw [Annulus.oc_eq_empty lR₂, setIntegral_empty, enorm_zero]; exact zero_le _
+  · rw [Annulus.oc_eq_empty lR₂, setIntegral_empty, enorm_zero]; exact zero_le
   have pR₁ : 0 < R₁ := dist_nonneg.trans_lt hR₁
   have pR₂ : 0 < R₂ := pR₁.trans lR₂
   choose R₃ hR₃ using exists_between hR₂
@@ -207,7 +211,7 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
   have ineq : ∀ y ∈ Annulus.cc x' ((D : ℝ) ^ (s I - 1) / 4) (8 * D ^ s I), ‖K x' y * f y‖ₑ ≤
       2 ^ (7 * a + (𝕔 + 1) * a ^ 3) / volume (ball (c I) (16 * D ^ s I)) * ‖f y‖ₑ := by
     intro y hy; rw [Annulus.cc] at hy; rw [enorm_mul]
-    refine mul_le_mul_right' ((enorm_K_le 5 hy.1).trans ?_) ‖f y‖ₑ; gcongr
+    refine mul_le_mul_left ((enorm_K_le 5 hy.1).trans ?_) ‖f y‖ₑ; gcongr
     suffices dist (c I) x' < 16 * D ^ s I from ball_subset_ball' (by linarith)
     rw [← mem_ball', s]
     refine ball_subset_ball ?_ (Grid_subset_ball hx')
@@ -235,7 +239,8 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
     _ = ⨍⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ ∂volume := by rw [setLAverage_eq]
     _ ≤ MB volume 𝓑 c𝓑 r𝓑 f x := by
       rw [MB_def]
-      have : (4, 0, I) ∈ 𝓑 := by simp [𝓑]
+      have : (4, 0, I) ∈ 𝓑 := by
+        simp only [𝓑, Set.mem_prod, Set.mem_Iic, Set.mem_univ, le_add_iff_nonneg_left, zero_le, and_self]
       refine le_of_eq_of_le ?_ (le_biSup _ this)
       have : x ∈ ball (c I) (2 ^ 4 * (D : ℝ) ^ s I) := by
         refine (ball_subset_ball ?_) (Grid_subset_ball hx)
@@ -250,7 +255,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
     2 * linearizedNontangentialOperator Q θ K f x +
     2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x := by
   refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ ms₂ ↦ iSup_le fun ls₂ ↦ ?_
-  rw [← integral_finset_sum]; swap
+  rw [← integral_finsetSum]; swap
   · intro i hi; simp_rw [mul_comm]
     exact hf.integrable_mul (integrable_Ks_x (one_lt_realD X))
   simp_rw [← Finset.sum_mul]
@@ -274,7 +279,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       · exact (ineq four_pos).le
       · gcongr
         · exact one_le_realD _
-        · cutsat
+        · lia
         · norm_num
       · refine K'.integrableOn_mul_f hf (r := ENNReal.ofReal (D ^ (s I - 1) / 4)) ?_ (s I) s₂
           |>.mono_set ?_
@@ -286,7 +291,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
         ∫⁻ y in Annulus.cc x' (D ^ (s₂ - 1) / 4) (D ^ s₂ / 2), ‖K x' y * f y‖ₑ) := by
       have norm_K'_f_le : ∀ (y : X), ‖K' (s I) s₂ x' y * f y‖ₑ ≤ ‖K x' y * f y‖ₑ := by
         simp_rw [enorm_mul]
-        exact fun y ↦ mul_le_mul_of_nonneg_right (K'.enorm_le_enorm_K _ _ _ _) (zero_le _)
+        exact fun y ↦ mul_le_mul_of_nonneg_right (K'.enorm_le_enorm_K _ _ _ _) zero_le
       gcongr
       · refine (congrArg (‖·‖ₑ) <| setIntegral_congr_fun Annulus.measurableSet_oc fun y hy ↦ ?_).le
         apply mul_eq_mul_right_iff.mpr ∘ Or.inl ∘ K'.eq_K (s I) s₂ x' y
@@ -337,7 +342,7 @@ lemma le_C7_2_2 (a4 : 4 ≤ a) :
       · exact one_le_two
       · rw [show a ^ 3 + 1 = 1 * a ^ 3 + 1 by ring, add_assoc]; gcongr
         · norm_num
-        · cutsat
+        · lia
       · exact one_le_two
       · ring_nf; rfl
     _ = 2 ^ ((𝕔 + 1) * a ^ 3 + 8 * a + 4) := by rw [← two_mul, ← pow_succ']
@@ -345,14 +350,14 @@ lemma le_C7_2_2 (a4 : 4 ≤ a) :
       rw [C7_2_2, add_assoc, show (𝕔 + 2) * a ^ 3 = (𝕔 + 1) * a ^ 3 + a ^ 3 by ring]
       gcongr; · exact one_le_two
       calc
-        _ ≤ 4 * 4 * a := by cutsat
+        _ ≤ 4 * 4 * a := by lia
         _ ≤ _ := by rw [pow_three']; gcongr
 
 /-- Lemma 7.2.2. -/
 lemma nontangential_operator_bound (hf : BoundedCompactSupport f) (θ : Θ X) :
     eLpNorm (nontangentialMaximalFunction θ f) 2 volume ≤ C7_2_2 a * eLpNorm f 2 volume := by
   have aemeas_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) :=
-    (AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable
+    Measurable.maximalFunction.aemeasurable
   have ⟨hT₁, hT₂⟩ := BST_T_Q θ f hf.boundedFiniteSupport
   dsimp only at hT₁ hT₂
   calc
@@ -397,7 +402,7 @@ lemma subset_of_kissing (h : J ∈ kissing I) :
   apply ball_subset_ball'
   calc
     _ ≤ D ^ s J / 4 + dist (c J) x + dist x (c I) := by
-      rw [add_assoc]; exact add_le_add_left (dist_triangle ..) _
+      rw [add_assoc]; exact add_le_add_right (dist_triangle ..) _
     _ ≤ D ^ s J / 4 + 16 * D ^ s J + 16 * D ^ s I := by
       gcongr
       · exact (mem_ball'.mp xJ).le
@@ -415,7 +420,7 @@ lemma volume_le_of_kissing (h : J ∈ kissing I) :
     apply ball_subset_ball'
     calc
       _ ≤ 33 * D ^ s I + dist (c I) x + dist x (c J) := by
-        rw [add_assoc]; exact add_le_add_left (dist_triangle ..) _
+        rw [add_assoc]; exact add_le_add_right (dist_triangle ..) _
       _ ≤ 33 * D ^ s I + 16 * D ^ s I + 16 * D ^ s J := by
         gcongr
         · exact (mem_ball'.mp xI).le
@@ -451,7 +456,7 @@ lemma boundary_overlap (I : Grid X) : (kissing I).card ≤ 2 ^ (9 * a) := by
       _ ≤ _ := by gcongr; exact iUnion₂_subset fun _ ↦ subset_of_kissing
   have vn0 : volume (ball (c I) (33 * D ^ s I)) ≠ 0 := by
     refine (measure_ball_pos volume _ ?_).ne'; simp only [defaultD]; positivity
-  rw [ENNReal.mul_le_mul_right vn0 measure_ball_ne_top] at key; norm_cast at key
+  rw [ENNReal.mul_le_mul_iff_left vn0 measure_ball_ne_top] at key; norm_cast at key
 
 lemma e728_push_toReal (hf : BoundedCompactSupport f) :
     (t.boundaryOperator u f x).toReal = ∑ I : Grid X,
@@ -482,7 +487,7 @@ lemma e728_rearrange (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport 
       unfold indicator; split_ifs <;> simp
     _ = ∑ I : Grid X, ∫ x, (I : Set X).indicator
         (fun _ ↦ conj (g x) * ∑ J ∈ 𝓙' t u (c I) (s I), (ijIntegral f I J).toReal) x := by
-      refine integral_finset_sum _ fun I _ ↦ ?_
+      refine integral_finsetSum _ fun I _ ↦ ?_
       change Integrable ((I : Set X).indicator _)
       rw [integrable_indicator_iff coeGrid_measurable]
       dsimp only
@@ -508,11 +513,16 @@ lemma e728_rearrange (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport 
     _ = ∑ I : Grid X, (volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal *
         ∫ x in I, (conj (g x) * ∑ J ∈ 𝓙' t u (c I) (s I),
           (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal) := by
-      congr with I; rw [← integral_const_mul]
+      congr with I
+      have : ∫ x in (I : Set X), ↑(volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal * (conj (g x) * ↑(∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in (J : Set X), ‖f y‖ₑ).toReal)) = ↑(volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal * ∫ x in (I : Set X), conj (g x) * ↑(∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in (J : Set X), ‖f y‖ₑ).toReal) := integral_const_mul _ _
+      rw [← this]
       congr with x; rw [← mul_assoc, mul_comm _ (conj _), mul_assoc]
       congr 1; rw [ofReal_sum, ofReal_sum, Finset.mul_sum]
       congr with J; rw [mul_comm, ofReal_mul]
-    _ = _ := by simp_rw [integral_mul_const, mul_assoc]
+    _ = _ := by
+      congr with I
+      have : ∫ x in (I : Set X), conj (g x) * (↑(∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in (J : Set X), ‖f y‖ₑ).toReal) : ℂ) = (∫ x in (I : Set X), conj (g x)) * (↑(∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in (J : Set X), ‖f y‖ₑ).toReal) : ℂ) := integral_mul_const _ _
+      rw [this, ← mul_assoc]
 
 open scoped Classical in
 /-- Equation (7.2.8) in the proof of Lemma 7.2.3. -/
@@ -528,13 +538,13 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       rw [e728_rearrange hf hg]
     _ ≤ ∑ I : Grid X, ‖((volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal * ∫ x in I, conj (g x)) *
         ∑ J ∈ 𝓙' t u (c I) (s I), (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal‖ₑ := by
-      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe]
+      simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe]
       apply nnnorm_sum_le
     _ ≤ ∑ I : Grid X, (volume (ball (c I) (16 * D ^ s I)))⁻¹ * ‖∫ x in I, conj (g x)‖ₑ *
         ∑ J ∈ 𝓙' t u (c I) (s I), ‖(D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal‖ₑ := by
       simp_rw [enorm_mul]; gcongr <;> rw [← ofReal_norm, norm_real, ofReal_norm]
       · exact enorm_toReal_le
-      · simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finset_sum, ENNReal.coe_le_coe]
+      · simp_rw [enorm_eq_nnnorm, ← ENNReal.coe_finsetSum, ENNReal.coe_le_coe]
         apply nnnorm_sum_le
     _ ≤ ∑ I : Grid X, ((volume (ball (c I) (16 * D ^ s I)))⁻¹ * ∫⁻ x in I, ‖g x‖ₑ) *
         ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ := by
@@ -556,7 +566,9 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
           D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ else 0 := by
       rw [Finset.sum_comm]; congr with I
       simp_rw [Finset.mul_sum, mul_assoc, ← Finset.sum_filter]
-      exact Finset.sum_congr (by ext; simp [𝓙']) fun _ _ ↦ rfl
+      refine Finset.sum_congr ?_ fun _ _ ↦ rfl
+      ext
+      simp only [𝓙', Finset.mem_filter, Finset.mem_univ, Set.mem_toFinset, true_and]
     _ = ∑ J ∈ 𝓙 (t u), ∑ I : Grid X, ∫⁻ y in J,
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
           (⨍⁻ x in ball (c I) (16 * D ^ s I), ‖g x‖ₑ ∂volume) *
@@ -568,7 +580,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
           (⨍⁻ x in ball (c I) (16 * D ^ s I), ‖g x‖ₑ ∂volume) *
             D ^ ((s J - s I) / (a : ℝ)) * ‖f y‖ₑ else 0 := by
-      congr with J; refine (lintegral_finset_sum' _ fun I _ ↦ ?_).symm
+      congr with J; refine (lintegral_finsetSum' _ fun I _ ↦ ?_).symm
       exact (nfs.restrict.const_mul _).ite (.const _) aemeasurable_const
     _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ∑ I : Grid X,
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
@@ -576,10 +588,10 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       refine Finset.sum_le_sum fun J mJ ↦ setLIntegral_mono_ae ?_ ?_
       · refine (Finset.aemeasurable_fun_sum _ fun I _ ↦ ?_).restrict; split_ifs; swap; · simp
         refine (AEMeasurable.mul_const ?_ _).mul nfs
-        exact (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
+        exact Measurable.maximalFunction.aemeasurable
       · refine Eventually.of_forall fun y my ↦ Finset.sum_le_sum fun I _ ↦ ?_
         split_ifs with hIJ; swap; · rfl
-        refine mul_le_mul_right' (mul_le_mul_right' ?_ _) _
+        refine mul_le_mul_left (mul_le_mul_left ?_ _) _
         obtain ⟨b, mb, eb⟩ : ∃ i ∈ 𝓑, ball (c𝓑 i) (r𝓑 i) = ball (c I) (16 * D ^ s I) := by
           use (4, 0, I); norm_num [𝓑, c𝓑, r𝓑]
         rw [MB, maximalFunction]; simp_rw [inv_one, ENNReal.rpow_one]
@@ -604,12 +616,12 @@ lemma boundary_geometric_series :
             ext k
             rw [Finset.mem_filter, Finset.mem_Icc, Finset.mem_singleton, and_iff_right_iff_imp]
             intro h'; subst h'; exact ⟨hs, scale_mem_Icc.2⟩
-          simp [this]
+          rw [Set.toFinset_Icc, this, Finset.sum_singleton]
         · have : (Finset.Icc (s J) S).filter (· = s I) = ∅ := by
             ext k
             simp_rw [Finset.mem_filter, Finset.mem_Icc, Finset.notMem_empty, iff_false, not_and]
-            intro; cutsat
-          simp [this]
+            intro; lia
+          rw [Set.toFinset_Icc, this, Finset.sum_empty]
       · simp_rw [h, false_and, ite_false, Finset.sum_const_zero]
     _ = ∑ kh : Icc (s J) S, ∑ I : Grid X,
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ kh.1 = s I then
@@ -621,7 +633,8 @@ lemma boundary_geometric_series :
       obtain ⟨k, h⟩ := kh
       set J' := (Grid.exists_supercube k h).choose
       have pJ' : s J' = k ∧ J ≤ J' := (Grid.exists_supercube k h).choose_spec
-      by_cases hs : k = s I; swap; · simp [hs]
+      by_cases hs : k = s I; swap;
+      · rw [if_neg (fun h ↦ hs h.2)]; exact zero_le
       suffices (J : Set X) ⊆ ball (c I) (16 * D ^ s I) → I ∈ kissing J' by
         split_ifs; exacts [by simp_all, by tauto, by positivity, by rfl]
       intro mJ; simp_rw [kissing, Finset.mem_filter_univ]
@@ -646,8 +659,8 @@ lemma boundary_geometric_series :
         ⟨(k - s J).toNat, by rw [mem_Icc] at bk; simp [bk]⟩
       have bijf : Bijective f := by
         rw [Fintype.bijective_iff_surjective_and_card]; constructor
-        · rintro ⟨k', bk'⟩; use ⟨k' + s J, by rw [mem_Icc] at bk' ⊢; cutsat⟩; simp [f]
-        · simp only [Fintype.card_ofFinset, Int.card_Icc, Nat.card_Icc, tsub_zero]; cutsat
+        · rintro ⟨k', bk'⟩; use ⟨k' + s J, by rw [mem_Icc] at bk' ⊢; lia⟩; simp [f]
+        · simp only [Fintype.card_ofFinset, Int.card_Icc, Nat.card_Icc, tsub_zero]; lia
       refine Fintype.sum_bijective f bijf _ _ fun ⟨k, bk⟩ ↦ ?_
       simp only [f, Int.toNat_sub_of_le bk.1, neg_sub, ← Int.cast_sub]
       rw [← ENNReal.rpow_intCast, ← ENNReal.rpow_mul, div_mul_comm, mul_one]
@@ -667,7 +680,7 @@ lemma boundary_geometric_series :
         gcongr
         · linarith [seven_le_c]
         · linarith [four_le_a X]
-    _ ≤ 2 ^ (9 * a) * ∑' k : ℕ, 2 ^ (-k : ℤ) := mul_le_mul_left' (ENNReal.sum_le_tsum _) _
+    _ ≤ 2 ^ (9 * a) * ∑' k : ℕ, 2 ^ (-k : ℤ) := mul_le_mul_right (ENNReal.sum_le_tsum _) _
     _ ≤ 2 ^ (9 * a) * 2 := by rw [ENNReal.sum_geometric_two_pow_neg_one]
     _ = _ := by rw [← pow_succ]
 
@@ -697,7 +710,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
       rw [mul_assoc]; gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm ⟨by simpa using ENNReal.inv_two_add_inv_two⟩
         hf.aestronglyMeasurable.aemeasurable.enorm
-        (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
+        Measurable.maximalFunction.aemeasurable
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * (2 ^ (a + (3 / 2 : ℝ)) * eLpNorm g 2 volume) := by
       have ST : HasStrongType (α := X) (α' := X) (ε₁ := ℂ) (MB volume 𝓑 c𝓑 r𝓑) 2 2 volume volume
           (CMB (defaultA a) 2) := by
@@ -714,10 +727,10 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
         · exact_mod_cast mb2
       specialize ST g (hg.memLp 2)
       rw [CMB_defaultA_two_eq, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat] at ST
-      exact mul_le_mul_left' ST.2 _
+      exact mul_le_mul_right ST.2 _
     _ = 2 ^ (9 * a + 1) * 2 ^ (a + (3 / 2 : ℝ)) * eLpNorm f 2 volume * eLpNorm g 2 volume := by ring
     _ ≤ _ := by
-      refine mul_le_mul_right' (mul_le_mul_right' ?_ _) _
+      refine mul_le_mul_left (mul_le_mul_left ?_ _) _
       rw [C7_2_3, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat,
         ← ENNReal.rpow_natCast, ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]
       refine ENNReal.rpow_le_rpow_of_exponent_le one_le_two ?_
@@ -726,6 +739,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
       have : 4 ≤ (a : ℝ) := by norm_cast; exact four_le_a X
       linarith
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 7.2.3. -/
 lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     eLpNorm (t.boundaryOperator u f) 2 volume ≤ C7_2_3 a * eLpNorm f 2 volume := by
@@ -739,7 +753,7 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     eLpNorm_toReal_eq (Eventually.of_forall fun _ ↦ (boundaryOperator_lt_top hf).ne)
   by_cases hv : eLpNorm (t.boundaryOperator u f) 2 volume = 0; · simp [hv]
   have hv' : eLpNorm (t.boundaryOperator u f) 2 volume < ⊤ := elpn_eq ▸ (bcs.memLp 2).2
-  rw [← ENNReal.mul_le_mul_right hv hv'.ne, ← sq, ← ENNReal.rpow_natCast]
+  rw [← ENNReal.mul_le_mul_iff_left hv hv'.ne, ← sq, ← ENNReal.rpow_natCast]
   nth_rw 1 [show ((2 : ℕ) : ℝ) = (2 : ℝ≥0) by rfl, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
     eLpNorm_nnreal_pow_eq_lintegral two_ne_zero]
   convert boundary_operator_bound_aux (t := t) (u := u) hf bcs.toComplex using 2
@@ -784,7 +798,7 @@ private def cS_bound (x' : X) :=
 
 private lemma aeMeasurable_cS_bound : AEMeasurable (cS_bound t u f) := by
   refine AEMeasurable.add ?_ MeasureTheory.Measurable.nontangentialMaximalFunction.aemeasurable
-  apply ((AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable.add ?_).const_mul
+  apply (Measurable.maximalFunction.aemeasurable.add ?_).const_mul
   exact measurable_boundaryOperator.aemeasurable
 
 -- The natural constant for Lemma 7.2.1 is ≤ the simpler constant `C7_2_1` we use instead.
@@ -806,7 +820,7 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
       gcongr
       · norm_num
       simp [add_mul]
-      cutsat
+      lia
   _ = 3 * 2 ^ (12 * a) * 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3) := by rw [add_comm, pow_add]; ring
   _ ≤ 2 ^ (a ^ 3) * 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3) := by
     apply mul_left_mono; norm_cast
@@ -814,7 +828,7 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
       _ ≤ 2 ^ 2 * 2 ^ (12 * a) := by gcongr; norm_num
       _ = 2 ^ (2 + 12 * a)     := by rw [pow_add]
       _ ≤ 2 ^ (a ^ 3)          := pow_le_pow_right₀ one_le_two <| calc 2 + 12 * a
-        _ ≤ a + 12 * a := by apply add_le_add_right; linarith
+        _ ≤ a + 12 * a := by apply add_le_add_left; linarith
         _ = 13 * a     := by ring
         _ ≤ a ^ 2 * a  := by rw [mul_le_mul_iff_left₀] <;> nlinarith
         _ = a ^ 3      := rfl
@@ -829,7 +843,7 @@ private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤
   let g₂ := t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖))
   let g₃ := nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) (eI𝒬u_mul u f))
   have m₁ : AEMeasurable g₁ :=
-    (MeasureTheory.AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable
+    Measurable.maximalFunction.aemeasurable
   have m₂ : AEMeasurable g₂ := measurable_boundaryOperator.aemeasurable
   calc eLpNorm (cS_bound t u f) 2 μ
     _ = eLpNorm (C7_1_3 a • (g₁ + g₂) + g₃) 2 μ := rfl
@@ -842,21 +856,25 @@ private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤
       simpa [eLpNorm, eLpNorm'] using ENNReal.lintegral_Lp_smul (m₁.add m₂) two_pos (C7_1_3 a)
     _ ≤ C7_1_3 a • (eLpNorm g₁ 2 μ + eLpNorm g₂ 2 μ) + eLpNorm g₃ 2 μ := by
       gcongr
-      simpa [eLpNorm, eLpNorm'] using ENNReal.lintegral_Lp_add_le m₁ m₂ one_le_two
+      exact eLpNorm_add_le m₁.aestronglyMeasurable m₂.aestronglyMeasurable one_le_two
     _ ≤ C7_1_3 a • ((CMB (defaultA a) 2) * eLpNorm aOC 2 μ + (C7_2_3 a) * eLpNorm aOC 2 μ) +
           (C7_2_2 a) * eLpNorm aOC 2 μ := by
       gcongr
       · exact eLpNorm_MB_le boundedCompactSupport_approxOnCube
       · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube
-        simp [eLpNorm, eLpNorm', aOC, approxOnCube_ofReal, enorm_eq_nnnorm, μ]
+        congr 1
+        apply eLpNorm_congr_norm_ae
+        filter_upwards with x
+        convert Complex.norm_real (aOC x) using 2
+        exact approxOnCube_ofReal _ _ _
       · apply le_trans <| nontangential_operator_bound boundedCompactSupport_approxOnCube (𝒬 u)
-        refine mul_le_mul_left' (eLpNorm_mono (fun x ↦ ?_)) _
+        refine mul_le_mul_right (eLpNorm_mono (fun x ↦ ?_)) _
         apply le_of_le_of_eq norm_approxOnCube_le_approxOnCube_norm
         rw [Real.norm_of_nonneg <| approxOnCube_nonneg (fun _ ↦ norm_nonneg _)]
         simp_rw [norm_eI𝒬u_mul_eq]
     _ = (C7_1_3 a * CMB (defaultA a) 2 + C7_1_3 a * C7_2_3 a + C7_2_2 a) * eLpNorm aOC 2 μ := by
       rw [ENNReal.smul_def, smul_eq_mul]; ring
-    _ ≤ _ := mul_le_mul_right' (le_C7_2_1 (four_le_a X)) _
+    _ ≤ _ := mul_le_mul_left (le_C7_2_1 (four_le_a X)) _
 
 /- TODO: PR next to `Complex.norm_real` -/
 @[simp 1100, norm_cast]
@@ -881,7 +899,7 @@ lemma tree_projection_estimate
       refine lintegral_congr (fun x ↦ ?_)
       by_cases hx : x ∈ ⋃ p ∈ t u, 𝓘 p
       · rw [indicator_of_mem hx]
-      · simp [indicator_of_notMem hx, notMem_support.mp (hx <| support_carlesonSum_subset ·)]
+      · simp only [notMem_support.mp (hx <| support_carlesonSum_subset ·), enorm_zero, mul_zero, indicator_of_notMem hx]
     _ ≤ ∫⁻ x in (⋃ L ∈ 𝓛 (t u), (L : Set X)), ‖g x‖ₑ * ‖carlesonSum (t u) f x‖ₑ := by
       rw [biUnion_𝓛]
       refine lintegral_mono_set (fun x hx ↦ ?_)

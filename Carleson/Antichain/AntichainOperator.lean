@@ -1,5 +1,7 @@
-import Carleson.Antichain.AntichainTileCount
-import Carleson.Antichain.TileCorrelation
+module
+
+public import Carleson.Antichain.AntichainTileCount
+public import Carleson.Antichain.TileCorrelation
 
 /-!
 # 6. Proof of the Antichain Operator Proposition
@@ -11,6 +13,8 @@ versions of the latter are provided.
 - `dens1_antichain` : Lemma 6.1.4.
 - `antichain_operator`: Proposition 2.0.3.
 -/
+
+@[expose] public section
 noncomputable section
 
 open scoped ShortVariables ComplexConjugate GridStructure
@@ -35,9 +39,9 @@ lemma dens1_antichain_rearrange (bg : BoundedCompactSupport g) :
     _ = ‖∑ p with p ∈ 𝔄, ∑ p' with p' ∈ 𝔄,
           ∫ x, adjointCarleson p g x * conj (adjointCarleson p' g x)‖ₑ := by
       congr 1
-      rw [integral_finset_sum]
+      rw [integral_finsetSum]
       · congr! with p mp
-        exact integral_finset_sum _ fun p' mp' ↦ by
+        exact integral_finsetSum _ fun p' mp' ↦ by
           -- This smells like a fun_prop bug: removing the `change` makes fun_prop fail to prove
           -- `fails` below, even though it knows about `BoundedCompactSupport.integrable` and
           -- can prove that.
@@ -134,7 +138,7 @@ lemma dens1_antichain_dach (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.ind
       rw [← Finset.mul_sum, ← mul_assoc]; congr 1
       · rw [← mul_rotate, ← pow_succ, mul_comm]
       · congr! 1 with p mp; rw [mul_comm (lintegral ..), ← mul_assoc, dach]; congr 2
-        exact (lintegral_finset_sum _ fun p' mp' ↦
+        exact (lintegral_finsetSum _ fun p' mp' ↦
           (hg.enorm.indicator measurableSet_E).const_mul _).symm
 
 /-- The `maximalFunction` instance that appears in Lemma 6.1.4's proof. -/
@@ -154,12 +158,11 @@ lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄) {x₀ : X} (hx : x₀ ∈ ba
   · exact Or.inl <| (by finiteness)
   rw [ENNReal.div_eq_inv_mul, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, mul_comm _ (-1),
     ENNReal.rpow_mul, ENNReal.rpow_neg_one,
-    eLpNorm_eq_lintegral_rpow_enorm (by simpa) (by finiteness)]
+    eLpNorm_eq_lintegral_rpow_enorm_toReal (by simpa) (by finiteness)]
   simp_rw [ENNReal.toReal_ofReal hr.le, one_div]
   rw [← ENNReal.mul_rpow_of_nonneg _ _ (by positivity), M14, maximalFunction]
-  refine ENNReal.rpow_le_rpow ?_ (by positivity)
   conv_lhs =>
-    enter [2, 2, x]
+    enter [1, 2, 2, x]
     rw [enorm_eq_self, ← Function.comp_apply (f := (· ^ r)),
       ← indicator_comp_of_zero (g := fun x ↦ x ^ r) (by simpa using hr)]
   rw [lintegral_indicator measurableSet_ball, ← ENNReal.div_eq_inv_mul, ← setLAverage_eq]
@@ -248,7 +251,7 @@ lemma le_C6_1_4 (a4 : 4 ≤ a) :
   simp_rw [Tile.C6_1_5, Antichain.C6_1_6, C6_1_4, ← pow_add, ← pow_mul]
   gcongr
   · exact one_le_two
-  · have : 𝕔 / 4 ≤ 2 * (𝕔 / 8) + 1 := by cutsat
+  · have : 𝕔 / 4 ≤ 2 * (𝕔 / 8) + 1 := by lia
     have : (𝕔 / 4) * a ^ 3 ≤ 2 * (𝕔 / 8) * a ^ 3 + a ^ 3 :=
       (mul_le_mul_of_nonneg_right this (Nat.zero_le _)).trans_eq (by ring)
     ring_nf
@@ -264,7 +267,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * ∑ p with p ∈ 𝔄,
         ∫⁻ y in E p, C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by
       gcongr with p mp; rw [← lintegral_const_mul _ hg.enorm]
-      refine setLIntegral_mono' measurableSet_E fun x mx ↦ mul_le_mul_right' ?_ _
+      refine setLIntegral_mono' measurableSet_E fun x mx ↦ mul_le_mul_left ?_ _
       rw [Finset.mem_filter_univ] at mp
       refine dach_bound h𝔄 mp hg hgG <|
         ((E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball ?_)) mx
@@ -272,11 +275,11 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     _ = Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         ∫⁻ y in ⋃ p ∈ 𝔄, E p, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by
       rw [mul_assoc _ (C6_1_6 a : ℝ≥0∞), mul_assoc (_ * _), ← lintegral_const_mul'']; swap
-      · exact ((AEStronglyMeasurable.maximalFunction 𝔄.to_countable).aemeasurable.mul
+      · exact (Measurable.maximalFunction.aemeasurable.mul
           hg.enorm.aemeasurable).restrict
       congr 1; simp_rw [← mul_assoc]
       rw [← lintegral_biUnion_finset _ (fun _ _ ↦ measurableSet_E)]
-      · simp
+      · simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       · intro p mp p' mp' hn
         simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at mp mp'
         exact not_not.mp ((tile_disjointness h𝔄 mp mp').mt hn)
@@ -287,7 +290,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
       conv_rhs => enter [2, 2]; rw [← eLpNorm_enorm]
       gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
-        (AEStronglyMeasurable.maximalFunction 𝔄.to_countable).aemeasurable hg.enorm.aemeasurable
+        Measurable.maximalFunction.aemeasurable hg.enorm.aemeasurable
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (2 ^ (a + 2) * eLpNorm g 2 ^ 2) := by
       rw [sq, ← mul_assoc (_ ^ _)]

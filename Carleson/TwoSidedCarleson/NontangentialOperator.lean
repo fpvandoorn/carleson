@@ -1,7 +1,11 @@
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Carleson.TwoSidedCarleson.WeakCalderonZygmund
+module
+
+public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+public import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.TwoSidedCarleson.WeakCalderonZygmund
+
+@[expose] public section
 
 open MeasureTheory Set Bornology Function Metric
 open ENNReal hiding one_lt_two
@@ -36,16 +40,13 @@ lemma estimate_10_1_2 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
     (∫⁻ (y : X) in (ball x r)ᶜ ∩ ball x (2*r), ‖K x y * g y‖ₑ) ≤
     2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x := by
   simp only [enorm_mul]
-
   trans ∫⁻ (y : X) in (ball x r)ᶜ ∩ ball x (2*r), C_K ↑a / volume (ball x r) * ‖g y‖ₑ
   · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
     intro y
     trans y ∈ (ball x r)ᶜ
     · exact fun a ↦ mem_of_mem_inter_left a
     exact fun h ↦ mul_le_mul' (enorm_K_le_ball_complement h) (by rfl)
-
   rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm] -- LHS = 10.1.5
-
   trans C_K a / volume (ball x r) * (globalMaximalFunction volume 1 g x * volume (ball x (2 * r)))
   · gcongr
     trans ∫⁻ (a : X) in ball x (2*r), ‖g a‖ₑ
@@ -55,11 +56,9 @@ lemma estimate_10_1_2 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
     apply laverage_le_globalMaximalFunction
     rw [dist_self]
     exact mul_pos zero_lt_two hr
-
   nth_rw 2 [mul_comm]
   rw [← mul_assoc]
   gcongr
-
   trans C_K a / volume (ball x r) * (defaultA a * volume (ball x r))
   · gcongr
     apply measure_ball_two_le_same
@@ -76,11 +75,9 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     ‖∫ (y : X) in (ball x (2*r))ᶜ, K x y * g y - K x' y * g y‖ₑ ≤
     2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
   simp_rw [← mul_sub_right_distrib]
-
   trans ∫⁻ (y : X) in (ball x (2*r))ᶜ, ‖(K x y - K x' y) * g y‖ₑ
   · apply enorm_integral_le_lintegral_enorm
   simp only [enorm_mul]
-
   trans ∫⁻ (y : X) in (ball x (2*r))ᶜ, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
   · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
     intro y h
@@ -89,7 +86,6 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     · gcongr
     rw [mem_compl_iff, mem_ball, dist_comm] at h
     exact le_of_not_gt h
-
   let dom_i (i : ℕ) := Annulus.co x (2 ^ (i + 1) * r) (2 ^ (i + 2) * r)
   have rw_dom : (ball x (2*r))ᶜ = ⋃ (i : ℕ) , dom_i i:= by
     rw [Annulus.iUnion_co_eq_ci]
@@ -109,16 +105,13 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
         trans Nat.ceil (b / r) + 1
         · exact Nat.le_add_right ⌈b / r⌉₊ 1
         · exact le_of_lt (Nat.lt_pow_self (le_refl 2))
-
   trans ∑' (i : ℕ), ∫⁻ (y : X) in dom_i i, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
   · rw [rw_dom]
     apply lintegral_iUnion_le
-
   -- Writing negative powers as positive powers of 1/2 to enable working with i : ℕ instead of -i : ℤ
   trans ∑' (i : ℕ), 2 ^ (a ^ 3 + a) * (1 / (2 : ℝ≥0) ) ^ ((i + 1) * (a : ℝ)⁻¹) * globalMaximalFunction volume 1 g x
   · apply Summable.tsum_le_tsum
     case hf | hg => apply ENNReal.summable
-
     intro i
     have est_edist : ∀y ∈ dom_i i, (edist x x' / edist x y) ≤ (1 / (2 : ℝ≥0)) ^ (i + 1) := by
       unfold dom_i Annulus.co
@@ -139,24 +132,20 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
         apply ENNReal.inv_mul_cancel <;> simp
       simp only [one_mul, edist_le_coe, nndist_dist]
       exact Real.toNNReal_le_toNNReal hx
-
     have est_vol : ∀y ∈ dom_i i, vol x y ≥ volume (ball x (2 ^ (i + 1) * r)) := by
       unfold dom_i Annulus.co
       simp_rw [← Ico_def, mem_setOf]
       apply fun y h ↦ measure_mono (ball_subset_ball h.left)
-
     trans ∫⁻ (y : X) in dom_i i, (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K a / volume (ball x (2 ^ (i + 1) * r))) * ‖g y‖ₑ
     · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
       intro y hy
       gcongr
       · rw [rpow_mul]
         apply rpow_le_rpow _ (by positivity)
-        · norm_cast
-          exact est_edist y hy
+        · apply (est_edist y hy).trans_eq
+          simp [rpow_add, rpow_natCast, pow_succ]
       · exact est_vol y hy
-
     rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm]
-
     trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
         ∫⁻ (y : X) in ball x (2 ^ (i + 2) * r), ‖g y‖ₑ
     · gcongr _ * ?_
@@ -164,7 +153,6 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       unfold dom_i
       rw [Annulus.co_eq]
       exact inter_subset_left
-
     rw [_laverage_mul_measure_ball]
     nth_rw 5 [mul_comm]
     rw [← mul_assoc]
@@ -174,18 +162,15 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       case h₁ => rfl
       apply laverage_le_globalMaximalFunction
       simp only [dist_self, Nat.ofNat_pos, pow_pos, mul_pos_iff_of_pos_left, hr]
-
     apply mul_le_mul' _ (by rfl)
     rw [mul_assoc, mul_comm]
     apply mul_le_mul' _ (by rfl)
-
     trans C_K a / volume (ball x (2 ^ (i + 1) * r)) * (defaultA a * volume (ball x (2 ^ (i + 1) * r)))
     · gcongr
       rw [pow_succ]
       nth_rw 2 [mul_comm]
       rw [mul_assoc]
       apply measure_ball_two_le_same
-
     apply le_of_eq
     rw [div_eq_mul_inv]
     nth_rw 4 [mul_comm]
@@ -195,12 +180,10 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     rw [ENNReal.mul_inv_cancel (measure_ball_pos volume x (by positivity)).ne.symm measure_ball_lt_top.ne]
     simp_rw [C_K, defaultA, one_mul, pow_add]
     norm_cast
-
   have : (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a) = 2 ^ (a ^ 3 + a) * 2 ^ a := by ring
   rw [ENNReal.tsum_mul_right, ENNReal.tsum_mul_left, this]
   gcongr
   simp_rw [coe_ofNat, one_div, inv_rpow, ← rpow_neg, ← div_eq_mul_inv]
-
   trans ∑' (i : ℕ), 2 ^ (-i / (a : ℝ))
   · apply Summable.tsum_le_tsum
     case hf | hg => apply ENNReal.summable
@@ -209,22 +192,19 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     rw [neg_div, neg_le_neg_iff, div_le_div_iff_of_pos_right (by positivity)]
     simp only [le_add_iff_nonneg_right, zero_le_one]
   rw [← rpow_natCast]
-  exact geometric_series_estimate (by norm_cast; cutsat)
+  exact geometric_series_estimate (by norm_cast; lia)
 
 lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
     (∫⁻ (y : X) in (ball x' r)ᶜ ∩ ball x (2*r), ‖K x' y * g y‖ₑ) ≤
     2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
   simp only [enorm_mul]
-
   trans ∫⁻ (y : X) in (ball x' r)ᶜ ∩ ball x (2 * r), C_K a / volume (ball x' r) * ‖g y‖ₑ
   · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
     intro x
     trans x ∈ (ball x' r)ᶜ
     · exact fun a ↦ mem_of_mem_inter_left a
     exact fun h ↦ mul_le_mul' (enorm_K_le_ball_complement h) (by rfl)
-
   rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm] -- LHS = 10.1.5 but for x'
-
   trans C_K ↑a / volume (ball x' r) * (globalMaximalFunction volume 1 g x * volume (ball x' (4 * r)))
   · apply mul_le_mul' le_rfl
     trans ∫⁻ (a : X) in ball x' (4 * r), ‖g a‖ₑ
@@ -235,14 +215,11 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
     rw [_laverage_mul_measure_ball]
     apply mul_le_mul' ?_ le_rfl
     exact laverage_le_globalMaximalFunction (by linarith)
-
   nth_rw 2 [mul_comm]
   rw [← mul_assoc]
-
   apply mul_le_mul' ?_ le_rfl
   trans C_K ↑a / volume (ball x' r) * ((defaultA a) ^ 2 * volume (ball x' r))
   · exact mul_le_mul' le_rfl (measure_ball_four_le_same _ _)
-
   -- Somehow simp doesn't do it
   apply le_of_eq
   nth_rw 2 [mul_comm]
@@ -260,7 +237,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   let bxrc := (ball x r)ᶜ
   let bx2r := ball x (2*r)
   let bxprc := (ball x' r)ᶜ
-
   -- Domain split x integral
   have dom_x : bxrc = (bxrc ∩ bx2r) ∪ bx2rᶜ := by
     conv_lhs =>
@@ -269,46 +245,38 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     symm
     rw [right_eq_inter, compl_subset_compl]
     exact ball_subset_ball (by linarith)
-
   have ball2_sub_ballprime : bx2rᶜ ⊆ bxprc := by
     rw [compl_subset_compl]
     apply ball_subset
     rw [dist_comm]
     apply hx.trans
     linarith
-
   -- Domain split x' integral
   have dom_x_prime : bxprc = (bxprc ∩ bx2r) ∪ bx2rᶜ := by
     rw [right_eq_inter.mpr ball2_sub_ballprime]
     exact (inter_union_compl bxprc bx2r).symm
-
   -- Integral split x
   have integral_x : czOperator K r g x = (∫ y in (bxrc ∩ bx2r), K x y * g y) + (∫ y in bx2rᶜ, K x y * g y) := by
     calc czOperator K r g x
       _ = (∫ y in bxrc, K x y * g y) := by rfl
       _ = (∫ y in (bxrc ∩ bx2r) ∪ bx2rᶜ , K x y * g y) := by nth_rw 1 [dom_x]
-
     apply setIntegral_union_2
     · rw [disjoint_compl_right_iff_subset]
       exact inter_subset_right
     · exact measurableSet_ball.compl
     · rw [← dom_x]
       apply czOperator_welldefined hg hr
-
   -- Integral split x'
   have integral_x_prime : czOperator K r g x' = (∫ y in (bxprc ∩ bx2r), K x' y * g y) + (∫ y in bx2rᶜ, K x' y * g y) := by
     calc czOperator K r g x'
       _ = (∫ y in bxprc, K x' y * g y) := by rfl
       _ = (∫ y in (bxprc ∩ bx2r) ∪ bx2rᶜ , K x' y * g y) := by nth_rw 1 [dom_x_prime]
-
     refine setIntegral_union_2 ?_ measurableSet_ball.compl ?_
     · rw [disjoint_compl_right_iff_subset]
       exact inter_subset_right
     · rw [← dom_x_prime]
       exact czOperator_welldefined hg hr ..
-
   rw [edist_eq_enorm_sub, integral_x, integral_x_prime]
-
   -- Rewrite lhs according to 10.1.234 split
   conv =>
     lhs; arg 1
@@ -323,7 +291,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
           · apply czOperator_welldefined hg (mul_pos zero_lt_two hr)
           · apply IntegrableOn.mono_set (hst := ball2_sub_ballprime)
             apply czOperator_welldefined hg hr
-
   apply enorm_sub_le.trans
   trans ‖∫ (y : X) in bxrc ∩ bx2r, K x y * g y‖ₑ + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
@@ -436,9 +403,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       rw [dist_comm x' y]
       linarith
     _ = (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖g y‖ₑ := by
-      apply lintegral_const_mul''
-      apply AEMeasurable.enorm
-      exact hg.aemeasurable.restrict
+      exact lintegral_const_mul'' _ (by fun_prop)
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in (ball x (2 * R)), ‖g y‖ₑ := by
       gcongr _ * ?_
       apply lintegral_mono_set
@@ -447,10 +412,8 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       gcongr
       apply lintegral_ball_le_volume_globalMaximalFunction
       simpa
-
   rw [← mul_assoc]
   gcongr
-
   calc _
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x (2 * R)) / 2 ^ (4 * a)) * (volume (ball x (2 * R))) := by
       gcongr
@@ -476,8 +439,8 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       rw [← ENNReal.div_mul, mul_assoc, mul_comm (2 ^ (4 * a)), ← mul_assoc, ENNReal.div_mul_cancel]
       · norm_cast
         ring
-      · apply (measure_ball_pos volume x (by linarith)).ne.symm
-      · apply measure_ball_ne_top
+      · apply (measure_ball_pos volume x (by linarith)).ne'
+      · finiteness
       · simp
       · simp
 
@@ -496,8 +459,7 @@ lemma cut_out_ball {g : X → ℂ} (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 
     intro hy'
     exfalso
     simp at hy hy'
-    have : dist y x' ≤ dist y x + dist x x' := by
-      apply dist_triangle
+    have : dist y x' ≤ dist y x + dist x x' := dist_triangle ..
     linarith
   · measurability
   · measurability
@@ -510,14 +472,14 @@ theorem cotlar_control (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport
   have R_pos : 0 < R := by
     rw [mem_Ioc] at hr
     linarith
-
   calc ‖czOperator K R g x‖ₑ
     _ = ‖(czOperator K R g x - czOperator K R g x') + czOperator K R g x'‖ₑ := by
       congr
       ring
     _ ≤ ‖czOperator K R g x - czOperator K R g x'‖ₑ + ‖czOperator K R g x'‖ₑ := by
       apply enorm_add_le
-    _ = nndist (czOperator K R g x) (czOperator K R g x') + ‖czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ := by congr 2; exact cut_out_ball hr hx
+    _ = nndist (czOperator K R g x) (czOperator K R g x') + ‖czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ := by
+      rw [enorm_eq_nnnorm, ← nndist_eq_nnnorm, cut_out_ball hr hx]
     _ ≤ C10_1_2 a * globalMaximalFunction volume 1 g x + (‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ + ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ) := by
       gcongr
       · apply estimate_x_shift ha hg R_pos
@@ -570,7 +532,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
     volume (ball x (R / 4)) / 4 := by
   let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
   by_cases hMzero : MTrgx = 0
-  · apply le_of_eq_of_le _ (zero_le _)
+  · apply le_of_eq_of_le _ zero_le
     rw [measure_eq_zero_iff_ae_notMem]
     have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
     filter_upwards [czzero] with x' hx'
@@ -580,7 +542,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   · unfold MTrgx at hMinfty
     simp_rw [hMinfty]
     simp
-  rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) (by finiteness) (c := 4 * MTrgx)]
+  rw [← ENNReal.mul_le_mul_iff_left (by simp [hMzero]) (by finiteness) (c := 4 * MTrgx)]
   rw [← lintegral_mul_const' _ _ (by finiteness)]
   simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
   trans ∫⁻ (y : X) in ball x (R / 4),
@@ -611,7 +573,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
         ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
   by_cases hMzero : globalMaximalFunction volume 1 g x = 0
-  · apply le_of_eq_of_le _ (zero_le _)
+  · apply le_of_eq_of_le _ zero_le
     rw [measure_eq_zero_iff_ae_notMem]
     have gzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 2)
         (by simp [lt_of_lt_of_le hr hR]) hg.aestronglyMeasurable hMzero
@@ -649,7 +611,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   have constants : C10_1_4 a = C10_0_3 a * (2 ^ (a + 2)) := by rw [C10_1_4_def, C10_0_3_def]; ring
   nth_rw 1 [constants] at this
   rw [coe_mul, coe_mul, coe_mul] at this --push_cast unfolds defaultA which is cumbersome
-  rw [mul_assoc, mul_assoc, ENNReal.mul_le_mul_left (by rw [C10_0_3_def]; positivity) coe_ne_top,
+  rw [mul_assoc, mul_assoc, ENNReal.mul_le_mul_iff_right (by rw [C10_0_3_def]; positivity) coe_ne_top,
     ← mul_assoc, mul_comm, ENNReal.coe_toNNReal hMinfty,
     ← ENNReal.le_div_iff_mul_le ?ne_z ?ne_t] at this
   case ne_z => left; exact mul_ne_zero (by simp) hMzero --again due to defaultA behaviour
@@ -703,7 +665,7 @@ theorem cotlar_estimate (ha : 4 ≤ a)
     apply nonempty_of_measure_ne_zero (μ := volume)
     intro hnoF
     have : (2 : ℝ≥0∞) ≤ 1 := by
-      rw [← ENNReal.mul_le_mul_left (a := volume (ball x (R / 4))) ?ne_z (by finiteness), mul_one]
+      rw [← ENNReal.mul_le_mul_iff_right (a := volume (ball x (R / 4))) ?ne_z (by finiteness), mul_one]
       case ne_z => apply ne_of_gt; apply measure_ball_pos; linarith [lt_of_lt_of_le hr.1 hr.2]
       have := measure_univ_le_add_compl (μ := volume.restrict (ball x (R / 4))) (s := F1 ∪ F2)
       nth_rw 3 [Measure.restrict_apply' measurableSet_ball] at this
@@ -731,7 +693,7 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   push_cast
   gcongr _ + (_ + 2 ^ ?_) * _
   · exact one_le_two
-  · cutsat
+  · lia
 
 omit [IsTwoSidedKernel a K] in
 /-- Part of Lemma 10.1.6. -/
@@ -783,7 +745,6 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     apply add_le_add (cotlar_estimate ha hT hg ?hrR) (by rfl)
     case hrR => rw [mem_Ioc]; exact ⟨hr, hR.le⟩
   unfold pointwise
-
   have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) zero_lt_one one_lt_two
   norm_cast at hst_gmf
   have hst_gmf_g := hst_gmf g (hg.memLp 2)
@@ -794,12 +755,15 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
       (4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g) by rfl]
   apply le_trans <| eLpNorm_add_le (by fun_prop) (by fun_prop) one_le_two
   apply le_trans <| add_le_add (eLpNorm_add_le (by fun_prop) (by fun_prop) one_le_two) (by rfl)
-  simp_rw [eLpNorm_const_smul' (f := globalMaximalFunction volume 1 g),
-      eLpNorm_const_smul' (f := globalMaximalFunction volume 1 (czOperator K r g)),
-      enorm_NNReal, add_assoc, ← add_mul]
+  rw [
+    show eLpNorm ((4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g)) 2 volume = ‖(4 : ℝ≥0)‖ₑ * eLpNorm (globalMaximalFunction volume 1 (czOperator K r g)) 2 volume from eLpNorm_const_smul',
+    show eLpNorm (C10_1_5 a • globalMaximalFunction volume 1 g) 2 volume = ‖C10_1_5 a‖ₑ * eLpNorm (globalMaximalFunction volume 1 g) 2 volume from eLpNorm_const_smul',
+    show eLpNorm (C10_1_2 a • globalMaximalFunction volume 1 g) 2 volume = ‖C10_1_2 a‖ₑ * eLpNorm (globalMaximalFunction volume 1 g) 2 volume from eLpNorm_const_smul',
+    enorm_NNReal, enorm_NNReal, enorm_NNReal, add_assoc, ← add_mul
+  ]
   apply le_trans <| add_le_add
-    (mul_le_mul_left' (hst_gmf_czg.2.trans <| mul_le_mul_left' (hT r hr g hg).2 _) _)
-    (mul_le_mul_left' hst_gmf_g.2 _)
+    (mul_le_mul_right (hst_gmf_czg.2.trans <| mul_le_mul_right (hT r hr g hg).2 _) _)
+    (mul_le_mul_right hst_gmf_g.2 _)
   nth_rw 3 [← mul_assoc]; nth_rw 2 [← mul_assoc]; rw [← mul_assoc, ← add_mul]
   gcongr
   -- what remains is constant manipulation
@@ -812,7 +776,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     · linarith
     norm_cast
     linarith [ha]
-  apply le_trans <| mul_le_mul_left' this _
+  apply le_trans <| mul_le_mul_right this _
   rw [C10_1_6_def, C_Ts, C10_1_5, C10_1_2]
   norm_cast
   rw [show a ^ 3 + 26 * a + 6 = (a ^ 3 + 22 * a + 5) + (4 * a + 1) by ring]; nth_rw 4 [pow_add]
@@ -823,7 +787,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   nth_rw 5 [pow_succ]; rw [mul_two]
   gcongr _ + 2 ^ ?_
   · exact one_le_two
-  · cutsat
+  · lia
 
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/
@@ -846,10 +810,10 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     apply iSup_const_mono (lt_of_le_of_lt _)
     rw [inv_le_inv₀ (by positivity) (by positivity)]
     simp [hmn]
-  have snt0 : ⨆ (n : ℕ), f n = simpleNontangentialOperator K 0 g := by
+  have snt0 : (fun x => ⨆ (n : ℕ), f n x) = simpleNontangentialOperator K 0 g := by
     ext x
     unfold f simpleNontangentialOperator
-    simp_rw [gt_iff_lt, iSup_apply]; rw [iSup_comm]
+    simp_rw [gt_iff_lt]; rw [iSup_comm]
     congr with R
     apply le_antisymm (iSup_le <| fun n ↦ iSup_const_mono (lt_trans (by positivity))) (iSup_le _)
     intro hR
@@ -862,7 +826,7 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
   have mct := eLpNorm_iSup' (p := 2) (f := f) (μ := volume)
     (fun n ↦ aestronglyMeasurable_simpleNontangentialOperator.aemeasurable)
     (by filter_upwards; exact f_mon)
-  rw [← snt0, ← mct]
+  rw [← snt0, mct]
   apply iSup_le
   intro n; unfold f
   apply simple_nontangential_operator ha hT (by positivity) g hg |>.2
@@ -893,7 +857,7 @@ theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ 
         linarith [Real.sub_le_dist r R₁]
     filter_upwards [this] with r hr
     filter_upwards [hB] with y hy
-    refine indicator_le_indicator_of_subset (Annulus.oo_subset_oo (by rfl) hr.le)
+    refine indicator_le_indicator_of_subset (by gcongr)
       (fun a ↦ by positivity) _ |>.trans <| indicator_le_indicator' ?_
     exact fun h2y ↦ hy <| Annulus.oo_subset_ci (by rfl) h2y
   · unfold bound
@@ -950,7 +914,7 @@ theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R
         linarith [Real.sub_le_dist R₂ r]
     filter_upwards [this] with r hr
     filter_upwards [hB] with y hy
-    refine indicator_le_indicator_of_subset (Annulus.oo_subset_oo hr.le (by rfl))
+    refine indicator_le_indicator_of_subset (by gcongr)
       (fun a ↦ by positivity) _ |>.trans <| indicator_le_indicator' ?_
     exact fun h2y ↦ hy <| Annulus.oo_subset_ci (by rfl) h2y
   · unfold bound
@@ -1018,7 +982,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
       · simp [closure_Ioo hR₁.2.ne, hR₁.2.le]
       · apply continuousWithinAt_const
-      · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
+      · apply ContinuousWithinAt.fun_add ?_ continuousWithinAt_const
         exact small_annulus_right hf hR₁.1 |>.enorm
     simpa using le_R1
   · have (R' : ℝ) (hR' : R' ∈ Ioo (dist x' x) R₁) : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
@@ -1048,7 +1012,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
       · simp [closure_Ioo (mem_ball.mp hx').ne, (mem_ball.mp hx').le]
       · apply continuousWithinAt_const
-      · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
+      · apply ContinuousWithinAt.fun_add ?_ continuousWithinAt_const
         exact small_annulus_left hf (dist_nonneg) |>.enorm
     simpa using le_R1
 
@@ -1118,7 +1082,7 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
     exact add_le_add (this hR₁.1 hx') (this (hR₁.1.trans hR₁.2) (hx'.trans hR₁.2))
   · rw [C10_1_6, C10_0_2, ← pow_succ']; gcongr; · exact one_le_two
     calc
-      _ ≤ a ^ 3 + 2 * 4 * 4 * a := by cutsat
+      _ ≤ a ^ 3 + 2 * 4 * 4 * a := by lia
       _ ≤ a ^ 3 + 2 * a * a * a := by gcongr
       _ = _ := by ring
 

@@ -1,4 +1,10 @@
-import Mathlib.Analysis.Convolution
+module
+
+public import Mathlib.Analysis.Convolution
+
+public section
+
+-- Upstreaming status: seems ready to go
 
 open scoped Convolution
 

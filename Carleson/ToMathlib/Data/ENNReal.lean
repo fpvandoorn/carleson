@@ -1,9 +1,16 @@
-import Mathlib.Analysis.Normed.Group.Bounded
-import Mathlib.Analysis.Normed.Group.Uniform
-import Mathlib.Analysis.Normed.Ring.Basic
-import Mathlib.Order.CompletePartialOrder
+module
+
+public import Mathlib.Analysis.Normed.Group.Bounded
+public import Mathlib.Analysis.Normed.Group.Uniform
+public import Mathlib.Analysis.Normed.Ring.Basic
+public import Mathlib.Order.CompletePartialOrder
+
+-- Upstreaming status: lemmas seem useful; proofs may need some polish.
+-- At least three or four distinct PRs.
 
 /-! ## `ENNReal` manipulation lemmas -/
+
+public section
 
 open Function Set Bornology
 open scoped NNReal
@@ -15,19 +22,15 @@ namespace ENNReal
 attribute [simp] ofReal_of_nonpos
 -- protect ENNReal.mul_le_mul_left
 
-theorem ofReal_inv_le {x : ℝ} : ENNReal.ofReal x⁻¹ ≤ (ENNReal.ofReal x)⁻¹ := by
-  obtain hx|hx := lt_or_ge 0 x <;> simp [ofReal_inv_of_pos, hx]
-
-theorem ofReal_div_le {x y : ℝ} (hy : 0 ≤ y) :
-    ENNReal.ofReal (x / y) ≤ ENNReal.ofReal x / ENNReal.ofReal y := by
-  simp_rw [div_eq_mul_inv, ofReal_mul' (inv_nonneg.2 hy)]
-  gcongr
-  exact ofReal_inv_le
-
 theorem coe_lt_iff_lt_toNNReal {a : ℝ≥0∞} {t : ℝ≥0} (ha : a ≠ ⊤) :
     t < a ↔ t < a.toNNReal := by
   rw [← ENNReal.toNNReal_coe t, ENNReal.toNNReal_lt_toNNReal ENNReal.coe_ne_top ha]
   simp only [ENNReal.toNNReal_coe]
+
+theorem le_mul_top_self {x : ℝ≥0∞} : x ≤ ⊤ * x := by
+  nth_rw 1 [← one_mul x]
+  gcongr
+  exact OrderTop.le_top 1
 
 lemma coe_biSup {f : ι → ℝ≥0} (hf : BddAbove (range f)) :
     ⨆ x ∈ s, f x = ⨆ x ∈ s, (f x : ℝ≥0∞) := by
@@ -74,7 +77,7 @@ lemma biSup_finsetSum_le_finsetSum_biSup {f : α → ι → ℝ≥0∞} :
   | empty => simp
   | cons a t ha ihs =>
     simp only [Finset.sum_cons]
-    exact biSup_add_le_add_biSup.trans (add_le_add_left ihs _)
+    exact biSup_add_le_add_biSup.trans (add_le_add_right ihs _)
 
 variable {E : Type*} [SeminormedAddCommGroup E]
 
@@ -84,7 +87,7 @@ lemma edist_sum_le_sum_edist {f g : α → E} : edist (∑ i ∈ t, f i) (∑ i 
   | empty => simp
   | cons a t ha ihs =>
     simp only [Finset.sum_cons]
-    exact (edist_add_add_le _ _ _ _).trans (add_le_add_left ihs _)
+    exact (edist_add_add_le _ _ _ _).trans (add_le_add_right ihs _)
 
 lemma enorm_sum_eq_sum_enorm {f : α → ℝ} (hf : ∀ i ∈ t, 0 ≤ f i) :
     ‖∑ i ∈ t, f i‖ₑ = ∑ i ∈ t, ‖f i‖ₑ := by
@@ -112,7 +115,7 @@ lemma exists_biSup_le_enorm_add_eps
   have M : ⨆ z ∈ s, ‖f z‖ₑ + ε ≤ ⨆ z ∈ s, ‖f z‖ₑ := by
     simpa only [iSup_le_iff] using fun i hi ↦ (H i hi).le
   have nt : ⨆ z ∈ s, ‖f z‖ₑ ≠ ⊤ := by -- boundedness of `f` used here
-    rw [ne_eq, iSup₂_eq_top]; push_neg
+    rw [ne_eq, iSup₂_eq_top]; push Not
     obtain ⟨C, pC, hC⟩ := hf.exists_pos_norm_le; lift C to ℝ≥0 using pC.le
     simp_rw [mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hC
     exact ⟨C, coe_lt_top, mod_cast hC⟩

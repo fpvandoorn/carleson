@@ -1,4 +1,8 @@
-import Mathlib.Topology.MetricSpace.Holder
+module
+
+public import Mathlib.Topology.MetricSpace.Holder
+
+@[expose] public section
 
 open Set Metric Function ENNReal
 open scoped NNReal

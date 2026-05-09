@@ -1,4 +1,8 @@
-import Carleson.ForestOperator.QuantativeEstimate
+module
+
+public import Carleson.ForestOperator.QuantativeEstimate
+
+@[expose] public section
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -37,7 +41,10 @@ lemma adjoint_tile_support1 : adjointCarleson p f =
   obtain ⟨y, my, Ky⟩ : ∃ y ∈ 𝓘 p, Ks (𝔰 p) y x ≠ 0 := by
     contrapose! hn
     refine setIntegral_eq_zero_of_forall_eq_zero fun y my ↦ ?_
-    simp [hn _ (E_subset_𝓘 my)]
+    simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, mul_eq_zero, map_eq_zero, exp_ne_zero,
+      or_false, indicator_apply_eq_zero]
+    left
+    exact hn _ (E_subset_𝓘 my)
   rw [mem_ball]
   calc
     _ ≤ dist y x + dist y (𝔠 p) := dist_triangle_left ..
@@ -85,7 +92,7 @@ lemma enorm_adjointCarleson_le {x : X} :
       rw [← lintegral_const_mul' _ _ (by simp)]
       refine lintegral_mono fun y ↦ ?_
       rw [← mul_assoc, mul_comm _ _⁻¹, ← ENNReal.div_eq_inv_mul]
-      exact mul_le_mul_right' enorm_Ks_le _
+      exact mul_le_mul_left enorm_Ks_le _
     _ ≤ _ := by
       rw [mul_assoc _ (_ ^ _), mul_comm (_ ^ _), ← ENNReal.div_eq_inv_mul,
         ← ENNReal.inv_div (.inl (by simp)) (.inl (by simp)), mul_assoc, ← lintegral_const_mul' _⁻¹]
@@ -93,8 +100,8 @@ lemma enorm_adjointCarleson_le {x : X} :
       · simp_rw [ne_eq, ENNReal.inv_eq_top, ENNReal.div_eq_zero_iff, ENNReal.pow_eq_top_iff,
           ENNReal.ofNat_ne_top, false_and, or_false]
         exact (measure_ball_pos _ _ (by unfold defaultD; positivity)).ne'
-      refine mul_le_mul_left' (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
-      exact mul_le_mul_right' (ENNReal.inv_le_inv' (volume_xDsp_bound_4 (E_subset_𝓘 my))) _
+      refine mul_le_mul_right (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
+      exact mul_le_mul_left (ENNReal.inv_le_inv' (volume_xDsp_bound_4 (E_subset_𝓘 my))) _
 
 lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
     ‖adjointCarleson p f x‖ₑ ≤
@@ -113,36 +120,62 @@ lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
       refine setLIntegral_congr_fun measurableSet_E fun y my ↦ ?_
       rw [indicator_of_mem (E_subset_𝓘 my)]
     _ ≤ _ := by
-      gcongr; refine indicator_le_indicator_apply_of_subset (ball_subset_ball ?_) (zero_le _)
       gcongr; norm_num
 
-/-- The constant used in `adjoint_tree_estimate`.
-Has value `2 ^ (181 * a ^ 3)` in the blueprint. -/
-irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
+lemma adjoint_density_tree_bound1 (hf : BoundedCompactSupport f)
+    (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) (hu : u ∈ t) :
+    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
+    C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
+  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound1 hf hg h2g hu
 
-/-- Lemma 7.4.2. -/
-lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : f.support ⊆ G) :
-    eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
-    C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
-  rw [C7_4_2_def]
-  set g := adjointCarlesonSum (t u) f
-  have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
-  have h := density_tree_bound1 hg hf h2f hu
-  simp_rw [adjointCarlesonSum_adjoint hg hf] at h
-  have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖ₑ = eLpNorm g 2 volume ^ 2 := by
-    simp_rw [eLpNorm_two_eq_enorm_integral_mul_conj (hg.memLp 2), mul_comm, g]
-  rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
-  by_cases hgz : eLpNorm g 2 volume = 0
-  · simp [hgz]
-  · refine ENNReal.mul_le_mul_right hgz ?_ |>.mp h
-    exact (hg.memLp 2).eLpNorm_ne_top
+/-- Part 1 of Lemma 7.4.2. -/
+lemma adjoint_tree_estimate
+    (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) (hu : u ∈ t) :
+    eLpNorm (adjointCarlesonSum (t u) g) 2 volume ≤
+    C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
+  by_cases h : eLpNorm (adjointCarlesonSum (t u) g) 2 = 0
+  · rw [h]; exact zero_le
+  have bcs : BoundedCompactSupport (adjointCarlesonSum (t u) g) := hg.adjointCarlesonSum
+  rw [← ENNReal.mul_le_mul_iff_left h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
+    eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
+    mul_comm (eLpNorm g 2 volume), ← mul_assoc]
+  conv_lhs => enter [1, 2, x]; rw [mul_comm]
+  exact adjoint_density_tree_bound1 bcs hg h2g hu
+
+lemma adjoint_density_tree_bound2
+    (hf : BoundedCompactSupport f) (h2f : support f ⊆ F)
+    (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) (hu : u ∈ t) :
+    ‖∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ ≤
+    C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
+    eLpNorm f 2 volume * eLpNorm g 2 volume := by
+  rw [← adjointCarlesonSum_adjoint hf hg]; exact density_tree_bound2 hf h2f hg h2g hu
+
+/-- Part 2 of Lemma 7.4.2. -/
+lemma indicator_adjoint_tree_estimate
+    (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) (hu : u ∈ t) :
+    eLpNorm (F.indicator (adjointCarlesonSum (t u) g)) 2 ≤
+    C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 := by
+  by_cases h : eLpNorm (F.indicator (adjointCarlesonSum (t u) g)) 2 = 0
+  · rw [h]; exact zero_le
+  have bcs : BoundedCompactSupport (F.indicator (adjointCarlesonSum (t u) g)) :=
+    hg.adjointCarlesonSum.indicator measurableSet_F
+  rw [← ENNReal.mul_le_mul_iff_left h (bcs.memLp 2).eLpNorm_ne_top, ← sq,
+    eLpNorm_two_eq_enorm_integral_mul_conj (bcs.memLp 2), mul_assoc _ (eLpNorm g 2 volume),
+    mul_comm (eLpNorm g 2 volume), ← mul_assoc]
+  calc
+    _ = ‖∫ x, conj (adjointCarlesonSum (t u) g x) *
+        F.indicator (adjointCarlesonSum (t u) g) x‖ₑ := by
+      congr 2 with x; nth_rw 2 [indicator_eq_indicator_one_mul]
+      rw [map_mul, conj_indicator, map_one, ← mul_assoc, mul_comm _ (F.indicator 1 x),
+        ← indicator_eq_indicator_one_mul, indicator_indicator, inter_self, mul_comm]
+    _ ≤ _ := adjoint_density_tree_bound2 bcs support_indicator_subset hg h2g hu
 
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (182 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 7 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
 
-lemma le_C7_4_3 (ha : 4 ≤ a) : C7_4_2 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a := by
-  rw [C7_4_3, C7_4_2, C7_3_1_1, CMB_defaultA_two_eq]
+lemma le_C7_4_3 (ha : 4 ≤ a) : C7_3_1_1 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a := by
+  rw [C7_4_3, C7_3_1_1, CMB_defaultA_two_eq]
   calc
     _ ≤ (2 : ℝ≥0) ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4) * a ^ 3)
         + 2 ^ ((a : ℝ) + 3 / 2) + 2 ^ ((a : ℝ) + 3 / 2) := by
@@ -161,9 +194,9 @@ lemma le_C7_4_3 (ha : 4 ≤ a) : C7_4_2 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 a 
             gcongr
             · norm_cast
               have := seven_le_c
-              cutsat
-            · norm_cast; cutsat
-            · norm_cast; cutsat
+              lia
+            · norm_cast; lia
+            · norm_cast; lia
           _ = _ := by ring
     _ ≤ 2 ^ ((𝕔 + 6 + 𝕔 / 2 + 𝕔 / 4 : ℕ) * (a : ℝ) ^ 3 + 1) := by
       rw [← NNReal.rpow_natCast]
@@ -183,7 +216,7 @@ lemma adjoint_tree_control
     eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤ C7_4_3 a * eLpNorm f 2 volume := by
   have m₁ : AEStronglyMeasurable (‖adjointCarlesonSum (t u) f ·‖ₑ) :=
     hf.aestronglyMeasurable.adjointCarlesonSum.enorm.aestronglyMeasurable
-  have m₂ : AEStronglyMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) := .maximalFunction 𝓑.to_countable
+  have m₂ : AEStronglyMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) := Measurable.maximalFunction.aestronglyMeasurable
   have m₃ : AEStronglyMeasurable (‖f ·‖ₑ) := hf.aestronglyMeasurable.enorm.aestronglyMeasurable
   calc
     _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) f x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume +
@@ -191,13 +224,13 @@ lemma adjoint_tree_control
     _ ≤ eLpNorm (‖adjointCarlesonSum (t u) f ·‖ₑ) 2 volume +
         eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume + eLpNorm (‖f ·‖ₑ) 2 volume := by
       gcongr; apply eLpNorm_add_le m₁ m₂ one_le_two
-    _ ≤ C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume +
+    _ ≤ C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume +
         CMB (defaultA a) 2 * eLpNorm f 2 volume + eLpNorm f 2 volume := by
       gcongr
-      · exact adjoint_tree_estimate hu hf h2f
+      · exact adjoint_tree_estimate hf h2f hu
       · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two) _ (hf.memLp _) |>.2
       · rfl
-    _ ≤ (C7_4_2 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
+    _ ≤ (C7_3_1_1 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
       simp_rw [add_mul, one_mul]; gcongr; exact dens₁_le_one
     _ ≤ _ := by
       gcongr
@@ -218,15 +251,15 @@ lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u
     specialize this (mem_union_left _ mp') (not_disjoint_iff.mpr ⟨c, mc, p'lu₁.1 mc⟩) p'lu₁
     exact this.trans (Grid.dist_mono (p'lu₁.trans u₁lp))
   have four_Z := four_le_Z (X := X)
-  have four_le_Zn : 4 ≤ Z * (n + 1) := by rw [← mul_one 4]; exact mul_le_mul' four_Z (by cutsat)
+  have four_le_Zn : 4 ≤ Z * (n + 1) := by rw [← mul_one 4]; exact mul_le_mul' four_Z (by lia)
   have four_le_two_pow_Zn : 4 ≤ 2 ^ (Z * (n + 1) - 1) := by
-    change 2 ^ 2 ≤ _; exact Nat.pow_le_pow_right zero_lt_two (by cutsat)
+    change 2 ^ 2 ≤ _; exact Nat.pow_le_pow_right zero_lt_two (by lia)
   have ha : (2 : ℝ) ^ (Z * (n + 1)) - 4 ≥ 2 ^ (Z * n / 2 : ℝ) :=
     calc
       _ ≥ (2 : ℝ) ^ (Z * (n + 1)) - 2 ^ (Z * (n + 1) - 1) := by gcongr; norm_cast
       _ = 2 ^ (Z * (n + 1) - 1) := by
-        rw [sub_eq_iff_eq_add, ← two_mul, ← pow_succ', Nat.sub_add_cancel (by cutsat)]
-      _ ≥ 2 ^ (Z * n) := by apply pow_le_pow_right₀ one_le_two; rw [mul_add_one]; cutsat
+        rw [sub_eq_iff_eq_add, ← two_mul, ← pow_succ', Nat.sub_add_cancel (by lia)]
+      _ ≥ 2 ^ (Z * n) := by apply pow_le_pow_right₀ one_le_two; rw [mul_add_one]; lia
       _ ≥ _ := by
         rw [← Real.rpow_natCast]
         apply Real.rpow_le_rpow_of_exponent_le one_le_two; rw [Nat.cast_mul]
@@ -240,7 +273,7 @@ lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u
       · exact (t.lt_dist' hu₂ hu₁ hu.symm c (plu₁.trans h2u)).le
       · have : 𝒬 u₁ ∈ ball_(p) (𝒬 p) 4 :=
           (t.smul_four_le hu₁ c).2 (by convert mem_ball_self zero_lt_one)
-        rw [@mem_ball'] at this; exact this.le
+        exact (@mem_ball' _ (instPseudoMetricSpaceWithFunctionDistance (x := 𝔠 p) (r := ↑D ^ 𝔰 p / 4)) _ _ _).mp this |>.le
     _ ≥ _ := ha
   · calc
     _ ≥ dist_(p) (𝒬 p) (𝒬 u₁) - dist_(p) (𝒬 p) (𝒬 u₂) := by
@@ -250,7 +283,7 @@ lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u
       · exact (t.lt_dist' hu₁ hu₂ hu c plu₁).le
       · have : 𝒬 u₂ ∈ ball_(p) (𝒬 p) 4 :=
           (t.smul_four_le hu₂ c).2 (by convert mem_ball_self zero_lt_one)
-        rw [@mem_ball'] at this; exact this.le
+        exact (@mem_ball' _ (instPseudoMetricSpaceWithFunctionDistance (x := 𝔠 p) (r := ↑D ^ 𝔰 p / 4)) _ _ _).mp this |>.le
     _ ≥ _ := ha
 
 /-- Part 2 of Lemma 7.4.7. -/

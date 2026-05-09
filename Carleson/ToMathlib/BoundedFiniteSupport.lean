@@ -1,11 +1,14 @@
-import Mathlib.MeasureTheory.Function.L1Space.Integrable
+module
+
+public import Mathlib.MeasureTheory.Function.L1Space.Integrable
+
+public section
 
 /-
 This file defines BoundedFiniteSupport.
 
-Upstreaming status: something like this is useful, but the precise form is not final yet
-- decide of this or BoundedCompactSupport is better (see comment there)
-  and possibly rewrite Carleson in favour of the one class we prefer
+Upstreaming status: this will remain in place but not be upstreamed, only BoundedCompactSupport.
+- rationale on Zulip: https://leanprover.zulipchat.com/#narrow/with/591174350
 - TODO: can other proofs be golfed using fun_prop now?
 -/
 
@@ -54,15 +57,15 @@ theorem eLpNorm_lt_top : eLpNorm f ∞ μ < ∞ := bfs.memLp_top.eLpNorm_lt_top
 
 end Includebfs
 
-section  ENormedAddMonoid
-variable [TopologicalSpace E] [ENormedAddMonoid E]
+section ESeminormedAddMonoid
+variable [TopologicalSpace E] [ESeminormedAddMonoid E]
 
 /-- Bounded finitely supported functions are in all `Lᵖ` spaces. -/
 theorem memLp (hf : BoundedFiniteSupport f μ) (p : ℝ≥0∞) : MemLp f p μ :=
   hf.memLp_top.mono_exponent_of_measure_support_ne_top
     (fun _ ↦ notMem_support.mp) hf.measure_support_lt.ne le_top
 
-end ENormedAddMonoid
+end ESeminormedAddMonoid
 
 section NormedAddCommGroup
 

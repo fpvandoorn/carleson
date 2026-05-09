@@ -23,40 +23,52 @@ jobs:
     runs-on: ubuntu-latest
     name: Build project
     steps:
-      - name: Checkout project
-        uses: actions/checkout@v5
+      - name: Cleanup to free disk space
+        uses: jlumbroso/free-disk-space@main
         with:
-          fetch-depth: 0
+          tool-cache: false
+          android: true
+          dotnet: false
+          haskell: false
+          large-packages: false
+          docker-images: false
+          swap-storage: false
 
-      - name: Install elan
-        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+      - name: Checkout project
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
 
-      - name: Get cache
-        run: ~/.elan/bin/lake exe cache get || true
-
-      - name: check that Carleson.lean is up to date
-        run: ~/.elan/bin/lake exe mk_all --check
-
-      - name: Build project
-        run: ~/.elan/bin/lake build Carleson
-
-      - name: Lint project
-        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter Carleson
+      - name: Build and lint project
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # 2025-07-02
+        with:
+          build: true
+          lint: true
+          mk_all-check: true
 
       - name: Upstreaming dashboard
-        run: python3 scripts/upstreaming_dashboard.py
+        uses: leanprover-community/upstreaming-dashboard-action@main
+        with:
+          website-directory: ./docs
+          project-name: Carleson
+          search-root: Carleson.ToMathlib
+          relevant-labels: carleson
+          include-drafts: true
+          branch-name: master
 
       - name: Generate the paper PDF and add it to the website
-        uses: xu-cheng/texlive-action@8268537fedf1198f3ed7000c544bfdbddcbae3b7 # v3
+        uses: xu-cheng/texlive-action@22c04326a5d855880f9d39bb955138bf11c6df80 # v3
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20251002
           run: |
             cd paper
             latexmk -pdf main.tex
+            latexmk -c
             cd ..
             cp paper/main.pdf docs/paper.pdf
 
-      - uses: leanprover-community/docgen-action@deed0cdc44dd8e5de07a300773eb751d33e32fc8 # 2025-10-26
+      - name: Compile blueprint and documentation
+        uses: leanprover-community/docgen-action@7b5b9a1822650bd45aaeb4182d94bceba2030f89 # 2026-04-14
         with:
           blueprint: true
           homepage: docs

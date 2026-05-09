@@ -1,13 +1,13 @@
-import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+module
+
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+
+public section
 
 /- This file contains helper lemmas. Either they should be replaced by a mathlib version if there is
    one or they might be candidates to go there, possibly in a generalized form. -/
 
 open MeasureTheory
-
-theorem Real.volume_uIoc {a b : ℝ} : volume (Set.uIoc a b) = ENNReal.ofReal |b - a| := by
-  /- Cf. proof of Real.volume_interval-/
-  rw [Set.uIoc, volume_Ioc, max_sub_min_eq_abs]
 
 lemma intervalIntegral.integral_conj' {μ : Measure ℝ} {𝕜 : Type*} [RCLike 𝕜] {f : ℝ → 𝕜} {a b : ℝ} :
     ∫ x in a..b, (starRingEnd 𝕜) (f x) ∂μ = (starRingEnd 𝕜) (∫ x in a..b, f x ∂μ) := by
@@ -28,7 +28,8 @@ lemma IntervalIntegrable.bdd_mul {F : Type*} [NormedDivisionRing F] {f g : ℝ �
     {μ : Measure ℝ} (hg : IntervalIntegrable g μ a b) (hm : AEStronglyMeasurable f μ)
     (hfbdd : ∃ C, ∀ x, ‖f x‖ ≤ C) : IntervalIntegrable (fun x ↦ f x * g x) μ a b := by
   rw [intervalIntegrable_iff, IntegrableOn]
-  apply Integrable.bdd_mul _ hm.restrict hfbdd
+  obtain ⟨C, hC⟩ := hfbdd
+  apply Integrable.bdd_mul _ hm.restrict (ae_of_all _ hC)
   rwa [← IntegrableOn, ← intervalIntegrable_iff]
 
 lemma IntervalIntegrable.mul_bdd {F : Type*} [NormedField F] {f g : ℝ → F} {a b : ℝ}
@@ -45,7 +46,7 @@ lemma IntegrableOn.sub {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : 
 lemma ConditionallyCompleteLattice.le_biSup {α : Type*} [ConditionallyCompleteLinearOrder α]
     {ι : Type*} {f : ι → α} {s : Set ι} {a : α} (hfs : BddAbove (f '' s)) (ha : ∃ i ∈ s, f i = a) :
     a ≤ ⨆ i ∈ s, f i := by
-  apply ConditionallyCompleteLattice.le_csSup
+  apply le_csSup
   · --TODO: improve this
     rw [bddAbove_def] at *
     rcases hfs with ⟨x, hx⟩

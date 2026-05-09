@@ -3,8 +3,11 @@
    is still missing.
    Thus, the result here might not yet have the exact form needed later.
 -/
+module
 
-import Carleson.Classical.Basic
+public import Carleson.Classical.Basic
+
+@[expose] public section
 
 open MeasureTheory AddCircle
 open scoped InnerProductSpace
@@ -38,7 +41,7 @@ lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (
       rw [this, ← lp.norm_sum_single (by simp), ← this]
       congr 2
       refine Finset.sum_congr (by simp) fun n ↦ ?_
-      simp only [Int.ofNat_eq_coe, Finset.mem_Icc, smul_eq_mul, mul_one, implies_true]
+      simp only [Int.ofNat_eq_natCast, Finset.mem_Icc, smul_eq_mul, mul_one, implies_true]
     _ = ∑ n ∈ Finset.Icc (-Int.ofNat N) N, ‖fourierCoeff f n‖ ^ 2 := by
       simp_rw [← Real.rpow_natCast]; rfl
 

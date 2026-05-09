@@ -1,4 +1,8 @@
-import Carleson.Classical.CarlesonOnTheRealLine
+module
+
+public import Carleson.Classical.CarlesonOnTheRealLine
+
+@[expose] public section
 
 /- This file contains most of Section 11.6 (The error bound) from the blueprint.
    The main result is control_approximation_effect.
@@ -28,20 +32,18 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g 
     simp only [Set.mem_union, Set.mem_inter_iff, Set.mem_preimage, Set.mem_Ici]
     by_contra! hx'
     absurd le_refl a
-    push_neg
+    push Not
     calc a
       _ ≤ f x + g x := h x hx
       _ < a / 2 + a / 2 := by
-        gcongr
-        · exact hx'.1 hx
-        · exact hx'.2 hx
+        exact ENNReal.add_lt_add (hx'.1 hx) (hx'.2 hx)
       _ = a := by
         ring_nf
         apply ENNReal.div_mul_cancel <;> norm_num
   have : μ E ≤ 2 * μ Ef ∨ μ E ≤ 2 * μ Eg := by
     by_contra! hEfg
     absurd le_refl (2 * μ E)
-    push_neg
+    push Not
     calc 2 * μ E
     _ ≤ 2 * μ (Ef ∪ Eg) := by
       gcongr
@@ -50,9 +52,7 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g 
       exact measure_union_le _ _
     _ = 2 * μ Ef + 2 * μ Eg := by ring
     _ < μ E + μ E := by
-      gcongr
-      · exact hEfg.1
-      · exact hEfg.2
+      exact ENNReal.add_lt_add hEfg.1 hEfg.2
     _ = 2 * μ E := by ring
   rcases this with hEf | hEg
   · refine ⟨Ef, Set.inter_subset_left, hE.inter (hf measurableSet_Ici), hEf, Or.inl ?_⟩
@@ -71,11 +71,10 @@ lemma Dirichlet_Hilbert_eq {N : ℕ} {x : ℝ} :
 lemma Dirichlet_Hilbert_diff {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc (-π) π) :
     ‖dirichletKernel' N (x) - (exp (I * (-N * x)) * k x + conj (exp (I * (-N * x)) * k x))‖ ≤ π := by
   rw [← Dirichlet_Hilbert_eq]
-  by_cases h : 1 - cexp (I * ↑x) = 0
+  by_cases! h : 1 - cexp (I * ↑x) = 0
   · rw [sub_eq_zero] at h
     rw [dirichletKernel'_eq_zero h.symm]
     simp [pi_pos.le]
-  push_neg at h
   conv => pattern (dirichletKernel' N x); rw [← (one_mul (dirichletKernel' N x))]
   rw [← sub_mul]
   norm_cast
@@ -202,14 +201,14 @@ lemma domain_reformulation {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (
       · trivial
       · dsimp at h₀ h₁
         rw [Real.dist_eq, Set.mem_Ioo] at h₀ h₁
-        push_neg at h₁
+        push Not at h₁
         rw [k_of_one_le_abs (h₁ h₀.1)]
         simp
       · rw [k_of_one_le_abs]
         · simp
         dsimp at h₀ h₂
         rw [Real.dist_eq, Set.mem_Ioo] at h₀ h₂
-        push_neg at h₀
+        push Not at h₀
         exact le_trans' (h₀ h₂.1) (by linarith [Real.two_le_pi])
       · trivial
 
@@ -228,6 +227,7 @@ lemma intervalIntegrable_mul_dirichletKernel'_specific {x : ℝ} (hx : x ∈ Set
 
 attribute [gcongr] iSup_congr
 
+set_option backward.isDefEq.respectTransparency false in
 lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (-π) (3 * π)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
     ‖∫ (y : ℝ) in x - π..x + π, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ
     ≤ T g x + T (conj ∘ g) x := by
@@ -288,7 +288,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       congr
       rw [Dirichlet_Hilbert_eq]
       simp only [ofReal_sub, mul_comm, mul_neg, ← mul_assoc, k, map_mul, ← exp_conj, map_neg,
-        conj_I, map_sub, conj_ofReal, map_natCast, neg_neg, map_div₀, map_one, Int.ofNat_eq_coe,
+        conj_I, map_sub, conj_ofReal, map_natCast, neg_neg, map_div₀, map_one, Int.ofNat_eq_natCast,
         Int.cast_natCast, K, ← exp_add, map_add]
       ring_nf
     _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1), ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + conj (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖ₑ := by
@@ -330,12 +330,12 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
           have integrable₁ := integrable_annulus hx hg rpos.le rle1
           rw [integral_add]
           · conv => pattern ((g _) * _); rw [mul_comm]
-            apply Integrable.bdd_mul' integrable₁ measurable₁.aestronglyMeasurable
+            apply Integrable.bdd_mul integrable₁ measurable₁.aestronglyMeasurable
             · rw [ae_restrict_iff' annulus_measurableSet]
               on_goal 1 => apply Eventually.of_forall
               exact fun _ hy ↦ boundedness₁ hy.1.le
           · conv => pattern ((g _) * _); rw [mul_comm]
-            apply Integrable.bdd_mul' integrable₁ (by fun_prop)
+            apply Integrable.bdd_mul integrable₁ (by fun_prop)
             · rw [ae_restrict_iff' annulus_measurableSet]
               · apply Eventually.of_forall
                 intro y hy
@@ -348,11 +348,14 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * ((conj ∘ g) y * K x y * exp (I * n * y))‖ₑ := by
             congr 1
             · congr! 3 with y; ring
-            · rw [← RCLike.enorm_conj, ← integral_conj]; congr! 3 with _ y; simp; ring
+            · rw [← RCLike.enorm_conj, ← integral_conj]
+              congr! 3 with _ y
+              simp
+              ring
         _ =   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * K x y * exp (I * n * y)‖ₑ
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, (conj ∘ g) y * K x y * exp (I * n * y)‖ₑ := by
           congr 1 <;>
-          rw [integral_const_mul, enorm_mul, show (-n * x : ℂ) = (-n * x : ℝ) by norm_cast,
+          rw [integral_const_mul, enorm_mul, show (-n * x : ℂ) = ((-n * x : ℝ) : ℂ) by norm_cast,
             enorm_exp_I_mul_ofReal, one_mul]
     _ ≤ T g x + T (conj ∘ g) x := by
       simp_rw [carlesonOperatorReal]
@@ -398,7 +401,6 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
         rw [← intervalIntegral.integral_add (intervalIntegrable_mul_dirichletKernel'_max hx intervalIntegrable_g) (intervalIntegrable_mul_dirichletKernel'_max' hx intervalIntegrable_g)]
         congr with y
         ring
-
   calc
     _ ≤ (‖∫ y in (x - π)..(x + π), g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ
         + ‖∫ y in (x - π)..(x + π), g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ) / ENNReal.ofReal (2 * π) := by
@@ -414,7 +416,6 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
         norm_cast
         apply NNReal.le_toNNReal_of_coe_le
         rw [coe_nnnorm]
-
         calc ‖∫ (y : ℝ) in x - π..x + π, g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖
           _ ≤ (δ * π) * |(x + π) - (x - π)| := by
             /-

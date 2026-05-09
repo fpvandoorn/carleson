@@ -1,4 +1,8 @@
-import Carleson.MetricCarleson.Linearized
+module
+
+public import Carleson.MetricCarleson.Linearized
+
+@[expose] public section
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Metric
@@ -44,7 +48,9 @@ lemma carlesonOperator_eq_biSup_Θ'_J102 {x : X} (mf : Measurable f) (nf : (‖f
           carlesonOperatorIntegrand K θ' q₁ q₂ f x)‖ₑ := by rw [add_sub_cancel]
       _ ≤ ‖carlesonOperatorIntegrand K θ' q₁ q₂ f x‖ₑ +
           edist (carlesonOperatorIntegrand K θ' q₁ q₂ f x)
-          (carlesonOperatorIntegrand K θ R₁ R₂ f x) := by rw [edist_comm]; exact enorm_add_le _ _
+          (carlesonOperatorIntegrand K θ R₁ R₂ f x) := by
+          rw [edist_comm, edist_eq_enorm_sub]
+          exact enorm_add_le _ _
       _ ≤ _ := by
         gcongr
         · calc
@@ -83,7 +89,7 @@ lemma biSup_Θ'_eq_biSup_enumΘ' {x : X} :
     rw [eg]
     calc
       _ ≤ ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x := by
-        have : n ∈ Finset.range (n + 1) := by rw [Finset.mem_range]; cutsat
+        have : n ∈ Finset.range (n + 1) := by rw [Finset.mem_range]; lia
         convert le_iSup₂ _ this; rfl
       _ ≤ _ := le_iSup_iff.mpr fun _ a ↦ a n
   · refine iSup_le fun n ↦ iSup₂_le fun i mi ↦ ?_
@@ -105,7 +111,7 @@ lemma enumΘ'ArgMax_eq_iff {n i : ℕ} {x : X} (hi : i ≤ n) :
     enumΘ'ArgMax nΘ' g n x = i ↔
     (∀ j ≤ n, g (enumΘ' nΘ' j) x ≤ g (enumΘ' nΘ' i) x) ∧
     ∀ j < i, g (enumΘ' nΘ' j) x < g (enumΘ' nΘ' i) x := by
-  rw [enumΘ'ArgMax, List.findIdx_eq (by rw [List.length_range]; cutsat)]
+  rw [enumΘ'ArgMax, List.findIdx_eq (by rw [List.length_range]; lia)]
   simp_rw [List.getElem_range, decide_eq_true_eq, decide_eq_false_iff_not, not_forall, not_le,
     exists_prop, and_congr_right_iff]
   refine fun ismax ↦ forall₂_congr fun j lj ↦ ⟨fun h ↦ ?_, fun h ↦ by use i⟩
@@ -178,7 +184,7 @@ lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}
       rw [EAnnulus.oo_eq_annulus mR₁.1.le]
       apply le_iSup₂ _ mx'
     · rcases le_or_gt (upperRadius Q θ x') (ENNReal.ofReal R₁) with hur | hur
-      · rw [EAnnulus.oo_eq_empty hur, setIntegral_empty, enorm_zero]; exact zero_le _
+      · rw [EAnnulus.oo_eq_empty hur, setIntegral_empty, enorm_zero]; exact zero_le
       rw [not_le] at h
       have urnt : upperRadius Q θ x' ≠ ⊤ := by
         rw [← lt_top_iff_ne_top]; exact h.trans (by finiteness)
@@ -206,7 +212,7 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
       congr with x; exact carlesonOperator_eq_biSup_Θ'_J102 mf nf'
     _ ≤ _ := ?_
   rcases (Θ' X).eq_empty_or_nonempty with eΘ' | nΘ'
-  · simp_rw [eΘ', iSup_emptyset, bot_eq_zero, lintegral_zero]; exact zero_le _
+  · simp_rw [eΘ', iSup_emptyset, bot_eq_zero, lintegral_zero]; exact zero_le
   let g (θ : Θ X) (x : X) := ⨆ j ∈ J102, ‖carlesonOperatorIntegrand K θ j.1 j.2 f x‖ₑ
   have mg (θ : Θ X) : Measurable (g θ) :=
     Measurable.biSup _ J102.to_countable fun j mj ↦
@@ -219,7 +225,7 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
       · refine Measurable.iSup fun i ↦ Measurable.iSup fun mi ↦ ?_
         refine Measurable.iSup fun j ↦ Measurable.iSup fun mj ↦ Measurable.enorm ?_
         exact measurable_carlesonOperatorIntegrand (Q := SimpleFunc.const X (enumΘ' nΘ' i)) mf
-      · intro x; apply biSup_mono; simp_rw [Finset.mem_range]; cutsat
+      · intro x; apply biSup_mono; simp_rw [Finset.mem_range]; lia
     _ ≤ ⨆ n, ∫⁻ x in G, g (QΘ' nΘ' mg n x) x := by
       gcongr with n x; exact biSup_enumΘ'_le_QΘ' nΘ' mg
     _ ≤ ⨆ n, ∫⁻ x in G, linearizedCarlesonOperator (QΘ' nΘ' mg n) K f x := by
