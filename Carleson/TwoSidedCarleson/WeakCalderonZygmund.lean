@@ -48,7 +48,7 @@ theorem maximal_theorem :
     split_ifs with h; swap; · simp at h
     norm_num [C10_2_1_def, pow_mul']
   rw [this]
-  apply hasWeakType_globalMaximalFunction (μ := volume) (p₁ := 1) (p₂ := 1) (by norm_num) le_rfl
+  exact hasWeakType_maximalFunction (μ := volume) (p₁ := 1) (p₂ := 1) (by norm_num) le_rfl
 
 -- Lemma 10.2.1, as formulated in the blueprint
 variable (α) in
@@ -501,7 +501,7 @@ lemma isOpen_MB_preimage_Ioi (hX : GeneralCase f α) :
     IsOpen (globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi α) ∧
     globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi α ≠ univ :=
   have ⟨x, hx⟩ := hX
-  ⟨lowerSemiContinuous_globalMaximalFunction.isOpen_preimage _,
+  ⟨lowerSemiContinuous_maximalFunction.isOpen_preimage _,
     (ne_univ_iff_exists_notMem _).mpr ⟨x, by simpa using hx⟩⟩
 
 /-- The center of B_j in the proof of Lemma 10.2.5 (general case). -/
@@ -639,7 +639,8 @@ lemma iUnion_czPartition {hX : GeneralCase f α} :
 private lemma globalMaximalFunction_preimage_finite
     (hα : 0 < α) (hf : BoundedFiniteSupport f) :
     volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α) < ∞ := by
-  have := hasStrongType_globalMaximalFunction one_pos one_lt_two f (hf.memLp 2) |>.2.trans_lt <|
+  have : eLpNorm (globalMaximalFunction _ _ _) _ volume < ∞ :=
+    hasStrongType_maximalFunction one_pos one_lt_two f (hf.memLp 2) |>.2.trans_lt <|
     mul_lt_top coe_lt_top (hf.memLp 2).eLpNorm_lt_top
   contrapose! this
   set s := (globalMaximalFunction volume 1 f ⁻¹' Ioi α)
@@ -648,7 +649,7 @@ private lemma globalMaximalFunction_preimage_finite
     _ ≤ (∫⁻ x, ‖globalMaximalFunction volume 1 f x‖ₑ ^ 2) ^ (1 / 2 : ℝ) := by
       refine rpow_le_rpow ?_ (by norm_num)
       refine le_trans (setLIntegral_mono_ae ?_ ?_) (setLIntegral_le_lintegral s _)
-      · exact AEStronglyMeasurable.globalMaximalFunction.aemeasurable.pow_const 2 |>.restrict
+      · exact measurable_maximalFunction.aemeasurable.pow_const 2 |>.restrict
       · exact Eventually.of_forall fun x hx ↦ pow_le_pow_left' (le_of_lt <| by simpa [s] using hx) 2
     _ = eLpNorm (globalMaximalFunction volume 1 f) 2 volume := by simp [eLpNorm, eLpNorm']
 
@@ -677,7 +678,7 @@ private lemma laverage_czBall7_le (hX : GeneralCase f α) (i : ℕ) :
   by_cases hi : czRadius hX i ≤ 0
   · simp [ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos (show 0 ≤ 7 by norm_num) hi]
   have ⟨y, hy7, hy⟩ := not_disjoint_iff.mp <| not_disjoint_czBall7 (lt_of_not_ge hi)
-  simp only [mem_compl_iff, mem_preimage, Nat.cast_pow, Nat.cast_ofNat, mem_Ioi, not_lt] at hy
+  simp only [mem_compl_iff, mem_preimage, mem_Ioi, not_lt] at hy
   refine le_trans ?_ hy
   simpa using laverage_le_globalMaximalFunction (μ := volume) hy7
 

@@ -410,7 +410,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       exact diff_subset
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * (volume (ball x (2 * R)) * globalMaximalFunction volume 1 g x) := by
       gcongr
-      apply lintegral_ball_le_volume_globalMaximalFunction
+      apply lintegral_ball_le_volume_mul_globalMaximalFunction
       simpa
   rw [← mul_assoc]
   gcongr
@@ -520,7 +520,7 @@ lemma globalMaximalFunction_zero_enorm_ae_zero (hR : 0 < R) {f : X → ℂ} (hf 
   change (fun x' ↦ ‖f x'‖ₑ) =ᶠ[ae (volume.restrict (ball x R))] 0
   rw [← lintegral_eq_zero_iff' (by fun_prop)]
   rw [← bot_eq_zero, ← le_bot_iff, bot_eq_zero]
-  apply le_of_le_of_eq (lintegral_ball_le_volume_globalMaximalFunction _)
+  apply le_of_le_of_eq (lintegral_ball_le_volume_mul_globalMaximalFunction _)
   · rw [hMzero]
     simp
   · simp [hR]
@@ -561,7 +561,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   nth_rw 2 [← mul_assoc]
   rw [ENNReal.inv_mul_cancel (by simp) (by simp)]
   simp only [one_mul, MTrgx]
-  apply lintegral_ball_le_volume_globalMaximalFunction
+  apply lintegral_ball_le_volume_mul_globalMaximalFunction
   simp [(lt_of_lt_of_le hr hR)]
 
 /-- Part 2 of Lemma 10.1.4 about `F₂`. -/
@@ -623,7 +623,8 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   unfold g1
   simp_rw [eLpNorm_one_eq_lintegral_enorm, enorm_indicator_eq_indicator_enorm,
     lintegral_indicator measurableSet_ball]
-  apply (lintegral_ball_le_volume_globalMaximalFunction (z := x) (x := x) (by simp [lt_of_lt_of_le hr hR])).trans
+  apply (lintegral_ball_le_volume_mul_globalMaximalFunction (z := x) (x := x)
+    (by simp [lt_of_lt_of_le hr hR])).trans
   rw [← mul_assoc]
   gcongr
   have : volume (ball x (R / 2)) ≤ defaultA a * volume (ball x (R / 4)) := by
@@ -745,7 +746,8 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     apply add_le_add (cotlar_estimate ha hT hg ?hrR) (by rfl)
     case hrR => rw [mem_Ioc]; exact ⟨hr, hR.le⟩
   unfold pointwise
-  have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) zero_lt_one one_lt_two
+  have hst_gmf : HasStrongType (globalMaximalFunction (X := X) (E := ℂ) volume 1) 2 2 _ _ _ :=
+    hasStrongType_maximalFunction (p₁ := 1) zero_lt_one one_lt_two
   norm_cast at hst_gmf
   have hst_gmf_g := hst_gmf g (hg.memLp 2)
   have aesm_gmf_g := hst_gmf_g.1 -- for fun_prop
@@ -769,8 +771,8 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   -- what remains is constant manipulation
   nth_rw 2 [mul_comm]; rw [← mul_assoc, ← add_mul]
   norm_cast
-  have : C2_0_6' (defaultA a) 1 2 ≤ 2 ^ (4 * a + 1) := by
-    rw [C2_0_6'_defaultA_one_two_eq, ← NNReal.rpow_natCast]
+  have : C2_0_6 (defaultA a) 1 2 ≤ 2 ^ (4 * a + 1) := by
+    rw [C2_0_6_defaultA_one_two_eq, ← NNReal.rpow_natCast]
     apply NNReal.rpow_le_rpow_of_exponent_le one_le_two
     trans 3 * a + 2
     · linarith

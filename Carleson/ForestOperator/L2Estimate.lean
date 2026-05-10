@@ -144,8 +144,9 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 namespace TileStructure.Forest
 
 lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedCompactSupport f) :
-    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume ≤ CMB (defaultA a : ℝ≥0) 2 * eLpNorm f 2 volume :=
-  hasStrongType_MB one_lt_two f (hf.memLp 2) |>.2
+    eLpNorm (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f) 2 volume
+    ≤ CMB (defaultA a : ℝ≥0) 2 * eLpNorm f 2 volume :=
+  hasStrongType_maximalFunction_one one_lt_two f (hf.memLp 2) |>.2
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
@@ -206,7 +207,7 @@ private lemma nontangential_integral_bound₁
 private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x x' : X}
     {I : Grid X} (hx : x ∈ I) (hx' : x' ∈ I) {R : ℝ} (h : R ≤ 8 * D ^ s I) :
     ∫⁻ y in Annulus.cc x' ((D : ℝ) ^ (s I - 1) / 4) R, ‖K x' y * f y‖ₑ ≤
-    2 ^ (7 * a + (𝕔 + 1) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x := by
+    2 ^ (7 * a + (𝕔 + 1) * a ^ 3) * maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
   apply (lintegral_mono_set (Annulus.cc_subset_cc (le_refl _) h)).trans
   have ineq : ∀ y ∈ Annulus.cc x' ((D : ℝ) ^ (s I - 1) / 4) (8 * D ^ s I), ‖K x' y * f y‖ₑ ≤
       2 ^ (7 * a + (𝕔 + 1) * a ^ 3) / volume (ball (c I) (16 * D ^ s I)) * ‖f y‖ₑ := by
@@ -237,10 +238,10 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
           add_le_add h (mem_ball.mp (Grid_subset_ball hx')).le
         _ < 16 * (D : ℝ) ^ s I := by linarith [defaultD_pow_pos a (s I)]
     _ = ⨍⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ ∂volume := by rw [setLAverage_eq]
-    _ ≤ MB volume 𝓑 c𝓑 r𝓑 f x := by
-      rw [MB_def]
+    _ ≤ maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
       have : (4, 0, I) ∈ 𝓑 := by
-        simp only [𝓑, Set.mem_prod, Set.mem_Iic, Set.mem_univ, le_add_iff_nonneg_left, zero_le, and_self]
+        simp only [𝓑, Set.mem_prod, Set.mem_Iic, Set.mem_univ, le_add_iff_nonneg_left, zero_le,
+          and_self]
       refine le_of_eq_of_le ?_ (le_biSup _ this)
       have : x ∈ ball (c I) (2 ^ 4 * (D : ℝ) ^ s I) := by
         refine (ball_subset_ball ?_) (Grid_subset_ball hx)
@@ -253,7 +254,7 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
 private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ : Θ X) (x : X) :
     nontangentialMaximalFunction θ f x ≤
     2 * linearizedNontangentialOperator Q θ K f x +
-    2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x := by
+    2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
   refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ ms₂ ↦ iSup_le fun ls₂ ↦ ?_
   rw [← integral_finsetSum]; swap
   · intro i hi; simp_rw [mul_comm]
@@ -304,8 +305,8 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       · exact norm_K'_f_le _
       · exact norm_K'_f_le _
     _ ≤ 2 * linearizedNontangentialOperator Q θ K f x +
-        (2 ^ (7 * a + (𝕔 + 1) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x +
-        2 ^ (7 * a + (𝕔 + 1) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x) := by
+        (2 ^ (7 * a + (𝕔 + 1) * a ^ 3) * maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x +
+        2 ^ (7 * a + (𝕔 + 1) * a ^ 3) * maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x) := by
       gcongr
       · refine nontangential_integral_bound₁ hf ?_ ?_
         · apply lt_of_le_of_lt (dist_triangle x (c I) x')
@@ -356,27 +357,28 @@ lemma le_C7_2_2 (a4 : 4 ≤ a) :
 /-- Lemma 7.2.2. -/
 lemma nontangential_operator_bound (hf : BoundedCompactSupport f) (θ : Θ X) :
     eLpNorm (nontangentialMaximalFunction θ f) 2 volume ≤ C7_2_2 a * eLpNorm f 2 volume := by
-  have aemeas_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) :=
-    Measurable.maximalFunction.aemeasurable
+  have aemeas_MB : AEMeasurable (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f ·) :=
+    measurable_maximalFunction.aemeasurable
   have ⟨hT₁, hT₂⟩ := BST_T_Q θ f hf.boundedFiniteSupport
   dsimp only at hT₁ hT₂
   calc
     _ ≤ eLpNorm (fun x ↦ 2 * linearizedNontangentialOperator Q θ K f x +
-        2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume := by
+        2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x) 2 volume := by
       simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm']
       gcongr; simp_rw [enorm_eq_self]; exact nontangential_pointwise_bound hf θ _
     _ ≤ eLpNorm (fun x ↦ 2 * linearizedNontangentialOperator Q θ K f x) 2 volume +
-        eLpNorm (2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+        eLpNorm (2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) *
+          maximalFunction volume 𝓑 c𝓑 r𝓑 1 f ·) 2 volume := by
       simpa [eLpNorm, eLpNorm'] using
         ENNReal.lintegral_Lp_add_le (hT₁.aemeasurable.const_mul _)
           (aemeas_MB.const_mul _) one_le_two
     _ = eLpNorm (fun x ↦ 2 * linearizedNontangentialOperator Q θ K f x) 2 volume +
-        2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+        2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * eLpNorm (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f) 2 volume := by
       congr
       simp only [eLpNorm, eLpNorm', OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top]
       exact ENNReal.lintegral_Lp_smul aemeas_MB two_pos ((2 : ℝ≥0) ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1))
     _ ≤ 2 * eLpNorm (linearizedNontangentialOperator Q θ K f) 2 volume +
-        2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+        2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * eLpNorm (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f) 2 volume := by
       gcongr
       refine eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' 2 hT₁ (.of_forall fun x ↦ ?_)
       rw [enorm_eq_self, enorm_eq_self]
@@ -528,7 +530,7 @@ open scoped Classical in
 /-- Equation (7.2.8) in the proof of Lemma 7.2.3. -/
 lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
     ‖∫ x, conj (g x) * (t.boundaryOperator u f x).toReal‖ₑ ≤
-    ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ‖f y‖ₑ * MB volume 𝓑 c𝓑 r𝓑 g y *
+    ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ‖f y‖ₑ * maximalFunction volume 𝓑 c𝓑 r𝓑 1 g y *
       ∑ I : Grid X, if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
         (D : ℝ≥0∞) ^ ((s J - s I) / (a : ℝ)) else 0 := by
   have nfs := hf.aestronglyMeasurable.enorm
@@ -584,17 +586,17 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       exact (nfs.restrict.const_mul _).ite (.const _) aemeasurable_const
     _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ∑ I : Grid X,
         if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
-          MB volume 𝓑 c𝓑 r𝓑 g y * D ^ ((s J - s I) / (a : ℝ)) * ‖f y‖ₑ else 0 := by
+          maximalFunction volume 𝓑 c𝓑 r𝓑 1 g y * D ^ ((s J - s I) / (a : ℝ)) * ‖f y‖ₑ else 0 := by
       refine Finset.sum_le_sum fun J mJ ↦ setLIntegral_mono_ae ?_ ?_
       · refine (Finset.aemeasurable_fun_sum _ fun I _ ↦ ?_).restrict; split_ifs; swap; · simp
         refine (AEMeasurable.mul_const ?_ _).mul nfs
-        exact Measurable.maximalFunction.aemeasurable
+        exact measurable_maximalFunction.aemeasurable
       · refine Eventually.of_forall fun y my ↦ Finset.sum_le_sum fun I _ ↦ ?_
         split_ifs with hIJ; swap; · rfl
         refine mul_le_mul_left (mul_le_mul_left ?_ _) _
         obtain ⟨b, mb, eb⟩ : ∃ i ∈ 𝓑, ball (c𝓑 i) (r𝓑 i) = ball (c I) (16 * D ^ s I) := by
           use (4, 0, I); norm_num [𝓑, c𝓑, r𝓑]
-        rw [MB, maximalFunction]; simp_rw [inv_one, ENNReal.rpow_one]
+        rw [maximalFunction]; simp_rw [inv_one, ENNReal.rpow_one]
         exact le_iSup₂_of_le b mb (by rw [indicator_of_mem (eb ▸ hIJ.1 my), eb])
     _ = _ := by
       congr! with J - y -; rw [Finset.mul_sum]
@@ -692,28 +694,27 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
       C7_2_3 a * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   classical
   calc
-    _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ‖f y‖ₑ * MB volume 𝓑 c𝓑 r𝓑 g y *
+    _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ‖f y‖ₑ * maximalFunction volume 𝓑 c𝓑 r𝓑 1 g y *
         ∑ I : Grid X, if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
           (D : ℝ≥0∞) ^ ((s J - s I) / (a : ℝ)) else 0 := e728 hf hg
-    _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ‖f y‖ₑ * MB volume 𝓑 c𝓑 r𝓑 g y * 2 ^ (9 * a + 1) := by
+    _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ‖f y‖ₑ * maximalFunction volume 𝓑 c𝓑 r𝓑 1 g y * 2 ^ (9 * a + 1) := by
       gcongr; exact boundary_geometric_series
-    _ = 2 ^ (9 * a + 1) * ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ‖f y‖ₑ * MB volume 𝓑 c𝓑 r𝓑 g y := by
+    _ = 2 ^ (9 * a + 1) * ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ‖f y‖ₑ * maximalFunction volume 𝓑 c𝓑 r𝓑 1 g y := by
       rw [Finset.mul_sum]; congr! with J mJ
       rw [← lintegral_const_mul' _ _ (by tauto)]; congr with y; rw [mul_comm]
-    _ = 2 ^ (9 * a + 1) * ∫⁻ y in ⋃ I : Grid X, I, ‖f y‖ₑ * MB volume 𝓑 c𝓑 r𝓑 g y := by
+    _ = 2 ^ (9 * a + 1) * ∫⁻ y in ⋃ I : Grid X, I, ‖f y‖ₑ * maximalFunction volume 𝓑 c𝓑 r𝓑 1 g y := by
       rw [← lintegral_biUnion_finset] <;> simp only [mem_toFinset, coe_toFinset, biUnion_𝓙]
       · exact pairwiseDisjoint_𝓙
       · exact fun _ _ ↦ coeGrid_measurable
-    _ ≤ 2 ^ (9 * a + 1) * ∫⁻ y, ‖f y‖ₑ * MB volume 𝓑 c𝓑 r𝓑 g y := by
+    _ ≤ 2 ^ (9 * a + 1) * ∫⁻ y, ‖f y‖ₑ * maximalFunction volume 𝓑 c𝓑 r𝓑 1 g y := by
       gcongr; exact Measure.restrict_le_self
-    _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 g) 2 volume := by
+    _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * eLpNorm (maximalFunction volume 𝓑 c𝓑 r𝓑 1 g) 2 volume := by
       rw [mul_assoc]; gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm ⟨by simpa using ENNReal.inv_two_add_inv_two⟩
-        hf.aestronglyMeasurable.aemeasurable.enorm
-        Measurable.maximalFunction.aemeasurable
+        hf.aestronglyMeasurable.aemeasurable.enorm measurable_maximalFunction.aemeasurable
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * (2 ^ (a + (3 / 2 : ℝ)) * eLpNorm g 2 volume) := by
-      have ST : HasStrongType (α := X) (α' := X) (ε₁ := ℂ) (MB volume 𝓑 c𝓑 r𝓑) 2 2 volume volume
-          (CMB (defaultA a) 2) := hasStrongType_MB (by norm_num)
+      have ST : HasStrongType (α := X) (α' := X) (ε₁ := ℂ) (maximalFunction volume 𝓑 c𝓑 r𝓑 1) 2 2 volume volume
+          (CMB (defaultA a) 2) := hasStrongType_maximalFunction_one (by norm_num)
       specialize ST g (hg.memLp 2)
       rw [CMB_defaultA_two_eq, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat] at ST
       exact mul_le_mul_right ST.2 _
@@ -781,13 +782,13 @@ private lemma norm_eI𝒬u_mul_eq (u : 𝔓 X) (f : X → ℂ) (x : X) : ‖eI�
 -- The bound for `carlesonSum` from `pointwise_tree_estimate` (Lemma 7.1.3)
 variable (t) (u) (f) in
 private def cS_bound (x' : X) :=
-    C7_1_3 a * (MB volume 𝓑 c𝓑 r𝓑 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' +
+    C7_1_3 a * (maximalFunction volume 𝓑 c𝓑 r𝓑 1 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' +
     t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x') +
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) (eI𝒬u_mul u f)) x'
 
 private lemma aeMeasurable_cS_bound : AEMeasurable (cS_bound t u f) := by
   refine AEMeasurable.add ?_ MeasureTheory.Measurable.nontangentialMaximalFunction.aemeasurable
-  apply (Measurable.maximalFunction.aemeasurable.add ?_).const_mul
+  apply (measurable_maximalFunction.aemeasurable.add ?_).const_mul
   exact measurable_boundaryOperator.aemeasurable
 
 -- The natural constant for Lemma 7.2.1 is ≤ the simpler constant `C7_2_1` we use instead.
@@ -828,11 +829,11 @@ private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤
     C7_2_1 a * eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume := by
   let μ := volume (α := X)
   let aOC := (approxOnCube (𝓙 (t u)) (‖f ·‖))
-  let g₁ := MB μ 𝓑 c𝓑 r𝓑 aOC
+  let g₁ := maximalFunction μ 𝓑 c𝓑 r𝓑 1 aOC
   let g₂ := t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖))
   let g₃ := nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) (eI𝒬u_mul u f))
   have m₁ : AEMeasurable g₁ :=
-    Measurable.maximalFunction.aemeasurable
+    measurable_maximalFunction.aemeasurable
   have m₂ : AEMeasurable g₂ := measurable_boundaryOperator.aemeasurable
   calc eLpNorm (cS_bound t u f) 2 μ
     _ = eLpNorm (C7_1_3 a • (g₁ + g₂) + g₃) 2 μ := rfl

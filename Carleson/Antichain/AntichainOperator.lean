@@ -275,7 +275,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     _ = Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         ∫⁻ y in ⋃ p ∈ 𝔄, E p, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by
       rw [mul_assoc _ (C6_1_6 a : ℝ≥0∞), mul_assoc (_ * _), ← lintegral_const_mul'']; swap
-      · exact (Measurable.maximalFunction.aemeasurable.mul
+      · exact (measurable_maximalFunction.aemeasurable.mul
           hg.enorm.aemeasurable).restrict
       congr 1; simp_rw [← mul_assoc]
       rw [← lintegral_biUnion_finset _ (fun _ _ ↦ measurableSet_E)]
@@ -290,7 +290,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
       conv_rhs => enter [2, 2]; rw [← eLpNorm_enorm]
       gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
-        Measurable.maximalFunction.aemeasurable hg.enorm.aemeasurable
+        measurable_maximalFunction.aemeasurable hg.enorm.aemeasurable
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (2 ^ (a + 2) * eLpNorm g 2 ^ 2) := by
       rw [sq, ← mul_assoc (_ ^ _)]
