@@ -2,7 +2,7 @@ module
 
 public import Mathlib.MeasureTheory.Covering.Vitali
 
--- PR #38903 upstream.
+-- Upstreaming status: upstreamed in https://github.com/leanprover-community/mathlib4/pull/38903
 
 @[expose] public section
 

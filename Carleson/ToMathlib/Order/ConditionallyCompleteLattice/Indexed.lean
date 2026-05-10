@@ -2,6 +2,8 @@ module
 
 public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 
+-- Upstreaming status: upstreamed in https://github.com/leanprover-community/mathlib4/pull/38906
+
 public section ConditionallyCompleteLinearOrderBot
 
 variable {α : Type*} {ι : Sort*} {κ : ι → Sort*}
