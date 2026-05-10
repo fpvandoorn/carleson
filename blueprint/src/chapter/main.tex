@@ -763,9 +763,9 @@ Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 \begin{proposition}[Hardy--Littlewood]
 \label{Hardy-Littlewood}
 \leanok
-\lean{Finset.measure_biUnion_le_lintegral, hasStrongType_maximalFunction,
+\lean{measure_biUnion_le_lintegral, hasStrongType_maximalFunction,
 MeasureTheory.AEStronglyMeasurable.globalMaximalFunction, laverage_le_globalMaximalFunction, hasStrongType_globalMaximalFunction}
-\uses{layer-cake-representation,covering-separable-space}
+\uses{layer-cake-representation}
    Let $\mathcal{B}$ be a finite collection of balls in $X$.
 If for some $\lambda>0$ and some measurable function $u:X\to [0,\infty)$ we have
 \begin{equation}\label{eq-ball-assumption}
@@ -6710,8 +6710,6 @@ This proves the lemma.
 The following lemma will be used to define $M$ in the proof of \Cref{Hardy-Littlewood}.
 \begin{lemma}[covering separable space]
     \label{covering-separable-space}
-    \leanok
-    \lean{covering_separable_space}
     % Since X is separable, we can even choose `C` independent of `r`.
     For each $r > 0$, there exists a countable collection $C(r) \subset X$ of points such that
     $$
