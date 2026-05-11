@@ -502,7 +502,7 @@ lemma btp_integral_bound :
     ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
       ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I, ‖adjointCarleson p f y‖ₑ ≤
     C2_1_3 a * 2 ^ (4 * a) * ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
-      MB volume 𝓑 c𝓑 r𝓑 f y := by
+      maximalFunction volume 𝓑 c𝓑 r𝓑 1 f y := by
   calc
     _ ≤ ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
         ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
@@ -545,7 +545,7 @@ lemma btp_integral_bound :
     _ ≤ _ := by
       refine mul_le_mul_right (lintegral_mono fun y ↦ ?_) _
       by_cases my : y ∈ ball (c I) (8 * D ^ s I)
-      · refine mul_le_mul_right ?_ _; rw [MB_def]
+      · refine mul_le_mul_right ?_ _; simp only [maximalFunction, ENNReal.rpow_one, inv_one]
         have : (3, 0, I) ∈ 𝓑 := by
           simp only [𝓑, Set.mem_prod, mem_Iic, Set.mem_univ, and_true]
           omega
@@ -567,7 +567,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
     (∑ I with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
       ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
     ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
-      MB volume 𝓑 c𝓑 r𝓑 f y) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      maximalFunction volume 𝓑 c𝓑 r𝓑 1 f y) ^ 2) ^ (2 : ℝ)⁻¹ := by
   calc
     _ ≤ _ := e763 hu₁ hu₂ hu h2u hf
     _ = ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
@@ -611,7 +611,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
         (∑ I with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
           ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
         C2_1_3 a * 2 ^ (4 * a) * ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
-          MB volume 𝓑 c𝓑 r𝓑 f y) ^ 2) ^ (2 : ℝ)⁻¹ := by
+          maximalFunction volume 𝓑 c𝓑 r𝓑 1 f y) ^ 2) ^ (2 : ℝ)⁻¹ := by
       gcongr with k mk J mJ; exact btp_integral_bound
     _ = _ := by
       nth_rw 2 [← ENNReal.rpow_one (C2_1_3 a * 2 ^ (4 * a))]
@@ -628,15 +628,15 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C2_1_3 a * 2 ^ (11 * a + 2) *
     (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S), (D : ℝ≥0∞) ^ (-k * κ / 2)) *
-    eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume := by
-  have aem_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f) volume :=
-    Measurable.maximalFunction.aemeasurable
+    eLpNorm ((𝓘 u₁ : Set X).indicator (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f ·)) 2 volume := by
+  have aem_MB : AEMeasurable (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f) volume :=
+    measurable_maximalFunction.aemeasurable
   classical
   calc
     _ ≤ _ := e764_preCS hu₁ hu₂ hu h2u hf
     _ = C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
-        (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y *
+        (∫⁻ y in J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f y *
         ∑ I with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
           ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
         (ball (c I) (8 * D ^ s I)).indicator 1 y) ^ 2) ^ (2 : ℝ)⁻¹ := by
@@ -645,7 +645,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       · fun_prop (discharger := measurability)
       congr with y; rw [mul_comm, Finset.sum_mul]
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
-        (∑ J ∈ (𝓙₆ t u₁).toFinset, (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) *
+        (∑ J ∈ (𝓙₆ t u₁).toFinset, (∫⁻ y in J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f y ^ 2) *
         (⨍⁻ y in J, (∑ I : Grid X with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
           ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
         (ball (c I) (8 * D ^ s I)).indicator 1 y) ^ 2 ∂volume)) ^ (2 : ℝ)⁻¹ := by
@@ -655,12 +655,12 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       fun_prop (discharger := measurability)
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset,
-        (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) * C7_6_4 a k) ^ (2 : ℝ)⁻¹ := by
+        (∫⁻ y in J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f y ^ 2) * C7_6_4 a k) ^ (2 : ℝ)⁻¹ := by
       gcongr with k mk J mJ; rw [mem_toFinset] at mJ; exact square_function_count mJ
     _ ≤ C2_1_3 a * 2 ^ (4 * a) *
         ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         2 ^ (7 * a + 2) * D ^ (-k * κ / 2) * (∑ J ∈ (𝓙₆ t u₁).toFinset,
-        ∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) ^ (2 : ℝ)⁻¹ := by
+        ∫⁻ y in J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f y ^ 2) ^ (2 : ℝ)⁻¹ := by
       gcongr with k mk
       rw [← Finset.sum_mul, mul_comm _ (C7_6_4 a k : ℝ≥0∞),
         ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
@@ -767,7 +767,7 @@ lemma btp_constant_bound :
 lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
-    C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume :=
+    C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f ·)) 2 volume :=
   (e764_postCS hu₁ hu₂ hu h2u hf).trans (mul_le_mul_left btp_constant_bound _)
 
 lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
@@ -846,7 +846,7 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
       tree_projection_estimate (hf₂.adjointCarlesonSum.indicator coeGrid_measurable)
         (hf₁.indicator coeGrid_measurable) hu₁
     _ ≤ C7_2_1 a *
-        (C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f₂ ·)) 2 volume) *
+        (C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ ·)) 2 volume) *
         eLpNorm (U.indicator f₁ ·) 2 volume := by
       rw [cntp_approxOnCube_eq hu₁]; gcongr
       · exact bound_for_tree_projection hu₁ hu₂ hu h2u hf₂

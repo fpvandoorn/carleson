@@ -284,8 +284,8 @@ lemma 𝓑_finite : (𝓑 (X := X)).Finite :=
 
 lemma laverage_le_biInf_MB' {c₀ : X} {r₀ : ℝ} (hr : 4 * D ^ s J + dist (c J) c₀ ≤ r₀)
     (h : ∃ i ∈ 𝓑, c𝓑 i = c₀ ∧ r𝓑 i = r₀) :
-    ⨍⁻ x in ball c₀ r₀, ‖f x‖ₑ ∂volume ≤ ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
-  simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iInf_iff]
+    ⨍⁻ x in ball c₀ r₀, ‖f x‖ₑ ∂volume ≤ ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
+  simp_rw [maximalFunction, inv_one, ENNReal.rpow_one, le_iInf_iff]
   intro y my; obtain ⟨b, mb, cb, rb⟩ := h
   replace my : y ∈ ball (c𝓑 b) (r𝓑 b) := by
     rw [cb, rb]; refine Grid_subset_ball.trans (ball_subset_ball' hr) my
@@ -293,7 +293,7 @@ lemma laverage_le_biInf_MB' {c₀ : X} {r₀ : ℝ} (hr : 4 * D ^ s J + dist (c 
 
 lemma laverage_le_biInf_MB {r₀ : ℝ} (hr : 4 * D ^ s J ≤ r₀)
     (h : ∃ i ∈ 𝓑, c𝓑 i = c J ∧ r𝓑 i = r₀) :
-    ⨍⁻ x in ball (c J) r₀, ‖f x‖ₑ ∂volume ≤ ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    ⨍⁻ x in ball (c J) r₀, ‖f x‖ₑ ∂volume ≤ ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
   refine laverage_le_biInf_MB' ?_ h; rwa [dist_self, add_zero]
 
 
@@ -581,7 +581,7 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
 private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) (g : X → ℝ)
     {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p) :
     (∫⁻ y in ball (𝔠 p) (16 * D ^ 𝔰 p), ‖g y‖ₑ) / volume (ball (𝔠 p) (16 * D ^ 𝔰 p)) ≤
-    MB volume 𝓑 c𝓑 r𝓑 g x' := by
+    maximalFunction volume 𝓑 c𝓑 r𝓑 1 g x' := by
   have mem_𝓑 : (4, 0, 𝓘 p) ∈ 𝓑 := by
     simp only [𝓑, Set.mem_prod, Set.mem_Iic, Set.mem_univ, and_true]
     omega
@@ -595,13 +595,13 @@ private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' 
     have hc𝓑 : 𝔠 p = c𝓑 (4, 0, 𝓘 p) := by simp [c𝓑, 𝔠]
     have hr𝓑 : 16 * D ^ 𝔰 p = r𝓑 (4, 0, 𝓘 p) := by rw [r𝓑, 𝔰]; norm_num
     rw [Set.indicator_of_mem x'_in_ball, ← hc𝓑, ← hr𝓑, MeasureTheory.setLAverage_eq]
-  · simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
+  · simp only [maximalFunction, ENNReal.rpow_one, inv_one]
 
 /-- Lemma 7.1.4 -/
 lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
     (hf : BoundedCompactSupport f) :
     ‖∑ i ∈ t.σ u x, ∫ y, (exp (.I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y * f y‖ₑ ≤
-    C7_1_4 a * MB volume 𝓑 c𝓑 r𝓑 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
+    C7_1_4 a * maximalFunction volume 𝓑 c𝓑 r𝓑 1 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
   let _ : MulPosReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   let _ : PosMulReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   set g := approxOnCube (𝓙 (t u)) (‖f ·‖)
@@ -615,7 +615,8 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     rw [← Complex.ofReal_neg, ← Complex.ofReal_add, ← Complex.ofReal_add, ← Complex.ofReal_sub]
   refine (enorm_sum_le _ _).trans <| ((t.σ u x).sum_le_sum this).trans ?_
   suffices ∀ s ∈ t.σ u x, ∫⁻ y, ‖(exp (I * q y) - 1) * Ks s x y * f y‖ₑ ≤
-      (5 * 2 ^ ((𝕔 + 4) * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 g x') * 2 ^ (s - t.σMax u x hσ) by
+      (5 * 2 ^ ((𝕔 + 4) * a ^ 3) * maximalFunction volume 𝓑 c𝓑 r𝓑 1 g x')
+      * 2 ^ (s - t.σMax u x hσ) by
     apply ((t.σ u x).sum_le_sum this).trans
     rw [← Finset.mul_sum]
     apply le_trans <| mul_le_mul_right (L7_1_4_sum hσ) _
@@ -1087,7 +1088,7 @@ lemma C7_1_4_le_C7_1_3 {a : ℕ} (ha : 4 ≤ a) : C7_1_4 a ≤ C7_1_3 a := by
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
     (hf : BoundedCompactSupport f) :
     ‖carlesonSum (t u) (fun y ↦ exp (.I * - 𝒬 u y) * f y) x‖ₑ ≤
-    C7_1_3 a * (MB volume 𝓑 c𝓑 r𝓑 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' +
+    C7_1_3 a * (maximalFunction volume 𝓑 c𝓑 r𝓑 1 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' +
     t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x') +
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x' := by
   set g := approxOnCube (𝓙 (t u)) f

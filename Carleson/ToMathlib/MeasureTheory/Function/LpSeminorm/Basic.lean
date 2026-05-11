@@ -118,7 +118,6 @@ theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : �
 
 end Suprema
 
-
 section Indicator
 
 variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
@@ -137,5 +136,16 @@ lemma eLpNormEssSup_indicator_const_eq' {s : Set α} {c : ε} (hμs : μ s = 0) 
   rw [Set.indicator_of_notMem ha, enorm_zero]
 
 end Indicator
+
+section Lp
+
+variable {ε : Type*} [TopologicalSpace ε] [ENorm ε]
+
+lemma MemLp.eLpNormEssSup_lt_top {f : α → ε} (hu : MemLp f ⊤ μ) :
+    eLpNormEssSup f μ < ⊤ := by
+  simp_rw [MemLp, eLpNorm_exponent_top] at hu
+  exact hu.2
+
+end Lp
 
 end MeasureTheory

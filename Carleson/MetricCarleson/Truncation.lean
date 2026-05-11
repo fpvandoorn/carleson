@@ -541,7 +541,7 @@ lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁
 lemma lintegral_globalMaximalFunction_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (bF : IsBounded F) (mF : MeasurableSet F) (mG : MeasurableSet G) :
     ∫⁻ x in G, globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x ≤
-    C2_0_6' (defaultA a) 1 q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+    C2_0_6 (defaultA a) 1 q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   calc
     _ = ∫⁻ x, G.indicator 1 x * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       simp_rw [← indicator_eq_indicator_one_mul]; rw [lintegral_indicator mG]
@@ -550,13 +550,13 @@ lemma lintegral_globalMaximalFunction_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderCo
       apply lintegral_mul_le_eLpNorm_mul_eLqNorm
       · rw [holderConjugate_coe_iff]; exact hqq'.symm
       · exact aemeasurable_const.indicator mG
-      · exact AEStronglyMeasurable.globalMaximalFunction.aemeasurable
+      · exact measurable_maximalFunction.aemeasurable
     _ ≤ volume G ^ (q' : ℝ)⁻¹ *
-        (C2_0_6' (defaultA a) 1 q * eLpNorm (F.indicator (1 : X → ℝ)) q) := by
+        (C2_0_6 (defaultA a) 1 q * eLpNorm (F.indicator (1 : X → ℝ)) q) := by
       gcongr
       · rw [Pi.one_def]; convert eLpNorm_indicator_const_le (1 : ℝ≥0∞) q'
         rw [enorm_eq_self, coe_toReal, one_div, one_mul]
-      · refine (hasStrongType_globalMaximalFunction zero_lt_one hq.1 _ ?_).2
+      · refine (hasStrongType_maximalFunction zero_lt_one hq.1 _ ?_).2
         rw [Pi.one_def]; exact memLp_indicator_const _ mF _ (.inr bF.measure_lt_top.ne)
     _ ≤ _ := by
       rw [← mul_assoc, mul_comm (_ ^ _)]; gcongr
@@ -574,9 +574,9 @@ lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   · exact pow_pos (tsub_pos_of_lt hq) _
 
 lemma le_C1_0_2 (a4 : 4 ≤ a) (hq : q ∈ Ioc 1 2) :
-    C3_0_4 a q + 4 * C2_1_3 a * C2_0_6' (defaultA a) 1 q ≤ C1_0_2 a q := by
+    C3_0_4 a q + 4 * C2_1_3 a * C2_0_6 (defaultA a) 1 q ≤ C1_0_2 a q := by
   have : (1 : ℝ≥0) ≤ 2 := by norm_num
-  grw [C2_0_6'_defaultA_one_le hq.1 (a := a)]
+  grw [C2_0_6_defaultA_one_le hq.1 (a := a)]
   have : q / (q - 1) ≤ 2 / (q - 1) ^ 6 := by
     gcongr
     · have : 0 < q - 1 := tsub_pos_iff_lt.2 hq.1
@@ -649,7 +649,7 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       refine Measurable.biSup _ (Finset.countable_toSet _) fun s₁ ms₁ ↦ ?_
       exact Measurable.biSup _ (Finset.countable_toSet _) fun s₂ ms₂ ↦ (measurable_T_S mf).enorm
     _ ≤ C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ + 4 * C2_1_3 a *
-        (C2_0_6' (defaultA a) 1 q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹) := by
+        (C2_0_6 (defaultA a) 1 q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹) := by
       have bF := isBounded_ball.subset sF
       have bG := isBounded_ball.subset sG
       gcongr
