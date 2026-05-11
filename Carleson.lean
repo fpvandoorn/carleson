@@ -60,6 +60,7 @@ public import Carleson.ToMathlib.Data.NNReal
 public import Carleson.ToMathlib.Data.Real.ConjExponents
 public import Carleson.ToMathlib.ENorm
 public import Carleson.ToMathlib.HardyLittlewood
+public import Carleson.ToMathlib.IntegralBallContinuity
 public import Carleson.ToMathlib.Interval
 public import Carleson.ToMathlib.LorentzType
 public import Carleson.ToMathlib.MeasureTheory.Covering.Vitali
