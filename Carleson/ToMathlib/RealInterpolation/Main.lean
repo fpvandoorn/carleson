@@ -518,12 +518,12 @@ lemma simplify_factor₀ {D : ℝ≥0∞}
       · exact ne_zero_of_Ioo hF
       · exact ne_top_of_Ioo hF
       · exact coe_ne_top
-    · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁)
+    · exact ENNReal.inv_ne_zero.mpr (by finiteness)
     · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF)
-    · exact d_ne_zero_aux₁ hC₀
+    · positivity
     · exact d_ne_zero_aux₀ hF
     · exact d_ne_zero_aux₂ hC₀ hF
-    · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁))
+    · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (by finiteness))
         (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF))
   · exact Or.inr (d_ne_top_aux₂ hF)
   · exact Or.inr (d_ne_zero_aux₀ hF)
@@ -573,12 +573,12 @@ lemma simplify_factor₁ {D : ℝ≥0∞}
       · exact ne_top_of_Ioo hF
       · exact (ENNReal.coe_pos.mpr hC₁).ne'
       · exact coe_ne_top
-    · exact ENNReal.inv_ne_zero.mpr (rpow_ne_top' ((ENNReal.coe_pos.mpr hC₁).ne') coe_ne_top)
+    · exact ENNReal.inv_ne_zero.mpr (by finiteness)
     · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF)
-    · exact d_ne_zero_aux₁ hC₀
+    · positivity
     · exact d_ne_zero_aux₀ hF
     · exact d_ne_zero_aux₂ hC₀ hF
-    · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁))
+    · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (by finiteness))
         (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF))
   · exact Or.inr (d_ne_top_aux₂ hF)
   · exact Or.inr (d_ne_zero_aux₀ hF)
@@ -929,7 +929,7 @@ lemma simplify_factor₅ {D : ℝ≥0∞} [TopologicalSpace E₁] [ESeminormedAd
     simplify_factor₁ hq₁' hp₀ hp₁ ht hq₀q₁ hp hq hC₀ hC₁ hF hD]
 
 /-- The trivial case for the estimate in the real interpolation theorem
-    when the function `Lp` norm of `f` vanishes. -/
+when the `L^p` norm of `f` vanishes. -/
 lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
