@@ -56,8 +56,9 @@ namespace MeasureTheory
 
 variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace ε₂] [ESeminormedAddMonoid ε₂]
 
-def Subadditive [ENorm ε] (T : (α → ε₁) → α' → ε) : Prop :=
-  ∃ A ≠ ⊤, ∀ (f g : α → ε₁) (x : α'), ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
+/-- The operator is subadditive on functions satisfying `P` with constant `A`. -/
+def SubadditiveOn [ENorm ε] (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞) : Prop :=
+  ∀ (f g : α → ε₁), P f → P g → ∀ (x : α'), ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
 
 def Subadditive_trunc [ENorm ε] (T : (α → ε₁) → α' → ε) (A : ℝ≥0∞) (f : α → ε₁) (ν : Measure α') :
     Prop :=
@@ -69,6 +70,36 @@ def Subadditive_trunc [ENorm ε] (T : (α → ε₁) → α' → ε) (A : ℝ≥
 def AESubadditiveOn [ENorm ε] (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞)
     (ν : Measure α') : Prop :=
   ∀ (f g : α → ε₁), P f → P g → ∀ᵐ x ∂ν, ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
+
+namespace SubadditiveOn
+
+variable {P : (α → ε₁) → Prop} {A : ℝ≥0∞} {T : (α → ε₁) → α' → ε}
+  [TopologicalSpace ε] [ESeminormedAddMonoid ε]
+
+lemma aeSubadditiveOn (h : SubadditiveOn T P A) {μ : Measure α'} :
+    AESubadditiveOn T P A μ :=
+  fun f g hf hg => ae_of_all μ fun x => h f g hf hg x
+
+lemma biSup {ι : Type*} {𝓑 : Set ι} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
+    (h : ∀ i ∈ 𝓑, SubadditiveOn (T i) P A) : SubadditiveOn (fun u x ↦ ⨆ i ∈ 𝓑, T i u x) P A := by
+  intro f g hf hg x
+  simp_rw [SubadditiveOn, enorm_eq_self] at h ⊢
+  refine iSup₂_le fun i hi => h i hi f g hf hg x |>.trans ?_
+  gcongr <;> apply le_biSup _ hi
+
+lemma indicator (sa : SubadditiveOn T P A) (s : Set α') :
+    SubadditiveOn (fun u x ↦ (s.indicator (fun y ↦ T u y) x)) P A := by
+  intro f g hf hg x
+  have := sa f g hf hg x
+  by_cases hx : x ∈ s <;> simp [hx, this]
+
+/- If `T` is constant in the second argument (but not necessarily the first) and satisfies
+a subadditivity criterion, then `SubadditiveOn T P 1` -/
+lemma const {T : (α → ε₁) → ℝ≥0∞} (h_add : ∀ {f g}, P f → P g → T (f + g) ≤ T f + T g) :
+    SubadditiveOn (fun u (_ : α') ↦ T u) P 1 :=
+  fun f g hf hg x ↦ (by simpa using h_add hf hg)
+
+end SubadditiveOn
 
 namespace AESubadditiveOn
 
@@ -149,9 +180,35 @@ variable [TopologicalSpace ε] [ENormedSpace ε]
 variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedSpace ε₁]
 
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
+def SublinearOn (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞) :
+    Prop :=
+  SubadditiveOn T P A ∧ ∀ (f : α → ε₁) (c : ℝ≥0), P f → T (c • f) = c • T f
+
+/-- The operator is almost everywhere sublinear on functions satisfying `P` with constant `A`. -/
 def AESublinearOn (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞) (ν : Measure α') :
     Prop :=
   AESubadditiveOn T P A ν ∧ ∀ (f : α → ε₁) (c : ℝ≥0), P f → T (c • f) =ᵐ[ν] c • T f
+
+namespace SublinearOn
+
+variable {P : (α → ε₁) → Prop} {A : ℝ≥0∞}
+
+lemma aeSublinearOn {T : (α → ε₁) → α' → ℝ≥0∞} (h : SublinearOn T P A) {μ : Measure α'} :
+    AESublinearOn T P A μ :=
+  ⟨h.left.aeSubadditiveOn, fun f c hf => ae_of_all μ <| congrFun <| h.right f c hf⟩
+
+lemma biSup {ι : Type*} {𝓑 : Set ι} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
+    {P : (α → ε₁) → Prop}
+    {A : ℝ≥0∞} (h : ∀ i ∈ 𝓑, SublinearOn (T i) P A) :
+    SublinearOn (fun u x ↦ ⨆ i ∈ 𝓑, T i u x) P A := by
+  use .biSup (h · · |>.left)
+  intro f c hf
+  ext x
+  simp only [Pi.smul_apply, ENNReal.smul_iSup]
+  congr! with i hi
+  exact (h i hi).right f c hf ▸ rfl
+
+end SublinearOn
 
 namespace AESublinearOn
 
