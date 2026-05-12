@@ -46,7 +46,7 @@ theorem two_sided_metric_carleson_hasRestrictedWeakType [Countable (Θ X)] (ha :
     split_ifs <;> simp
 
 
-theorem two_sided_metric_carleson_hasLorentzType [na : NoAtoms (@volume X d.toMeasureSpace)] [Countable (Θ X)] (ha : 4 ≤ a)
+theorem two_sided_metric_carleson_hasLorentzType [Countable (Θ X)] (ha : 4 ≤ a)
   (hq : q ∈ Ioo 1 2)
   (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasLorentzType (carlesonOperator K) q 1 q ⊤ volume volume (4 * (C10_0_1 a q) / q) := by
@@ -135,7 +135,7 @@ def C_carleson_hasStrongType (a : ℕ) (q : ℝ≥0) :=
   (C_LorentzInterpolation q₀ q₁ q₀ q₁ q (4 * C10_0_1 a q₀ / q₀) (4 * C10_0_1 a q₁ / q₁) 1 t)
 
 /- Theorem 10.0.1, reformulation -/
-theorem two_sided_metric_carleson_hasStrongType [na : NoAtoms (@volume X d.toMeasureSpace)]
+theorem two_sided_metric_carleson_hasStrongType
   [Countable (Θ X)] (ha : 4 ≤ a) (hq : q ∈ Ioo 1 2)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
       HasStrongType (carlesonOperator K) q q volume volume

@@ -782,7 +782,7 @@ lemma wnorm_eq_zero_iff [ENormedAddMonoid ε] {f : α → ε} {p : ℝ≥0∞} (
       calc
         _ ≤ distribution f 0 μ := by gcongr; exact zero_le
         _ = distribution f (eLpNormEssSup f μ) μ := by congr; exact h.symm
-        _ = 0 := distribution_snormEssSup
+        _ = 0 := distribution_eLpNormEssSup
 
 
 /-! ## Weaktype estimates applied to truncations -/
@@ -884,7 +884,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
   calc
   _ ≤ distribution (T' (trunc f (t / C₁))) (eLpNormEssSup (T' (trunc f (t / C₁))) ν) ν :=
       distribution_mono_right ineq
-  _ = 0 := distribution_snormEssSup
+  _ = 0 := distribution_eLpNormEssSup
 
 lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p₀ q₀ : ℝ≥0∞}
     (hp₀ : 0 < p₀) (hq₀ : q₀ = ⊤) (hp₀p : p₀ < p) (hp : p ≠ ⊤) {f : α → E₁'} (hf : MemLp f p μ)

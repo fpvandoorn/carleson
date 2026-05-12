@@ -3,7 +3,6 @@ module
 public import Carleson.DoublingMeasure
 public import Carleson.ToMathlib.RealInterpolation.Misc
 public import Mathlib.Order.CompleteLattice.Group
-public import Mathlib.Order.LiminfLimsup
 
 @[expose] public section
 
