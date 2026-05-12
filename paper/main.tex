@@ -1,3 +1,4 @@
+% compile with xelatex or with pdflatex -shell-escape
 \documentclass[12pt]{amsart}
 
 \usepackage[utf8]{inputenc}
@@ -226,14 +227,86 @@ Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$
 %\item Level of mathematical detail to include.
 
 \section{Project organization}\label{sec:org}
-\begin{itemize}
-  \item Project structure and division of tasks.
-  \item Floris responsible for lemma statements (pros and cons).
-  \item Interaction with harmonic analysis group.
-  \item Contributors and roles.
-  \item ToMathlib directory and contribution standards.
-  \item Communication channels: Zulip, GitHub, Blueprint.
-\end{itemize}
+
+% To be more professional, let's try to avoid naming too many contributors by name.
+% terminology question: contributor vs author?
+% The Carleson project was a large formalization project that the 14 authors of this paper
+% contributed to over the space of 13 months,
+% from June 2024 to July 2025, although most authors were not active for the whole duration of the project.
+The planning of the Carleson project started in Fall 2023 by
+F.v.D. and the harmonic analysis group in Bonn,
+consisting of L.B., Christoph Thiele and Rajula Srivastava.
+At that time L.B., Asgar Jamneshan, Rajula Srivastava and Christoph Thiele had written a preprint of the proof,
+that turned into \cite{ThieleCarlesonPreprint}.
+This preprint consisted of a 30-page proof of Theorem [ref].
+While the proof was precise and written with a lot of care,
+this paper had as intended audience experts in harmonic analysis.
+This meant that the proof omitted many arguments that are routine to experts,
+but which would require quite some work to figure out for outsiders.
+
+After a very brief attempt to formalize the paper directly,
+we realized we needed a detailed blueprint that could be used as a foundation for the formalization.
+The goal of the blueprint was that a non-expert in harmonic analysis
+could read the statement and proof of any lemma in the blueprint,
+along with all the definitions and lemmas that were explicitly referenced by that lemma,
+and then would have enough information to understand the lemma and its proof.
+This understanding is crucial to be able to formalize it in Lean.
+The precise way that this lemma fits into the rest of the proof was usually not specified,
+and is not necessary for formalizing the proof of a single lemma.
+
+The proof in the blueprint was divided into 179 lemmas.
+To prepare for the collaborative formalization effort,
+F.v.D. formalized the statements of most lemmas and the definitions referred to in these lemmas.
+This ensured a consistent statement of these lemmas,
+and would make it easier to find the relevant definitions for the contributors.
+To aid with this last point, we also manually maintained a table
+that recorded the correspondence between notation and definitions in the blueprint on the one side,
+and Lean notation and Lean declarations on the other side.
+
+During the public formalization effort, we used three platforms for communication and coordination,
+an organizational structure that has also been used by other Lean projects,
+such as the PNT$+$ project\footnote{\url{https://alexkontorovich.github.io/PrimeNumberTheoremAnd/}}
+and the Equational Theories project \cite{tao2025equationaltheories}.
+% Not mentioning LTE here, because I believe the project was already quite far advanced before they started having a blueprint
+Firstly, we used GitHub to have a centralized version of the code,
+using pull requests to ensure that at least one other contributor reviewed and approved additions or changes to the code.
+% I - Floris - occasionally (ab)used my direct push access, but mostly in the early days or for
+% minor changes. I don't think we need to mention this.
+Secondly, we had a webpage that contained an html-version of the blueprint,
+built using Patrick Massot's \texttt{leanblueprint} software.\footnote{\url{https://github.com/PatrickMassot/leanblueprint}}
+This software generates a dependency graph, which gives a nice and quick overview of the progress of the project.
+It also generates for each lemma in the blueprint convenient links to the corresponding Lean lemma(s).
+
+Lastly, we used a public channel of Lean's Zulip chat to discuss the project.
+We used this to post tasks needed for the formalization.
+Most of these tasks consisted of formalizing a single lemma,
+but some lemmas were split into multiple tasks, and some tasks consisted of something else,
+like refactoring existing code in either the Carleson project or Mathlib.
+We also used Zulip to keep track of the status of these tasks:
+whether they were available, claimed or completed.
+Zulip was also used in case someone had questions about a task,
+or found a potential error in the proof of a lemma.
+In that case, another contributor or a member of Bonn's harmonic analysis group could help clarify the proof.
+In a few cases, an error was found that required fixes to the statement of one or more lemma statements in the blueprint,
+as described in Subsection \ref{subsec:blueprint_mistakes}.
+
+We divided the material to be formalized into two categories:
+general material that would be useful in many other formalization projects,
+and specific material to the current formalization, that would likely see little reuse.
+We put the former material in a separate \texttt{ToMathlib} subfolder,
+emphasizing the aim to upstream this material to \mathlib.
+We also ensured as much as we could that these concepts and theorems would be developed in a greater generality than what was needed to formalize the current result,
+so that it would have an appropriate generality for \mathlib.
+
+For the material specific to this formalization, we relaxed some of the contribution requirements a bit.
+This made the barrier of entry to contribute to the Carleson project low.
+Indeed, some authors of this paper had not contributed to \mathlib or another collaborative formalization project
+prior to contributing to the Carleson project.
+
+When the project was finished, it comprised 35.6k lines of code (excluding blank lines and comments), of which 9.6k were in the \texttt{ToMathlib} subfolder (using commit \texttt{\href{https://github.com/fpvandoorn/carleson/tree/32c2adc411c5c274ed8f19aa8041157e394fa38a}{32c2adc4}}).
+
+% maybe mention in "Lessons Learned":
+% Because F.v.D. formalized most lemma statements, but much fewer proofs, there were a few cases that a lemma was stated suboptimally, but this was not immediately caught when the proof was formalized. Example: \lean{MemLp (s.indicator f) p \mu} instead of \lean{MemLp f p (\mu.restrict s)}
 
 \section{Working with a blueprint}\label{sec:blueprint}
 \subsection{The blueprint writing process}\label{subsec:blueprint_writing}
@@ -286,6 +359,7 @@ For further detail, we refer the reader to a separate article \cite{PortegiesRot
 	\item Impact of blueprint choices on errors.
 	\item Lack of definition environments $\Rightarrow$ absence from dependency graph.
 \end{itemize}
+
 
 \section{Design decisions}\label{sec:design}
 \subsection{Treatment of constants}\label{subsec:constants}
