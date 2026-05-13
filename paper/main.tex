@@ -9,6 +9,7 @@
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{enumitem}
+\usepackage{cleveref}
 
 \usepackage[]{minted}
 \newcommand{\lean}[1]{\mintinline{lean}{#1}}
@@ -39,6 +40,40 @@
 \usepackage[backend=biber,maxbibnames=5,maxalphanames=4,style=alphabetic]{biblatex}
 \usepackage[autostyle]{csquotes}
 \addbibresource{references.bib}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[subsection]
+
+\newcommand{\N}{{\mathbb{N}}}
+\newcommand{\Z}{{\mathbb{Z}}}
+\newcommand{\Q}{{\mathbb{Q}}}
+\newcommand{\R}{{\mathbb{R}}}
+
+\DeclareMathOperator{\ch}{\operatorname{ch}}
+\DeclareMathOperator{\dens}{\operatorname{dens}}
+\DeclareMathOperator{\supp}{\operatorname{supp}}
+\DeclareMathOperator{\tp}{\operatorname{top}}
+\DeclareMathOperator{\im}{\operatorname{im}}
+\DeclareMathOperator{\Lip}{\operatorname{Lip}}
+\DeclareMathOperator{\bd}{\operatorname{bd}}
+\DeclareMathOperator*{\esssup}{\operatorname{ess\,sup}}
+
+\def\C{\mathbb{C}}
+\newcommand{\pc}{{\mathrm{c}}}
+\newcommand{\ps}{{\mathrm{s}}}
+\newcommand{\AD}{{\bf s}}
+\newcommand{\fc}{{\Omega}}
+\newcommand{\borel}{{\mathcal{E}}}
+\newcommand{\borelb}{{\mathcal{G}}}
+\newcommand{\scI}{{\mathcal{I}}} % note: renamed because it conflicted with another command
+\newcommand{\tQ}{{Q}}
+\newcommand{\mfa}{{\vartheta}}
+\newcommand{\mfb}{{\theta}}
+\newcommand{\Mf}{{\Theta}}
+\newcommand{\fcc}{{\mathcal{Q}}}
+\newcommand{\fp}{{\mathfrak p}}
+\newcommand{\fP}{{\mathfrak P}}
+\newcommand{\fq}{{\mathfrak q}}
 
 \title{\textbf{Formalizing Carleson's Theorem in Lean}}
 \author[Becker et al.]{Lars Becker}
@@ -218,12 +253,367 @@ Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$
 
 \subsection{Statement of the main results}\label{subsec:main_results}
 
-\begin{itemize}
-	\item Statement of Theorem 1.0.2.
-	\item Main propositions in Chapter 2.
+\subsubsection{Classical Carleson}\label{subsubsec:classical-result}
 
-\end{itemize}
-%\item Level of mathematical detail to include.
+The namesake of the formalization project is the classical result of Carleson on the pointwise convergence of Fourier series.
+The specific statement is as follows:
+
+\begin{theorem}[classical Carleson]
+    \label{classical-carleson}
+    Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
+    Then for almost all $x \in \mathbb{R}$ we have
+    \begin{equation}\label{eq:fourier-limit}
+      \lim_{N\to\infty}S_N f(x) = f(x),
+    \end{equation}
+    where $S_N f$ is the $N$-th partial Fourier sum $S_N(x):= \sum_{n=-N}^N c_n e^{inx}$
+    with coefficients $c_n:=\frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.$
+\end{theorem}
+
+The formalization was approached through a recent result (blabla reference) which encompasses a number of generalizations of Carleson's original theorem.
+The context for this new result is called a \emph{doubling metric measure space}, accompanied by a \emph{cancellative compatible collection} of real-valued continuous functions.
+For a \emph{one-sided} respectively \emph{two-sided Calder\'on--Zygmund kernel} $K$ on this space, one obtains bounds for certain \emph{generalized Carleson operators} involving the collection of functions and the kernel.
+
+The classical Carleson theorem is obtained by choosing a specific Carleson operator, an approach that all proofs of Carleson's theorem share.
+The specific version that has been formalized is this one:
+
+\begin{theorem}[real Carleson]\label{real-Carleson}
+    Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
+\begin{equation}
+    \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
+\end{equation}
+where
+\begin{equation}
+    \label{define-T-carleson}
+    T f(x)=\sup_{n\in \mathbb{Z}}
+    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|\, .
+\end{equation}
+with $\kappa: \R\to\C$ defined as:
+\begin{equation}
+    \kappa(x)=\begin{cases}
+        0 & \text{if $x = 0$ or $|x| \ge 1$} \\
+        \frac { 1-|x|}{1-e^{ix}} & \text{if $0 < |x| < 1$}
+    \end{cases}
+\end{equation}
+\end{theorem}
+
+
+\subsubsection{Preliminary definitions}\label{subsubsec:definitions}
+
+Let $a \ge 4$ be a natural number. A doubling metric measure space $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
+equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
+\begin{equation}\label{doublingx}
+    \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
+\end{equation}
+where we have denoted by $B(x,R)$ the open ball of radius $R$ centered at $x$.
+%\begin{equation}\label{eq-define-ball}
+%    B(x,R):=\{y\in X: \rho(x,y)<R\}.
+%\end{equation}
+%In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
+
+A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
+if there is a point $o\in X$ where all the functions are equal to $0$,
+and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$,
+such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied.
+For every ball $B \subset X$
+\begin{equation}\label{osccontrol}
+    \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb)\,.
+\end{equation}
+For any two balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$ and any $\mfa,\mfb\in \Mf$,
+\begin{equation}\label{firstdb}
+    d_{B_2}(\mfa,\mfb) \le 2^a d_{B_1}(\mfa,\mfb) .
+\end{equation}
+For any two balls $B_1, B_2$ in $X$ with $B_1 \subset B_2$ and any $\mfa, \mfb \in \Mf$
+\begin{equation}\label{monotonedb}
+    d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa, \mfb)
+\end{equation}
+and for any two balls
+$B_1=B(x_1,R)$, $B_2= B(x_2,2^aR)$
+with $B_1\subset B_2$, and $\mfa,\mfb\in \Mf$,
+\begin{equation}\label{seconddb}
+    2d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa,\mfb) .
+\end{equation}
+For every ball $B$ in $X$ and every $d_B$-ball $\tilde B$ of radius $2R$ in $\Mf$, there is a collection $\mathcal{B}$ of
+at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
+\begin{equation}\label{thirddb}
+    \tilde B\subset \bigcup \mathcal{B}.
+\end{equation}
+
+Further, a compatible collection $\Mf$ is called cancellative, if
+for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi: X\to \C$
+supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
+\begin{equation}
+    \label{eq-vdc-cond}
+    |\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)|\le 2^a \mu(B)\|\varphi\|_{\Lip(B)}
+(1+d_B(\mfa,\mfb))^{-\frac{1}{a}},
+\end{equation}
+where $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipschitz norm on $B$:
+$$
+    \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
+$$
+
+A one-sided Calder\'on--Zygmund kernel $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
+is a measurable function $K:X\times X\to \mathbb{C}$ such that for all $x,y',y\in X$ with $x\neq y$, we have
+\begin{equation}\label{eqkernel-size}
+    |K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
+\end{equation}
+and if $2\rho(y,y') \leq \rho(x,y)$, then
+\begin{equation}
+  \label{eqkernel-y-smooth}
+  |K(x,y) - K(x,y')| \leq \left(\frac{\rho(y,y')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)},
+\end{equation}
+where $V(x,y):=\mu(B(x,\rho(x,y)))$.
+
+A two-sided Calder\'on--Zygmund kernel is a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
+\begin{equation}
+    \label{eqkernel-x-smooth}
+    |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
+\end{equation}
+
+Let $f: X \to \C$ be a bounded, measurable function supported on a set of finite measure.
+Define the maximally truncated non-tangential singular integral $T_{*}$ associated with $K$ by
+\begin{equation}
+    \label{def-tang-unm-op}
+    T_{*}f(x):=\sup_{R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
+\end{equation}
+Additionally, define for $r > 0$, $x\in X$:
+\begin{equation}
+\label{def-T-r}
+T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
+\end{equation}
+Finally, define the generalized Carleson operator $T$ by
+\begin{equation}
+    \label{def-main-op}
+    Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|\, ,
+\end{equation}
+where $e(r)=e^{ir}$.
+
+For a Borel function $\tQ:X\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
+\begin{equation}
+    R_{\tQ}(\mfa,x)=\sup\{r>0:d_{B(x,r)}(\mfa, \tQ(x))<1\}
+\end{equation}
+and define further
+\begin{equation}
+    \label{def-lin-star-op}
+    T_{\tQ}^\mfa f(x):=\sup_{R_1<R_2} \ \sup_{\rho(x,x')<R_1}
+    \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
+\end{equation}
+Define further the linearized generalized Carleson operator $T_\tQ$ by
+\begin{equation}
+    \label{def-lin-main-op}
+    T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|\, ,
+\end{equation}
+where again $e(r)=e^{ir}$.
+
+
+\subsubsection{Metric space Carleson}\label{subsubsec:metric-carleson}
+
+We prove three versions of our main result.
+Our first main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
+which by interpolation techniques recovers $L^q$ estimates for the open range $1<q<2$.
+\begin{theorem}[metric space Carleson]
+\label{metric-space-Carleson}
+    For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
+    Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
+    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$.
+    Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    \begin{equation}\label{nontanbound}
+        \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
+    \end{equation}
+    where $T_{*}$ is defined in \eqref{def-tang-unm-op}.
+    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with
+    $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
+    \begin{equation}
+        \label{resweak}
+        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+    \end{equation}
+\end{theorem}
+
+In some applications, such as the Walsh-case of Carleson's theorem, the kernel $K$ naturally depends also on the modulation functions $\mfa$.
+The fact that we don't assume H\"older-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
+
+We now state another theorem with a slightly weaker replacement of the assumption \eqref{nontanbound}.
+It implies the Walsh-case of Carleson's theorem.
+
+\begin{theorem}[linearised metric Carleson]
+\label{linearised-metric-Carleson}
+    For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
+    Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
+    cancellative compatible collection of functions.
+    Let $\tQ:X\to \Mf$ be a Borel function with finite range.
+    Let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    \begin{equation}\label{linnontanbound}
+        \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
+    \end{equation}
+    where $T_{\tQ}^\mfa$ is defined in \eqref{def-lin-star-op}.
+    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with
+    $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
+    \begin{equation}
+        \label{linresweak}
+        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \le \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+    \end{equation}
+\end{theorem}
+
+For two-sided Calder\'on--Zygmund kernels, the additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
+In particular the two-sided case can be applied to derive the classical Carleson's theorem.
+
+\begin{theorem}[two-sided metric space Carleson]
+    \label{two-sided-metric-space-Carleson}
+        For all  integers $a \ge  4$ and real numbers $1<q\le 2$ the following holds.
+        Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
+        cancellative compatible collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
+      \begin{equation}\label{two-sided-Hr-bound-assumption}
+            \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
+        \end{equation}
+        Then for all Borel sets $F$ and $G$ in $X$ and
+        all Borel functions $f:X\to \C$ with
+        $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
+      \begin{equation}
+        \label{two-sided-resweak}
+            \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{474a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \end{equation}
+\end{theorem}
+
+\subsubsection{Proof sketch}\label{subsubsec:proof-sketch}
+
+In order to highlight choices made in the proof and the formalization it is practical to give a brief proof sketch of the main results stated above.
+Of these three, the linearised version \Cref{linearised-metric-Carleson} implies the others. To prove it, the first step is a reduction to a finitary version.
+
+Let the assumptions of \Cref{linearised-metric-Carleson} be given.
+Let
+ $\psi:\R \to \R$ be the unique compactly supported, piece-wise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
+ \begin{equation}
+    \label{eq-psisum}
+    \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
+\end{equation}
+for all $x>0$. This function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
+$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$.
+
+\begin{theorem}[finitary Carleson]
+\label{finitary-Carleson}
+Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and ${\sigma_1}\leq \sigma_2$. Let $F,G$ be bounded Borel sets in $X$. Then there is a Borel set $G'$ in $X$ with $2\mu(G')\leq \mu(G)$ such that
+for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
+\begin{equation*}
+    \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right| \mathrm{d}\mu(x)
+\end{equation*}
+\begin{equation}
+    \label{eq-linearized}
+    \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac 1 q}
+\end{equation}
+where for $s \in \Z, K_s(x,y) = K(x,y)\psi(D^{-s}\rho(x,y))$.
+\end{theorem}
+
+As a next step in the proof, we break up the space in manageable pieces in both the spatial and frequency dimensions.
+To state this intermediate result, we need some definitions.
+
+%%JMS - Pure copy from blueprint, can be optimized
+
+A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$ of pairs $(I, k)$ of Borel
+sets in $X$ and integers $k \in [-S, S]$, the projection $s\colon \mathcal{D}\to [-S, S], (I, k) \mapsto k$ to the second component which is assumed to be surjective and
+called scale function, and a function $c:\mathcal{D}\to X$
+called center function such that the five properties
+\eqref{coverdyadic}, \eqref{dyadicproperty}, \eqref{subsetmaxcube},
+\eqref{eq-vol-sp-cube}, and \eqref{eq-small-boundary} hold. We call the elements of $\mathcal{D}$ dyadic cubes. By abuse of notation, we will usually write just $I$ for the cube $(I,k)$, and we will write $I \subset J$ to mean that for two cubes $(I,k), (J, l) \in \mathcal{D}$ we have $I \subset J$ and $k \le l$.
+
+For each dyadic cube $I$ and each $-S\le k<s(I)$ we have
+\begin{equation}\label{coverdyadic}
+    I\subset \bigcup_{J\in \mathcal {D}: s(J)=k}J\, .
+\end{equation}
+Any two non-disjoint dyadic cubes $I,J$ with $s(I)\le s(J)$ satisfy
+\begin{equation}\label{dyadicproperty}
+    I\subset J.
+\end{equation}
+There exists a $I_0 \in \mathcal{D}$ with $s(I_0) = S$ and $c(I_0) = o$
+%\begin{equation}\label{coverball}
+%    B(o, \frac{1}{4} D^{S}) \subset I\,,
+%\end{equation}
+and for all cubes $J \in \mathcal{D}$, we have
+\begin{equation}\label{subsetmaxcube}
+    J \subset I_0\,.
+\end{equation}
+%changed the above sentence on June 25, CT
+For any dyadic cube $I$,
+\begin{equation}
+    \label{eq-vol-sp-cube}
+    c(I)\in B(c(I), \frac{1}{4} D^{s(I)}) \subset I \subset B(c(I), 4 D^{s(I)})\,.
+\end{equation}
+For any dyadic cube $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
+\begin{equation}
+    \label{eq-small-boundary}
+    \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I)\,.
+\end{equation}
+
+A tile structure $(\fP,\scI,\fc,\fcc,\pc,\ps)$
+for a given grid structure $(\mathcal{D}, c, s)$
+is a finite set $\fP$ of elements called tiles with five maps
+\begin{align*}
+    \scI&\colon \fP\to {\mathcal{D}}\\
+    \fc&\colon \fP\to \mathcal{P}(\Mf) \\
+    \fcc &\colon \fP\to \tQ(X)\\
+    \pc &\colon \fP\to X\\
+    \ps &\colon \fP\to \mathbb{Z}
+\end{align*}
+with $\scI$ surjective and $\mathcal{P}(\Mf)$ denoting the power set of $\Mf$ such that the five properties \eqref{eq-dis-freq-cover}, \eqref{eq-freq-dyadic},
+\eqref{eq-freq-comp-ball}, \eqref{tilecenter}, and
+\eqref{tilescale} hold.
+For each dyadic cube $I$, the restriction of the map $\Omega$ to the set
+\begin{equation}\label{injective}
+    \fP(I)=\{\fp: \scI(\fp) =I\}
+\end{equation}
+is injective
+and we have the disjoint covering property (we use the union symbol with dot on top to denote a disjoint union)
+\begin{equation}\label{eq-dis-freq-cover}
+    \tQ(X)\subset \dot{\bigcup}_{\fp\in \fP(I)}\fc(\fp).
+\end{equation}
+For any tiles $\fp,\fq$ with $\scI(\fp)\subset \scI(\fq)$ and $\fc(\fp) \cap \fc(\fq) \neq \emptyset$ we have
+\begin{equation} \label{eq-freq-dyadic}
+    \fc(\fq)\subset \fc(\fp) .
+\end{equation}
+For each tile $\fp$,
+\begin{equation}\label{eq-freq-comp-ball}
+    \fcc(\fp)\in B_{\fp}(\fcc(\fp), 0.2) \subset \fc(\fp) \subset B_{\fp}(\fcc(\fp),1)\,,
+\end{equation}
+where
+\begin{equation}
+    B_{\fp} (\mfa, R) := \{\mfb \in \Mf \, : \, d_{\fp}(\mfa, \mfb) < R\,\} ,
+\end{equation}
+and
+\begin{equation}\label{defdp}
+    d_{\fp} := d_{B(\pc(\fp),\frac 14 D^{\ps(\fp)})}\, .
+\end{equation}
+We have for each tile $\fp$
+\begin{equation}\label{tilecenter}
+    \pc(\fp)=c(\scI(\fp)),
+\end{equation}
+\begin{equation}\label{tilescale}
+    \ps(\fp)=s(\scI(\fp)).
+\end{equation}
+%%JMS End copy
+
+\begin{theorem}[discrete Carleson]
+\label{discrete-Carleson}
+Let $(\mathcal{D}, c, s)$ be a grid structure and
+\begin{equation*}
+    (\fP,\scI,\fc,\fcc,\pc,\ps)
+\end{equation*}
+a tile structure for this grid structure.
+Define for $\fp\in \fP$
+\begin{equation}\label{defineep}
+    E(\fp)=\{x\in \scI(\fp): \tQ(x)\in \fc(\fp) , {\sigma_1}(x)\le \ps(\fp)\le {\sigma_2}(x)\}
+\end{equation}
+and
+\begin{equation}\label{definetp}
+    T_{\fp} f(x)= \mathbf{1}_{E(\fp)}(x) \int K_{\ps(\fp)}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y).
+\end{equation}
+Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$
+we have
+\begin{equation}
+    \label{disclesssim}
+   \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+\end{equation}
+\end{theorem}
+
+The proof of this last result is the heart of the matter. The pieces are categorized in one of three types, for each of which a separate analysis is required to establish a bound.
+These three branches of the proof are largely independent and handled in separate sections 5, 6, and 7 of the blueprint \cite{CarlesonBlueprint}.
 
 \section{Project organization}\label{sec:org}
 \begin{itemize}
