@@ -42,14 +42,16 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
     apply MemLp.mono_exponent hf
     rw [p_def, ENNReal.coe_toNNReal this]
     exact min_le_right _ _
+  have : Fact (0 < 2 * π) := by
+    rw [fact_iff]
+    exact two_pi_pos
+  have meas_f : AEStronglyMeasurable f :=
+    periodic_f.aestronglyMeasurable (t := 0) (by simp [hf.1])
   have one_lt_p : (1 : ENNReal) < p := by simp [hp.1]
   have δ2pos : 0 < δ / 2 := by positivity
   have δ4pos : 0 < δ / 4 := by positivity
   have ε2pos : 0 < ε / 2 := by positivity
   have ε4pos : 0 < ε / 4 := by positivity
-  have : Fact (0 < 2 * π) := by
-    rw [fact_iff]
-    exact two_pi_pos
   /- Approximate f by a smooth f₀. -/
   obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ :=
     close_smooth_approx_periodic_Lp one_lt_p.le (by simp) hf
@@ -57,9 +59,6 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         (C_control_approximation_effect_pos (p := p) δ2pos ε2pos))
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀
     ((contDiff_infty.mp (contDiff_f₀)) 2) δ4pos
-  set h := f₀ - f with hdef
-  have h_measurable : AEStronglyMeasurable h := sorry --(Continuous.sub contDiff_f₀.continuous cont_f).measurable
-  have h_periodic : h.Periodic (2 * π) := periodic_f₀.sub periodic_f
   /- This is a classical "epsilon third" argument. -/
   use N₀
   have : ∀ᶠx in (ae (volume.restrict (Set.Ioc 0 (2 * π)))), ⨆ N > N₀, ‖f x - S_ N f x‖ₑ
@@ -80,8 +79,10 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         · refine le_iSup₂_of_le N hN ?_
           rfl
         · apply le_iSup_of_le N
-          rw [partialFourierSum_sub sorry sorry]
-          rfl
+          rw [partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable _ _)]
+          · rfl
+          rw [intervalIntegrable_iff_integrableOn_Ioc_of_le Real.two_pi_pos.le]
+          apply hf.integrable (by simp [hp.1.le])
   calc _
     _ ≤ distribution
         (fun x ↦ ‖f x - f₀ x‖ₑ + (⨆ N > N₀, ‖f₀ x - S_ N f₀ x‖ₑ) + ⨆ N, ‖S_ N (f₀ - f) x‖ₑ)
@@ -89,7 +90,9 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
       apply distribution_mono
       · filter_upwards [this] with x hx
         simp only [gt_iff_lt, enorm_eq_self, hx]
-      · sorry
+      · norm_cast
+        ring_nf
+        rfl
     _ ≤ distribution (fun x ↦ ‖f x - f₀ x‖ₑ) (δ / 4) (volume.restrict (Set.Ioc 0 (2 * π)))
         + distribution (fun x ↦ ⨆ N > N₀, ‖f₀ x - S_ N f₀ x‖ₑ) (δ / 4) (volume.restrict (Set.Ioc 0 (2 * π)))
         + distribution (fun x ↦ ⨆ N, ‖S_ N (f₀ - f) x‖ₑ) (δ / 2) (volume.restrict (Set.Ioc 0 (2 * π))) := by
@@ -99,7 +102,8 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
     _ ≤ ε / 2 + 0 + ε / 2 := by
       gcongr
       · norm_cast
-        apply distribution_le_of_eLpNorm_le (p := p) (by positivity) (by positivity [hp.1]) sorry
+        apply distribution_le_of_eLpNorm_le (p := p) (by positivity) (by positivity [hp.1])
+          (meas_f.sub contDiff_f₀.continuous.aestronglyMeasurable).enorm.aestronglyMeasurable.restrict
         simp only [eLpNorm_enorm]
         apply hf₀.trans
         simp
@@ -119,7 +123,8 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
             exact hN₀ N hN x (Set.Ioc_subset_Icc_self hx)
           _ = δ / 4 := by simp
       · norm_cast
-        apply control_approximation_effect ε2pos δ2pos sorry h_periodic hp
+        apply control_approximation_effect (ε := ε / 2) δ2pos
+          (contDiff_f₀.continuous.aestronglyMeasurable.sub meas_f) (periodic_f₀.sub periodic_f) hp
         rw [eLpNorm_sub_comm]
         apply hf₀.trans
         simp
