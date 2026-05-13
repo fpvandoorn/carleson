@@ -515,8 +515,18 @@ Further API extensions and better support from \texttt{fun\_prop} could streamli
 \begin{itemize}
   \item Using \texttt{Real}.
   \item \texttt{Set.indicator} vs.\ \texttt{Measure.restrict}.
-  \item \texttt{Finsets} vs.\ \texttt{Sets} in a \texttt{Fintype}.
+  %\item \texttt{Finsets} vs.\ \texttt{Sets} in a \texttt{Fintype}.
 \end{itemize}
+
+Finally, there were several results in the project that required us to consider sets of elements from a given finite type $\texttt{T}$. Since all such sets are finite, from a mathematical point of view there is no difference between the types $\texttt{Set T}$ and $\texttt{Finset T}$. However, these are different types in Lean, so we needed to make a decision about which of them to use in the Carleson project. For the most part, we chose to use $\texttt{Set T}$, although sometimes $\texttt{Finset T}$ is used inside proofs, or when required to apply existing \mathlib results. In hindsight, it would likely have been slightly more convenient to use $\texttt{Finset T}$ throughout, to avoid issues like the following.
+
+If \texttt{T} is endowed with a \texttt{Fintype} instance, then \texttt{Finset.sum} can still be applied to a given \texttt{s : Set T}. There are two possible syntaxes to do this, as the following example shows; note that the displayed equality is true \emph{propositionally} but not \emph{definitionally}, since the left hand side is a sum over \texttt{s.toFinset} and the right hand side is a sum over \texttt{\{p : T | p $\in$ s\}}, and these \texttt{Finset}s are not definitionally equal.
+
+\begin{minted}[escapeinside=||, mathescape=true]{lean}
+example {T : Type*} [Fintype T] {s : Set T} [|DecidablePred fun p $\mapsto$ p $\in$ s|]
+    {|f : T $\to \mathbb{N}$|} : |$\sum$ p $\in$ s, f p = $\sum$ p with p $\in$ s, f p |
+\end{minted}
+
 
 
 \section{Conclusion}\label{sec:conclusion}
