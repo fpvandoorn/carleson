@@ -3,6 +3,8 @@ module
 public import Carleson.Classical.Basic
 public import Mathlib.Analysis.Calculus.BumpFunction.Convolution
 public import Mathlib.Analysis.PSeries
+public import Mathlib.Analysis.Normed.Lp.SmoothApprox
+public import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 
 public section
 
@@ -16,9 +18,10 @@ local notation "S_" => partialFourierSum
 
 open scoped ContDiff
 
-lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
-  (periodicf : f.Periodic (2 * π)) {ε : ℝ} (εpos : ε > 0) :
-    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ∞ f₀ ∧ f₀.Periodic (2 * π) ∧
+lemma close_smooth_approx_periodic {T : ℝ} {f : ℝ → ℂ}
+  (unicontf : UniformContinuous f)
+  (periodicf : f.Periodic T) {ε : ℝ} (εpos : ε > 0) :
+    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ∞ f₀ ∧ f₀.Periodic T ∧
       ∀ x, ‖f x - f₀ x‖ ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
@@ -36,29 +39,68 @@ lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuo
     exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable
       fun y hy ↦ (hδ hy).le
 
-lemma close_smooth_approx_periodic' {f : ℝ → ℂ} (periodic_f : f.Periodic (2 * π))
-  {p : ENNReal} (hp : 1 < p) (hf : MemLp f p (volume.restrict (Set.Ico 0 (2 * π))))
+lemma close_smooth_approx_periodic_Lp {T : ℝ} [hT : Fact (0 < T)] {f : ℝ → ℂ}
+  {p : ENNReal} (hp : 1 ≤ p) (hp' : p ≠ ⊤) (hf : MemLp f p (volume.restrict (Set.Ioc 0 T)))
   {ε : NNReal} (εpos : 0 < ε) :
-    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ∞ f₀ ∧ f₀.Periodic (2 * π) ∧
-      eLpNorm (f - f₀) p (volume.restrict (Set.Ico 0 (2 * π))) ≤ ε := by
-  /-
-  obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
-  let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
-  set f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f
-    (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume with f₀def
-  refine ⟨f₀, ?_, fun x ↦ ?_, fun x ↦ ?_⟩
-  · exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
-      φ.contDiff_normed unicontf.continuous.locallyIntegrable
-  · rw [f₀def, MeasureTheory.convolution, MeasureTheory.convolution]
-    congr with t
-    congr 1
-    convert periodicf (x - t) using 2
-    ring
-  · rw [← Complex.dist_eq, dist_comm]
-    exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable
-      fun y hy ↦ (hδ hy).le
-  -/
-  sorry
+    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ∞ f₀ ∧ f₀.Periodic T ∧
+      eLpNorm (f - f₀) p (volume.restrict (Set.Ioc 0 T)) ≤ ε := by
+  set f' := AddCircle.liftIoc T 0 f
+  have hf' : MemLp f' p volume := by
+    rw [← zero_add T] at hf
+    exact hf.memLp_liftIoc
+  rcases hf'.exists_boundedContinuous_eLpNorm_sub_le (ε := ε / 2) hp' (by simp [εpos.ne'])
+    with ⟨g, hf'g, hg⟩
+  set h := fun (x : ℝ) ↦ g x
+  have periodic_h : h.Periodic T := by
+    unfold h
+    intro x
+    simp
+  have unicont_h : UniformContinuous h := by
+    apply periodic_h.uniformContinuous_of_continuous hT.out (Continuous.continuousOn _)
+    continuity
+  have meas_h : AEStronglyMeasurable h (volume.restrict (Set.Ioc 0 T)) :=
+    unicont_h.continuous.measurable.aestronglyMeasurable
+  set ε' : ℝ := (T ^ p.toReal⁻¹)⁻¹ * (ε / 2)
+  have ε'pos : 0 < ε' := by
+    have := hT.out
+    positivity
+  rcases close_smooth_approx_periodic unicont_h periodic_h ε'pos
+    with ⟨f₀, contdiff_f₀, periodic_f₀, hf₀⟩
+  have meas_f₀ : AEStronglyMeasurable f₀ (volume.restrict (Set.Ioc 0 T)) :=
+    contdiff_f₀.continuous.measurable.aestronglyMeasurable
+  use f₀, contdiff_f₀, periodic_f₀
+  calc _
+    _ ≤ eLpNorm (f - h) p (volume.restrict (Set.Ioc 0 T))
+        + eLpNorm (h - f₀) p (volume.restrict (Set.Ioc 0 T)) := by
+      apply (eLpNorm_add_le (hf.1.sub meas_h) (meas_h.sub meas_f₀) hp).trans_eq'
+      simp
+    _ ≤ ε / 2 + ε / 2 := by
+      gcongr
+      · calc _
+          _ = eLpNorm (f' - ⇑g) p volume := by
+            nth_rw 1 [← zero_add T]
+            rw [eLpNorm_eq_eLpNorm_liftIoc (by rw [zero_add]; exact hf.1.sub meas_h)]
+            congr with x
+            unfold f' h
+            rw [AddCircle.liftIoc, AddCircle.liftIoc]
+            simp
+        exact hf'g
+      · apply (eLpNorm_le_of_ae_bound (C := ε') _).trans
+        · simp only [MeasurableSet.univ, Measure.restrict_apply, Set.univ_inter, volume_Ioc,
+          sub_zero]
+          unfold ε'
+          rw [ENNReal.ofReal_rpow_of_pos hT.out,
+            ← ENNReal.ofReal_mul (Real.rpow_nonneg hT.out.le _), ← mul_assoc,
+            mul_inv_cancel₀, one_mul]
+          · norm_cast
+          · rw [Real.rpow_ne_zero hT.out.le]
+            · exact hT.out.ne'
+            · simp only [ne_eq, inv_eq_zero]
+              rw [← ne_eq, ENNReal.toReal_ne_zero]
+              use (by positivity)
+        filter_upwards
+        exact hf₀
+    _ = ε := by simp
 
 -- local lemma
 lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀ i ≠ 0, g i ≤ f i)

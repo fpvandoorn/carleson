@@ -542,6 +542,7 @@ lemma general_carlesonOperator_on_the_reals_hasStrongType {q : ℝ≥0} (hq : q 
   have : Countable (Θ ℝ) := instCountableInt
   apply two_sided_metric_carleson_hasStrongType (a := 4) (by norm_num) hq Hilbert_strong_2_2
 
+/-
 --TODO: currently unused, maybe remove this?
 lemma carlesonOperatorReal_hasStrongType {q : ℝ≥0} (hq : q ∈ Set.Ioo 1 2) :
     HasStrongType T q q volume volume (C_carleson_hasStrongType 4 q) := by
@@ -551,6 +552,7 @@ lemma carlesonOperatorReal_hasStrongType {q : ℝ≥0} (hq : q ∈ Set.Ioo 1 2) 
   apply le_trans _ (general_carlesonOperator_on_the_reals_hasStrongType hq f hf).2
   apply eLpNorm_mono_enorm
   apply carlesonOperatorReal_le_carlesonOperator
+-/
 
 /- Replacement for Lemma 11.1.5 -/
 lemma rcarleson' {q : ℝ≥0} (hq : q ∈ Set.Ioo 1 2) {f : ℝ → ℂ} (hf : MemLp f q) :

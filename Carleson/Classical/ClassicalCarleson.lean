@@ -47,10 +47,14 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
   have δ4pos : 0 < δ / 4 := by positivity
   have ε2pos : 0 < ε / 2 := by positivity
   have ε4pos : 0 < ε / 4 := by positivity
+  have : Fact (0 < 2 * π) := by
+    rw [fact_iff]
+    exact two_pi_pos
   /- Approximate f by a smooth f₀. -/
-  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := close_smooth_approx_periodic periodic_f one_lt_p hf
-    (lt_min (C_distribution_le_of_eLpNorm_le_pos (p := p) δ4pos ε2pos)
-      (C_control_approximation_effect_pos (p := p) δ2pos ε2pos))
+  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ :=
+    close_smooth_approx_periodic_Lp one_lt_p.le (by simp) hf
+      (lt_min (C_distribution_le_of_eLpNorm_le_pos (p := p) δ4pos ε2pos)
+        (C_control_approximation_effect_pos (p := p) δ2pos ε2pos))
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀
     ((contDiff_infty.mp (contDiff_f₀)) 2) δ4pos
   set h := f₀ - f with hdef
@@ -284,6 +288,15 @@ theorem classical_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 * π))
   rw [Measure.restrict_congr_set Ioc_ae_eq_Icc.symm]
   exact carleson_interval periodic_f hp hf
 
-theorem classical_carleson_check : ClassicalCarleson := sorry --@classical_carleson
+/- Proves that the old, weak version of classical Carleson is implied by the L^p version. -/
+theorem classical_carleson_check : ClassicalCarleson := by
+  unfold ClassicalCarleson
+  intro f continuous_f periodic_f
+  apply classical_carleson (p := ⊤) periodic_f (by simp)
+  rcases continuous_bounded continuous_f.continuousOn with ⟨C, hC⟩
+  apply memLp_top_of_bound (C := C) continuous_f.measurable.aestronglyMeasurable
+  rw [ae_restrict_iff' measurableSet_Ioc]
+  filter_upwards with x hx
+  apply hC _ (Set.Ioc_subset_Icc_self hx)
 
 end

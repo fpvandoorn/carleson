@@ -40,6 +40,21 @@ theorem setLIntegral_Ioc_add_eq {f : ℝ → ε} (hf : Periodic f T) (t s : ℝ)
   exacts [isAddFundamentalDomain_Ioc hT t, isAddFundamentalDomain_Ioc hT s,
     (hf.comp enorm).map_vadd_zmultiples]
 
+
 end Periodic
 
 end Function
+
+open Set ENNReal
+
+#check AddCircle.measurePreserving_mk
+
+
+-- Analogous to `MeasureTheory.MemLp.memLp_liftIoc`
+theorem MeasureTheory.eLpNorm_eq_eLpNorm_liftIoc {T : ℝ} [hT : Fact (0 < T)] {t : ℝ} {f : ℝ → ℂ}
+  {p : ℝ≥0∞} (hf : AEStronglyMeasurable f (volume.restrict (Ioc t (t + T)))) :
+    eLpNorm f p (volume.restrict (Ioc t (t + T))) = eLpNorm (AddCircle.liftIoc T t f) p volume := by
+  simp only [AddCircle.liftIoc, Set.restrict_def, Function.comp_def]
+  rw [← Function.comp_def, eLpNorm_comp_measurePreserving (g := f) (p := p) hf]
+  refine .comp (measurePreserving_subtype_coe measurableSet_Ioc) ?_
+  exact AddCircle.measurePreserving_equivIoc T
