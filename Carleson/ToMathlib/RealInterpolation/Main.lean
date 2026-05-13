@@ -290,7 +290,7 @@ lemma estimate_distribution_Subadditive_trunc {f : α → ε₁} {T : (α → ε
     distribution (T (truncCompl f a)) t ν := by
   nth_rw 2 [mul_comm]
   rw [mul_assoc, two_mul]
-  apply distribution_add_le'
+  apply distribution_add_le_of_enorm
   nth_rw 1 [← trunc_add_truncCompl (f := f) (t := a)]
   exact h a ha
 

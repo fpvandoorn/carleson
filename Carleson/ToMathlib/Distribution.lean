@@ -246,12 +246,6 @@ lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (
 lemma distribution_eLpNormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
   meas_essSup_lt
 
-lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
-    (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ A * (‖g₁ x‖ₑ + ‖g₂ x‖ₑ)) :
-    distribution f (A * (t + s)) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
-  apply distribution_add_le_of_enorm
-  simp [h]
-
 lemma distribution_add_le {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g : α → ε} :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
   calc
@@ -321,6 +315,10 @@ lemma distribution_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMon
   unfold indicator
   simp only [mem_Iio]
   split_ifs with ht <;> simp
+
+lemma distribution_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {a : ε} :
+    distribution (Function.const α a) t μ = (Set.Iio ‖a‖ₑ).indicator (fun _ ↦ μ univ) t := by
+  rw [← indicator_univ (Function.const α a), distribution_indicator_const]
 
 lemma distribution_indicator_superlevelSet {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   {f : α → ε} {t : ℝ≥0∞} :
@@ -416,6 +414,17 @@ lemma distribution_const_smul {f : α → ℝ≥0∞}
   symm
   rw [mul_comm]
   apply ENNReal.div_lt_iff h h'
+
+lemma distribution_mul {f : α → ℝ≥0∞}
+  {a : ℝ≥0∞} (h : a ≠ ⊤ ∨ t ≠ 0) (h' : a ≠ 0 ∨ t ≠ ⊤) :
+    distribution f (a * t) μ = distribution (fun x ↦ f x / a) t μ := by
+  have : a * t = t / (a⁻¹) := by
+    rw [ENNReal.div_eq_inv_mul, inv_inv]
+  rw [this, ← distribution_const_smul (by simpa) (by simpa)]
+  congr with x
+  rw [ENNReal.div_eq_inv_mul]
+  simp
+
 
 lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
   (enorm_add : ∀ a b : ε, ‖a + b‖ₑ = ‖a‖ₑ + ‖b‖ₑ) --TODO: new type class for this property?

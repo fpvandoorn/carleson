@@ -370,12 +370,15 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
         apply le_iSup₂_of_le rpos rle1
         trivial
 
-lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measurable_g : AEStronglyMeasurable g)
+def operatorBound (g : ℝ → ℂ) (x : ℝ) : ENNReal :=
+  (T g x + T (conj ∘ g) x) / ENNReal.ofReal (2 * π)
+  + eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) / 2
+
+lemma partialFourierSum_bound {g : ℝ → ℂ} (measurable_g : AEStronglyMeasurable g)
     (periodic_g : Function.Periodic g (2 * π))
     {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
     ‖S_ N g x‖ₑ ≤
-      (T g x + T (conj ∘ g) x) / (ENNReal.ofReal (2 * π))
-        + eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) / 2 := by
+      operatorBound g x := by
   have intervalIntegrable_g : IntervalIntegrable g volume (-π) (3 * π) := by
     --TODO: add assumption for this
     sorry --intervalIntegrable_of_bdd measurable_g bound_g
@@ -446,106 +449,177 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
 
 end
 
-set_option linter.flexible false in
-lemma rcarleson_exceptional_set_estimate {f : ℝ → ℂ}
-    {p : NNReal} (hp : p ∈ Set.Ioo 1 2) (hf : MemLp f p volume)
-    {E : Set ℝ} (measurableSetE : MeasurableSet E) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
-      ε ^ p.toReal * volume E ≤ ((C_carleson_hasStrongType 4 p) * eLpNorm f p) ^ p.toReal := by
-  calc ε ^ p.toReal * volume E
-    _ = ∫⁻ _ in E, ε ^ p.toReal := by
-      symm
-      apply setLIntegral_const
-    _ ≤ ∫⁻ x in E, T f x ^ p.toReal := by
-      apply setLIntegral_mono' measurableSetE
-      intro x hx
+lemma rcarleson'_restrict {p : NNReal} (hp : p ∈ Set.Ioo 1 2) {f : ℝ → ℂ}
+  (f_periodic : f.Periodic (2 * π)) (hf : MemLp f p (volume.restrict (Set.Ioc 0 (2 * π)))) :
+    eLpNorm (T f) p (volume.restrict (Set.Ioc 0 (2 * π)))
+      ≤ 3 * (C_carleson_hasStrongType 4 p) * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
+  calc _
+    _ = eLpNorm (T ((Set.Ioo (0 - 1) (2 * π + 1)).indicator f)) p (volume.restrict (Set.Ioc 0 (2 * π))) := by
+      apply eLpNorm_congr_ae
+      rw [Filter.EventuallyEq, ae_restrict_iff' measurableSet_Ioc]
+      filter_upwards with x hx
+      exact carlesonOperatorReal_eq_of_restrict_interval (Set.Ioc_subset_Icc_self hx)
+    _ ≤ eLpNorm (T ((Set.Ioo (-1) (2 * π + 1)).indicator f)) p volume := by
+      simp only [zero_sub]
+      exact eLpNorm_mono_measure _ Measure.restrict_le_self
+    _ ≤ (C_carleson_hasStrongType 4 p) * eLpNorm ((Set.Ioo (-1) (2 * π + 1)).indicator f) p volume := by
+      apply rcarleson' hp
+      sorry --TODO: get this from hf and f_periodic
+    _ ≤ 3 * (C_carleson_hasStrongType 4 p) * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
+      rw [mul_comm 3, mul_assoc]
       gcongr
-      exact hE x hx
-    _ ≤ ∫⁻ x, T f x ^ p.toReal := by
-      apply setLIntegral_le_lintegral
-    _ = eLpNorm (T f) p ^ p.toReal := Eq.symm (eLpNorm_nnreal_pow_eq_lintegral (zero_lt_one.trans hp.1).ne.symm)
-    _ ≤ _ := by
+      sorry --TODO: get this from hf and periodicity of f
+
+--TODO: move?
+lemma distribution_le_mul_pow_eLpNorm_enorm {α : Type*} {ε' : Type*} {m0 : MeasurableSpace α}
+  [TopologicalSpace ε'] [ContinuousENorm ε'] {p : ENNReal} {μ : Measure α} (hp_ne_zero : p ≠ 0) (hp_ne_top : p ≠ ⊤)
+  {f : α → ε'} (hf : AEStronglyMeasurable f μ) {ε : ENNReal} (hε : ε ≠ 0) (hmeas_top : ε = ⊤ → μ {x | ‖f x‖ₑ = ⊤} = 0) :
+    distribution f ε μ  ≤ ε⁻¹ ^ p.toReal * eLpNorm f p μ ^ p.toReal := by
+  apply (meas_ge_le_mul_pow_eLpNorm_enorm μ hp_ne_zero hp_ne_top hf hε hmeas_top).trans'
+  unfold distribution
+  gcongr with x
+  grind
+
+def C_distribution_carlesonOperatorReal_le (δ ε p : NNReal) : NNReal :=
+  (3 * (C_carleson_hasStrongType 4 p))⁻¹ * δ * ε ^ (p.toReal⁻¹)
+
+lemma C_distribution_carlesonOperatorReal_le_pos {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) :
+    0 < C_distribution_carlesonOperatorReal_le δ ε p := by
+  unfold C_distribution_carlesonOperatorReal_le
+  apply mul_pos
+  · apply mul_pos _ δpos
+    apply inv_pos_of_pos
+    simp [C_carleson_hasStrongType_pos]
+  · apply NNReal.rpow_pos
+    simpa
+
+lemma C_distribution_carlesonOperatorReal_le_property {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε)
+  (hp : 0 < p) :
+    (↑δ)⁻¹ ^ p.toReal * ((3 * ENNReal.ofNNReal (C_carleson_hasStrongType 4 p))
+      * C_distribution_carlesonOperatorReal_le δ ε p) ^ p.toReal ≤ ENNReal.ofNNReal ε := by
+  rw [C_distribution_carlesonOperatorReal_le, ENNReal.coe_mul, ENNReal.coe_mul,
+    ENNReal.coe_inv (by simp [C_carleson_hasStrongType_pos.ne']), ENNReal.coe_mul,
+    ENNReal.coe_ofNat, ENNReal.coe_rpow_of_ne_zero εpos.ne',
+    ← ENNReal.mul_rpow_of_nonneg _ _ (by simp),
+    ← mul_assoc, ← mul_assoc, ← mul_assoc,
+    ENNReal.mul_inv_cancel_right (by simp [C_carleson_hasStrongType_pos.ne'])
+      (ENNReal.mul_ne_top (by simp) (by simp)),
+    ENNReal.inv_mul_cancel (by simp [δpos.ne']) (by simp), one_mul,
+    ENNReal.rpow_inv_rpow (by simp [hp.ne'])]
+
+lemma distribution_carlesonOperatorReal_le {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) (hp : p ∈ Set.Ioo 1 2) {g : ℝ → ℂ}
+  (g_periodic : g.Periodic (2 * π)) (g_measurable : AEStronglyMeasurable g)
+  (hg : eLpNorm g p (volume.restrict (Set.Ioc 0 (2 * π))) ≤ C_distribution_carlesonOperatorReal_le δ ε p) :
+    distribution (T g) δ (volume.restrict (Set.Ioc 0 (2 * π))) ≤ ε := by
+  apply (distribution_le_mul_pow_eLpNorm_enorm (p := p) (by simp [(zero_lt_one.trans hp.1).ne_zero])
+    (by simp) _ (by simp [δpos.ne']) (by simp)).trans
+  · apply (C_distribution_carlesonOperatorReal_le_property δpos εpos (zero_lt_one.trans hp.1)).trans'
+    simp only [ENNReal.coe_toReal]
+    gcongr
+    apply (rcarleson'_restrict hp g_periodic _).trans
+    · gcongr
+    · use g_measurable.restrict, hg.trans_lt sorry
+  · apply (carlesonOperatorReal_measurable' g_measurable _).aestronglyMeasurable
+    sorry --TODO: get this from hg and periodicity of g
+
+def C_control_approximation_effect (δ ε p : NNReal) : NNReal :=
+  min (2 * (↑δ / 2) * ((2 * Real.toNNReal π) ^ (1 - p.toReal⁻¹))⁻¹)
+    (C_distribution_carlesonOperatorReal_le (2 * π * (↑δ / 2) / 2).toNNReal (ε / 2) p)
+
+lemma C_control_approximation_effect_pos {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) :
+    0 < C_control_approximation_effect δ ε p :=
+  lt_min (by positivity)
+    (C_distribution_carlesonOperatorReal_le_pos (by positivity) (by positivity))
+
+lemma C_control_approximation_effect_property {δ ε p : NNReal} (hp : 1 ≤ p) :
+    C_control_approximation_effect δ ε p * (2 * ENNReal.ofReal π) ^ (1 - p.toReal⁻¹) ≤ 2 * (↑δ / 2) := by
+  calc _
+    _ ≤ 2 * (↑δ / 2) * ((2 * Real.toNNReal π) ^ (1 - p.toReal⁻¹))⁻¹ * (2 * ENNReal.ofReal π) ^ (1 - p.toReal⁻¹) := by
       gcongr
-      apply rcarleson' hp hf
+      norm_cast
+      exact min_le_left _ _
+    _ = 2 * (↑δ / 2) := by
+      rw [ENNReal.coe_inv (by simp [Real.pi_pos]), ENNReal.coe_rpow_of_nonneg _
+        (by simp only [sub_nonneg]; exact inv_le_one_of_one_le₀ hp),
+        ENNReal.coe_mul, ENNReal.coe_ofNat, ENNReal.ofNNReal_toNNReal,
+        ENNReal.inv_mul_cancel_right (by positivity) (ENNReal.rpow_ne_top' (by positivity)
+        (ENNReal.mul_ne_top (by simp) (by simp)))]
 
+lemma C_control_approximation_effect_le {δ ε p : NNReal} :
+  ENNReal.ofNNReal (C_control_approximation_effect δ ε p) ≤
+    (C_distribution_carlesonOperatorReal_le (2 * π * (↑δ / 2) / 2).toNNReal (ε / 2) p) := by
+  simp only [ENNReal.coe_le_coe]
+  exact min_le_right _ _
 
-lemma rcarleson_exceptional_set_estimate_specific {δ : NNReal} (δpos : 0 < δ) {f : ℝ → ℂ} (hmf : AEStronglyMeasurable f)
+/- This is Lemma 11.6.4 (partial Fourier sums of small) in the blueprint.-/
+lemma control_approximation_effect {δ ε : NNReal} (εpos : 0 < ε) (δpos : 0 < δ)
+  {g : ℝ → ℂ} (g_measurable : AEStronglyMeasurable g)
+  (g_periodic : g.Periodic (2 * π))
   {p : NNReal} (hp : p ∈ Set.Ioo 1 2)
-  (hf : eLpNorm f p (volume.restrict (Set.Ico 0 (2 * π))) ≤ δ) (f_periodic : f.Periodic (2 * π))
-    {E : Set ℝ} (measurableSetE : MeasurableSet E) (E_subset : E ⊆ Set.Icc 0 (2 * π)) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
-      ε ^ p.toReal * volume E ≤ ((C_carleson_hasStrongType 4 p) * (2 * ENNReal.ofReal δ)) ^ p.toReal := by
-  --rw [ENNReal.ofReal_mul (by have := @C10_0_1_pos 4 2 one_lt_two; positivity),
-  --  ← ENNReal.ofReal_rpow_of_pos (by positivity)]
-  /-
-  set F := (Set.Ioo (0 - 1) (2 * π + 1))
-  set h := F.indicator f with hdef
-  have hh : ∀ x, ‖h x‖ ≤ δ * F.indicator 1 x := by
-    intro x
-    rw [hdef, norm_indicator_eq_indicator_norm, Set.indicator, Set.indicator]
-    split_ifs with hx
-    · simp only [Pi.one_apply, mul_one]; exact hf x
-    · simp
-  -/
-  --rw [← carlesonOperatorReal_eq_of_restrict_interval (E_subset hx)]
-  apply le_trans (rcarleson_exceptional_set_estimate (f := (Set.Ioo (0 - 1) (2 * π + 1)).indicator f) hp _ measurableSetE _)
-  · gcongr
-    sorry --get this from hf and periodicity of f
-  · use (hmf.indicator measurableSet_Ioo)
-    sorry --follows from the last sorry
-  · intro x hx
-    rw [← carlesonOperatorReal_eq_of_restrict_interval (E_subset hx)]
-    exact hE x hx
+  (g_bound : eLpNorm g p (volume.restrict (Set.Ioc 0 (2 * π))) ≤ C_control_approximation_effect δ ε p) :
+    distribution (fun x ↦ ⨆ N, ‖S_ N g x‖ₑ) δ (volume.restrict (Set.Ioc 0 (2 * π))) ≤ ε := by
+  calc _
+    _ ≤ distribution (operatorBound g) δ (volume.restrict (Set.Ioc 0 (2 * π))) := by
+      apply distribution_mono_left
+      rw [ae_restrict_iff' (measurableSet_Ioc)]
+      filter_upwards [] with x hx
+      simp only [enorm_eq_self, iSup_le_iff]
+      intro N
+      exact partialFourierSum_bound g_measurable g_periodic (Set.Ioc_subset_Icc_self hx)
+    _ = distribution (operatorBound g) (δ / 2 + δ / 2) (volume.restrict (Set.Ioc 0 (2 * π))) := by
+      congr
+      simp
+    _ ≤ distribution (fun x ↦ (T g x + T (conj ∘ g) x) / ENNReal.ofReal (2 * π)) (δ / 2) (volume.restrict (Set.Ioc 0 (2 * π)))
+          + distribution (fun x ↦ eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) / 2) (δ / 2) (volume.restrict (Set.Ioc 0 (2 * π))) := by
+      apply distribution_add_le
+    _ ≤ ε + 0 := by
+      gcongr
+      · rw [← distribution_mul (by left; exact ENNReal.ofReal_ne_top) (by left; simp [pi_pos])]
+        calc _
+          _ ≤ distribution (T g) (ENNReal.ofReal (2 * π) * (↑δ / 2) / 2) (volume.restrict (Set.Ioc 0 (2 * π)))
+                + distribution (T (conj ∘ g)) (ENNReal.ofReal (2 * π) * (↑δ / 2) / 2) (volume.restrict (Set.Ioc 0 (2 * π))) := by
+            apply distribution_add_le.trans'
+            gcongr
+            · simp
+            rw [← two_mul, ENNReal.mul_div_cancel (by simp) (by simp)]
+          _ ≤ ENNReal.ofNNReal (ε / 2) + ENNReal.ofNNReal  (ε / 2) := by
+            have : ENNReal.ofReal (2 * π) * (↑δ / 2) / 2 = ENNReal.ofReal ((2 * π) * (↑δ / 2) / 2) := by
+              rw [ENNReal.ofReal_div_of_pos (by simp), ENNReal.ofReal_mul (by simp),
+                ENNReal.ofReal_mul Real.two_pi_pos.le, ENNReal.ofReal_mul (by simp),
+                ENNReal.ofReal_ofNat, ENNReal.ofReal_div_of_pos (by simp),
+                ENNReal.ofReal_ofNat]
+              simp
+            rw [this]
+            gcongr
+            · apply distribution_carlesonOperatorReal_le (by positivity) (by simpa) hp g_periodic
+                g_measurable
+              exact g_bound.trans C_control_approximation_effect_le
+            · have conj_g_periodic : (conj ∘ g).Periodic (2 * π) := by
+                sorry
+              have conj_g_measurable : AEStronglyMeasurable (conj ∘ g) := by
+                sorry
+              have conj_g_bound : eLpNorm (conj ∘ g) p (volume.restrict (Set.Ioc 0 (2 * π)))
+                  ≤ C_control_approximation_effect δ ε p := by
+                sorry
+              apply distribution_carlesonOperatorReal_le (by positivity) (by simpa) hp
+                conj_g_periodic conj_g_measurable
+              exact conj_g_bound.trans C_control_approximation_effect_le
+          _ = ε := by simp
+      · rw [← distribution_mul (by simp) (by simp)]
+        simp only [nonpos_iff_eq_zero]
+        rw [Function.const_def, distribution_const, Set.indicator_of_notMem]
+        simp only [enorm_eq_self, Set.mem_Iio, not_lt]
+        have hp' : (1 : ENNReal) ≤ p := by simp [hp.1.le]
+        apply (eLpNorm_le_eLpNorm_mul_rpow_measure_univ hp' g_measurable.restrict).trans
+        rw [Measure.restrict_apply_univ, Real.volume_Ioc]
+        simp only [sub_zero, Nat.ofNat_nonneg, ENNReal.ofReal_mul, ENNReal.ofReal_ofNat,
+          ENNReal.toReal_one, ne_eq, one_ne_zero, not_false_eq_true, div_self, ENNReal.coe_toReal,
+          one_div]
+        apply (C_control_approximation_effect_property hp.1.le).trans'
+        gcongr
+    _ = ε := by simp
 
 /-
-def C_control_approximation_effect (ε : ℝ) := (C10_0_1 4 2 * (8 / (π * ε)) ^ (2 : ℝ)⁻¹) + π
-
-/-
-lemma lt_C_control_approximation_effect {ε : ℝ} (εpos : 0 < ε) : π < C_control_approximation_effect ε := by
-  rw [C_control_approximation_effect]
-  apply lt_add_of_pos_of_le _ (by rfl)
-  have := @C10_0_1_pos 4 2 (by norm_num)
-  positivity
--/
-
-lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε :=
-  sorry
-  --lt_trans' (lt_C_control_approximation_effect εpos) pi_pos
-
-
-lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) :
-    C_control_approximation_effect ε * δ =
-      ((δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / π) + π * δ := by
-  symm
-  rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc,
-    mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul, mul_comm _ (C10_0_1 4 2 : ℝ), mul_assoc]
-  congr
-  rw [Real.div_rpow, Real.div_rpow _ (mul_nonneg _ _), Real.mul_rpow, Real.mul_rpow]
-  all_goals
-    ring_nf
-    try rw [mul_assoc, mul_comm (2 ^ _), mul_assoc, mul_assoc, mul_assoc, mul_comm (4 ^ _), ← mul_assoc π⁻¹,
-      ← Real.rpow_neg_one π, ← Real.rpow_add, mul_comm (π ^ _), ← mul_assoc (2 ^ _), ← Real.mul_rpow]
-  on_goal 1 =>
-    field_simp
-    ring_nf
-    calc _
-      _ = (π ^ (1 / (2 : ℝ))) ^ 2 * 2 ^ (1 / (2 : ℝ)) * (ε ^ (1 / (2 : ℝ)))⁻¹ * 2 := by ring
-      _ = π * 2 ^ (1 / (2 : ℝ)) * (ε ^ (1 / (2 : ℝ)))⁻¹ * 2 := by
-        -- Golfing of this proof welcome!
-        congr
-        rw [← Real.sqrt_eq_rpow π, Real.sq_sqrt', max_eq_left_iff]
-        positivity
-      _ = π * (2 ^ (1 / (2 : ℝ)) * 2) * (ε ^ (1 / (2 : ℝ)))⁻¹ := by ring
-      _ = π * 8 ^ (1 / (2 : ℝ)) * (ε ^ (1 / (2 : ℝ)))⁻¹  := by
-        congr
-        -- Golfing of this computation is very welcome!
-        rw [← Real.sqrt_eq_rpow, ← Real.sqrt_eq_rpow]
-        have : Real.sqrt 4 = 2 := Real.sqrt_eq_cases.mpr <| Or.inl ⟨by norm_num, by positivity⟩
-        nth_rw 2 [← this]
-        rw [← Real.sqrt_mul (by positivity) 4]
-        norm_num
-      _ = (ε ^ (1 / (2 : ℝ)))⁻¹ * π * 8 ^ (1 / (2 : ℝ)) := by ring
-  all_goals linarith [pi_pos]
--/
-
 def C_control_approximation_effect (ε p : NNReal) : NNReal := (C_carleson_hasStrongType 4 p)⁻¹ * (ε / 2) ^ ((1 + p) / p).toReal
 
 lemma C_control_approximation_effect_pos {ε p : NNReal} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε p := by
@@ -696,4 +770,6 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) --{δ : ℝ} (hδ
         linarith
       -/
       sorry
+-/
+
 end
