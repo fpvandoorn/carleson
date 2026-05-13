@@ -131,7 +131,8 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
     _ = ε := by simp
 
 --TODO: generalize and clean this up
-lemma ae_tendsto_zero_of_distribution_le {μ : Measure ℝ} {f : ℝ → ℂ} {F : ℕ → ℝ → ℂ}
+lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {μ : Measure α}
+  {f : α → ℂ} {F : ℕ → α → ℂ}
   (h : ∀ δ > (0 : NNReal), ∀ ε > (0 : NNReal), ∃ N₀,
     distribution (fun x ↦ ⨆ N > N₀, ‖f x - F N x‖ₑ) δ μ ≤ ε) :
     ∀ᵐ x ∂μ, Filter.Tendsto (F · x) Filter.atTop (nhds (f x)) := by

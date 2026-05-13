@@ -36,14 +36,14 @@ def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤
     ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
 
 lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N : ℕ) (f : ℝ → ℂ) :
-    liftIoc (2 * Real.pi) 0 (partialFourierSum N f) = partialFourierSum' N (liftIoc (2 * Real.pi) 0 f) := by
+    liftIoc (2 * Real.pi) 0 (partialFourierSum N f)
+      = partialFourierSum' N (liftIoc (2 * Real.pi) 0 f) := by
   ext x
   unfold partialFourierSum partialFourierSum' liftIoc
   simp only [
     Function.comp_apply, Set.restrict_apply, Int.ofNat_eq_natCast, ContinuousMap.coe_sum,
     ContinuousMap.coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
-  congr
-  ext n
+  congr with n
   rw [← liftIoc, fourierCoeff_liftIoc_eq]
   congr 2
   · rw [zero_add (2 * Real.pi)]
@@ -54,6 +54,30 @@ lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N :
     unfold liftIoc at this
     rw [Function.comp_apply, Set.restrict_apply] at this
     exact this
+
+lemma partialFourierSum_eq_partialFourierSum'_apply [hT : Fact (0 < 2 * π)] (N : ℕ) (f : ℝ → ℂ)
+  {x : AddCircle (2 * π)} :
+    liftIoc (2 * Real.pi) 0 (partialFourierSum N f) x
+      = partialFourierSum' N (liftIoc (2 * Real.pi) 0 f) x := by
+  rw [partialFourierSum_eq_partialFourierSum']
+
+lemma partialFourierSum'_eq_partialFourierSum_apply [hT : Fact (0 < 2 * π)] (N : ℕ) (f : AddCircle (2 * π) → ℂ)
+  {x : ℝ} (hx : x ∈ Set.Ioc 0 (2 * π)) :
+    partialFourierSum' N f x
+    = (partialFourierSum N (fun x ↦ f x)) x := by
+  have : partialFourierSum' N f = partialFourierSum' N (liftIoc (2 * π) 0 fun x ↦ f ↑x) := by
+    unfold partialFourierSum'
+    congr with n x
+    congr 2
+    rw [fourierCoeff_congr_ae (g := (fun x ↦ liftIoc (2 * π) 0 (fun x ↦ f ↑x) ↑x))]
+    rw [Filter.EventuallyEq]
+    filter_upwards with x
+    unfold liftIoc
+    simp
+  rw [this, ← partialFourierSum_eq_partialFourierSum' N _, liftIoc_coe_apply (by simpa)]
+
+
+
 
 lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (1 ≤ p)] {N : ℕ} {f g : AddCircle T → ℂ}
     (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
@@ -181,6 +205,10 @@ lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformC
   apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
     (Continuous.continuousOn (continuous_finsetSum ..))
   continuity
+
+@[fun_prop]
+lemma partialFourierSum_measurable {f : ℝ → ℂ} {N : ℕ} : Measurable (S_ N f) :=
+  partialFourierSum_uniformContinuous.continuous.measurable
 
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (π / 2) (π + π / 2)) Real.cos := by
   apply strictConvexOn_of_deriv2_pos (convex_Icc ..) Real.continuousOn_cos fun x hx => ?_
