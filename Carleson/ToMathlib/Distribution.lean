@@ -494,6 +494,39 @@ lemma distribution_eq_distribution_prod {ε}
     simp
   rw [this, Measure.prod_prod, measure_univ, mul_one]
 
+lemma distribution_le_mul_pow_eLpNorm_enorm {ε' : Type*} [TopologicalSpace ε'] [ContinuousENorm ε']
+  {p : ENNReal} (hp_ne_zero : p ≠ 0) (hp_ne_top : p ≠ ⊤) {f : α → ε'}
+  (hf : AEStronglyMeasurable f μ) {ε : ENNReal} (hε : ε ≠ 0)
+  (hmeas_top : ε = ⊤ → μ {x | ‖f x‖ₑ = ⊤} = 0) :
+    distribution f ε μ  ≤ ε⁻¹ ^ p.toReal * eLpNorm f p μ ^ p.toReal := by
+  apply (meas_ge_le_mul_pow_eLpNorm_enorm μ hp_ne_zero hp_ne_top hf hε hmeas_top).trans'
+  unfold distribution
+  gcongr with x
+  grind
+
+def C_distribution_le_of_eLpNorm_le (δ ε p : NNReal) : NNReal := δ * ε ^ p.toReal⁻¹
+
+lemma C_distribution_le_of_eLpNorm_le_pos {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) :
+    0 < C_distribution_le_of_eLpNorm_le δ ε p := by
+  apply mul_pos δpos (NNReal.rpow_pos εpos)
+
+lemma distribution_le_of_eLpNorm_le {ε' : Type*} [TopologicalSpace ε'] [ContinuousENorm ε']
+  {δ ε p : NNReal} (δpos : 0 < δ) (p_pos : 0 < p) {f : α → ε'} (meas_f : AEStronglyMeasurable f μ)
+  (hf : eLpNorm f p μ ≤ C_distribution_le_of_eLpNorm_le δ ε p) :
+    distribution f δ μ ≤ ε := by
+  apply (distribution_le_mul_pow_eLpNorm_enorm (p := p) (by simp [p_pos.ne']) (by simp) meas_f
+    (by simp [δpos.ne']) (by simp)).trans
+  calc _
+    _ ≤ (↑δ)⁻¹ ^ p.toReal * ENNReal.ofNNReal (C_distribution_le_of_eLpNorm_le δ ε p) ^ p.toReal := by
+      simp only [ENNReal.coe_toReal]
+      gcongr
+    _ ≤ ε := by
+      unfold C_distribution_le_of_eLpNorm_le
+      push_cast
+      rw [← ENNReal.mul_rpow_of_nonneg _ _ (by simp), ← mul_assoc,
+        ENNReal.inv_mul_cancel (by simp [δpos.ne']) (by simp), one_mul,
+        ENNReal.coe_rpow_of_nonneg _ (by simp), ENNReal.rpow_inv_rpow (by simp [p_pos.ne'])]
+
 end distribution
 
 end ENorm

@@ -470,57 +470,33 @@ lemma rcarleson'_restrict {p : NNReal} (hp : p ∈ Set.Ioo 1 2) {f : ℝ → ℂ
       gcongr
       sorry --TODO: get this from hf and periodicity of f
 
---TODO: move?
-lemma distribution_le_mul_pow_eLpNorm_enorm {α : Type*} {ε' : Type*} {m0 : MeasurableSpace α}
-  [TopologicalSpace ε'] [ContinuousENorm ε'] {p : ENNReal} {μ : Measure α} (hp_ne_zero : p ≠ 0) (hp_ne_top : p ≠ ⊤)
-  {f : α → ε'} (hf : AEStronglyMeasurable f μ) {ε : ENNReal} (hε : ε ≠ 0) (hmeas_top : ε = ⊤ → μ {x | ‖f x‖ₑ = ⊤} = 0) :
-    distribution f ε μ  ≤ ε⁻¹ ^ p.toReal * eLpNorm f p μ ^ p.toReal := by
-  apply (meas_ge_le_mul_pow_eLpNorm_enorm μ hp_ne_zero hp_ne_top hf hε hmeas_top).trans'
-  unfold distribution
-  gcongr with x
-  grind
-
 def C_distribution_carlesonOperatorReal_le (δ ε p : NNReal) : NNReal :=
-  (3 * (C_carleson_hasStrongType 4 p))⁻¹ * δ * ε ^ (p.toReal⁻¹)
+  (3 * (C_carleson_hasStrongType 4 p))⁻¹ * C_distribution_le_of_eLpNorm_le δ ε p
 
 lemma C_distribution_carlesonOperatorReal_le_pos {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) :
     0 < C_distribution_carlesonOperatorReal_le δ ε p := by
   unfold C_distribution_carlesonOperatorReal_le
-  apply mul_pos
-  · apply mul_pos _ δpos
-    apply inv_pos_of_pos
-    simp [C_carleson_hasStrongType_pos]
-  · apply NNReal.rpow_pos
-    simpa
-
-lemma C_distribution_carlesonOperatorReal_le_property {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε)
-  (hp : 0 < p) :
-    (↑δ)⁻¹ ^ p.toReal * ((3 * ENNReal.ofNNReal (C_carleson_hasStrongType 4 p))
-      * C_distribution_carlesonOperatorReal_le δ ε p) ^ p.toReal ≤ ENNReal.ofNNReal ε := by
-  rw [C_distribution_carlesonOperatorReal_le, ENNReal.coe_mul, ENNReal.coe_mul,
-    ENNReal.coe_inv (by simp [C_carleson_hasStrongType_pos.ne']), ENNReal.coe_mul,
-    ENNReal.coe_ofNat, ENNReal.coe_rpow_of_ne_zero εpos.ne',
-    ← ENNReal.mul_rpow_of_nonneg _ _ (by simp),
-    ← mul_assoc, ← mul_assoc, ← mul_assoc,
-    ENNReal.mul_inv_cancel_right (by simp [C_carleson_hasStrongType_pos.ne'])
-      (ENNReal.mul_ne_top (by simp) (by simp)),
-    ENNReal.inv_mul_cancel (by simp [δpos.ne']) (by simp), one_mul,
-    ENNReal.rpow_inv_rpow (by simp [hp.ne'])]
+  apply mul_pos _ (C_distribution_le_of_eLpNorm_le_pos δpos εpos)
+  simp [C_carleson_hasStrongType_pos]
 
 lemma distribution_carlesonOperatorReal_le {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) (hp : p ∈ Set.Ioo 1 2) {g : ℝ → ℂ}
   (g_periodic : g.Periodic (2 * π)) (g_measurable : AEStronglyMeasurable g)
   (hg : eLpNorm g p (volume.restrict (Set.Ioc 0 (2 * π))) ≤ C_distribution_carlesonOperatorReal_le δ ε p) :
     distribution (T g) δ (volume.restrict (Set.Ioc 0 (2 * π))) ≤ ε := by
-  apply (distribution_le_mul_pow_eLpNorm_enorm (p := p) (by simp [(zero_lt_one.trans hp.1).ne_zero])
-    (by simp) _ (by simp [δpos.ne']) (by simp)).trans
-  · apply (C_distribution_carlesonOperatorReal_le_property δpos εpos (zero_lt_one.trans hp.1)).trans'
-    simp only [ENNReal.coe_toReal]
-    gcongr
-    apply (rcarleson'_restrict hp g_periodic _).trans
-    · gcongr
-    · use g_measurable.restrict, hg.trans_lt sorry
+  apply distribution_le_of_eLpNorm_le δpos (zero_lt_one.trans hp.1)
   · apply (carlesonOperatorReal_measurable' g_measurable _).aestronglyMeasurable
     sorry --TODO: get this from hg and periodicity of g
+  · apply (rcarleson'_restrict hp g_periodic _).trans
+    · calc _
+        _ ≤ 3 * ↑(C_carleson_hasStrongType 4 p)
+              * ENNReal.ofNNReal (C_distribution_carlesonOperatorReal_le δ ε p) := by
+          gcongr
+        _ = C_distribution_le_of_eLpNorm_le δ ε p := by
+          unfold C_distribution_carlesonOperatorReal_le
+          norm_cast
+          rw [← mul_assoc, mul_inv_cancel₀ (mul_ne_zero (by simp) C_carleson_hasStrongType_pos.ne'),
+            one_mul]
+    · use g_measurable.restrict, hg.trans_lt (by simp)
 
 def C_control_approximation_effect (δ ε p : NNReal) : NNReal :=
   min (2 * (↑δ / 2) * ((2 * Real.toNNReal π) ^ (1 - p.toReal⁻¹))⁻¹)
