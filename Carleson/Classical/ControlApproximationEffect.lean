@@ -374,14 +374,12 @@ def operatorBound (g : ℝ → ℂ) (x : ℝ) : ENNReal :=
   (T g x + T (conj ∘ g) x) / ENNReal.ofReal (2 * π)
   + eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) / 2
 
-lemma partialFourierSum_bound {g : ℝ → ℂ} (measurable_g : AEStronglyMeasurable g)
-    (periodic_g : Function.Periodic g (2 * π))
-    {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
+lemma partialFourierSum_bound {g : ℝ → ℂ} (periodic_g : Function.Periodic g (2 * π))
+  (hg : IntervalIntegrable g volume 0 (2 * π)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
     ‖S_ N g x‖ₑ ≤
       operatorBound g x := by
   have intervalIntegrable_g : IntervalIntegrable g volume (-π) (3 * π) := by
-    --TODO: add assumption for this
-    sorry --intervalIntegrable_of_bdd measurable_g bound_g
+    apply periodic_g.intervalIntegrable₀ Real.two_pi_pos.ne' hg
   have decomposition : S_ N g x
       = (  (∫ (y : ℝ) in (x - π)..(x + π),
               g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))
@@ -438,8 +436,9 @@ lemma partialFourierSum_bound {g : ℝ → ℂ} (measurable_g : AEStronglyMeasur
             rw [lintegral_const_mul' _ _ ENNReal.ofReal_ne_top]
             congr
             have : x + π = x - π + 2 * π := by linarith
-            rw [this, Function.Periodic.setLIntegral_Ioc_add_eq periodic_g _ 0, zero_add,
+            rw [this, Function.Periodic.setLIntegral_Ioc_add_eq _ _ 0, zero_add,
               eLpNorm_one_eq_lintegral_enorm]
+            apply periodic_g.comp
     _ = (T g x + T (conj ∘ g) x) / ENNReal.ofReal (2 * π)
       + eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) / 2 := by
       rw [ENNReal.add_div, mul_comm (ENNReal.ofReal _), mul_div_assoc]
@@ -452,7 +451,47 @@ end
 lemma rcarleson'_restrict {p : NNReal} (hp : p ∈ Set.Ioo 1 2) {f : ℝ → ℂ}
   (f_periodic : f.Periodic (2 * π)) (hf : MemLp f p (volume.restrict (Set.Ioc 0 (2 * π)))) :
     eLpNorm (T f) p (volume.restrict (Set.Ioc 0 (2 * π)))
-      ≤ 3 * (C_carleson_hasStrongType 4 p) * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
+      ≤ 2 * (C_carleson_hasStrongType 4 p) * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
+  have meas_f : AEStronglyMeasurable f := by
+    have : Fact (0 < 2 * π) := fact_iff.mpr Real.two_pi_pos
+    rw [← zero_add (2 * π)] at hf
+    exact (f_periodic.aestronglyMeasurable hf.1)
+  have h : eLpNorm ((Set.Ioo (-1) (2 * π + 1)).indicator f) (↑p) volume
+      ≤ 2 * eLpNorm f (↑p) (volume.restrict (Set.Ioc 0 (2 * π))) := by
+    calc _
+        _ ≤ eLpNorm ((Set.Ioc (-1) (-1 + 2 * π)).indicator f) (↑p) volume
+            + eLpNorm ((Set.Ioc (-1 + 2 * π) (-1 + 2 * π + 2 * π)).indicator f) (↑p) volume := by
+          apply (eLpNorm_add_le _ _ (by simp [hp.1.le])).trans'
+          · apply eLpNorm_mono
+            intro x
+            rw [← Set.indicator_union_add_inter, Set.Ioc_inter_Ioc, Set.Ioc_union_Ioc_eq_Ioc]
+            · nth_rw 2 [Set.Ioc_eq_empty_of_le]
+              · simp only [Set.indicator_empty, Pi.add_apply, add_zero]
+                rw [norm_indicator_eq_indicator_norm, norm_indicator_eq_indicator_norm]
+                gcongr
+                intro x hx
+                use hx.1
+                linarith [hx.2, Real.two_le_pi]
+              · apply le_max_of_le_right
+                apply min_le_left
+            · linarith [Real.two_pi_pos]
+            · linarith [Real.two_pi_pos]
+          · rw [aestronglyMeasurable_indicator_iff measurableSet_Ioc]
+            exact meas_f.restrict
+          · rw [aestronglyMeasurable_indicator_iff measurableSet_Ioc]
+            exact meas_f.restrict
+        _ = 2 * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
+          have : Fact (0 < 2 * π) := by
+            rw [fact_iff]
+            exact Real.two_pi_pos
+          rw [two_mul (eLpNorm _ _ _)]
+          rw [eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc,
+            eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc]
+          congr 1
+          · nth_rw 2 [← zero_add (2 * π)]
+            exact f_periodic.eLpNorm (by simp)
+          · nth_rw 4 [← zero_add (2 * π)]
+            exact f_periodic.eLpNorm (by simp)
   calc _
     _ = eLpNorm (T ((Set.Ioo (0 - 1) (2 * π + 1)).indicator f)) p (volume.restrict (Set.Ioc 0 (2 * π))) := by
       apply eLpNorm_congr_ae
@@ -464,14 +503,17 @@ lemma rcarleson'_restrict {p : NNReal} (hp : p ∈ Set.Ioo 1 2) {f : ℝ → ℂ
       exact eLpNorm_mono_measure _ Measure.restrict_le_self
     _ ≤ (C_carleson_hasStrongType 4 p) * eLpNorm ((Set.Ioo (-1) (2 * π + 1)).indicator f) p volume := by
       apply rcarleson' hp
-      sorry --TODO: get this from hf and f_periodic
-    _ ≤ 3 * (C_carleson_hasStrongType 4 p) * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
-      rw [mul_comm 3, mul_assoc]
+      rw [memLp_indicator_iff_restrict measurableSet_Ioo]
+      use meas_f.restrict
+      rw [← eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioo]
+      apply h.trans_lt
+      apply ENNReal.mul_lt_top (by simp) hf.2
+    _ ≤ 2 * (C_carleson_hasStrongType 4 p) * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
+      rw [mul_comm 2 (ENNReal.ofNNReal _), mul_assoc]
       gcongr
-      sorry --TODO: get this from hf and periodicity of f
 
 def C_distribution_carlesonOperatorReal_le (δ ε p : NNReal) : NNReal :=
-  (3 * (C_carleson_hasStrongType 4 p))⁻¹ * C_distribution_le_of_eLpNorm_le δ ε p
+  (2 * (C_carleson_hasStrongType 4 p))⁻¹ * C_distribution_le_of_eLpNorm_le δ ε p
 
 lemma C_distribution_carlesonOperatorReal_le_pos {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) :
     0 < C_distribution_carlesonOperatorReal_le δ ε p := by
@@ -479,16 +521,27 @@ lemma C_distribution_carlesonOperatorReal_le_pos {δ ε p : NNReal} (δpos : 0 <
   apply mul_pos _ (C_distribution_le_of_eLpNorm_le_pos δpos εpos)
   simp [C_carleson_hasStrongType_pos]
 
-lemma distribution_carlesonOperatorReal_le {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) (hp : p ∈ Set.Ioo 1 2) {g : ℝ → ℂ}
+lemma distribution_carlesonOperatorReal_le {δ ε p : NNReal} (δpos : 0 < δ)
+  (hp : p ∈ Set.Ioo 1 2) {g : ℝ → ℂ}
   (g_periodic : g.Periodic (2 * π)) (g_measurable : AEStronglyMeasurable g)
   (hg : eLpNorm g p (volume.restrict (Set.Ioc 0 (2 * π))) ≤ C_distribution_carlesonOperatorReal_le δ ε p) :
     distribution (T g) δ (volume.restrict (Set.Ioc 0 (2 * π))) ≤ ε := by
   apply distribution_le_of_eLpNorm_le δpos (zero_lt_one.trans hp.1)
-  · apply (carlesonOperatorReal_measurable' g_measurable _).aestronglyMeasurable
-    sorry --TODO: get this from hg and periodicity of g
+  · apply (carlesonOperatorReal_measurable g_measurable _).aestronglyMeasurable
+    intro x
+    have : Set.Ioo x (x + 2) ⊆ Set.Ioc x (x + (2 * π)) := by
+      apply Set.Ioo_subset_Ioc_self.trans'
+      apply Set.Ioo_subset_Ioo_right
+      linarith [Real.two_le_pi]
+    apply IntegrableOn.mono_set _ this
+    apply MemLp.integrable (q := p) (by simp [hp.1.le])
+    use g_measurable.restrict
+    rw [g_periodic.eLpNorm (s := 0) (by simp), zero_add]
+    apply hg.trans_lt
+    simp
   · apply (rcarleson'_restrict hp g_periodic _).trans
     · calc _
-        _ ≤ 3 * ↑(C_carleson_hasStrongType 4 p)
+        _ ≤ 2 * ↑(C_carleson_hasStrongType 4 p)
               * ENNReal.ofNNReal (C_distribution_carlesonOperatorReal_le δ ε p) := by
           gcongr
         _ = C_distribution_le_of_eLpNorm_le δ ε p := by
@@ -528,7 +581,7 @@ lemma C_control_approximation_effect_le {δ ε p : NNReal} :
   exact min_le_right _ _
 
 /- This is Lemma 11.6.4 (partial Fourier sums of small) in the blueprint.-/
-lemma control_approximation_effect {δ ε : NNReal} (εpos : 0 < ε) (δpos : 0 < δ)
+lemma control_approximation_effect {δ ε : NNReal} (δpos : 0 < δ)
   {g : ℝ → ℂ} (g_measurable : AEStronglyMeasurable g)
   (g_periodic : g.Periodic (2 * π))
   {p : NNReal} (hp : p ∈ Set.Ioo 1 2)
@@ -541,7 +594,11 @@ lemma control_approximation_effect {δ ε : NNReal} (εpos : 0 < ε) (δpos : 0 
       filter_upwards [] with x hx
       simp only [enorm_eq_self, iSup_le_iff]
       intro N
-      exact partialFourierSum_bound g_measurable g_periodic (Set.Ioc_subset_Icc_self hx)
+      apply partialFourierSum_bound g_periodic _ (Set.Ioc_subset_Icc_self hx)
+      rw [intervalIntegrable_iff_integrableOn_Ioc_of_le Real.two_pi_pos.le, IntegrableOn]
+      apply MemLp.integrable (q := p) (by simp [hp.1.le])
+      use g_measurable.restrict
+      exact g_bound.trans_lt (by simp)
     _ = distribution (operatorBound g) (δ / 2 + δ / 2) (volume.restrict (Set.Ioc 0 (2 * π))) := by
       congr
       simp
@@ -567,17 +624,21 @@ lemma control_approximation_effect {δ ε : NNReal} (εpos : 0 < ε) (δpos : 0 
               simp
             rw [this]
             gcongr
-            · apply distribution_carlesonOperatorReal_le (by positivity) (by simpa) hp g_periodic
+            · apply distribution_carlesonOperatorReal_le (by positivity) hp g_periodic
                 g_measurable
               exact g_bound.trans C_control_approximation_effect_le
             · have conj_g_periodic : (conj ∘ g).Periodic (2 * π) := by
-                sorry
-              have conj_g_measurable : AEStronglyMeasurable (conj ∘ g) := by
-                sorry
+                intro x
+                simp only [Function.comp_apply]
+                congr 1
+                apply g_periodic
+              have conj_g_measurable : AEStronglyMeasurable (conj ∘ g) := by fun_prop
               have conj_g_bound : eLpNorm (conj ∘ g) p (volume.restrict (Set.Ioc 0 (2 * π)))
                   ≤ C_control_approximation_effect δ ε p := by
-                sorry
-              apply distribution_carlesonOperatorReal_le (by positivity) (by simpa) hp
+                convert g_bound using 1
+                apply eLpNorm_congr_norm_ae
+                simp
+              apply distribution_carlesonOperatorReal_le (by positivity) hp
                 conj_g_periodic conj_g_measurable
               exact conj_g_bound.trans C_control_approximation_effect_le
           _ = ε := by simp
@@ -594,158 +655,5 @@ lemma control_approximation_effect {δ ε : NNReal} (εpos : 0 < ε) (δpos : 0 
         apply (C_control_approximation_effect_property hp.1.le).trans'
         gcongr
     _ = ε := by simp
-
-/-
-def C_control_approximation_effect (ε p : NNReal) : NNReal := (C_carleson_hasStrongType 4 p)⁻¹ * (ε / 2) ^ ((1 + p) / p).toReal
-
-lemma C_control_approximation_effect_pos {ε p : NNReal} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε p := by
-  unfold C_control_approximation_effect
-  apply mul_pos
-  · apply inv_pos_of_pos
-    apply C_carleson_hasStrongType_pos
-  apply NNReal.rpow_pos
-  simpa
-
-/- This is Lemma 11.6.4 (partial Fourier sums of small) in the blueprint.-/
-lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) --{δ : ℝ} (hδ : 0 < δ)
-    {h : ℝ → ℂ} (h_measurable : AEStronglyMeasurable h)
-    (h_periodic : h.Periodic (2 * π))
-    {p : NNReal} (hp : p ∈ Set.Ioo 1 2)
-    (h_bound : eLpNorm h p (volume.restrict (Set.Ico 0 (2 * π))) ≤ C_control_approximation_effect ε.toNNReal p) :
-    ∃ E ⊆ Set.Icc 0 (2 * π), MeasurableSet E ∧ volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * π) \ E,
-      ∀ N, ‖S_ N h x‖ ≤ ε / π + π * C_control_approximation_effect ε.toNNReal p := by
-  set δ := C_control_approximation_effect ε.toNNReal p with δdef
-  have hδ : 0 < δ := by
-    apply C_control_approximation_effect_pos
-    simpa
-  set ε' := ε / π + π * δ with ε'def
-  have ε_eq : ε = (ε' - π * δ) * π := by
-    rw [ε'def]
-    simp
-  set E := {x ∈ Set.Icc 0 (2 * π) | ∃ N, ε' < ‖S_ N h x‖} with Edef
-  have E_eq: E = Set.Icc 0 (2 * π) ∩ ⋃ N : ℕ, {x | ε' < ‖S_ N h x‖} := by
-      rw [Edef]
-      ext x
-      simp
-  have measurableSetE : MeasurableSet E := by
-    rw [E_eq]
-    apply measurableSet_Icc.inter (MeasurableSet.iUnion _)
-    intro N
-    apply measurableSet_lt measurable_const (Measurable.norm partialFourierSum_uniformContinuous.continuous.measurable)
-  have Esubset : E ⊆ Set.Icc 0 (2 * π) := fun x hx ↦ by simpa using hx.1
-  use E, Esubset, measurableSetE
-  --Change order of proofs to start with the simple part
-  rw [and_comm]
-  constructor
-  · rw [Edef]
-    simp only [Set.mem_Icc, Set.mem_diff, Set.mem_setOf_eq, not_and, not_exists, not_lt, and_imp]
-    exact fun x x_nonneg x_le_two_pi h ↦ h x_nonneg x_le_two_pi
-  -- This is needed later but better fits in here.
-  have conj_h_bound : eLpNorm (star ∘ h) p (volume.restrict (Set.Ico 0 (2 * π))) ≤ δ := by
-    /-
-    simp
-    intro x
-    simp only [RCLike.star_def, Function.comp_apply, RingHomIsometric.norm_map]
-    exact h_bound x
-    -/
-    sorry
-  have conj_h_periodic : (star ∘ h).Periodic (2 * π) := by
-    sorry
-  have locallyInt_h : LocallyIntegrable h := sorry --TODO: get this from h_periodic and h_bound
-  have locallyInt_conj_h : LocallyIntegrable (star ∘ h) := sorry --TODO: get this from h_periodic and h_bound
-  have le_operator_add : ∀ x ∈ E, ENNReal.ofReal ((ε' - π * δ) * (2 * π)) ≤ T h x + T (conj ∘ h) x := by
-    intro x hx
-    obtain ⟨xIcc, N, hN⟩ := hx
-    have : ENNReal.ofReal (π * δ * (2 * π)) ≠ ⊤ := by finiteness
-    rw [← (ENNReal.add_le_add_iff_right this)]
-    calc ENNReal.ofReal ((ε' - π * δ) * (2 * π)) + ENNReal.ofReal (π * δ * (2 * π))
-      _ = ENNReal.ofReal (2 * π) * ENNReal.ofReal ε' := by
-        rw [← ENNReal.ofReal_add, ← ENNReal.ofReal_mul Real.two_pi_pos.le]
-        · ring_nf
-        · rw [ε'def, add_sub_cancel_right]
-          positivity
-        · positivity
-      _ ≤ ENNReal.ofReal (2 * π) * ‖S_ N h x‖ₑ := by rw [← ofReal_norm_eq_enorm]; gcongr
-      _ ≤ ENNReal.ofReal (2 * π) * ((T h x + T (conj ∘ h) x) / (ENNReal.ofReal (2 * π)) + ENNReal.ofReal (π * δ)) := by
-        gcongr
-        apply partialFourierSum_bound hδ h_measurable h_periodic _ xIcc
-        --TODO: add lemma for this
-        sorry --TODO : get this from h_bound
-      _ = (T h x + T (conj ∘ h) x) + ENNReal.ofReal (π * δ * (2 * π)) := by
-        rw [mul_add]
-        congr
-        · rw [ENNReal.mul_div_cancel (by simp [pi_pos]) (by finiteness)]
-        · rw [← ENNReal.ofReal_mul (by positivity)]
-          ring_nf
-  have Evolume : volume E < ⊤ := by
-    calc volume E
-      _ ≤ volume (Set.Icc 0 (2 * π)) := by
-        apply measure_mono
-        rw [E_eq]
-        apply Set.inter_subset_left
-      _ = ENNReal.ofReal (2 * π) := by
-        rw [Real.volume_Icc, sub_zero]
-      _ < ⊤ := ENNReal.ofReal_lt_top
-  obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ :=
-    ENNReal.le_on_subset volume measurableSetE (carlesonOperatorReal_measurable' h_measurable locallyInt_h)
-      (carlesonOperatorReal_measurable' (continuous_star.measurable.comp_aemeasurable h_measurable.aemeasurable).aestronglyMeasurable locallyInt_conj_h)
-      le_operator_add
-  have E'volume : volume E' < ⊤ := lt_of_le_of_lt (measure_mono E'subset) Evolume
-  have aux := @C10_0_1_pos 4 2 one_lt_two
-  rw [volume.real_def]
-  apply ENNReal.toReal_le_of_le_ofReal εpos.le
-  calc volume E
-    _ ≤ 2 * volume E' := E'measure
-    _ = 2 / ε.toNNReal ^ p.toReal * (ε.toNNReal ^ p.toReal * volume E') := by
-      rw [← mul_assoc, ENNReal.div_mul_cancel]
-      · apply (ENNReal.rpow_pos_of_nonneg _ _).ne.symm
-        simpa
-        simp
-      · apply ENNReal.rpow_ne_top' (by simpa) (by simp)
-    _ ≤ 2 / ε.toNNReal ^ p.toReal * (((C_carleson_hasStrongType 4 p) * (2 * ENNReal.ofReal δ)) ^ p.toReal) := by
-      gcongr
-      rcases h with hE' | hE'
-      ·
-        apply rcarleson_exceptional_set_estimate_specific hδ h_measurable hp h_bound h_periodic measurableSetE' (E'subset.trans Esubset)
-        convert hE'
-        rw [← ENNReal.ofReal_ofNat 2, ← ENNReal.ofReal_div_of_pos (by simp), ε_eq, ← ENNReal.ofReal]
-        congr 1
-        ring
-      · apply rcarleson_exceptional_set_estimate_specific hδ (by fun_prop) hp conj_h_bound conj_h_periodic measurableSetE' (E'subset.trans Esubset)
-        convert hE'
-        rw [← ENNReal.ofReal_ofNat 2, ← ENNReal.ofReal_div_of_pos (by simp), ε_eq, ← ENNReal.ofReal]
-        congr 1
-        ring
-    _ = ε.toNNReal := by
-      --We have chosen δ such that this works.
-      rw [δdef]
-      unfold C_control_approximation_effect
-      rw [← mul_assoc, mul_comm _ 2, mul_assoc, ENNReal.ofReal]
-      norm_cast
-      rw [Real.toNNReal_coe, ← mul_assoc (C_carleson_hasStrongType 4 p), mul_inv_cancel₀ C_carleson_hasStrongType_pos.ne.symm, one_mul]
-      rw [ENNReal.coe_mul, ENNReal.coe_mul_rpow]
-      push_cast
-      rw [← ENNReal.coe_rpow_of_nonneg _ (by simp), ← ENNReal.coe_rpow_of_nonneg _ (by simp),
-        ← NNReal.rpow_mul, div_mul_cancel₀ _ (by simp only [ne_eq, NNReal.coe_eq_zero]; intro p_zero; rw [p_zero] at hp; simp at hp),
-        NNReal.rpow_add (by simpa), NNReal.rpow_one, NNReal.div_rpow]
-      push_cast
-      /-
-      rw [ENNReal.coe_div (by simp), ENNReal.coe_div (by simp)]
-      rw [ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul]
-      simp only [ENNReal.coe_ofNat]
-      ring_nf
-      rw [mul_comm (_⁻¹ * 2 ^ _), mul_comm, ← mul_assoc, ← mul_assoc, ← mul_assoc, ← mul_assoc,
-        ENNReal.mul_inv_cancel (by simp) (by simp), one_mul,
-        mul_comm, ← mul_assoc, ← mul_assoc, ← mul_assoc, ENNReal.mul_inv_cancel _ (by simp), one_mul,
-        mul_comm, ← mul_assoc, ENNReal.coe_rpow_of_nonneg _ (by simp), ENNReal.coe_ofNat,
-        ENNReal.inv_mul_cancel (ENNReal.rpow_pos zero_lt_two (by simp)).ne.symm
-          (ENNReal.rpow_ne_top' (by simp) (by simp)), one_mul]
-      · simp only [ne_eq, ENNReal.coe_eq_zero, NNReal.rpow_eq_zero_iff, Real.toNNReal_eq_zero,
-        NNReal.coe_eq_zero, not_and, Decidable.not_not]
-        intro h
-        linarith
-      -/
-      sorry
--/
 
 end
