@@ -143,7 +143,7 @@ The Carleson formalization project was publicly announced and opened to contribu
 The formalization was written in Lean 4, making extensive use of Lean's mathematical library, \mathlib. The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
 
 %TODO: update stats before submitting
-The project comprises around 38,000 lines of Lean code (not including spaces or comments), of which around 12,000 are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
+The project comprises around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
 
 \subsection{Related work}\label{subsec:rel_work}
 \begin{itemize}
@@ -285,6 +285,8 @@ For further detail, we refer the reader to a separate article \cite{PortegiesRot
 \begin{itemize}
 	\item Impact of blueprint choices on errors.
 	\item Lack of definition environments $\Rightarrow$ absence from dependency graph.
+	\item Refer to general results early on.
+	\item Generalize during blueprint writing.
 \end{itemize}
 
 \section{Design decisions}\label{sec:design}
@@ -382,12 +384,6 @@ $\sigma_2$, $F$ and $G$ are associated automatically and uniquely to $X$ (in
 technical terms, they are \emph{outparams}). This means that the user never
 has to give one of them explicitly, as we expect of a suitable system to
 handle standing assumptions.
-
-
-
-
-
-
 
 
 \subsection{Working with real numbers}\label{subsec:real}
@@ -520,14 +516,17 @@ Further API extensions and better support from \texttt{fun\_prop} could streamli
 
 
 \section{Conclusion}\label{sec:conclusion}
-\begin{itemize}
-  \item Project statistics (e.g.\ size of ToMathlib and total project).
-  \item Summary of lessons learned:
-    \begin{itemize}
-      \item Refer to general results early on.
-      \item Generalize during blueprint writing.
-    \end{itemize}
-\end{itemize}
+%TODO: this will likely need to be revised after \ref{sec:org}, \ref{subsec:rel_work}, \ref{subsec:blueprint_mistakes}, \ref{subsec:blueprint_lessons} and \ref{subsec:pitfalls} are finished.
+
+
+%TODO: The "in Lean" can maybe be removed, but let's wait for \ref{subsec:rel_work} to decide.
+The Carleson project, with a total of 28 contributors, was one of the largest collaborative formalization efforts up to date (excluding extensive mathematical libraries such as \mathlib or MathComp), as well as the first formalization in Lean of a state-of-the-art theorem from the area of harmonic analysis.
+
+Formalizing the metric Carleson theorem required us to formalize foundational results from harmonic analysis, which we are submitting to \mathlib and which will be useful for the formalization of other results from this field. Future project will also benefit from some of the insights we learned during the project, including the creation of extended norms and our reflections about the most convenient ways to work with real number types.
+
+Beyond topic-specific insights, we also learned lessons from the collaborative nature of this project which apply to formalization efforts from any area of mathematics. Our way of assigning and keeping track of ongoing tasks in the Zulip chat was sub-optimal, and if we were to repeat the project, we would instead use the existing GitHub issue infrastructure (as is done for instance in the PNT project). Zulip would still be used as a discussion platform, and in particular to discuss potential errors within the blueprint proofs. To make this more efficient, we would ask one of the topic experts (in our case, an expert in harmonic analysis) to frequently monitor this chat and respond to questions, instead of having F.v.D as an intermediary between the remote formalizers and the harmonic analysis experts.
+
+We would also modify some aspects of the blueprint for the formalization. We would use \LaTeX environments for the main definitions in the project, to facilitate their discovery, and we would try to ensure that the results in the blueprint were already proven at the right degree of generality; this would specially apply to results meant for \mathlib, for which we want a general statement and proof, rather than an specialization to the project setting. Finally, we would weight more carefully the benefits of using non-standard proof methods in a hope to simplify the formalization, since this ended up causing most of the mathematical errors in the first version of the blueprint.
 
 %\bibliographystyle{plain}
 %\bibliography{references}
