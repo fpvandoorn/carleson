@@ -106,9 +106,19 @@ open Set ENNReal
 
 -- Analogous to `MeasureTheory.MemLp.memLp_liftIoc`
 theorem MeasureTheory.eLpNorm_eq_eLpNorm_liftIoc {T : ℝ} [hT : Fact (0 < T)] {t : ℝ} {f : ℝ → ℂ}
-  {p : ℝ≥0∞} (hf : AEStronglyMeasurable f (volume.restrict (Ioc t (t + T)))) :
+  (hf : AEStronglyMeasurable f (volume.restrict (Ioc t (t + T)))) {p : ℝ≥0∞} :
     eLpNorm f p (volume.restrict (Ioc t (t + T))) = eLpNorm (AddCircle.liftIoc T t f) p volume := by
   simp only [AddCircle.liftIoc, Set.restrict_def, Function.comp_def]
   rw [← Function.comp_def, eLpNorm_comp_measurePreserving (g := f) (p := p) hf]
   refine .comp (measurePreserving_subtype_coe measurableSet_Ioc) ?_
   exact AddCircle.measurePreserving_equivIoc T
+
+--TODO: find better name
+theorem MeasureTheory.eLpNorm_eq_eLpNorm_liftIoc' {T : ℝ} [hT : Fact (0 < T)] {t : ℝ}
+  {f : (AddCircle T) → ℂ} (hf : AEStronglyMeasurable f volume) {p : ℝ≥0∞} :
+    eLpNorm (fun (x : ℝ) ↦ f x) p (volume.restrict (Ioc t (t + T))) = eLpNorm f p volume := by
+  rw [eLpNorm_eq_eLpNorm_liftIoc]
+  · congr with x
+    unfold AddCircle.liftIoc
+    simp
+  apply hf.comp_measurePreserving (AddCircle.measurePreserving_mk T t)
