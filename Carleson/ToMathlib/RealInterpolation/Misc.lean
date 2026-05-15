@@ -168,27 +168,19 @@ def d :=
 
 lemma d_pos_aux₀ (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     0 < eLpNorm f p μ ^ p.toReal :=
-  ENNReal.rpow_pos (pos_of_Ioo hF) (ne_top_of_Ioo hF)
+  ENNReal.rpow_pos (pos_of_gt hF.1) (by finiteness)
 
-lemma d_ne_top_aux₀ {b : ℝ} {F : ℝ≥0∞} (hF : F ∈ Ioo 0 ⊤) : F ^ b ≠ ⊤ :=
-  rpow_ne_top' hF.1.ne' hF.2.ne
+lemma d_ne_top_aux₀ {b : ℝ} {F : ℝ≥0∞} (hF : F ∈ Ioo 0 ⊤) : F ^ b ≠ ⊤ := by
+  finiteness [hF.1, hF.2]
 
 lemma d_ne_zero_aux₀ {b : ℝ} (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (eLpNorm f p μ ^ p.toReal) ^ b ≠ 0 :=
   (ENNReal.rpow_pos (d_pos_aux₀ hF) (d_ne_top_aux₀ hF)).ne'
 
-lemma d_ne_zero_aux₁ {C : ℝ≥0} {c : ℝ} (hC : 0 < C) :
-    (ENNReal.ofNNReal C) ^ c ≠ 0 :=
-  (ENNReal.rpow_pos (ENNReal.coe_pos.mpr hC) coe_ne_top).ne'
-
 lemma d_ne_zero_aux₂ {C : ℝ≥0} {b c : ℝ} (hC : 0 < C)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     C ^ c * (eLpNorm f p μ ^ p.toReal) ^ b ≠ 0 :=
-  (ENNReal.mul_pos (d_ne_zero_aux₁ hC) (d_ne_zero_aux₀ hF)).ne'
-
-lemma d_ne_top_aux₁ {C : ℝ≥0} {c : ℝ} (hC : 0 < C) :
-    (ENNReal.ofNNReal C) ^ c ≠ ⊤ :=
-  rpow_ne_top' (ENNReal.coe_pos.mpr hC).ne' coe_ne_top
+  (ENNReal.mul_pos (by positivity) (d_ne_zero_aux₀ hF)).ne'
 
 lemma d_ne_top_aux₂ {b : ℝ} (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (eLpNorm f p μ ^ p.toReal) ^ b ≠ ⊤ :=
@@ -197,7 +189,7 @@ lemma d_ne_top_aux₂ {b : ℝ} (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
 lemma d_ne_top_aux₃ {C : ℝ≥0} {b c : ℝ} (hC : 0 < C)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     C ^ c * (eLpNorm f p μ ^ p.toReal) ^ b ≠ ⊤ :=
-  mul_ne_top (d_ne_top_aux₁ hC) (d_ne_top_aux₂ hF)
+  mul_ne_top (by finiteness) (d_ne_top_aux₂ hF)
 
 lemma d_ne_zero_aux₃ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (C₀ ^ c₀ * (eLpNorm f p μ ^ p.toReal) ^ b₀) /
