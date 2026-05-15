@@ -370,6 +370,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
         apply le_iSup₂_of_le rpos rle1
         trivial
 
+/-- The function used to bound the partial Fourier sum in `partialFourierSum_bound` -/
 def operatorBound (g : ℝ → ℂ) (x : ℝ) : ENNReal :=
   (T g x + T (conj ∘ g) x) / ENNReal.ofReal (2 * π)
   + eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) / 2
