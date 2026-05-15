@@ -85,10 +85,78 @@ theorem carleson_hunt_two_pi [hT : Fact (0 < 2 * π)] {f : AddCircle (2 * π) �
   · nth_rw 1 [← zero_add (2 * π)]
     apply Subtype.mem
 
+--TODO: move, generalize?
+lemma AddCircle.equivAddCircle_eq {p q : ℝ} [hp : Fact (0 < p)] [hq : Fact (0 < q)] :
+    equivAddCircle p q hp.out.ne' hq.out.ne'
+      = fun x ↦ ((equivIco p 0 x).val * (p⁻¹ * q) : AddCircle q) := by
+  ext x
+  have : ↑↑((equivIco p 0) x) = x := coe_equivIco
+  nth_rw 1 [← this, equivAddCircle_apply_mk]
+
+--TODO: move, generalize?
+lemma AddCircle.continuous_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)]
+  [hq : Fact (0 < q)] :
+    Continuous (⇑(AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne')) :=
+  (homeomorphAddCircle _ _ _ _).2
+
+--TODO: move, generalize?
+lemma AddCircle.measurePreserving_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)]
+  [hq : Fact (0 < q)] :
+    MeasurePreserving (⇑(AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne'))
+      AddCircle.haarAddCircle AddCircle.haarAddCircle :=
+  AddMonoidHom.measurePreserving continuous_equivAddCircle
+    (equivAddCircle p q (hp.out.ne') (hq.out.ne')).surjective (by simp)
+
+--TODO: find better name, move?
 lemma helper' {p q : ℝ} [hp : Fact (0 < p)] [hq : Fact (0 < q)] {P : (x : AddCircle p) → Prop}
   (h : ∀ᵐ (x : AddCircle p), P x) :
     ∀ᵐ (x : AddCircle q), P (AddCircle.equivAddCircle _ _ hq.out.ne' hp.out.ne' x) := by
-  sorry
+  rw [AddCircle.volume_eq_smul_haarAddCircle] at *
+  apply Measure.ae_smul_measure
+  rw [Measure.ae_ennreal_smul_measure_eq (by simp [hp.out])] at h
+  rw [ae_iff] at *
+  rw [← Set.preimage_setOf_eq (p := fun x ↦ ¬ P x), ← h]
+  exact MeasurePreserving.measure_preimage AddCircle.measurePreserving_equivAddCircle
+    (NullMeasurableSet.of_null h)
+
+theorem fourier_comp_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)] [hq : Fact (0 < q)]
+  {x : AddCircle p} {n : ℤ} :
+    (fourier n) x = (fourier n) ((AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne') x) := by
+  simp only [fourier_apply, SetLike.coe_eq_coe]
+  rw [AddCircle.toCircle_zsmul, AddCircle.toCircle_zsmul]
+  congr 1
+  rw [AddCircle.equivAddCircle_eq]
+  have : ↑↑((AddCircle.equivIco p 0) x) = x := AddCircle.coe_equivIco
+  nth_rw 1 [← this]
+  rw [AddCircle.toCircle_apply_mk, AddCircle.toCircle_apply_mk]
+  congr 1
+  field [hq.out.ne']
+
+--TODO: move
+theorem fourierCoeff_comp_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)] [hq : Fact (0 < q)]
+  {f : AddCircle q → ℂ} {n : ℤ} :
+    fourierCoeff f n
+      = fourierCoeff (fun x ↦ f ((AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne') x)) n := by
+  unfold fourierCoeff
+  symm
+  simp only [smul_eq_mul]
+  simp_rw [@fourier_comp_equivAddCircle p q, ← Pi.mul_apply]
+  apply AddCircle.measurePreserving_equivAddCircle.integral_comp
+    (AddCircle.homeomorphAddCircle _ _ _ _).measurableEmbedding
+
+--TODO: move
+theorem partialFourierSum'_comp_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)] [hq : Fact (0 < q)]
+  {f : AddCircle q → ℂ} {N : ℕ} {x : AddCircle q} :
+    partialFourierSum' N f x
+      = partialFourierSum' N (fun x ↦ f ((AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne') x))
+          ((AddCircle.equivAddCircle q p hq.out.ne' hp.out.ne') x) := by
+  unfold partialFourierSum'
+  simp only [Int.ofNat_eq_natCast, ContinuousMap.coe_sum, ContinuousMap.coe_smul,
+    Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
+  congr with n
+  congr 1
+  · apply fourierCoeff_comp_equivAddCircle
+  · apply fourier_comp_equivAddCircle
 
 theorem carleson_hunt' {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ENNReal} (hp : 1 < p)
   (hf : MemLp f p) :
@@ -97,31 +165,22 @@ theorem carleson_hunt' {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {
   set g := fun (x : AddCircle (2 * π)) ↦
     f (AddCircle.equivAddCircle (2 * π) T Real.two_pi_pos.ne' hT.out.ne' x)
   have hg : MemLp g p := by
-    sorry
+    unfold g
+    rw [← memLp_haarAddCircle_iff] at *
+    apply hf.comp_measurePreserving AddCircle.measurePreserving_equivAddCircle
   convert helper' (carleson_hunt_two_pi hp hg) using 4 with x N
-  · unfold partialFourierSum'
-    simp only [Int.ofNat_eq_natCast, ContinuousMap.coe_sum, ContinuousMap.coe_smul,
-      Finset.sum_apply, Pi.smul_apply, fourier_apply, smul_eq_mul]
-    congr with n
-    congr 1
-    · sorry
-    · simp only [SetLike.coe_eq_coe]
-      sorry
+  · apply partialFourierSum'_comp_equivAddCircle
   · unfold g
     congr
     exact (AddEquiv.symm_apply_eq
       (AddCircle.equivAddCircle (2 * π) T (two_pi_pos.ne') (hT.out.ne'))).mp rfl
-
 
 /-- Classical theorem of Carleson and Hunt asserting a.e. convergence of the partial Fourier sums
 for `L^p` functions for `p > 1`. This is a strengthening of `classical_carleson`, and not officially
 part of the blueprint. -/
 theorem carleson_hunt {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ENNReal} (hp : 1 < p)
   (hf : MemLp f p AddCircle.haarAddCircle) :
-    ∀ᵐ x, Filter.Tendsto (partialFourierSum' · f x) Filter.atTop (nhds (f x)) := by
-  apply carleson_hunt' hp
-  rw [AddCircle.volume_eq_smul_haarAddCircle]
-  exact MemLp.smul_measure hf ENNReal.ofReal_ne_top
-
+    ∀ᵐ x, Filter.Tendsto (partialFourierSum' · f x) Filter.atTop (nhds (f x)) :=
+  carleson_hunt' hp hf.of_haarAddCircle
 
 end
