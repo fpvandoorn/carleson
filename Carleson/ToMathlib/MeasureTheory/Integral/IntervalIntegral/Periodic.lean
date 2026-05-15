@@ -1,6 +1,7 @@
 module
 
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
+public import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 
 public section
 
@@ -101,6 +102,29 @@ theorem locallyIntegrable_of {T : ℝ} [hT : Fact (0 < T)] {f : ℝ → ℂ}
 end Periodic
 
 end Function
+
+namespace AddCircle
+
+open MeasureTheory
+
+lemma volume_preimage_equivIoc {T : ℝ} [hT : Fact (0 < T)] {s : Set ℝ} (hs : MeasurableSet s) :
+    volume ((fun x ↦ (equivIoc T 0 x : ℝ)) ⁻¹' s) = volume (s ∩ Set.Ioc 0 T) := by
+  rw [← lintegral_indicator_one (hs.inter measurableSet_Ioc),
+    ← lintegral_indicator_one ((Measurable.subtype_val (measurable_equivIoc T 0)) hs)]
+  rw [← AddCircle.lintegral_preimage (t := 0) (T := T), Set.inter_comm, ← Set.indicator_indicator,
+    lintegral_indicator measurableSet_Ioc]
+  simp_rw [zero_add]
+  apply setLIntegral_congr_fun measurableSet_Ioc
+  intro x hx
+  unfold Set.indicator
+  simp only [Pi.one_apply, Set.mem_preimage]
+  congr 1
+  simp only [eq_iff_iff]
+  simp only [Set.mem_preimage]
+  rw [equivIoc_coe_eq]
+  simpa
+
+end AddCircle
 
 open Set ENNReal
 

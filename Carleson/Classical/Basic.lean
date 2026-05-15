@@ -6,6 +6,7 @@ public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequ
 public import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 public import Mathlib.Analysis.Fourier.AddCircle
+public import Carleson.ToMathlib.Analysis.Fourier.AddCircle
 public import Mathlib.Tactic.Field
 
 @[expose] public section
@@ -31,6 +32,19 @@ theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : 
 
 def partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) : C(AddCircle T, ℂ) :=
     ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourier n
+
+theorem partialFourierSum'_comp_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)] [hq : Fact (0 < q)]
+  {f : AddCircle q → ℂ} {N : ℕ} {x : AddCircle q} :
+    partialFourierSum' N (fun x ↦ f ((AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne') x))
+      ((AddCircle.equivAddCircle q p hq.out.ne' hp.out.ne') x)
+        = partialFourierSum' N f x := by
+  unfold partialFourierSum'
+  simp only [Int.ofNat_eq_natCast, ContinuousMap.coe_sum, ContinuousMap.coe_smul,
+    Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
+  congr with n
+  congr 1
+  · apply fourierCoeff_comp_equivAddCircle
+  · apply fourier_comp_equivAddCircle
 
 def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) : Lp ℂ p (@haarAddCircle T hT) :=
     ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
