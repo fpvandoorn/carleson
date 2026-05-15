@@ -512,6 +512,7 @@ lemma rcarleson'_restrict {p : NNReal} (hp : p ∈ Set.Ioo 1 2) {f : ℝ → ℂ
       rw [mul_comm 2 (ENNReal.ofNNReal _), mul_assoc]
       gcongr
 
+/-- The constant used in `C_distribution_carlesonOperatorReal_le`. -/
 def C_distribution_carlesonOperatorReal_le (δ ε p : NNReal) : NNReal :=
   (2 * (C_carleson_hasStrongType 4 p))⁻¹ * C_distribution_le_of_eLpNorm_le δ ε p
 
@@ -551,6 +552,7 @@ lemma distribution_carlesonOperatorReal_le {δ ε p : NNReal} (δpos : 0 < δ)
             one_mul]
     · use g_measurable.restrict, hg.trans_lt (by simp)
 
+/-- The constant used in `C_control_approximation_effect`. -/
 def C_control_approximation_effect (δ ε p : NNReal) : NNReal :=
   min (2 * (↑δ / 2) * ((2 * Real.toNNReal π) ^ (1 - p.toReal⁻¹))⁻¹)
     (C_distribution_carlesonOperatorReal_le (2 * π * (↑δ / 2) / 2).toNNReal (ε / 2) p)

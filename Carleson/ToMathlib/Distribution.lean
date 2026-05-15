@@ -504,6 +504,7 @@ lemma distribution_le_mul_pow_eLpNorm_enorm {ε' : Type*} [TopologicalSpace ε']
   gcongr with x
   grind
 
+/-- The constant used in `C_distribution_le_of_eLpNorm_le`. -/
 def C_distribution_le_of_eLpNorm_le (δ ε p : NNReal) : NNReal := δ * ε ^ p.toReal⁻¹
 
 lemma C_distribution_le_of_eLpNorm_le_pos {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) :
