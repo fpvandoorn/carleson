@@ -7,12 +7,12 @@ public import Mathlib.Data.Set.Finite.Lattice
 
 public section
 
--- Upstreaming status: under active development by @ldiedering
--- Wait for the file to stabilise first.
+-- Upstreaming status: proof could probably be simplified, otherwise ready
 
 -- currently unused
 -- proof could probably be simplified if there were more mathlib lemmas about `ciSup` (in `ConditionallyCompleteLinearOrderBot`)
-theorem Finset.sup_eq_iSup' {α : Type*} {β : Type*} [ConditionallyCompleteLinearOrderBot β] (s : Finset α) (f : α → β) :
+theorem Finset.sup_eq_iSup' {α : Type*} {β : Type*} [ConditionallyCompleteLinearOrderBot β]
+  (s : Finset α) (f : α → β) :
     s.sup f = ⨆ a ∈ s, f a := by
   apply le_antisymm
   · apply Finset.sup_le

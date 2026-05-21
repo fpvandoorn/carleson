@@ -88,9 +88,11 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     exact le_of_not_gt h
   let dom_i (i : ℕ) := Annulus.co x (2 ^ (i + 1) * r) (2 ^ (i + 2) * r)
   have rw_dom : (ball x (2*r))ᶜ = ⋃ (i : ℕ) , dom_i i:= by
-    rw [Annulus.iUnion_co_eq_ci]
+    have := Annulus.iUnion_co_map_succ_eq_ci (x := x) (f := fun i ↦ 2 ^ (i + 1) * r)
+    simp only [Nat.succ_eq_succ, Nat.succ_eq_add_one, Nat.add_assoc] at this
+    rw [this]
     · have : 2 * r = 2 ^ (0 + 1) * r := by ring
-      rw [this, Annulus.ci_eq]
+      rw [this, Annulus.ci_eq, Nat.bot_eq_zero]
     · intro n
       gcongr <;> simp
     · apply Filter.not_bddAbove_of_tendsto_atTop (l := Filter.atTop)

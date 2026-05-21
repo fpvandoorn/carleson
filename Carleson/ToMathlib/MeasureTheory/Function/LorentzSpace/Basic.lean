@@ -7,7 +7,6 @@ public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Triangle
 
 -- Upstreaming status: would need basic lemmas to be useful (currently the definition is unused)
 
-
 noncomputable section
 
 open MeasureTheory Filter
@@ -17,7 +16,7 @@ namespace MeasureTheory
 
 
 /-- TODO: basic results -/
-def Lorentz {α ε : Type*} (p q : ℝ≥0∞) {m0 : MeasurableSpace α} (μ : Measure α) [NoAtoms μ]
+def Lorentz {α ε : Type*} (p q : ℝ≥0∞) {m0 : MeasurableSpace α} (μ : Measure α)
   [TopologicalSpace ε] [ESeminormedAddMonoid ε] [ContinuousAdd ε] :
     AddSubmonoid (α →ₘ[μ] ε) where
   carrier := {f | eLorentzNorm f p q μ < ⊤}

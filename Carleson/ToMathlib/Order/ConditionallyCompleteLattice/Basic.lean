@@ -5,8 +5,7 @@ public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 
 public section
 
--- Upstreaming status: under active development by @ldiedering
--- Wait for the file to stabilise first.
+-- Upstreaming status: ready
 
 theorem ciSup_le_ciSup {α : Type*} {ι ι' : Sort*} [Nonempty ι] [ConditionallyCompleteLattice α]
   {f : ι → α} {g : ι' → α} (h₀ : ∀ i, ∃ j, f i ≤ g j) (hg : BddAbove (Set.range g)) :

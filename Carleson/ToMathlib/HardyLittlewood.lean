@@ -191,14 +191,15 @@ public theorem maximalFunction_one_le_eLpNormEssSup :
     _ ≤ eLpNormEssSup u μ := by
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
--- theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
---     maximalFunction μ 𝓑 c r p u x < ∞ := by
---   rw [maximalFunction_eq_maximalFunction_one_rpow (by positivity)]
---   apply rpow_lt_top_of_nonneg (by positivity) (lt_top_iff_ne_top.mp _)
---   have : MemLp (fun px ↦ ‖u x‖ ^ (ENNReal.ofReal p).toReal) ⊤ μ := by
---     rw [show ∞ = ∞ / (ENNReal.ofReal p) by simp, memLp_norm_rpow_iff hu.aestronglyMeasurable (by positivity) (by simp)]
---     exact hu
---   refine lt_of_le_of_lt maximalFunction_one_le_eLpNormEssSup this.eLpNormEssSup_lt_top
+theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
+    maximalFunction μ 𝓑 c r p u x < ∞ := by
+  rw [maximalFunction_eq_maximalFunction_one_rpow (by positivity)]
+  apply rpow_lt_top_of_nonneg (by positivity) (lt_top_iff_ne_top.mp _)
+  have : MemLp (fun x ↦ ‖u x‖ ^ p) ⊤ μ := by
+    rw [← toReal_ofReal hp₁.le,
+      show ∞ = ∞ / (ENNReal.ofReal p) from ENNReal.top_div_of_ne_top (by finiteness) |>.symm]
+    exact hu.norm_rpow_div _
+  refine lt_of_le_of_lt maximalFunction_one_le_eLpNormEssSup this.eLpNormEssSup_lt_top
 
 theorem hasStrongType_maximalFunction_top [BorelSpace X] :
     HasStrongType (maximalFunction (E := E) μ 𝓑 c r 1) ⊤ ⊤ μ μ 1 := by
