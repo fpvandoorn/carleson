@@ -9,10 +9,11 @@ public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Mathlib.Tactic.Field
 import Carleson.ToMathlib.MeasureTheory.Covering.Vitali
 
+@[expose] public noncomputable section
+
 open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter Pointwise
 open ENNReal hiding one_lt_two
 open scoped NNReal
-noncomputable section
 
 /-! This file contains results about continuity of integrals and averages over balls that were
 unused in `HardyLittleWood`, and whose destiny in Mathlib is unclear.

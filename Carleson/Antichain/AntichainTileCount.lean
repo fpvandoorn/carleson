@@ -959,7 +959,7 @@ lemma q₆_pos (a4 : 4 ≤ a) : 0 < q₆ a := zero_lt_one.trans (one_lt_q₆ a4)
 lemma C2_0_6_q₆_le (a4 : 4 ≤ a) : C2_0_6 (defaultA a) (q₆ a).toNNReal 2 ≤ 2 ^ (a + 2) := by
   rw [C2_0_6, Real.coe_toNNReal _ (q₆_pos a4).le]
   nth_rw 1 [show (2 : ℝ≥0) = (2 : ℝ).toNNReal by simp]
-  rw [← Real.toNNReal_div zero_le_two, CMB, C_realInterpolation, C_realInterpolation_ENNReal]
+  rw [← Real.toNNReal_div zero_le_two, CMB_def, C_realInterpolation, C_realInterpolation_ENNReal]
   simp_rw [ENNReal.top_ne_one, ENNReal.one_lt_top, lt_self_iff_false, ite_true, ite_false,
     ENNReal.coe_one, ENNReal.one_rpow, zero_mul, add_zero, NNReal.coe_one, one_mul, mul_one,
     ENNReal.toReal_inv, ENNReal.coe_toReal, ENNReal.toReal_one]

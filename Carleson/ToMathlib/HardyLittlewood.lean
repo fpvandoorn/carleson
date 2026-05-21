@@ -240,7 +240,9 @@ theorem sublinearOn_maximalFunction_one
   exact SublinearOn.const (T μ c r i) _ (fun hf hg ↦ by exact T.add_le hf) (fun f d hf ↦ T.smul)
 
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
-@[expose] public def CMB (A p : ℝ≥0) : ℝ≥0 := C_realInterpolation ⊤ 1 ⊤ 1 p 1 (A ^ 2) 1 p⁻¹
+public def CMB (A p : ℝ≥0) : ℝ≥0 := C_realInterpolation ⊤ 1 ⊤ 1 p 1 (A ^ 2) 1 p⁻¹
+
+public lemma CMB_def {A p : ℝ≥0} : CMB A p = C_realInterpolation ⊤ 1 ⊤ 1 p 1 (A ^ 2) 1 p⁻¹ := (rfl)
 
 public lemma CMB_eq_of_one_lt_q {b q : ℝ≥0} (hq : 1 < q) :
     CMB b q = 2 * (q / (q - 1) * b ^ 2) ^ (q : ℝ)⁻¹ := by

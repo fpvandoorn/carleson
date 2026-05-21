@@ -6710,6 +6710,8 @@ This proves the lemma.
 The following lemma will be used to define $M$ in the proof of \Cref{Hardy-Littlewood}.
 \begin{lemma}[covering separable space]
     \label{covering-separable-space}
+    \leanok
+    \lean{Metric.dense_iff_iUnion_ball, exists_countable_dense}
     % Since X is separable, we can even choose `C` independent of `r`.
     For each $r > 0$, there exists a countable collection $C(r) \subset X$ of points such that
     $$
