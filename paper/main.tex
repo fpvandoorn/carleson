@@ -271,14 +271,81 @@ In return for a significant amount of refactoring work\footnote{the initial form
 we have formalised a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way.
 For further detail, we refer the reader to a separate article \cite{PortegiesRothgangRealInterpolation}.
 
-\subsection{Constant tweaking} To be written!
+\subsection{Constant tweaking} As explained below in
+Subsection~\ref{subsec:constants}, the constants appearing in the blueprint
+are always explicit and most often in the form $2^{n a^3}$ where $a$ is a
+given parameter of the system and $n$ is a concrete natural number, ranging
+from $1$ or $2$ in the first lemmas to $443$ in the final result.
+
+When a result depends on several previous lemmas, its constant can typically
+be expressed in terms of the previous lemmas, giving chains of conditions for
+the overall validity of the constants. When a minor mistake is noticed in the
+proof of a lemma, increasing slightly its constant, this mandates corrections
+in all the statements that depend transitively on it. The standard practice
+in paper mathematics to avoid this kind of intricate dependency is not to
+care about the constants, and formulate the lemmas as ``there exists a
+universal constant $C$ such that ...''. This is not a viable approach in
+formalized mathematics, as explained in Subsection~\ref{subsec:constants}.
+
+To mitigate this issue and avoid endless corrections, during the development
+process the constant in each lemma did not have a numerical value, but
+instead it was expressed as a function of the constants in the other lemmas.
+Therefore, changing the constant in Lemma A would automatically change the
+constant of Lemma B that depends on Lemma A, not altering the validity of its
+proof. At the very end of the formalization process, when all the proofs
+worked, we could finally register the numerical values of the constants with
+a correctness guarantee, starting with the first lemmas and propagating the
+values iteratively. The blueprint was then fixed using these computer-checked
+constants -- and indeed many constants written in earlier versions of the
+blueprint were not correct (some of them too optimistic, some of them too
+pessimistic), although this had absolutely no consequence on the validity of
+the proof strategy.
+
 
 \subsection{Dealing with mistakes}\label{subsec:blueprint_mistakes}
+
+Several minor mistakes in the blueprint were noticed during the
+formalization: some proofs were slightly wrong, or the assumptions in some
+lemmas had to be strengthened. When we had to strengthen the assumptions, the
+stronger assumptions were always satisfied at the places where the lemmas
+were used. Therefore, all these issues were purely local and did not
+jeopardize the global proof.
+
+Let us describe quickly some of these minor issues, to highlight the kind of
+argument where non-formalized mathematics is sometimes too quick.
+
 \begin{itemize}
-  \item Lemma 11.1.6.
-  \item Lemma 6.3.3/4.
-  \item Hölder cancellation (radius $R \to 2R$).
-  \item Lemma 6.2.3: additional hypothesis.
+\item Lemma 11.1.6 in the blueprint is a version of the boundedness of the
+    Hilbert transform on $L^2(\real)$. It is proved by localization and
+    periodization, ultimately using that $\|S_N f\|_{L^2[0,2\pi]} \leq
+    \|f\|_{L^2[0,2\pi]}$ for periodic functions. One step in the proof
+    involves a convolution $\int f(y) g(x-y) \ud y$ for some kernel $g$. In
+    the initial argument, the position of $x-y$ was not carefully
+    controlled, claiming to use a universal bound on $g$ while this bound
+    was only valid in some limited interval. The issue was fixed by
+    truncating $f$ and only looking at $x$ in some interval to make sure
+    that, when $f(y)\ne 0$, then $x-y$ belonged to the place where $g$ is
+    well controlled. These additional assumptions were satisfied in the
+    rest of the proof.
+\item Lemma 6.3.3/4.
+\item Lemma 8.0.1 in the blueprint is a regularization lemma, saying that
+    some Hölder functions can be approximated by Lipschitz functions,
+    constructed through a smoothing integral formula. The original proof
+    assumed implicitly that a continuous function which is
+    $\tau$--Hölder--continuous in a closed ball $B(z,R)$ and supported
+    there is globally $\tau$--Hölder--continuous with the same control.
+    This is true in well-behaved spaces, for instance in $\real^n$, but not
+    in the generality of the paper. For instance, if the annulus $\{y \mid
+    d(x,y) \in [R-\epsilon, R+\epsilon]\}$ is empty, then the
+    characteristic function of $B(z, R)$ is Hölder--continuous on the ball
+    with a uniform bound and supported there, but its extension to the
+    whole space has a norm which may grow like $\epsilon^{-\tau}$. The fix
+    was to modify the assumptions of the lemma, assuming from the start
+    that the function is $\tau$--Hölder--continuous in the larger ball
+    $B(z, 2R)$. This more restrictive assumption is satisfied in all the
+    places where the lemma is used, although this has forced us to alter
+    some constants in lemma statements.
+\item Lemma 6.2.3: additional hypothesis.
 \end{itemize}
 
 \subsection{Lessons learned}\label{subsec:blueprint_lessons}
