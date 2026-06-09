@@ -434,7 +434,7 @@ A desirable future step is adding improved interaction with the \lean{positivity
 
 An independently useful, more ambitious yet more powerful tactic would allow reducing goals in $\ennreal$ to $\nnreal$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\nnreal$ arithmetic; the infinite case will simplify calculations (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.
 \footnote{For multiplication, as $0 * \infty = 0$, simplifying $a*\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ should mean splitting on the cases of $a$ being infinite is not necessary any more, and (2) such splits can be performed as required.}
-The precise design of such a tactic has been discussed (including some of this paper's authors); its implementation is being worked on.
+The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
 % TODO: can I point to something public, perhaps a prototype?
 
 As a final example around considerations on which number types to use,
