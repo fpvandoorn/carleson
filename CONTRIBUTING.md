@@ -51,7 +51,7 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `𝔓_{G\G'}`       | `𝔓pos` |         |
 | `𝔓₂`       | `𝔓₁ᶜ` |         |
 | `M_{𝓑, p} f(x)` | `maximalFunction μ 𝓑 c r p f x` |     |
-| `M_𝓑 f(x)` | `MB μ 𝓑 c r f x`       | equals `M_{𝓑, 1}`    |
+| `M_𝓑 f(x)` | `maximalFunction μ 𝓑 c r 1 f x`       | equals `M_{𝓑, 1}`    |
 | `M`        | `globalMaximalFunction volume 1` |     |
 | `I_i(x)`        | `cubeOf i x` |     |
 | `R_Q(θ, x)`        | `upperRadius Q θ x` |     |

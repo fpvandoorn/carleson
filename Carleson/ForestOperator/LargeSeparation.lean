@@ -1078,7 +1078,7 @@ irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 4) * a ^ 3)
 lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :
     ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ ≤
-    C7_5_7 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    C7_5_7 a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
   classical
   calc
     _ ≤ ∑ k ∈ Finset.Icc (s J) (s J + 3),
@@ -1126,7 +1126,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨍⁻ x in ball (c J) (16 * D ^ k), ‖f x‖ₑ ∂volume := by
       simp_rw [setLAverage_eq, ENNReal.div_eq_inv_mul]
     _ ≤ 2 ^ ((𝕔 + 3) * a ^ 3) *
-        ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+        ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
       gcongr with k mk; rw [Finset.mem_Icc] at mk
       apply laverage_le_biInf_MB
       · gcongr; exacts [by norm_num, one_le_realD a, mk.1]
@@ -1136,7 +1136,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         rw [show s J + (k - s J).toNat = k by lia, Int.toNat_le, Nat.cast_add, Nat.cast_mul,
           Nat.cast_ofNat]
         refine ⟨by omega, by norm_num⟩
-    _ = 2 ^ ((𝕔 + 3) * a ^ 3) * 2 ^ 2 * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    _ = 2 ^ ((𝕔 + 3) * a ^ 3) * 2 ^ 2 * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
       rw [Finset.sum_const, Int.card_Icc, show s J + 3 + 1 - s J = 4 by lia, nsmul_eq_mul,
         show (Int.toNat 4 : ℝ≥0∞) = 2 ^ 2 by simp; norm_num, mul_assoc]
     _ ≤ _ := by
@@ -1332,13 +1332,13 @@ lemma global_tree_control1_edist_part2
     (hx : x ∈ ball (c J) (16 * D ^ s J)) (hx' : x' ∈ ball (c J) (16 * D ^ s J)) :
     edist (exp (.I * 𝒬 u x) * adjointCarlesonSum ℭ f x)
       (exp (.I * 𝒬 u x') * adjointCarlesonSum ℭ f x') ≤
-    C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
   calc
     _ ≤ C7_5_5 a * 2 ^ (4 * a) * edist x x' ^ (a : ℝ)⁻¹ * ∑ k ∈ Finset.Icc (s J) S,
         D ^ (-k / (a : ℝ)) * ⨍⁻ x in ball (c J) (32 * D ^ k), ‖f x‖ₑ ∂volume :=
       global_tree_control1_edist_part1 hu hℭ hf hs hx hx'
     _ ≤ C7_5_5 a * 2 ^ (4 * a) * edist x x' ^ (a : ℝ)⁻¹ * ∑ k ∈ Finset.Icc (s J) S,
-        D ^ (-k / (a : ℝ)) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+        D ^ (-k / (a : ℝ)) * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
       gcongr with k mk; rw [Finset.mem_Icc] at mk
       apply laverage_le_biInf_MB
       · gcongr; exacts [by norm_num, one_le_realD a, mk.1]
@@ -1351,7 +1351,7 @@ lemma global_tree_control1_edist_part2
         exact ⟨by omega, by norm_num⟩
     _ = C7_5_5 a * 2 ^ (4 * a) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ *
         (∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s J - k) / (a : ℝ))) *
-        ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+        ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
       have fla := four_le_a X
       have dpos : 0 < (D : ℝ≥0∞) ^ s J := ENNReal.zpow_pos (by simp) (by simp) _
       have dlt : (D : ℝ≥0∞) ^ s J < ⊤ := ENNReal.zpow_lt_top (by simp) (by simp) _
@@ -1366,7 +1366,7 @@ lemma global_tree_control1_edist_part2
       rw [← ENNReal.rpow_intCast, ← ENNReal.rpow_mul, ← div_eq_mul_inv,
         ← ENNReal.rpow_add _ _ (by simp) (by simp), neg_div, ← sub_eq_add_neg, sub_div]
     _ ≤ C7_5_5 a * 2 ^ (4 * a + 1) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ *
-        ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+        ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
       rw [pow_succ, ← mul_assoc, mul_assoc _ 2, mul_comm 2, ← mul_assoc]; gcongr
       exact gtc_sum_Icc_le_two
     _ = _ := by congr; rw [C7_5_9d, C7_5_5]; norm_cast
@@ -1377,7 +1377,7 @@ lemma global_tree_control1_edist_left (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) 
     (hx : x ∈ ball (c J) (16 * D ^ s J)) (hx' : x' ∈ ball (c J) (16 * D ^ s J)) :
     edist (exp (.I * 𝒬 u₁ x) * adjointCarlesonSum (t u₁) f x)
       (exp (.I * 𝒬 u₁ x') * adjointCarlesonSum (t u₁) f x') ≤
-    C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x :=
+    C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x :=
   global_tree_control1_edist_part2 hu₁ subset_rfl hf
     (fun _ mp dp ↦ scales_impacting_interval hu₁ hu₂ hu h2u hJ (mem_union_left _ mp) dp) hx hx'
 
@@ -1387,7 +1387,7 @@ lemma global_tree_control1_edist_right (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t)
     (hx : x ∈ ball (c J) (16 * D ^ s J)) (hx' : x' ∈ ball (c J) (16 * D ^ s J)) :
     edist (exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f x)
       (exp (.I * 𝒬 u₂ x') * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f x') ≤
-    C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x :=
+    C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x :=
   global_tree_control1_edist_part2 hu₂ inter_subset_left hf
     (fun _ mp dp ↦ scales_impacting_interval hu₁ hu₂ hu h2u hJ (mem_union_right _ mp) dp) hx hx'
 
@@ -1409,7 +1409,7 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :
     ⨆ x ∈ ball (c J) (16 * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ ≤
     (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ) +
-    C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    C7_5_9s a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
   rw [← tsub_le_iff_left]; refine ENNReal.le_of_forall_pos_le_add fun ε εpos blt ↦ ?_
   obtain ⟨x, hx, ex⟩ : ∃ x₀ ∈ ball (c J) (16 * D ^ s J),
       ⨆ x ∈ ball (c J) (16 * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ ≤
@@ -1433,7 +1433,7 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
         (ε / 2 : ℝ≥0) := add_le_add_left add_tsub_le_assoc _
     _ = ‖‖adjointCarlesonSum ℭ f x‖ₑ - ‖adjointCarlesonSum ℭ f x'‖ₑ‖ₑ + ε := by
       rw [add_rotate, add_assoc]; simp
-    _ ≤ (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x) + ε := by
+    _ ≤ (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x) + ε := by
       refine add_le_add_left ?_ _
       replace hx' : x' ∈ ball (c J) (16 * D ^ s J) := by
         exact (ball_subset_ball (by gcongr; norm_num)) hx'
@@ -1448,7 +1448,7 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
         apply ENNReal.enorm_enorm_sub_enorm_le.trans
         rw [← edist_eq_enorm_sub]
         exact global_tree_control1_edist_right hu₁ hu₂ hu h2u hJ hf hx hx'
-    _ ≤ (C7_5_9d a * 2 ^ ((2 : ℕ) : ℝ) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x) + ε := by
+    _ ≤ (C7_5_9d a * 2 ^ ((2 : ℕ) : ℝ) * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x) + ε := by
       gcongr; rw [mem_ball] at hx hx'; rw [edist_dist]
       calc
         _ ≤ (ENNReal.ofReal ((16 + 8⁻¹) * D ^ s J) / D ^ s J) ^ (a : ℝ)⁻¹ := by
@@ -1494,19 +1494,19 @@ lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :
     ⨆ x ∈ ball (c J) (16 * D ^ s J), ‖adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f x‖ₑ ≤
     (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖ₑ) +
-    C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x :=
+    C7_5_10 a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x :=
   calc
     _ ≤ _ := global_tree_control1_supbound hu₁ hu₂ hu h2u _ (.inr rfl) hJ hf
     _ = (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J),
         ‖adjointCarlesonSum (t u₂) f x - adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ) +
-        C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+        C7_5_9s a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
       congr! with x mx; exact adjointCarlesonSum_inter
     _ ≤ (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖ₑ) +
         (⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ) +
-        C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+        C7_5_9s a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
       gcongr; exact ENNReal.biInf_enorm_sub_le
     _ ≤ (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖ₑ) +
-        (C7_5_7 a + C7_5_9s a) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+        (C7_5_7 a + C7_5_9s a) * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x := by
       rw [add_mul, add_assoc]
       gcongr
       exact local_tree_control hu₁ hu₂ hu h2u hJ hf
@@ -1518,9 +1518,9 @@ lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
 /-- The product on the right-hand side of Lemma 7.5.4. -/
 def P7_5_4 (t : Forest X n) (u₁ u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J : Grid X) : ℝ≥0∞ :=
   ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
-    ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+    ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₁ x) *
   ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
-    ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x)
+    ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ x)
 
 lemma P7_5_4_le_adjointBoundaryOperator_mul (mx : x ∈ ball (c J) (8⁻¹ * D ^ s J)) :
     P7_5_4 t u₁ u₂ f₁ f₂ J ≤
@@ -1560,9 +1560,9 @@ lemma enorm_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       · apply le_biSup _ mx
       · apply le_biSup _ mx
     _ ≤ ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
-          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+          C7_5_9s a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₁ x) *
         ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
-          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) := by
+          C7_5_10 a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ x) := by
       rw [one_mul]; gcongr
       · exact global_tree_control1_supbound hu₁ hu₂ hu h2u _ (.inl rfl) hJ hf₁
       · exact global_tree_control2 hu₁ hu₂ hu h2u hJ hf₂
@@ -1592,9 +1592,9 @@ lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   calc
     _ ≤ ENNReal.ofReal (C7_5_2 a * dist x x' / D ^ s J) *
         ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
-          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+          C7_5_9s a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₁ x) *
         ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
-          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) := by
+          C7_5_10 a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ x) := by
       gcongr
       · exact dist_χ_le hu₁ hu₂ hu h2u hJ mu₁ mx'
       · exact (le_biSup _ mx).trans <|
@@ -1623,23 +1623,23 @@ lemma holder_correlation_tree_2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     ‖exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x‖ₑ ≤
     C7_5_9d a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ :=
   calc
-    _ ≤ 1 * (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+    _ ≤ 1 * (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₁ x) *
         ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
-          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) := by
+          C7_5_10 a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ x) := by
       gcongr
       · rw [ENNReal.coe_le_one_iff]
         exact (χ_le_indicator hJ).trans ((indicator_le fun _ _ ↦ le_refl _) _)
       · exact global_tree_control1_edist_left hu₁ hu₂ hu h2u hJ hf₁ mx mx'
       · rw [enorm_mul, enorm_exp_I_mul_ofReal, one_mul]
         exact (le_biSup _ mx).trans <| global_tree_control2 hu₁ hu₂ hu h2u hJ hf₂
-    _ = (C7_5_9d a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+    _ = (C7_5_9d a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₁ x) *
         ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
-          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
+          C7_5_10 a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
       ring
     _ ≤ (C7_5_9d a * (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
-          C7_5_9d a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+          C7_5_9d a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₁ x) *
         (C7_5_10 a * (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
-          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
+          C7_5_10 a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
       gcongr
       · exact le_add_self
       · nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff]
@@ -1655,8 +1655,8 @@ lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     C7_5_9s a * C7_5_9d a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ :=
   calc
     _ ≤ 1 * ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
-          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
-        (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) := by
+          C7_5_9s a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₁ x) *
+        (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ x) := by
       gcongr
       · rw [ENNReal.coe_le_one_iff]
         exact (χ_le_indicator hJ).trans ((indicator_le fun _ _ ↦ le_refl _) _)
@@ -1665,13 +1665,13 @@ lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
           global_tree_control1_supbound hu₁ hu₂ hu h2u _ (.inl rfl) hJ hf₁
       · exact global_tree_control1_edist_right hu₁ hu₂ hu h2u hJ hf₂ mx mx'
     _ = ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
-          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
-        (C7_5_9d a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
+          C7_5_9s a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₁ x) *
+        (C7_5_9d a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
       ring
     _ ≤ (C7_5_9s a * (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
-          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+          C7_5_9s a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₁ x) *
         (C7_5_9d a * (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
-          C7_5_9d a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
+          C7_5_9d a * ⨅ x ∈ J, maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
       gcongr
       · nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff]
         exact one_le_C7_5_9s
@@ -2073,9 +2073,9 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
         refine AEMeasurable.indicator ?_ coeGrid_measurable
       · have af₁ := hf₁.aestronglyMeasurable
         refine (af₁.adjointCarlesonSum.enorm.add ?_).add af₁.enorm
-        exact Measurable.maximalFunction.aemeasurable
+        exact measurable_maximalFunction.aemeasurable
       · have af₂ := hf₂.aestronglyMeasurable
         refine (af₂.adjointCarlesonSum.enorm.add ?_).add af₂.enorm
-        exact Measurable.maximalFunction.aemeasurable
+        exact measurable_maximalFunction.aemeasurable
 
 end TileStructure.Forest

@@ -110,7 +110,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     intro p h
     simp_rw [𝓑, mem_toFinset] at h
     simpa [u, lintegral_indicator, Measure.restrict_apply, measurableSet_F, r, h] using (hr h).2.le
-  have ineq := 𝓑.measure_biUnion_le_lintegral (A := defaultA a) K u h2u
+  have ineq := measure_biUnion_le_lintegral (A := defaultA a) _ K u h2u
   simp only [u, lintegral_indicator, measurableSet_F, Pi.one_apply, lintegral_const,
     MeasurableSet.univ, Measure.restrict_apply, univ_inter, one_mul] at ineq
   rw [← ENNReal.mul_le_mul_iff_right K0.ne.symm K_ne_top]

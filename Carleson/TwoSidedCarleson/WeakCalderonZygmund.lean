@@ -34,7 +34,7 @@ Question: -/
 
 /-- The constant used in `nontangential_from_simple`.
 I(F) think the constant needs to be fixed in the blueprint. -/
-irreducible_def C10_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (4 * a)
+irreducible_def C10_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a)
 
 /-- Lemma 10.2.1, formulated differently.
 The blueprint version is basically this after unfolding `HasBoundedWeakType`, `wnorm` and `wnorm'`.
@@ -43,13 +43,12 @@ theorem maximal_theorem :
     HasBoundedWeakType (globalMaximalFunction volume 1 : (X → ℂ) → X → ℝ≥0∞) 1 1 volume volume
       (C10_2_1 a) := by
   apply HasWeakType.hasBoundedWeakType
-  have : C10_2_1 a = C_weakType_globalMaximalFunction (defaultA a) 1 1 := by
-    unfold C_weakType_globalMaximalFunction C_weakType_maximalFunction
+  have : C10_2_1 a = C_weakType_maximalFunction (defaultA a) 1 1 := by
+    unfold C_weakType_maximalFunction
     split_ifs with h; swap; · simp at h
-    simp_rw [C10_2_1_def, defaultA, coe_pow, coe_ofNat, Nat.cast_pow, Nat.cast_ofNat,
-      NNReal.coe_one, div_one, rpow_ofNat, pow_mul', ← pow_add, two_add_two_eq_four]; rfl
+    norm_num [C10_2_1_def, pow_mul']
   rw [this]
-  apply hasWeakType_globalMaximalFunction (μ := volume) (p₁ := 1) (p₂ := 1) (by norm_num) le_rfl
+  exact hasWeakType_maximalFunction (μ := volume) (p₁ := 1) (p₂ := 1) (by norm_num) le_rfl
 
 -- Lemma 10.2.1, as formulated in the blueprint
 variable (α) in
@@ -502,7 +501,7 @@ lemma isOpen_MB_preimage_Ioi (hX : GeneralCase f α) :
     IsOpen (globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi α) ∧
     globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi α ≠ univ :=
   have ⟨x, hx⟩ := hX
-  ⟨lowerSemiContinuous_globalMaximalFunction.isOpen_preimage _,
+  ⟨lowerSemiContinuous_maximalFunction.isOpen_preimage _,
     (ne_univ_iff_exists_notMem _).mpr ⟨x, by simpa using hx⟩⟩
 
 /-- The center of B_j in the proof of Lemma 10.2.5 (general case). -/
@@ -640,7 +639,8 @@ lemma iUnion_czPartition {hX : GeneralCase f α} :
 private lemma globalMaximalFunction_preimage_finite
     (hα : 0 < α) (hf : BoundedFiniteSupport f) :
     volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α) < ∞ := by
-  have := hasStrongType_globalMaximalFunction one_pos one_lt_two f (hf.memLp 2) |>.2.trans_lt <|
+  have : eLpNorm (globalMaximalFunction _ _ _) _ volume < ∞ :=
+    hasStrongType_maximalFunction one_pos one_lt_two f (hf.memLp 2) |>.2.trans_lt <|
     mul_lt_top coe_lt_top (hf.memLp 2).eLpNorm_lt_top
   contrapose! this
   set s := (globalMaximalFunction volume 1 f ⁻¹' Ioi α)
@@ -649,7 +649,7 @@ private lemma globalMaximalFunction_preimage_finite
     _ ≤ (∫⁻ x, ‖globalMaximalFunction volume 1 f x‖ₑ ^ 2) ^ (1 / 2 : ℝ) := by
       refine rpow_le_rpow ?_ (by norm_num)
       refine le_trans (setLIntegral_mono_ae ?_ ?_) (setLIntegral_le_lintegral s _)
-      · exact AEStronglyMeasurable.globalMaximalFunction.aemeasurable.pow_const 2 |>.restrict
+      · exact measurable_maximalFunction.aemeasurable.pow_const 2 |>.restrict
       · exact Eventually.of_forall fun x hx ↦ pow_le_pow_left' (le_of_lt <| by simpa [s] using hx) 2
     _ = eLpNorm (globalMaximalFunction volume 1 f) 2 volume := by simp [eLpNorm, eLpNorm']
 
@@ -678,7 +678,7 @@ private lemma laverage_czBall7_le (hX : GeneralCase f α) (i : ℕ) :
   by_cases hi : czRadius hX i ≤ 0
   · simp [ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos (show 0 ≤ 7 by norm_num) hi]
   have ⟨y, hy7, hy⟩ := not_disjoint_iff.mp <| not_disjoint_czBall7 (lt_of_not_ge hi)
-  simp only [mem_compl_iff, mem_preimage, Nat.cast_pow, Nat.cast_ofNat, mem_Ioi, not_lt] at hy
+  simp only [mem_compl_iff, mem_preimage, mem_Ioi, not_lt] at hy
   refine le_trans ?_ hy
   simpa using laverage_le_globalMaximalFunction (μ := volume) hy7
 
@@ -1010,7 +1010,7 @@ lemma eLpNorm_czRemainder_le {hf : BoundedFiniteSupport f}
 /-- Part of Lemma 10.2.5, equation (10.2.22) (general case). -/
 lemma tsum_volume_czBall3_le (hf : BoundedFiniteSupport f)
     (hX : GeneralCase f α) (hα : 0 < α) :
-    ∑' i, volume (czBall3 hX i) ≤ 2 ^ (6 * a) / α * eLpNorm f 1 volume := calc
+    ∑' i, volume (czBall3 hX i) ≤ 2 ^ (4 * a) / α * eLpNorm f 1 volume := calc
   _ ≤ ∑' i, 2 ^ (2 * a) * volume (czBall hX i) := ENNReal.tsum_le_tsum (volume_czBall3_le hX)
   _ ≤ 2 ^ (2 * a) * volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α) := by
     simp_rw [← smul_eq_mul, ENNReal.tsum_const_smul]
@@ -1021,12 +1021,12 @@ lemma tsum_volume_czBall3_le (hf : BoundedFiniteSupport f)
       exact czBall_pairwiseDisjoint (mem_univ i) (mem_univ j) h.ne
   _ ≤ 2 ^ (2 * a) * ((C10_2_1 a) * eLpNorm f 1 volume / α) :=
     mul_le_mul_right (maximal_theorem'' hα hf) _
-  _ = 2 ^ (6 * a) / α * eLpNorm f 1 volume := by
+  _ = 2 ^ (4 * a) / α * eLpNorm f 1 volume := by
     rw [C10_2_1_def, mul_div_assoc', mul_comm (_ / α), mul_div, ← mul_assoc]; norm_cast; ring_nf
 
 /-- Part of Lemma 10.2.5, equation (10.2.22) (finite case). -/
 lemma volume_univ_le (hf : BoundedFiniteSupport f) (hX : ¬GeneralCase f α) (hα : 0 < α) :
-    volume (univ : Set X) ≤ 2 ^ (4 * a) / α * eLpNorm f 1 volume := by
+    volume (univ : Set X) ≤ 2 ^ (2 * a) / α * eLpNorm f 1 volume := by
   convert maximal_theorem'' hα hf using 1
   · simp_all [GeneralCase]
   · rw [ENNReal.mul_div_right_comm, C10_2_1_def]; rfl
@@ -1589,7 +1589,7 @@ lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f (α' a α)) {i
     _ = _ := by norm_cast; ring
 
 /-- The constant used in `distribution_czOperatorBound`. -/
-irreducible_def C10_2_8 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 11 * a + 4)
+irreducible_def C10_2_8 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 9 * a + 4)
 
 /-- Lemma 10.2.8 -/
 lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
@@ -1633,18 +1633,18 @@ lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
       rw [← ENNReal.mul_comm_div, mul_div_assoc, mul_comm]
     _ ≤ 8 * C10_2_7 a * ∑' i, volume (czBall3 hX i) * 2 ^ (3 * a) := by
       gcongr with i; exact czOperatorBound_inner_le ha hX
-    _ ≤ 8 * C10_2_7 a * 2 ^ (3 * a) * (2 ^ (6 * a) / α' a α * eLpNorm f 1 volume) := by
+    _ ≤ 8 * C10_2_7 a * 2 ^ (3 * a) * (2 ^ (4 * a) / α' a α * eLpNorm f 1 volume) := by
       rw [ENNReal.tsum_mul_right, mul_comm _ (2 ^ _), ← mul_assoc]; gcongr
       exact tsum_volume_czBall3_le hf hX (α'_pos αpos)
     _ = _ := by
-      rw [← mul_assoc, ← mul_div_assoc, show (8 : ℝ≥0∞) * C10_2_7 a * 2 ^ (3 * a) * 2 ^ (6 * a) =
-        2 ^ (9 * a + 3) * C10_2_7 a by ring, C10_2_7, coe_mul, ← mul_assoc, div_α'_eq,
+      rw [← mul_assoc, ← mul_div_assoc, show (8 : ℝ≥0∞) * C10_2_7 a * 2 ^ (3 * a) * 2 ^ (4 * a) =
+        2 ^ (7 * a + 3) * C10_2_7 a by ring, C10_2_7, coe_mul, ← mul_assoc, div_α'_eq,
         ENNReal.mul_div_cancel_right (by rw [c10_0_3]; positivity) (by rw [c10_0_3]; finiteness),
         show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← coe_pow, ← coe_mul, ← pow_add, C10_2_8]
       congr 4; ring
 
 /-- The constant used in `estimate_bad`. -/
-irreducible_def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (7 * a) / c10_0_3 a + C10_2_8 a
+irreducible_def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a) / c10_0_3 a + C10_2_8 a
 
 /-- Lemma 10.2.9 -/
 lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
@@ -1681,16 +1681,16 @@ lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
           convert measure_ball_two_le_same (μ := volume) (czCenter hX i) (3 * czRadius hX i)
           unfold defaultA; norm_cast
         · exact distribution_czOperatorBound ha hf hα hX
-      _ ≤ 2 ^ (7 * a) / α' a α * eLpNorm f 1 volume + C10_2_8 a / α * eLpNorm f 1 volume := by
-        rw [show 7 * a = a + 6 * a by ring, pow_add, mul_div_assoc, mul_assoc]; gcongr
+      _ ≤ 2 ^ (5 * a) / α' a α * eLpNorm f 1 volume + C10_2_8 a / α * eLpNorm f 1 volume := by
+        rw [show 5 * a = a + 4 * a by ring, pow_add, mul_div_assoc, mul_assoc]; gcongr
         exact tsum_volume_czBall3_le hf hX (α'_pos αpos)
       _ = _ := by
         nth_rw 1 [← add_mul, div_α'_eq, ← ENNReal.add_div, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
           ← coe_pow, ← coe_div (by rw [c10_0_3]; positivity), ← coe_add, C10_2_9]
   · calc
       _ ≤ volume (univ : Set X) := measure_mono (subset_univ _)
-      _ ≤ 2 ^ (4 * a) / α' a α * eLpNorm f 1 volume := volume_univ_le hf hX (α'_pos αpos)
-      _ ≤ 2 ^ (7 * a) / c10_0_3 a / α * eLpNorm f 1 volume := by rw [div_α'_eq]; gcongr <;> norm_num
+      _ ≤ 2 ^ (2 * a) / α' a α * eLpNorm f 1 volume := volume_univ_le hf hX (α'_pos αpos)
+      _ ≤ 2 ^ (5 * a) / c10_0_3 a / α * eLpNorm f 1 volume := by rw [div_α'_eq]; gcongr <;> norm_num
       _ ≤ _ := by
         rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← coe_pow, ← coe_div (by rw [c10_0_3]; positivity),
           C10_2_9]
@@ -1699,7 +1699,7 @@ lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
 /- ### Lemma 10.0.3 -/
 
 /-- The constant used in `czOperator_weak_1_1`. -/
-irreducible_def C10_0_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 21 * a)
+irreducible_def C10_0_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 19 * a)
 
 /-- Lemma 10.0.3, blueprint form. -/
 lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport f)
@@ -1751,22 +1751,22 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
         _ = 2 ^ (a ^ 3 - 9 * a - 2 : ℤ) + C10_2_9 a := by
           rw [C10_2_6, c10_0_3, ← zpow_natCast, ← zpow_natCast, ← zpow_neg, ← zpow_add₀ two_ne_zero]
           congr 2; push_cast; ring
-        _ ≤ 2 ^ a ^ 3 + 2 ^ (7 * a) * 2 ^ (a ^ 3 + 12 * a + 4) + 2 ^ (a ^ 3 + 11 * a + 4) := by
+        _ ≤ 2 ^ a ^ 3 + 2 ^ (5 * a) * 2 ^ (a ^ 3 + 12 * a + 4) + 2 ^ (a ^ 3 + 9 * a + 4) := by
           rw [C10_2_9, ← add_assoc, c10_0_3, div_inv_eq_mul, C10_2_8]; gcongr
           rw [← zpow_natCast, Nat.cast_pow]
           gcongr
           · exact one_le_two
           · lia
-        _ ≤ 3 * 2 ^ (a ^ 3 + 19 * a + 4) := by
-          rw [← pow_add, show 7 * a + (a ^ 3 + 12 * a + 4) = a ^ 3 + 19 * a + 4 by ring,
+        _ ≤ 3 * 2 ^ (a ^ 3 + 17 * a + 4) := by
+          rw [← pow_add, show 5 * a + (a ^ 3 + 12 * a + 4) = a ^ 3 + 17 * a + 4 by ring,
             show (3 : ℝ≥0) = 1 + 1 + 1 by norm_num]
           simp_rw [add_mul, one_mul]; gcongr
           · exact one_le_two
           · linarith
           · exact one_le_two
           · norm_num
-        _ ≤ 2 ^ (a ^ 3 + 19 * a + 6) := by
-          rw [show a ^ 3 + 19 * a + 6 = 2 + (a ^ 3 + 19 * a + 4) by ring, pow_add _ 2]
+        _ ≤ 2 ^ (a ^ 3 + 17 * a + 6) := by
+          rw [show a ^ 3 + 17 * a + 6 = 2 + (a ^ 3 + 17 * a + 4) by ring, pow_add _ 2]
           gcongr; norm_num
         _ ≤ _ := by rw [C10_0_3, add_assoc]; gcongr; exacts [one_le_two, by lia]
 

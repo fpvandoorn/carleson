@@ -23,7 +23,7 @@ namespace TileStructure.Forest
 variable (t) in
 /-- The operator `S_{2,𝔲} f(x)`, given above Lemma 7.4.3. -/
 def adjointBoundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ‖adjointCarlesonSum (t u) f x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 f x + ‖f x‖ₑ
+  ‖adjointCarlesonSum (t u) f x‖ₑ + maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x + ‖f x‖ₑ
 
 variable (t u₁ u₂) in
 /-- The set `𝔖` defined in the proof of Lemma 7.4.4.
@@ -216,19 +216,20 @@ lemma adjoint_tree_control
     eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤ C7_4_3 a * eLpNorm f 2 volume := by
   have m₁ : AEStronglyMeasurable (‖adjointCarlesonSum (t u) f ·‖ₑ) :=
     hf.aestronglyMeasurable.adjointCarlesonSum.enorm.aestronglyMeasurable
-  have m₂ : AEStronglyMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) := Measurable.maximalFunction.aestronglyMeasurable
+  have m₂ : AEStronglyMeasurable (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f) :=
+    measurable_maximalFunction.aestronglyMeasurable
   have m₃ : AEStronglyMeasurable (‖f ·‖ₑ) := hf.aestronglyMeasurable.enorm.aestronglyMeasurable
   calc
-    _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) f x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume +
+    _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) f x‖ₑ + maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x) 2 volume +
         eLpNorm (‖f ·‖ₑ) 2 volume := eLpNorm_add_le (m₁.add m₂) m₃ one_le_two
     _ ≤ eLpNorm (‖adjointCarlesonSum (t u) f ·‖ₑ) 2 volume +
-        eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume + eLpNorm (‖f ·‖ₑ) 2 volume := by
+        eLpNorm (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f ·) 2 volume + eLpNorm (‖f ·‖ₑ) 2 volume := by
       gcongr; apply eLpNorm_add_le m₁ m₂ one_le_two
     _ ≤ C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume +
         CMB (defaultA a) 2 * eLpNorm f 2 volume + eLpNorm f 2 volume := by
       gcongr
       · exact adjoint_tree_estimate hf h2f hu
-      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two) _ (hf.memLp _) |>.2
+      · exact (hasStrongType_maximalFunction_one one_lt_two) _ (hf.memLp _) |>.2
       · rfl
     _ ≤ (C7_3_1_1 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
       simp_rw [add_mul, one_mul]; gcongr; exact dens₁_le_one

@@ -80,12 +80,24 @@ lemma aeSubadditiveOn (h : SubadditiveOn T P A) {μ : Measure α'} :
     AESubadditiveOn T P A μ :=
   fun f g hf hg => ae_of_all μ fun x => h f g hf hg x
 
-lemma biSup {ι : Type*} {𝓑 : Set ι} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
-    (h : ∀ i ∈ 𝓑, SubadditiveOn (T i) P A) : SubadditiveOn (fun u x ↦ ⨆ i ∈ 𝓑, T i u x) P A := by
+lemma iSup {ι : Sort*} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
+    (h : ∀ i, SubadditiveOn (T i) P A) : SubadditiveOn (fun u x ↦ ⨆ i, T i u x) P A := by
   intro f g hf hg x
   simp_rw [SubadditiveOn, enorm_eq_self] at h ⊢
-  refine iSup₂_le fun i hi => h i hi f g hf hg x |>.trans ?_
-  gcongr <;> apply le_biSup _ hi
+  refine iSup_le fun i => h i f g hf hg x |>.trans ?_
+  gcongr <;> apply le_iSup _ i
+
+lemma iSup₂ {ι : Type*} {κ : ι → Sort*} {T : (i : ι) → κ i → (α → ε₁) → α' → ℝ≥0∞}
+    {P : (α → ε₁) → Prop}
+    {A : ℝ≥0∞} (h : ∀ i j, SubadditiveOn (T i j) P A) :
+    SubadditiveOn (fun u x ↦ ⨆ (i) (j), T i j u x) P A := by
+  simp_rw [iSup_psigma']
+  exact .iSup (fun ⟨i,j⟩ ↦ h i j)
+
+variable {α : Type*} {ι : Sort*} {κ : ι → Sort*} [CompleteLattice α] {f g s : ι → α} {a b : α} in
+theorem iSup₂_le {f : ∀ i, κ i → α} (h : ∀ i j, f i j ≤ a) : ⨆ (i) (j), f i j ≤ a := by
+  simp_rw [iSup_psigma']
+  exact iSup_le (fun ⟨i,j⟩ ↦ h i j)
 
 lemma indicator (sa : SubadditiveOn T P A) (s : Set α') :
     SubadditiveOn (fun u x ↦ (s.indicator (fun y ↦ T u y) x)) P A := by
@@ -98,6 +110,10 @@ a subadditivity criterion, then `SubadditiveOn T P 1` -/
 lemma const {T : (α → ε₁) → ℝ≥0∞} (h_add : ∀ {f g}, P f → P g → T (f + g) ≤ T f + T g) :
     SubadditiveOn (fun u (_ : α') ↦ T u) P 1 :=
   fun f g hf hg x ↦ (by simpa using h_add hf hg)
+
+lemma imp {Q : (α → ε₁) → Prop} {T : (α → ε₁) → α' → ℝ≥0∞}
+    (h : SubadditiveOn T P A) (hpq : ∀ {f}, Q f → P f) : SubadditiveOn T Q A :=
+  fun f g hf hg => h f g (hpq hf) (hpq hg)
 
 end SubadditiveOn
 
@@ -197,16 +213,44 @@ lemma aeSublinearOn {T : (α → ε₁) → α' → ℝ≥0∞} (h : SublinearOn
     AESublinearOn T P A μ :=
   ⟨h.left.aeSubadditiveOn, fun f c hf => ae_of_all μ <| congrFun <| h.right f c hf⟩
 
-lemma biSup {ι : Type*} {𝓑 : Set ι} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
+lemma iSup {ι : Sort*} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
     {P : (α → ε₁) → Prop}
-    {A : ℝ≥0∞} (h : ∀ i ∈ 𝓑, SublinearOn (T i) P A) :
-    SublinearOn (fun u x ↦ ⨆ i ∈ 𝓑, T i u x) P A := by
-  use .biSup (h · · |>.left)
+    {A : ℝ≥0∞} (h : ∀ i, SublinearOn (T i) P A) :
+    SublinearOn (fun u x ↦ ⨆ i, T i u x) P A := by
+  use .iSup (h · |>.left)
   intro f c hf
   ext x
   simp only [Pi.smul_apply, ENNReal.smul_iSup]
-  congr! with i hi
-  exact (h i hi).right f c hf ▸ rfl
+  congr! with i
+  exact (h i).right f c hf ▸ rfl
+
+lemma iSup₂ {ι : Type*} {κ : ι → Sort*} {T : (i : ι) → κ i → (α → ε₁) → α' → ℝ≥0∞}
+    {P : (α → ε₁) → Prop}
+    {A : ℝ≥0∞} (h : ∀ i j, SublinearOn (T i j) P A) :
+    SublinearOn (fun u x ↦ ⨆ (i) (j), T i j u x) P A := by
+  simp_rw [iSup_psigma']
+  exact .iSup (fun ⟨i,j⟩ ↦ h i j)
+
+lemma indicator {T : (α → ε₁) → α' → ε} {P : (α → ε₁) → Prop} {A : ℝ≥0∞} (S : Set α')
+    (sl : SublinearOn T P A) :
+    SublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A := by
+  refine ⟨SubadditiveOn.indicator sl.1 S, fun f c hf ↦ ?_⟩
+  ext x
+  by_cases h : x ∈ S <;> simp [h, sl.2 f c hf]
+
+-- If `T` is constant in the second argument (but not necessarily the first) and satisfies
+-- certain requirements, then `SublinearOn T P 1`
+lemma const (T : (α → ε₁) → ε) (P : (α → ε₁) → Prop)
+    (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ₑ ≤ ‖T f‖ₑ + ‖T g‖ₑ)
+    (h_smul : ∀ f {c : ℝ≥0}, P f → T (c • f) = c • T f) :
+    SublinearOn (fun u (_ : α') ↦ T u) P 1 := by
+  refine ⟨SubadditiveOn.const h_add, fun f c hf ↦ ?_⟩
+  ext x
+  simp [h_smul f hf]
+
+lemma imp {Q : (α → ε₁) → Prop} {T : (α → ε₁) → α' → ℝ≥0∞}
+    (h : SublinearOn T P A) (hpq : ∀ {f}, Q f → P f) : SublinearOn T Q A :=
+  ⟨h.left.imp hpq, fun f c hf ↦ h.right f c (hpq hf)⟩
 
 end SublinearOn
 
