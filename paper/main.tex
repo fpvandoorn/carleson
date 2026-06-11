@@ -765,17 +765,14 @@ pessimistic), although this had absolutely no consequence on the validity of
 the proof strategy.
 
 
-\subsection{Dealing with mistakes}\label{subsec:blueprint_mistakes}
+\subsection{Dealing with inaccuracies}\label{subsec:blueprint_mistakes}
 
-Several minor mistakes in the blueprint were noticed during the
-formalization: some proofs were slightly wrong, or the assumptions in some
-lemmas had to be strengthened. When we had to strengthen the assumptions, the
+As can be expected, the formalization surfaced various small inaccuracies in the blueprint. This is not surprising, since experience shows that a human-written mathematical document of this scale usually contains at least a few minor technical flaws.
+At some places, proofs were slightly inaccurate, and at other places lemmas required stronger assumptions than originally stated. However, when assumptions had to be strengthened, the
 stronger assumptions were always satisfied at the places where the lemmas
-were used. Therefore, all these issues were purely local and did not
-jeopardize the global proof.
+were used. Therefore, all these issues were purely local and did not impact the global proof.
 
-Let us describe quickly some of these minor issues, to highlight the kind of
-argument where non-formalized mathematics is sometimes too quick.
+To highlight the kinds of issues that can sometimes slip through the cracks in informal mathematical arguments we give a few illustrative examples:
 
 \begin{itemize}
 \item Lemma 11.1.6 in the blueprint is a version of the boundedness of the
