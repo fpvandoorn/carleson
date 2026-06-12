@@ -1053,6 +1053,16 @@ Further API extensions and better support from \texttt{fun\_prop} could streamli
 % \end{itemize}
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
+As described in \ref{subsec:real}, at the beginning of the project we tried to avoid conversions by using the type \lean{Real} as much as possible, even if quantities were naturally nonnegative or possibly infinite. In the course of the project, in different contexts we realized that using \lean{NNReal} or \lean{ENNReal} instead would lead to shorter proofs and reduce the number of side conditions.
+While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function \lean{f : ℝ≥0∞ \to ℝ≥0∞}, the following expressions should be equivalent.
+\begin{leancode}
+∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
+∫⁻ (x : ℝ≥0), f (↑x)
+∫⁻ (x : ℝ≥0∞), f x
+\end{leancode}
+
+
+
 \begin{itemize}
   \item Using \texttt{Real}.
   \item \texttt{Set.indicator} vs.\ \texttt{Measure.restrict}.
