@@ -250,6 +250,11 @@ Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$
 \begin{equation}
   \|T f\|_{L^{p',\infty}} \le C \cdot \|f\|_{L^p}.
 \end{equation}
+Similarly, the operator $T$ is of strong type if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e. strongly measurable and
+\begin{equation}
+  \|T f\|_{L^{p'}} \le C \cdot \|f\|_{L^p}.
+\end{equation}
+
 %TODO: should we state the real interpolation theorem here, in the dedicated subsection, or omit the exact formulation and just cite the paper that is to appear about its formalization?
 
 \subsection{Statement of the main results}\label{subsec:main_results}
@@ -731,7 +736,14 @@ Our formalised version aims to reduce superfluous assumptions commonly found in 
 In light of generalising the Hardy--Littlewood maximal function, this proof had to be generalised again:
 applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any commutative monoid with a compatible enorm).
 In return for a significant amount of refactoring work\footnote{the initial formalisation was about 5000 lines long; the generalisation touched about 2000 of them},
-we have formalised a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way.
+we have formalised a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way. We ended up with the following version.
+\begin{theorem}
+    Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces and let $E$ and $F$ be topological spaces each endowed with the structure of an additive commutative monoid and a compatible (i.e. positive definite, fulfilling the triangle inequality) continuous extended norm.
+    Let $p_0, p_1, q_0, q_1, p, q \in \ennreal$ such that $p_0 \in (0,q_0], p_1 \in (0,q_1], q_0 \ne q_1$ and there exists $t \in (0,1)$ such that $\frac{1}{p} = \frac{1-t}{p_0} + \frac{t}{p_1}$ and $\frac{1}{q} = \frac{1-t}{q_0} + \frac{t}{q_1}$.
+    Let $T : (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^p_0(X; E) \cup L^p_1(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e. $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e. strongly measurable.
+
+    Then, if $T$ has both weak type $(p_0, q_0)$ and weak type $(p_1, q_1)$, $T$ has strong type $(p,q)$.
+\end{theorem}
 For further detail, we refer the reader to a separate article \cite{PortegiesRothgangRealInterpolation}.
 
 \subsection{Constant tweaking} As explained below in
