@@ -408,7 +408,7 @@ where again $e(r)=e^{ir}$.
 
 \subsubsection{Metric space Carleson}\label{subsubsec:metric-carleson}
 
-We prove three versions of our main result.
+We prove three versions of the main result.
 Our first main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
 which by interpolation techniques recovers $L^q$ estimates for the open range $1<q<2$.
 \begin{theorem}[metric space Carleson]
@@ -675,9 +675,9 @@ like refactoring existing code in either the Carleson project or Mathlib.
 We also used Zulip to keep track of the status of these tasks:
 whether they were available, claimed or completed.
 Zulip was also used in case someone had questions about a task,
-or found a potential error in the proof of a lemma.
+or found a potential issue in the proof of a lemma.
 In that case, another contributor or a member of Bonn's harmonic analysis group could help clarify the proof.
-In a few cases, an error was found that required fixes to the statement of one or more lemma statements in the blueprint,
+In a few cases, an inaccuracy was found that required changes to the statement of one or more lemma statements in the blueprint,
 as described in Subsection \ref{subsec:blueprint_mistakes}.
 
 We divided the material to be formalized into two categories:
@@ -714,7 +714,7 @@ To be written!
 \subsubsection{Just one top cube} To be written!
 
 \subsubsection{The Hardy--Littlewood maximal function} One main ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
-To recall: given $f\colon\real^d\to\complex$, the Hardy–Littlewood maximal function $M f$ of $f$ is usually defined as
+Recall that, given $f\colon\real^d\to\complex$, the (centered) Hardy–Littlewood maximal function $M f$ of $f$ is defined as
 \begin{equation*}
 Mf\colon\real^d \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
 \end{equation*}
@@ -765,17 +765,14 @@ pessimistic), although this had absolutely no consequence on the validity of
 the proof strategy.
 
 
-\subsection{Dealing with mistakes}\label{subsec:blueprint_mistakes}
+\subsection{Dealing with inaccuracies}\label{subsec:blueprint_mistakes}
 
-Several minor mistakes in the blueprint were noticed during the
-formalization: some proofs were slightly wrong, or the assumptions in some
-lemmas had to be strengthened. When we had to strengthen the assumptions, the
+As can be expected, the formalization surfaced various small inaccuracies in the blueprint. This is not surprising, since experience shows that a human-written mathematical document of this scale usually contains at least a few minor technical flaws.
+At some places, proofs were slightly inaccurate, and at other places lemmas required stronger assumptions than originally stated. However, when assumptions had to be strengthened, the
 stronger assumptions were always satisfied at the places where the lemmas
-were used. Therefore, all these issues were purely local and did not
-jeopardize the global proof.
+were used. Therefore, all these issues were purely local and did not impact the global proof.
 
-Let us describe quickly some of these minor issues, to highlight the kind of
-argument where non-formalized mathematics is sometimes too quick.
+To highlight the kinds of issues that can sometimes slip through the cracks in informal mathematical arguments we give a few illustrative examples:
 
 \begin{itemize}
 \item Lemma 11.1.6 in the blueprint is a version of the boundedness of the
@@ -820,11 +817,12 @@ argument where non-formalized mathematics is sometimes too quick.
 
 \section{Design decisions}\label{sec:design}
 \subsection{Treatment of constants}\label{subsec:constants}
-In analysis papers, one often needs to compare the growth of two functions $f, g : X \to Y$, where $Y$ is a normed space such as the real numbers or the complex numbers. This is often expressed by statements of the form
+In analysis papers, one often needs to compare the growth of two functions $f, g : X \to Y$, where $X, Y$ are real or complex normed vector spaces. This is often expressed by statements of the form
 \begin{align}\label{eq:const}
-	\exists C > 0, \forall x \in X, \| f (x) \| \le \|g(x)\|.
+	\exists C > 0, \forall x \in X, \| f (x) \| \le C\|g(x)\|.
 \end{align}
-In many cases, one only cares about the existence of the positive constant $C$, but not about its concrete value. The constant can even be hidden in the notation, by writing (\ref{eq:const}) as
+In many cases, one only cares about the existence of the positive constant $C$, but not about its concrete value.
+The constant is often left implicit, by writing (\ref{eq:const}) as
 \[ \forall x \in X, \| f (x) \| \lesssim \|g(x)\|.\]
 
 This was also the case in the first version of \cite{ThieleCarlesonPreprint}. However, while Lean allows one to work with existential statements such as (\ref{eq:const}), this would have made the formalization harder. From the mathematical point of view, it would require the formalizers to figure out how large these constants needed to be and how the constants required to make each lemma hold were related to each other. From the technical side, it would require to work with witnesses for these existential statements, which can introduce some overhead.
