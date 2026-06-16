@@ -468,13 +468,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
           have : Measure.map (fun a ↦ ENNReal.ofReal a) (volume.restrict (Ioi 0)) = volume.restrict (Ioi 0) := by
             simp [map_restrict_Ioi_eq_restrict_Ioi]
           rw [this]
-          --TODO: fun_prop
-          have : (fun a ↦ ‖trnc j f (tc.ton a.1) a.2‖ₑ ^ p₀)
-            = (fun x : ℝ≥0∞ ↦ x ^ p₀) ∘ (fun a : ℝ≥0∞ × α ↦ ‖trnc j f (tc.ton a.1) a.2‖ₑ) := rfl
-          rw [this]
-          apply AEMeasurable.comp_aemeasurable
-          · fun_prop
-          · exact (hf.trnc_restrict  _).enorm
+          fun_prop
         · fun_prop
         · fun_prop
       · fun_prop
