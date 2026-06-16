@@ -1061,6 +1061,10 @@ While generally enabling simplifications, such changes not only came at the cost
 ∫⁻ (x : ℝ≥0∞), f x
 \end{leancode}
 
+Another case of equivalent representations we encountered was that of integrating on a set, i.e. with respect to a restricted measure, versus integrating an indicator function, again both useful for different purposes. Conversion here was straightforward using the lemmas \lean{integral_indicator} resp. \lean{lintegral_indicator} in \mathlib.
+Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
+Again, in different context the existing \mathlib API was more suitable for working with one of the two versions. It is still work in progress to extend \mathlib with API for the other version where no version is naturally favorable, to reduce the overall number of conversions.
+
 
 
 \begin{itemize}
