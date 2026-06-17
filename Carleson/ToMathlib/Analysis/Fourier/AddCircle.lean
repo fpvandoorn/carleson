@@ -7,7 +7,7 @@ public section
 
 theorem fourier_comp_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)] [hq : Fact (0 < q)]
   {x : AddCircle p} {n : ℤ} :
-    (fourier n) ((AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne') x) = (fourier n) x := by
+    fourier n (AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne' x) = fourier n x := by
   simp only [fourier_apply, SetLike.coe_eq_coe]
   rw [AddCircle.toCircle_zsmul, AddCircle.toCircle_zsmul]
   congr 1
