@@ -117,8 +117,7 @@ lemma volume_preimage_equivIoc {T : ℝ} [hT : Fact (0 < T)] {s : Set ℝ} (hs :
   rw [← Measure.restrict_apply' measurableSet_Ioc,
     ← (AddCircle.measurePreserving_mk T 0).measure_preimage
       ((measurable_equivIoc T 0).subtype_coe.nullMeasurable hs),
-    Measure.restrict_apply' measurableSet_Ioc, Measure.restrict_apply' measurableSet_Ioc,
-    Set.preimage_preimage]
+    Measure.restrict_apply' measurableSet_Ioc, Measure.restrict_apply' measurableSet_Ioc]
   congr 1 with x
   simp only [zero_add, Set.mem_inter_iff, Set.mem_preimage, and_congr_left_iff]
   intro hx
