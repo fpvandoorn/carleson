@@ -7,7 +7,7 @@ public import Carleson.ToMathlib.Dynamics.Ergodic.MeasurePreserving
 
 public section
 
-open MeasureTheory Real
+open MeasureTheory Real ENNReal Filter Topology
 
 noncomputable section
 
@@ -16,11 +16,10 @@ local notation "S_" => partialFourierSum
 section TwoPiPos
 
 local instance : Fact (0 < 2 * π) where
-  out := Real.two_pi_pos
+  out := two_pi_pos
 
-theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ENNReal}
-  (hp : 1 < p) (hf : MemLp f p) :
-    ∀ᵐ x, Filter.Tendsto (partialFourierSum' · f x) Filter.atTop (nhds (f x)) := by
+theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ℝ≥0∞} (hp : 1 < p) (hf : MemLp f p) :
+    ∀ᵐ x, Tendsto (partialFourierSum' · f x) atTop (𝓝 (f x)) := by
   wlog meas_f : Measurable f generalizing f
   · rcases hf.1 with ⟨g, meas_g, hfg⟩
     have hg : MemLp g p volume := by
@@ -36,7 +35,7 @@ theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ENNReal}
     congr 2
     have hfg' : f =ᶠ[ae AddCircle.haarAddCircle] g := by
       convert hfg using 1
-      exact (Measure.ae_ennreal_smul_measure_eq (ENNReal.ofReal_ne_zero_iff.mpr Real.two_pi_pos)
+      exact (Measure.ae_ennreal_smul_measure_eq (ofReal_ne_zero_iff.mpr two_pi_pos)
         AddCircle.haarAddCircle).symm
     rw [fourierCoeff_congr_ae hfg']
   set g := fun (x : ℝ) ↦ f x
@@ -66,7 +65,7 @@ theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ENNReal}
   simp only [Set.preimage_setOf_eq, Set.mem_setOf_eq]
   convert hx using 5 with N hN
   unfold g
-  simp only [AddCircle.coe_equivIoc, sub_right_inj]
+  simp only [AddCircle.coe_equivIoc]
   rw [← partialFourierSum'_eq_partialFourierSum_apply N _]
   · simp only [AddCircle.coe_equivIoc]
   · nth_rw 1 [← zero_add (2 * π)]
@@ -74,18 +73,18 @@ theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ENNReal}
 
 /- Version of carleson_hunt with `volume` instead of `haarAddMeasure` in the assumption.-/
 --TODO: decide whether we really want to keep the other (equivalent) version
-theorem carleson_hunt' {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ENNReal} (hp : 1 < p)
+theorem carleson_hunt' {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ℝ≥0∞} (hp : 1 < p)
   (hf : MemLp f p) :
-    ∀ᵐ x, Filter.Tendsto (partialFourierSum' · f x) Filter.atTop (nhds (f x)) := by
+    ∀ᵐ x, Tendsto (partialFourierSum' · f x) atTop (𝓝 (f x)) := by
   set g := fun (x : AddCircle (2 * π)) ↦
-    f (AddCircle.equivAddCircle (2 * π) T Real.two_pi_pos.ne' hT.out.ne' x)
+    f (AddCircle.equivAddCircle (2 * π) T two_pi_pos.ne' hT.out.ne' x)
   have hg : MemLp g p := by
     unfold g
     rw [← memLp_haarAddCircle_iff] at *
     apply hf.comp_measurePreserving AddCircle.measurePreserving_equivAddCircle
   have h := carleson_hunt_two_pi hp hg
   rw [AddCircle.volume_eq_smul_haarAddCircle] at *
-  rw [Measure.ae_ennreal_smul_measure_eq (ENNReal.ofReal_ne_zero_iff.mpr two_pi_pos)] at h
+  rw [Measure.ae_ennreal_smul_measure_eq (ofReal_ne_zero_iff.mpr two_pi_pos)] at h
   apply Measure.ae_smul_measure
   convert AddCircle.measurePreserving_equivAddCircle.ae_comp h using 4 with x N
   · exact partialFourierSum'_comp_equivAddCircle.symm
@@ -99,9 +98,9 @@ end TwoPiPos
 /-- Classical theorem of Carleson and Hunt asserting a.e. convergence of the partial Fourier sums
 for `L^p` functions for `p > 1`. This is a strengthening of `classical_carleson`, and not officially
 part of the blueprint. -/
-theorem carleson_hunt {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ENNReal} (hp : 1 < p)
+theorem carleson_hunt {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ℝ≥0∞} (hp : 1 < p)
   (hf : MemLp f p AddCircle.haarAddCircle) :
-    ∀ᵐ x, Filter.Tendsto (partialFourierSum' · f x) Filter.atTop (nhds (f x)) :=
+    ∀ᵐ x, Tendsto (partialFourierSum' · f x) atTop (𝓝 (f x)) :=
   carleson_hunt' hp hf.of_haarAddCircle
 
 end

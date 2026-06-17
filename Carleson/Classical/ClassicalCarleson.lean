@@ -7,7 +7,7 @@ public section
 
 /- This file contains the proof of the classical Carleson theorem from Section 11.1. -/
 
-open MeasureTheory Real
+open MeasureTheory Real NNReal ENNReal Topology Filter
 
 noncomputable section
 
@@ -16,11 +16,11 @@ local notation "S_" => partialFourierSum
 section TwoPiPos
 
 local instance : Fact (0 < 2 * π) where
-  out := Real.two_pi_pos
+  out := two_pi_pos
 
 /- Theorem 1.1 (Classical Carleson) -/
 theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 * π))
-  {q : ENNReal} (hq : 1 < q) (hf : MemLp f q (volume.restrict (Set.Ioc 0 (2 * π))))
+  {q : ℝ≥0∞} (hq : 1 < q) (hf : MemLp f q (volume.restrict (Set.Ioc 0 (2 * π))))
   {δ ε : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) :
     ∃ N₀, distribution (fun x ↦ ⨆ N > N₀, ‖f x - S_ N f x‖ₑ) δ (volume.restrict (Set.Ioc 0 (2 * π))) ≤ ε := by
   set p := (min (3 / 2) q).toNNReal with p_def
@@ -28,24 +28,24 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
     apply ne_of_lt
     rw [min_lt_iff]
     left
-    refine ENNReal.div_lt_top (by simp) (by simp)
+    refine div_lt_top (by simp) (by simp)
   have hp : p ∈ Set.Ioo 1 2 := by
     rw [p_def]
     simp only [Set.mem_Ioo]
     constructor
-    · rw [← ENNReal.coe_lt_iff_lt_toNNReal this, lt_min_iff]
+    · rw [← coe_lt_iff_lt_toNNReal this, lt_min_iff]
       simp only [ENNReal.coe_one]
       symm
       use hq
       exact (ENNReal.lt_div_iff_mul_lt (by simp) (by simp)).mpr (by simp; norm_num)
-    · apply ENNReal.toNNReal_lt_of_lt_coe
-      simp only [ENNReal.coe_ofNat, inf_lt_iff]
+    · apply toNNReal_lt_of_lt_coe
+      simp only [coe_ofNat, inf_lt_iff]
       left
-      refine ENNReal.div_lt_of_lt_mul ?_
+      refine div_lt_of_lt_mul ?_
       norm_num
   have hf : MemLp f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
     apply MemLp.mono_exponent hf
-    rw [p_def, ENNReal.coe_toNNReal this]
+    rw [p_def, coe_toNNReal this]
     exact min_le_right _ _
   have meas_f : AEStronglyMeasurable f :=
     periodic_f.aestronglyMeasurable (t := 0) (by simp [hf.1])
@@ -83,7 +83,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         · apply le_iSup_of_le N
           rw [partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable _ _)]
           · rfl
-          rw [intervalIntegrable_iff_integrableOn_Ioc_of_le Real.two_pi_pos.le]
+          rw [intervalIntegrable_iff_integrableOn_Ioc_of_le two_pi_pos.le]
           apply hf.integrable (by simp [hp.1.le])
   calc _
     _ ≤ distribution
@@ -112,7 +112,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
       · simp only [gt_iff_lt, nonpos_iff_eq_zero]
         rw [distribution_eq_zero_iff]
         apply essSup_le_of_ae_le
-        rw [Filter.EventuallyLE, ae_restrict_iff' measurableSet_Ioc]
+        rw [EventuallyLE, ae_restrict_iff' measurableSet_Ioc]
         filter_upwards with x hx
         simp only [enorm_eq_self, iSup_le_iff]
         intro N hN
@@ -121,7 +121,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         rw [← nnnorm_norm]
         calc _
           _ ≤ ‖((δ / 4) : ℝ)‖₊ := by
-            apply Real.nnnorm_le_nnnorm (by simp)
+            apply nnnorm_le_nnnorm (by simp)
             exact hN₀ N hN x (Set.Ioc_subset_Icc_self hx)
           _ = δ / 4 := by simp
       · norm_cast
@@ -139,19 +139,19 @@ lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {
   {f : α → ℂ} {F : ℕ → α → ℂ}
   (h : ∀ δ > (0 : NNReal), ∀ ε > (0 : NNReal), ∃ N₀,
     distribution (fun x ↦ ⨆ N > N₀, ‖f x - F N x‖ₑ) δ μ ≤ ε) :
-    ∀ᵐ x ∂μ, Filter.Tendsto (F · x) Filter.atTop (nhds (f x)) := by
+    ∀ᵐ x ∂μ, Tendsto (F · x) atTop (𝓝 (f x)) := by
   let δ (k : ℕ) : ℝ := 1 / (k + 1) --arbitrary sequence tending to zero
-  have δconv : Filter.Tendsto δ Filter.atTop (nhds 0) := tendsto_one_div_add_atTop_nhds_zero_nat
+  have δconv : Tendsto δ atTop (𝓝 0) := tendsto_one_div_add_atTop_nhds_zero_nat
   have δpos (k : ℕ) : 0 < δ k := by apply div_pos zero_lt_one (by linarith)
   -- ENNReal version to be comparable to volumes
   let δ' (k : ℕ) := ENNReal.ofReal (δ k)
-  have δ'conv : Filter.Tendsto δ' Filter.atTop (nhds 0) := by
-    rw [← ENNReal.ofReal_zero]
-    exact ENNReal.tendsto_ofReal δconv
+  have δ'conv : Tendsto δ' atTop (𝓝 0) := by
+    rw [← ofReal_zero]
+    exact tendsto_ofReal δconv
   set ε := fun k n ↦ (1 / 2) ^ n * 2⁻¹ * δ k with εdef
   have εpos (k n : ℕ) : 0 < ε k n := by positivity
   have εsmall (k : ℕ) {e : ℝ} (epos : 0 < e) : ∃ n, ε k n < e := by
-    have : Filter.Tendsto (ε k) Filter.atTop (nhds 0) := by
+    have : Tendsto (ε k) atTop (𝓝 0) := by
       rw [εdef]
       simp_rw [mul_assoc]
       rw [← zero_mul (2⁻¹ * δ k)]
@@ -161,15 +161,15 @@ lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {
     rcases (this e epos) with ⟨n, hn⟩
     use n
     convert (hn n (by simp))
-    simp_rw [dist_zero_right, Real.norm_eq_abs, abs_of_nonneg (εpos k n).le]
+    simp_rw [dist_zero_right, norm_eq_abs, abs_of_nonneg (εpos k n).le]
   have δ'_eq {k : ℕ} : δ' k = ∑' n, ENNReal.ofReal (ε k n) := by
     rw [εdef]
-    conv => rhs; pattern ENNReal.ofReal _; rw [ENNReal.ofReal_mul' (δpos k).le,
-      ENNReal.ofReal_mul' (by norm_num), ENNReal.ofReal_pow (by norm_num)]
+    conv => rhs; pattern ENNReal.ofReal _; rw [ofReal_mul' (δpos k).le,
+      ofReal_mul' (by norm_num), ofReal_pow (by norm_num)]
     rw [ENNReal.tsum_mul_right, ENNReal.tsum_mul_right, ENNReal.tsum_geometric,
-      ← ENNReal.ofReal_one, ← ENNReal.ofReal_sub, ← ENNReal.ofReal_inv_of_pos (by norm_num),
-      ← ENNReal.ofReal_mul' (by norm_num)]
-    conv => pattern ENNReal.ofReal _; ring_nf; rw [ENNReal.ofReal_one]
+      ← ofReal_one, ← ofReal_sub, ← ofReal_inv_of_pos (by norm_num),
+      ← ofReal_mul' (by norm_num)]
+    conv => pattern ENNReal.ofReal _; ring_nf; rw [ofReal_one]
     · rw [one_mul]
     norm_num
   have h' : ∀ (δ: NNReal), ∀ (ε : NNReal), ∃ N₀, 0 < δ → 0 < ε →
@@ -198,7 +198,7 @@ lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {
   -- Define final exceptional set.
   let E := ⋂ (k : ℕ), Eδ k
   -- Show that it has the desired property.
-  have hE : ∀ x ∉ E, Filter.Tendsto (F · x) Filter.atTop (nhds (f x)) := by
+  have hE : ∀ x ∉ E, Tendsto (F · x) atTop (𝓝 (f x)) := by
     intro x hx
     unfold E at hx
     simp only [Set.mem_iInter, not_forall] at hx
@@ -217,7 +217,7 @@ lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {
     simp only [gt_iff_lt, enorm_eq_self, Set.mem_setOf_eq, not_lt, iSup_le_iff,
       enorm_le_coe] at this
     have := this N hN
-    rw [← Real.toNNReal_le_toNNReal_iff (εpos _ _).le]
+    rw [← toNNReal_le_toNNReal_iff (εpos _ _).le]
     apply this.trans'
     simp
   -- Show that is has measure zero.
@@ -238,9 +238,9 @@ lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {
   exact hE x hx
 
 theorem carleson_interval {f : ℝ → ℂ} (periodic_f : f.Periodic (2 * π))
-  {p : ENNReal} (hp : 1 < p) (hf : MemLp f p (volume.restrict (Set.Ioc 0 (2 * π)))) :
+  {p : ℝ≥0∞} (hp : 1 < p) (hf : MemLp f p (volume.restrict (Set.Ioc 0 (2 * π)))) :
     ∀ᵐ x ∂volume.restrict (Set.Ioc 0 (2 * π)),
-      Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+      Tendsto (S_ · f x) atTop (𝓝 (f x)) := by
   apply ae_tendsto_zero_of_distribution_le
   intro δ δpos ε εpos
   exact exceptional_set_carleson periodic_f hp hf δpos εpos
@@ -284,10 +284,10 @@ end
 /- **Carleson's theorem** asserting a.e. point-wise convergence of the partial Fourier sums for
 periodic continuous functions. -/
 theorem classical_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 * π))
-  {p : ENNReal} (hp : 1 < p) (hf : MemLp f p (volume.restrict (Set.Ioc 0 (2 * π)))) :
-    ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+  {p : ℝ≥0∞} (hp : 1 < p) (hf : MemLp f p (volume.restrict (Set.Ioc 0 (2 * π)))) :
+    ∀ᵐ x, Tendsto (S_ · f x) atTop (𝓝 (f x)) := by
   -- Reduce to a.e. convergence on [0,2π]
-  apply @Function.Periodic.ae_of_ae_restrict _ Real.two_pi_pos 0
+  apply @Function.Periodic.ae_of_ae_restrict _ two_pi_pos 0
   · rw [Function.Periodic]
     intro x
     conv => pattern S_ _ _ _; rw [partialFourierSum_periodic]
