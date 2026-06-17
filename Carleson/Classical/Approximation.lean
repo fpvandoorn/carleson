@@ -89,6 +89,7 @@ lemma close_smooth_approx_periodic_Lp {T : ℝ} [hT : Fact (0 < T)] {f : ℝ →
         · simp only [MeasurableSet.univ, Measure.restrict_apply, Set.univ_inter, volume_Ioc,
           sub_zero]
           unfold ε'
+          -- todo: potentially automatable ENNReal calculation
           rw [ENNReal.ofReal_rpow_of_pos hT.out,
             ← ENNReal.ofReal_mul (Real.rpow_nonneg hT.out.le _), ← mul_assoc,
             mul_inv_cancel₀, one_mul]
