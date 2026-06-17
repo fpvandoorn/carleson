@@ -77,6 +77,11 @@ theorem aestronglyMeasurable {t T : ℝ} [hT : Fact (0 < T)] {f : ℝ → ℂ}
   simp only [comp_apply]
   rw [periodic_f.sub_zsmul_eq]
 
+theorem aestronglyMeasurable_iff {t T : ℝ} [hT : Fact (0 < T)] {f : ℝ → ℂ}
+  (periodic_f : f.Periodic T) :
+    AEStronglyMeasurable f ↔ AEStronglyMeasurable f (volume.restrict (Ioc t (t + T))) :=
+  ⟨fun hf ↦ hf.restrict, aestronglyMeasurable periodic_f⟩
+
 /-
 theorem locallyIntegrable_of {T : ℝ} [hT : Fact (0 < T)] {f : ℝ → ℂ}
   (periodic_f : f.Periodic T) (hf : IntegrableOn f (Ioc 0 T)) :
