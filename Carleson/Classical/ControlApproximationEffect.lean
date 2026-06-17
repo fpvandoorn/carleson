@@ -449,12 +449,16 @@ lemma partialFourierSum_bound {g : ℝ → ℂ} (periodic_g : Function.Periodic 
 
 end
 
+section TwoPiPos
+
+local instance : Fact (0 < 2 * π) where
+  out := Real.two_pi_pos
+
 lemma rcarleson'_restrict {p : NNReal} (hp : p ∈ Set.Ioo 1 2) {f : ℝ → ℂ}
   (f_periodic : f.Periodic (2 * π)) (hf : MemLp f p (volume.restrict (Set.Ioc 0 (2 * π)))) :
     eLpNorm (T f) p (volume.restrict (Set.Ioc 0 (2 * π)))
       ≤ 2 * (C_carleson_hasStrongType 4 p) * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
   have meas_f : AEStronglyMeasurable f := by
-    have : Fact (0 < 2 * π) := fact_iff.mpr Real.two_pi_pos
     rw [← zero_add (2 * π)] at hf
     exact (f_periodic.aestronglyMeasurable hf.1)
   have h : eLpNorm ((Set.Ioo (-1) (2 * π + 1)).indicator f) (↑p) volume
@@ -482,9 +486,6 @@ lemma rcarleson'_restrict {p : NNReal} (hp : p ∈ Set.Ioo 1 2) {f : ℝ → ℂ
           · rw [aestronglyMeasurable_indicator_iff measurableSet_Ioc]
             exact meas_f.restrict
         _ = 2 * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
-          have : Fact (0 < 2 * π) := by
-            rw [fact_iff]
-            exact Real.two_pi_pos
           rw [two_mul (eLpNorm _ _ _)]
           rw [eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc,
             eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc]
@@ -512,6 +513,8 @@ lemma rcarleson'_restrict {p : NNReal} (hp : p ∈ Set.Ioo 1 2) {f : ℝ → ℂ
     _ ≤ 2 * (C_carleson_hasStrongType 4 p) * eLpNorm f p (volume.restrict (Set.Ioc 0 (2 * π))) := by
       rw [mul_comm 2 (ENNReal.ofNNReal _), mul_assoc]
       gcongr
+
+end TwoPiPos
 
 /-- The constant used in `C_distribution_carlesonOperatorReal_le`. -/
 def C_distribution_carlesonOperatorReal_le (δ ε p : NNReal) : NNReal :=

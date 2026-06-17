@@ -13,6 +13,11 @@ noncomputable section
 
 local notation "S_" => partialFourierSum
 
+section TwoPiPos
+
+local instance : Fact (0 < 2 * π) where
+  out := Real.two_pi_pos
+
 /- Theorem 1.1 (Classical Carleson) -/
 theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 * π))
   {q : ENNReal} (hq : 1 < q) (hf : MemLp f q (volume.restrict (Set.Ioc 0 (2 * π))))
@@ -42,9 +47,6 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
     apply MemLp.mono_exponent hf
     rw [p_def, ENNReal.coe_toNNReal this]
     exact min_le_right _ _
-  have : Fact (0 < 2 * π) := by
-    rw [fact_iff]
-    exact two_pi_pos
   have meas_f : AEStronglyMeasurable f :=
     periodic_f.aestronglyMeasurable (t := 0) (by simp [hf.1])
   have one_lt_p : (1 : ENNReal) < p := by simp [hp.1]
@@ -129,6 +131,8 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         apply hf₀.trans
         simp
     _ = ε := by simp
+
+end TwoPiPos
 
 --TODO: generalize and clean this up
 lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {μ : Measure α}

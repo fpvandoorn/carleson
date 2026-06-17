@@ -232,13 +232,16 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
     · norm_num
       linarith
 
+section TwoPiPos
+
+local instance : Fact (0 < 2 * π) where
+  out := Real.two_pi_pos
+
 lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodic (2 * π))
     (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :
     ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Icc 0 (2 * π), ‖f x - S_ N f x‖ ≤ ε := by
-  have fact_two_pi_pos : Fact (0 < 2 * π) := by
-    rw [fact_iff]
-    exact Real.two_pi_pos
-  set g : C(AddCircle (2 * π), ℂ) := ⟨AddCircle.liftIco (2*π) 0 f, AddCircle.liftIco_continuous ((periodicf 0).symm) fdiff.continuous.continuousOn⟩ with g_def
+  set g : C(AddCircle (2 * π), ℂ) := ⟨AddCircle.liftIco (2 * π) 0 f,
+    AddCircle.liftIco_continuous ((periodicf 0).symm) fdiff.continuous.continuousOn⟩ with g_def
   have two_pi_pos' : 0 < 0 + 2 * π := by linarith [Real.two_pi_pos]
   have fourierCoeff_correspondence {i : ℤ} : fourierCoeff g i = fourierCoeffOn two_pi_pos' f i := fourierCoeff_liftIco_eq f i
   simp only [zero_add] at fourierCoeff_correspondence
@@ -276,3 +279,5 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
     · have : x ∈ Set.Ico 0 (2 * π) := ⟨hx.1, lt_of_le_of_ne hx.2 h⟩
       simp [AddCircle.liftIco_coe_apply, this]
   · simp [partialFourierSum, fourierCoeff_correspondence]
+
+end TwoPiPos

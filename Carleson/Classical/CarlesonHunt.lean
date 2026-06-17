@@ -13,7 +13,12 @@ noncomputable section
 
 local notation "S_" => partialFourierSum
 
-theorem carleson_hunt_two_pi [hT : Fact (0 < 2 * π)] {f : AddCircle (2 * π) → ℂ} {p : ENNReal}
+section TwoPiPos
+
+local instance : Fact (0 < 2 * π) where
+  out := Real.two_pi_pos
+
+theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ENNReal}
   (hp : 1 < p) (hf : MemLp f p) :
     ∀ᵐ x, Filter.Tendsto (partialFourierSum' · f x) Filter.atTop (nhds (f x)) := by
   wlog meas_f : Measurable f generalizing f
@@ -72,7 +77,6 @@ theorem carleson_hunt_two_pi [hT : Fact (0 < 2 * π)] {f : AddCircle (2 * π) �
 theorem carleson_hunt' {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ENNReal} (hp : 1 < p)
   (hf : MemLp f p) :
     ∀ᵐ x, Filter.Tendsto (partialFourierSum' · f x) Filter.atTop (nhds (f x)) := by
-  have : Fact (0 < 2 * π) := fact_iff.mpr Real.two_pi_pos
   set g := fun (x : AddCircle (2 * π)) ↦
     f (AddCircle.equivAddCircle (2 * π) T Real.two_pi_pos.ne' hT.out.ne' x)
   have hg : MemLp g p := by
@@ -81,7 +85,7 @@ theorem carleson_hunt' {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {
     apply hf.comp_measurePreserving AddCircle.measurePreserving_equivAddCircle
   have h := carleson_hunt_two_pi hp hg
   rw [AddCircle.volume_eq_smul_haarAddCircle] at *
-  rw [Measure.ae_ennreal_smul_measure_eq (ENNReal.ofReal_ne_zero_iff.mpr this.out)] at h
+  rw [Measure.ae_ennreal_smul_measure_eq (ENNReal.ofReal_ne_zero_iff.mpr two_pi_pos)] at h
   apply Measure.ae_smul_measure
   convert AddCircle.measurePreserving_equivAddCircle.ae_comp h using 4 with x N
   · exact partialFourierSum'_comp_equivAddCircle.symm
@@ -89,6 +93,8 @@ theorem carleson_hunt' {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {
     congr
     exact (AddEquiv.symm_apply_eq
       (AddCircle.equivAddCircle (2 * π) T (two_pi_pos.ne') (hT.out.ne'))).mp rfl
+
+end TwoPiPos
 
 /-- Classical theorem of Carleson and Hunt asserting a.e. convergence of the partial Fourier sums
 for `L^p` functions for `p > 1`. This is a strengthening of `classical_carleson`, and not officially

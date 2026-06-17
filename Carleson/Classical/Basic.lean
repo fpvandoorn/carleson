@@ -49,9 +49,14 @@ theorem partialFourierSum'_comp_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)] [
 def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) : Lp ℂ p (@haarAddCircle T hT) :=
     ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
 
-lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N : ℕ) (f : ℝ → ℂ) :
-    liftIoc (2 * Real.pi) 0 (partialFourierSum N f)
-      = partialFourierSum' N (liftIoc (2 * Real.pi) 0 f) := by
+section TwoPiPos
+
+local instance : Fact (0 < 2 * π) where
+  out := Real.two_pi_pos
+
+lemma partialFourierSum_eq_partialFourierSum' (N : ℕ) (f : ℝ → ℂ) :
+    liftIoc (2 * π) 0 (partialFourierSum N f)
+      = partialFourierSum' N (liftIoc (2 * π) 0 f) := by
   ext x
   unfold partialFourierSum partialFourierSum' liftIoc
   simp only [
@@ -60,22 +65,22 @@ lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N :
   congr with n
   rw [← liftIoc, fourierCoeff_liftIoc_eq]
   congr 2
-  · rw [zero_add (2 * Real.pi)]
+  · rw [zero_add (2 * π)]
   · rcases (eq_coe_Ioc x) with ⟨b, hb, rfl⟩
-    rw [← zero_add (2 * Real.pi)] at hb
+    rw [← zero_add (2 * π)] at hb
     rw [coe_eq_coe_iff_of_mem_Ioc (Subtype.coe_prop _) hb]
-    have : (liftIoc (2 * Real.pi) 0 (fun x ↦ x)) b = (fun x ↦ x) b := liftIoc_coe_apply hb
+    have : (liftIoc (2 * π) 0 (fun x ↦ x)) b = (fun x ↦ x) b := liftIoc_coe_apply hb
     unfold liftIoc at this
     rw [Function.comp_apply, Set.restrict_apply] at this
     exact this
 
-lemma partialFourierSum_eq_partialFourierSum'_apply [hT : Fact (0 < 2 * π)] (N : ℕ) (f : ℝ → ℂ)
+lemma partialFourierSum_eq_partialFourierSum'_apply (N : ℕ) (f : ℝ → ℂ)
   {x : AddCircle (2 * π)} :
-    liftIoc (2 * Real.pi) 0 (partialFourierSum N f) x
-      = partialFourierSum' N (liftIoc (2 * Real.pi) 0 f) x := by
+    liftIoc (2 * π) 0 (partialFourierSum N f) x
+      = partialFourierSum' N (liftIoc (2 * π) 0 f) x := by
   rw [partialFourierSum_eq_partialFourierSum']
 
-lemma partialFourierSum'_eq_partialFourierSum_apply [hT : Fact (0 < 2 * π)] (N : ℕ) (f : AddCircle (2 * π) → ℂ)
+lemma partialFourierSum'_eq_partialFourierSum_apply (N : ℕ) (f : AddCircle (2 * π) → ℂ)
   {x : ℝ} (hx : x ∈ Set.Ioc 0 (2 * π)) :
     partialFourierSum' N f x
     = (partialFourierSum N (fun x ↦ f x)) x := by
@@ -89,9 +94,6 @@ lemma partialFourierSum'_eq_partialFourierSum_apply [hT : Fact (0 < 2 * π)] (N 
     unfold liftIoc
     simp
   rw [this, ← partialFourierSum_eq_partialFourierSum' N _, liftIoc_coe_apply (by simpa)]
-
-
-
 
 lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (1 ≤ p)] {N : ℕ} {f g : AddCircle T → ℂ}
     (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
@@ -113,16 +115,15 @@ lemma partialFourierSum'_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p
     Finset.univ_eq_attach, ← Finset.sum_attach]
   rfl
 
-
-lemma partialFourierSum_aeeq_partialFourierSumLp [hT : Fact (0 < 2 * Real.pi)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_Lp : MemLp (liftIoc (2 * Real.pi) 0 f) 2 haarAddCircle) :
-    liftIoc (2 * Real.pi) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (MemLp.toLp (liftIoc (2 * Real.pi) 0 f) h_mem_Lp)) := by
+lemma partialFourierSum_aeeq_partialFourierSumLp (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_Lp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle) :
+    liftIoc (2 * π) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (MemLp.toLp (liftIoc (2 * π) 0 f) h_mem_Lp)) := by
   rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Lp.aestronglyMeasurable _)
       h_mem_Lp.aestronglyMeasurable (MemLp.coeFn_toLp h_mem_Lp),
     partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
   symm
   apply MemLp.coeFn_toLp
 
-
+end TwoPiPos
 
 local notation "S_" => partialFourierSum
 
