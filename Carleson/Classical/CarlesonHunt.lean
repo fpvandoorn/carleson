@@ -1,15 +1,15 @@
 module
 
-public import Carleson.Classical.ClassicalCarleson
+public import Carleson.Classical.Approximation
+public import Carleson.Classical.ControlApproximationEffect
+public import Carleson.Classical.CarlesonHuntBasic
 public import Carleson.ToMathlib.Dynamics.Ergodic.MeasurePreserving
 
 /-! This file contains the Carleson-Hunt theorem, a generalization of `classical_carleson`. -/
 
-public section
-
 open MeasureTheory Real ENNReal Filter Topology
 
-noncomputable section
+public noncomputable section
 
 local notation "S_" => partialFourierSum
 
@@ -171,7 +171,6 @@ theorem classical_carleson_from_carleson_hunt_real : ClassicalCarleson := by
   rw [ae_restrict_iff' measurableSet_Ioc]
   filter_upwards with x hx
   apply hC _ (Set.Ioc_subset_Icc_self hx)
-
 
 end Real
 
