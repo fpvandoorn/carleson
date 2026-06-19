@@ -1,193 +1,138 @@
 module
 
 public import Carleson.Classical.Approximation
-public import Carleson.Classical.ControlApproximationEffect
+public import Carleson.Classical.ControlApproximationEffectContinuous
+public import Carleson.Classical.CarlesonHuntBasic
 
 public section
 
-/- This file contains the proof of the classical Carleson theorem from Section 11.1. -/
+/- This file contains the proof of the classical Carleson theorem from Section 11.1.
 
-open MeasureTheory Real
+   TODO: This file can be removed once `two_sided_metric_carleson_hasStrongType` no longer depends
+   on `sorryAx`
+-/
+
+open MeasureTheory Real NNReal ENNReal Topology Filter
 
 noncomputable section
 
 local notation "S_" => partialFourierSum
 
+section TwoPiPos
+
+local instance : Fact (0 < 2 * π) where
+  out := two_pi_pos
+
+--TODO: can be removed once `two_sided_metric_carleson_hasStrongType` no longer depends on `sorryAx`
 /- Theorem 1.1 (Classical Carleson) -/
-theorem exceptional_set_carleson {f : ℝ → ℂ}
-    (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π))
-    {ε : ℝ} (εpos : 0 < ε) :
-    ∃ E ⊆ Set.Icc 0 (2 * π), MeasurableSet E ∧ volume.real E ≤ ε ∧
-    ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * π)) \ E, ∀ N > N₀,
-    ‖f x - S_ N f x‖ ≤ ε := by
-  set ε' := ε / 4 / C_control_approximation_effect ε with ε'def
-  have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num))
-    (C_control_approximation_effect_pos εpos)
-  /- Approximate f by a smooth f₀. -/
+theorem exceptional_set_carleson' {f : ℝ → ℂ} (cont_f : Continuous f)
+  (periodic_f : f.Periodic (2 * π)) {δ ε : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) :
+    ∃ N₀, distribution (fun x ↦ ⨆ N > N₀, ‖f x - S_ N f x‖ₑ) δ (volume.restrict (Set.Ioc 0 (2 * π))) ≤ ε := by
+  have δ2pos : 0 < δ / 2 := by positivity
+  have δ4pos : 0 < δ / 4 := by positivity
+  have ε2pos : 0 < ε / 2 := by positivity
+  have ε4pos : 0 < ε / 4 := by positivity
   have unicont_f : UniformContinuous f := periodic_f.uniformContinuous_of_continuous
     Real.two_pi_pos cont_f.continuousOn
-  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := close_smooth_approx_periodic unicont_f periodic_f ε'pos
-  have ε4pos : ε / 4 > 0 := by linarith
+  /- Approximate f by a smooth f₀. -/
+  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ :=
+    close_smooth_approx_periodic unicont_f periodic_f
+      (lt_min δ4pos (C_control_approximation_effect'_pos δ2pos ε2pos))
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀
-    ((contDiff_infty.mp (contDiff_f₀)) 2) ε4pos
-  set h := f₀ - f with hdef
-  have h_measurable : Measurable h := (Continuous.sub contDiff_f₀.continuous cont_f).measurable
-  have h_periodic : h.Periodic (2 * π) := periodic_f₀.sub periodic_f
-  have h_bound : ∀ x, ‖h x‖ ≤ ε' := by
-    intro x
-    simpa only [hdef, Pi.sub_apply, norm_sub_rev] using hf₀ x
-  /- Control approximation effect: Get a bound on the partial Fourier sums of h. -/
-  obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect εpos ε'pos
-    h_measurable h_periodic h_bound
+    ((contDiff_infty.mp (contDiff_f₀)) 2) δ4pos
   /- This is a classical "epsilon third" argument. -/
-  use E, Esubset, Emeasurable, Evolume, N₀
-  intro x hx N NgtN₀
-  calc ‖f x - S_ N f x‖
-  _ = ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x) + (S_ N f₀ x - S_ N f x)‖ := by ring_nf
-  _ ≤ ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x)‖ + ‖S_ N f₀ x - S_ N f x‖ := norm_add_le ..
-  _ ≤ ‖f x - f₀ x‖ + ‖f₀ x - S_ N f₀ x‖ + ‖S_ N f₀ x - S_ N f x‖ :=
-    add_le_add_left (norm_add_le ..) _
-  _ ≤ ε' + (ε / 4) + (ε / 4) := by
-    gcongr
-    · exact hf₀ x
-    · exact hN₀ N NgtN₀ x hx.1
-    · have := hE x hx N
-      rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * π))
-        (cont_f.intervalIntegrable 0 (2 * π))] at this
-      apply le_trans this
-      rw [ε'def, mul_div_cancel₀ _ (C_control_approximation_effect_pos εpos).ne.symm]
-  _ ≤ (ε / 2) + (ε / 4) + (ε / 4) := by
-    gcongr
-    rw [ε'def, div_div]
-    apply div_le_div_of_nonneg_left εpos.le (by norm_num)
-    rw [← div_le_iff₀' (by norm_num)]
-    exact le_trans' (lt_C_control_approximation_effect εpos).le (by linarith [Real.two_le_pi])
-  _ ≤ ε := by linarith
+  use N₀
+  have : ∀ᶠx in (ae (volume.restrict (Set.Ioc 0 (2 * π)))), ⨆ N > N₀, ‖f x - S_ N f x‖ₑ
+      ≤ ‖f x - f₀ x‖ₑ + (⨆ N > N₀, ‖f₀ x - S_ N f₀ x‖ₑ) + ⨆ N, ‖S_ N (f₀ - f) x‖ₑ := by
+    rw [ae_restrict_iff' measurableSet_Ioc]
+    filter_upwards with x hx
+    apply iSup_le
+    intro N
+    apply iSup_le
+    intro hN
+    calc ‖f x - S_ N f x‖ₑ
+      _ = ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x) + (S_ N f₀ x - S_ N f x)‖ₑ := by ring_nf
+      _ ≤ ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x)‖ₑ + ‖S_ N f₀ x - S_ N f x‖ₑ := enorm_add_le ..
+      _ ≤ ‖f x - f₀ x‖ₑ + ‖f₀ x - S_ N f₀ x‖ₑ + ‖S_ N f₀ x - S_ N f x‖ₑ :=
+        add_le_add_left (enorm_add_le ..) _
+      _ ≤ ‖f x - f₀ x‖ₑ + (⨆ N > N₀, ‖f₀ x - S_ N f₀ x‖ₑ) + ⨆ N, ‖S_ N (f₀ - f) x‖ₑ := by
+        gcongr
+        · refine le_iSup₂_of_le N hN ?_
+          rfl
+        · apply le_iSup_of_le N
+          rw [partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * π))
+            (cont_f.intervalIntegrable 0 (2 * π))]
+          · rfl
+  calc _
+    _ ≤ distribution
+        (fun x ↦ ‖f x - f₀ x‖ₑ + (⨆ N > N₀, ‖f₀ x - S_ N f₀ x‖ₑ) + ⨆ N, ‖S_ N (f₀ - f) x‖ₑ)
+        ((δ / 4) + (δ / 4) + (δ / 2)) (volume.restrict (Set.Ioc 0 (2 * π))) := by
+      apply distribution_mono
+      · filter_upwards [this] with x hx
+        simp only [gt_iff_lt, enorm_eq_self, hx]
+      · norm_cast
+        ring_nf
+        rfl
+    _ ≤ distribution (fun x ↦ ‖f x - f₀ x‖ₑ) (δ / 4) (volume.restrict (Set.Ioc 0 (2 * π)))
+        + distribution (fun x ↦ ⨆ N > N₀, ‖f₀ x - S_ N f₀ x‖ₑ) (δ / 4) (volume.restrict (Set.Ioc 0 (2 * π)))
+        + distribution (fun x ↦ ⨆ N, ‖S_ N (f₀ - f) x‖ₑ) (δ / 2) (volume.restrict (Set.Ioc 0 (2 * π))) := by
+      apply distribution_add_le.trans
+      gcongr
+      exact distribution_add_le
+    _ ≤ ε / 2 + 0 + ε / 2 := by
+      gcongr
+      · norm_cast
+        convert zero_le (α := ℝ≥0∞)
+        rw [distribution_eq_zero_iff]
+        apply eLpNormEssSup_le_of_ae_enorm_bound
+        filter_upwards with x
+        simp only [enorm_eq_self, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, coe_div, coe_ofNat]
+        have : ENNReal.ofNNReal δ / 4 = ↑(δ / 4) := by norm_num
+        rw [this, enorm_le_coe]
+        rw [← nnnorm_norm]
+        calc _
+          _ ≤ ‖((δ / 4) : ℝ)‖₊ := nnnorm_le_nnnorm (by simp) ((hf₀ x).trans (min_le_left _ _))
+          _ = δ / 4 := by simp
+      · simp only [gt_iff_lt, nonpos_iff_eq_zero]
+        rw [distribution_eq_zero_iff]
+        apply essSup_le_of_ae_le
+        rw [EventuallyLE, ae_restrict_iff' measurableSet_Ioc]
+        filter_upwards with x hx
+        simp only [enorm_eq_self, iSup_le_iff]
+        intro N hN
+        rw [enorm_eq_nnnorm]
+        norm_cast
+        rw [← nnnorm_norm]
+        calc _
+          _ ≤ ‖((δ / 4) : ℝ)‖₊ :=
+            nnnorm_le_nnnorm (by simp) (hN₀ N hN x (Set.Ioc_subset_Icc_self hx))
+          _ = δ / 4 := by simp
+      · norm_cast
+        apply control_approximation_effect' (ε := ε / 2) δ2pos ε2pos
+          (contDiff_f₀.continuous.sub cont_f).measurable
+            (periodic_f₀.sub periodic_f)
+        intro x
+        rw [norm_sub_rev]
+        apply (hf₀ x).trans (min_le_right _ _)
+    _ = ε := by simp
 
-theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
-    ∀ᵐ x ∂volume.restrict (Set.Icc 0 (2 * π)),
-      Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
-  let δ (k : ℕ) : ℝ := 1 / (k + 1) --arbitrary sequence tending to zero
-  have δconv : Filter.Tendsto δ Filter.atTop (nhds 0) := tendsto_one_div_add_atTop_nhds_zero_nat
-  have δpos (k : ℕ) : 0 < δ k := by apply div_pos zero_lt_one (by linarith)
-  -- ENNReal version to be comparable to volumes
-  let δ' (k : ℕ) := ENNReal.ofReal (δ k)
-  have δ'conv : Filter.Tendsto δ' Filter.atTop (nhds 0) := by
-    rw [← ENNReal.ofReal_zero]
-    exact ENNReal.tendsto_ofReal δconv
-  set ε := fun k n ↦ (1 / 2) ^ n * 2⁻¹ * δ k with εdef
-  have εpos (k n : ℕ) : 0 < ε k n := by positivity
-  have εsmall (k : ℕ) {e : ℝ} (epos : 0 < e) : ∃ n, ε k n < e := by
-    have : Filter.Tendsto (ε k) Filter.atTop (nhds 0) := by
-      rw [εdef]
-      simp_rw [mul_assoc]
-      rw [← zero_mul (2⁻¹ * δ k)]
-      apply Filter.Tendsto.mul_const
-      exact tendsto_pow_atTop_nhds_zero_of_lt_one (by linarith) (by linarith)
-    rw [Metric.tendsto_atTop] at this
-    rcases (this e epos) with ⟨n, hn⟩
-    use n
-    convert (hn n (by simp))
-    simp_rw [dist_zero_right, Real.norm_eq_abs, abs_of_nonneg (εpos k n).le]
-  have δ'_eq {k : ℕ} : δ' k = ∑' n, ENNReal.ofReal (ε k n) := by
-    rw [εdef]
-    conv => rhs; pattern ENNReal.ofReal _; rw [ENNReal.ofReal_mul' (δpos k).le,
-      ENNReal.ofReal_mul' (by norm_num), ENNReal.ofReal_pow (by norm_num)]
-    rw [ENNReal.tsum_mul_right, ENNReal.tsum_mul_right, ENNReal.tsum_geometric,
-      ← ENNReal.ofReal_one, ← ENNReal.ofReal_sub, ← ENNReal.ofReal_inv_of_pos (by norm_num),
-      ← ENNReal.ofReal_mul' (by norm_num)]
-    conv => pattern ENNReal.ofReal _; ring_nf; rw [ENNReal.ofReal_one]
-    · rw [one_mul]
-    norm_num
-  -- Main step: Apply exceptional_set_carleson to get a family of exceptional sets parameterized by ε.
-  choose Eε hEε_subset _ hEε_measure hEε using (@exceptional_set_carleson f cont_f periodic_f)
-  have Eεmeasure {ε : ℝ} (hε : 0 < ε) : volume (Eε hε) ≤ ENNReal.ofReal ε := by
-    rw [ENNReal.le_ofReal_iff_toReal_le _ hε.le]
-    · exact hEε_measure hε
-    · rw [← lt_top_iff_ne_top]
-      apply lt_of_le_of_lt (measure_mono (hEε_subset hε)) measure_Icc_lt_top
-  -- Define exceptional sets parameterized by δ.
-  let Eδ (k : ℕ) := ⋃ (n : ℕ), Eε (εpos k n)
-  have Eδmeasure (k : ℕ) : volume (Eδ k) ≤ δ' k := by
-    apply le_trans (measure_iUnion_le _)
-    rw [δ'_eq]
-    exact ENNReal.tsum_le_tsum (fun n ↦ Eεmeasure (εpos k n))
-  -- Define final exceptional set.
-  let E := ⋂ (k : ℕ), Eδ k
-  -- Show that it has the desired property.
-  have hE : ∀ x ∈ (Set.Icc 0 (2 * π)) \ E, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
-    intro x hx
-    rw [Set.diff_iInter, Set.mem_iUnion] at hx
-    rcases hx with ⟨k,hk⟩
-    rw [Set.diff_iUnion, Set.mem_iInter] at hk
-    rw [Metric.tendsto_atTop']
-    intro e epos
-    rcases (εsmall k epos) with ⟨n, lt_e⟩
-    rcases (hEε (εpos k n)) with ⟨N₀,hN₀⟩
-    use N₀
-    intro N hN
-    rw [dist_comm, dist_eq_norm]
-    exact (hN₀ x (hk n) N hN).trans_lt lt_e
-  -- Show that is has measure zero.
-  have Emeasure : volume E ≤ 0 := by
-    have : ∀ k, volume E ≤ δ' k := by
-      intro k
-      apply le_trans' (Eδmeasure k)
-      apply measure_mono
-      apply Set.iInter_subset
-    exact ge_of_tendsto' δ'conv this
-  -- Use results to prove the statement.
-  rw [ae_restrict_iff' measurableSet_Icc]
-  apply le_antisymm _ zero_le
-  apply le_trans' Emeasure
-  apply measure_mono
-  intro x hx
-  simp only [Set.mem_compl_iff, Set.mem_setOf_eq, Classical.not_imp] at hx
-  by_contra h
-  exact hx.2 (hE x ⟨hx.1, h⟩)
+end TwoPiPos
 
-section
-open Pointwise
+--TODO: can be removed once `two_sided_metric_carleson_hasStrongType` no longer depends on `sorryAx`
+theorem carleson_interval' {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
+    ∀ᵐ x ∂volume.restrict (Set.Ioc 0 (2 * π)),
+      Tendsto (S_ · f x) atTop (𝓝 (f x)) := by
+  apply ae_tendsto_zero_of_distribution_le
+  intro δ δpos ε εpos
+  exact exceptional_set_carleson' cont_f periodic_f δpos εpos
 
---TODO: might be generalized
-lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : (x : ℝ) → Prop}
-    (hP : Function.Periodic P T)
-    (h : ∀ᵐ x ∂volume.restrict (Set.Ico a (a + T)), P x) : ∀ᵐ x, P x := by
-  rw [ae_restrict_iff' measurableSet_Ico, ae_iff] at h
-  set E_interval := {x | ¬(x ∈ Set.Ico a (a + T) → P x)} with E_interval_def
-  -- Define exceptional set as countable union of translations of the exceptional set on the interval
-  set E := ⋃ (k : ℤ), k • T +ᵥ E_interval with Edef
-  have hE : E = {a | ¬P a} := by
-    ext x
-    rw [Set.mem_iUnion]
-    constructor
-    · intro h
-      rcases h with ⟨k, hk⟩
-      rw [Set.mem_vadd_set_iff_neg_vadd_mem, vadd_eq_add, ← sub_eq_neg_add, E_interval_def] at hk
-      simp only [Classical.not_imp, Set.mem_setOf_eq, hP.sub_zsmul_eq k] at hk
-      exact hk.2
-    · dsimp
-      rcases (hP.exists_mem_Ico' hT x a) with ⟨n, hn, hxn⟩
-      rw [hxn]
-      refine fun h ↦ ⟨n, ?_⟩
-      rw [Set.mem_vadd_set_iff_neg_vadd_mem, vadd_eq_add, ← sub_eq_neg_add, E_interval_def]
-      simp only [Classical.not_imp, Set.mem_setOf_eq]
-      exact ⟨hn, h⟩
-  -- The union still has measure zero
-  have Emeasure : volume E = 0 := by
-    rw [Edef, measure_iUnion_null]
-    refine fun k ↦ measure_vadd_null h ..
-  rw [ae_iff, ← hE]
-  exact Emeasure
-
-end
-
+--TODO: can be removed once `two_sided_metric_carleson_hasStrongType` no longer depends on `sorryAx`
 /- **Carleson's theorem** asserting a.e. point-wise convergence of the partial Fourier sums for
 periodic continuous functions. -/
 theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
-    ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+    ∀ᵐ x, Tendsto (S_ · f x) atTop (𝓝 (f x)) := by
   -- Reduce to a.e. convergence on [0,2π]
-  apply @Function.Periodic.ae_of_ae_restrict _ Real.two_pi_pos 0
+  apply @Function.Periodic.ae_of_ae_restrict _ two_pi_pos 0
   · rw [Function.Periodic]
     intro x
     conv => pattern S_ _ _ _; rw [partialFourierSum_periodic]
@@ -195,8 +140,9 @@ theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f
   apply ae_restrict_of_ae_eq_of_ae_restrict Ico_ae_eq_Icc.symm
   rw [zero_add]
   -- Show a.e. convergence on [0,2π]
-  exact carleson_interval cont_f periodic_f
+  rw [Measure.restrict_congr_set Ioc_ae_eq_Icc.symm]
+  exact carleson_interval' cont_f periodic_f
 
-theorem classical_carleson_check : ClassicalCarleson := @classical_carleson
+theorem classical_carleson_check : ClassicalCarleson := classical_carleson
 
 end

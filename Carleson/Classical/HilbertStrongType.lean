@@ -190,6 +190,11 @@ theorem AddCircle.haarAddCircle_eq_smul_volume {T : ℝ} [hT : Fact (0 < T)] :
   rw [volume_eq_smul_haarAddCircle, ← smul_assoc, smul_eq_mul,
     ENNReal.inv_mul_cancel (by simp [hT.out]) ENNReal.ofReal_ne_top, one_smul]
 
+section TwoPiPos
+
+local instance : Fact (0 < 2 * π) where
+  out := Real.two_pi_pos
+
 open AddCircle in
 /-- Lemma 11.1.10.
 -/
@@ -202,7 +207,6 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
   · rw [hf_L2]
     exact OrderTop.le_top _
   rw [← lt_top_iff_ne_top] at hf_L2
-  have : Fact (0 < 2 * π) := ⟨by positivity⟩
   have lift_MemLp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
     unfold MemLp
     constructor
@@ -212,7 +216,7 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
     · rw [haarAddCircle_eq_smul_volume, eLpNorm_smul_measure_of_ne_top (by trivial),
         eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
       apply ENNReal.mul_lt_top _ hf_L2
-      rw [← ENNReal.ofReal_inv_of_pos this.out]
+      rw [← ENNReal.ofReal_inv_of_pos Real.two_pi_pos]
       apply ENNReal.rpow_lt_top_of_nonneg ENNReal.toReal_nonneg ENNReal.ofReal_ne_top
   let F : Lp ℂ 2 haarAddCircle :=
     MemLp.toLp (AddCircle.liftIoc (2 * π) 0 f) lift_MemLp
@@ -231,6 +235,8 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
     Filter.EventuallyEq.symm (partialFourierSum_aeeq_partialFourierSumLp 2 n f lift_MemLp)
   rw [← eLpNorm_congr_ae ae_eq_right, ← eLpNorm_congr_ae ae_eq_left]
   exact lp_version
+
+end TwoPiPos
 
 private lemma norm_modulationOperator (g : ℝ → ℂ) (n : ℤ) (x : ℝ) :
     ‖modulationOperator n g x‖ = ‖g x‖ := by
@@ -279,6 +285,11 @@ lemma modulated_averaged_projection' {g : ℝ → ℂ} {n : ℕ} (hmg : AEMeasur
 
 /- Lemma 11.3.2 `periodic-domain-shift` is in Mathlib. -/
 
+section TwoPiPos
+
+local instance : Fact (0 < 2 * π) where
+  out := Real.two_pi_pos
+
 /-- Lemma 11.3.3.
 -/
 lemma young_convolution {f g : ℝ → ℝ} (hmf : AEMeasurable f)
@@ -286,11 +297,12 @@ lemma young_convolution {f g : ℝ → ℝ} (hmf : AEMeasurable f)
     eLpNorm (fun x ↦ ∫ y in (0)..2 * π, f y * g (x - y)) 2 (volume.restrict (Ioc 0 (2 * π))) ≤
       eLpNorm f 2 (volume.restrict (Ioc 0 (2 * π)))
       * eLpNorm g 1 (volume.restrict (Ioc 0 (2 * π))) := by
-  have : Fact (0 < 2 * π) := ⟨mul_pos two_pos Real.pi_pos⟩
   have h2 : (1 : ℝ≥0∞) ≤ 2 := by exact one_le_two
   simpa [zero_add] using ENNReal.eLpNorm_Ioc_convolution_le_of_norm_le_mul
     (ContinuousLinearMap.mul ℝ ℝ) 0 h2 (le_refl 1) h2 (by rw [inv_one])
     periodic_g hmf.aestronglyMeasurable hmg.aestronglyMeasurable 1 (by simp)
+
+end TwoPiPos
 
 /-- Lemma 11.3.4.
 -/

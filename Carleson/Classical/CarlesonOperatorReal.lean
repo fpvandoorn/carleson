@@ -2,6 +2,7 @@ module
 
 public import Carleson.Classical.HilbertKernel
 public import Mathlib.MeasureTheory.Integral.Prod
+public import Carleson.ToMathlib.Annulus
 
 @[expose] public section
 
@@ -74,9 +75,26 @@ private lemma Qᵣ_countable : Countable Qᵣ :=
 
 local notation "T" => carlesonOperatorReal K
 
-lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f)
-    {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) :
+lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (meas_f : AEStronglyMeasurable f)
+  (hf : ∀ x, IntegrableOn f (Set.Ioo x (x + 2))) :
     Measurable (T f) := by
+  wlog f_measurable : Measurable f
+  · rcases meas_f with ⟨g, hg, hfg⟩
+    convert this (f := g) hg.aestronglyMeasurable _ hg.measurable using 1
+    · unfold carlesonOperatorReal
+      congr with x
+      congr with n
+      congr with r
+      congr with _
+      congr with _
+      congr 1
+      apply integral_congr_ae
+      apply Filter.EventuallyEq.restrict
+      filter_upwards [hfg]
+      intro y hy
+      congr
+    intro x
+    exact (integrableOn_congr_fun_ae hfg.restrict).mp (hf x)
   apply Measurable.iSup
   intro n
   set F : ℝ → ℝ → ℝ → ℂ :=
@@ -122,36 +140,33 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       · rw [Sdef]
         constructor <;> linarith
     apply continuousAt_of_dominated _  h_bound
-    · have F_bound_on_set : ∀ a ∈ {y | dist x y ∈ Set.Ioo (r / 2) 1},
-          ‖f a * K x a * (Complex.I * ↑n * ↑a).exp‖ ≤ B * ‖2 ^ (2 : ℝ) / (2 * (r / 2))‖ := by
-        intro a ha
-        rw [norm_mul, norm_mul, mul_assoc Complex.I, mul_comm Complex.I]
-        norm_cast
-        rw [Complex.norm_exp_ofReal_mul_I, mul_one]
-        gcongr
-        · linarith [f_bounded 0, norm_nonneg (f 0)]
-        · exact f_bounded a
-        · rw [Set.mem_setOf_eq] at ha
-          rw [Real.norm_eq_abs, abs_of_nonneg (by apply div_nonneg (by norm_num); linarith)]
-          calc _
-            _ ≤ 2 ^ (2 : ℝ) / (2 * |x - a|) := Hilbert_kernel_bound
-            _ ≤ 4 / (2 * (r / 2)) := by
-              gcongr
-              · linarith
-              · rw [← Real.dist_eq]
-                exact ha.1.le
-      rw [bound_def, Fdef]
+    · rw [bound_def, Fdef]
       conv => pattern ‖_‖; rw [norm_indicator_eq_indicator_norm]
       rw [integrable_indicator_iff annulus_measurableSet]
-      apply Measure.integrableOn_of_bounded
-      · rw [annulus_real_volume (by constructor <;> linarith)]
-        exact ENNReal.ofReal_ne_top
-      · apply ((Measurable.of_uncurry_left (measurable_mul_kernel f_measurable)).norm).aestronglyMeasurable
-      · --interesting part
+      have bound_on_set : ∀ᵐ a ∂(volume.restrict {y | dist x y ∈ Set.Ioo (r / 2) 1}),
+          ‖K x a * (Complex.I * (↑n * ↑a)).exp‖ ≤ ‖2 ^ (2 : ℝ) / (2 * (r / 2))‖ := by
         rw [ae_restrict_iff' annulus_measurableSet]
-        simp_rw [norm_norm]
-        apply Filter.Eventually.of_forall
-        apply F_bound_on_set
+        filter_upwards with a ha
+        rw [norm_mul, mul_comm Complex.I]
+        norm_cast
+        rw [Complex.norm_exp_ofReal_mul_I, mul_one]
+        rw [Real.norm_eq_abs, abs_of_nonneg (by apply div_nonneg (by norm_num); linarith)]
+        calc _
+          _ ≤ 2 ^ (2 : ℝ) / (2 * |x - a|) := Hilbert_kernel_bound
+          _ ≤ 4 / (2 * (r / 2)) := by
+            gcongr
+            · linarith
+            · rw [← Real.dist_eq]
+              exact ha.1.le
+      simp_rw [Complex.norm_mul] at bound_on_set
+      simp_rw [Complex.norm_mul, mul_assoc]
+      unfold IntegrableOn
+      apply Integrable.mul_bdd _ (by fun_prop) (by simpa only [norm_mul, norm_norm])
+      apply Integrable.norm
+      rw [annulus_real_eq (by linarith [hr]), ← IntegrableOn]
+      apply IntegrableOn.mono_set (hf (x - 1))
+      intro y
+      grind
     · have contOn1 : ∀ (y : ℝ), ContinuousOn (F x · y) (Set.Iio (dist x y)) := by
         intro y
         rw [continuousOn_iff_continuous_restrict]
@@ -210,8 +225,11 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         · right; linarith
       rw [ae_iff]
       exact measure_mono_null subset_finite (Finset.measure_zero _ _)
-    · exact Filter.Eventually.of_forall fun r ↦ ((Measurable.of_uncurry_left
-        (measurable_mul_kernel f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
+    · filter_upwards with r
+      apply AEStronglyMeasurable.indicator _ annulus_measurableSet
+      apply AEStronglyMeasurable.mul
+      · apply AEStronglyMeasurable.mul meas_f (by fun_prop)
+      · fun_prop
   rw [hGr]
   refine Measurable.biSup _ (Set.Countable.mono Set.inter_subset_right Qᵣ_countable) (fun r _ ↦ ?_)
   apply measurable_coe_nnreal_ennreal.comp (measurable_nnnorm.comp _)
@@ -264,7 +282,9 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
     mul_one_div_cancel ha.ne', enorm_one, one_mul
   ]
 
-lemma carlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ} (hx : x ∈ Set.Icc a b) : T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
+lemma carlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ}
+  (hx : x ∈ Set.Icc a b) :
+    T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
   simp_rw [carlesonOperatorReal]
   congr with n
   congr with _
