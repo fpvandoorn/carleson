@@ -174,7 +174,7 @@ The original reference \cite{ThieleCarlesonPreprint} was written as a traditiona
 
 To address this challenge, before the formalization started, the authors of \cite{ThieleCarlesonPreprint} wrote a much more detailed document \cite{CarlesonBlueprint} intended as a blueprint for the formalization, which was modified as needed while the formalization process was taking place (see \S\ref{sec:blueprint}).
 
-The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and other smaller contributions were made by the 14 people listed in the acknowledgements section. This makes the Carleson project one of the largest scale formalization efforts up to date.
+The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and smaller contributions were made by the 14 additional people listed in the acknowledgements section. This makes the Carleson project one of the largest scale formalization efforts to date.
 
 The formalization was written in Lean 4, making extensive use of Lean's mathematical library, \mathlib. The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
 
@@ -215,17 +215,18 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 
 \subsection{Mathematical background}\label{subsec:background}
 The basic object of study in Carleson's theorem is the Fourier series of a periodic function on the real numbers.
-Given a function $f : [0, 2\pi) \to \complex$ and $n \in \mathbb{Z}$, we first define the $n$th Fourier coefficient of $f$ as
+Given a $2\pi$-function $f : \real \to \complex$ and $n \in \mathbb{Z}$, define the {\em $n$th Fourier coefficient} of $f$ as
 \begin{equation}\label{eq:fourier-coefficients}
     c_n \coloneq \widehat{f}_n \coloneq \frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
 \end{equation}
 The Lean version \lean{fourierCoeff} uses \mathlib's formalization of the Bochner integral and thus is well-defined if $f\in L^1(0,2\pi)$.
 
-We define the $N$-th partial Fourier sum of $f$ at $x\in [0,2\pi]$  as
+We define the {\em $N$-th partial Fourier sum} of $f$ for $x\in\real$  as
 \begin{equation}\label{eq:trig-series}
-    S_N f(x) \coloneq \sum_{n=-N}^N c_n e^{inx} \
+    S_N f(x) \coloneq \sum_{n=-N}^N c_n e^{inx}. \
 \end{equation}
-and its Fourier series as $\lim_{N\to\infty} S_N f (x)$.
+The {\em Fourier series} of $f$ is then given by the formal trigonometric series $\sum_{n=-\infty}^\infty c_n e^{inx}$,
+which may or may not converge for a given $x\in\real$.
 
 The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$. This is defined to be a complete
 and locally compact metric space $(X,\rho)$
@@ -262,12 +263,8 @@ The specific statement is as follows:
 \begin{theorem}[classical Carleson]
     \label{classical-carleson}
     Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
-    Then for almost all $x \in \mathbb{R}$ we have
-    \begin{equation}\label{eq:fourier-limit}
-      \lim_{N\to\infty}S_N f(x) = f(x),
-    \end{equation}
-    where $S_N f$ is the $N$-th partial Fourier sum $S_N(x):= \sum_{n=-N}^N c_n e^{inx}$
-    with coefficients $c_n:=\frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.$
+    Then for almost all $x \in \mathbb{R}$, the limit
+    $\lim_{N\to\infty} S_N f(x)$ exists and is equal to $f(x)$.
 \end{theorem}
 
 The formalization was approached through a recent result (blabla reference) which encompasses a number of generalizations of Carleson's original theorem.
@@ -678,7 +675,7 @@ Zulip was also used in case someone had questions about a task,
 or found a potential issue in the proof of a lemma.
 In that case, another contributor or a member of Bonn's harmonic analysis group could help clarify the proof.
 In a few cases, an inaccuracy was found that required changes to the statement of one or more lemma statements in the blueprint,
-as described in Subsection \ref{subsec:blueprint_mistakes}.
+as described in \S\ref{subsec:blueprint_mistakes}.
 
 We divided the material to be formalized into two categories:
 general material that would be useful in many other formalization projects,
@@ -721,7 +718,7 @@ Mf\colon\real^d \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(
 If $f$ is integrable, then $M f$ is (weak) $L^1$, and hence finite almost everywhere. Initially, the blueprint only used a variant taking a supremum over finitely many balls: this ensured the resulting function was \emph{always} finite, hence real-valued. Applying it to a countable collection of balls required taking a limit and using the monotone convergence theorem.
 This is a somewhat inelegant solution: most results about the maximal function do hold for any suprema, hence should be proven in the appropriate generality. We also prefer to avoid a superfluous limiting argument.
 
-For the formal proof, we changed the definition to allow arbitrary suprema: this means the maximal function is $[0,\infty]$-valued. Being able to speak of $L^p$-functions valued in $[0,\infty]$ prompted the introduction of \emph{extended norms}, see Subsection~\ref{subsec:enorm}.
+For the formal proof, we changed the definition to allow arbitrary suprema: this means the maximal function is $[0,\infty]$-valued. Being able to speak of $L^p$-functions valued in $[0,\infty]$ prompted the introduction of \emph{extended norms}, see \S\ref{subsec:enorm}.
 
 \subsubsection{The real interpolation theorem}\label{subsubsec:real_interpolation}
 The Marcinkiewicz real interpolation theorem is a standard result in functional analysis.
@@ -735,7 +732,7 @@ we have formalised a more general argument that is also conceptually clearer: fo
 For further detail, we refer the reader to a separate article \cite{PortegiesRothgangRealInterpolation}.
 
 \subsection{Constant tweaking} As explained below in
-Subsection~\ref{subsec:constants}, the constants appearing in the blueprint
+\S\ref{subsec:constants}, the constants appearing in the blueprint
 are always explicit and most often in the form $2^{n a^3}$ where $a$ is a
 given parameter of the system and $n$ is a concrete natural number, ranging
 from $1$ or $2$ in the first lemmas to $443$ in the final result.
@@ -748,7 +745,7 @@ in all the statements that depend transitively on it. The standard practice
 in paper mathematics to avoid this kind of intricate dependency is not to
 care about the constants, and formulate the lemmas as ``there exists a
 universal constant $C$ such that ...''. This is not a viable approach in
-formalized mathematics, as explained in Subsection~\ref{subsec:constants}.
+formalized mathematics, as explained in \S\ref{subsec:constants}.
 
 To mitigate this issue and avoid endless corrections, during the development
 process the constant in each lemma did not have a numerical value, but
@@ -827,9 +824,7 @@ above, the finitary variant also led to an unnecessary limiting argument to gene
 to the standard version.
 The finite grid constructions on the other hand meant that several edge cases had to be handled
 when encountering the smallest or largest scale. This introduced additional formalization effort
-and led to small inaccuracies in the blueprint again causing some confusion during formalization,
-which could have been avoided by allowing infinite scales at the expense
-of slightly more subtle arguments.
+and led to small inaccuracies in the blueprint again causing some confusion during formalization.
 
 An additional minor point was that the lack of definition environments in the blueprint also
 meant that definitions were absent from the dependency graph.
@@ -1000,7 +995,7 @@ Gradually, we came to the conclusion that, with some exceptions, it was best to 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
 
 This project motivated the creation of a new formalisation abstraction: \emph{extended norms} (\lean{enorm}s for short) generalise many results from normed spaces to $\ennreal$.
-Their introduction was motivated by defining the Hardy--Littlewood maximal with co-domain $\ennreal=[0,\infty]$ (see Subsection~\ref{subsec:blueprint_changes}).
+Their introduction was motivated by defining the Hardy--Littlewood maximal with co-domain $\ennreal=[0,\infty]$ (see \S\ref{subsec:blueprint_changes}).
 Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. Speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, the $L^p$ norm of $f\colon X\to\ennreal$ for $p<\infty$ can be defined as $(\int_X \abs{f(x)}^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto \abs{f(x)}^p$.
 
 Motivated by this observation, we introduced a new notation class \lean{ENorm}, describing a type endowed with a function $\texttt{enorm}\colon X\to\ennreal$.
