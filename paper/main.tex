@@ -30,7 +30,8 @@
 
 % These options can be changed later; these may be personal preferences.
 \hypersetup{
-  bookmarks,bookmarksopen,bookmarksnumbered,
+%   bookmarks,
+  bookmarksopen,bookmarksnumbered,
   colorlinks = true,
   linkcolor  = blue,
   citecolor  = red,
@@ -151,14 +152,14 @@ University of Trento}
 
 \begin{document}
 
-\maketitle
-
 \begin{abstract}
 We present the formalization of Carleson's theorem in the proof assistant \emph{Lean}.
 This paper describes the mathematical content, organization of the project, the blueprint,
 and the main design decisions behind the formalization. It is the result of a large
 collaborative effort, written and developed in public.
 \end{abstract}
+
+\maketitle
 
 \tableofcontents
 
@@ -302,7 +303,7 @@ with $\kappa: \R\to\C$ defined as:
 
 Let $a \ge 4$ be a natural number. A doubling metric measure space $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
 equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
-\begin{equation}\label{doublingx}
+\begin{equation}\label{doublingx-duped} % duplicated!
     \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
 \end{equation}
 where we have denoted by $B(x,R)$ the open ball of radius $R$ centered at $x$.
@@ -618,11 +619,6 @@ These three branches of the proof are largely independent and handled in separat
 
 \section{Project organization}\label{sec:org}
 
-% To be more professional, let's try to avoid naming too many contributors by name.
-% terminology question: contributor vs author?
-% The Carleson project was a large formalization project that the 14 authors of this paper
-% contributed to over the space of 13 months,
-% from June 2024 to July 2025, although most authors were not active for the whole duration of the project.
 The planning of the Carleson project started in Fall 2023 by
 F.v.D. and the harmonic analysis group in Bonn,
 consisting of L.B., Christoph Thiele and Rajula Srivastava.
@@ -995,7 +991,7 @@ The last phase (generalising mathlib lemmas) is not exhaustive: while substantia
 
 The process of generalisation revealed that this abstraction is also useful on its own: previously, many proofs in mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using enorms provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics.
 
-\subsection{Working with $L^p$ functions}\label{subsec:Lp}
+\subsection{Working with \texorpdfstring{$L^p$}{L\^{}p} functions}\label{subsec:Lp}
 
 % shorter version would start with
 % Experience in this project has demonstrated that working with $L^p$ functions as actual functions (using \lean{MemLp}) as opposed to their equivalence classes (\lean{MeasureTheory.Lp}) is much more ergonomic.
@@ -1014,7 +1010,7 @@ This relates well with the use of enorms (\ref{subsec:enorm}): \lean{Lp E p µ} 
 This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lean{{f : X → Y} (hf : Continuous f)} instead of the bundled \lean{f : ContinuousMap X Y}.
 
 \subsection{Test function classes}\label{subsec:bdd_comp_supp}
-A common task during the formalization was to prove the various integrability and measurability sidegoals
+A common task during the formalization was to prove the various integrability and measurability side goals
 arising when estimating integrals.
 As is typical in harmonic analysis, most technical estimates are {\it a priori} estimates involving
 input functions in suitable test function classes.
