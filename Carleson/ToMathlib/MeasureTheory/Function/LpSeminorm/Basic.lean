@@ -71,15 +71,11 @@ section Suprema
 
 theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableSpace α]
     {μ : Measure α} (f : ι → α → ℝ≥0∞) :
-    ⨆ n, eLpNormEssSup (f n) μ = eLpNormEssSup (⨆ n, f n) μ := by
+    eLpNormEssSup (fun x => ⨆ n, f n x) μ = ⨆ n, eLpNormEssSup (f n) μ := by
   simp_rw [eLpNormEssSup, essSup_eq_sInf, enorm_eq_self]
   apply le_antisymm
-  · refine iSup_le fun i ↦ le_sInf fun b hb ↦ sInf_le ?_
-    simp only [iSup_apply, mem_setOf_eq] at hb ⊢
-    exact nonpos_iff_eq_zero.mp <|le_of_le_of_eq
-        (measure_mono fun ⦃x⦄ h ↦ lt_of_lt_of_le h (le_iSup (fun i ↦ f i x) i)) hb
   · apply sInf_le
-    simp only [iSup_apply, mem_setOf_eq]
+    simp only [mem_setOf_eq]
     apply nonpos_iff_eq_zero.mp
     calc
     _ ≤ μ (⋃ i, {x | ⨆ n, sInf {a | μ {x | a < f n x} = 0} < f i x}) := by
@@ -95,6 +91,10 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
       · simp
     _ = ∑' i, 0 := by congr with i; exact meas_eLpNormEssSup_lt
     _ = 0 := by simp
+  · refine iSup_le fun i ↦ le_sInf fun b hb ↦ sInf_le ?_
+    simp only [mem_setOf_eq] at hb ⊢
+    exact nonpos_iff_eq_zero.mp <|le_of_le_of_eq
+        (measure_mono fun ⦃x⦄ h ↦ lt_of_lt_of_le h (le_iSup (fun i ↦ f i x) i)) hb
 
 -- XXX: why does the lemma before assume a countable indexing type and this work with ℕ?
 -- make consistent!
@@ -103,7 +103,7 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
   statement in `eLpNormEssSup_iSup` holds. -/
 theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : ℝ≥0∞}
     {f : ℕ → α → ℝ≥0∞} (hf : ∀ n, AEMeasurable (f n) μ) (h_mono : ∀ᵐ x ∂μ, Monotone fun n => f n x) :
-    ⨆ n, eLpNorm (f n) p μ = eLpNorm (⨆ n, f n) p μ := by
+    eLpNorm (fun x => ⨆ n, f n x) p μ = ⨆ n, eLpNorm (f n) p μ := by
   unfold eLpNorm
   split_ifs with hp hp'
   · simp
@@ -117,7 +117,6 @@ theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : �
       beta_reduce; gcongr; simp only [enorm_eq_self]; apply ha hmn
 
 end Suprema
-
 
 section Indicator
 
@@ -137,5 +136,47 @@ lemma eLpNormEssSup_indicator_const_eq' {s : Set α} {c : ε} (hμs : μ s = 0) 
   rw [Set.indicator_of_notMem ha, enorm_zero]
 
 end Indicator
+
+section ENormSMulClass
+
+open Filter
+
+variable {𝕜 : Type*} --[NormedRing 𝕜]
+  {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε] [SMul NNReal ε] [ENorm 𝕜]
+  [ENormSMulClass NNReal ε]
+  {c : NNReal} {f : α → ε}
+
+theorem eLpNorm'_const_smul_le'' (hq : 0 < q) : eLpNorm' (c • f) q μ ≤ ‖c‖ₑ * eLpNorm' f q μ :=
+  eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul'
+    (Eventually.of_forall fun _ ↦ le_of_eq (enorm_smul ..)) hq
+
+theorem eLpNormEssSup_const_smul_le'' : eLpNormEssSup (c • f) μ ≤ ‖c‖ₑ * eLpNormEssSup f μ :=
+  eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul'
+    (Eventually.of_forall fun _ => by simp [enorm_smul])
+
+theorem eLpNorm_const_smul_le'' : eLpNorm (c • f) p μ ≤ ‖c‖ₑ * eLpNorm f p μ :=
+  eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul'
+    (Eventually.of_forall fun _ => le_of_eq (enorm_smul ..)) _
+
+theorem MemLp.const_smul'' [ContinuousConstSMul NNReal ε] (hf : MemLp f p μ) :
+    MemLp (c • f) p μ :=
+  ⟨hf.1.const_smul c, eLpNorm_const_smul_le''.trans_lt (ENNReal.mul_lt_top ENNReal.coe_lt_top hf.2)⟩
+
+theorem MemLp.const_mul'' [ContinuousConstSMul NNReal ε] (hf : MemLp f p μ) :
+    MemLp (fun x => c • f x) p μ :=
+  hf.const_smul''
+
+end ENormSMulClass
+
+section Lp
+
+variable {ε : Type*} [TopologicalSpace ε] [ENorm ε]
+
+lemma MemLp.eLpNormEssSup_lt_top {f : α → ε} (hu : MemLp f ⊤ μ) :
+    eLpNormEssSup f μ < ⊤ := by
+  simp_rw [MemLp, eLpNorm_exponent_top] at hu
+  exact hu.2
+
+end Lp
 
 end MeasureTheory

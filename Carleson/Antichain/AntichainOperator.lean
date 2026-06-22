@@ -233,7 +233,7 @@ lemma M14_bound (hg : MemLp g 2 volume) :
   have a4 := four_le_a X
   have ha22 : HasStrongType (M14 𝔄 (q₆ a).toNNReal) 2 2 volume volume
       (C2_0_6 (defaultA a) (q₆ a).toNNReal 2) := by
-    apply hasStrongType_maximalFunction 𝔄.to_countable
+    apply hasStrongType_maximalFunction
       (Real.toNNReal_pos.mpr <| zero_lt_one.trans (one_lt_q₆ a4))
     simp only [Nat.cast_ofNat, Real.toNNReal_lt_ofNat]
     exact (q₆_le_superparticular a4).trans_lt (by norm_num)
@@ -275,7 +275,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     _ = Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         ∫⁻ y in ⋃ p ∈ 𝔄, E p, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by
       rw [mul_assoc _ (C6_1_6 a : ℝ≥0∞), mul_assoc (_ * _), ← lintegral_const_mul'']; swap
-      · exact (Measurable.maximalFunction.aemeasurable.mul
+      · exact (measurable_maximalFunction.aemeasurable.mul
           hg.enorm.aemeasurable).restrict
       congr 1; simp_rw [← mul_assoc]
       rw [← lintegral_biUnion_finset _ (fun _ _ ↦ measurableSet_E)]
@@ -290,7 +290,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
       conv_rhs => enter [2, 2]; rw [← eLpNorm_enorm]
       gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
-        Measurable.maximalFunction.aemeasurable hg.enorm.aemeasurable
+        measurable_maximalFunction.aemeasurable hg.enorm.aemeasurable
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (2 ^ (a + 2) * eLpNorm g 2 ^ 2) := by
       rw [sq, ← mul_assoc (_ ^ _)]

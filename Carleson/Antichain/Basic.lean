@@ -152,7 +152,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
 /-- Lemma 6.1.2. -/
 lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     {f : X → ℂ} (hfm : Measurable f) (x : X) :
-    ‖carlesonSum 𝔄 f x‖ₑ ≤ (C6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
+    ‖carlesonSum 𝔄 f x‖ₑ ≤ (C6_1_2 a) * maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) 1 f x := by
   classical
   by_cases hx : ∃ (p : 𝔄), carlesonOn p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
@@ -220,8 +220,8 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
         linarith [sixteen_times_le_cube (four_le_a X)]
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith) hDpow_pos)
-    _ ≤ C6_1_2 a * MB volume 𝔄 𝔠 (8 * D ^ 𝔰 ·) f x := by
-      rw [ENNReal.mul_le_mul_iff_right (C6_1_2_ne_zero a) coe_ne_top, MB, maximalFunction,
+    _ ≤ C6_1_2 a * maximalFunction volume 𝔄 𝔠 (8 * D ^ 𝔰 ·) 1 f x := by
+      rw [ENNReal.mul_le_mul_iff_right (C6_1_2_ne_zero a) coe_ne_top, maximalFunction,
         inv_one, le_iSup_iff]
       simp only [iSup_le_iff, ENNReal.rpow_one]
       exact (fun _ hc ↦ hc p.1 p.2)
@@ -240,7 +240,7 @@ namespace Lemma6_1_3
 variable (𝔄 : Set (𝔓 X)) {f g : X → ℂ}
 
 /-- The maximal function used in the proof of Lemma 6.1.3 -/
-def 𝓜 := MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) (E := ℂ)
+def 𝓜 := maximalFunction (E := ℂ) volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) 1
 
 -- Define exponents used in the proof and collect some basic facts about them.
 section
@@ -279,7 +279,7 @@ def 𝓜p (p : ℝ) := maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ �
 /-- Maximal function bound needed in the proof -/
 lemma eLpNorm_𝓜p_le (hf : MemLp f 2) :
     eLpNorm (𝓜p 𝔄 (p X) f) 2 ≤ C2_0_6 (defaultA a) (p X).toNNReal 2 * eLpNorm f 2 :=
-  hasStrongType_maximalFunction 𝔄.to_countable
+  hasStrongType_maximalFunction
     (by simp [p_pos X]) (by simp [p_lt_two X]) f hf |>.2
 
 /-- A maximal function bound via an application of H\"older's inequality -/
@@ -298,8 +298,8 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
   have hp_coe : p.toNNReal.toReal = p := Real.coe_toNNReal _ (by positivity)
   conv_lhs => rw [eq_indicator_one_mul_of_norm_le hfF]
   refine eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' _
-    Measurable.maximalFunction.aestronglyMeasurable (ae_of_all _ <| fun x ↦ ?_)
-  simp only [enorm_eq_self, 𝓜, MB_def]
+    measurable_maximalFunction.aestronglyMeasurable (ae_of_all _ <| fun x ↦ ?_)
+  simp only [enorm_eq_self, 𝓜, maximalFunction, ENNReal.rpow_one, inv_one]
   apply iSup_le_iff.mpr <| fun 𝔭 ↦ iSup_le_iff.mpr <| fun h𝔭 ↦ ?_
   apply indicator_le <| fun x hx ↦ ?_
   rw [laverage_eq]

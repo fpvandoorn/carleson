@@ -1,13 +1,17 @@
 module
 
+public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
 public import Carleson.ToMathlib.RealInterpolation.Misc
-
-public section
+public import Carleson.ToMathlib.Topology.ContinuousOn
+public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 
 /- Upstreaming status: still needs some cleanup, and more analogues to mathlib lemmas about eLpNorm
 could be added -/
+
+public section
 
 noncomputable section
 
@@ -62,7 +66,7 @@ lemma eLorentzNorm'_eq_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α �
     eLorentzNorm' f p q μ = 0 := by
   unfold eLorentzNorm'
   conv in ↑t * distribution f _ μ ^ p⁻¹.toReal =>
-    rw [distribution_zero_enorm h,
+    rw [distribution_eq_zero_of_ae_zero_enorm h,
     ENNReal.zero_rpow_of_pos (by simp only [ENNReal.toReal_inv, inv_pos]; apply ENNReal.toReal_pos p_ne_zero p_ne_top),
     mul_zero]
   simp
@@ -194,135 +198,200 @@ lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
     _ = eLpNorm f (.ofReal p.toReal) μ := (eLpNorm_eq_distribution hf (ENNReal.toReal_pos p_zero p_eq_top)).symm
     _ = eLpNorm f p μ := by congr; exact p_eq.symm
 
-
---TODO: move to essSup.lean
-lemma essSup_le_iSup {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α} [CompleteLattice β]
-    (f : α → β) : essSup f μ ≤ ⨆ i, f i := by
-  apply essSup_le_of_ae_le
-  apply Filter.Eventually.of_forall
-  intro i
-  apply le_iSup
-
---TODO: move
-lemma iSup_le_essSup {f : α → ℝ≥0∞}
-  (h : ∀ {x}, ∀ {a}, a < f x → μ {y | a < f y} ≠ 0) :
-    ⨆ x, f x ≤ essSup f μ := by
-  apply iSup_le
-  intro i
-  rw [essSup_eq_sInf]
-  apply le_sInf
-  intro b hb
-  simp only [Set.mem_setOf_eq] at hb
-  apply le_of_forall_lt
-  intro c hc
-  have := h hc
-  contrapose! this
-  rw [← ENNReal.bot_eq_zero, ← le_bot_iff] at *
-  apply le_trans _ hb
-  apply measure_mono
-  intro x
-  simp only [Set.mem_setOf_eq]
-  intro hc
-  exact lt_of_le_of_lt this hc
-
-lemma helper {f : ℝ≥0∞ → ℝ≥0∞} {x : ℝ≥0∞} (hx : x ≠ ⊤)
-  (hf : ContinuousWithinAt f (Set.Ioi x) x)
-  {a : ℝ≥0∞} (ha : a < f x) :
-    volume {y | a < f y} ≠ 0 := by
-  unfold ContinuousWithinAt at hf
-  set s := Set.Ioi a
-  have mem_nhds_s : s ∈ nhds (f x) := by
-    rw [IsOpen.mem_nhds_iff isOpen_Ioi]
-    simpa
-  have := hf mem_nhds_s
-  simp only [Filter.mem_map] at this
-  rw [← ENNReal.bot_eq_zero, ← bot_lt_iff_ne_bot]
-  rw [mem_nhdsWithin] at this
-  rcases this with ⟨u, u_open, x_in_u, u_inter_subset⟩
-  calc _
-    _ < volume (u ∩ Set.Ioi x) := by
-      rw [bot_lt_iff_ne_bot]
-      apply IsOpen.measure_ne_zero
-      · apply u_open.inter isOpen_Ioi
-      apply nonempty_nhds_inter_Ioi (IsOpen.mem_nhds u_open x_in_u) (not_isMax_iff_ne_top.mpr hx)
-    _ ≤ volume (f ⁻¹' s) := by
-      apply measure_mono u_inter_subset
-    _ ≤ volume {y | a < f y} := by
-      apply measure_mono
-      unfold s Set.preimage
-      simp only [Set.mem_Ioi, Set.setOf_subset_setOf]
-      intro y h
-      exact h
-
---TODO: move
-theorem ContinuousWithinAt.ennreal_mul {X : Type*}
-  [TopologicalSpace X] {f g : X → ℝ≥0∞} {s : Set X} {t : X} (hf : ContinuousWithinAt f s t)
-  (hg : ContinuousWithinAt g s t)
-  (h₁ : f t ≠ 0 ∨ g t ≠ ∞)
-  (h₂ : g t ≠ 0 ∨ f t ≠ ∞) :
-    ContinuousWithinAt (fun x ↦ f x * g x) s t := fun _ hx =>
-  ENNReal.Tendsto.mul hf h₁ hg h₂ hx
-
---TODO: move
-nonrec theorem ContinuousWithinAt.ennrpow_const [TopologicalSpace α] {f : α → ℝ≥0∞} {s : Set α} {x : α}
-  {p : ℝ}
-  (hf : ContinuousWithinAt f s x) :
-    ContinuousWithinAt (fun x => f x ^ p) s x := by
-  apply hf.ennrpow_const
-
-
-lemma eLorentzNorm_eq_wnorm (hp : p ≠ 0) {f : α → ε} : eLorentzNorm f p ∞ μ = wnorm f p μ := by
-  by_cases p_eq_top : p = ∞
-  · rw [p_eq_top]
-    simp
-  rw [eLorentzNorm_eq_eLorentzNorm' hp p_eq_top, wnorm_ne_top p_eq_top]
+lemma eLorentzNorm'_eq_wnorm (p_ne_top : p ≠ ∞) {f : α → ε} {μ : Measure α} :
+    eLorentzNorm' f p ∞ μ = wnorm f p μ := by
+  rw [wnorm_ne_top p_ne_top]
   unfold eLorentzNorm' wnorm'
   simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv,
     eLpNorm_exponent_top, one_mul]
-  unfold eLpNormEssSup
-  simp only [enorm_eq_self]
-  apply le_antisymm
-  · apply essSup_le_iSup
-  · apply iSup_le_essSup
-    intro x a ha
-    rw [ne_eq, withDensity_apply_eq_zero' (by measurability)]
-    simp only [ne_eq, ENNReal.inv_eq_zero, ENNReal.coe_ne_top, not_false_eq_true, Set.setOf_true,
-      Set.univ_inter]
-    have : ENNReal.ofNNReal '' {y | a < ↑y * distribution f (↑y) μ ^ p.toReal⁻¹}
-        = {y | a < y * distribution f y μ ^ p.toReal⁻¹} \ {⊤}:= by
-      ext y
-      simp only [Set.mem_image, Set.mem_setOf_eq, Set.mem_diff, Set.mem_singleton_iff]
-      constructor
-      · rintro ⟨x, hx, hxy⟩
-        rw [← hxy]
-        use hx
-        simp
-      · intro hy
-        by_cases y_eq_top : y = ⊤
-        · exfalso
-          exact hy.2 y_eq_top
-        use y.toNNReal
-        rw [ENNReal.coe_toNNReal y_eq_top]
-        use hy.1
-    rw [← ne_eq, NNReal.volume_eq_volume_ennreal]
-    · rw [this, measure_diff_null (measure_singleton ⊤)]
-      apply @helper _ x
+  rw [eLpNormEssSup_withDensity (by fun_prop) (by simp)]
+  apply eLpNormEssSup_nnreal_eq_iSup_nnreal (f := fun t ↦ t * distribution f t μ ^ p.toReal⁻¹)
+  intro a x ha
+  apply ContinuousWithinAt.ennreal_mul continuous_id'.continuousWithinAt
+    ((continuousWithinAt_distribution _).ennrpow_const _)
+  · rw [or_iff_not_imp_left]
+    push Not
+    intro h
+    exfalso
+    rw [h] at ha
+    simp at ha
+  · right
+    simp
+
+lemma eLorentzNorm_eq_wnorm (p_ne_zero : p ≠ 0) {f : α → ε} {μ : Measure α} :
+    eLorentzNorm f p ∞ μ = wnorm f p μ := by
+  by_cases p_ne_top : p = ⊤
+  · rw [p_ne_top]
+    simp
+  rw [eLorentzNorm_eq_eLorentzNorm' p_ne_zero p_ne_top, eLorentzNorm'_eq_wnorm p_ne_top]
+
+--Theorem 6.6 in https://doi.org/10.1007/978-3-319-30034-4
+lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} {μ : Measure α} :
+  eLorentzNorm' f p q μ
+    = eLpNorm (fun (t : ℝ≥0) ↦ t ^ p⁻¹.toReal * rearrangement f t μ) q
+        (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
+  by_cases q_zero : q = 0
+  · rw [q_zero]
+    simp
+  by_cases q_top : q = ⊤
+  · rw [q_top, eLorentzNorm'_eq_wnorm p_ne_top,
+      wnorm_eq_iSup_rpow_mul_rearrangement p_nonzero p_ne_top]
+    simp only [ENNReal.toReal_inv, eLpNorm_exponent_top]
+    symm
+    rw [eLpNormEssSup_withDensity (by fun_prop) (by simp)]
+    apply eLpNormEssSup_nnreal_eq_iSup_nnreal (f := fun t ↦ t ^ p.toReal⁻¹ * rearrangement f t μ)
+    intro a x ha
+    apply ContinuousWithinAt.ennreal_mul
+    · fun_prop
+    · apply continuousWithinAt_rearrangement.congr_mono (Set.eqOn_refl _ _)
       · simp
-      · apply ContinuousWithinAt.ennreal_mul continuous_id'.continuousWithinAt
-          (continuousWithinAt_distribution _).ennrpow_const
-        · rw [or_iff_not_imp_left]
-          push Not
-          intro h
-          exfalso
-          rw [h] at ha
-          simp at ha
-        · right
-          simp
-      · exact ha
-    rw [this]
-    apply MeasurableSet.diff _ (measurableSet_singleton ⊤)
-    refine measurableSet_lt measurable_const ?_
-    measurability
+      · simp
+    · rw [or_iff_not_imp_left]
+      push Not
+      intro h
+      exfalso
+      rw [h] at ha
+      simp at ha
+    · right
+      simp
+  unfold eLorentzNorm'
+  rw [← eLpNorm_const_smul'' (by simp; aesop), eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top,
+      eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top,
+      lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop),
+      lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop)]
+  congr 1
+  simp only [ENNReal.toReal_inv, Pi.smul_apply, smul_eq_mul, enorm_eq_self]
+  conv =>
+    lhs
+    congr
+    rfl
+    intro t
+    simp
+    rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp),
+        ENNReal.rpow_inv_rpow (ENNReal.toReal_ne_zero.mpr ⟨q_zero, q_top⟩),
+        ENNReal.mul_rpow_of_nonneg _ _ (by simp),
+        ← mul_assoc, ← mul_assoc, mul_comm _ p, mul_assoc p, ← ENNReal.rpow_neg_one]
+  conv =>
+    rhs
+    congr
+    rfl
+    intro t
+    simp
+    rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp),
+        ← ENNReal.rpow_mul, ← ENNReal.rpow_neg_one, ← mul_assoc]
+  symm
+  calc _
+    _ = ∫⁻ t, t ^ ((q / p).toReal - 1) * rearrangement f t μ ^ q.toReal := by
+      rw [lintegral_nnreal_eq_lintegral_Ioi_ofReal
+            (f := fun t => t ^ (-1) * t ^ (p.toReal⁻¹ * q.toReal) * rearrangement f t μ ^ q.toReal),
+          lintegral_ennreal_eq_lintegral_Ioi_ofReal
+            (f := fun t => t ^ ((q / p).toReal - 1) * rearrangement f t μ ^ q.toReal)]
+      apply setLIntegral_congr_fun measurableSet_Ioi
+      intro t ht
+      simp only [ENNReal.toReal_div]
+      congr
+      rw [inv_mul_eq_div, ← ENNReal.toReal_div, ← ENNReal.rpow_add _ _ (by simpa) (by simp)]
+      ring_nf
+    _ = ∫⁻ t, t ^ ((q / p).toReal - 1)
+          * (∫⁻ l in Set.Iio (rearrangement f t μ), q * l ^ (q.toReal - 1)) := by
+      congr with t
+      congr
+      rw [lintegral_const_mul _ (by fun_prop)]
+      rw [setLIntegral_Iio_rpow, sub_add_cancel, ENNReal.ofReal_toReal q_top,
+        ENNReal.mul_div_cancel q_zero q_top]
+      simp only [neg_lt_sub_iff_lt_add, lt_add_iff_pos_right]
+      exact ENNReal.toReal_pos q_zero q_top
+    _ = ∫⁻ t, (∫⁻ l, t ^ ((q / p).toReal - 1)
+          * (Set.Iio (rearrangement f t μ)).indicator (fun l ↦ q * l ^ (q.toReal - 1)) l) := by
+      congr with t
+      rw [← lintegral_indicator measurableSet_Iio,
+          ← lintegral_const_mul _ (Measurable.indicator (by fun_prop) measurableSet_Iio)]
+    _ = ∫⁻ l, (∫⁻ t, t ^ ((q / p).toReal - 1)
+          * (Set.Iio (rearrangement f t μ)).indicator (fun l ↦ q * l ^ (q.toReal - 1)) l) := by
+      rw [lintegral_lintegral_swap]
+      apply Measurable.aemeasurable
+      apply Measurable.mul (by fun_prop)
+      apply Measurable.indicator (by fun_prop)
+      change MeasurableSet {(a : ℝ≥0∞ × ℝ≥0∞) | a.2 ∈ Set.Iio (rearrangement f a.1 μ)}
+      have : {(a : ℝ≥0∞ × ℝ≥0∞) | a.2 ∈ Set.Iio (rearrangement f a.1 μ)} = ((fun a ↦ (⟨rearrangement f a.1 μ, a.2⟩ : ℝ≥0∞ × ℝ≥0∞)) ⁻¹' ({t | t.2 < t.1})) := by
+        ext a
+        simp
+      rw [this]
+      measurability
+    _ = ∫⁻ l, (∫⁻ t, t ^ ((q / p).toReal - 1)
+          * (Set.Iio (distribution f l μ)).indicator 1 t * (q * l ^ (q.toReal - 1))) := by
+      congr with l
+      congr with t
+      rw [mul_assoc (_ ^ _)]
+      congr
+      rw [← Set.indicator_mul_const]
+      simp only [Pi.one_apply, one_mul]
+      apply Set.indicator_const_eq_indicator_const
+      simp only [Set.mem_Iio]
+      apply lt_rearrangement_iff_lt_distribution
+    _ = ∫⁻ l, (∫⁻ t in Set.Iio (distribution f l μ), t ^ ((q / p).toReal - 1)) * (q * l ^ (q.toReal - 1)) := by
+      congr with l
+      rw [← lintegral_mul_const _ (by fun_prop), ← lintegral_indicator measurableSet_Iio]
+      congr with t
+      rw [Set.indicator_mul_right, mul_assoc, ← Set.indicator_mul_const]
+      simp
+    _ = ∫⁻ l, (distribution f l μ ^ (q / p).toReal / (q / p)) * (q * l ^ (q.toReal - 1)) := by
+      congr with l
+      rw [setLIntegral_Iio_rpow, sub_add_cancel,
+        ENNReal.ofReal_toReal (ENNReal.div_ne_top q_top p_nonzero)]
+      simp only [ENNReal.toReal_div, neg_lt_sub_iff_lt_add, lt_add_iff_pos_right]
+      exact div_pos (ENNReal.toReal_pos q_zero q_top) (ENNReal.toReal_pos p_nonzero p_ne_top)
+    _ = ∫⁻ l, p * l ^ (q.toReal - 1) * distribution f l μ ^ (q / p).toReal := by
+      congr with l
+      rw [← ENNReal.div_mul _ (by left; assumption) (by left; assumption), ENNReal.div_eq_inv_mul,
+        mul_comm, mul_comm q, mul_assoc, ← mul_assoc q, ← mul_assoc q,
+        ENNReal.mul_inv_cancel q_zero q_top]
+      ring
+    _ = ∫⁻ (l : ℝ≥0), p * (↑l ^ (-1 : ℝ) * ↑l ^ q.toReal) * (distribution f (↑l) μ ^ p.toReal⁻¹) ^ q.toReal := by
+      rw [lintegral_ennreal_eq_lintegral_Ioi_ofReal
+            (f := fun l => p * l ^ (q.toReal - 1) * distribution f l μ ^ (q / p).toReal),
+          lintegral_nnreal_eq_lintegral_Ioi_ofReal
+            (f := fun l => p * (l ^ (-1 : ℝ) * l ^ q.toReal) * (distribution f l μ ^ p.toReal⁻¹) ^ q.toReal)]
+      apply setLIntegral_congr_fun measurableSet_Ioi
+      intro l hl
+      simp only [ENNReal.toReal_div]
+      rw [← ENNReal.rpow_mul, inv_mul_eq_div, ← ENNReal.rpow_add _ _ (by simpa) (by simp)]
+      ring_nf
+
+lemma eLorentzNorm'_eq' (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} {μ : Measure α} :
+  eLorentzNorm' f p q μ
+    = eLpNorm (fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement f t μ) q := by
+  by_cases q_zero : q = 0
+  · rw [q_zero]
+    simp
+  rw [eLorentzNorm'_eq p_nonzero p_ne_top]
+  by_cases q_top : q = ⊤
+  · rw [q_top]
+    simp only [ENNReal.toReal_inv, eLpNorm_exponent_top, ENNReal.inv_top, ENNReal.toReal_zero,
+      sub_zero]
+    apply eLpNormEssSup_withDensity (by fun_prop) (by simp)
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top, eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top,
+      lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop)]
+  congr 1
+  apply lintegral_congr_ae
+  filter_upwards [Measure.ae_ne volume 0]
+  intro t ht
+  simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply]
+  rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp), ENNReal.mul_rpow_of_nonneg _ _ (by simp),
+      ← ENNReal.rpow_mul, ← ENNReal.rpow_mul, ← mul_assoc, sub_mul,
+      inv_mul_cancel₀ (ENNReal.toReal_ne_zero.mpr ⟨q_zero, q_top⟩)]
+  congr
+  rw [ENNReal.rpow_sub _ _ (by simpa) (by simp), ENNReal.rpow_one, ENNReal.div_eq_inv_mul]
+
+--TODO: remove this?
+lemma eLorentzNorm_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} :
+  eLorentzNorm f p q μ
+    = eLpNorm (fun (t : ℝ≥0) ↦ t ^ p⁻¹.toReal * rearrangement f t μ) q
+        (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
+  unfold eLorentzNorm
+  split_ifs with hp0
+  · contradiction
+  exact eLorentzNorm'_eq p_nonzero p_ne_top
 
 lemma eLorentzNorm'_indicator_const {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
   {s : Set α} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) :
@@ -344,7 +413,6 @@ lemma eLorentzNorm'_indicator_const {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
   congr 1
   simp only [Set.mem_Iio, eq_iff_iff]
   exact (ENNReal.coe_lt_iff_lt_toNNReal ha).symm
-
 
 lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
   (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) :
@@ -380,7 +448,7 @@ lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0)
   rw [← this, ← ENNReal.mul_rpow_of_nonneg _ _ (by simp), ← ENNReal.rpow_mul]
   congr
   calc _
-    _ = ∫⁻ (a : ℝ) in ENNReal.ofReal ⁻¹' Set.Ico 0 (μ s) ∩ Set.Ioi 0,
+    _ = ∫⁻ (a : ℝ) in ENNReal.ofReal ⁻¹' Set.Iio (μ s) ∩ Set.Ioi 0,
           ENNReal.ofReal (a ^ (p.toReal⁻¹ * q.toReal - 1)) := by
       apply setLIntegral_congr_fun (by measurability)
       intro x hx
@@ -391,7 +459,7 @@ lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0)
       ring_nf
       rw [← ENNReal.ofReal_rpow_of_pos hx.2]
       congr
-  rw [ENNReal.ofReal_Ico_eq]
+  rw [ENNReal.ofReal_Iio_eq]
   have hpq : 0 < p.toReal⁻¹ * q.toReal := by
     apply mul_pos
     · rw [inv_pos]
@@ -444,7 +512,6 @@ lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} :
     rw [wnorm_indicator_const h₀ h₁]
   · exact eLorentzNorm'_indicator_const' h₀ h₁ h₆ h₇
 
-
 lemma MemLorentz_iff_MemLp {f : α → ε} :
     MemLorentz f p p μ ↔ MemLp f p μ := by
   unfold MemLorentz MemLp
@@ -453,7 +520,6 @@ lemma MemLorentz_iff_MemLp {f : α → ε} :
     rwa [← eLorentzNorm_eq_eLpNorm h.1]
   · intro h
     rwa [eLorentzNorm_eq_eLpNorm h.1]
-
 
 -- TODO: could maybe be strengthened to ↔
 lemma MemLorentz_of_MemLorentz_ge {r₁ r₂ : ℝ≥0∞} (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) {f : α → ε}

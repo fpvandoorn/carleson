@@ -3,7 +3,7 @@ module
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 public import Mathlib.Analysis.Convolution
 public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
-import Mathlib.Algebra.Order.Interval.Set.Group
+public import Mathlib.Algebra.Order.Interval.Set.Group
 
 @[expose] public section
 

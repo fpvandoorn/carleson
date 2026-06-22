@@ -148,18 +148,24 @@ lemma dirichletKernel_eq_ae : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletK
   apply measure_mono_null this
   apply (Set.countable_range _).measure_zero
 
+section TwoPiPos
+
+local instance : Fact (0 < 2 * π) where
+  out := Real.two_pi_pos
+
 lemma norm_dirichletKernel_le {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 1 := by
   rw [dirichletKernel]
   calc ‖∑ n ∈ Icc (-(N : ℤ)) N, (fourier n) ↑x‖
     _ ≤ ∑ n ∈ Icc (-(N : ℤ)) N, ‖(fourier n) ↑x‖ := norm_sum_le _ _
     _ ≤ ∑ n ∈ Icc (-(N : ℤ)) N, 1 := by
       apply sum_le_sum
-      have : Fact (0 < 2 * π) := by rw [fact_iff]; exact Real.two_pi_pos
       exact fun n _ ↦ le_trans (ContinuousMap.norm_coe_le_norm (fourier n) x) (fourier_norm n).le
     _ = 2 * N + 1 := by
       rw_mod_cast [sum_const, Int.card_Icc, sub_neg_eq_add, nsmul_eq_mul, mul_one,
         Int.toNat_natCast]
       ring
+
+end TwoPiPos
 
 lemma norm_dirichletKernel'_le {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by
   by_cases! h : cexp (I * x) ≠ 1
