@@ -386,7 +386,7 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
   {μ : Measure α} {ν : Measure α'}
   [TopologicalSpace ε] [ESeminormedAddMonoid ε]
-  {ε' : Type*} [TopologicalSpace ε'] [ENormedAddMonoid ε']
+  {ε' : Type*} [TopologicalSpace ε'] [ESeminormedAddMonoid ε']
   {f : α → ε} {s t t' : ℝ≥0∞}
 
 /-! ## Results about truncations of a function
@@ -440,30 +440,30 @@ lemma trunc_add_truncCompl {t : ℝ≥0∞} : trunc f t + truncCompl f t = f := 
 
 alias trnc_true_add_trnc_false := trunc_add_truncCompl
 
-/-- If the truncation parameter is non-positive, the truncation vanishes. -/
-lemma trunc_of_nonpos {f : α → ε'} (ht : t ≤ 0) : trunc f t = 0 := by
-  unfold trunc
-  ext x
-  split_ifs with h
-  · dsimp only [Pi.zero_apply]
-    apply enorm_eq_zero.mp
-    · have : 0 ≤ ‖f x‖ₑ := by positivity
-      -- TODO: this was just `linarith`
-      exact le_antisymm (h.trans (by norm_cast)) this
-  · rfl
+-- /-- If the truncation parameter is non-positive, the truncation vanishes. -/
+-- lemma trunc_of_nonpos {f : α → ε'} (ht : t ≤ 0) : trunc f t = 0 := by
+--   unfold trunc
+--   ext x
+--   split_ifs with h
+--   · dsimp only [Pi.zero_apply]
+--     apply enorm_eq_zero.mp
+--     · have : 0 ≤ ‖f x‖ₑ := by positivity
+--       -- TODO: this was just `linarith`
+--       exact le_antisymm (h.trans (by norm_cast)) this
+--   · rfl
 
-/-- If the truncation parameter is non-positive, the complement of the truncation is the
-function itself. -/
-lemma truncCompl_of_nonpos {f : α → ε'} (ht : t ≤ 0) : truncCompl f t = f := by
-  rw [truncCompl_eq]
-  ext x
-  dsimp only [Pi.zero_apply]
-  split_ifs
-  · rfl
-  · apply (enorm_eq_zero.mp ?_).symm
-    have : ‖f x‖ₑ ≥ 0 := by positivity
-    -- was just `linarith`
-    exact le_antisymm (by order) this
+-- /-- If the truncation parameter is non-positive, the complement of the truncation is the
+-- function itself. -/
+-- lemma truncCompl_of_nonpos {f : α → ε'} (ht : t ≤ 0) : truncCompl f t = f := by
+--   rw [truncCompl_eq]
+--   ext x
+--   dsimp only [Pi.zero_apply]
+--   split_ifs
+--   · rfl
+--   · apply (enorm_eq_zero.mp ?_).symm
+--     have : ‖f x‖ₑ ≥ 0 := by positivity
+--     -- was just `linarith`
+--     exact le_antisymm (by order) this
 
 /-! ## Measurability properties of truncations -/
 
@@ -725,17 +725,20 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
   have p_ne_top : p ≠ ∞ := (hpq.2.trans_lt (lt_top_iff_ne_top.mpr hq)).ne
   by_cases ht : t = ⊤
   · by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
-    · have : f =ᵐ[μ] 0 := by
-        rw [← eLpNorm_eq_zero_iff hf]
+    · have : (fun x ↦ ‖f x‖ₑ ) =ᵐ[μ] 0 := by
+        rw [← eLpNorm_enorm] at hf'
+        have hf_norm : AEStronglyMeasurable (fun x ↦ ‖f x‖ₑ ) μ := by
+          fun_prop
+        rw [← eLpNorm_eq_zero_iff hf_norm]
         · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos hpq.1.ne' p_ne_top)]
         exact hpq.1.ne'
-      -- Thus, the left hand side vanishes and conclusion is trivially true.
       refine le_of_eq_of_le ?_ zero_le
       rw [rpow_eq_zero_iff_of_pos]
-      · rw [eLpNorm_eq_zero_iff _ hq'.ne']
-        · -- TODO: missing API lemma
-          rw [trunc_eq_indicator]
-          exact Filter.EventuallyEq.indicator_zero this
+      · rw [← MeasureTheory.eLpNorm_enorm]
+        rw [eLpNorm_eq_zero_iff _ hq'.ne']
+        · filter_upwards [this]
+          intro x h₀
+          exact nonpos_iff_eq_zero.mp (le_of_le_of_eq trunc_le_func h₀)
         · fun_prop
       · rw [toReal_pos_iff]
         exact ⟨hq', hq.lt_top⟩
