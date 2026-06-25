@@ -945,7 +945,7 @@ $\real$, a distance on $\Theta$ satisfying five properties as well as a
 cancellativity condition, and a kernel $K\colon X \times X \to \real$ with
 Calderón--Zygmund like properties. The proofs involve even more additional
 data, notably two bounded measurable sets $F$ and $G$, an integrability
-exponent $q \in (1, 2]$ and two measurable functions $\sigma_1$ and
+exponent $q\in (1, 2]$ and two measurable functions $\sigma_1$ and
 $\sigma_2$ with finite range.
 
 One possibility to solve this issue in the formalization would be to say that
@@ -956,7 +956,7 @@ one applies such a lemma one would need to provide the individual assumptions
 as a long list of parameters to the lemma.
 
 It is a better idea to try to import in the formalization the practice of
-standing assumptions, in some form. One option would be to define a
+standing assumptions, in some form. One could define a
 structure containing all these standing assumptions, and have it as a
 parameter in every lemma and every definition. The readability cost would be
 minor, but still there. In the Carleson project, we have used another
@@ -971,13 +971,13 @@ variable {X : Type*} [MetricSpace X]
 \end{minted}
 The declaration between square brackets is the typeclass. When one writes the
 distance \texttt{dist x y} between two points $x$ and $y$ of $X$, the system
-tries to locate such a metric space typeclass on $X$, and uses the distance
-provided by this typeclass. The same system is used to provide algebraic
+tries to locate such a metric space typeclass instance on $X$, and uses the distance
+provided by this instance. The same system is used to provide algebraic
 operations on types, and properties of these.
 
-Typeclasses can be used to capture standing assumptions as
-follows. Let us declare a new typeclass, of the form \texttt{[KernelProofData
-X]}, containing not a distance as in the above example, but a measure on $X$,
+Typeclasses can be used to capture standing assumptions as follows.
+Let us declare a new typeclass, of the form \texttt{[KernelProofData X]},
+containing not a distance as in the above example, but a measure on $X$,
 a doubling constant, a family $\Theta$ of functions from $X \times X$ to
 $\real$, and so on, i.e., all our standing assumptions. Then, whenever one
 tries to use an object from the standing assumptions, the systems looks for a
