@@ -1,10 +1,9 @@
-% compile with xelatex or with pdflatex -shell-escape
+% compile with xelatex
 \documentclass[12pt]{amsart}
 
-\usepackage[utf8]{inputenc}
+% \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\DeclareUnicodeCharacter{2260}{\ensuremath{\neq}}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage{hyperref}
@@ -13,7 +12,29 @@
 \usepackage{cleveref}
 
 \usepackage[]{minted}
-\newcommand{\lean}[1]{\mintinline{lean}{#1}}
+\usepackage{fontspec}
+
+
+% JuliaMono has all the symbols needed for Lean code
+\setmonofont[Scale=MatchLowercase]{JuliaMono}[
+  Extension=.ttf,
+  UprightFont=*-Regular,
+  BoldFont=*-Bold,
+  ItalicFont=*-RegularItalic,
+  BoldItalicFont=*-BoldItalic,
+  RawFeature={-calt},
+]
+
+\newmintinline[lean]{lean}{breaklines,breakbefore={. },breakafter={_}}
+\newminted[leancode]{lean}{autogobble}
+
+% Configure the appearance of minted.
+% We adjust the spacing around minted environments, which stretches badly by default
+\fvset{listparameters=\setlength{\topsep}{0pt}\setlength{\parsep}{0pt}}
+\AtBeginEnvironment{minted}{\vspace{4pt}}
+\renewcommand{\floatpagefraction}{.99}
+\renewcommand{\bottomfraction}{.7}
+
 \usepackage{xspace}
 
 \DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
@@ -1102,12 +1123,12 @@ Further API extensions and better support from \texttt{fun\_prop} could streamli
 -- TODO: proof-read this section carefully
 As described in \ref{subsec:real}, at the beginning of the project we tried to avoid conversions by using the type \lean{Real} as much as possible, even if quantities were naturally nonnegative or possibly infinite. In the course of the project, in different contexts we realized that using \lean{NNReal} or \lean{ENNReal} instead would lead to shorter proofs and reduce the number of side conditions.
 While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function \lean{f : ℝ≥0∞ \to ℝ≥0∞}, the following expressions should be equivalent.
-\begin{leancode}
+\begin{minted}{lean}
 ∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
 -- TODO: write out the coercion instead!
 ∫⁻ (x : ℝ≥0), f (↑x)
 ∫⁻ (x : ℝ≥0∞), f x
-\end{leancode}
+\end{minted}
 
 Another case of equivalent representations we encountered was that of integrating on a set, i.e. with respect to a restricted measure, versus integrating an indicator function, again both useful for different purposes. Conversion here was straightforward using the lemmas \lean{integral_indicator} resp. \lean{lintegral_indicator} in \mathlib.
 Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
