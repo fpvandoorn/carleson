@@ -1,10 +1,9 @@
-% compile with xelatex or with pdflatex -shell-escape
+% compile with xelatex
 \documentclass[12pt]{amsart}
 
-\usepackage[utf8]{inputenc}
+% \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\DeclareUnicodeCharacter{2260}{\ensuremath{\neq}}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage{hyperref}
@@ -13,7 +12,29 @@
 \usepackage{cleveref}
 
 \usepackage[]{minted}
-\newcommand{\lean}[1]{\mintinline{lean}{#1}}
+\usepackage{fontspec}
+
+
+% JuliaMono has all the symbols needed for Lean code
+\setmonofont[Scale=MatchLowercase]{JuliaMono}[
+  Extension=.ttf,
+  UprightFont=*-Regular,
+  BoldFont=*-Bold,
+  ItalicFont=*-RegularItalic,
+  BoldItalicFont=*-BoldItalic,
+  RawFeature={-calt},
+]
+
+\newmintinline[lean]{lean}{breaklines,breakbefore={. },breakafter={_}}
+\newminted[leancode]{lean}{autogobble}
+
+% Configure the appearance of minted.
+% We adjust the spacing around minted environments, which stretches badly by default
+\fvset{listparameters=\setlength{\topsep}{0pt}\setlength{\parsep}{0pt}}
+\AtBeginEnvironment{minted}{\vspace{4pt}}
+\renewcommand{\floatpagefraction}{.99}
+\renewcommand{\bottomfraction}{.7}
+
 \usepackage{xspace}
 
 \DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
@@ -285,6 +306,11 @@ Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$
 \begin{equation}
   \|T f\|_{L^{p',\infty}} \le C \cdot \|f\|_{L^p}.
 \end{equation}
+Similarly, the operator $T$ is of strong type if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
+\begin{equation}
+  \|T f\|_{L^{p'}} \le C \cdot \|f\|_{L^p}.
+\end{equation}
+
 %TODO: should we state the real interpolation theorem here, in the dedicated subsection, or omit the exact formulation and just cite the paper that is to appear about its formalization?
 
 \subsection{Statement of the main results}\label{subsec:main_results}
@@ -755,9 +781,16 @@ It is also a key prerequisite for the proof of Carleson's theorem: for example, 
 Our formalized version aims to reduce superfluous assumptions commonly found in the mathematical literature. For instance, it applies to any sub-additive function (not merely sub-linear ones) --- that is, there is no need for a scalar multiplication on the target. Similarly, any positive exponent $p$ is allowed (as opposed to demanding $p\geq 1$).
 
 In light of generalizing the Hardy--Littlewood maximal function, this proof had to be generalized again:
-applying it to the maximal functions requires a version which applies to functions with codomain $[0, \infty]$ (or, more generally, any commutative monoid with a compatible enorm).
-In return for a significant amount of refactoring work\footnote{the initial formalization was about 5000 lines long; the generalization touched about 2000 of them},
-we have formalized a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the codomain is not used in a meaningful way.
+applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any commutative monoid with a compatible enorm).
+In return for a significant amount of refactoring work\footnote{the initial formalisation was about 5000 lines long; the generalisation touched about 2000 of them},
+we have formalized a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way. We ended up with the following version.
+\begin{theorem}
+    Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces and let $E$ and $F$ be topological spaces each endowed with the structure of an additive commutative monoid and a compatible (i.e. positive definite, fulfilling the triangle inequality) continuous extended norm.
+    Let $p_0, p_1, q_0, q_1, p, q \in \ennreal$ such that $p_0 \in (0,q_0], p_1 \in (0,q_1], q_0 \ne q_1$ and there exists $t \in (0,1)$ such that $\frac{1}{p} = \frac{1-t}{p_0} + \frac{t}{p_1}$ and $\frac{1}{q} = \frac{1-t}{q_0} + \frac{t}{q_1}$.
+    Let $T : (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^p_0(X; E) \cup L^p_1(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e. $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e. strongly measurable.
+
+    Then, if $T$ has both weak type $(p_0, q_0)$ and weak type $(p_1, q_1)$, $T$ has strong type $(p,q)$.
+\end{theorem}
 For further detail, we refer the reader to a separate article \cite{PortegiesRothgangRealInterpolation}.
 
 \subsection{Constant tweaking} As explained below in
@@ -1101,12 +1134,29 @@ Further API extensions and better support from \texttt{fun\_prop} could streamli
 % \end{itemize}
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
-\begin{itemize}
-  \item Using \texttt{Real}.
-  \item \texttt{Set.indicator} vs.\ \texttt{Measure.restrict}.
-  \item \texttt{Finsets} vs.\ \texttt{Sets} in a \texttt{Fintype}.
-\end{itemize}
+% TODO: proof-read this section carefully
+As described in \ref{subsec:real}, at the beginning of the project we tried to avoid conversions by using the type \lean{Real} as much as possible, even if quantities were naturally nonnegative or possibly infinite. In the course of the project, in different contexts we realized that using \lean{NNReal} or \lean{ENNReal} instead would lead to shorter proofs and reduce the number of side conditions.
+While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function \lean{f : ℝ≥0∞ \to ℝ≥0∞}, the following expressions should be equivalent.
+\begin{minted}{lean}
+∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
+-- TODO: write out the coercion instead!
+∫⁻ (x : ℝ≥0), f (↑x)
+∫⁻ (x : ℝ≥0∞), f x
+\end{minted}
 
+Another case of equivalent representations we encountered was that of integrating on a set, i.e. with respect to a restricted measure, versus integrating an indicator function, again both useful for different purposes. Conversion here was straightforward using the lemmas \lean{integral_indicator} resp. \lean{lintegral_indicator} in \mathlib.
+Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
+Again, in different context the existing \mathlib API was more suitable for working with one of the two versions. It is still work in progress to extend \mathlib with API for the other version where no version is naturally favorable, to reduce the overall number of conversions.
+
+Finally, there were several results in the project that required us to consider sets of elements from a given finite type $\texttt{T}$. Since all such sets are finite, from a mathematical point of view there is no difference between the types $\texttt{Set T}$ and $\texttt{Finset T}$.
+However, these are different types in Lean: $\texttt{Set T}$ is the type of all sets consisting of elements of type $\texttt{T}$, while $\texttt{Finset T}$ is the type of finite sets of elements of $\texttt{T}$. Therefore, we needed to make a decision about which of these types to use in the Carleson project. For the most part, we chose to use $\texttt{Set T}$, although sometimes $\texttt{Finset T}$ is used inside proofs, or when required to apply existing \mathlib results. In hindsight, it would likely have been slightly more convenient to use $\texttt{Finset T}$ throughout, to avoid issues like the following.
+
+If \texttt{T} is endowed with a \texttt{Fintype} instance, then \texttt{Finset.sum} can still be applied to a given \texttt{s : Set T}. There are two possible syntaxes to do this, as the following example shows. Note that the displayed equality is true \emph{propositionally} but not \emph{definitionally}: the left hand side is a sum over \texttt{s.toFinset}, whereas the right hand side is a sum over \texttt{\{p : T | p $\in$ s\}}, and these \texttt{Finset}s are not definitionally equal.
+
+\begin{minted}[escapeinside=||, mathescape=true]{lean}
+example {T : Type*} [Fintype T] {s : Set T} [|DecidablePred fun p $\mapsto$ p $\in$ s|]
+    {|f : T $\to \mathbb{N}$|} : |$\sum$ p $\in$ s, f p = $\sum$ p with p $\in$ s, f p |
+\end{minted}
 
 \section{Conclusion}\label{sec:conclusion}
 %TODO: this will likely need to be revised after \ref{sec:org}, \ref{subsec:rel_work}, \ref{subsec:blueprint_mistakes}, \ref{subsec:blueprint_lessons} and \ref{subsec:pitfalls} are finished.
