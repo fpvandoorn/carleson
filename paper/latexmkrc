@@ -4,9 +4,6 @@ $pdf_mode = 5;
 # Define the xelatex command with the required placeholders
 $xelatex = 'xelatex -shell-escape -interaction=nonstopmode -file-line-error -synctex=1 %O %S';
 
-# Tell latexmk where to put all auxiliary and output files natively
-$out_dir = '../print';
-
 # Default file to compile if no file is specified in the terminal
 @default_files = ('main.tex');
 
