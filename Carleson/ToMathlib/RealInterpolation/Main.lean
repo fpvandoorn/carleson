@@ -38,14 +38,13 @@ noncomputable section
 
 open NNReal ENNReal MeasureTheory Set Pointwise
 
-variable {α α' ε E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
+variable {α α' ε E E₁ E₂ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
-  [TopologicalSpace E] [TopologicalSpace E₁] [TopologicalSpace E₂] [TopologicalSpace E₃]
+  [TopologicalSpace E] [TopologicalSpace E₁] [TopologicalSpace E₂]
   [ESeminormedAddMonoid E]
-  [ESeminormedAddMonoid E₁] [ESeminormedAddMonoid E₂] [ESeminormedAddMonoid E₃]
+  [ESeminormedAddMonoid E₁] [ENorm E₂]
   [MeasurableSpace E]
-  [MeasurableSpace E₃]
   {f : α → E₁} {t : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
 
@@ -54,7 +53,7 @@ variable {α α' ε E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Mea
 ## Definitions -/
 namespace MeasureTheory
 
-variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace ε₂] [ESeminormedAddMonoid ε₂]
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁]
 
 /-- The operator is subadditive on functions satisfying `P` with constant `A`. -/
 def SubadditiveOn [ENorm ε] (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞) : Prop :=
@@ -74,12 +73,13 @@ def AESubadditiveOn [ENorm ε] (T : (α → ε₁) → α' → ε) (P : (α → 
 namespace SubadditiveOn
 
 variable {P : (α → ε₁) → Prop} {A : ℝ≥0∞} {T : (α → ε₁) → α' → ε}
-  [TopologicalSpace ε] [ESeminormedAddMonoid ε]
 
+variable [ENorm ε] in
 lemma aeSubadditiveOn (h : SubadditiveOn T P A) {μ : Measure α'} :
     AESubadditiveOn T P A μ :=
   fun f g hf hg => ae_of_all μ fun x => h f g hf hg x
 
+variable [ENorm ε] in
 lemma iSup {ι : Sort*} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
     (h : ∀ i, SubadditiveOn (T i) P A) : SubadditiveOn (fun u x ↦ ⨆ i, T i u x) P A := by
   intro f g hf hg x
@@ -87,6 +87,7 @@ lemma iSup {ι : Sort*} {T : ι → (α → ε₁) → α' → ℝ≥0∞}
   refine iSup_le fun i => h i f g hf hg x |>.trans ?_
   gcongr <;> apply le_iSup _ i
 
+variable [ENorm ε] in
 lemma iSup₂ {ι : Type*} {κ : ι → Sort*} {T : (i : ι) → κ i → (α → ε₁) → α' → ℝ≥0∞}
     {P : (α → ε₁) → Prop}
     {A : ℝ≥0∞} (h : ∀ i j, SubadditiveOn (T i j) P A) :
@@ -94,11 +95,13 @@ lemma iSup₂ {ι : Type*} {κ : ι → Sort*} {T : (i : ι) → κ i → (α �
   simp_rw [iSup_psigma']
   exact .iSup (fun ⟨i,j⟩ ↦ h i j)
 
+variable [ENorm ε] in
 variable {α : Type*} {ι : Sort*} {κ : ι → Sort*} [CompleteLattice α] {f g s : ι → α} {a b : α} in
 theorem iSup₂_le {f : ∀ i, κ i → α} (h : ∀ i j, f i j ≤ a) : ⨆ (i) (j), f i j ≤ a := by
   simp_rw [iSup_psigma']
   exact iSup_le (fun ⟨i,j⟩ ↦ h i j)
 
+variable [TopologicalSpace ε] [ESeminormedAddMonoid ε] in
 lemma indicator (sa : SubadditiveOn T P A) (s : Set α') :
     SubadditiveOn (fun u x ↦ (s.indicator (fun y ↦ T u y) x)) P A := by
   intro f g hf hg x
@@ -127,6 +130,7 @@ lemma antitone {T : (α → ε₁) → α' → ε} {P P' : (α → ε₁) → Pr
     AESubadditiveOn T P A ν :=
   fun f g hf hg ↦ sa f g (h hf) (h hg)
 
+variable [TopologicalSpace ε₂] [ESeminormedAddMonoid ε₂] in
 lemma zero {P : (α → ε₁) → Prop} (hP : ∀ {f g : α → ε₁}, P f → P g → P (f + g))
     (A : ℝ≥0∞) (h : ∀ u, P u → T u =ᵐ[ν] 0) : AESubadditiveOn T P A ν := by
   intro f g hf hg
@@ -377,8 +381,10 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
 -/
 namespace MeasureTheory
 
-variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace ε₂] [ESeminormedAddMonoid ε₂]
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁]
+[ENorm ε₂]
 
+variable [TopologicalSpace ε₂] in
 /-- Proposition that expresses that the map `T` map between function spaces preserves
     AE strong measurability on L^p. -/
 def PreservesAEStrongMeasurability (T : (α → ε₁) → α' → ε₂) (p : ℝ≥0∞) : Prop :=
@@ -396,7 +402,7 @@ lemma estimate_distribution_Subadditive_trunc {f : α → ε₁} {T : (α → ε
   exact h a ha
 
 lemma rewrite_norm_func {q : ℝ} {g : α' → E}
-    [TopologicalSpace E] [ESeminormedAddMonoid E] (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A)
+    [TopologicalSpace E] [ContinuousENorm E] (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A)
     (hg : AEStronglyMeasurable g ν) :
     ∫⁻ x, ‖g x‖ₑ ^ q ∂ν =
     ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s,
@@ -427,7 +433,7 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E}
     rw [ENNReal.ofReal_rpow_of_pos ha, ENNReal.ofReal_mul (by positivity)]
 
 lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
-    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hq : 0 < q) (tc : StrictRangeToneCouple) {A : ℝ≥0} (hA : 0 < A)
     (ht : Subadditive_trunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
   ∫⁻ x : α', ‖T f x‖ₑ ^ q ∂ν ≤
@@ -452,7 +458,7 @@ theorem ton_measurable_eLpNorm_trunc [TopologicalSpace E₁] [ESeminormedAddMono
 
 lemma estimate_norm_rpow_range_operator'
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+    [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hp₁p : p < p₁) (hp₀p : p₀ < p)
     (tc : StrictRangeToneCouple)
     (hq₀' : q₀ = ⊤ → ∀ s > 0, distribution (T (truncCompl f (tc.ton s))) s ν = 0)
@@ -525,7 +531,7 @@ lemma simplify_factor₀ {D : ℝ≥0∞}
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
     (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
-    (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f) :
+    (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f) :
     C₀ ^ q₀.toReal * (eLpNorm f p μ ^ p.toReal) ^ (q₀.toReal / p₀.toReal) *
     (D ^ (q.toReal - q₀.toReal)) =
     C₀ ^ ((1 - t).toReal * q.toReal) * C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal := by
@@ -580,7 +586,7 @@ lemma simplify_factor₁ {D : ℝ≥0∞}
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
     (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
-    (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f) :
+    (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f) :
     C₁ ^ q₁.toReal * (eLpNorm f p μ ^ p.toReal) ^ (q₁.toReal / p₁.toReal) *
     (D ^ (q.toReal - q₁.toReal)) =
     C₀ ^ ((1 - t).toReal * q.toReal) * C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal := by
@@ -714,7 +720,8 @@ lemma support_sigma_finite_from_MemLp
 
 lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-  [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+  [TopologicalSpace E₂] [ContinuousENorm E₂]
+  -- [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
   {spf : ScaledPowerFunction}
   (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
   (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -861,7 +868,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
 
 lemma combine_estimates₁ {A : ℝ≥0} (hA : 0 < A)
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+    [TopologicalSpace E₂] [ContinuousENorm E₂]
     {spf : ScaledPowerFunction}
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
     (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -945,7 +952,7 @@ lemma simplify_factor₄ {D : ℝ≥0∞} [TopologicalSpace E₁] [ESeminormedAd
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
     (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
-    (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f) :
+    (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f) :
     (↑C₀ * eLpNorm f p μ) ^ q₀.toReal * (D ^ (q.toReal - q₀.toReal)) =
     C₀ ^ ((1 - t).toReal * q.toReal) * C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal := by
   have p₀pos : 0 < p₀ := hp₀.1
@@ -962,7 +969,7 @@ lemma simplify_factor₅ {D : ℝ≥0∞} [TopologicalSpace E₁] [ESeminormedAd
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
     (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
-    (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f) :
+    (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f) :
     (↑C₁ * eLpNorm f p μ) ^ q₁.toReal * (D ^ (q.toReal - q₁.toReal)) =
     C₀ ^ ((1 - t).toReal * q.toReal) * C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal := by
   have p₁pos : 0 < p₁ := hp₁.1
@@ -973,7 +980,7 @@ lemma simplify_factor₅ {D : ℝ≥0∞} [TopologicalSpace E₁] [ESeminormedAd
 /-- The trivial case for the estimate in the real interpolation theorem
 when the `L^p` norm of `f` vanishes. -/
 lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
-    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
     {C₀ : ℝ≥0}
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1000,7 +1007,7 @@ lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : 
 /-- The estimate for the real interpolation theorem in case `p₀ < p₁`. -/
 lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [TopologicalSpace E₂] [ESeminormedAddMonoid E₂] (hA : 0 < A)
+    [TopologicalSpace E₂] [ContinuousENorm E₂] (hA : 0 < A)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1034,16 +1041,16 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (ENNReal.ofReal q.toReal *
         ((C₀ * eLpNorm f p μ )^ q₀.toReal *
-        (∫⁻ (t : ℝ) in Ioo 0 (@d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f).toReal,
+        (∫⁻ (t : ℝ) in Ioo 0 (@d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f).toReal,
         ENNReal.ofReal (t ^ (q.toReal - q₀.toReal - 1))) * (if q₀ = ⊤ then 0 else 1) +
         ((C₁ * eLpNorm f p μ) ^ q₁.toReal *
-        ∫⁻ (t : ℝ) in Ici (@d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f).toReal,
+        ∫⁻ (t : ℝ) in Ici (@d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f).toReal,
         ENNReal.ofReal (t ^ (q.toReal - q₁.toReal - 1))) * if q₁ = ⊤ then 0 else 1)) ^
         q.toReal⁻¹ =
     q ^ q.toReal⁻¹ * (ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ * (if q₀ = ⊤ then 0 else 1) +
       ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ * (if q₁ = ⊤ then 0 else 1)) ^ q.toReal⁻¹ *
     ↑C₀ ^ ((1 - t).toReal) * ↑C₁ ^ t.toReal * eLpNorm f p μ := by
-    let M := @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f
+    let M := @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f
     have hq₀q₁' : q₀ ≠ q₁ := hq₀q₁.ne
     have q₀pos : 0 < q₀ := pos_of_rb_Ioc hp₀
     have q₁pos : 0 < q₁ := pos_of_rb_Ioc hp₁
@@ -1108,7 +1115,7 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
     for the case `q₀ < q₁`. -/
 lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+    [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ < q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1120,7 +1127,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
     q ^ q.toReal⁻¹ * (ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ * (if q₀ = ⊤ then 0 else 1) +
       ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ * (if q₁ = ⊤ then 0 else 1)) ^ q.toReal⁻¹ *
     ↑C₀ ^ ((1 - t).toReal) * ↑C₁ ^ t.toReal * eLpNorm f p μ := by
-  let M := (@d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f).toReal
+  let M := (@d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f).toReal
   have q₀pos : 0 < q₀ := pos_of_rb_Ioc hp₀
   have q₁pos : 0 < q₁ := pos_of_rb_Ioc hp₁
   have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀q₁.ne_top hp₀.2
@@ -1237,7 +1244,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
 before taking roots. -/
 lemma exists_hasStrongType_real_interpolation_aux₃ {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+    [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1263,7 +1270,7 @@ lemma exists_hasStrongType_real_interpolation_aux₃ {p₀ p₁ q₀ q₁ p q : 
 the cases `p₀ ≠ p₁` and `p₀ = p₁`. -/
 lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0} (hA : 0 < A)
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+    [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1403,7 +1410,7 @@ lemma coe_C_realInterpolation {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0}
 
 lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+    [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
     {A : ℝ≥0} (hA : 1 ≤ A) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1445,7 +1452,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
 /-- Marcinkiewicz real interpolation theorem -/
 theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
+    [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ A : ℝ≥0} (hA : 1 ≤ A) (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
