@@ -920,7 +920,7 @@ variable [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂] in
 /-- If `T` has weaktype `p₀`-`p₁`, `f` is `AEStronglyMeasurable` and the `p`-norm of `f`
     vanishes, then the `q`-norm of `T f` vanishes. -/
 lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)}
-    {p₀ q₀ p q : ℝ≥0∞} (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp : 0 < p) (hq : 0 < q)
+    {p₀ q₀ p q : ℝ≥0∞} (hq₀ : 0 < q₀) (hp : 0 < p) (hq : 0 < q)
     {C₀ : ℝ≥0} (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (hf : AEStronglyMeasurable f μ) (hF : eLpNorm f p μ = 0) : eLpNorm (T f) q ν = 0 := by
   have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hf hp.ne' hF
