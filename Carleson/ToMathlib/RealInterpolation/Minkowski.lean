@@ -1074,8 +1074,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
         gcongr
         apply eLpNorm_mono_enorm (fun x ↦ trunc_le_func)
       _ ≤ _ := by
-        have : eLpNorm f p₁ μ = 0 := by
-          exact eLpNorm_eq_zero_of_eLpNormEssSup_eq_zero hf.1 snorm_zero
+        have : eLpNorm f p₁ μ = 0 := eLpNorm_eq_zero_of_eLpNormEssSup_eq_zero hf.1 snorm_zero
         simp only [this, mul_zero, zero_le]
     · have snorm_p_pos : eLpNorm f p μ ≠ 0 := by
         by_contra snorm_0
