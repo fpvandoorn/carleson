@@ -482,7 +482,7 @@ theorem AEStronglyMeasurable.trnc_restrict_norm
     exact hf.truncCompl_ton_norm _
 
 lemma lintegral_lintegral_pow_swap_truncCompl_old {q q₀ p₀ : ℝ}
-    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
+    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
     {j : Bool} {hμ : SigmaFinite (μ.restrict f.support)}
     (hp₀ : 0 < p₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
@@ -552,7 +552,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
       · fun_prop
 
 lemma lintegral_congr_support {f : α → E₁} {g h : α → ENNReal}
-    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
+    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
     (hf : AEStronglyMeasurable f μ) (hgh : ∀ x ∈ (fun x ↦ ‖f x‖ₑ).support, g x = h x) :
     ∫⁻ x : α in (fun x ↦ ‖f x‖ₑ).support, g x ∂μ =
     ∫⁻ x : α in (fun x ↦ ‖f x‖ₑ).support, h x ∂μ := by
@@ -568,7 +568,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h : α → ENNReal}
 /-- One of the key estimates for the real interpolation theorem, not yet using
 the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
 lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
-    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
+    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (fun x ↦ ‖f x‖ₑ).support))
     (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀)
@@ -703,7 +703,7 @@ def sel (j : Bool) (p₀ p₁ : ℝ≥0∞) := match j with | true => p₁ | fal
 the particular choice of exponent, but not yet using the
 particular choice of scale in the `ScaledPowerFunction`. -/
 lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
-    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] (ht : t ∈ Ioo 0 1)
+    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] (ht : t ∈ Ioo 0 1)
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hpq : sel j p₀ p₁ ≤ sel j q₀ q₁)
     (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤) (hp₀p₁ : p₀ < p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)

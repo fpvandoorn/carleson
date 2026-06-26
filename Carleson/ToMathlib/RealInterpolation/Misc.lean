@@ -145,7 +145,7 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α}
   {a : ℝ≥0∞} -- truncation parameter
-  [TopologicalSpace ε] [ESeminormedAddCommMonoid ε] {f : α → ε} {t : ℝ≥0∞}
+  [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} {t : ℝ≥0∞}
 
 /-! ## Results about the particular choice of scale
 
@@ -922,7 +922,7 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ≥0∞} -- truncation parameter
-  [TopologicalSpace ε] [ESeminormedAddCommMonoid ε] {f : α → ε} {t : ℝ≥0∞}
+  [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} {t : ℝ≥0∞}
 
 /-! ## Some results about the integrals of truncations
 
