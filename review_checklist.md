@@ -14,7 +14,8 @@ These are some of the points we need to consider when reviewing the full draft o
 * Check punctuation, especially in displayed formulas.
 * Hyphenation between author names (--).
 * Spell-check everything (similar to the above, but lower key)
-
+* Use \subseteq for (non-strict) inequality on sets
+* Use \le for (non-strict) inequality on cubes
 
 * Let's try to avoid naming too many contributors by name, unless it's hard to avoid.
 * terminology question: contributor vs author?
