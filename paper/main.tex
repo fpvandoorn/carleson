@@ -787,7 +787,17 @@ We thank Georges Gonthier for finding this inaccuracy in the blueprint.
 
 \subsubsection{Just one top cube}
 
-
+We made a second change to the definition of a grid structure, also suggested by Georges Gonthier.
+The first definition didn't have the axiom that there exists a top cube,
+so it lacked the existence of $I_0$ and Equation \eqref{subsetmaxcube}.
+In the construction of the grid structure on $X$
+from Section 4 in the blueprint
+the top level always has a single cube,
+so it was free to add this to the general definition of grid structure.
+This slightly simplified a few proofs in later sections,
+and there was one computation that already implicitly assumed
+that there was only one top cube.
+% If we want to add more details: commit 8ba0940 adds the top cube to the grid structure and 5b3faa4 incorporates it into Section 7 (and makes other changes)
 
 \subsubsection{The Hardy--Littlewood maximal function} An important ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
 Recall that, given $f\colon\real^d\to\complex$, the (centered) Hardy–Littlewood maximal function $M f$ of $f$ is defined as
