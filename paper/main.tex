@@ -774,14 +774,20 @@ in an annulus with specified inner and outer radii.
 
 This also means that for two cubes $I$ and $J$, if $I\subseteq J$ as sets,
 then we cannot assume that $s(I)\le s(J)$.
-This was incorrectly assumed in the first version of the blueprint,
-and we fixed this by defining the right inequality on cubes as $I \le J$ iff $I \subseteq J$ and $s(I) \le s(J)$.
-In the blueprint we kept using the notation ``$I \subset J$'' for this inequality,
+The first version of the blueprint incorrectly described the data in a cube as just a subset of $X$,
+and the scale function $s$ as a function on these subsets.
+This implicitly assumed that $s(I)$ is only determined by $I$, viewed as a subset of $X$.
+This was fixed by including the scale as part of the data of the cube.
+
+In the blueprint we kept using the notation ``$I \subset J$'' for the inequality between cubes,
 even though that actually included the assumption that $s(I) \le s(J)$. % todo: fix in paper.
 This change had no further impact on downstream proofs, except for minor changes to lemma statements.
 
+We thank Georges Gonthier for finding this inaccuracy in the blueprint.
+
 \subsubsection{Just one top cube}
-To be written!
+
+
 
 \subsubsection{The Hardy--Littlewood maximal function} An important ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
 Recall that, given $f\colon\real^d\to\complex$, the (centered) Hardy–Littlewood maximal function $M f$ of $f$ is defined as
