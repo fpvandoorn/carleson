@@ -24,3 +24,9 @@ rev = "master"
 
 [[lean_lib]]
 name = "Carleson"
+
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Solution"
