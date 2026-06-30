@@ -14,7 +14,7 @@ These are some of the points we need to consider when reviewing the full draft o
 * Check punctuation, especially in displayed formulas.
 * Hyphenation between author names (--).
 * Spell-check everything (similar to the above, but lower key)
-
+* Make sure information in references is complete (and somewhat uniform)
 
 * Let's try to avoid naming too many contributors by name, unless it's hard to avoid.
 * terminology question: contributor vs author?
