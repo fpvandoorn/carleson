@@ -35,7 +35,7 @@ jobs:
           swap-storage: false
 
       - name: Checkout project
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
@@ -62,7 +62,7 @@ jobs:
           docker_image: ghcr.io/xu-cheng/texlive-full:20251002
           run: |
             cd paper
-            latexmk -pdf main.tex
+            latexmk main.tex
             latexmk -c
             cd ..
             cp paper/main.pdf docs/paper.pdf

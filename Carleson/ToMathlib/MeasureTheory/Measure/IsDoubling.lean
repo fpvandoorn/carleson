@@ -1,5 +1,6 @@
 module
 
+public import Carleson.BasicDefinitions
 public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.CoveredByBalls
 public import Mathlib.Data.Real.StarOrdered
@@ -24,13 +25,7 @@ end Doubling
 
 namespace MeasureTheory
 
-/-- A doubling measure is a measure on a metric space with the condition that doubling
-the radius of a ball only increases the volume by a constant factor, independent of the ball. -/
--- should `ℝ≥0` be `ℝ≥0∞`?
-class Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMetricSpace X]
-    (μ : Measure X) (A : outParam ℝ≥0) : Prop where
-  measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
-export IsDoubling (measure_ball_two_le_same)
+-- `MeasureTheory.Measure.IsDoubling` is defined in `BasicDefinitions.lean`
 
 section PseudoMetric
 

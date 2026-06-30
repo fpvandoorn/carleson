@@ -338,9 +338,9 @@ theorem aemeasurable_ton (tc : ToneCouple) : AEMeasurable tc.ton (volume.restric
 
 -- TODO: better name!
 @[measurability]
-lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]
-    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] [BorelSpace E₁]
-    (hg : AEMeasurable g μ) (tc : ToneCouple) :
+lemma indicator_ton_measurable {g : α → E₁}
+    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
+    (hg : AEStronglyMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ≥0∞ × α | ‖g x‖ₑ ≤ tc.ton s } ((volume.restrict (Ioi 0)).prod μ) := by
   apply nullMeasurableSet_le hg.comp_snd.enorm
   apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton a)
@@ -349,9 +349,9 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]
 
 -- TODO: better name!
 @[measurability]
-lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁]
+lemma indicator_ton_measurable_lt {g : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
-    [BorelSpace E₁] (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    (hg : AEStronglyMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ≥0∞ × α | tc.ton s < ‖g x‖ₑ }
       ((volume.restrict (Ioi 0)).prod μ) := by
   refine nullMeasurableSet_lt ?_ hg.comp_snd.enorm
@@ -360,34 +360,36 @@ lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁]
   simp only [Measure.map_id', aemeasurable_ton]
 
 @[measurability, fun_prop]
-lemma AEMeasurable.trunc_ton {f : α → E₁}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] [BorelSpace E₁]
-    (hf : AEMeasurable f μ) (tc : ToneCouple) :
-    AEMeasurable (fun a : ℝ≥0∞ × α ↦ (trunc f (tc.ton a.1)) a.2)
+lemma AEStronglyMeasurable.trunc_ton {f : α → E₁}
+    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
+    (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
+    AEStronglyMeasurable (fun a : ℝ≥0∞ × α ↦ (MeasureTheory.trunc f (tc.ton a.1)) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
   let A := {(s, x) : ℝ≥0∞ × α | ‖f x‖ₑ ≤ tc.ton s}
-  have : (fun z : ℝ≥0∞ × α ↦ (trunc f (tc.ton z.1)) z.2) =
+  have : (fun z : ℝ≥0∞ × α ↦ (MeasureTheory.trunc f (tc.ton z.1)) z.2) =
       Set.indicator A (fun z : ℝ≥0∞ × α ↦ f z.2) := by
-    ext z; simp [trunc, indicator, A]
+    ext z; simp [MeasureTheory.trunc, indicator, A]
   rw [this]
-  exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable (AEMeasurable.restrict hf) _)).mpr
+  exact (aestronglyMeasurable_indicator_iff₀ (indicator_ton_measurable (hf.restrict) _)).mpr
     hf.restrict.comp_snd.restrict
 
 @[measurability, fun_prop]
-lemma AEMeasurable.truncCompl_ton {f : α → E₁}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] [BorelSpace E₁]
-    (hf : AEMeasurable f μ) (tc : ToneCouple) :
-    AEMeasurable (fun a : ℝ≥0∞ × α ↦ ((truncCompl f (tc.ton a.1))) a.2)
+lemma AEStronglyMeasurable.truncCompl_ton {f : α → E₁}
+    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
+    (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
+    AEStronglyMeasurable (fun a : ℝ≥0∞ × α ↦ ((MeasureTheory.truncCompl f (tc.ton a.1))) a.2)
     ((volume.restrict (Ioi 0)).prod (μ.restrict f.support )) := by
   let A := {(s, x) : ℝ≥0∞ × α | tc.ton s < ‖f x‖ₑ}
-  have : (fun z : ℝ≥0∞ × α ↦ (truncCompl f (tc.ton z.1)) z.2) = Set.indicator A (fun z : ℝ≥0∞ × α ↦ f z.2) := by
+  have : (fun z : ℝ≥0∞ × α ↦ (MeasureTheory.truncCompl f (tc.ton z.1)) z.2)
+      = Set.indicator A (fun z : ℝ≥0∞ × α ↦ f z.2) := by
     ext z; rw [truncCompl_eq]; simp [A, indicator]
   rw [this]
-  exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
+  exact (aestronglyMeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
     hf.restrict.comp_snd.restrict
 
 -- TODO: better name!
-lemma restrict_to_support {p : ℝ} (hp : 0 < p) [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] (f : α → E₁) :
+lemma restrict_to_support {p : ℝ} (hp : 0 < p) [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
+  (f : α → E₁) :
     ∫⁻ x : α in f.support, ‖trunc f t x‖ₑ ^ p ∂ μ = ∫⁻ x : α, ‖trunc f t x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
   unfold Function.support trunc
@@ -398,7 +400,8 @@ lemma restrict_to_support {p : ℝ} (hp : 0 < p) [TopologicalSpace E₁] [ESemin
   simp_rw [f_zero]; simp [hp]
 
 -- TODO: better name!
-lemma restrict_to_support_truncCompl {p : ℝ} [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] (hp : 0 < p) (f : α → E₁) :
+lemma restrict_to_support_truncCompl {p : ℝ} [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
+  (hp : 0 < p) (f : α → E₁) :
     ∫⁻ x : α in f.support, ‖(truncCompl f t) x‖ₑ ^ p ∂μ =
     ∫⁻ x : α, ‖(truncCompl f t) x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
@@ -410,7 +413,8 @@ lemma restrict_to_support_truncCompl {p : ℝ} [TopologicalSpace E₁] [ESeminor
   simp [hp, f_zero]
 
 -- TODO: better name!
-lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] (hp : 0 < p) (f : α → E₁) :
+lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁]
+  [ESeminormedAddCommMonoid E₁] (hp : 0 < p) (f : α → E₁) :
     ∫⁻ x : α in f.support, ‖trnc j f t x‖ₑ ^ p ∂μ =
     ∫⁻ x : α, ‖trnc j f t x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
@@ -423,10 +427,10 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁] [ESe
   · simp_rw [f_zero]; simp [hp]
 
 @[fun_prop]
-theorem AEMeasurable.trnc_restrict
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] [BorelSpace E₁] {j : Bool}
-    (hf : AEMeasurable f μ) (tc : ToneCouple) :
-    AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
+theorem AEStronglyMeasurable.trnc_restrict
+    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] {j : Bool}
+    (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
+    AEStronglyMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
   by_cases hj: j
   · simp only [hj, trnc]
@@ -434,9 +438,8 @@ theorem AEMeasurable.trnc_restrict
   · simp only [hj, trnc]
     exact hf.truncCompl_ton _
 
-lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
-    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁] [TopologicalSpace.PseudoMetrizableSpace E₁]
-    [BorelSpace E₁] -- TODO: I needed to add these, is that acceptable?
+lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
+    [TopologicalSpace E₁] [ESeminormedAddCommMonoid E₁]
     {j : Bool} {hμ : SigmaFinite (μ.restrict f.support)}
     (hp₀ : 0 < p₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
@@ -465,11 +468,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpa
           have : Measure.map (fun a ↦ ENNReal.ofReal a) (volume.restrict (Ioi 0)) = volume.restrict (Ioi 0) := by
             simp [map_restrict_Ioi_eq_restrict_Ioi]
           rw [this]
-          have : (fun a ↦ ‖trnc j f (tc.ton a.1) a.2‖ₑ ^ p₀) = (fun z : E₁ ↦ ‖ z ‖ₑ ^ p₀) ∘ (fun a : ℝ≥0∞ × α ↦ trnc j f (tc.ton a.1) a.2) := rfl
-          rw [this]
-          apply AEMeasurable.comp_aemeasurable
-          · fun_prop
-          · exact AEMeasurable.trnc_restrict (AEStronglyMeasurable.aemeasurable hf) _
+          fun_prop
         · fun_prop
         · fun_prop
       · fun_prop
@@ -495,8 +494,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h : α → ENNReal}
 /-- One of the key estimates for the real interpolation theorem, not yet using
 the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
 lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁] [BorelSpace E₁]
-    [TopologicalSpace.PseudoMetrizableSpace E₁]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict f.support))
     (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀)
@@ -631,8 +629,7 @@ def sel (j : Bool) (p₀ p₁ : ℝ≥0∞) := match j with | true => p₁ | fal
 the particular choice of exponent, but not yet using the
 particular choice of scale in the `ScaledPowerFunction`. -/
 lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁]
-    [BorelSpace E₁] [TopologicalSpace.PseudoMetrizableSpace E₁] (ht : t ∈ Ioo 0 1)
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (ht : t ∈ Ioo 0 1)
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hpq : sel j p₀ p₁ ≤ sel j q₀ q₁)
     (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤) (hp₀p₁ : p₀ < p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
