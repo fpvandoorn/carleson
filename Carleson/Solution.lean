@@ -1,7 +1,7 @@
 module
 
 public import Carleson
-public import Carleson.ChallengeDefs
+public import Carleson.BasicDefinitions
 
 /-! # Solution file for using comparator -/
 

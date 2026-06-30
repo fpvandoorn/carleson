@@ -1,6 +1,6 @@
 module
 
-public import Carleson.ChallengeDefs
+public import Carleson.BasicDefinitions
 
 /-! # Challenge file for using comparator -/
 
@@ -12,7 +12,7 @@ open scoped NNReal
 -- Carleson's theorem asserting a.e. convergence of the partial Fourier sums for continous functions
 open Real in
 theorem ClassicalCarleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
-  ∀ᵐ x, Filter.Tendsto (Challenge.partialFourierSum · f x) Filter.atTop (nhds (f x)) := sorry
+  ∀ᵐ x, Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x)) := sorry
 
 namespace Challenge
 
