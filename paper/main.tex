@@ -673,6 +673,20 @@ we have
 The proof of this last result is the heart of the matter. The pieces are categorized in one of three types, for each of which a separate analysis is required to establish a bound.
 These three branches of the proof are largely independent and handled in separate sections 5, 6, and 7 of the blueprint \cite{CarlesonBlueprint}.
 
+\subsection{Verification of results}
+
+The Lean kernel checks that all proofs ar eocrrect. It cannot ascertain that all definitions and theorems match their definition in the blueprint; this requires manual effort.
+One strategy (going back to at least the Liquid Tensor experiment \cite{LTEDefinitions}) is to prove interesting theorems about these definitions (such as Carleson's theorem).
+Another aspects is making the relevant definitions easy to audit: to this end, we have collected all definitions and set-up necessary for stating the main theorems into a single file. Auditing these 160 lines of Lean code (on top of \Mathlib) ensures the theorems say what they claim --- two orders of magnitude small than the entire project.
+% 137 lines of Lean code (without comments) in BasicDefinitions, 26 in Challenge
+In addition, about a quarter of these lines are basic definitions that will be added to Mathlib soon --- reducing the code to be trusted further.
+
+The astute reader may argue that the \emph{proofs} of these results require many more prerequisites, complicating this analysis: how can we ensure the actually proven statements match their theorems? We offer two answers:
+firstly, we can use Lean's kernel to double-check: for each main theorem, we create a corresponding Lean definition whose type is the theorem statement. Down the line, we check that e.g. \texttt{linearized_carleson} actually provides a term of that type.
+Secondly, the \emph{comparator} tool \url{https://github.com/leanprover/comparator} can verify such a correspondence of a given proof to a provided theorem, in a matter that is robust against malicious code or abuse of Lean's metaprogramming facilities. It is the gold standard for verification of formalisations.
+We have verified the classical Carleson theorem (Theorem~\ref{classical-carleson}) and its metric space (Theorem~\ref{metric-space-Carleson}) and linearized metric space generalizations (Theorem~\ref{linearized-metric-Carleson}) using comparator: this certifies that the statements in the Lean file \texttt{Challenge.lean} match what is actually proven.
+
+
 \section{Project organization}\label{sec:org}
 
 Planning for the Carleson project started in Fall 2023 by
