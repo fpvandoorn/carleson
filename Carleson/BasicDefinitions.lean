@@ -259,14 +259,3 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
 export KernelProofData (four_le_a)
 
 attribute [implicit_reducible, instance] KernelProofData.d KernelProofData.cf
-
-/-- The main constant in the blueprint, driving all the construction, is `D = 2 ^ (100 * a ^ 2)`.
-It turns out that the proof is robust, and works for other values of `100`, giving better constants
-in the end. We will formalize it using a parameter `𝕔` (that we fix equal to `100` to follow
-the blueprint) and having `D = 2 ^ (𝕔 * a ^ 2)`. We register two lemmas `seven_le_c` and
-`c_le_100` and will never unfold `𝕔` from this point on. -/
-irreducible_def 𝕔 : ℕ := 100
-
-/-- The constant used in `MetricSpaceCarleson` and `LinearizedMetricCarleson`.
-Has value `2 ^ (443 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
-def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
