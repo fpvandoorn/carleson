@@ -1,11 +1,6 @@
 module
 
 public import Carleson.BasicDefinitions
-public import Carleson.ToMathlib.Annulus
-public import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
-public import Carleson.ToMathlib.WeakType
-public import Mathlib.Analysis.CStarAlgebra.Classes
-public import Mathlib.Analysis.Fourier.AddCircle
 
 @[expose] public section
 
