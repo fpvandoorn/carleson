@@ -68,7 +68,7 @@ structure BoundedFiniteSupport (f : X → E) (μ : Measure X := by volume_tac) :
 w.r.t. the L^2 norm, but weaker in general. -/
 def MeasureTheory.HasBoundedStrongType
     {ε₁ ε₂ : Type*} [ENorm ε₁] [ENorm ε₂] [TopologicalSpace ε₁] [TopologicalSpace ε₂] [Zero ε₁]
-    {α α' : Type*} [Zero ε₁] {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
+    {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
     (T : (α → ε₁) → (α' → ε₂))
     (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, BoundedFiniteSupport f μ →
