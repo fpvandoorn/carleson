@@ -25,8 +25,12 @@ rev = "master"
 [[lean_lib]]
 name = "Carleson"
 
+# Lean library with just the comparator challenge file: necessary to enable running
+# comparator on this repository.
 [[lean_lib]]
 name = "Challenge"
 
+# Lean library with just the comparator solution file: necessary to enable running
+# comparator on this repository.
 [[lean_lib]]
 name = "Solution"
