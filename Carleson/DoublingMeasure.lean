@@ -2,7 +2,9 @@ module
 
 public import Carleson.Defs
 public import Carleson.LipschitzNorm
+public import Carleson.ToMathlib.Annulus
 public import Carleson.ToMathlib.Data.ENNReal
+public import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 
 @[expose] public section
 

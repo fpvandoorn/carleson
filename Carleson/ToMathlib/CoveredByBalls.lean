@@ -1,5 +1,6 @@
 module
 
+public import Carleson.BasicDefinitions
 public import Carleson.ToMathlib.Misc
 
 @[expose] public section
@@ -13,13 +14,7 @@ open scoped NNReal
 variable {X : Type*} [PseudoMetricSpace X]
   {s t : Set X} {n m : ℕ} {r r' r₁ r₂ r₃ : ℝ}
 
-set_option linter.unusedVariables false in
-/-- `s` can be covered by at most `N` balls with radius `r`. -/
-@[mk_iff]
-class inductive CoveredByBalls (s : Set X) (n : ℕ) (r : ℝ) : Prop where
-  | mk (balls : Finset X)
-    (card_balls : balls.card ≤ n)
-    (union_balls : s ⊆ ⋃ x ∈ balls, ball x r) : CoveredByBalls s n r
+-- `CoveredByBalls` is defined in `BasicDefinitions.lean`
 
 namespace CoveredByBalls
 
@@ -65,9 +60,7 @@ protected lemma ball (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
 
 end CoveredByBalls
 
-variable (X) in
-/-- Balls of radius `r` in `X` are covered by `n` balls of radius `r'` -/
-def BallsCoverBalls (r r' : ℝ) (n : ℕ) : Prop := ∀ x : X, CoveredByBalls (ball x r) n r'
+-- `BallsCoverBalls` is defined in `BasicDefinitions.lean`
 
 lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
     (h2 : BallsCoverBalls X r r' m) : CoveredByBalls s (n * m) r' := by
@@ -109,9 +102,7 @@ lemma nonpos (hr' : r' ≤ 0) : BallsCoverBalls X r' r n :=
 
 end BallsCoverBalls
 
-variable (X) in
-/-- For all `r`, balls of radius `r` in `X` are covered by `n` balls of radius `a * r` -/
-def AllBallsCoverBalls (a : ℝ) (n : ℕ) : Prop := ∀ r : ℝ, BallsCoverBalls X (a * r) r n
+-- `AllBallsCoverBalls` is defined in `BasicDefinitions.lean`
 
 namespace AllBallsCoverBalls
 

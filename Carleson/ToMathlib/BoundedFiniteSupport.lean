@@ -1,5 +1,6 @@
 module
 
+public import Carleson.BasicDefinitions
 public import Mathlib.MeasureTheory.Function.L1Space.Integrable
 
 public section
@@ -18,13 +19,7 @@ noncomputable section
 
 variable {X E : Type*} [MeasurableSpace X] {f g : X → E} {μ : Measure X}
 
-variable [TopologicalSpace E] [ENorm E] [Zero E] in
-/-- Definition to avoid repeating ourselves.
-Blueprint states: *bounded measurable function $g$ on $X$ supported on a set of finite measure*. -/
-@[fun_prop]
-structure BoundedFiniteSupport (f : X → E) (μ : Measure X := by volume_tac) : Prop where
-  memLp_top : MemLp f ∞ μ
-  measure_support_lt : μ (support f) < ∞
+-- the definition `BoundedFiniteSupport` has moved to `BasicDefinitions.lean`
 
 namespace BoundedFiniteSupport
 
