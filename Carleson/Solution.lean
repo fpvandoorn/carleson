@@ -28,7 +28,7 @@ theorem metric_carleson
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
     (hT : Challenge.HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (2 ^ a ^ 3)) :
     ∫⁻ x in G, carlesonOperator K f x ≤ C a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
-  sorry -- have aux := _root_.metric_carleson hq hqq' mF mG mf nf hT (a := a)
+  sorry -- apply _root_.metric_carleson hq hqq' --mF mG mf nf hT (a := a)
 
 theorem linearized_metric_carleson
     {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ}

@@ -431,13 +431,7 @@ def HasStrongType {α α' : Type*}
     (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
-/-- A weaker version of `HasStrongType`. This is the same as `HasStrongType` if `T` is continuous
-w.r.t. the L^2 norm, but weaker in general. -/
-def HasBoundedStrongType {α α' : Type*} [Zero ε₁]
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
-    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
-  ∀ f : α → ε₁, BoundedFiniteSupport f μ →
-  AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
+-- `HasBoundedStrongType` has moved to `BasicDefinitions.lean`
 
 end Defs
 
