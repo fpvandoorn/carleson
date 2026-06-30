@@ -281,16 +281,7 @@ The \emph{$N$-th partial Fourier sum} of $f$ at $x\in [0,2\pi]$ is defined as
 and its \emph{Fourier series} as $\lim_{N\to\infty} S_N f (x)$.
 \end{definition}
 
-
-
-The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$. This is defined to be a complete
-and locally compact metric space $(X,\rho)$
-equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the following doubling condition for $a\in\nat$.
-For all $x\in X$ and all $R>0$ we have
-\begin{equation}\label{doublingx}
-    \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
-\end{equation}
-where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ centered at $x$ (see \lean{DoublingMeasure}).
+The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator.
 %In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
 The proof of the metric space Carleson theorem relies on several tools from real analysis and part of the formalization is a proof of the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g. \cite{vanDoornFormalizedHaarMeasure} for an overview).
@@ -318,7 +309,7 @@ Similarly, the operator $T$ is of strong type if there exists a constant $C$ suc
 \subsubsection{Classical Carleson}\label{subsubsec:classical-result}
 
 The namesake of the formalization project is the classical result of Carleson on the pointwise convergence of Fourier series.
-The specific statement is as follows:
+The specific statement is as follows.
 
 \begin{theorem}[classical Carleson]
     \label{classical-carleson}
@@ -341,8 +332,9 @@ The specific version that has been formalized is this one:
 \begin{theorem}[real Carleson]\label{real-Carleson}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
-    \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
+    \left|\int _G Tf(x) \, dx\right| \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12} \, ,
 \end{equation}
+% the constant above was C_{4,2}
 where $C_{4,2}$ is a constant independent of $F$, $G$, and $f$ and
 \begin{equation}
     \label{define-T-carleson}
@@ -537,7 +529,7 @@ In particular, the two-sided case can be applied to derive the classical Carleso
         \end{equation}
 \end{theorem}
 
-\subsubsection{Proof sketch}\label{subsubsec:proof-sketch}
+\subsubsection{Proof roadmap}\label{subsubsec:proof-sketch}
 
 In order to highlight choices made in the proof and the formalization it is practical to give a brief roadmap
 % JP: As a suggestion, I replaced proof sketch to road map, because I think in the current version, there is too little information on the argument to call it a proof sketch
@@ -549,7 +541,7 @@ Given the variables and assumptions of \Cref{linearised-metric-Carleson}, define
 D := 2^{100a^2}
 \]
 and let
- $\psi:\R \to \R$ be the unique compactly supported, piece-wise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
+ $\psi:\R \to \R$ be the unique compactly supported, piecewise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
  \begin{equation}
     \label{eq-psisum}
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
@@ -795,12 +787,12 @@ The Marcinkiewicz real interpolation theorem is a standard result in functional 
 It is also a key prerequisite for the proof of Carleson's theorem: for example, it is applied to the Hardy–Littlewood maximal function to deduce it is of strong type $L^p$, for $p\in(0,\infty)$.
 Our formalised version aims to reduce superfluous assumptions commonly found in the mathematical literature. For instance, it applies to any sub-additive function (not merely sub-linear ones) --- that is, there is no need for a scalar multiplication on the target. Similarly, any positive exponent $p$ is allowed (as opposed to demanding $p\geq 1$).
 
-In light of generalising the Hardy--Littlewood maximal function, this proof had to be generalised again:
-applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any commutative monoid with a compatible enorm).
-In return for a significant amount of refactoring work\footnote{the initial formalisation was about 5000 lines long; the generalisation touched about 2000 of them},
-we have formalised a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way. We ended up with the following version.
-\begin{theorem}
-    Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces, let $E$ be a topological space with the structure of a normed additive monoid endowed with a compatible extended seminorm (i.e. positive definite, fulfilling the triangle inequality) continuous extended norm, let $F$ be a topological space with a continuous extended norm function.
+In light of generalizing the Hardy--Littlewood maximal function, this proof had to be generalized again:
+applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any monoid with a continuous extended norm function).
+In return for a significant amount of refactoring work\footnote{the initial formalization was about 5000 lines long; the generalization touched about 2000 of them},
+we have formalized a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way. We ended up with the following version.
+\begin{theorem}[real interpolation theorem]
+    Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces, let $E$ be a topological space with the structure of an additive monoid endowed with a compatible continuous extended seminorm, let $F$ be a topological space with a continuous extended norm function.
     Let $p_0, p_1, q_0, q_1, p, q \in \ennreal$ such that $p_0 \in (0,q_0], p_1 \in (0,q_1], q_0 \ne q_1$ and there exists $t \in (0,1)$ such that $\frac{1}{p} = \frac{1-t}{p_0} + \frac{t}{p_1}$ and $\frac{1}{q} = \frac{1-t}{q_0} + \frac{t}{q_1}$.
     Let $T : (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^p_0(X; E) \cup L^p_1(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e. $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e. strongly measurable.
 
