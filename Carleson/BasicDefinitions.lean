@@ -1,6 +1,5 @@
 module
 
-public import Mathlib.Analysis.CStarAlgebra.Classes
 public import Mathlib.Analysis.Fourier.AddCircle
 
 /-! # Key definitions and setup for the Carleson project
