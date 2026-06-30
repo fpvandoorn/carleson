@@ -752,9 +752,44 @@ When the project was finished, it comprised 35.6k lines of code (excluding blank
 
 \section{Working with a blueprint}\label{sec:blueprint}
 \subsection{The blueprint writing process}\label{subsec:blueprint_writing}
-% \begin{itemize}
-% 	\item Blueprint writing process and finitary arguments.
-% \end{itemize}
+
+% todo: maybe some deduplication is needed w.r.t. other sections
+Before the formalization started, the blueprint~\cite{CarlesonBlueprint} was written
+by the harmonic analysis group in Bonn, forming the mathematical basis of the formalization.
+When the formalization project was announced, the blueprint was not finished in its entirity.
+Some parts of Section~7 of the blueprint,
+which deals with arguably the most complicated case of the proof,
+was still being finalized.
+Section~3, which reduces \Cref{metric-space-Carleson} to \Cref{finitary-Carleson},
+had to still be written in its entirity.
+Most of the blueprint was finalized,
+and contained more than enough material to start the formalization.
+
+The main objective of the blueprint was to provide more detailed proofs for the lemmas and propositions
+needed for the Carleson theorem.
+Another objectives was to include a detailed proof
+of the reduction of \Cref{metric-space-Carleson} to \Cref{classical-carleson}.
+Finally, we wanted to streamline the argument to simplify the formalization.
+One part of the formalization that we were worried about is the so-called ``invisible mathematics''
+that one has to formalize.
+% there doesn't seem to be anything good to cite here, except for slides by Andrej Bauer...
+These are arguments that are not written on paper,
+but have to be done by the formalizer to arrive at a formal proof.%
+\footnote{There is also invisible mathematics that is performed by the proof assistent,
+such as interpreting the meaning of notation or the scope of variables,
+which we will not discuss here.}
+Examples include proofs of integrability or measurability of side-goals, which are required
+when manipulating expressions involving integrals.
+To simplify these arguments, the blueprint was written to rely on finitary arguments.
+The main part of the proof was done in a finite setting:
+there are only finitely many cubes in the grid structure
+and only finitely many tiles in the tile structure.
+Moreover, most of the argument takes place
+in a specified subset of the space $X$ with finite measure.
+Only in the final steps of the proof,
+multiple limiting arguments are used to derive \Cref{metric-space-Carleson}
+from its finitary version, \Cref{finitary-Carleson}.
+This approach also had downsides, as discussed later in this section.
 
 \subsection{Changes and refinements}\label{subsec:blueprint_changes}
 
