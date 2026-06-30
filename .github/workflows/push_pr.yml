@@ -27,7 +27,7 @@ jobs:
         run: ~/.elan/bin/lake exe cache get || true
 
       - name: check that Carleson.lean is up to date
-        run: ~/.elan/bin/lake exe mk_all --check
+        run: ~/.elan/bin/lake exe mk_all --check --lib Carleson
 
       - name: Build project
         run: ~/.elan/bin/lake build Carleson
