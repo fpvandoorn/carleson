@@ -282,7 +282,14 @@ The {\em Fourier series} of $f$ is then given by the formal trigonometric series
 which may or may not converge for a given $x\in\real$.
 \end{definition}
 
-The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator.
+The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$. This is defined to be a complete
+and locally compact metric space $(X,\rho)$
+equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the following doubling condition for $a\in\nat$.
+For all $x\in X$ and all $R>0$ we have
+\begin{equation}\label{doublingx}
+    \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
+\end{equation}
+where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ centered at $x$ (see \lean{DoublingMeasure}).
 %In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
 The proof of the metric space Carleson theorem relies on several tools from real analysis and part of the formalization is a proof of the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g. \cite{vanDoornFormalizedHaarMeasure} for an overview).
@@ -350,20 +357,7 @@ with $\kappa: \R\to\C$ defined as
 
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
 
-Let $a \ge 4$ be a natural number. As mentioned before, a doubling metric measure space $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
-equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
-\begin{equation}\label{doublingx-duped} % duplicated!
-    \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
-\end{equation}
-where we have denoted by $B(x,R)$ the open ball of radius $R$ centered at $x$.
-% We say this before as well
-
-%\begin{equation}\label{eq-define-ball}
-%    B(x,R):=\{y\in X: \rho(x,y)<R\}.
-%\end{equation}
-%In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
-
-A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
+Let $a \ge 4$ be a natural number. A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
 if there is a point $o\in X$ where all the functions are equal to $0$,
 and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$,
 such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied.
