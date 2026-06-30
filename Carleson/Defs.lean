@@ -26,13 +26,6 @@ attribute [instance] KernelProofData.hcz
 
 set_option linter.unusedVariables false
 
-/-- The main constant in the blueprint, driving all the construction, is `D = 2 ^ (100 * a ^ 2)`.
-It turns out that the proof is robust, and works for other values of `100`, giving better constants
-in the end. We will formalize it using a parameter `𝕔` (that we fix equal to `100` to follow
-the blueprint) and having `D = 2 ^ (𝕔 * a ^ 2)`. We register two lemmas `seven_le_c` and
-`c_le_100` and will never unfold `𝕔` from this point on. -/
-irreducible_def 𝕔 : ℕ := 100
-
 /-- A constant used on the boundedness of `T_Q^θ` and `T_*`. We generally assume
 `HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·) 2 2 volume volume (C_Ts a)`
 throughout this formalization. -/
@@ -45,10 +38,6 @@ For the proof, see `classical_carleson` in the file `Carleson.Classical.Classica
 def ClassicalCarleson : Prop :=
   ∀ {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)),
     ∀ᵐ x, Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))
-
-/-- The constant used in `MetricSpaceCarleson` and `LinearizedMetricCarleson`.
-Has value `2 ^ (443 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
-def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
 
 /-- Theorem 1.1.1.
 For the proof, see `metric_carleson` in the file `Carleson.MetricCarleson.Main`. -/

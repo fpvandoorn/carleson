@@ -20,20 +20,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install elan
-        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0
-
-      - name: Get cache
-        run: ~/.elan/bin/lake exe cache get || true
+      - name: Configure Lean
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # 2025-07-02
+        with:
+          auto-config: false
+          use-github-cache: false
+          use-mathlib-cache: true
+          lake-package-directory: tools # Building here
 
       - name: check that Carleson.lean is up to date
-        run: ~/.elan/bin/lake exe mk_all --check
+        run: ~/.elan/bin/lake exe mk_all --check --lib Carleson
 
-      - name: Build project
-        run: ~/.elan/bin/lake build Carleson
-
-      - name: Lint project
-        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter Carleson
+      - name: Build and lint project
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # 2025-07-02
+        with:
+          build: true
+          lint: true
+          mk_all-check: false # would need to pass '--lib Carleson' to mk_all to enable
 
       - name: Generate the paper PDF
         uses: xu-cheng/texlive-action@22c04326a5d855880f9d39bb955138bf11c6df80 # v3
