@@ -759,9 +759,43 @@ When the project was finished, it comprised 35.6k lines of code (excluding blank
 Throughout the formalization process, most of the blueprint only needed minor changes, such as fixing typos or clarifying minor details. Let us highlight four aspects where formalization resulted in more substantial changes or refinements.
 
 \subsubsection{$I \leq J$ vs.\ $I \subset J$}
-To be written!
+The axioms for a grid structure are meant to convey that the scale of a cube roughly specifies the size of a cube.
+Indeed, Equation \eqref{eq-vol-sp-cube}, together with the fact that $D\gg 16$,
+states that if we have cubes $I$ and $J$ with different scales, then they are subsets/supersets of balls with drastically different radii.
+More precisely, if $I\subseteq J$ and $s(I)<s(J)$,
+then $s(I)$ is a subset of a ball with $4D^{s(I)}$
+and $s(J)$ is a superset of a ball with radius $\frac{1}{4}D^{s(J)}\gg 4D^{s(I)}$.
+It is therefore tempting to conclude that $J$ must be a strict superset of $I$.
+This might not be the case in an arbitrary metric space,
+since there is no guarantee that there are points
+in an annulus with specified inner and outer radii.
 
-\subsubsection{Just one top cube} To be written!
+This also means that for two cubes $I$ and $J$, if $I\subseteq J$ as sets,
+then we cannot assume that $s(I)\le s(J)$.
+The first version of the blueprint incorrectly described the data in a cube as just a subset of $X$,
+and the scale function $s$ as a function on these subsets.
+This implicitly assumed that $s(I)$ is only determined by $I$, viewed as a subset of $X$.
+This was fixed by including the scale as part of the data of the cube.
+
+In the blueprint we kept using the notation ``$I \subset J$'' for the inequality between cubes,
+even though that actually included the assumption that $s(I) \le s(J)$. % todo: fix in paper.
+This change had no further impact on downstream proofs, except for minor changes to lemma statements.
+
+We thank Georges Gonthier for finding this inaccuracy in the blueprint.
+
+\subsubsection{Just one top cube}
+
+We made a second change to the definition of a grid structure, also suggested by Georges Gonthier.
+The first definition didn't have the axiom that there exists a top cube,
+so it lacked the existence of $I_0$ and Equation \eqref{subsetmaxcube}.
+In the construction of the grid structure on $X$
+from Section 4 in the blueprint
+the top level always has a single cube,
+so it was free to add this to the general definition of grid structure.
+This slightly simplified a few proofs in later sections,
+and there was one computation that already implicitly assumed
+that there was only one top cube.
+% If we want to add more details: commit 8ba0940 adds the top cube to the grid structure and 5b3faa4 incorporates it into Section 7 (and makes other changes)
 
 \subsubsection{The Hardy--Littlewood maximal function} An important ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
 Recall that, given $f\colon\real^d\to\complex$, the (centered) Hardy–Littlewood maximal function $M f$ of $f$ is defined as
