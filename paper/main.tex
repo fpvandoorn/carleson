@@ -282,7 +282,6 @@ The {\em Fourier series} of $f$ is then given by the formal trigonometric series
 which may or may not converge for a given $x\in\real$.
 \end{definition}
 
-
 The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$. This is defined to be a complete
 and locally compact metric space $(X,\rho)$
 equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the following doubling condition for $a\in\nat$.
@@ -318,7 +317,7 @@ Similarly, the operator $T$ is of strong type if there exists a constant $C$ suc
 \subsubsection{Classical Carleson}\label{subsubsec:classical-result}
 
 The namesake of the formalization project is the classical result of Carleson on the pointwise convergence of Fourier series.
-The specific statement is as follows:
+The specific statement is as follows.
 
 \begin{theorem}[classical Carleson]
     \label{classical-carleson}
@@ -337,19 +336,20 @@ The specific version that has been formalized is this one:
 \begin{theorem}[real Carleson]\label{real-Carleson}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
-    \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
+    \left|\int _G Tf(x) \, dx\right| \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12} \, ,
 \end{equation}
-where
+% the constant above was C_{4,2}
+and
 \begin{equation}
     \label{define-T-carleson}
-    T f(x)=\sup_{n\in \mathbb{Z}}
-    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|\, .
+    T f(x)\coloneq\sup_{n\in \mathbb{Z}}
+    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right| \, ,
 \end{equation}
-with $\kappa: \R\to\C$ defined as:
+with $\kappa: \R\to\C$ defined as
 \begin{equation}
-    \kappa(x)=\begin{cases}
+    \kappa(x)\coloneq\begin{cases}
         0 & \text{if $x = 0$ or $|x| \ge 1$} \\
-        \frac { 1-|x|}{1-e^{ix}} & \text{if $0 < |x| < 1$}
+        \frac { 1-|x|}{1-e^{ix}} & \text{if $0 < |x| < 1$}.
     \end{cases}
 \end{equation}
 \end{theorem}
@@ -357,22 +357,11 @@ with $\kappa: \R\to\C$ defined as:
 
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
 
-Let $a \ge 4$ be a natural number. A doubling metric measure space $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
-equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
-\begin{equation}\label{doublingx-duped} % duplicated!
-    \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
-\end{equation}
-where we have denoted by $B(x,R)$ the open ball of radius $R$ centered at $x$.
-%\begin{equation}\label{eq-define-ball}
-%    B(x,R):=\{y\in X: \rho(x,y)<R\}.
-%\end{equation}
-%In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
-
-A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
+Let $a \ge 4$ be a natural number. A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
 if there is a point $o\in X$ where all the functions are equal to $0$,
 and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$,
 such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied.
-For every ball $B \subset X$
+For every ball $B \subset X$ and any $\mfa, \mfb \in \Mf$,
 \begin{equation}\label{osccontrol}
     \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb)\,.
 \end{equation}
@@ -466,7 +455,7 @@ where again $e(r)=e^{ir}$.
 \subsubsection{Metric space Carleson}\label{subsubsec:metric-carleson}
 
 We prove three versions of the main result.
-Our first main result is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
+The first version is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
 which by interpolation techniques recovers $L^q$ estimates for the open range $1<q<2$.
 \begin{theorem}[metric space Carleson]
 \label{metric-space-Carleson}
@@ -489,10 +478,10 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
 In some applications, such as the Walsh-case of Carleson's theorem, the kernel $K$ naturally depends also on the modulation functions $\mfa$.
 The fact that we don't assume H\"older-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
 
-We now state another theorem with a slightly weaker replacement of the assumption \eqref{nontanbound}.
+The second version of our main result has a slightly weaker replacement of the assumption \eqref{nontanbound}.
 It implies the Walsh-case of Carleson's theorem.
 
-\begin{theorem}[linearized metric Carleson]
+\begin{theorem}[linearized metric space Carleson]
 \label{linearized-metric-Carleson}
     For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
@@ -511,8 +500,8 @@ It implies the Walsh-case of Carleson's theorem.
     \end{equation}
 \end{theorem}
 
-For two-sided Calder\'on--Zygmund kernels, the additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
-In particular the two-sided case can be applied to derive the classical Carleson's theorem.
+The third version of the main result involves two-sided Calder\'on--Zygmund kernels, whose additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
+In particular, the two-sided case can be applied to derive the classical Carleson's theorem.
 
 \begin{theorem}[two-sided metric space Carleson]
     \label{two-sided-metric-space-Carleson}
@@ -531,20 +520,25 @@ In particular the two-sided case can be applied to derive the classical Carleson
         \end{equation}
 \end{theorem}
 
-\subsubsection{Proof sketch}\label{subsubsec:proof-sketch}
+\subsubsection{Proof roadmap}\label{subsubsec:proof-sketch}
 
-In order to highlight choices made in the proof and the formalization it is practical to give a brief proof sketch of the main results stated above.
-Of these three, the linearized version \Cref{linearized-metric-Carleson} implies the others. To prove it, the first step is a reduction to a finitary version.
+In order to highlight choices made in the proof and the formalization it is practical to give a brief roadmap
+% JP: As a suggestion, I replaced proof sketch to road map, because I think in the current version, there is too little information on the argument to call it a proof sketch
+of the proof of the main results stated above.
+Of these three, the linearized version \Cref{linearized-metric-Carleson} implies the others. It is proved by first reducing it to a finitary version, which is then reduced to a discrete version.
 
-Let the assumptions of \Cref{linearized-metric-Carleson} be given.
-Let
- $\psi:\R \to \R$ be the unique compactly supported, piece-wise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
+Given the variables and assumptions of \Cref{linearized-metric-Carleson}, define
+\[
+D := 2^{100a^2}
+\]
+and let
+ $\psi:\R \to \R$ be the unique compactly supported, piecewise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
  \begin{equation}
     \label{eq-psisum}
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
 \end{equation}
 for all $x>0$. This function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
-$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$.
+$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. With this definition, the finitary Carleson Theorem reads as follows.
 
 \begin{theorem}[finitary Carleson]
 \label{finitary-Carleson}
@@ -566,8 +560,7 @@ To state this intermediate result, we need some definitions.
 %%JMS - Pure copy from blueprint, can be optimized
 
 A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$ of pairs $(I, k)$ of Borel
-sets in $X$ and integers $k \in [-S, S]$, the projection $s\colon \mathcal{D}\to [-S, S], (I, k) \mapsto k$ to the second component which is assumed to be surjective and
-called scale function, and a function $c:\mathcal{D}\to X$
+sets $I$ in $X$ and integers $k \in [-S, S]$, the scale function $s\colon \mathcal{D}\to [-S, S], (I, k) \mapsto k$, assumed to be surjective, and a function $c:\mathcal{D}\to X$
 called center function such that the five properties
 \eqref{coverdyadic}, \eqref{dyadicproperty}, \eqref{subsetmaxcube},
 \eqref{eq-vol-sp-cube}, and \eqref{eq-small-boundary} hold. We call the elements of $\mathcal{D}$ dyadic cubes. By abuse of notation, we will usually write just $I$ for the cube $(I,k)$, and we will write $I \subset J$ to mean that for two cubes $(I,k), (J, l) \in \mathcal{D}$ we have $I \subset J$ and $k \le l$.
@@ -580,7 +573,7 @@ Any two non-disjoint dyadic cubes $I,J$ with $s(I)\le s(J)$ satisfy
 \begin{equation}\label{dyadicproperty}
     I\subset J.
 \end{equation}
-There exists a $I_0 \in \mathcal{D}$ with $s(I_0) = S$ and $c(I_0) = o$
+There exists an $I_0 \in \mathcal{D}$ with $s(I_0) = S$ and $c(I_0) = o$
 %\begin{equation}\label{coverball}
 %    B(o, \frac{1}{4} D^{S}) \subset I\,,
 %\end{equation}
@@ -634,7 +627,7 @@ where
 \begin{equation}
     B_{\fp} (\mfa, R) := \{\mfb \in \Mf \, : \, d_{\fp}(\mfa, \mfb) < R\,\} ,
 \end{equation}
-and
+with
 \begin{equation}\label{defdp}
     d_{\fp} := d_{B(\pc(\fp),\frac 14 D^{\ps(\fp)})}\, .
 \end{equation}
@@ -646,6 +639,8 @@ We have for each tile $\fp$
     \ps(\fp)=s(\scI(\fp)).
 \end{equation}
 %%JMS End copy
+
+With the above definitions, it can be shown that the finitary Carleson theorem reduces to the discrete Carleson theorem.
 
 \begin{theorem}[discrete Carleson]
 \label{discrete-Carleson}
@@ -670,7 +665,9 @@ we have
 \end{equation}
 \end{theorem}
 
-The proof of this last result is the heart of the matter. The pieces are categorized in one of three types, for each of which a separate analysis is required to establish a bound.
+The proof of this last result is the heart of the matter.
+% todo: JP: I think the part below should be clarified
+The pieces are categorized in one of three types, for each of which a separate analysis is required to establish a bound.
 These three branches of the proof are largely independent and handled in separate sections 5, 6, and 7 of the blueprint \cite{CarlesonBlueprint}.
 
 \section{Project organization}\label{sec:org}
@@ -680,7 +677,7 @@ F.v.D. and the harmonic analysis group in Bonn,
 consisting of L.B., Christoph Thiele and Rajula Srivastava.
 At that time L.B., Asgar Jamneshan, Rajula Srivastava and Christoph Thiele had written a preprint of the proof,
 that turned into \cite{ThieleCarlesonPreprint}.
-This preprint consisted of a 30-page proof of Theorem [ref].
+This preprint consisted of a 30-page proof of Theorem \ref{metric-space-Carleson}. %todo: double check.
 While the proof was precise and written with a lot of care,
 this paper had as intended audience experts in harmonic analysis.
 This meant that the proof omitted many arguments that are routine to experts,
@@ -745,6 +742,7 @@ This made the barrier of entry to contribute to the Carleson project low.
 Indeed, some authors of this paper had not contributed to \mathlib or another collaborative formalization project
 prior to contributing to the Carleson project.
 
+% todo: duplication of earlier information, but maybe that's not a problem
 When the project was finished, it comprised 35.6k lines of code (excluding blank lines and comments), of which 9.6k were in the \texttt{ToMathlib} subfolder (using commit \texttt{\href{https://github.com/fpvandoorn/carleson/tree/32c2adc411c5c274ed8f19aa8041157e394fa38a}{32c2adc4}}).
 
 % maybe mention in "Lessons Learned":
@@ -781,11 +779,11 @@ It is also a key prerequisite for the proof of Carleson's theorem: for example, 
 Our formalized version aims to reduce superfluous assumptions commonly found in the mathematical literature. For instance, it applies to any sub-additive function (not merely sub-linear ones) --- that is, there is no need for a scalar multiplication on the target. Similarly, any positive exponent $p$ is allowed (as opposed to demanding $p\geq 1$).
 
 In light of generalizing the Hardy--Littlewood maximal function, this proof had to be generalized again:
-applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any commutative monoid with a compatible enorm).
-In return for a significant amount of refactoring work\footnote{the initial formalisation was about 5000 lines long; the generalisation touched about 2000 of them},
+applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any monoid with a continuous extended norm function).
+In return for a significant amount of refactoring work\footnote{the initial formalization was about 5000 lines long; the generalization touched about 2000 of them},
 we have formalized a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way. We ended up with the following version.
-\begin{theorem}
-    Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces and let $E$ and $F$ be topological spaces each endowed with the structure of an additive commutative monoid and a compatible (i.e. positive definite, fulfilling the triangle inequality) continuous extended norm.
+\begin{theorem}[real interpolation theorem]
+    Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces, let $E$ be a topological space with the structure of an additive monoid endowed with a compatible continuous extended seminorm, let $F$ be a topological space with a continuous extended norm function.
     Let $p_0, p_1, q_0, q_1, p, q \in \ennreal$ such that $p_0 \in (0,q_0], p_1 \in (0,q_1], q_0 \ne q_1$ and there exists $t \in (0,1)$ such that $\frac{1}{p} = \frac{1-t}{p_0} + \frac{t}{p_1}$ and $\frac{1}{q} = \frac{1-t}{q_0} + \frac{t}{q_1}$.
     Let $T : (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^p_0(X; E) \cup L^p_1(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e. $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e. strongly measurable.
 
