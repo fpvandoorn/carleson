@@ -2,7 +2,7 @@ module
 
 public import Mathlib.Analysis.Normed.Field.Basic
 public import Mathlib.Topology.EMetricSpace.Lipschitz
-public import Carleson.Defs
+public import Carleson.Statements
 
 @[expose] public section
 

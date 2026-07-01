@@ -24,7 +24,6 @@ public import Carleson.Classical.HilbertKernel
 public import Carleson.Classical.HilbertStrongType
 public import Carleson.Classical.SpectralProjectionBound
 public import Carleson.Classical.VanDerCorput
-public import Carleson.Defs
 public import Carleson.Discrete.Defs
 public import Carleson.Discrete.ExceptionalSet
 public import Carleson.Discrete.ForestComplement
@@ -53,6 +52,7 @@ public import Carleson.MinLayerTiles
 public import Carleson.Operators
 public import Carleson.ProofData
 public import Carleson.Psi
+public import Carleson.Statements
 public import Carleson.TileExistence
 public import Carleson.TileStructure
 public import Carleson.ToMathlib.Analysis.Convolution

@@ -1,7 +1,7 @@
 module
 
 public import Carleson.Classical.Helper
-public import Carleson.Defs
+public import Carleson.Statements
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 public import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
