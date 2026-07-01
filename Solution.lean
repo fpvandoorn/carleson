@@ -2,7 +2,7 @@ module
 
 public import Carleson.Classical.ClassicalCarleson
 public import Carleson.MetricCarleson.Main
-public import Carleson.BasicDefinitions
+public import Carleson.Defs
 
 /-! # Solution file for using comparator -/
 
