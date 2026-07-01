@@ -1116,8 +1116,8 @@ integrability and measurability considerations are usually mathematically trivia
 It is desirable for this simplicity to be reflected in the formalization.
 This motivated packaging the recurring side conditions into test function classes.
 
-The structures \lean{BoundedCompactSupport} and \lean{BoundedFiniteSupport} record,
-respectively, essentially bounded measurable functions with compact support and with support of finite measure.
+The structures \lean{BoundedCompactSupport} and \lean{BoundedFiniteSupport} contain essentially bounded measurable functions with compact support and with support of finite measure, respectively. A function $f$ is essentially bounded if there exists a real number $C$ such that $\|f(x)\|\le C$ almost everywhere.
+
 Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
 reproving the same measure-theoretic facts. For example, from a hypothesis
 \lean{hf : BoundedCompactSupport f} one immediately obtains that \lean{f} is a member of
@@ -1126,7 +1126,53 @@ or that \lean{s.indicator f} again has bounded compact support when \lean{s} is 
 Lemmas such as \lean{hf.carlesonSum} show that the relevant
 operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
 
-Further API extensions and better support from \texttt{fun\_prop} could streamline these arguments even more.
+Choosing the right definition of these structures is subtle.
+Since most functions we're working with are only well-behaved up to almost everywhere equality (see \ref{subsec:Lp}),
+there is a choice in deciding that the functions are only essentially bounded or bounded everywhere.
+Similarly, for \lean{BoundedCompactSupport} there is a choice in requiring that the function has compact support or essentially compact support
+(that is, its support is the union of a relatively compact set and a null set,
+where a relatively compact set is by definition a subset of a compact set).
+
+In Carleson, we originally started with functions that are bounded everywhere and have compact support,
+but we switched\footnote{see pull requests \href{https://github.com/fpvandoorn/carleson/pull/311}{311} and \href{https://github.com/fpvandoorn/carleson/pull/342}{342}} to functions that are only essentially bounded,
+but still have compact support.
+The reason for this is that Mathlib uses essentially bounded functions frequently in measure theory,
+phrased as \lean{MemLp f ∞ μ}.
+
+These notions are mathematically very similar,
+but the choice has impact in precisely which lemmas you can prove about it.
+For example, if $g$ is bounded with compact support, and $f$ is a closed embedding,
+is $g\circ f$ a bounded function with compact support?
+This is only true if $g$ has compact support and is bounded everywhere;
+otherwise $f$ may send a set of positive measure to a set of measure 0 where $g$ is ill-behaved.
+
+Another consideration into this design decision is how nicely one can work with these functions.
+Some arguments are a little easier if we know that a function is well-behaved everywhere,
+and not just almost everywhere.
+In the Carleson project, there were two tricky arguments using an operation \lean{adjointCarlesonSum}.
+We prove that this operation is bounded with compact support,
+for these arguments it was convenient to use that this operation is bounded everywhere,
+and not just essentially bounded.
+While these arguments could be adapted using only that this operation is only essentially bounded,
+the argument consists of some tricky manipulations with suprema over the arguments,
+and these would have to be changed to essential suprema, which are a bit trickier to work with.
+In the end, we decided to prove that this function was both bounded with compact support,
+and additionally bounded everywhere.
+
+These classes are also tagged with the \lean{@[fun_prop]} attribute.
+\lean{fun_prop} is a \mathlib-tactic developed by Tomáš Skřivan
+that automatically uses tagged lemmas to show that a function has a certain property
+(continuity, differentiability, measurability, etc.).
+This tactic is good at writing complicated functions as a composition of simpler functions,
+and then proving function properties by proving them first about the simpler functions.
+
+\lean{fun_prop} is not as well-suited for proving integrability
+as the other function properties mentioned above,
+since the composition and product of integrable functions need not be integrable.
+The class \lean{BoundedCompactSupport} is a step towards
+making \texttt{fun\_prop} more usable for integrability,
+since it is better behaved w.r.t. multiplication and composition.
+% maybe todo: mention the ICERM group on the integrability tactic?
 
 % \begin{itemize}
 % 	\item \texttt{BoundedCompactSupport} and packaging conditions.
