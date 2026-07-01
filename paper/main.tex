@@ -11,29 +11,34 @@
 \usepackage{enumitem}
 \usepackage{cleveref}
 
-\usepackage[]{minted}
-\usepackage{fontspec}
+\usepackage{listings}
+\makeatletter
+\AtBeginDocument{%
+	\let\c@lstlisting\relax
+	\newcounter{lstlisting}[section]
+	\gdef\thelstlisting%
+	{\ifnum \c@section>\z@ \thesection.\fi \@arabic\c@lstlisting}}
+\makeatother
 
-
-% JuliaMono has all the symbols needed for Lean code
-\setmonofont[Scale=MatchLowercase]{JuliaMono}[
-  Extension=.ttf,
-  UprightFont=*-Regular,
-  BoldFont=*-Bold,
-  ItalicFont=*-RegularItalic,
-  BoldItalicFont=*-BoldItalic,
-  RawFeature={-calt},
-]
-
-\newmintinline[lean]{lean}{breaklines,breakbefore={. },breakafter={_}}
-\newminted[leancode]{lean}{autogobble}
-
-% Configure the appearance of minted.
-% We adjust the spacing around minted environments, which stretches badly by default
-\fvset{listparameters=\setlength{\topsep}{0pt}\setlength{\parsep}{0pt}}
-\AtBeginEnvironment{minted}{\vspace{4pt}}
-\renewcommand{\floatpagefraction}{.99}
-\renewcommand{\bottomfraction}{.7}
+% \def\lstlanguagefiles{lstleanCPP.sty}
+\def\lstlanguagefiles{lstlean}
+\lstset{language=lean, frame=lines}
+\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
+\definecolor{keywordcolor}{cmyk}{0,0.90,0.86,0} % ACMRed
+\definecolor{tacticcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{tacticcolor}{cmyk}{1,0.1,0,0.1} % ACMBlue
+\definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
+\definecolor{commentcolor}{cmyk}{1,0.1,0,0.1} % ACMBlue
+\definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{symbolcolor}{cmyk}{1,0.1,0,0.1} % ACMBlue
+\definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green
+\definecolor{sortcolor}{cmyk}{0.20,0,1,0.19}    % ACMGreen
+\definecolor{attributecolor}{rgb}{0.7, 0.1, 0.1} % red
+\definecolor{attributecolor}{cmyk}{0,0.90,0.86,0} % ACMRed
+\renewcommand{\lstlistingname}{Code excerpt}
+\newcommand{\LClistingname}{\MakeLowercase{\lstlistingname}}
+\newcommand{\lean}[1]{\lstinline{#1}}
+\newcommand{\mlean}[1]{\mathtt{\ #1\ }}
 
 \usepackage{xspace}
 
@@ -964,9 +969,10 @@ takes advantage of a feature of the language, typeclasses, initially designed
 for a completely different purpose.
 
 The way to declare that a space is a metric space is the following line:
-\begin{minted}{lean}
+\begin{lstlisting}
 variable {X : Type*} [MetricSpace X]
-\end{minted}
+\end{lstlisting}
+
 The declaration between square brackets is the typeclass. When one writes the
 distance \texttt{dist x y} between two points $x$ and $y$ of $X$, the system
 tries to locate such a metric space typeclass instance on $X$, and uses the distance
@@ -1012,7 +1018,7 @@ A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\en
 The \texttt{norm\_cast} tactic can be really useful to normalize such casts.
 
 However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal} maps negative numbers to zero, we get that
-\lean{Real.toNNReal (-2) * Real.toNNReal (-3) ≠ Real.toNNReal ((-2) * (-3))}.
+$\mlean{Real.toNNReal (-2) * Real.toNNReal (-3) \ne Real.toNNReal ((-2) * (-3))}$.
 Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
 in these situations.
 This can make conversions between number types quite painful,
@@ -1094,7 +1100,7 @@ While the \lean{filter_upwards} tactic simplifies reducing results from almost e
 Incidentally, lemmas in Mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}: this underscores this choice.
 % Does this have other reasons, such as transitioning between different function properties?
 
-This relates well with the use of enorms (\ref{subsec:enorm}): \lean{Lp E p µ} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
+This relates well with the use of enorms (\ref{subsec:enorm}): $\mlean{Lp E p \mu}$ as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
 
 This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lean{{f : X → Y} (hf : Continuous f)} instead of the bundled \lean{f : ContinuousMap X Y}.
 
@@ -1180,13 +1186,20 @@ since it is better behaved w.r.t. multiplication and composition.
 \subsection{Common pitfalls}\label{subsec:pitfalls}
 % TODO: proof-read this section carefully
 As described in \ref{subsec:real}, at the beginning of the project we tried to avoid conversions by using the type \lean{Real} as much as possible, even if quantities were naturally nonnegative or possibly infinite. In the course of the project, in different contexts we realized that using \lean{NNReal} or \lean{ENNReal} instead would lead to shorter proofs and reduce the number of side conditions.
-While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function \lean{f : ℝ≥0∞ \to ℝ≥0∞}, the following expressions should be equivalent.
-\begin{minted}{lean}
+While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \R_{\ge 0 \infty} \to \R_{\ge 0 \infty}}$, the following expressions should be equivalent.
+\begin{lstlisting}
 ∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
 -- TODO: write out the coercion instead!
 ∫⁻ (x : ℝ≥0), f (↑x)
 ∫⁻ (x : ℝ≥0∞), f x
-\end{minted}
+\end{lstlisting}
+
+%\begin{minted}{lean}
+%∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
+%-- TODO: write out the coercion instead!
+%∫⁻ (x : ℝ≥0), f (↑x)
+%∫⁻ (x : ℝ≥0∞), f x
+%\end{minted}
 
 Another case of equivalent representations we encountered was that of integrating on a set, i.e. with respect to a restricted measure, versus integrating an indicator function, again both useful for different purposes. Conversion here was straightforward using the lemmas \lean{integral_indicator} resp. \lean{lintegral_indicator} in \mathlib.
 Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
@@ -1196,11 +1209,11 @@ Finally, there were several results in the project that required us to consider 
 However, these are different types in Lean: $\texttt{Set T}$ is the type of all sets consisting of elements of type $\texttt{T}$, while $\texttt{Finset T}$ is the type of finite sets of elements of $\texttt{T}$. Therefore, we needed to make a decision about which of these types to use in the Carleson project. For the most part, we chose to use $\texttt{Set T}$, although sometimes $\texttt{Finset T}$ is used inside proofs, or when required to apply existing \mathlib results. In hindsight, it would likely have been slightly more convenient to use $\texttt{Finset T}$ throughout, to avoid issues like the following.
 
 If \texttt{T} is endowed with a \texttt{Fintype} instance, then \texttt{Finset.sum} can still be applied to a given \texttt{s : Set T}. There are two possible syntaxes to do this, as the following example shows. Note that the displayed equality is true \emph{propositionally} but not \emph{definitionally}: the left hand side is a sum over \texttt{s.toFinset}, whereas the right hand side is a sum over \texttt{\{p : T | p $\in$ s\}}, and these \texttt{Finset}s are not definitionally equal.
-
-\begin{minted}[escapeinside=||, mathescape=true]{lean}
-example {T : Type*} [Fintype T] {s : Set T} [|DecidablePred fun p $\mapsto$ p $\in$ s|]
-    {|f : T $\to \mathbb{N}$|} : |$\sum$ p $\in$ s, f p = $\sum$ p with p $\in$ s, f p |
-\end{minted}
+\newpage
+\begin{lstlisting}[mathescape=true]
+example {T : Type} [Fintype T] {s : Set T} [DecidablePred fun p $\mapsto$ p $\in$ s]
+	{f : T $\to \mathbb{N}$} : $\sum$ p $\in$ s, f p = $\sum$ p with p $\in$ s, f p
+\end{lstlisting}
 
 \section{Conclusion}\label{sec:conclusion}
 %TODO: this will likely need to be revised after \ref{sec:org}, \ref{subsec:rel_work}, \ref{subsec:blueprint_mistakes}, \ref{subsec:blueprint_lessons} and \ref{subsec:pitfalls} are finished.
