@@ -1,6 +1,6 @@
 module
 
-public import Carleson.BasicDefinitions
+public import Carleson.Defs
 public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.CoveredByBalls
 public import Mathlib.Data.Real.StarOrdered
@@ -25,7 +25,7 @@ end Doubling
 
 namespace MeasureTheory
 
--- `MeasureTheory.Measure.IsDoubling` is defined in `BasicDefinitions.lean`
+-- `MeasureTheory.Measure.IsDoubling` is defined in `Defs.lean`
 
 section PseudoMetric
 

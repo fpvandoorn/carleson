@@ -1,6 +1,6 @@
 module
 
-public import Carleson.BasicDefinitions
+public import Carleson.Defs
 
 @[expose] public section
 
