@@ -4,7 +4,6 @@ public import Carleson.Antichain.AntichainOperator
 public import Carleson.Antichain.AntichainTileCount
 public import Carleson.Antichain.Basic
 public import Carleson.Antichain.TileCorrelation
-public import Carleson.BasicDefinitions
 public import Carleson.Calculations
 public import Carleson.Classical.Approximation
 public import Carleson.Classical.Basic
@@ -24,6 +23,7 @@ public import Carleson.Classical.HilbertKernel
 public import Carleson.Classical.HilbertStrongType
 public import Carleson.Classical.SpectralProjectionBound
 public import Carleson.Classical.VanDerCorput
+public import Carleson.Defs
 public import Carleson.Discrete.Defs
 public import Carleson.Discrete.ExceptionalSet
 public import Carleson.Discrete.ForestComplement

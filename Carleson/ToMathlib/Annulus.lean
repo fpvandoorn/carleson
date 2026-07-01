@@ -5,7 +5,7 @@ Authors: James Sundstrom
 -/
 module
 
-public import Carleson.BasicDefinitions
+public import Carleson.Defs
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
 public import Mathlib.Order.SuccPred.IntervalSucc
 
@@ -39,7 +39,7 @@ namespace Annulus
 
 /-! ### Annulus -/
 
--- `Set.Annulus.oo` has moved to `BasicDefinitions.lean`
+-- `Set.Annulus.oo` has moved to `Defs.lean`
 def oc (x : X) (r R : ℝ) := {y | dist x y ∈ Ioc r R}
 def co (x : X) (r R : ℝ) := {y | dist x y ∈ Ico r R}
 def cc (x : X) (r R : ℝ) := {y | dist x y ∈ Icc r R}
@@ -326,7 +326,7 @@ namespace EAnnulus
 
 /-! ### EAnnulus -/
 
--- `Set.EAnnulus.oo` has moved to `BasicDefinitions.lean`
+-- `Set.EAnnulus.oo` has moved to `Defs.lean`
 def oc (x : X) (r R : ℝ≥0∞) := {y | edist x y ∈ Ioc r R}
 def co (x : X) (r R : ℝ≥0∞) := {y | edist x y ∈ Ico r R}
 def cc (x : X) (r R : ℝ≥0∞) := {y | edist x y ∈ Icc r R}
