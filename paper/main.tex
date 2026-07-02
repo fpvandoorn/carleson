@@ -1,4 +1,6 @@
-% compile with xelatex
+% compile with latexmk
+% To build, install all fonts fonts in `JuliaMono.[tar.gz|zip]`
+% from https://github.com/cormullion/juliamono/releases
 \documentclass[12pt]{amsart}
 
 % \usepackage[utf8]{inputenc}
@@ -1241,13 +1243,65 @@ example {T : Type*} [Fintype T] {s : Set T} [|DecidablePred fun p $\mapsto$ p $\
 
 
 %TODO: The "in Lean" can maybe be removed, but let's wait for \ref{subsec:rel_work} to decide.
-The Carleson project, with a total of 28 contributors, was one of the largest collaborative formalization efforts up to date (excluding extensive mathematical libraries such as \mathlib or MathComp), as well as the first formalization in Lean of a state-of-the-art theorem from the area of harmonic analysis.
+The Carleson project, with a total of 28 contributors,
+was one of the largest collaborative formalization efforts up to date
+(excluding extensive mathematical libraries such as \mathlib or MathComp),
+as well as the first formalization in Lean of a state-of-the-art theorem
+from the area of harmonic analysis.
 
-Formalizing the metric Carleson theorem required us to formalize foundational results from harmonic analysis, which we are submitting to \mathlib and which will be useful for the formalization of other results from this field. Future project will also benefit from some of the insights we learned during the project, including the creation of extended norms and our reflections about the most convenient ways to work with real number types.
+Formalizing the metric Carleson theorem required us
+to formalize foundational results from harmonic analysis,
+which we are submitting to \mathlib
+and which will be useful for the formalization of other results from this field.
+Future projects will also benefit from some of the insights we learned during the project,
+including the creation of extended norms
+and our reflections about the most convenient ways to work with real number types.
 
-Beyond topic-specific insights, we also learned lessons from the collaborative nature of this project which apply to formalization efforts from any area of mathematics. Our way of assigning and keeping track of ongoing tasks in the Zulip chat was sub-optimal, and if we were to repeat the project, we would instead use the existing GitHub issue infrastructure (as is done for instance in the PNT project). Zulip would still be used as a discussion platform, and in particular to discuss potential errors within the blueprint proofs. To make this more efficient, we would ask one of the topic experts (in our case, an expert in harmonic analysis) to frequently monitor this chat and respond to questions, instead of having F.v.D as an intermediary between the remote formalizers and the harmonic analysis experts.
+Beyond topic-specific insights,
+we also learned lessons from the collaborative nature of this project
+which apply to formalization efforts from any area of mathematics.
+Our way of assigning and keeping track of ongoing tasks in the Zulip chat was sub-optimal,
+and if we were to repeat the project,
+we would instead use the existing GitHub issue and project infrastructure (as is done for instance in the PNT$+$ project).
+Zulip would still be used as a discussion platform,
+and in particular to discuss potential inaccuracies within the blueprint proofs.
+To make this more efficient, we would ask one of the topic experts
+(in our case, an expert in harmonic analysis)
+to frequently monitor this chat and respond to questions,
+instead of having F.v.D. as an intermediary between the remote formalizers and the harmonic analysis experts.
 
-We would also modify some aspects of the blueprint for the formalization. We would use \LaTeX environments for the main definitions in the project, to facilitate their discovery, and we would try to ensure that the results in the blueprint were already proven at the right degree of generality; this would specially apply to results meant for \mathlib, for which we want a general statement and proof, rather than an specialization to the project setting. Finally, we would weight more carefully the benefits of using non-standard proof methods in a hope to simplify the formalization, since this ended up causing most of the mathematical errors in the first version of the blueprint.
+We would also modify some aspects of the blueprint for the formalization.
+We would use \LaTeX\ environments for the main definitions in the project,
+to facilitate their discovery,
+and we would try to ensure that the results in the blueprint were already proven at the right degree of generality;
+this would specially apply to results meant for \mathlib, for which we want a general statement and proof,
+rather than an specialization to the project setting.
+Finally, we would weight more carefully the benefits of using non-standard proof methods
+in a hope to simplify the formalization,
+since this ended up causing most of the mathematical inaccuracies in the first version of the blueprint.
+
+% move this earlier in the conclusion?
+After the Carleson project was finished,
+we have continued to prove further results in the Carleson repository.
+\Cref{metric-space-Carleson} is strong enough to prove stronger versions of the \Cref{classical-carleson}.
+As Hunt \cite{MR238019} showed in 1968,
+the assumption in \Cref{classical-carleson} that $f$ is continuous
+can be weakened to the statement that $f$ is $L^p$ for $p>1$.
+Proving this requires some additional techniques from analysis.
+
+The \emph{Lorentz-norm} of a function is
+$$\|f\|_{L^{p,q}(X,\mu)}\vcentcolon=
+p^{\frac1q}\|t\mu\{|f| > t\}^{\frac1p}\|_{L^q(\mathbb{R}_{>0},\frac{dt}{t})}.$$
+It is not hard to see that the $L^{p,p}$-norm corresponds to the $L^p$-norm
+and the $L^{p,\infty}$-norm corresponds to the weak $L^p$ norm
+(which we also denoted $L^{p,\infty}$ before).
+Restricted weak-type estimates such as the one in \Cref{metric-space-Carleson}
+specify the boundedness of an operator with respect to the $L^{p,1}$-norm.
+
+There is a generalization of the Marcinkiewicz interpolation theorem to Lorentz spaces,
+which we have not formalized yet.
+However, we have finished the formalization that this generalized interpolation result
+implies \Cref{classical-carleson} for $L^p$ functions with $p>1$.
 
 %\bibliographystyle{plain}
 %\bibliography{references}
