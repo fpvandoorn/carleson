@@ -710,7 +710,6 @@ lemma support_sigma_finite_from_MemLp
 lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
   [TopologicalSpace E₂] [ContinuousENorm E₂]
-  -- [TopologicalSpace E₂] [ESeminormedAddMonoid E₂]
   {spf : ScaledPowerFunction}
   (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
   (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
