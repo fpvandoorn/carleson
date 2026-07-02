@@ -54,7 +54,6 @@ lemma truncCut_mono₀ {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
   intro m n hmn x
   gcongr
 
-
 lemma truncCut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} (x : α) :
     ⨆ n : ℕ, truncCut f μ n x = f x := by
   refine iSup_eq_of_forall_le_of_forall_lt_exists_gt ?h₁ ?h₂
@@ -63,7 +62,6 @@ lemma truncCut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} (x
     · exact min_le_left (f x) ↑n
     · exact zero_le
   · intro w hw
-    unfold truncCut
     have : ∃ m : ℕ, x ∈ spanningSets μ m := by
       have obs := iUnion_spanningSets μ
       refine mem_iUnion.mp ?_
@@ -72,7 +70,7 @@ lemma truncCut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} (x
     rcases this with ⟨m, wm⟩
     rcases ENNReal.exists_nat_gt hw.ne_top with ⟨n, wn⟩
     use (m + n)
-    simp only [indicator]
+    simp only [truncCut, indicator]
     split_ifs with is_x_in_Ampn
     · refine lt_min hw ?_
       calc
@@ -80,7 +78,7 @@ lemma truncCut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} (x
       _ ≤ m + n := le_add_self
       _ = _ := (Nat.cast_add m n).symm
     · contrapose! is_x_in_Ampn
-      exact monotone_spanningSets _ (Nat.le_add_right m n) wm
+      exact monotone_spanningSets _ (by simp) wm
 
 set_option linter.flexible false in
 /-- Characterization of `∫⁻ x : α, f x ^ p ∂μ` by a duality argument. -/
@@ -136,13 +134,11 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
         · exact min_le_right (f x) ↑n
         · contradiction
     _ = n ^ p * μ (A n) := setLIntegral_const (A n) (↑n ^ p)
-    _ < ⊤ := mul_lt_top (rpow_lt_top_of_nonneg (by linarith) coe_ne_top)
-              (measure_spanningSets_lt_top μ n)
-  have obs : ∀ n : ℕ, ∫⁻ x : α, (f x) * ((g n x) ^ (p - 1) /
+    _ < ⊤ := by finiteness [measure_spanningSets_lt_top μ n]
+  have obs (n : ℕ) :∫⁻ x : α, (f x) * ((g n x) ^ (p - 1) /
       (∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹) ∂μ ≥
       (∫⁻ x : α, (g n x) ^ p ∂μ) ^ p⁻¹ := by
-    intro n
-    rcases eq_or_ne (∫⁻ x : α, (g n x) ^ p ∂μ) 0  with int_eq_zero | int_ne_zero
+    obtain (int_eq_zero | int_ne_zero) := eq_or_ne (∫⁻ x : α, (g n x) ^ p ∂μ) 0
     · rw [int_eq_zero, ENNReal.zero_rpow_of_pos]
       · exact zero_le
       · exact inv_pos_of_pos (by positivity)
@@ -860,33 +856,10 @@ lemma wnorm_eq_zero_iff [ENorm ε] {f : α → ε} {p : ℝ≥0∞} (hp : p ≠ 
 
 /-! ## Weaktype estimates applied to truncations -/
 
-variable [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-  {E₁' E₂' : Type*} [TopologicalSpace E₁'] [ESeminormedAddMonoid E₁']
+section
 
-lemma eLpNorm_eq_zero_of_eLpNorm_eq_zero {p q : ℝ≥0∞} {f : α → E₁}
-  (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
-    eLpNorm f p μ = 0 → eLpNorm f q μ = 0 := by
-  intro h
-  by_cases hq : q = 0; · simp [hq]
-  rwa [← eLpNorm_enorm, eLpNorm_eq_zero_iff (by fun_prop) hq,
-       ← eLpNorm_eq_zero_iff (by fun_prop) hp, eLpNorm_enorm]
+variable [ENorm ε₁] [ENorm ε₂] {T : (α → ε₁) → (α' → ε₂)}
 
-lemma eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero {p : ℝ≥0∞} {f : α → E₁}
-    (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
-  eLpNorm f p μ = 0 → eLpNormEssSup f μ = 0 := by
-  rw [← eLpNorm_exponent_top]
-  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hf hp a
-
-lemma eLpNorm_eq_zero_of_eLpNormEssSup_eq_zero {p : ℝ≥0∞} {f : α → E₁}
-    (hf : AEStronglyMeasurable f μ) :
-  eLpNormEssSup f μ = 0 → eLpNorm f p μ = 0 := by
-  rw [← eLpNorm_exponent_top]
-  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hf top_ne_zero a
-
-lemma eLpNorm_trnc_est {f : α → E₁} {j : Bool} :
-    eLpNorm (trnc j f t) p μ ≤ eLpNorm f p μ := eLpNorm_mono_enorm fun _x ↦ trnc_le_func
-
-variable [ENorm ε₁] [ENorm ε₂] {T : (α → ε₁) → (α' → ε₂)} in
 lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : α → ε₁}
       (hq : 0 < q) (hq' : q < ⊤) (hf : MemLp f p μ)
     (h₀T : HasWeakType T p q μ ν C₀) (ht : 0 < t) :
@@ -904,7 +877,6 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
       ENNReal.mul_rpow_of_nonneg _ _ q_pos.le, ENNReal.mul_rpow_of_nonneg _ _ q_pos.le,
       ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, neg_one_mul] at wt_est_t; exact wt_est_t
 
-variable [ENorm ε₁] [ENorm ε₂] {T : (α → ε₁) → (α' → ε₂)} in
 lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
     (hq' : q = ⊤) {f : α → ε₁} (hf : MemLp f p μ)
     (hT : HasWeakType T p q μ ν C) (ht : C * eLpNorm f p μ ≤ t) :
@@ -917,9 +889,39 @@ lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
   _ ≤ distribution (T f) (eLpNormEssSup (T f) ν) ν := distribution_mono_right (le_trans wt_est ht)
   _ = _ := meas_essSup_lt
 
+end
+
+section
+
+variable [TopologicalSpace E₁] [ContinuousENorm E₁] {f : α → E₁}
+
+lemma eLpNorm_eq_zero_of_eLpNorm_eq_zero (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
+    eLpNorm f p μ = 0 → eLpNorm f q μ = 0 := by
+  intro h
+  by_cases hq : q = 0; · simp [hq]
+  rwa [← eLpNorm_enorm, eLpNorm_eq_zero_iff (by fun_prop) hq,
+       ← eLpNorm_eq_zero_iff (by fun_prop) hp, eLpNorm_enorm]
+
+lemma eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
+  eLpNorm f p μ = 0 → eLpNormEssSup f μ = 0 := by
+  rw [← eLpNorm_exponent_top]
+  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hf hp a
+
+lemma eLpNorm_eq_zero_of_eLpNormEssSup_eq_zero (hf : AEStronglyMeasurable f μ) :
+  eLpNormEssSup f μ = 0 → eLpNorm f p μ = 0 := by
+  rw [← eLpNorm_exponent_top]
+  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hf top_ne_zero a
+
+end
+
+variable [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
+
+lemma eLpNorm_trnc_est {f : α → E₁} {j : Bool} :
+    eLpNorm (trnc j f t) p μ ≤ eLpNorm f p μ := eLpNorm_mono_enorm fun _x ↦ trnc_le_func
+
 variable [ESeminormedAddMonoid ε₁] [ENorm ε₂] in
 /-- If `T` has weaktype `p₀`-`p₁`, `f` is `AEStronglyMeasurable` and the `p`-norm of `f`
-    vanishes, then the `q`-norm of `T f` vanishes. -/
+vanishes, then the `q`-norm of `T f` vanishes. -/
 lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)}
     {q₀ p : ℝ≥0∞} (p₀ q : ℝ≥0∞) (hq₀ : 0 < q₀) (hp : 0 < p)
     {C₀ : ℝ≥0} (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
@@ -933,11 +935,10 @@ lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)
   rw [← eLpNorm_enorm]
   apply eLpNorm_eq_zero_of_ae_zero this
 
--- for the remaining lemmas we use too much measure theory that is just for normed spaces
--- try to generalize to ENorm-classes after Mathlib refactor
-variable {T : (α → E₁) → (α' → E₂)} {T' : (α → E₁') → (α' → E₂')}
+variable {E₁' E₂' : Type*} [TopologicalSpace E₁'] [ESeminormedAddMonoid E₁']
+  {T : (α → E₁) → (α' → E₂)} {T' : (α → E₁') → (α' → E₂')}
+  [TopologicalSpace E₂] [ENorm E₂] [TopologicalSpace E₂'] [ENorm E₂']
 
-variable [TopologicalSpace E₂] [ENorm E₂] [TopologicalSpace E₂'] [ENorm E₂']
 lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀ : ℝ≥0∞} {f : α → E₁}
     (hp₀ : 0 < p₀) {q₀ : ℝ≥0∞} (hp : p ≠ ⊤) (hq₀ : 0 < q₀) (hq₀' : q₀ < ⊤)
     (hp₀p : p₀ ≤ p) (hf : MemLp f p μ)
