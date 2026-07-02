@@ -4,7 +4,6 @@ public import Carleson.Antichain.AntichainOperator
 public import Carleson.Antichain.AntichainTileCount
 public import Carleson.Antichain.Basic
 public import Carleson.Antichain.TileCorrelation
-public import Carleson.BasicDefinitions
 public import Carleson.Calculations
 public import Carleson.Classical.Approximation
 public import Carleson.Classical.Basic
@@ -53,6 +52,7 @@ public import Carleson.MinLayerTiles
 public import Carleson.Operators
 public import Carleson.ProofData
 public import Carleson.Psi
+public import Carleson.Statements
 public import Carleson.TileExistence
 public import Carleson.TileStructure
 public import Carleson.ToMathlib.Analysis.Convolution

@@ -1,6 +1,6 @@
 module
 
-public import Carleson.BasicDefinitions
+public import Carleson.Defs
 public import Mathlib.MeasureTheory.Function.L1Space.Integrable
 
 public section
@@ -19,7 +19,7 @@ noncomputable section
 
 variable {X E : Type*} [MeasurableSpace X] {f g : X → E} {μ : Measure X}
 
--- the definition `BoundedFiniteSupport` has moved to `BasicDefinitions.lean`
+-- the definition `BoundedFiniteSupport` has moved to `Defs.lean`
 
 namespace BoundedFiniteSupport
 

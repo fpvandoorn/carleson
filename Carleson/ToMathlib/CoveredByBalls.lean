@@ -1,6 +1,6 @@
 module
 
-public import Carleson.BasicDefinitions
+public import Carleson.Defs
 public import Carleson.ToMathlib.Misc
 
 @[expose] public section
@@ -14,7 +14,7 @@ open scoped NNReal
 variable {X : Type*} [PseudoMetricSpace X]
   {s t : Set X} {n m : ℕ} {r r' r₁ r₂ r₃ : ℝ}
 
--- `CoveredByBalls` is defined in `BasicDefinitions.lean`
+-- `CoveredByBalls` is defined in `Defs.lean`
 
 namespace CoveredByBalls
 
@@ -60,7 +60,7 @@ protected lemma ball (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
 
 end CoveredByBalls
 
--- `BallsCoverBalls` is defined in `BasicDefinitions.lean`
+-- `BallsCoverBalls` is defined in `Defs.lean`
 
 lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
     (h2 : BallsCoverBalls X r r' m) : CoveredByBalls s (n * m) r' := by
@@ -102,7 +102,7 @@ lemma nonpos (hr' : r' ≤ 0) : BallsCoverBalls X r' r n :=
 
 end BallsCoverBalls
 
--- `AllBallsCoverBalls` is defined in `BasicDefinitions.lean`
+-- `AllBallsCoverBalls` is defined in `Defs.lean`
 
 namespace AllBallsCoverBalls
 
