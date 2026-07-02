@@ -57,10 +57,11 @@ This shows the proof is complete and correct. Had the build failed or the output
 
 ### Comparator
 
-<write some text>
+You can also check this formalization using Comparator, the golden standard for checking whether a formalization is correct.
 * Follow installation instructions here: https://github.com/leanprover/comparator
+  * Make sure that both comparator and lean4export use the same version as specified by [`lean-toolchain`](lean-toolchain).
   * Make sure the programs are in the PATH by running
-  `sudo cp .lake/build/bin/comparator /usr/local/bin/` and `sudo cp .lake/build/bin/lean4export /usr/local/bin/`
+  `sudo cp .lake/build/bin/comparator /usr/local/bin/` and `sudo cp .lake/build/bin/lean4export /usr/local/bin/` in the respective repositories
 * Run
 ```
 systemd-run --property=RestrictAddressFamilies=~AF_UNIX --user --pty -E PATH="$PATH" --working-directory $(pwd) -- bash -c 'lake env comparator comparator_config.json'
