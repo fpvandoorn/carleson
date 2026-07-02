@@ -66,7 +66,7 @@ You can also check this formalization using Comparator, the gold standard for ch
 ```
 systemd-run --property=RestrictAddressFamilies=~AF_UNIX --user --pty -E PATH="$PATH" --working-directory "$(pwd)" -- bash -c 'lake env comparator comparator_config.json'
 ```
-You will see a message like Your solution is okay!, indicating that comparator accepts your solution.
+You will see a message like `Your solution is okay!`, indicating that comparator accepts your solution.
 
 ## Contribute
 
