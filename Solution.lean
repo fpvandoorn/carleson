@@ -8,10 +8,6 @@ public import Carleson.Defs
 
 public noncomputable section
 
-open MeasureTheory Set
-open scoped NNReal
-
-open Real in
 theorem classical_carleson' : ClassicalCarleson := @classical_carleson
 
 theorem metric_carleson'' : MetricSpaceCarleson := @metric_carleson

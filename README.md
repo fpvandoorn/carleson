@@ -55,6 +55,16 @@ When the process is complete, at the very end of the output, you will see a line
 This shows the proof is complete and correct. Had the build failed or the output included `sorryAx`, this would have indicated an error resp. an incomplete proof.
 (For the experts: this shows which axioms Lean used in the course of the proof. These three axioms are built into Lean's type theory.)
 
+### Comparator
+
+<write some text>
+* Follow installation instructions here: https://github.com/leanprover/comparator
+  * Make sure the programs are in the PATH by running
+  `sudo cp .lake/build/bin/comparator /usr/local/bin/` and `sudo cp .lake/build/bin/lean4export /usr/local/bin/`
+* Run
+```
+systemd-run --property=RestrictAddressFamilies=~AF_UNIX --user --pty -E PATH="$PATH" --working-directory $(pwd) -- bash -c 'lake env comparator comparator_config.json'
+```
 ## Contribute
 
 ### Locally
