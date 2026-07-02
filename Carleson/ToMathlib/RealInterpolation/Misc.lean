@@ -317,19 +317,19 @@ lemma lintegral_rw_aux {g : ℝ → ℝ≥0∞} {f₁ f₂ : ℝ → ℝ≥0∞}
 
 lemma power_aux {p q : ℝ} :
     (fun s ↦ ENNReal.ofReal s ^ (p + q)) =ᶠ[ae (volume.restrict (Ioi (0 : ℝ)))]
-    (fun s ↦ ENNReal.ofReal s ^ p * ENNReal.ofReal s ^ q ) := by
+    (fun s ↦ ENNReal.ofReal s ^ p * ENNReal.ofReal s ^ q) := by
   filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with s (hs : 0 < s)
   rw [ofReal_rpow_of_pos hs, ofReal_rpow_of_pos hs, ofReal_rpow_of_pos hs,
     ← ofReal_mul (by positivity), ← Real.rpow_add hs]
 
 lemma power_aux_2 {p q : ℝ} :
     (fun s ↦ ENNReal.ofReal (s ^ (p + q))) =ᶠ[ae (volume.restrict (Ioi (0 : ℝ)))]
-    (fun s ↦ ENNReal.ofReal (s ^ p) * ENNReal.ofReal (s ^ q) ) := by
+    (fun s ↦ ENNReal.ofReal (s ^ p) * ENNReal.ofReal (s ^ q)) := by
   filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with s (hs : 0 < s)
   rw [← ofReal_mul (by positivity), ← Real.rpow_add hs]
 
 lemma power_aux_3 {p q : ℝ} :
-    (fun s : ℝ≥0∞ ↦ s ^ (p + q)) =ᶠ[ae volume] (fun s ↦ s ^ p * s ^ q ) := by
+    (fun s : ℝ≥0∞ ↦ s ^ (p + q)) =ᶠ[ae volume] (fun s ↦ s ^ p * s ^ q) := by
   filter_upwards [Ioo_zero_top_ae_eq_univ] with a ha
   unfold Ioo at ha
   refine ENNReal.rpow_add p q ?_ ?_
@@ -393,8 +393,12 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
 -/
 namespace MeasureTheory
 
+section
+
+variable {ε' : Type*} [ENorm ε'] [Zero ε'] {f : α → ε'}
+
 /-- The `t`-truncation of a function `f`. -/
-def trunc (f : α → ε) (t : ℝ≥0∞) (x : α) : ε := if ‖f x‖ₑ ≤ t then f x else 0
+def trunc (f : α → ε') (t : ℝ≥0∞) (x : α) : ε' := if ‖f x‖ₑ ≤ t then f x else 0
 
 lemma trunc_eq_indicator : trunc f t = {x | ‖f x‖ₑ ≤ t}.indicator f := by
   ext x; simp_rw [trunc, Set.indicator, mem_setOf_eq, ite_eq_ite]
@@ -403,7 +407,7 @@ lemma trunc_eq_indicator : trunc f t = {x | ‖f x‖ₑ ≤ t}.indicator f := b
 lemma trunc_top : trunc f ∞ = f := by simp [trunc_eq_indicator]
 
 /-- The complement of a `t`-truncation of a function `f`. -/
-def truncCompl (f : α → ε) (t : ℝ≥0∞) (x : α) : ε := if ‖f x‖ₑ ≤ t then 0 else f x
+def truncCompl (f : α → ε') (t : ℝ≥0∞) (x : α) : ε' := if ‖f x‖ₑ ≤ t then 0 else f x
 
 lemma truncCompl_eq_indicator : truncCompl f t = {x | ‖f x‖ₑ ≤ t}ᶜ.indicator f := by
   ext x
@@ -412,14 +416,14 @@ lemma truncCompl_eq_indicator : truncCompl f t = {x | ‖f x‖ₑ ≤ t}ᶜ.ind
 @[simp]
 lemma truncCompl_top : truncCompl f ∞ = (fun _ ↦ 0) := by simp [truncCompl_eq_indicator]
 
-lemma truncCompl_eq {f : α → ε} :
+lemma truncCompl_eq :
     truncCompl f t = fun x ↦ if t < ‖f x‖ₑ then f x else 0 := by
   ext x
   rw [← ite_not]
   simp [truncCompl]
 
 /-- A function to deal with truncations and complement of truncations in one go. -/
-def trnc (j : Bool) (f : α → ε) (t : ℝ≥0∞) : α → ε :=
+def trnc (j : Bool) (f : α → ε') (t : ℝ≥0∞) : α → ε' :=
   match j with
   | false => truncCompl f t
   | true => trunc f t
@@ -429,6 +433,8 @@ lemma trnc_false : trnc false f t = truncCompl f t := rfl
 
 @[simp]
 lemma trnc_true : trnc true f t = trunc f t := rfl
+
+end
 
 /-- A function is the complement if its truncation and the complement of the truncation. -/
 @[simp]
@@ -725,21 +731,15 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
   have p_ne_top : p ≠ ∞ := (hpq.2.trans_lt (lt_top_iff_ne_top.mpr hq)).ne
   by_cases ht : t = ⊤
   · by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
-    · have : (fun x ↦ ‖f x‖ₑ ) =ᵐ[μ] 0 := by
+    · have : (fun x ↦ ‖f x‖ₑ) =ᵐ[μ] 0 := by
         rw [← eLpNorm_enorm] at hf'
-        have hf_norm : AEStronglyMeasurable (fun x ↦ ‖f x‖ₑ ) μ := by
-          fun_prop
-        rw [← eLpNorm_eq_zero_iff hf_norm]
-        · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos hpq.1.ne' p_ne_top)]
-        exact hpq.1.ne'
+        rwa [← eLpNorm_eq_zero_iff (by fun_prop) hpq.1.ne',
+          ← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos hpq.1.ne' p_ne_top)]
       refine le_of_eq_of_le ?_ zero_le
       rw [rpow_eq_zero_iff_of_pos]
-      · rw [← MeasureTheory.eLpNorm_enorm]
-        rw [eLpNorm_eq_zero_iff _ hq'.ne']
-        · filter_upwards [this]
-          intro x h₀
-          exact nonpos_iff_eq_zero.mp (le_of_le_of_eq trunc_le_func h₀)
-        · fun_prop
+      · rw [← MeasureTheory.eLpNorm_enorm, eLpNorm_eq_zero_iff (by fun_prop) hq'.ne']
+        filter_upwards [this] with x h₀
+        exact nonpos_iff_eq_zero.mp (le_of_le_of_eq trunc_le_func h₀)
       · rw [toReal_pos_iff]
         exact ⟨hq', hq.lt_top⟩
     · -- The right hand side is `∞`, hence the statement is always true.
@@ -768,8 +768,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         · intro fx_rpow_ne_zero
           refine ⟨?_, is_fx_le_a⟩
           contrapose! fx_rpow_ne_zero
-          have : ‖f x‖ₑ = 0 := nonpos_iff_eq_zero.mp fx_rpow_ne_zero
-          simpa [this] using toReal_pos hq'.ne' hq
+          simpa [nonpos_iff_eq_zero.mp fx_rpow_ne_zero] using toReal_pos hq'.ne' hq
         · contrapose; intro _; simpa using toReal_pos hq'.ne' hq
       · exact (toReal_pos (hpq.1.trans_le hpq.2).ne' hq).ne'
     _ ≤ ∫⁻ (x : α) in {x | 0 < ‖f x‖ₑ ∧ ‖f x‖ₑ ≤ t}, ‖f x‖ₑ ^ q.toReal ∂ μ := by
@@ -1183,7 +1182,7 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j
               ofReal_toReal_eq_iff.mpr htop]
 
 lemma value_lintegral_res₁ {γ p' : ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) (ht' : t ≠ ∞) :
-    (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
+    (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1|) * (t ^ p') =
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
   have := spf.hd
   unfold spf_to_tc
@@ -1197,7 +1196,7 @@ lemma value_lintegral_res₁ {γ p' : ℝ} {spf : ScaledPowerFunction} (ht : 0 <
 
 lemma value_lintegral_res₂ {γ p' : ℝ} {spf : ScaledPowerFunction} (ht : 0 < t)
     (hσp' : 0 < spf.σ⁻¹ * (γ + 1) + p') :
-    (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') ≤
+    (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1|) * (t ^ p') ≤
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
   by_cases ht' : t = ∞; swap; · rw [value_lintegral_res₁ ht ht']
   have := spf.hd
