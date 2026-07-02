@@ -4,13 +4,13 @@ public import Mathlib.Analysis.Fourier.AddCircle
 
 /-! # Key definitions and setup for the Carleson project
 
-This file contains the basic definitions to state the main theorems from the Carleson formalization
-project: Theorem 1.0.1 (classical Carleson), Theorem 1.1.1 (metric space Carleson) and
-Theorem 1.1.2 (linearised metric Carleson).
+This file contains the statements of the main theorems from the Carleson formalization project:
+Theorem 1.0.1 (classical Carleson), Theorem 1.1.1 (metric space Carleson) and Theorem 1.1.2
+(linearised metric Carleson), as well as the definitions required to state these results.
 
 These are intentionally put in a very low-level file to enable running the comparator tool.
 
-## Main definitions
+## Main definitions and results
 
 - `MeasureTheory.DoublingMeasure`: A metric space with a measure with some nice propreties,
 including a doubling condition. This is called a "doubling metric measure space" in the blueprint.
@@ -19,6 +19,17 @@ every ball.
 - `IsOneSidedKernel K` states that `K` is a one-sided Calderon-Zygmund kernel.
 - `KernelProofData`: Data common through most of chapters 2-7. These contain the minimal axioms
 for `kernel-summand`'s proof.
+- `MeasureTheory.DoublingMeasure`: A metric space with a measure with some nice propreties,
+including a doubling condition. This is called a "doubling metric measure space" in the blueprint.
+- `FunctionDistances`: class stating that continuous functions have distances associated to
+every ball.
+- `IsOneSidedKernel K` states that `K` is a one-sided Calderon-Zygmund kernel.
+- `KernelProofData`: Data common through most of chapters 2-7. These contain the minimal axioms
+for `kernel-summand`'s proof.
+- `ClassicalCarleson`: statement of Carleson's theorem asserting a.e. convergence of the partial
+Fourier sums for continous functions (Theorem 1.0.1 in the blueprint).
+- `MetricSpaceCarleson`: statement of Theorem 1.1.1 from the blueprint.
+- `LinearizedMetricCarleson`: statement of Theorem 1.1.2 from the blueprint.
 
 -/
 
@@ -259,6 +270,9 @@ export KernelProofData (four_le_a)
 
 attribute [implicit_reducible, instance] KernelProofData.d KernelProofData.cf
 
+attribute [instance] KernelProofData.hcz
+
+section Statements
 
 /-- The main constant in the blueprint, driving all the construction, is `D = 2 ^ (100 * a ^ 2)`.
 It turns out that the proof is robust, and works for other values of `100`, giving better constants
@@ -307,3 +321,5 @@ def LinearizedMetricCarleson : Prop :=
       2 2 volume volume (C_Ts a)),
     ∫⁻ x in G, linearizedCarlesonOperator Q K f x ≤
       C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
+
+end Statements

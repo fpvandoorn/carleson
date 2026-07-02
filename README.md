@@ -39,7 +39,7 @@ The precise technical result we prove is the **metric spaces Carleson theorem** 
 We also prove a **linearised metric space Carleson theorem** ([Theorem 1.1.2](https://florisvandoorn.com/carleson/blueprint/sect0001.html#linearised-metric-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/find/?pattern=LinearizedMetricCarleson#doc), [Lean proof](https://florisvandoorn.com/carleson/docs/find/?pattern=linearized_metric_carleson#doc)),
 which allows proving a generalisation of Carleson's theorem to [Walsh functions](https://en.wikipedia.org/wiki/Walsh_function).
 
-The new definitions needed to verify the *statements* of these theorems are in the file [`Carleson.Defs`](Carleson/Defs.lean), the statements themselves in [`Carleson.Statements`](Carleson/Defs.lean)
+The new definitions needed to verify the *statements* of these theorems are in the file [`Carleson.Defs`](Carleson/Defs.lean).
 
 ## Verifying the formalisation
 
