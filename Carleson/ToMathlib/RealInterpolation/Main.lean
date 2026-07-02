@@ -59,7 +59,7 @@ variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε
 def SubadditiveOn [ENorm ε] (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞) : Prop :=
   ∀ (f g : α → ε₁), P f → P g → ∀ (x : α'), ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
 
-def Subadditive_trunc [ENorm ε] (T : (α → ε₁) → α' → ε) (A : ℝ≥0∞) (f : α → ε₁) (ν : Measure α') :
+def SubadditiveTrunc [ENorm ε] (T : (α → ε₁) → α' → ε) (A : ℝ≥0∞) (f : α → ε₁) (ν : Measure α') :
     Prop :=
   ∀ a : ℝ≥0∞, 0 < a → ∀ᵐ y ∂ν,
   ‖T (trunc f a + truncCompl f a) y‖ₑ ≤ A * (‖T (trunc f a) y‖ₑ + ‖T (truncCompl f a) y‖ₑ)
@@ -94,12 +94,6 @@ lemma iSup₂ {ι : Type*} {κ : ι → Sort*} {T : (i : ι) → κ i → (α �
     SubadditiveOn (fun u x ↦ ⨆ (i) (j), T i j u x) P A := by
   simp_rw [iSup_psigma']
   exact .iSup (fun ⟨i,j⟩ ↦ h i j)
-
-variable [ENorm ε] in
-variable {α : Type*} {ι : Sort*} {κ : ι → Sort*} [CompleteLattice α] {f g s : ι → α} {a b : α} in
-theorem iSup₂_le {f : ∀ i, κ i → α} (h : ∀ i j, f i j ≤ a) : ⨆ (i) (j), f i j ≤ a := by
-  simp_rw [iSup_psigma']
-  exact iSup_le (fun ⟨i,j⟩ ↦ h i j)
 
 variable [TopologicalSpace ε] [ESeminormedAddMonoid ε] in
 lemma indicator (sa : SubadditiveOn T P A) (s : Set α') :
@@ -194,7 +188,6 @@ lemma const (T : (α → ε₁) → ε) (P : (α → ε₁) → Prop)
 
 end AESubadditiveOn
 
---[NormedSpace ℝ E₁] [NormedSpace ℝ E₂]
 variable [TopologicalSpace ε] [ENormedSpace ε]
 
 variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedSpace ε₁]
@@ -362,7 +355,6 @@ end MeasureTheory
 
 end
 
-
 noncomputable section
 
 open NNReal ENNReal MeasureTheory Set ComputationsChoiceExponent
@@ -376,13 +368,11 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
 
 /-! ## Proof of the real interpolation theorem
 
-    In this section the estimates are combined to finally give a proof of the
-    real interpolation theorem.
+In this section the estimates are combined to finally give a proof of the real interpolation theorem.
 -/
 namespace MeasureTheory
 
-variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁]
-[ENorm ε₂]
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [ENorm ε₂]
 
 variable [TopologicalSpace ε₂] in
 /-- Proposition that expresses that the map `T` map between function spaces preserves
@@ -390,8 +380,8 @@ variable [TopologicalSpace ε₂] in
 def PreservesAEStrongMeasurability (T : (α → ε₁) → α' → ε₂) (p : ℝ≥0∞) : Prop :=
     ∀ ⦃f : α → ε₁⦄, MemLp f p μ → AEStronglyMeasurable (T f) ν
 
-lemma estimate_distribution_Subadditive_trunc {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)}
-    {a : ℝ≥0∞} (ha : 0 < a) {A : ℝ≥0∞} (h : Subadditive_trunc T A f ν) :
+lemma estimate_distribution_subadditiveTrunc {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)}
+    {a : ℝ≥0∞} (ha : 0 < a) {A : ℝ≥0∞} (h : SubadditiveTrunc T A f ν) :
     distribution (T f) (2 * A * t) ν ≤
     distribution (T (trunc f a)) t ν +
     distribution (T (truncCompl f a)) t ν := by
@@ -401,9 +391,8 @@ lemma estimate_distribution_Subadditive_trunc {f : α → ε₁} {T : (α → ε
   nth_rw 1 [← trunc_add_truncCompl (f := f) (t := a)]
   exact h a ha
 
-lemma rewrite_norm_func {q : ℝ} {g : α' → E}
-    [TopologicalSpace E] [ContinuousENorm E] (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A)
-    (hg : AEStronglyMeasurable g ν) :
+lemma rewrite_norm_func {q : ℝ} {g : α' → E} [TopologicalSpace E] [ContinuousENorm E]
+    (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A) (hg : AEStronglyMeasurable g ν) :
     ∫⁻ x, ‖g x‖ₑ ^ q ∂ν =
     ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s,
     distribution g ((ENNReal.ofReal (2 * A) * s))  ν * s ^ (q - 1) := by
@@ -435,7 +424,7 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E}
 lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hq : 0 < q) (tc : StrictRangeToneCouple) {A : ℝ≥0} (hA : 0 < A)
-    (ht : Subadditive_trunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
+    (ht : SubadditiveTrunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
   ∫⁻ x : α', ‖T f x‖ₑ ^ q ∂ν ≤
   ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s, distribution (T (trunc f (tc.ton s))) s ν * s^(q - 1) +
   distribution (T (truncCompl f (tc.ton s))) s ν * s ^ (q - 1) := by
@@ -444,7 +433,7 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
   filter_upwards [ae_in_Ioo_zero_top] with a ha
   rw [ENNReal.ofReal_mul (by simp), ← add_mul]
   gcongr ?_ * _
-  convert estimate_distribution_Subadditive_trunc (tc.ran_ton a ha).1 ht <;> simp
+  convert estimate_distribution_subadditiveTrunc (tc.ran_ton a ha).1 ht <;> simp
 
 -- TODO: the infrastructure can perhaps be improved here
 @[measurability, fun_prop]
@@ -727,7 +716,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
   (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
   (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
-  (hf : MemLp f p μ) (hT : Subadditive_trunc T A f ν)
+  (hf : MemLp f p μ) (hT : SubadditiveTrunc T A f ν)
   (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
   (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
   (hspf : spf = spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
@@ -874,7 +863,7 @@ lemma combine_estimates₁ {A : ℝ≥0} (hA : 0 < A)
     (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
-    (hf : MemLp f p μ) (hT : Subadditive_trunc T A f ν)
+    (hf : MemLp f p μ) (hT : SubadditiveTrunc T A f ν)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (h₂T : PreservesAEStrongMeasurability T p (ν := ν) (μ := μ))
@@ -972,9 +961,8 @@ lemma simplify_factor₅ {D : ℝ≥0∞} [TopologicalSpace E₁] [ESeminormedAd
     (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f) :
     (↑C₁ * eLpNorm f p μ) ^ q₁.toReal * (D ^ (q.toReal - q₁.toReal)) =
     C₀ ^ ((1 - t).toReal * q.toReal) * C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal := by
-  have p₁pos : 0 < p₁ := hp₁.1
   have p₁ne_top : p₁ ≠ ⊤ := ne_top_of_le_ne_top hq₁' hp₁.2
-  rw [← simplify_factor₃ p₁pos p₁ne_top (mem_sub_Ioo one_ne_top ht) (switch_exponents ht hp) hp₀p₁.symm,
+  rw [← simplify_factor₃ hp₁.1 p₁ne_top (mem_sub_Ioo one_ne_top ht) (switch_exponents ht hp) hp₀p₁.symm,
     simplify_factor₁ hq₁' hp₀ hp₁ ht hq₀q₁ hp hq hC₀ hC₁ hF hD]
 
 /-- The trivial case for the estimate in the real interpolation theorem
@@ -989,13 +977,11 @@ lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : 
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : MemLp f p μ)
     (hF : eLpNorm f p μ = 0) :
     eLpNorm (T f) q ν = 0 := by
-  unfold HasWeakType at h₀T
   have p_pos : 0 < p := interpolated_pos' hp₀.1 hp₁.1 (ne_top_of_Ioo ht) hp
   have q₀pos : 0 < q₀ := pos_of_rb_Ioc hp₀
   have q₁pos : 0 < q₁ := pos_of_rb_Ioc hp₁
   have q_pos : 0 < q := interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq
-  have hf₂ : eLpNorm f p₀ μ = 0 := by
-    apply eLpNorm_eq_zero_of_eLpNorm_eq_zero hf.1 p_pos.ne' hF
+  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hf.1 p_pos.ne' hF
   have hf₁ : MemLp f p₀ μ := ⟨hf.1, by rw [hf₂]; exact zero_lt_top⟩
   have := (h₀T f hf₁).2
   rw [hf₂, mul_zero] at this
@@ -1012,7 +998,7 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
     (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
-    (hT : Subadditive_trunc T A f ν) (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
+    (hT : SubadditiveTrunc T A f ν) (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : MemLp f p μ) :
     eLpNorm (T f) q ν ≤
@@ -1040,7 +1026,7 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
     (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (ENNReal.ofReal q.toReal *
-        ((C₀ * eLpNorm f p μ )^ q₀.toReal *
+        ((C₀ * eLpNorm f p μ)^ q₀.toReal *
         (∫⁻ (t : ℝ) in Ioo 0 (@d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f).toReal,
         ENNReal.ofReal (t ^ (q.toReal - q₀.toReal - 1))) * (if q₀ = ⊤ then 0 else 1) +
         ((C₁ * eLpNorm f p μ) ^ q₁.toReal *
@@ -1065,7 +1051,7 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
     have : 0 < M.toReal := toReal_pos M_pos.ne' M_ne_top
     have : ENNReal.ofReal M.toReal = M := by rw [ofReal_toReal M_ne_top]
     have coe_q : ENNReal.ofReal q.toReal = q :=
-    ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
+      ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
     -- type mismatches, ℝ vs ℝ≥0∞
     have eq :
         (ENNReal.ofReal q.toReal *
@@ -1206,7 +1192,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
           · rw [p_eq_p₀, hp₀p₁]; exact h₁T
           · positivity
     _ = (ENNReal.ofReal q.toReal *
-        ((C₀ * eLpNorm f p μ )^ q₀.toReal *
+        ((C₀ * eLpNorm f p μ)^ q₀.toReal *
         (∫⁻ (t : ℝ) in Ioo 0 M, ENNReal.ofReal (t ^ (q.toReal - q₀.toReal - 1))) *
         (if q₀ = ⊤ then 0 else 1) +
         ((C₁ * eLpNorm f p μ) ^ q₁.toReal *
@@ -1275,7 +1261,7 @@ lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : 
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
     (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
-    (hT : Subadditive_trunc T A f ν) (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
+    (hT : SubadditiveTrunc T A f ν) (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : MemLp f p μ) :
     eLpNorm (T f) q ν ≤
@@ -1416,7 +1402,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
     (hT : AESubadditiveOn T (fun f ↦ MemLp f p₀ μ ∨ MemLp f p₁ μ) A ν)
     (hf : MemLp f p μ) :
-    Subadditive_trunc T A f ν := by
+    SubadditiveTrunc T A f ν := by
   intro a a_pos
   by_cases ha : a = ∞
   · rw [ha]
@@ -1464,7 +1450,7 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
   refine ⟨hmT f hf, ?_⟩
   have hp' : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹ := by rw [hp]; congr
   have hq' : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹ := by rw [hq]; congr
-  have obs : Subadditive_trunc T A f ν :=
+  have obs : SubadditiveTrunc T A f ν :=
     Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ hp₀.1 hp₁.1 hA ht hp' hT hf
   rw [coe_C_realInterpolation hp₀ hp₁ hq₀q₁] <;> try assumption
   have : 0 < A := lt_of_lt_of_le (by norm_num) hA
