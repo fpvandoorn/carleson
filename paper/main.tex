@@ -539,8 +539,8 @@ and let
     \label{eq-psisum}
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
 \end{equation}
-for all $x>0$. This function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
-$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. With this definition, the finitary Carleson Theorem reads as follows.
+for all $x>0$. Note that the above sum has at most two nonzero terms, and that this function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
+$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. With this definition, the {\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/FinitaryCarleson.lean#L110}{finitary Carleson Theorem}} reads as follows.
 
 \begin{theorem}[finitary Carleson]
 \label{finitary-Carleson}
@@ -556,74 +556,59 @@ for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
 where for $s \in \Z, K_s(x,y) = K(x,y)\psi(D^{-s}\rho(x,y))$.
 \end{theorem}
 
-As a next step in the proof, we break up the space in manageable pieces in both the spatial and frequency dimensions.
-To state this intermediate result, we need some definitions.
+To reduce this finitary version of the Carleson theorem to the discrete version, we make divisions in both the spatial and frequency domains. The spatial discretization will be achieved by a \emph{grid structure}, after which a subordinate frequency discretization is encoded by a \emph{tile structure}.
 
-%%JMS - Pure copy from blueprint, can be optimized
+A grid structure on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of so-called dyadic cubes, a function $c : \mathcal{D} \to X$ called the center function, and a surjective function $s : \mathcal{D} \to [-S, S]$ called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary} below. Here, a dyadic cube is just a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$.
 
-A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$ of pairs $(I, k)$ of Borel
-sets $I$ in $X$ and integers $k \in [-S, S]$, the scale function $s\colon \mathcal{D}\to [-S, S], (I, k) \mapsto k$, assumed to be surjective, and a function $c:\mathcal{D}\to X$
-called center function such that the five properties
-\eqref{coverdyadic}, \eqref{dyadicproperty}, \eqref{subsetmaxcube},
-\eqref{eq-vol-sp-cube}, and \eqref{eq-small-boundary} hold. We call the elements of $\mathcal{D}$ dyadic cubes. By abuse of notation, we will usually write just $I$ for the cube $(I,k)$, and we will write $I \subset J$ to mean that for two cubes $(I,k), (J, l) \in \mathcal{D}$ we have $I \subset J$ and $k \le l$.
-
-For each dyadic cube $I$ and each $-S\le k<s(I)$ we have
+The conditions that the objects in a grid structure satisfy are as follows.
+\begin{enumerate}[label=\roman*.]
+\item \label{it:coverdyadic} For every dyadic cube $I$ and every $-S \leq k < s(I)$,
 \begin{equation}\label{coverdyadic}
     I\subset \bigcup_{J\in \mathcal {D}: s(J)=k}J\, .
 \end{equation}
-Any two non-disjoint dyadic cubes $I,J$ with $s(I)\le s(J)$ satisfy
+\item \label{it:dyadicproperty} For every non-disjoint dyadic cubes $I, J$ with $s(I) \leq s(J)$, we have that
 \begin{equation}\label{dyadicproperty}
     I\subset J.
 \end{equation}
-There exists an $I_0 \in \mathcal{D}$ with $s(I_0) = S$ and $c(I_0) = o$
-%\begin{equation}\label{coverball}
-%    B(o, \frac{1}{4} D^{S}) \subset I\,,
-%\end{equation}
-and for all cubes $J \in \mathcal{D}$, we have
+\item \label{it:subsetmaxcube} The exists a cube $I_0 \in \mathcal{D}$ with scale $s(I_0) = S$ and center $c(I_0) = o$ (the point where all $\mfa \in \Mf$ vanish), and for all dyadic cubes $J$ it holds that
 \begin{equation}\label{subsetmaxcube}
     J \subset I_0\,.
 \end{equation}
-%changed the above sentence on June 25, CT
-For any dyadic cube $I$,
+\item \label{it:eq-vol-sp-cube} Every dyadic cube $I$ fits a ball with center $c(I)$ and is approximately of size $D^{s(I)}$ in the sense that
 \begin{equation}
     \label{eq-vol-sp-cube}
-    c(I)\in B(c(I), \frac{1}{4} D^{s(I)}) \subset I \subset B(c(I), 4 D^{s(I)})\,.
+    % c(I)\in % todo: JP: I think it is easier to read if this is removed, please see if you agree
+    B(c(I), \frac{1}{4} D^{s(I)}) \subset I \subset B(c(I), 4 D^{s(I)})\,.
 \end{equation}
-For any dyadic cube $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
+\item \label{it:eq-small-boundary} For every dyadic cube $I$ and every $t$ with $t D^{s(I)} \geq D^{-S}$, the boundary of $I$ is small in the sense that
 \begin{equation}
     \label{eq-small-boundary}
     \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I)\,.
 \end{equation}
+\end{enumerate}
 
-A tile structure $(\fP,\scI,\fc,\fcc,\pc,\ps)$
-for a given grid structure $(\mathcal{D}, c, s)$
-is a finite set $\fP$ of elements called tiles with five maps
-\begin{align*}
-    \scI&\colon \fP\to {\mathcal{D}}\\
-    \fc&\colon \fP\to \mathcal{P}(\Mf) \\
-    \fcc &\colon \fP\to \tQ(X)\\
-    \pc &\colon \fP\to X\\
-    \ps &\colon \fP\to \mathbb{Z}
-\end{align*}
-with $\scI$ surjective and $\mathcal{P}(\Mf)$ denoting the power set of $\Mf$ such that the five properties \eqref{eq-dis-freq-cover}, \eqref{eq-freq-dyadic},
-\eqref{eq-freq-comp-ball}, \eqref{tilecenter}, and
-\eqref{tilescale} hold.
-For each dyadic cube $I$, the restriction of the map $\Omega$ to the set
-\begin{equation}\label{injective}
-    \fP(I)=\{\fp: \scI(\fp) =I\}
-\end{equation}
-is injective
-and we have the disjoint covering property (we use the union symbol with dot on top to denote a disjoint union)
+We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a \href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{tile structure} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc : \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fc : \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc : \fP \to X$ and $\ps : \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
+
+\begin{enumerate}[label=\roman*.]
+% note: todo: JP: as also the lean code says, this seems superfluous so I'm removing it from the list
+% \item For every dyadic cube $I$, the restriction of $\Omega$ to the set
+% \begin{equation}\label{injective}
+%     \fP(I) \coloneq \{\fp: \scI(\fp) =I\}
+% \end{equation}
+% is injective.
+\item \label{it:omega-disjoint} For every dyadic cube $I$ and every pair of tiles $\fp \neq \fq$ in $\scI^{-1}(\{I\})$, the sets $\fc(\fp)$ and $\fc(\fq)$ are disjoint.
+\item \label{it:omega-cover} For every dyadic cube $I$, we have that
 \begin{equation}\label{eq-dis-freq-cover}
-    \tQ(X)\subset \dot{\bigcup}_{\fp\in \fP(I)}\fc(\fp).
+    \tQ(X)\subset \bigcup_{\fp\in \scI^{-1}(\{I\})}\fc(\fp).
 \end{equation}
-For any tiles $\fp,\fq$ with $\scI(\fp)\subset \scI(\fq)$ and $\fc(\fp) \cap \fc(\fq) \neq \emptyset$ we have
+\item For all tiles $\fp, \fq$ with $\scI(\fp) \subset \scI(\fq)$ it holds that
 \begin{equation} \label{eq-freq-dyadic}
     \fc(\fq)\subset \fc(\fp) .
 \end{equation}
-For each tile $\fp$,
+\item For every tile $\fp$, the set of functions $\fc(\fp)$ contains a ball with center $\fcc(\fp)$ and is of size approximately $D^{\ps(\fp)}$ in the sense that
 \begin{equation}\label{eq-freq-comp-ball}
-    \fcc(\fp)\in B_{\fp}(\fcc(\fp), 0.2) \subset \fc(\fp) \subset B_{\fp}(\fcc(\fp),1)\,,
+    % \fcc(\fp)\in % todo: JP: I think it is easier to read if this is removed, please see if you agree
+    B_{\fp}(\fcc(\fp), 0.2) \subset \fc(\fp) \subset B_{\fp}(\fcc(\fp),1)\,,
 \end{equation}
 where
 \begin{equation}
@@ -633,16 +618,9 @@ with
 \begin{equation}\label{defdp}
     d_{\fp} := d_{B(\pc(\fp),\frac 14 D^{\ps(\fp)})}\, .
 \end{equation}
-We have for each tile $\fp$
-\begin{equation}\label{tilecenter}
-    \pc(\fp)=c(\scI(\fp)),
-\end{equation}
-\begin{equation}\label{tilescale}
-    \ps(\fp)=s(\scI(\fp)).
-\end{equation}
-%%JMS End copy
+\end{enumerate}
 
-With the above definitions, it can be shown that the finitary Carleson theorem reduces to the discrete Carleson theorem.
+With the above definitions, it can be shown that the finitary Carleson theorem reduces to the \href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/Discrete/MainTheorem.lean#L45}{discrete Carleson theorem}.
 
 \begin{theorem}[discrete Carleson]
 \label{discrete-Carleson}
@@ -651,7 +629,7 @@ Let $(\mathcal{D}, c, s)$ be a grid structure and
     (\fP,\scI,\fc,\fcc,\pc,\ps)
 \end{equation*}
 a tile structure for this grid structure.
-Define for $\fp\in \fP$
+Define for every tile $\fp\in \fP$
 \begin{equation}\label{defineep}
     E(\fp)=\{x\in \scI(\fp): \tQ(x)\in \fc(\fp) , {\sigma_1}(x)\le \ps(\fp)\le {\sigma_2}(x)\}
 \end{equation}
