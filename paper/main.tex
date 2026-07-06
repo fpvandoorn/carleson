@@ -10,8 +10,8 @@
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{cleveref}
-
 \usepackage{listings}
+
 \makeatletter
 \AtBeginDocument{%
 	\let\c@lstlisting\relax
@@ -1209,11 +1209,14 @@ Finally, there were several results in the project that required us to consider 
 However, these are different types in Lean: $\texttt{Set T}$ is the type of all sets consisting of elements of type $\texttt{T}$, while $\texttt{Finset T}$ is the type of finite sets of elements of $\texttt{T}$. Therefore, we needed to make a decision about which of these types to use in the Carleson project. For the most part, we chose to use $\texttt{Set T}$, although sometimes $\texttt{Finset T}$ is used inside proofs, or when required to apply existing \mathlib results. In hindsight, it would likely have been slightly more convenient to use $\texttt{Finset T}$ throughout, to avoid issues like the following.
 
 If \texttt{T} is endowed with a \texttt{Fintype} instance, then \texttt{Finset.sum} can still be applied to a given \texttt{s : Set T}. There are two possible syntaxes to do this, as the following example shows. Note that the displayed equality is true \emph{propositionally} but not \emph{definitionally}: the left hand side is a sum over \texttt{s.toFinset}, whereas the right hand side is a sum over \texttt{\{p : T | p $\in$ s\}}, and these \texttt{Finset}s are not definitionally equal.
-\newpage
+
+\noindent
+\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape=true]
 example {T : Type} [Fintype T] {s : Set T} [DecidablePred fun p $\mapsto$ p $\in$ s]
 	{f : T $\to \mathbb{N}$} : $\sum$ p $\in$ s, f p = $\sum$ p with p $\in$ s, f p
 \end{lstlisting}
+\end{minipage}
 
 \section{Conclusion}\label{sec:conclusion}
 %TODO: this will likely need to be revised after \ref{sec:org}, \ref{subsec:rel_work}, \ref{subsec:blueprint_mistakes}, \ref{subsec:blueprint_lessons} and \ref{subsec:pitfalls} are finished.
