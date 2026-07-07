@@ -1,8 +1,9 @@
 module
 
+public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
+public import Mathlib.Order.Filter.ENNReal
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
-public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
 public import Carleson.Statements
 public import Carleson.ToMathlib.Data.ENNReal
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
@@ -11,7 +12,6 @@ public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
 public import Carleson.ToMathlib.Rearrangement
 public import Carleson.ToMathlib.RealInterpolation.Misc
-public import Carleson.ToMathlib.Order.Filter.ENNReal
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
 

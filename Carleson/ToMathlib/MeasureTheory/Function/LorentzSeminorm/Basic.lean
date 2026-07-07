@@ -112,7 +112,7 @@ theorem ae_eq_zero_of_eLorentzNorm'_eq_zero {f : α → ε} (p_ne_zero : p ≠ 0
     ext x
     simp
   rw [this, Function.support_comp_eq_preimage, support_distribution, ENNReal.ofNNReal_preimage,
-      Set.diff_singleton_eq_self (by simp), ENNReal.toNNReal_Iio]
+      Set.sdiff_singleton_eq_self (by simp), ENNReal.toNNReal_Iio]
   split_ifs with h'
   · simp only [Set.inter_univ, ne_eq]
     rw [NNReal.volume_Ioi]

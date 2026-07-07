@@ -3,7 +3,6 @@ module
 public import Carleson.Defs
 public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.CoveredByBalls
-public import Mathlib.Data.Real.StarOrdered
 public import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
 public import Mathlib.Order.CompletePartialOrder
 

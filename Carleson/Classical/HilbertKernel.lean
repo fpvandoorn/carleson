@@ -299,13 +299,11 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
           · simp [_root_.abs_of_nonneg, yy'nonneg.2]
         _ ≤ 2 ^ 6 * (1 / (y / 2)) * ((1 - y') / (y / 2)) := by
           gcongr
-          · apply div_nonneg <;> linarith
-          · linarith
+          apply div_nonneg <;> linarith
         _ = (2 ^ 6 * 2 * 2) * (1 / y) * ((1 - y') / y) := by
           ring
         _ ≤ (2 ^ 6 * 2 * 2) * (1 / |y|) * (|y - y'| / |y|) := by
           gcongr
-          apply div_nonneg <;> linarith
           on_goal 2 => rw [_root_.abs_of_nonneg] <;> linarith
           all_goals rw [_root_.abs_of_nonneg yy'nonneg.1]
         _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := by norm_num

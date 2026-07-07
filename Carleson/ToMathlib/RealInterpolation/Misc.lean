@@ -307,7 +307,7 @@ lemma lintegral_double_restrict_set {A B : Set α} {f : α → ℝ≥0∞} (hA :
   (hB : MeasurableSet B) (hf : ∀ᵐ (x : α) ∂μ, x ∈ A \ B → f x ≤ 0) :
     ∫⁻ x in A, f x ∂μ = ∫⁻ x in A ∩ B, f x ∂μ := by
   have h₀ := setLIntegral_mono_ae' (MeasurableSet.diff hA hB) hf; rw [lintegral_zero] at h₀
-  rw [← lintegral_inter_add_diff (hB := hB), nonpos_iff_eq_zero.mp h₀, add_zero]
+  rw [← lintegral_inter_add_sdiff (hB := hB), nonpos_iff_eq_zero.mp h₀, add_zero]
 
 -- local convenience function
 lemma lintegral_rw_aux {g : ℝ → ℝ≥0∞} {f₁ f₂ : ℝ → ℝ≥0∞} {A : Set ℝ}
@@ -486,13 +486,13 @@ alias trnc_true_add_trnc_false := trunc_add_truncCompl
 --   apply Measurable.ite ?_ hf measurable_const
 --   exact measurableSet_lt measurable_const hf.norm
 
-@[measurability]
+@[fun_prop]
 protected lemma StronglyMeasurable.trunc (hf : StronglyMeasurable f) :
     StronglyMeasurable (trunc f t) :=
   StronglyMeasurable.ite (measurableSet_le hf.enorm.stronglyMeasurable stronglyMeasurable_const) hf
     stronglyMeasurable_const
 
-@[measurability]
+@[fun_prop]
 protected lemma StronglyMeasurable.truncCompl (hf : StronglyMeasurable f) :
     StronglyMeasurable (truncCompl f t) := by
   rw [truncCompl_eq]
@@ -529,7 +529,7 @@ protected lemma StronglyMeasurable.truncCompl (hf : StronglyMeasurable f) :
 --     simp only [mem_compl_iff, mem_setOf_eq, not_not]
 --     intro f_eq_g; unfold truncCompl; unfold trunc; dsimp only [Pi.sub_apply]; rw [f_eq_g]
 
-@[measurability]
+@[fun_prop]
 nonrec lemma AEStronglyMeasurable.trunc (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (trunc f t) μ := by
   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
@@ -539,7 +539,7 @@ nonrec lemma AEStronglyMeasurable.trunc (hf : AEStronglyMeasurable f μ) :
     exact wg1.indicator (s := {x | ‖g x‖ₑ ≤ t}) (measurableSet_le wg1.enorm (by fun_prop))
   · exact measure_mono_null (fun x ↦ by contrapose!; simp_all [trunc]) wg2
 
-@[measurability]
+@[fun_prop]
 nonrec lemma AEStronglyMeasurable.truncCompl
     (hf : AEStronglyMeasurable f μ) : AEStronglyMeasurable (truncCompl f t) μ := by
   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
@@ -551,8 +551,7 @@ nonrec lemma AEStronglyMeasurable.truncCompl
     exact measurableSet_le wg1.enorm measurable_const
   · exact measure_mono_null (fun x ↦ by contrapose!; simp_all [truncCompl]) wg2
 
-
-@[measurability]
+@[fun_prop]
 lemma aestronglyMeasurable_trnc {j : Bool} (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (trnc j f t) μ :=
   j.rec (.truncCompl hf) (.trunc hf)
@@ -623,13 +622,13 @@ lemma eLpNorm_truncCompl_anti (hf : eLpNorm f 1 μ ≠ ⊤) (mf : AEStronglyMeas
   exact eLpNorm_mono_enorm_ae <| this.mono fun x hx ↦ truncCompl_anti hab hx
 
 /-- The norm of the truncation is meaurable in the truncation parameter -/
-@[measurability, fun_prop]
+@[fun_prop]
 lemma eLpNorm_trunc_measurable :
     Measurable (fun s ↦ eLpNorm (trunc f s) p μ) :=
   eLpNorm_trunc_mono.measurable
 
 /-- The norm of the complement of the truncation is measurable in the truncation parameter -/
-@[measurability, fun_prop]
+@[fun_prop]
 lemma eLpNorm_truncCompl_measurable (hf : eLpNorm f 1 μ ≠ ⊤) (mf : AEStronglyMeasurable f μ) :
     Measurable (fun s ↦ eLpNorm (truncCompl f s) p μ) :=
   eLpNorm_truncCompl_anti hf mf |>.measurable
@@ -965,7 +964,7 @@ lemma res'comp₀ (j : Bool) (β : ℝ≥0∞) (hβ : 0 < β) :
   split_ifs with h₀ h₁ h₂
   on_goal 6 =>
     ext x
-    simp only [mem_diff, mem_Ioi, mem_Ioc, not_and, not_le]
+    simp only [mem_sdiff, mem_Ioi, mem_Ioc, not_and, not_le]
     exact ⟨by tauto, fun h ↦ ⟨(toReal_pos (hβ.ne') h₀).trans h, fun x ↦ h⟩⟩
   all_goals simp_all
 
@@ -975,7 +974,7 @@ lemma res'comp (j : Bool) (β : ℝ≥0∞) :
   split_ifs with h₀ h₁ h₂
   on_goal 6 =>
     ext x
-    simp only [mem_diff, mem_Ioi, mem_Ioc, not_and, not_le]
+    simp only [mem_sdiff, mem_Ioi, mem_Ioc, not_and, not_le]
     refine ⟨by tauto, fun hβ ↦ ?_⟩
     have : 0 ≤ β.toReal := toReal_nonneg
     exact ⟨by order, fun _ ↦ hβ⟩

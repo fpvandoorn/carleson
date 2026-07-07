@@ -1,7 +1,7 @@
 module
 
-public import Carleson.Calculations
 public import Mathlib.MeasureTheory.Integral.IntegrableOn
+public import Carleson.Calculations
 public import Carleson.ToMathlib.Rearrangement
 
 @[expose] public section

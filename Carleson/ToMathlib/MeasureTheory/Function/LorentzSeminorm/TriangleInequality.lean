@@ -1,8 +1,8 @@
 module
 
+public import Mathlib.Analysis.MeanInequalitiesPow
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-public import Mathlib.Analysis.MeanInequalitiesPow
 public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import Carleson.ToMathlib.MeasureTheory.Integral.Misc
@@ -55,7 +55,7 @@ theorem eLorentzNorm_add_le'' :
       intro t
       simp only [ENNReal.toReal_inv, enorm_eq_self]
       gcongr
-      convert rearrangement_add_le
+      convert! rearrangement_add_le
       simp
     _ ≤ LpAddConst q * (eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement f (t / 2) μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
         + eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement g (t / 2) μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))) := by
@@ -177,7 +177,7 @@ lemma antitone_lorentz_helper (hq : 1 ≤ q) (q_le_p : q ≤ p) (p_top : p ≠ �
     · exact antitone_rpow_inv_sub_inv q_le_p (zero_lt_one.trans_le hq).ne' h
     · apply rearrangement_antitone' (by simpa)
 
-@[measurability, fun_prop]
+@[fun_prop]
 lemma lorentz_helper_measurable : Measurable (lorentz_helper f p q μ) := by
   unfold lorentz_helper
   fun_prop

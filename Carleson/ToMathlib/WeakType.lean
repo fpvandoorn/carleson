@@ -473,7 +473,7 @@ lemma aestronglyMeasurable_ennreal_toReal_iff {f : α → ℝ≥0∞}
   rw [toReal_ofReal_preimage (s := s)]
   split_ifs
   · exact this
-  · simp_rw [preimage_diff]
+  · simp_rw [preimage_sdiff]
     exact this.diff hf
   · simp_rw [preimage_union]
     exact this.union hf
@@ -815,7 +815,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
     dsimp only
     congr 1
     symm
-    apply measure_eq_measure_of_null_diff
+    apply measure_eq_measure_of_null_sdiff
     · intro x hx
       simp only [mem_setOf_eq] at *
       rwa [ofReal_lt_iff_lt_toReal ht.le]
@@ -837,7 +837,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
       calc
       _ = ENNReal.ofReal p *
           (∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal (t ^ (p - 1))) * μ {x | ‖f x‖ₑ = ∞} := by
-        convert (top_mul ae_finite.ne').symm
+        convert! (top_mul ae_finite.ne').symm
         convert mul_top (ENNReal.ofReal_pos.mpr hp).ne'
         rw [← not_ne_iff, lintegral_ofReal_ne_top_iff_integrable]; rotate_left
         · exact (measurable_id.pow_const (p - 1)).aestronglyMeasurable.restrict

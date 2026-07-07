@@ -246,7 +246,7 @@ theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) 
     refine ⟨hf.aestronglyMeasurable.star, ?_⟩
     rw [eLpNorm_star]
     have := hf.memLp_top; finiteness
-  hasCompactSupport := by simpa using hf.hasCompactSupport.star
+  hasCompactSupport := by simpa using! hf.hasCompactSupport.star
 
 -- This lemma is defeq to `BoundedCompactSupport.conj`, but `starRingEnd` and `conj` are both
 -- simp normal forms, so a lemma for each is needed.

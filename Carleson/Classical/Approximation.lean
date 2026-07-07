@@ -253,7 +253,7 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
       by_cases Ceq0 : C = 0
       · simp [maj_def, Ceq0, one_div, mul_zero, summable_zero]
       · rw [← summable_div_const_iff Ceq0]
-        convert Real.summable_one_div_int_pow.mpr one_lt_two using 1
+        convert! Real.summable_one_div_int_pow.mpr one_lt_two using 1
         simp [maj_def, mul_div_cancel_right₀, Ceq0]
     rw [summable_congr @fourierCoeff_correspondence, ←summable_norm_iff]
     apply summable_of_le_on_nonzero _ _ summable_maj <;> intro i
@@ -266,8 +266,8 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
   obtain ⟨N₀, hN₀⟩ := this
   refine ⟨N₀, fun N hN x hx ↦ ?_⟩
   have := hN₀ N hN.le x
-  simp only [Complex.dist_eq, ContinuousMap.coe_sum, sum_apply] at this
-  convert this.le using 2
+  simp only [Complex.dist_eq, ContinuousMap.coe_sum, Finset.sum_apply] at this
+  convert! this.le using 2
   congr 1
   · rw [g_def, ContinuousMap.coe_mk]
     by_cases h : x = 2 * π
