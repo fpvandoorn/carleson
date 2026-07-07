@@ -58,7 +58,7 @@ lemma iLipENorm_le_add (h : ∀ x ∈ ball z R, ‖φ x‖ ≤ C)
     have W := h' x hx x' hx' hne
     rw [ENNReal.div_le_iff (by simpa only [ne_eq, edist_eq_zero] using hne) (edist_ne_top x x')]
     convert ENNReal.ofReal_le_ofReal W
-    · exact (ofReal_norm_eq_enorm (φ x - φ x')).symm
+    · exact (ofReal_norm (φ x - φ x')).symm
     · rw [ENNReal.ofReal_div_of_pos hR, ENNReal.ofReal_mul NNReal.zero_le_coe, edist_dist,
         ENNReal.mul_div_right_comm, ENNReal.ofReal_coe_nnreal]
 
