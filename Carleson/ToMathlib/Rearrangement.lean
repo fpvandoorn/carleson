@@ -319,12 +319,11 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           congr with x
           grind
         · simp
-        · exact AEMeasurable.nullMeasurableSet_preimage hf.enorm (by aesop)
+        · exact AEMeasurable.nullMeasurableSet_preimage hf.enorm (by simp_all)
         · rw [← lt_top_iff_ne_top]
           apply hf'.trans_le'
           gcongr
-          unfold Function.support
-          aesop
+          simp [Function.support]
       _ = volume {x | rearrangement f x μ ≠ 0} - volume {x | rearrangement f x μ ∈ s \ {0}} := by
         congr
         rw [← ENNReal.bot_eq_zero]
@@ -332,13 +331,13 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
         rw [ENNReal.bot_eq_zero, ← distribution, ← distribution_rearrangement_eq_distribution]
         rfl
       _ = volume {x | rearrangement f x μ ∈ sᶜ \ {0}} := by
-        rw [← measure_diff]
-        · nth_rw 1 [Set.diff_eq]
+        rw [← measure_sdiff]
+        · nth_rw 1 [Set.sdiff_eq]
           rw [Set.compl_setOf, ← Set.setOf_and]
           congr with x
           grind
         · simp
-        · exact AEMeasurable.nullMeasurableSet_preimage rearrangement_measurable₀.aemeasurable (by aesop)
+        · exact AEMeasurable.nullMeasurableSet_preimage rearrangement_measurable₀.aemeasurable (by simp_all)
         · rw [← lt_top_iff_ne_top]
           apply hf'.trans_le'
           rw [← distribution_zero_eq_measure_support, ← distribution_rearrangement_eq_distribution]
@@ -347,7 +346,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           simp_rw [bot_lt_iff_ne_bot]
           rw [ENNReal.bot_eq_zero]
           gcongr
-          aesop
+          simp
   · intro S hSd hSm hS
     calc _
       _ = μ (⋃ i, {x | ‖f x‖ₑ ∈ S i \ {0}}) := by
@@ -369,7 +368,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           contrapose this
           rw [Set.not_disjoint_iff]
           use ‖f x‖ₑ, hi, hj
-        · exact fun i ↦ AEMeasurable.nullMeasurableSet_preimage hf.enorm (by aesop)
+        · exact fun i ↦ AEMeasurable.nullMeasurableSet_preimage hf.enorm (by simp_all)
       _ = ∑' i,  volume {x | rearrangement f x μ ∈ S i \ {0}} := by
         congr with i
         exact hS i
@@ -400,7 +399,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite {ε} [Topo
   {f : α → ε} (hf : AEStronglyMeasurable f μ) (hf' : μ f.support < ∞) {s : Set ℝ≥0∞}
   (hs : MeasurableSet s) (zero_notin_s : 0 ∉ s) :
     μ {x | ‖f x‖ₑ ∈ s} = volume {x | rearrangement f x μ ∈ s} := by
-  have : s = s \ {0} := by aesop
+  have : s = s \ {0} := by simp_all
   rw [this]
   exact measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' hf hf' hs
 
