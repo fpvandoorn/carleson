@@ -164,10 +164,10 @@ lemma lintegral_eq_lintegral_approxOnCube {C : Set (Grid X)}
   have eq : ∫⁻ y in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖ₑ =
       ∫⁻ y in (J : Set X), ENNReal.ofReal (⨍ z in J, ‖f z‖) := by
     refine setLIntegral_congr_fun coeGrid_measurable fun y hy ↦ ?_
-    rw [approxOnCube_apply hC _ hJ hy, ← ofReal_norm_eq_enorm]
+    rw [approxOnCube_apply hC _ hJ hy, ← ofReal_norm]
     apply congrArg
     have : ‖⨍ y in J, (‖f y‖ : ℂ)‖ = ‖⨍ y in J, ‖f y‖‖ := by
-      convert congrArg (‖·‖) <| integral_ofReal (f := (‖f ·‖)) using 1
+      convert! congrArg (‖·‖) <| integral_ofReal (f := (‖f ·‖)) using 1
       simp [average]
     rw [this, Real.norm_eq_abs, abs_eq_self]
     apply integral_nonneg (fun y ↦ by simp)
@@ -179,9 +179,9 @@ lemma lintegral_eq_lintegral_approxOnCube {C : Set (Grid X)}
       ENNReal.ofReal_toReal volume_coeGrid_lt_top.ne,
       ENNReal.mul_inv_cancel vol_J_ne_zero volume_coeGrid_lt_top.ne,
       one_mul,
-      ofReal_norm_eq_enorm
+      ofReal_norm
     ]
-  · simpa using ENNReal.toReal_pos vol_J_ne_zero volume_coeGrid_lt_top.ne
+  · simpa using! ENNReal.toReal_pos vol_J_ne_zero volume_coeGrid_lt_top.ne
   · exact inv_nonneg.mpr ENNReal.toReal_nonneg
 
 lemma approxOnCube_ofReal (C : Set (Grid X)) (f : X → ℝ) (x : X) :
@@ -189,7 +189,7 @@ lemma approxOnCube_ofReal (C : Set (Grid X)) (f : X → ℝ) (x : X) :
   simp_rw [approxOnCube, ofReal_sum]
   refine Finset.sum_congr rfl (fun J _ ↦ ?_)
   by_cases hx : x ∈ (J : Set X)
-  · simpa only [indicator_of_mem hx] using integral_ofReal
+  · simpa only [indicator_of_mem hx] using! integral_ofReal
   · simp only [indicator_of_notMem hx, ofReal_zero]
 
 lemma norm_approxOnCube_le_approxOnCube_norm {C : Set (Grid X)} {f : X → E'} {x : X} :
@@ -230,7 +230,7 @@ protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ
     ‖∑ i ∈ (Icc (s I) s₂), ∫ (y : X), Ks i x' y * f y‖ₑ
   have : (fun x ↦ ⨆ (_ : x ∈ I), c) = fun x ↦ ite (x ∈ I) c 0 := by
     ext x; by_cases hx : x ∈ I <;> simp only [hx, iSup_pos, iSup_neg, if_pos, if_neg, bot_eq_zero, not_false_eq_true]
-  convert (measurable_const.ite coeGrid_measurable measurable_const) using 1
+  convert! (measurable_const.ite coeGrid_measurable measurable_const) using 1
 
 -- Set used in definition of `boundaryOperator`
 open scoped Classical in
@@ -357,7 +357,7 @@ private lemma exp_Lipschitz : LipschitzWith 1 (fun (t : ℝ) ↦ exp (.I * t)) :
   have mul_I : Differentiable ℝ fun (t : ℝ) ↦ I * t := Complex.ofRealCLM.differentiable.const_mul I
   refine lipschitzWith_of_nnnorm_deriv_le mul_I.cexp (fun x ↦ ?_)
   have key : HasDerivAt (fun t : ℝ ↦ cexp (I * ↑t)) (cexp (I * ↑x) * I) x := by
-    simpa using (Complex.hasDerivAt_exp _).comp x
+    simpa using! (Complex.hasDerivAt_exp _).comp x
       (by simpa using Complex.ofRealCLM.hasDerivAt.const_mul I)
   rw [key.deriv, nnnorm_mul, nnnorm_I, mul_one, ← norm_toNNReal, mul_comm, Complex.norm_exp_ofReal_mul_I]
   exact Real.toNNReal_one.le
@@ -372,7 +372,7 @@ private lemma dist_lt_5 (hu : u ∈ t) (mp : p ∈ t.𝔗 u) (Qxp : Q x ∈ Ω p
     dist_(p) (𝒬 u) (Q x) < 5 := calc
   _ ≤ dist_(p) (𝒬 u) (𝒬 p) + dist_(p) (Q x) (𝒬 p) := dist_triangle_right ..
   _ < 4 + 1 :=
-    add_lt_add ((t.smul_four_le hu mp).2 (by convert mem_ball_self zero_lt_one)) (subset_cball Qxp)
+    add_lt_add ((t.smul_four_le hu mp).2 (by convert! mem_ball_self zero_lt_one)) (subset_cball Qxp)
   _ = 5 := by norm_num
 
 -- The bound in the third display in the proof of Lemma 7.1.4
@@ -390,7 +390,7 @@ private lemma L7_1_4_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) {y : X
   have ⟨pₛ, pu, xpₛ, hpₛ⟩ := t.exists_p_of_mem_σ u x hs
   have ⟨p', p'u, xp', hp'⟩ := t.exists_p_of_mem_σ u x (t.σMax_mem_σ u x ⟨s, hs⟩)
   have hr : (D : ℝ) ^ s / 2 > 0 := by rw [defaultD]; positivity
-  have s_le : GridStructure.s (𝓘 pₛ) ≤ GridStructure.s (𝓘 p') := by convert (σ t u x).le_max' s hs
+  have s_le : GridStructure.s (𝓘 pₛ) ≤ GridStructure.s (𝓘 p') := by convert! (σ t u x).le_max' s hs
   have exp_bound :
       ‖exp (.I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ ≤ ‖𝒬 u y - Q x y - 𝒬 u x + Q x x‖ := by
     convert exp_sub_one_le (- 𝒬 u y + Q x y + 𝒬 u x - Q x x) using 1
@@ -424,7 +424,7 @@ private lemma L7_1_4_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) {y : X
       rw [two_mul_two]
     _ ≤ defaultA a * (defaultA a ^ 3 * dist_(pₛ) (𝒬 u) (Q x)) := by
       gcongr
-      convert cdist_le_iterate (div_pos (defaultD_pow_pos a s) four_pos) _ _ _ using 2
+      convert! cdist_le_iterate (div_pos (defaultD_pow_pos a s) four_pos) _ _ _ using 2
       · rw [show 2 ^ 3 * ((D : ℝ) ^ s / 4) = 2 * D ^ s by ring]
       · rw [hpₛ]
     _ = (defaultA a) ^ 4 * dist_(pₛ) (𝒬 u) (Q x) := by ring
@@ -585,7 +585,7 @@ private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' 
   have mem_𝓑 : (4, 0, 𝓘 p) ∈ 𝓑 := by
     simp only [𝓑, Set.mem_prod, Set.mem_Iic, Set.mem_univ, and_true]
     omega
-  convert le_biSup (hi := mem_𝓑) <| fun i ↦ ((ball (c𝓑 i) (r𝓑 i)).indicator (x := x') <|
+  convert! le_biSup (hi := mem_𝓑) <| fun i ↦ ((ball (c𝓑 i) (r𝓑 i)).indicator (x := x') <|
     fun _ ↦ ⨍⁻ y in ball (c𝓑 i) (r𝓑 i), ‖g y‖ₑ ∂volume)
   · have x'_in_ball : x' ∈ ball (c𝓑 (4, 0, 𝓘 p)) (r𝓑 (4, 0, 𝓘 p)) := by
       simp_rw [c𝓑, r𝓑, _root_.s, Nat.cast_zero, add_zero]
@@ -633,7 +633,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
   have eq2 : ∫⁻ y in ball x (D ^ s / 2), ‖(exp (I * q y) - 1) * Ks s x y * f y‖ₑ ≤
       5 * 2 ^ (s - σMax t u x ⟨s, hs⟩) * (2 ^ ((𝕔 + 3) * a ^ 3) / volume (ball x (D ^ s))) *
       ∫⁻ y in ball x (D ^ s / 2), ‖f y‖ₑ := by
-    convert (lintegral_mono (L7_1_4_integrand_bound f hu hs)).trans ?_
+    convert! (lintegral_mono (L7_1_4_integrand_bound f hu hs)).trans ?_
     · norm_cast
     · rw [lintegral_const_mul'' _ hf.aestronglyMeasurable.enorm.restrict]
   apply le_of_eq_of_le eq1 ∘ eq2.trans
@@ -654,7 +654,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
   _ ≤ 2 ^ (5 * a) * ((∫⁻ y in ball x (D ^ s / 2), ‖f y‖ₑ) / volume (ball (𝔠 pₛ) (16 * D ^ s))) := by
     rw [mul_comm, ENNReal.div_mul _ (.inr (by positivity)) (.inr (by finiteness))]; gcongr
     refine ENNReal.div_le_of_le_mul' ((measure_mono ball_subset).trans ?_)
-    convert measure_ball_two_le_same_iterate (μ := volume) x (D ^ s) 5 using 2
+    convert! measure_ball_two_le_same_iterate (μ := volume) x (D ^ s) 5 using 2
     simp [mul_comm 5 a, pow_mul]
   _ ≤ _ := by
     gcongr ?_ * ?_
@@ -706,7 +706,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
         · apply i2.trans_le; nth_rw 1 [← one_mul (4 * _)]; gcongr; exact one_le_two
       _ ≤ defaultA a ^ 5 * dist_(p') (𝒬 u) (Q x) := by
         rw [pow_succ', mul_assoc]; gcongr
-        convert cdist_le_iterate _ (𝒬 u) (Q x) 4 using 1
+        convert! cdist_le_iterate _ (𝒬 u) (Q x) 4 using 1
         · exact dist_congr rfl (by ring)
         · unfold defaultD; positivity
       _ < _ := by rw [mul_comm]; gcongr
@@ -714,7 +714,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
     calc
       _ ≤ dist_{x, D ^ s₂} (𝒬 u) (Q x) * 2 ^ (-𝕔 * a : ℤ) := by
         rw [neg_mul, zpow_neg, le_mul_inv_iff₀ (by positivity), mul_comm]
-        convert le_cdist_iterate _ (𝒬 u) (Q x) (𝕔 * a) using 1
+        convert! le_cdist_iterate _ (𝒬 u) (Q x) (𝕔 * a) using 1
         · apply dist_congr rfl
           rw [Nat.cast_pow, ← pow_mul, show a * (𝕔 * a) = 𝕔 * a ^ 2 by ring, ← Nat.cast_pow]
           change _ = (D : ℝ) * _
@@ -741,7 +741,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
   have x'p : x' ∈ 𝓘 p := (Grid.le_def.mp Lle).1 hx'
   refine le_iSup₂_of_le (𝓘 p) x'p <| le_iSup₂_of_le x xp <|
     le_iSup₂_of_le (𝔰 p') ⟨s_ineq, scale_mem_Icc.2⟩ <| le_iSup_of_le ?_ ?_
-  · apply le_upperRadius; convert d1
+  · apply le_upperRadius; convert! d1
   · convert le_rfl; change (Icc (𝔰 p) _).toFinset = _; rw [sp, sp']
     apply subset_antisymm
     · rw [← Finset.toFinset_coe (t.σ u x), toFinset_subset_toFinset]
@@ -899,7 +899,7 @@ private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : �
     have ⟨J, hJ, yJ⟩ : ∃ J ∈ 𝓙 (t u), y ∈ J := by
       have ⟨J, hJ⟩ := Set.mem_iUnion.mp <| ball_covered_by_𝓙 hu hp hxp (mem_ball'.mpr hy)
       use J
-      simpa using hJ
+      simpa using! hJ
     have hJ𝓙' : J ∈ 𝓙' t u (𝔠 p) (𝔰 p) := by
       simp only [𝓙', Finset.mem_filter, Finset.mem_univ, true_and]
       exact ⟨hJ, Grid_subset_ball' hp hxp ⟨hJ, y, yJ, mem_ball'.mpr hy⟩,

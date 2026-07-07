@@ -58,7 +58,7 @@ private lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X) :
     ‖Ks s₂ x₂ y‖ₑ * ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ ≤ C2_1_3 a / volume (ball x₂ (D ^ s₂)) *
     (D2_1_3 a / volume (ball x₁ (D ^ s₁)) * (edist y y' ^ τ / (D ^ s₁) ^ τ)) := by
   apply mul_le_mul' enorm_Ks_le
-  convert enorm_Ks_sub_Ks_le
+  convert! enorm_Ks_sub_Ks_le
   rw [← ENNReal.div_rpow_of_nonneg _ _ (τ_nonneg X), defaultτ]
 
 /-- Ineq. (6.2.5) ≤ (6.2.9) from the proof of Lemma 6.2.1. -/
@@ -93,7 +93,7 @@ private lemma e625 {s₁ s₂ : ℤ} {x₁ x₂ y y' : X} (hy' : y ≠ y') (hs :
       rw [ENNReal.mul_div_mul_comm (.inr measure_ball_ne_top) (.inl measure_ball_ne_top), mul_assoc]
       apply add_le_add (aux_6_2_3 s₁ s₂ x₁ x₂ y y')
       rw [← neg_sub, enorm_neg]
-      convert aux_6_2_3 s₂ s₁ x₂ x₁ y' y using 1
+      convert! aux_6_2_3 s₂ s₁ x₂ x₁ y' y using 1
       simp only [← mul_assoc,
         ← ENNReal.mul_div_mul_comm (.inr measure_ball_ne_top) (.inl measure_ball_ne_top)]
       rw [mul_comm (volume _), edist_comm]
@@ -146,7 +146,7 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
       apply add_le_add (iSup₂_le fun x _ ↦ hφ' x)
       simp only [ENNReal.mul_iSup, iSup_le_iff]
       intro z hz z' hz' hzz'
-      convert e625 hzz' hs
+      convert! e625 hzz' hs
       rw [ENNReal.ofReal_mul zero_le_two, ENNReal.ofReal_ofNat, ← Real.rpow_intCast,
         ← ENNReal.ofReal_rpow_of_pos (realD_pos _), ENNReal.ofReal_natCast,
         ENNReal.rpow_intCast]
@@ -177,7 +177,7 @@ lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson 
       by_contra h0
       simp only [h0, map_zero, zero_mul, ne_eq, not_true] at hx0
     rw [dist_comm]
-    convert (dist_mem_Icc_of_Ks_ne_zero hK).2 using 1
+    convert! (dist_mem_Icc_of_Ks_ne_zero hK).2 using 1
     ring
   have hpos := defaultD_pow_pos a (𝔰 p)
   have hle : (9 : ℝ) / 2 < 5 := by norm_num
@@ -267,7 +267,7 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
       have hr : 0 < (D : ℝ) ^ 𝔰 p₁ := defaultD_pow_pos a (𝔰 p₁)
       have h8 : (8 : ℝ) = 2 ^ 3 := by norm_num
       have h3a : (2 : ℝ) ^ (3 * a) = defaultA a ^ 3 := by simp; ring
-      convert cdist_le_iterate hr (Q x₁) (Q x₂) 3 -- uses h8, h3a
+      convert! cdist_le_iterate hr (Q x₁) (Q x₂) 3 -- uses h8, h3a
     -- 6.2.15
     _ ≤ _ := by
       have hpow : (2 : ℝ) + 2 ^ (6 * a) ≤ 2 ^ (a * 8) :=
@@ -426,7 +426,7 @@ lemma volume_coeGrid_le {p : 𝔓 X} (x2 : E p) :
       _ = _ := by ring
   apply (measure_mono hsub).trans
   rw [show (8 : ℝ) = 2 ^ 3 by norm_num]
-  convert measure_ball_two_le_same_iterate (μ := volume) x2.1 (D ^ 𝔰 p) 3 using 2
+  convert! measure_ball_two_le_same_iterate (μ := volume) x2.1 (D ^ 𝔰 p) 3 using 2
   rw [mul_comm 3, pow_mul]; simp
 
 lemma bound_6_2_29 (ha : 4 ≤ a) {p p' : 𝔓 X} (x2 : E p) :

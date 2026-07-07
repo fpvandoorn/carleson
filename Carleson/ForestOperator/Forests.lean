@@ -73,7 +73,7 @@ lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
           _ = 20 * 𝕔 := by ring
           _ ≤ (2 ^ (2 * 4) * 3) * 𝕔 := by gcongr; norm_num
           _ ≤ _ := by gcongr; norm_num
-      · convert ih using 1
+      · convert! ih using 1
         ring
 
 /-- The constant used in `correlation_separated_trees`.
@@ -208,7 +208,7 @@ lemma mem_rowDecomp_𝔘_maximal (t : Forest X n) (j : ℕ) :
   exact this.right.right
 
 lemma rowDecomp_𝔘_subset_forest (t : Forest X n) (j : ℕ) :
-  rowDecomp_𝔘 t j ⊆ t := subset_trans (rowDecomp_𝔘_subset t j) diff_subset
+  rowDecomp_𝔘 t j ⊆ t := subset_trans (rowDecomp_𝔘_subset t j) sdiff_subset
 
 /-- The row-decomposition of a tree, defined in the proof of Lemma 7.7.1.
 The indexing is off-by-one compared to the blueprint. -/
@@ -255,20 +255,20 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
     stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
   induction j with
   | zero =>
-    simp only [not_lt_zero', iUnion_of_empty, iUnion_empty, diff_empty, tsub_zero]
+    simp only [not_lt_zero, iUnion_of_empty, iUnion_empty, sdiff_empty, tsub_zero]
     exact t.stackSize_le'
   | succ j hinduct =>
     if h: ∃ 𝔲 ∈ (t \ ⋃ i < j + 1, t.rowDecomp i : Set _), x ∈ 𝓘 𝔲 then
       have : ∃ s, Maximal (· ∈ (𝓘 '' (t \ ⋃ i < j, t.rowDecomp i : Set _))) s ∧ x ∈ s := by
         obtain ⟨𝔲,h𝔲⟩ := h
-        rw [biUnion_lt_succ,← diff_diff,mem_diff] at h𝔲
+        rw [biUnion_lt_succ, ← sdiff_sdiff, Set.mem_sdiff] at h𝔲
         exact (((toFinite _).image 𝓘).exists_le_maximal ⟨𝔲,h𝔲.left.left,rfl⟩).imp
           fun _ hz => ⟨hz.right, Grid.mem_mono hz.left h𝔲.right⟩
       obtain ⟨𝔲,h𝔲⟩ := h
-      simp only [biUnion_lt_succ, ← diff_diff] at h𝔲 ⊢
+      simp only [biUnion_lt_succ, ← sdiff_sdiff] at h𝔲 ⊢
       rw [stackSize_sdiff_eq,← Nat.sub_sub]
       apply tsub_le_tsub hinduct (stackSize_remainder_ge_one_of_exists t j x _)
-      rw [mem_diff] at h𝔲
+      rw [Set.mem_sdiff] at h𝔲
       apply (or_not).elim id
       push Not
       intro h
@@ -321,7 +321,7 @@ lemma biUnion_rowDecomp : ⋃ j < 2 ^ n, t.rowDecomp j = (t : Set (𝔓 X)) := b
   apply subset_antisymm
   · simp_rw [iUnion_subset_iff,rowDecomp_𝔘_eq]
     exact fun i _ => rowDecomp_𝔘_subset_forest t i
-  · rw [← diff_eq_empty]
+  · rw [← sdiff_eq_empty]
     exact eq_empty_of_forall_stackSize_zero _ fun x =>
       Nat.eq_zero_of_le_zero ((Nat.sub_self _).symm ▸ remainder_stackSize_le t (2 ^ n) x)
 
@@ -528,7 +528,7 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
     _ = (∑ u ∈ U, ∫⁻ x in ⋃ u' ∈ U', 𝓘 u', (𝓘 u : Set X).indicator
         (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f) · ^ 2) x) ^ (2 : ℝ)⁻¹ := by
       congr! with u mu; refine (lintegral_biUnion_finset ?_ (fun _ _ ↦ coeGrid_measurable) _).symm
-      convert rowDecomp_𝔘_pairwiseDisjoint t j'
+      convert! rowDecomp_𝔘_pairwiseDisjoint t j'
       simp_rw [U', Finset.coe_filter_univ]; rfl
     _ ≤ (∑ u ∈ U, ∫⁻ x in 𝓘 u,
         adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f) x ^ 2) ^ (2 : ℝ)⁻¹ := by
@@ -727,7 +727,7 @@ lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2
   simp only [C7_7_2_1, mul_pow, C7_7_3, C7_4_3, C7_4_4, G2_0_4]
   have : (2 : ℝ≥0) ^ (- (4 * n : ℝ)) ≤ 2 ^ (- (2 * n : ℝ)) := by gcongr <;> norm_num
   grw [this]
-  simp only [← pow_mul, mul_assoc, ge_iff_le]
+  simp only [← pow_mul, mul_assoc]
   have : (2 : ℝ≥0) ^ (-(2 * n : ℝ)) * 2 ^ n = (2 ^ (-(n / 2 : ℝ))) ^ 2 := by
     rw [← NNReal.rpow_natCast, ← NNReal.rpow_add (by norm_num), ← NNReal.rpow_natCast,
       ← NNReal.rpow_mul]

@@ -566,7 +566,7 @@ lemma exists_larger_grid : ∃ (L' : Grid X), L ≤ L' ∧ s L' = s L + 1 := by
   have hSL : SL.Nonempty := SL_nonempty hL
   set q := p' hL
   have hq' : q ∈ SL := ((Finset.exists_minimalFor 𝔰 SL (SL_nonempty hL)).choose_spec).1
-  simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, Antichain.SL, SL] at hq'
+  simp only [defaultA, Antichain.SL, SL] at hq'
   have hqL : ¬ 𝓘 q ≤ L := not_I_p'_le_L hL
   simp only [Grid.le_def, not_and_or, not_le] at hqL
   have : s L < 𝔰 q  := s_L_le_s_p' hL
@@ -709,11 +709,11 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) :
     _ ≤ ∑ p ∈ (𝔄' 𝔄 ϑ N).toFinset with 𝔰 (pΘ hL) < 𝔰 p, volume (E p ∩ G ∩ ↑(𝓘 (pΘ hL))) := by
       simp only [Finset.sum_filter, ite_not]
       gcongr
-      rename_i p hp
-      by_cases hpL : (L : Set X) ∩ (𝓘 p) = ∅ -- Nonempty when p contributes to the sum.
-      · have : E p ∩ G ∩ L = ∅ := by
+      rename_i hp
+      by_cases hpL : (L : Set X) ∩ (𝓘 x) = ∅ -- Nonempty when p contributes to the sum.
+      · have : E x ∩ G ∩ L = ∅ := by
           refine subset_empty_iff.mp ?_
-          simp only [← hpL, inter_comm ↑L (𝓘 p : Set X), E]
+          simp only [← hpL, inter_comm ↑L (𝓘 x : Set X), E]
           gcongr
           exact fun _ hx ↦ hx.1.1
         simp only [this, measure_empty, ite_self, zero_le]
@@ -721,39 +721,39 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) :
         simp only [𝓛', Maximal, 𝓛, Grid.le_def,
           Subtype.exists, exists_and_left, exists_prop, and_imp, Subtype.forall, mem_setOf_eq,
           forall_exists_index] at hL2
-        by_cases hp' : 𝓘 p = L' hL
+        by_cases hp' : 𝓘 x = L' hL
         · rw [if_pos hp']
           exact zero_le
-        · have hs : 𝔰 (pΘ hL) < 𝔰 p := by
-            have hpL' : (L' hL : Set X)  ∩ (𝓘 p : Set X) ≠ ∅ := by
+        · have hs : 𝔰 (pΘ hL) < 𝔰 x := by
+            have hpL' : (L' hL : Set X)  ∩ (𝓘 x : Set X) ≠ ∅ := by
               simp only [← Set.nonempty_iff_ne_empty] at hpL ⊢
               obtain ⟨x, ⟨hxL, hxp⟩⟩ := hpL
               use x, (L_le_L' hL).1 hxL, hxp
-            have hss : L ≤ 𝓘 p := by
-              rcases le_or_ge_or_disjoint (i := L) (j := 𝓘 p) with (hle | (hge | hdisj))
+            have hss : L ≤ 𝓘 x := by
+              rcases le_or_ge_or_disjoint (i := L) (j := 𝓘 x) with (hle | (hge | hdisj))
               · exact hle
-              · exact absurd (hL2.1.2 p (mem_toFinset.mp hp) hge.1 hge.2)
+              · exact absurd (hL2.1.2 x (mem_toFinset.mp hp) hge.1 hge.2)
                   (ne_of_gt (mem_toFinset.mp hp).2.2)
               · exact absurd (disjoint_iff_inter_eq_empty.mp hdisj) hpL
-            have hne : L ≠ 𝓘 p := by
+            have hne : L ≠ 𝓘 x := by
               by_contra h
               exact (ne_of_gt (mem_toFinset.mp hp).2.2)
-                (hL2.1.2 p (mem_toFinset.mp hp) (h ▸ le_refl _) (h ▸ le_refl _))
-            have hlt : s L < 𝔰 p := by
+                (hL2.1.2 x (mem_toFinset.mp hp) (h ▸ le_refl _) (h ▸ le_refl _))
+            have hlt : s L < 𝔰 x := by
               by_contra! h
               have := le_or_disjoint h
               simp only [disjoint_iff] at this
               rw [inter_comm] at hpL
               exact hne (le_antisymm hss (Or.resolve_right this hpL))
-            have hle : s (L' hL) ≤ 𝔰 p := by rw [s_L'_eq]; linarith
-            have hss' : (L' hL : Set X) ⊆ 𝓘 p := by
+            have hle : s (L' hL) ≤ 𝔰 x := by rw [s_L'_eq]; linarith
+            have hss' : (L' hL : Set X) ⊆ 𝓘 x := by
               have := le_or_disjoint hle
               simp only [disjoint_iff] at this
               exact (Or.resolve_right this hpL').1
             simp only [𝔰, I_pΘ_eq_L' hL]
             apply lt_of_le_of_ne hle
             by_contra hs
-            have heq : L' hL = 𝓘 p := by
+            have heq : L' hL = 𝓘 x := by
               have := eq_or_disjoint hs
               simp only [disjoint_iff] at this
               simp [Or.resolve_right this hpL']
