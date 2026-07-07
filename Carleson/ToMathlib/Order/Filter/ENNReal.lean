@@ -2,7 +2,8 @@ module
 
 public import Mathlib.Order.Filter.ENNReal
 
---Upstreaming status: ready
+-- Upstreaming status: DO NOT UPSTREAM, these theorems were already added to mathlib here https://github.com/leanprover-community/mathlib4/pull/37311.
+-- We can delete this file when the next Mathlib bump lands.
 
 public section
 
