@@ -58,7 +58,7 @@ lemma exists_k_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ k, p ∈ TilesA
     by_contra! h; rw [nonpos_iff_eq_zero] at h
     simp_rw [h, C, aux𝓒, mem_setOf] at s_mem; apply absurd s_mem; push Not; intro _ _
     rw [Int.neg_ofNat_zero, zpow_zero, one_mul]; exact measure_mono inter_subset_right
-  use s - 1; rw [TilesAt, mem_preimage, 𝓒, mem_diff, Nat.sub_add_cancel s_pos]
+  use s - 1; rw [TilesAt, mem_preimage, 𝓒, mem_sdiff, Nat.sub_add_cancel s_pos]
   have : ∀ t < s, t ∉ C := fun t mt ↦ by contrapose! mt; exact s_min t mt
   exact ⟨s_mem, this (s - 1) (Nat.sub_one_lt_of_lt s_pos)⟩
 
@@ -76,7 +76,7 @@ lemma dens'_le_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : dens' k {p} ≤ 2 ^
       · linarith [four_le_a X]
     _ ≤ _ := by
       have E : E₂ l p' ⊆ 𝓘 p' ∩ G := inter_subset_left
-      rw [TilesAt, mem_preimage, 𝓒, mem_diff] at mp'; replace mp' := mp'.2
+      rw [TilesAt, mem_preimage, 𝓒, mem_sdiff] at mp'; replace mp' := mp'.2
       rw [aux𝓒, mem_setOf] at mp'; push Not at mp'; specialize mp' (𝓘 p') le_rfl
       rw [inter_comm] at E; exact (measure_mono E).trans mp'
 
@@ -222,17 +222,17 @@ lemma notMem_ℭ₅_iff_mem_𝔏₃ (hkn : k ≤ n) (hj : j ≤ 2 * n + 3)
   by_cases mc4 : p ∉ ℭ₄ k n j
   all_goals
     have mc4' := mc4
-    simp_rw [ℭ₄, layersBelow, mem_diff, not_and, mc3, true_implies, not_notMem] at mc4'
+    simp_rw [ℭ₄, layersBelow, mem_sdiff, not_and, mc3, true_implies, not_notMem] at mc4'
   · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
     simp_rw [mc4', iff_true]; contrapose! mc4
     exact ℭ₅_subset_ℭ₄ mc4
   change p ∉ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
-  simp_rw [mc4', iff_false, ℭ₅]; rw [not_notMem] at mc4 ⊢; simp_rw [mem_diff, mc4, true_and]
+  simp_rw [mc4', iff_false, ℭ₅]; rw [not_notMem] at mc4 ⊢; simp_rw [mem_sdiff, mc4, true_and]
   have nG₃ : ¬(𝓘 p : Set X) ⊆ G₃ := by
     suffices ¬(𝓘 p : Set X) ⊆ G' by contrapose! this; exact subset_union_of_subset_right this _
     by_contra hv
-    rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc, ← diff_eq_compl_inter,
-      diff_eq_empty.mpr hv] at h
+    rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc, ← sdiff_eq_compl_inter,
+      sdiff_eq_empty.mpr hv] at h
     simp at h
   contrapose! nG₃
   exact le_iSup₂_of_le n k <| le_iSup₂_of_le hkn j <|
@@ -274,7 +274,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
   by_cases mc2 : p ∉ ℭ₂ k n j
   all_goals
     have mc2' := mc2
-    simp_rw [ℭ₂, layersAbove, mem_diff, not_and, mc1, true_implies, not_notMem] at mc2'
+    simp_rw [ℭ₂, layersAbove, mem_sdiff, not_and, mc1, true_implies, not_notMem] at mc2'
   · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l at mc2'
     simp_rw [mc2', true_or, iff_true]; contrapose! mc2
     exact ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ mc2
@@ -459,7 +459,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
     simp_rw [mem_toFinset, aux𝔐, mem_setOf, qb, and_true]; rw [TilesAt, mem_preimage] at mp' ⊢
     exact 𝓘p'b ▸ mp'
   obtain ⟨m, lm, maxm⟩ := (aux𝔐 k n).toFinset.exists_le_maximal mba
-  replace maxm : m ∈ 𝔐 k n := by simpa only [mem_toFinset] using maxm
+  replace maxm : m ∈ 𝔐 k n := by simpa only [mem_toFinset] using! maxm
   -- We will now show a contradiction. As a member of `𝔏₀ k n` the _first_ element `s₀` of the
   -- `LTSeries s` satisfies `𝔅 k n s₀ = ∅`. But we will show that `m ∈ 𝔅 k n s₀`,
   -- i.e. `smul 100 s₀ ≤ smul 1 m`.
@@ -474,7 +474,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
       _ ≤ dist_(sl.1) (𝒬 sl.1) (𝒬 p') + dist_(sl.1) (𝒬 p') θ := dist_triangle ..
       _ < l + dist_(sl.1) (𝒬 p') θ := by
         apply add_lt_add_left
-        have : 𝒬 p' ∈ ball_(p') (𝒬 p') l := by convert mem_ball_self (zero_lt_two.trans_le hl)
+        have : 𝒬 p' ∈ ball_(p') (𝒬 p') l := by convert! mem_ball_self (zero_lt_two.trans_le hl)
         exact mem_ball'.mp (sp'.2 this)
       _ ≤ l + dist_(p') (𝒬 p') θ := add_le_add_right (Grid.dist_mono sp'.1) _
       _ ≤ l + dist_(p') (𝒬 p') (𝒬 b) + dist_(p') (𝒬 b) θ := by
@@ -708,7 +708,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₁_eq_add_sum {f : X → ℂ} {x : X} :
     intro hp
     exact fun _ _ ↦ mem_of_mem_inter_left hp
   · ext p
-    simp only [ℭ₂, layersAbove, mem_inter_iff, mem_compl_iff, mem_diff, mem_iUnion, exists_prop,
+    simp only [ℭ₂, layersAbove, mem_inter_iff, mem_compl_iff, mem_sdiff, mem_iUnion, exists_prop,
       not_exists, not_and, not_forall, Decidable.not_not, Finset.mem_Iic, 𝔏₁]
     refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
     · obtain ⟨i, hi, hmem⟩ := h.2 h.1.2
@@ -861,7 +861,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
       * 2 ^ (- ((q - 1) / (8 * a ^ 4) * n)) := by
   have I : 0 ≤ q - 1 := by linarith [one_lt_q X]
   have J : 0 ≤ q⁻¹ - 2⁻¹ := inv_q_sub_half_nonneg X
-  apply (antichain_operator_le_volume (hA.subset inter_subset_right) h'f hf diff_subset).trans
+  apply (antichain_operator_le_volume (hA.subset inter_subset_right) h'f hf sdiff_subset).trans
   simp only [mul_assoc]
   apply mul_le_mul_right
   have : dens₁ (𝔓pos (X := X) ∩ 𝔓₁ᶜ ∩ 𝔄) ≤ 2 ^ (4 * a - n + 1 : ℝ) :=

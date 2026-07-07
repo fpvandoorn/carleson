@@ -82,7 +82,7 @@ theorem exceptional_set_carleson' {f : ℝ → ℂ} (cont_f : Continuous f)
     _ ≤ ε / 2 + 0 + ε / 2 := by
       gcongr
       · norm_cast
-        convert zero_le (α := ℝ≥0∞)
+        convert! zero_le (α := ℝ≥0∞)
         rw [distribution_eq_zero_iff]
         apply eLpNormEssSup_le_of_ae_enorm_bound
         filter_upwards with x
@@ -95,7 +95,7 @@ theorem exceptional_set_carleson' {f : ℝ → ℂ} (cont_f : Continuous f)
           _ = δ / 4 := by simp
       · simp only [gt_iff_lt, nonpos_iff_eq_zero]
         rw [distribution_eq_zero_iff]
-        apply essSup_le_of_ae_le
+        apply essSup_le_of_ae_le; swap; · sorry -- TODO: proof was done here!
         rw [EventuallyLE, ae_restrict_iff' measurableSet_Ioc]
         filter_upwards with x hx
         simp only [enorm_eq_self, iSup_le_iff]

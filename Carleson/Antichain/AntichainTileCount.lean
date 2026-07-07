@@ -668,7 +668,7 @@ private lemma eq_6_3_37 : ϑ.val ∈ ball_(pΘ hL) (𝒬 (pΘ hL)) (2 ^ (N + 1))
     exact eq_6_3_35 hL
   · have h1 : (1 : ℝ) ≤ (2 ^ (N + 1)) := by exact_mod_cast Nat.one_le_two_pow
     apply ball_subset_ball (α := WithFunctionDistance _ _) h1
-    convert subset_cball (theta_mem_Omega_pΘ hL h)
+    convert! subset_cball (theta_mem_Omega_pΘ hL h)
 
 -- Ineq. 6.3.36
 private lemma ineq_6_3_36 : smul (2^(N + 3)) (p'' hL) ≤ smul (2^(N + 3)) (pΘ hL) := by

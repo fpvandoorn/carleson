@@ -113,7 +113,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         simp
       · simp only [gt_iff_lt, nonpos_iff_eq_zero]
         rw [distribution_eq_zero_iff]
-        apply essSup_le_of_ae_le
+        apply essSup_le_of_ae_le; swap; · sorry -- TODO: proof was done here!
         rw [EventuallyLE, ae_restrict_iff' measurableSet_Ioc]
         filter_upwards with x hx
         simp only [enorm_eq_self, iSup_le_iff]

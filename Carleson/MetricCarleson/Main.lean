@@ -56,7 +56,7 @@ lemma carlesonOperator_eq_biSup_Θ'_J102 {x : X} (mf : Measurable f) (nf : (‖f
         · calc
             _ ≤ ⨆ j ∈ J102, ‖carlesonOperatorIntegrand K θ' j.1 j.2 f x‖ₑ := by
               have : (q₁, q₂) ∈ J102 := ⟨Rat.cast_pos.mp (hR₁.trans lq₁), lq⟩
-              convert le_iSup₂ _ this; rfl
+              convert! le_iSup₂ _ this; rfl
             _ ≤ _ := by apply le_iSup₂ _ mθ'₂
         · rw [edist_dist, coe_nnreal_eq]; exact ofReal_le_ofReal final_bound.le
   · refine iSup₂_le fun θ mθ ↦ iSup₂_le fun ⟨q₁, q₂⟩ ⟨hq₁, hq₂⟩ ↦ ?_
@@ -64,9 +64,9 @@ lemma carlesonOperator_eq_biSup_Θ'_J102 {x : X} (mf : Measurable f) (nf : (‖f
     simp_rw [← Rat.cast_lt (K := ℝ), Rat.cast_zero] at hq₁ hq₂
     calc
       _ ≤ ⨆ (R₂ : ℝ), ⨆ (_ : q₁ < R₂),
-          ‖carlesonOperatorIntegrand K θ q₁ R₂ f x‖ₑ := by convert le_iSup₂ _ hq₂; rfl
+          ‖carlesonOperatorIntegrand K θ q₁ R₂ f x‖ₑ := by convert! le_iSup₂ _ hq₂; rfl
       _ ≤ ⨆ (R₁ : ℝ), ⨆ (_ : 0 < R₁), ⨆ R₂, ⨆ (_ : R₁ < R₂),
-          ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ := by convert le_iSup₂ _ hq₁; rfl
+          ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ := by convert! le_iSup₂ _ hq₁; rfl
       _ ≤ _ := le_iSup_iff.mpr fun _ a ↦ a θ
 
 section Enum
@@ -90,7 +90,7 @@ lemma biSup_Θ'_eq_biSup_enumΘ' {x : X} :
     calc
       _ ≤ ⨆ i ∈ Finset.range (n + 1), g (enumΘ' nΘ' i) x := by
         have : n ∈ Finset.range (n + 1) := by rw [Finset.mem_range]; lia
-        convert le_iSup₂ _ this; rfl
+        convert! le_iSup₂ _ this; rfl
       _ ≤ _ := le_iSup_iff.mpr fun _ a ↦ a n
   · refine iSup_le fun n ↦ iSup₂_le fun i mi ↦ ?_
     obtain ⟨θ, mθ⟩ := enumΘ' nΘ' i; apply le_iSup₂ _ mθ
@@ -193,7 +193,7 @@ lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}
       rw [ofReal_lt_ofReal_iff_of_nonneg mR₁.1.le] at hur
       rw [EAnnulus.oo_eq_annulus mR₁.1.le]; set R := (upperRadius Q θ x').toReal
       trans ⨆ R₁ ∈ Ioo 0 R, ⨆ x' ∈ ball x R₁, ‖∫ y in Annulus.oo x' R₁ R, K x' y * f y‖ₑ; swap
-      · convert le_iSup _ R; rfl
+      · convert! le_iSup _ R; rfl
       trans ⨆ x' ∈ ball x R₁, ‖∫ y in Annulus.oo x' R₁ R, K x' y * f y‖ₑ; swap
       · have : R₁ ∈ Ioo 0 R := ⟨mR₁.1, hur⟩
         apply le_iSup₂ _ this
@@ -235,8 +235,8 @@ theorem metric_carleson [IsCancellative X (defaultτ a)]
       simp_rw [← Rat.cast_lt (K := ℝ), Rat.cast_zero] at hq₁ hq₂
       calc
         _ ≤ ⨆ (R₂ : ℝ), ⨆ (_ : q₁ < R₂),
-            ‖carlesonOperatorIntegrand K (Q x) q₁ R₂ f x‖ₑ := by convert le_iSup₂ _ hq₂; rfl
-        _ ≤ _ := by convert le_iSup₂ _ hq₁; rfl
+            ‖carlesonOperatorIntegrand K (Q x) q₁ R₂ f x‖ₑ := by convert! le_iSup₂ _ hq₂; rfl
+        _ ≤ _ := by convert! le_iSup₂ _ hq₁; rfl
     _ ≤ _ := iSup_le fun n ↦ linearized_metric_carleson hq hqq' mF mG mf nf (BST_LNT_of_BST_NT hT)
 
 theorem metric_carleson_check : MetricSpaceCarleson := @metric_carleson
