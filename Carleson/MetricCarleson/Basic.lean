@@ -398,7 +398,7 @@ lemma lintegral_inv_vol_le {R₁ R₂ : ℝ≥0} (hR₁ : 0 < R₁) (hR₂ : R�
       rw [← pow_mul, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← coe_pow, mul_comm a, pow_mul]; gcongr
     _ ≤ _ := by
       apply ENNReal.div_le_of_le_mul'
-      convert measure_ball_two_le_same_iterate (μ := volume) x (dist x y) n; norm_cast
+      convert! measure_ball_two_le_same_iterate (μ := volume) x (dist x y) n; norm_cast
 
 lemma edist_carlesonOperatorIntegrand_le
     {R₁ R₂ : ℝ≥0} (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :

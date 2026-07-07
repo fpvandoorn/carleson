@@ -252,7 +252,7 @@ lemma aemeasurability_prod₂ {α : Type u_1} {β : Type u_3}
     refine AEMeasurable.comp_measurable ?_ measurable_swap
     rw [Measure.prod_swap]
     assumption
-  convert aemeasurability_prod₁ this -- perf: convert is faster than exact
+  convert! aemeasurability_prod₁ this -- perf: convert is faster than exact
 
 -- TODO: better name!
 @[fun_prop]
@@ -324,7 +324,7 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
 /-! ## Apply Minkowski's integral inequality to truncations
 -/
 
-@[measurability, fun_prop]
+@[fun_prop]
 theorem aemeasurable_ton (tc : ToneCouple) : AEMeasurable tc.ton (volume.restrict (Ioi 0)) := by
   -- ton is either increasing or decreasing
   have tone := tc.ton_is_ton
@@ -355,7 +355,7 @@ lemma indicator_ton_measurable_lt {g : α → E₁}
   refine AEMeasurable.comp_aemeasurable ?_ aemeasurable_id'
   simp only [Measure.map_id', aemeasurable_ton]
 
-@[measurability, fun_prop]
+@[fun_prop]
 lemma AEStronglyMeasurable.trunc_ton_norm {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
@@ -370,7 +370,7 @@ lemma AEStronglyMeasurable.trunc_ton_norm {f : α → E₁}
     hf.restrict.comp_snd.restrict
 
 
-@[measurability, fun_prop]
+@[fun_prop]
 lemma AEStronglyMeasurable.trunc_ton {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
@@ -384,7 +384,7 @@ lemma AEStronglyMeasurable.trunc_ton {f : α → E₁}
   exact (aestronglyMeasurable_indicator_iff₀ (indicator_ton_measurable (hf.restrict) _)).mpr
     hf.restrict.comp_snd.restrict
 
-@[measurability, fun_prop]
+@[fun_prop]
 lemma AEStronglyMeasurable.truncCompl_ton {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
@@ -398,7 +398,7 @@ lemma AEStronglyMeasurable.truncCompl_ton {f : α → E₁}
   exact (aestronglyMeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
     hf.restrict.comp_snd.restrict
 
-@[measurability, fun_prop]
+@[fun_prop]
 lemma AEStronglyMeasurable.truncCompl_ton_norm {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
@@ -556,7 +556,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h : α → ENNReal}
   rw [Measure.restrict_apply₀']
   · refine measure_mono_null (fun x h₀ ↦ ?_) measure_empty
     have : g x = h x := hgh _ (mem_of_mem_inter_right h₀)
-    have : x ∈ {a | ¬g a = h a} := mem_of_mem_diff h₀
+    have : x ∈ {a | ¬g a = h a} := mem_of_mem_sdiff h₀
     change ¬ (g x = h x) at this
     contradiction
   · exact (aestronglyMeasurable_iff_aemeasurable.mpr hf.enorm).nullMeasurableSet_support
@@ -593,7 +593,6 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹) ^ (p₀⁻¹ * q₀) *
         (∫⁻ (a : α) in (fun x ↦ ‖f x‖ₑ).support, ↑‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
       refine setLIntegral_congr_fun measurableSet_Ioi fun s hs ↦ ?_
-      dsimp
       rw [ENNReal.rpow_inv_rpow]
       · rw [one_div, ← ENNReal.rpow_mul, restrict_to_support_trnc hp₀]
       · positivity
@@ -602,7 +601,6 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
       refine setLIntegral_congr_fun measurableSet_Ioi fun s hs ↦ ?_
-      dsimp
       rw [lintegral_const_mul', ENNReal.mul_rpow_of_nonneg]
       · positivity
       · exact (ENNReal.rpow_lt_top_of_nonneg (by positivity) coe_ne_top).ne
@@ -621,7 +619,6 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       intro x _
       congr 1
       refine setLIntegral_congr_fun measurableSet_Ioi fun s hs ↦ ?_
-      dsimp
       rw [ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_inv_rpow, ← ENNReal.rpow_mul] <;> try positivity
       congr
       field_simp

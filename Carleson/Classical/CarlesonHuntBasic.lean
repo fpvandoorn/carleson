@@ -3,7 +3,6 @@ module
 public import Carleson.Classical.Helper
 public import Carleson.ToMathlib.Distribution
 public import Mathlib.Analysis.CStarAlgebra.Classes
-public import Mathlib.Data.Real.StarOrdered
 
 public section
 
