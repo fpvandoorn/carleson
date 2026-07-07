@@ -8,7 +8,6 @@ public import Mathlib.MeasureTheory.Covering.Vitali
 public import Mathlib.MeasureTheory.Integral.Average
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Mathlib.Tactic.Field
---import Carleson.ToMathlib.MeasureTheory.Covering.Vitali
 
 open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter Pointwise
 open ENNReal hiding one_lt_two

@@ -7,7 +7,6 @@ public import Mathlib.MeasureTheory.Covering.Vitali
 public import Mathlib.MeasureTheory.Integral.Average
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Mathlib.Tactic.Field
-import Carleson.ToMathlib.MeasureTheory.Covering.Vitali
 
 @[expose] public noncomputable section
 

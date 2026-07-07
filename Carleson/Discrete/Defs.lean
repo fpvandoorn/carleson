@@ -27,7 +27,7 @@ def TilesAt (k : ℕ) : Set (𝔓 X) := 𝓘 ⁻¹' 𝓒 k
 lemma disjoint_TilesAt_of_ne {m n : ℕ} (h : m ≠ n) : Disjoint (TilesAt (X := X) m) (TilesAt n) := by
   wlog hl : m < n generalizing m n; · exact (this h.symm (by lia)).symm
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
-  simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at mp₁ mp₂
+  simp_rw [TilesAt, mem_preimage, 𝓒, mem_sdiff, aux𝓒, mem_setOf] at mp₁ mp₂
   apply absurd _ mp₂.2; obtain ⟨j, lj, vj⟩ := mp₁.1; use j, lj; apply lt_of_le_of_lt _ vj
   exact mul_le_mul_left (ENNReal.zpow_le_of_le one_le_two (by lia)) _
 
@@ -97,15 +97,15 @@ lemma dens1_le_dens' {k : ℕ} {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens�
   simp_rw [ENNReal.mul_iSup, iSup_le_iff, mul_div_assoc]; intro p mp sl
   suffices p ∈ TilesAt k by
     exact le_iSup_of_le p (le_iSup₂_of_le this sl (mul_le_mul' (by norm_cast) le_rfl))
-  simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf]
+  simp_rw [TilesAt, mem_preimage, 𝓒, mem_sdiff, aux𝓒, mem_setOf]
   constructor
   · rw [mem_lowerCubes] at mp; obtain ⟨p'', mp'', lp''⟩ := mp
     have hp'' := mem_of_mem_of_subset mp'' hP
-    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp''
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_sdiff, aux𝓒, mem_setOf] at hp''
     obtain ⟨J, lJ, vJ⟩ := hp''.1; use J, lp''.trans lJ
   · by_contra h; obtain ⟨J, lJ, vJ⟩ := h
     have hp' := mem_of_mem_of_subset mp' hP
-    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp'
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_sdiff, aux𝓒, mem_setOf] at hp'
     apply absurd _ hp'.2; use J, sl.1.trans lJ
 
 /-- Lemma 5.3.12 -/
@@ -131,12 +131,12 @@ def ℭ₁ (k n j : ℕ) : Set (𝔓 X) :=
   preℭ₁ k n j \ preℭ₁ k n (j + 1)
 
 lemma ℭ₁_subset_ℭ {k n j : ℕ} : ℭ₁ k n j ⊆ ℭ (X := X) k n := fun t mt ↦ by
-  rw [ℭ₁, preℭ₁, mem_diff, mem_setOf] at mt; exact mt.1.1
+  rw [ℭ₁, preℭ₁, mem_sdiff, mem_setOf] at mt; exact mt.1.1
 
 lemma disjoint_ℭ₁_of_ne {k n j l : ℕ} (h : j ≠ l) : Disjoint (ℭ₁ (X := X) k n j) (ℭ₁ k n l) := by
   wlog hl : j < l generalizing j l; · exact (this h.symm (by lia)).symm
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
-  simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, mp₁.1.1, true_and, not_le] at mp₁ mp₂
+  simp_rw [ℭ₁, mem_sdiff, preℭ₁, mem_setOf, mp₁.1.1, true_and, not_le] at mp₁ mp₂
   have := mp₂.1.trans_lt mp₁.2
   rw [pow_lt_pow_iff_right₀ one_lt_two] at this; lia
 
@@ -156,9 +156,9 @@ lemma pairwiseDisjoint_ℭ₁' :
 
 lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n j) [Fintype (𝔅 k n p)] :
     (𝔅 k n p).toFinset.card ∈ Ico (2 ^ j) (2 ^ (j + 1)) := by
-  simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, hp.1.1, true_and, not_le] at hp
+  simp_rw [ℭ₁, mem_sdiff, preℭ₁, mem_setOf, hp.1.1, true_and, not_le] at hp
   constructor
-  · convert hp.1; ext; simp only [Set.mem_toFinset, Finset.mem_filter, Finset.mem_univ, true_and]
+  · convert! hp.1; ext; simp only [Set.mem_toFinset, Finset.mem_filter, Finset.mem_univ, true_and]
   · convert hp.2; ext; simp only [Set.mem_toFinset, Finset.mem_filter, Finset.mem_univ, true_and]
 
 /-- The subset `𝔏₀(k, n)` of `ℭ(k, n)`, given in (5.1.10).
@@ -195,11 +195,11 @@ def ℭ₃ (k n j : ℕ) : Set (𝔓 X) :=
 
 lemma ℭ₃_def {k n j : ℕ} {p : 𝔓 X} :
     p ∈ ℭ₃ k n j ↔ p ∈ ℭ₂ k n j ∧ ∃ u ∈ 𝔘₁ k n j, 𝓘 p ≠ 𝓘 u ∧ smul 2 p ≤ smul 1 u := by
-  rw [ℭ₃, mem_diff, 𝔏₂, mem_setOf, not_and, and_congr_right_iff]; intro h
+  rw [ℭ₃, mem_sdiff, 𝔏₂, mem_setOf, not_and, and_congr_right_iff]; intro h
   simp_rw [h, true_implies, not_not]
 
 lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n j := fun t mt ↦ by
-  rw [ℭ₃, mem_diff] at mt; exact mt.1
+  rw [ℭ₃, mem_sdiff] at mt; exact mt.1
 
 /-- `𝔏₃(k, n, j, l)` consists of the maximal elements in `ℭ₃(k, n, j)` not in
   `𝔏₃(k, n, j, l')` for some `l' < l`. Defined near (5.1.17). -/
@@ -231,11 +231,11 @@ def ℭ₅ (k n j : ℕ) : Set (𝔓 X) :=
 
 lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
     p ∈ ℭ₅ k n j ↔ p ∈ ℭ₄ k n j ∧ ∀ u ∈ 𝔘₁ k n j, ¬(𝓘 p : Set X) ⊆ ⋃ (i ∈ 𝓛 (X := X) n u), i := by
-  rw [ℭ₅, mem_diff, 𝔏₄, mem_setOf, not_and, and_congr_right_iff]; intro h
+  rw [ℭ₅, mem_sdiff, 𝔏₄, mem_setOf, not_and, and_congr_right_iff]; intro h
   simp_rw [h, true_implies]; push Not; rfl
 
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
-  rw [ℭ₅, mem_diff] at mt; exact mt.1
+  rw [ℭ₅, mem_sdiff] at mt; exact mt.1
 
 lemma ℭ₅_subset_ℭ₁ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₁ (X := X) k n j :=
   ℭ₅_subset_ℭ₄.trans <| ℭ₄_subset_ℭ₃.trans <| ℭ₃_subset_ℭ₂.trans ℭ₂_subset_ℭ₁

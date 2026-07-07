@@ -189,12 +189,12 @@ lemma sum_carlesonSum_of_pairwiseDisjoint {ι : Type*} {f : X → ℂ} {x : X} {
   · convert hs
     refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
     · intro i hi j hj hij
-      convert Finset.disjoint_coe.2 (h hi hj hij)
+      convert! Finset.disjoint_coe.2 (h hi hj hij)
       · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
       · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
     · intro i hi j hj hij
       apply Finset.disjoint_coe.1
-      convert h hi hj hij
+      convert! h hi hj hij
       · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
       · ext; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
 
@@ -220,10 +220,10 @@ lemma adjointCarlesonSum_inter {A B : Set (𝔓 X)} {f : X → ℂ} {x : X} :
     adjointCarlesonSum (A ∩ B) f x = adjointCarlesonSum A f x - adjointCarlesonSum (A \ B) f x := by
   unfold adjointCarlesonSum; symm
   classical rw [sub_eq_iff_eq_add, ← Finset.sum_union]; swap
-  · simp only [Finset.disjoint_filter, mem_diff, not_and, not_not]
+  · simp only [Finset.disjoint_filter, mem_sdiff, not_and, not_not]
     exact fun x _ ⟨xA, xB⟩ _ ↦ xB
   congr; ext x
-  simp_rw [Finset.mem_union, Finset.mem_filter_univ, mem_inter_iff, mem_diff]
+  simp_rw [Finset.mem_union, Finset.mem_filter_univ, mem_inter_iff, mem_sdiff]
   tauto
 
 variable {f g : X → ℂ}

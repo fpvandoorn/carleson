@@ -14,11 +14,7 @@ open NNReal ENNReal MeasureTheory Set Pointwise
 variable {α α' ε E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
-  [TopologicalSpace E] [TopologicalSpace E₁] [TopologicalSpace E₂] [TopologicalSpace E₃]
-  [ENormedAddCommMonoid E]
-  [ENormedAddCommMonoid E₁] [ENormedAddCommMonoid E₂] [ENormedAddCommMonoid E₃]
-  [MeasurableSpace E] [BorelSpace E]
-  [MeasurableSpace E₃] [BorelSpace E₃]
+  [TopologicalSpace E] [ENormedAddCommMonoid E] [MeasurableSpace E] [BorelSpace E]
   {f : α → E₁} {t : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
 
@@ -27,7 +23,7 @@ def C_LorentzInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : �
     sorry
 
 lemma C_LorentzInterpolation_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {C₀ C₁ A : ℝ≥0} {t : ℝ≥0∞} :
-  --TODO: probably need some assumptions
+  -- TODO: probably need some assumptions
   0 < C_LorentzInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t :=
     sorry
 
@@ -35,6 +31,7 @@ lemma C_LorentzInterpolation_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {C₀ C₁
 theorem exists_hasLorentzType_real_interpolation {p₀ p₁ r₀ r₁ q₀ q₁ s₀ s₁ p q : ℝ≥0∞}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
+    [TopologicalSpace E₃] [MeasurableSpace E₃] [BorelSpace E₃]
     -- TODO: find out which of the conditions `(1 ≤ ·)` are actually necessary.
     (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁) (hr₀ : 1 ≤ r₀) (hr₁ : 1 ≤ r₁)
     (hq₀ : 1 ≤ q₀) (hq₁ : 1 ≤ q₁) (hs₀ : 1 ≤ s₀) (hs₁ : 1 ≤ s₁)

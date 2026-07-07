@@ -76,7 +76,6 @@ public import Carleson.ToMathlib.ENorm
 public import Carleson.ToMathlib.HardyLittlewood
 public import Carleson.ToMathlib.IntegralBallContinuity
 public import Carleson.ToMathlib.LorentzType
-public import Carleson.ToMathlib.MeasureTheory.Covering.Vitali
 public import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
 public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
 public import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
@@ -92,7 +91,6 @@ public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequ
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.Indicator
 public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-public import Carleson.ToMathlib.MeasureTheory.Integral.IntegrableOn
 public import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 public import Carleson.ToMathlib.MeasureTheory.Integral.Layercake
@@ -111,7 +109,6 @@ public import Carleson.ToMathlib.NoAtoms
 public import Carleson.ToMathlib.Order.CompleteLattice.Basic
 public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
 public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
-public import Carleson.ToMathlib.Order.Filter.ENNReal
 public import Carleson.ToMathlib.Order.Interval.Set.Disjoint
 public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 public import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
