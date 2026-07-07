@@ -73,8 +73,6 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
       _ = 1 * (b - a) * B := by ring
       _ ≤ 2 * π * (b - a) * (↑B + ↑K * (b - a) / 2) := by
         gcongr
-        · exact mul_nonneg Real.two_pi_pos.le (by linarith)
-        · exact sub_nonneg_of_le hab
         · linarith [Real.two_le_pi]
         · exact (le_add_iff_nonneg_right ↑B).mpr hK
   wlog! n_pos : 0 < n generalizing n φ
@@ -127,12 +125,6 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B
         exact ne_of_gt this
       _ ≤ (π + π) * (1 + |n| * (b - a))⁻¹ * (b - a) * (B + K * (b - a) / 2) := by
         gcongr
-        · apply mul_nonneg
-          · apply mul_nonneg
-            · linarith [Real.two_pi_pos]
-            · exact inv_nonneg_of_nonneg this.le
-          · linarith
-        · linarith
         · linarith [Real.two_le_pi]
         · rw [mul_comm, _root_.abs_of_nonneg n_pos.le]
           exact mul_le_of_le_div₀ Real.pi_pos.le (by exact_mod_cast n_pos.le) h.le

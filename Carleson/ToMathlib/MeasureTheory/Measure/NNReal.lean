@@ -33,7 +33,7 @@ instance : MeasureSpace ℝ≥0∞ where
 lemma ENNReal.ofNNReal_preimage {s : Set ℝ≥0∞} :
     ENNReal.ofNNReal ⁻¹' s = ENNReal.toNNReal '' (s \ {⊤}) := by
   ext x
-  simp only [mem_image, mem_diff, mem_singleton_iff, mem_preimage]
+  simp only [mem_image, mem_sdiff, mem_singleton_iff, mem_preimage]
   constructor
   · intro h
     use ENNReal.ofNNReal x
@@ -540,16 +540,16 @@ lemma ENNReal.volume_map_add_left_le_self {g : ℝ≥0∞} (hg : g ≠ ⊤) {s :
           Measure.map_apply (by measurability) (by measurability)]
       have : ((fun x ↦ g + x) ⁻¹' s) ⊆ ((fun x ↦ g + x) ⁻¹' (s \ {⊤})) ∪ {⊤} := by
         intro x
-        simp only [mem_preimage, preimage_diff, union_singleton, mem_insert_iff, mem_diff,
+        simp only [mem_preimage, preimage_sdiff, union_singleton, mem_insert_iff, mem_sdiff,
           mem_singleton_iff, add_eq_top, not_or]
         intro a
-        simp_all only [ne_eq, MeasurableSet.singleton, MeasurableSet.diff, mem_diff, mem_singleton_iff,
-          not_true_eq_false, and_false, not_false_eq_true, true_and]
+        simp_all only [ne_eq, MeasurableSet.singleton, MeasurableSet.diff, mem_sdiff,
+          mem_singleton_iff, not_true_eq_false, and_false, not_false_eq_true, true_and]
         exact eq_or_ne x ⊤
       apply (measure_mono this).trans
       apply (measure_union_le _ _).trans
       simp
-    · rw [measure_diff_null (measure_singleton ⊤)]
+    · rw [measure_sdiff_null (measure_singleton ⊤)]
   calc _
     _ ≤ volume ((fun x ↦ g.toReal + x) ⁻¹' (ENNReal.toReal '' s)) := by
       rw [Measure.map_apply (by measurability) hs]

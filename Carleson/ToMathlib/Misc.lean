@@ -140,7 +140,7 @@ namespace MeasureTheory
 set_option linter.style.refine false in
 variable {α : Type*} {β : Type*} {s : Set α} {f g : α → β}
   {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
-@[measurability, fun_prop]
+@[fun_prop]
 protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (hs : MeasurableSet s)
     (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) : AEMeasurable (piecewise s f g) μ := by
   refine' ⟨_, hf.measurable_mk.piecewise hs hg.measurable_mk, ?_⟩
@@ -150,7 +150,7 @@ protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (
 
 variable {α : Type*} {β : Type*} {p : α → Prop} {f g : α → β}
   {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
-@[measurability, fun_prop]
+@[fun_prop]
 protected theorem _root_.AEMeasurable.ite {d : DecidablePred p} (hp : MeasurableSet {a | p a})
     (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     AEMeasurable (fun x => ite (p x) (f x) (g x)) μ :=

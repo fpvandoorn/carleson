@@ -113,20 +113,19 @@ export FunctionDistances (Θ coeΘ)
 
 section FunctionDistances
 
-variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [FunctionDistances 𝕜 X]
+variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [d : FunctionDistances 𝕜 X]
 
 instance : Coe (Θ X) C(X, 𝕜) := ⟨FunctionDistances.coeΘ⟩
 instance : FunLike (Θ X) X 𝕜 where
   coe := fun f ↦ (f : C(X, 𝕜))
-  coe_injective' _ _ hfg := FunctionDistances.coeΘ_injective fun x ↦ congrFun hfg x
+  coe_injective _ _ hfg := FunctionDistances.coeΘ_injective fun x ↦ congrFun hfg x
 
 set_option linter.unusedVariables false in
 /-- Class used to endow `Θ X` with a pseudometric space structure. -/
 @[nolint unusedArguments]
 def WithFunctionDistance (x : X) (r : ℝ) := Θ X
 
-instance {x : X} {r : ℝ} [d : FunctionDistances 𝕜 X] :
-    PseudoMetricSpace (WithFunctionDistance x r) := d.metric x r
+instance {x : X} {r : ℝ} : PseudoMetricSpace (WithFunctionDistance x r) := d.metric x r
 
 end FunctionDistances
 

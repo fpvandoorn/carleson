@@ -57,13 +57,13 @@ lemma minLayer_subset : A.minLayer n ⊆ A :=
   calc
     _ ⊆ A \ ⋃ (k < n), A.minLayer k := by
       rw [minLayer]; refine fun _ h ↦ ?_; rw [mem_setOf] at h; exact h.prop
-    _ ⊆ A := diff_subset
+    _ ⊆ A := sdiff_subset
 
 lemma maxLayer_subset : A.maxLayer n ⊆ A := minLayer_subset
 
-lemma layersAbove_subset : A.layersAbove n ⊆ A := diff_subset
+lemma layersAbove_subset : A.layersAbove n ⊆ A := sdiff_subset
 
-lemma layersBelow_subset : A.layersBelow n ⊆ A := diff_subset
+lemma layersBelow_subset : A.layersBelow n ⊆ A := sdiff_subset
 
 -- XXX(MR): should this and `maxLayer_zero` be simp?
 lemma minLayer_zero : A.minLayer 0 = {a | Minimal (· ∈ A) a} := by rw [minLayer]; simp
@@ -148,7 +148,7 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
     congr! 2 with y
     wlog hys : y ∈ A
     · simp [hys]
-    simp only [mem_diff, hys, mem_iUnion, exists_prop, not_exists, not_and, true_and, mem_setOf_eq,
+    simp only [mem_sdiff, hys, mem_iUnion, exists_prop, not_exists, not_and, true_and, mem_setOf_eq,
       exists_true_left]
     cases height (⟨y, hys⟩ : A)
     · simp
