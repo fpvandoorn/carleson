@@ -93,7 +93,7 @@
  ["docBlame", "GridStructure.fintype_Grid"],
  ["docBlame", "GridStructure.topCube"],
  ["docBlame", "MeasureTheory.Subadditive"],
- ["docBlame", "MeasureTheory.Subadditive_trunc"],
+ ["docBlame", "MeasureTheory.SubadditiveTrunc"],
  ["docBlame", "MeasureTheory.finite_spanning_sets_from_lintegrable"],
  ["docBlame", "MeasureTheory.res"],
  ["docBlame", "MeasureTheory.res'"],
