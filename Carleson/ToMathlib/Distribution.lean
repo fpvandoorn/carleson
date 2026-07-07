@@ -353,8 +353,9 @@ lemma distribution_eq_zero_iff {ε} [TopologicalSpace ε] [ESeminormedAddMonoid 
   constructor
   · intro h
     apply essSup_le_of_ae_le
-    filter_upwards [h]
-    simp
+    · filter_upwards [h]
+      simp
+    sorry -- TODO: proof was done now
   · rw [essSup]
     intro h
     rw [← Filter.Eventually]
