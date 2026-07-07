@@ -45,8 +45,8 @@ lemma ENNReal.ofNNReal_preimage {s : Set ℝ≥0∞} :
 --TODO: move these lemmas somewhere else?
 lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal {s : Set ℝ≥0∞} (h : ∞ ∉ s) :
     ENNReal.toReal '' s = NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) := by
-  rw [ofNNReal_preimage, image_image, diff_singleton_eq_self h]
-  congr
+  rw [ofNNReal_preimage, image_image, sdiff_singleton_eq_self h]
+  rfl
 
 lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal' {s : Set ℝ≥0∞} (h : ∞ ∈ s) :
     ENNReal.toReal '' s = NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) ∪ {0}:= by

@@ -494,16 +494,11 @@ section Indicator
 
 open ComplexConjugate
 
-attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
-
-lemma indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
+lemma indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M]
+    {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
     s.indicator f = s.indicator g := by
   ext x
-  unfold indicator
-  split
-  · rename_i hxs
-    exact h x hxs
-  · rfl
+  by_cases hx : x ∈ s <;> simp [h, hx]
 
 lemma indicator_eq_indicator_one_mul {ι M : Type*} [MulZeroOneClass M]
     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by

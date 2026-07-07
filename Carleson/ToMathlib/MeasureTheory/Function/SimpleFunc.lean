@@ -290,11 +290,11 @@ protected theorem antitone_induction [MeasurableSpace α] [ConditionallyComplete
   generalize h : (f.range \ {0}).card = n
   induction n generalizing f with
   | zero =>
-    rw [Finset.card_eq_zero] at h
-    rw [← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range] at h
-    rw [Finset.coe_empty, diff_eq_empty, Set.range_subset_singleton] at h
     convert const 0
     ext x
+    rw [Finset.card_eq_zero,
+      ← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range,
+      Finset.coe_empty, sdiff_eq_empty, Set.range_subset_singleton] at h
     simp [h]
   | succ n ih =>
     have nonempty : (f.range \ {0}).Nonempty := by
@@ -372,11 +372,11 @@ protected theorem induction'' [MeasurableSpace α] [LinearOrder β] [AddCommMono
   generalize h : (f.range \ {0}).card = n
   induction n generalizing f with
   | zero =>
-    rw [Finset.card_eq_zero] at h
-    rw [← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range] at h
-    rw [Finset.coe_empty, diff_eq_empty, Set.range_subset_singleton] at h
     convert const 0 MeasurableSet.univ
     ext x
+    rw [Finset.card_eq_zero,
+      ← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range,
+      Finset.coe_empty, sdiff_eq_empty, Set.range_subset_singleton] at h
     simp [h]
   | succ n ih =>
     have nonempty : (f.range \ {0}).Nonempty := by
