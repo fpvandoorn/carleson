@@ -309,15 +309,15 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         simp_rw [mul_assoc]
         rw [ENNReal.limsup_const_mul_of_ne_top (ENNReal.div_ne_top (by simp) p_ne_zero)]
         gcongr
-        rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG')]
-        gcongr <;> sorry
-        /- proof was:
+        rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG'),
+          mul_comm]
+        gcongr
         apply Filter.limsup_le_of_le (f := _)
         filter_upwards with n
         apply eLorentzNorm'_mono_enorm_ae
         filter_upwards with x
         simp only [enorm_NNReal, ENNReal.coe_le_coe]
-        exact SimpleFunc.approx_le hf bot_eq_zero' -/
+        exact SimpleFunc.approx_le hf bot_eq_zero'
 
 lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
   {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
