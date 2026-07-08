@@ -592,7 +592,7 @@ The conditions that the objects in a grid structure satisfy are as follows.
 \end{equation}
 \end{enumerate}
 
-We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a \href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{tile structure} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc : \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fc : \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc : \fP \to X$ and $\ps : \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
+We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a \href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{tile structure} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc : \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc : \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc : \fP \to X$ and $\ps : \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
 
 \begin{enumerate}[label=\roman*.]
 % note: todo: JP: as also the lean code says, this seems superfluous so I'm removing it from the list
@@ -612,7 +612,6 @@ We now further subdivide in the frequency domain, intuitively partitioning for e
 \end{equation}
 \item For every tile $\fp$, the set of functions $\fc(\fp)$ contains a ball with center $\fcc(\fp)$ and is of size approximately $D^{\ps(\fp)}$ in the sense that
 \begin{equation}\label{eq-freq-comp-ball}
-    % \fcc(\fp)\in % todo: JP: I think it is easier to read if this is removed, please see if you agree
     B_{\fp}(\fcc(\fp), 0.2) \subset \fc(\fp) \subset B_{\fp}(\fcc(\fp),1)\,,
 \end{equation}
 where
@@ -650,10 +649,37 @@ we have
 \end{equation}
 \end{theorem}
 
-The proof of this last result is the heart of the matter.
-% todo: JP: I think the part below should be clarified
-The pieces are categorized in one of three types, for each of which a separate analysis is required to establish a bound.
-These three branches of the proof are largely independent and handled in separate sections 5, 6, and 7 of the blueprint \cite{CarlesonBlueprint}.
+The proof of this last result is the heart of the matter, and is very technical.
+The full proof can be found in Sections 5, 6 and 7 of the blueprint \cite{CarlesonBlueprint},
+but here we give an idea of the work it requires.
+
+First, cubes are categorized by what fraction of it is covered by the set $G$.
+This means that we partition the set of cubes in collections $\mathcal{C}(k)$
+for which this fraction is in the interval $(2^{-(k+1)},2^{-k}]$.
+This categorization lifts via the function $\scI$ to the tiles.
+Second, we make a subcategorization of tiles $\fp$
+by the fraction of the points $x$ in $\scI(\fp)$ for which $d_{\fp}(\tQ(x),\fcc(\fp))$ is small.
+% We define an ordering on tiles by $\fp\le \fp'$ iff
+% $\scI(\fp)\le \scI(\fp')$ and $\Omega(\fp)\supset \Omega(\fp')$.
+% For the next step, certain tiles are marked if
+As a further subcategorization, some tiles are marked,
+and we categorize tiles by how many marked tiles are ``near'' a given tile.
+
+In each class in these categorizations, we mark certain tiles as \emph{tree tops}.
+Then we eliminate 5 separate subclasses of tiles from the class.
+Four of these subclasses are \emph{antichains} with respect to a given ordering on the tiles.
+The main result of Section 6 of the blueprint gives good bounds for the
+Carleson operator on an antichain $\mathfrak{A}\subseteq\fP$, i.e. for the operator
+$$\sum_{\fp\in\mathfrak{A}}T_{\fp}.$$
+The fifth subclass is small, and we can choose $G'$
+so that it contains $\scI(\fp)$ for all tiles $\fp$ in this subclass.
+
+The remaining tiles can be partitioned into a small number of so-called \emph{forests}
+(not in the graph-theoretic sense)
+with trees that each contain one of the aforementioned tree tops.
+The main result of Section 7 of the blueprint estimates the Carleson operator on such a forest.
+Section 5 gives the characterization of tiles,
+and puts these results together to prove the discrete Carleson theorem.
 
 \section{Project organization}\label{sec:org}
 
