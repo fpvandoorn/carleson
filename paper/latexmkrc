@@ -1,7 +1,7 @@
-# 5 tells latexmk to use xelatex to generate the PDF
-$pdf_mode = 5;
+# 1 = pdflatex
+$pdf_mode = 1;
 
-# Define the xelatex command with the required placeholders
+# Define the xelatex command (if we want to move back to minted)
 $xelatex = 'xelatex -shell-escape -interaction=nonstopmode -file-line-error -synctex=1 %O %S';
 
 # Default file to compile if no file is specified in the terminal
