@@ -650,28 +650,27 @@ we have
 \end{theorem}
 
 The proof of this last result is the heart of the matter, and is very technical.
-The full proof can be found in Sections 5, 6 and 7 of the blueprint \cite{CarlesonBlueprint},
-but here we give an idea of the work it requires.
+The full proof can be found in Sections 5, 6 and 7 of the blueprint \cite{CarlesonBlueprint};
+let us give an idea of the work required.
 
-First, cubes are categorized by what fraction of it is covered by the set $G$.
+Firstly, cubes are classified by what fraction of them is covered by the set $G$.
 This means that we partition the set of cubes in collections $\mathcal{C}(k)$
 for which this fraction is in the interval $(2^{-(k+1)},2^{-k}]$.
-This categorization lifts via the function $\scI$ to the tiles.
-Second, we make a subcategorization of tiles $\fp$
+This classification lifts via the function $\scI$ to the tiles.
+Secondly, we make a subclassification of tiles $\fp$
 by the fraction of the points $x$ in $\scI(\fp)$ for which $d_{\fp}(\tQ(x),\fcc(\fp))$ is small.
-As a further subcategorization, some tiles are marked,
-and we categorize tiles by how many marked tiles are ``near'' a given tile.
-We should note that these characterizations also take into account the ordering on cubes and tiles.
-The ordering on tiles is given by $\fp\le \fp'$ iff
+As a further refinement, some tiles are \emph{marked},
+and we classify tiles by how many marked tiles are ``near'' a given tile.
+Let us note that these characterizations also take into account the orders on cubes and tiles.
+The order on tiles is given by $\fp\le \fp'$ iff
 $\scI(\fp)\le \scI(\fp')$ and $\Omega(\fp)\supset \Omega(\fp')$.
 
-In each class in these categorizations, we mark certain tiles as \emph{tree tops}.
+In each class in the final classification, we mark certain tiles as so-called \emph{tree tops}.
 Then we eliminate 5 separate subclasses of tiles from the class.
-Four of these subclasses are \emph{antichains}
-with respect to the aforementioned ordering on the tiles.
+Four of these subclasses are antichains with respect to the aforementioned order on the tiles.
 The main result of Section 6 of the blueprint gives good bounds for the
 Carleson operator on an antichain $\mathfrak{A}\subseteq\fP$, i.e. for the operator
-$$\sum_{\fp\in\mathfrak{A}}T_{\fp}.$$
+$$\sum_{\fp\in\mathfrak{A}}T_{\fp}$$.
 The fifth subclass is small, and we can choose $G'$
 so that it contains $\scI(\fp)$ for all tiles $\fp$ in this subclass.
 
