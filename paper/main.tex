@@ -13,6 +13,7 @@
 \usepackage{enumitem}
 \usepackage{cleveref}
 \usepackage{listings}
+\usepackage{fontawesome} % external link icon
 
 \makeatletter
 \AtBeginDocument{%
@@ -55,6 +56,8 @@
 \newcommand{\mathlib}{\texttt{Mathlib}\xspace}
 
 \newcommand{\todo}[1]{{\color{blue}{TODO: {#1}}}}
+
+\newcommand{\extlink}{~\ensuremath{{}^\text{\faExternalLink}}}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
@@ -240,6 +243,8 @@ The formalization was written in Lean 4, making extensive use of Lean's mathemat
 %TODO: update stats before submitting
 The project comprises around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
 
+Throughout the article, we will introduce Lean code excerpts from the formalization and use the clickable symbol \faExternalLink\: to link to the corresponding code in our repository or in Mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
+
 \subsection{Related work}\label{subsec:rel_work}
 \begin{itemize}
  	\item Other large-scale formalizations in Lean.
@@ -278,7 +283,7 @@ Given a $2\pi$-periodic function $f : \real \to \complex$ and $n \in \mathbb{Z}$
 \begin{equation}\label{eq:fourier-coefficients}
     c_n \coloneq \widehat{f}_n \coloneq \frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
 \end{equation}
-The Lean version \lean{fourierCoeff} uses \mathlib's formalization of the Bochner integral and thus is well-defined if $f\in L^1(0,2\pi)$.
+The Lean version \lean{fourierCoeffOn} uses \mathlib's formalization of the Bochner integral and thus is well-defined if $f\in L^1(0,2\pi)$.
 
 \begin{definition}\label{def:fourier-series}
 The {\em $N$-th partial Fourier sum} of $f$ for $x\in\real$ is defined as
@@ -289,14 +294,17 @@ The {\em Fourier series} of $f$ is then given by the formal trigonometric series
 which may or may not converge for a given $x\in\real$.
 \end{definition}
 
-The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$. This is defined to be a complete
-and locally compact metric space $(X,\rho)$
+The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$. 
+
+\begin{definition}\label{def:doubling}
+A \emph{doubling metric measure space} $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
 equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the following doubling condition for $a\in\nat$.
 For all $x\in X$ and all $R>0$ we have
 \begin{equation}\label{doublingx}
-    \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
+	\mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
 \end{equation}
 where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ centered at $x$ (see \lean{DoublingMeasure}).
+\end{definition}
 %In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
 The proof of the metric space Carleson theorem relies on several tools from real analysis and part of the formalization is a proof of the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g. \cite{vanDoornFormalizedHaarMeasure} for an overview).
@@ -364,7 +372,7 @@ with $\kappa: \R\to\C$ defined as
 
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
 
-Let $a \ge 4$ be a natural number. A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible,
+Let $a \ge 4$ be a natural number. A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}
 if there is a point $o\in X$ where all the functions are equal to $0$,
 and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$,
 such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied.
@@ -392,7 +400,7 @@ at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
     \tilde B\subset \bigcup \mathcal{B}.
 \end{equation}
 
-Further, a compatible collection $\Mf$ is called cancellative, if
+Further, a compatible collection $\Mf$ is called \emph{cancellative} if
 for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi: X\to \C$
 supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
 \begin{equation}
@@ -405,26 +413,31 @@ $$
     \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
 $$
 
-A one-sided Calder\'on--Zygmund kernel $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
+\begin{definition}\label{def:one-sided-kernel}
+A \emph{one-sided Calder\'on--Zygmund kernel} $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
 is a measurable function $K:X\times X\to \mathbb{C}$ such that for all $x,y',y\in X$ with $x\neq y$, we have
 \begin{equation}\label{eqkernel-size}
-    |K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
+	|K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
 \end{equation}
 and if $2\rho(y,y') \leq \rho(x,y)$, then
 \begin{equation}
-  \label{eqkernel-y-smooth}
-  |K(x,y) - K(x,y')| \leq \left(\frac{\rho(y,y')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)},
+	\label{eqkernel-y-smooth}
+	|K(x,y) - K(x,y')| \leq \left(\frac{\rho(y,y')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)},
 \end{equation}
 where $V(x,y):=\mu(B(x,\rho(x,y)))$.
+\end{definition}
 
-A two-sided Calder\'on--Zygmund kernel is a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
+
+\begin{definition}\label{def:two-sided-kernel}
+A \emph{two-sided Calder\'on--Zygmund kernel} is a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
 \begin{equation}
-    \label{eqkernel-x-smooth}
-    |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
+	\label{eqkernel-x-smooth}
+	|K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
 \end{equation}
+\end{definition}
 
 Let $f: X \to \C$ be a bounded, measurable function supported on a set of finite measure.
-Define the maximally truncated non-tangential singular integral $T_{*}$ associated with $K$ by
+Define the \emph{maximally truncated non-tangential singular integral} $T_{*}$ associated with $K$ by
 \begin{equation}
     \label{def-tang-unm-op}
     T_{*}f(x):=\sup_{R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
@@ -434,7 +447,7 @@ Additionally, define for $r > 0$, $x\in X$:
 \label{def-T-r}
 T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
 \end{equation}
-Finally, define the generalized Carleson operator $T$ by
+Finally, define the \emph{generalized Carleson operator} $T$ by
 \begin{equation}
     \label{def-main-op}
     Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|\, ,
@@ -451,7 +464,7 @@ and define further
     T_{\tQ}^\mfa f(x):=\sup_{R_1<R_2} \ \sup_{\rho(x,x')<R_1}
     \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
 \end{equation}
-Define further the linearized generalized Carleson operator $T_\tQ$ by
+Define further the \emph{linearized generalized Carleson operator} $T_\tQ$ by
 \begin{equation}
     \label{def-lin-main-op}
     T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|\, ,
@@ -654,6 +667,154 @@ The proof of this last result is the heart of the matter.
 % todo: JP: I think the part below should be clarified
 The pieces are categorized in one of three types, for each of which a separate analysis is required to establish a bound.
 These three branches of the proof are largely independent and handled in separate sections 5, 6, and 7 of the blueprint \cite{CarlesonBlueprint}.
+
+\subsection{Stating the main results in Lean}\label{subsec:lean-statements}
+Starting from the material already available in Lean's mathematical library \mathlib, it is easy to state the classical Carleson theorem in Lean\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Classical/ClassicalCarleson.lean#L132}{\extlink}.
+\begin{lstlisting}[mathescape]
+theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f)
+  (periodic_f : f.Periodic (2 * π)) :
+  ∀$^m$ x, Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))
+\end{lstlisting}
+The statement of the hypotheses ($f : \R \to \C$ is a continuous $2\pi$-periodic function) closely resembles natural language, but understanding the conclusion requires some familiarity with Lean and Mathlib. There, $\forall^m x$ means `for every real $x$ away from a set of measure zero', and
+\lean{Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on Mathlib's use of filters to represent limits).
+
+The definition \lean{partialFourierSum}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L32}{\extlink} encodes the $N$-th partial Fourier sum of $f : \R \to \C$. Here, \lean{Finset.Icc}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b} denotes the inverval $[a, b)$ and \lean{Set.Iic b} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset} versions of these intervals.
+} denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n} is the
+\lean{n}-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))} denotes $e^{inx}$.
+\begin{lstlisting}
+def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ := 
+  ∑ n ∈ Finset.Icc (-(N : ℤ)) N, 
+    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * π))
+\end{lstlisting}
+
+On the other hand, in order to formalize the \emph{statements} of the metric and linearized versions of Carleson's theorem, we first needed to formalize a good amount of new concepts, starting with the definition of doubling metric measure space (see Definition \ref{def:doubling}), which we denote by \lean{MeasureTheory.DoublingMeasure}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L87}{\extlink}. The constant $A$ appearing in this definition will typically be $2^a$.
+
+\begin{lstlisting}
+class MeasureTheory.Measure.IsDoubling {X : Type*} [MeasurableSpace X]
+    [PseudoMetricSpace X] (μ : Measure X) (A : outParam ℝ≥0) : Prop where
+  measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
+  export IsDoubling (measure_ball_two_le_same)
+
+class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
+  CompleteSpace X, LocallyCompactSpace X, MeasureSpace X, BorelSpace X,
+  IsLocallyFiniteMeasure (volume : Measure X),
+  Measure.IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
+\end{lstlisting}
+
+Next, we need to introduce the family $\Mf$ of compatible functions satisfying the properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb}. We do this in two steps, by first creating a class 
+\lean{FunctionDistances}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L102}{\extlink} which bundles a family of continuous functions and then endowing these functions with the five properties in the class \lean{CompatibleFunctions}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L157}{\extlink}. The assumption that the family is cancellative is added as a \lean{Prop}-valued class \lean{IsCancellative}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L181}{\extlink}.
+
+Something to note here is that we created type synonyms to be able to endow $\Theta X$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean{dist_\{x, r\}} for the distance corresponding to the ball $B(x, r)$.
+
+\begin{lstlisting}
+variable {k X : Type*} {A : ℕ} [RCLike k] [PseudoMetricSpace X]	
+
+def WithFunctionDistance (x : X) (r : ℝ) := Θ X
+
+instance {x : X} {r : ℝ} [d : FunctionDistances k X] :
+  PseudoMetricSpace (WithFunctionDistance x r) := d.metric x r
+
+notation3 "dist_{" x ", " r "}" => @dist (WithFunctionDistance x r) _
+\end{lstlisting}
+
+With this notation, the Lean statement of the compatibility properties is quite close to the informal one. For instance, equation \eqref{monotonedb} is written as
+\begin{lstlisting}
+cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
+  (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
+\end{lstlisting}
+
+The class \lean{IsOneSidedKernel}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L240}{\extlink} captures the notion of one-sided Calder\'on--Zygmund kernel (Definition \ref{def:one-sided-kernel}).
+
+\begin{lstlisting}
+class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
+  measurable_K : Measurable (uncurry K)
+  norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / Real.vol x y
+  norm_K_sub_le {x y y' : X} (h : 2 * dist y y' ≤ dist x y) : ‖K x y - K x y'‖ ≤ 
+    (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
+\end{lstlisting}
+
+To avoid constant repetition of hypotheses, we create a class \lean{KernelProofData}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L251}{\extlink} which contains data used in most of chapters 2 through 7 of the blueprint: a doubling measure on $X$, a natural number greater than three, a collection of compatible functions, and a one-sided Calder\'on--Zygmund kernel.
+\begin{lstlisting}
+class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
+    [PseudoMetricSpace X] where
+  d : DoublingMeasure X (defaultA a)
+  four_le_a : 4 ≤ a
+  cf : CompatibleFunctions ℝ X (defaultA a)
+  hcz : IsOneSidedKernel a K
+\end{lstlisting}
+
+The statement of the metric Carleson theorem also requires fixing two positive real numbers $q, q'$ satisfying the equality $q^{-1} + q'^{-1} = 1$, encoded by definition \lean{HolderConjugate}\href{https://github.com/leanprover-community/mathlib4/blob/5a0753dc725610d074b177e4677000ee96165b8e/Mathlib/Data/Real/ConjExponents.lean#L59}{\extlink} from Mathlib.
+
+\iffalse
+%Probably not worth including.
+\begin{lstlisting}
+structure HolderTriple (p q r : ℝ≥0) : Prop where
+  inv_add_inv_eq_inv : p⁻¹ + q⁻¹ = r⁻¹
+  left_pos : 0 < p
+  right_pos : 0 < q
+
+abbrev HolderConjugate (p q : ℝ≥0) := HolderTriple p q 1
+\end{lstlisting}
+\fi
+
+We have now described most of the prerequisites for understanding the Lean statement of Theorem \ref{metric-space-Carleson}, available as
+\lean{metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Main.lean#L203}{\extlink}. The hypothesis \lean{hT} relies on the definition \lean{HasBoundedStrongType}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L69}{\extlink} to express the bound (\ref{nontanbound}) for the 
+\lean{nontangentialOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L201}{\extlink}.
+
+\begin{lstlisting}
+theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
+  {F G : Set X} {K : X → X → ℂ} [KernelProofData a K] {f : X → ℂ}
+  [IsCancellative X (defaultτ a)] (hq : q ∈ Ioc 1 2)
+  (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
+  (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+  (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)) :
+  ∫⁻ x in G, carlesonOperator K f x ≤
+    C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
+\end{lstlisting}
+
+%\begin{lstlisting}[mathescape]
+%	def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+%	$\sqcup$ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
+%	‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖$_e$
+%\end{lstlisting}
+
+The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L218}{\extlink} is defined as a special case of the
+\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink}; these definitions correspond to those introduced in equations (\ref{def-main-op}) and (\ref{def-T-r}), respectively.
+In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L206}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L44}{\extlink} denotes the set of real numbers $y$ such that $R_1 < \text{dist}(x, y) < R_2$.
+
+\begin{lstlisting}[mathescape]
+def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
+    (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
+  ∫ y in Annulus.oo x R₁ R₂, K x y * f y * exp (I * θ y)
+
+def linearizedCarlesonOperator [FunctionDistances ℝ X] (Q : X → Θ X)
+    (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+  $\sqcup$ (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
+    ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖$_e$
+
+def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ)
+    (x : X) : ℝ≥0∞ :=
+  $\sqcup$ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
+\end{lstlisting}
+
+The statement of the \lean{linearized_metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Linearized.lean#L109}{\extlink} theorem (Theorem \ref{linearized-metric-Carleson}) should now be easy to parse. It requires an extra input in the form of a Borel function $Q : X \to \Theta$ with finite range, and its conclusion involves the 
+\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink} $T_Q$. The hypothesis \lean{hT} encodes equation (\ref{linnontanbound}), written in terms of the 
+\lean{linearizedNontangentialOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L194}{\extlink}.
+
+\noindent
+\begin{minipage}{\linewidth}
+\begin{lstlisting}
+theorem linearized_metric_carleson {X : Type*} {a : ℕ} [MetricSpace X]
+  {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ} [KernelProofData a K]
+  {Q : SimpleFunc X (Θ X)} {f : X → ℂ} [IsCancellative X (defaultτ a)]
+  (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F)
+  (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+  (hT : ∀ θ : Θ X, HasBoundedStrongType 
+    (linearizedNontangentialOperator Q θ K · ·) 2 2 volume volume (C_Ts a)) :
+  ∫⁻ x in G, linearizedCarlesonOperator Q K f x ≤
+    C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+\end{lstlisting}
+\end{minipage}
 
 \section{Project organization}\label{sec:org}
 
