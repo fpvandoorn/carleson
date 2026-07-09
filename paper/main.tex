@@ -294,7 +294,7 @@ The {\em Fourier series} of $f$ is then given by the formal trigonometric series
 which may or may not converge for a given $x\in\real$.
 \end{definition}
 
-The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$. 
+The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$.
 
 \begin{definition}\label{def:doubling}
 A \emph{doubling metric measure space} $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
@@ -682,8 +682,8 @@ The definition \lean{partialFourierSum}\href{https://github.com/fpvandoorn/carle
 } denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n} is the
 \lean{n}-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))} denotes $e^{inx}$.
 \begin{lstlisting}
-def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ := 
-  ∑ n ∈ Finset.Icc (-(N : ℤ)) N, 
+def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ :=
+  ∑ n ∈ Finset.Icc (-(N : ℤ)) N,
     fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * π))
 \end{lstlisting}
 
@@ -701,13 +701,13 @@ class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMe
   Measure.IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
 \end{lstlisting}
 
-Next, we need to introduce the family $\Mf$ of compatible functions satisfying the properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb}. We do this in two steps, by first creating a class 
+Next, we need to introduce the family $\Mf$ of compatible functions satisfying the properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb}. We do this in two steps, by first creating a class
 \lean{FunctionDistances}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L102}{\extlink} which bundles a family of continuous functions and then endowing these functions with the five properties in the class \lean{CompatibleFunctions}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L157}{\extlink}. The assumption that the family is cancellative is added as a \lean{Prop}-valued class \lean{IsCancellative}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L181}{\extlink}.
 
 Something to note here is that we created type synonyms to be able to endow $\Theta X$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean{dist_\{x, r\}} for the distance corresponding to the ball $B(x, r)$.
 
 \begin{lstlisting}
-variable {k X : Type*} {A : ℕ} [RCLike k] [PseudoMetricSpace X]	
+variable {k X : Type*} {A : ℕ} [RCLike k] [PseudoMetricSpace X]
 
 def WithFunctionDistance (x : X) (r : ℝ) := Θ X
 
@@ -729,7 +729,7 @@ The class \lean{IsOneSidedKernel}\href{https://github.com/fpvandoorn/carleson/bl
 class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
   measurable_K : Measurable (uncurry K)
   norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / Real.vol x y
-  norm_K_sub_le {x y y' : X} (h : 2 * dist y y' ≤ dist x y) : ‖K x y - K x y'‖ ≤ 
+  norm_K_sub_le {x y y' : X} (h : 2 * dist y y' ≤ dist x y) : ‖K x y - K x y'‖ ≤
     (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
 \end{lstlisting}
 
@@ -758,7 +758,7 @@ abbrev HolderConjugate (p q : ℝ≥0) := HolderTriple p q 1
 \fi
 
 We have now described most of the prerequisites for understanding the Lean statement of Theorem \ref{metric-space-Carleson}, available as
-\lean{metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Main.lean#L203}{\extlink}. The hypothesis \lean{hT} relies on the definition \lean{HasBoundedStrongType}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L69}{\extlink} to express the bound (\ref{nontanbound}) for the 
+\lean{metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Main.lean#L203}{\extlink}. The hypothesis \lean{hT} relies on the definition \lean{HasBoundedStrongType}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L69}{\extlink} to express the bound (\ref{nontanbound}) for the
 \lean{nontangentialOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L201}{\extlink}.
 
 \begin{lstlisting}
@@ -797,8 +797,8 @@ def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → 
   $\sqcup$ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
 \end{lstlisting}
 
-The statement of the \lean{linearized_metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Linearized.lean#L109}{\extlink} theorem (Theorem \ref{linearized-metric-Carleson}) should now be easy to parse. It requires an extra input in the form of a Borel function $Q : X \to \Theta$ with finite range, and its conclusion involves the 
-\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink} $T_Q$. The hypothesis \lean{hT} encodes equation (\ref{linnontanbound}), written in terms of the 
+The statement of the \lean{linearized_metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Linearized.lean#L109}{\extlink} theorem (Theorem \ref{linearized-metric-Carleson}) should now be easy to parse. It requires an extra input in the form of a Borel function $Q : X \to \Theta$ with finite range, and its conclusion involves the
+\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink} $T_Q$. The hypothesis \lean{hT} encodes equation (\ref{linnontanbound}), written in terms of the
 \lean{linearizedNontangentialOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L194}{\extlink}.
 
 \noindent
@@ -809,12 +809,25 @@ theorem linearized_metric_carleson {X : Type*} {a : ℕ} [MetricSpace X]
   {Q : SimpleFunc X (Θ X)} {f : X → ℂ} [IsCancellative X (defaultτ a)]
   (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F)
   (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
-  (hT : ∀ θ : Θ X, HasBoundedStrongType 
+  (hT : ∀ θ : Θ X, HasBoundedStrongType
     (linearizedNontangentialOperator Q θ K · ·) 2 2 volume volume (C_Ts a)) :
   ∫⁻ x in G, linearizedCarlesonOperator Q K f x ≤
     C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
 \end{lstlisting}
 \end{minipage}
+
+\subsection{Verifying the definitions and statements}
+
+The Lean kernel checks that all proofs are correct. It cannot ascertain that all definitions and theorems match their definition in the blueprint; this requires manual effort.
+One strategy (going back to at least the Liquid Tensor Experiment \cite{LTEDefinitions}) is to prove interesting theorems about these definitions (such as Carleson's classical theorem, \Cref{classical-carleson}).
+Another aspect is making the relevant definitions easy to audit: to this end, we have collected all definitions and set-up necessary for stating the main theorems, as well as the main theorems' statements, into a single file. Auditing these 170 lines of Lean code (on top of \mathlib) ensures the theorems say what they claim --- two orders of magnitude smaller than the entire project.
+% 137 lines of Lean code (without comments) in BasicDefinitions, 26 in Challenge
+In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon --- which implies getting careful review (and reduces the need to trust code beyond \mathlib further).
+
+Lean ensures that the formalized proof matches the given statement.
+For maximum robustness (also suitable against adversarial code), we should double-check the theorem statement's meaning is not changed (via overriding notation or abuse of Lean's metaprogramming facilities). We achieve this in two ways. Firstly, each theorem is a Lean definition (with the proof constructing a term of that type) --- this way, the theorem statements only require auditing the same 160 lines above.
+Secondly, the \emph{comparator} tool\footnote{\url{https://github.com/leanprover/comparator}} can verify such a correspondence of a given proof to a provided theorem, in a matter that is robust against malicious code or abuse of Lean's metaprogramming facilities. It is the gold standard for verification of formalisations.
+We have also verified the classical Carleson theorem (Theorem~\ref{classical-carleson}) and its metric space (Theorem~\ref{metric-space-Carleson}) and linearized metric space generalizations (Theorem~\ref{linearized-metric-Carleson}) using comparator. %: this certifies that the statements in the Lean file \texttt{Challenge.lean} match what is actually proven.
 
 \section{Project organization}\label{sec:org}
 
