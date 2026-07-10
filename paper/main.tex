@@ -449,6 +449,7 @@ Additionally, define for $r > 0$, $x\in X$:
 T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
 \end{equation}
 Finally, define the \emph{generalized Carleson operator} $T$ by
+%TODO: explain this is a disjoint union
 \begin{equation}
     \label{def-main-op}
     Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|\, ,
@@ -471,7 +472,6 @@ Define further the \emph{linearized generalized Carleson operator} $T_\tQ$ by
     T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|\, ,
 \end{equation}
 where again $e(r)=e^{ir}$.
-
 
 \subsubsection{Metric space Carleson}\label{subsubsec:metric-carleson}
 
@@ -673,17 +673,17 @@ These three branches of the proof are largely independent and handled in separat
 
 Starting from the material already available in Lean's mathematical library \mathlib, it is easy to state the classical Carleson theorem in Lean\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Classical/ClassicalCarleson.lean#L132}{\extlink}.
 \begin{lstlisting}[mathescape]
-theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f)
-  (periodic_f : f.Periodic (2 * π)) :
+theorem classical_carleson {f : ℝ → ℂ}
+  (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
   ∀$^m$ x, Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))
 \end{lstlisting}
 
-The statement of the hypotheses ($f : \R \to \C$ is a continuous $2\pi$-periodic function) closely resembles natural language, but understanding the conclusion requires some familiarity with Lean and Mathlib. There, $\forall^m x$ means `for every real $x$ away from a set of measure zero', and
-\lean{Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on Mathlib's use of filters to represent limits).
+The statement of the hypotheses ($f \colon \real \to \complex$ is a continuous $2\pi$-periodic function) closely resembles natural language, but understanding the conclusion requires some familiarity with Lean and \mathlib. There, $\forall^m x$ means `for every real number $x$ away from a set of measure zero', and
+\lean{Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on \mathlib's use of filters to represent limits).
 
 The definition \lean{partialFourierSum}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L32}{\extlink} encodes the $N$-th partial Fourier sum of $f : \R \to \C$. Here, \lean{Finset.Icc}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b} denotes the inverval $[a, b)$ and \lean{Set.Iic b} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset} versions of these intervals.
 } denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n} is the
-\lean{n}-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))} denotes $e^{inx}$.
+$n$-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))} denotes $e^{inx}$.
 \begin{lstlisting}[mathescape]
 def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ :=
   ∑ n ∈ Finset.Icc (-(N : ℤ)) N,
@@ -706,7 +706,7 @@ class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMe
 Next, we need to introduce the family $\Mf$ of compatible functions satisfying the properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb}. We do this in two steps, by first creating a class
 \lean{FunctionDistances}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L102}{\extlink} which bundles a family of continuous functions and then endowing these functions with the five properties in the class \lean{CompatibleFunctions}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L157}{\extlink}. The assumption that the family is cancellative is added as a \lean{Prop}-valued class \lean{IsCancellative}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L181}{\extlink}.
 
-Something to note here is that we created type synonyms to be able to endow $\Theta X$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean{dist_\{x, r\}} for the distance corresponding to the ball $B(x, r)$.
+Something to note here is that we created type synonyms to be able to endow $\Mf$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean{dist_\{x, r\}} for the distance corresponding to the ball $B(x, r)$.
 
 \begin{lstlisting}[mathescape]
 variable {k X : Type*} {A : ℕ} [RCLike k] [PseudoMetricSpace X]
@@ -735,7 +735,7 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
     (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
 \end{lstlisting}
 
-To avoid constant repetition of hypotheses, we create a class \lean{KernelProofData}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L251}{\extlink} which contains data used in most of chapters 2 through 7 of the blueprint: a doubling measure on $X$, a natural number greater than three, a collection of compatible functions, and a one-sided Calder\'on--Zygmund kernel.
+To avoid constant repetition of hypotheses, we create a class \lean{KernelProofData}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L251}{\extlink} which contains data used in most of chapters 2 through 7 of the blueprint: a doubling measure on $X$, a natural number greater than three, a collection of compatible functions, and a one-sided Calder\'on--Zygmund kernel. See \S\ref{subsec:proof_data} for a more detailed discussion of this design choice.
 \begin{lstlisting}[mathescape]
 class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
     [PseudoMetricSpace X] where
@@ -780,8 +780,8 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
 %	‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖$_e$
 %\end{lstlisting}
 
-The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L218}{\extlink} is defined as a special case of the
-\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink}; these definitions correspond to those introduced in equations (\ref{def-main-op}) and (\ref{def-T-r}), respectively.
+The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L218}{\extlink} is defined as a special case of the 
+\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand K (Q x) R_1 R_2 f x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details).
 In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L206}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L44}{\extlink} denotes the set of real numbers $y$ such that $R_1 < \text{dist}(x, y) < R_2$.
 \begin{lstlisting}[mathescape]
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
@@ -1200,25 +1200,25 @@ provided by this instance. The same system is used to provide algebraic
 operations on types, and properties of these.
 
 Typeclasses can be used to capture standing assumptions as follows.
-Let us declare a new typeclass, of the form \texttt{[KernelProofData X]},
+Let us declare a new typeclass, of the form \lean{[KernelProofData X]},
 containing not a distance as in the above example, but a measure on $X$,
 a doubling constant, a family $\Theta$ of functions from $X \times X$ to
 $\real$, and so on, i.e., all our standing assumptions. Then, whenever one
 tries to use an object from the standing assumptions, the systems looks for a
-\texttt{KernelProofData} instance and fetches the object from the typeclass
+\lean{KernelProofData} instance and fetches the object from the typeclass
 instance, just like it fetches the distance in a metric space.
 
 Another advantage of this approach is that typeclasses can extend each other
 (just like a normed space contains more information than a metric space).
 This means we can craft one typeclass containing the standing assumptions for
-the statements, and another extended typeclass \texttt{ProofData} with more
-objects for the proofs. When a \texttt{ProofData} instance is in scope but
-Lean needs a \texttt{KernelProofData} instance, typeclass inference
+the statements, and another extended typeclass \lean{ProofData} with more
+objects for the proofs. When a \lean{ProofData} instance is in scope but
+Lean needs a \lean{KernelProofData} instance, typeclass inference
 automatically fetches the latter from the former, just as it transparently
 interprets a normed space as a metric space.
 
 The specific implementation of this idea in the Carleson project is slightly
-more involved, as it is written in the form \texttt{[ProofData a q K sigma1
+more involved, as it is written in the form \lean{[ProofData a q K sigma1
 sigma2 F G]}. However, all the additional data $a$, $q$, $K$, $\sigma_1$,
 $\sigma_2$, $F$ and $G$ are associated automatically and uniquely to $X$ (in
 technical terms, they are \emph{outparams}). This means that the user never
