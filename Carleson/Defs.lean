@@ -81,7 +81,7 @@ class MeasureTheory.Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMe
   measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
 export IsDoubling (measure_ball_two_le_same)
 
-/-- A metric space with a measure with some nice propreties, including a doubling condition.
+/-- A metric space with a measure with some nice properties, including a doubling condition.
 This is called a "doubling metric measure space" in the blueprint.
 `A` will usually be `2 ^ a`. -/
 class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
