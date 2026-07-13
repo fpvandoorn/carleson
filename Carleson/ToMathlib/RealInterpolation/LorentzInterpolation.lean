@@ -31,7 +31,6 @@ lemma C_LorentzInterpolation_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {C₀ C₁
 theorem exists_hasLorentzType_real_interpolation {p₀ p₁ r₀ r₁ q₀ q₁ s₀ s₁ p q : ℝ≥0∞}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
-    [TopologicalSpace E₃] [MeasurableSpace E₃] [BorelSpace E₃]
     -- TODO: find out which of the conditions `(1 ≤ ·)` are actually necessary.
     (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁) (hr₀ : 1 ≤ r₀) (hr₁ : 1 ≤ r₁)
     (hq₀ : 1 ≤ q₀) (hq₁ : 1 ≤ q₁) (hs₀ : 1 ≤ s₀) (hs₁ : 1 ≤ s₁)
