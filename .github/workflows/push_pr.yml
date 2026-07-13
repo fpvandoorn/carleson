@@ -30,7 +30,7 @@ jobs:
         run: ~/.elan/bin/lake exe mk_all --check --lib Carleson
 
       - name: Build project
-        run: ~/.elan/bin/lake build Carleson
+        run: ~/.elan/bin/lake build Carleson Challenge Solution
 
       - name: Lint project
         run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter Carleson
