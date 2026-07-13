@@ -55,55 +55,41 @@ theorem two_sided_metric_carleson_hasLorentzType [Countable (Θ X)] (ha : 4 ≤ 
   have : IsOneSidedKernel a K := by infer_instance
   set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
   apply (two_sided_metric_carleson_hasRestrictedWeakType ha (mem_Ioc_of_Ioo hq) hqq' hT).hasLorentzType
-  · simpa
-  · simp
-  · simp
-  · exact C10_0_1_pos hq.1
+    (by simpa) (by simp) (by simp) (C10_0_1_pos hq.1)
   · intro f hf
     apply (carlesonOperator_measurable _).aestronglyMeasurable
     apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le]
   · intro f g hf hg
-    apply Filter.Eventually.of_forall
-    intro x
+    filter_upwards with x
     apply carlesonOperator_add_le_add_carlesonOperator
     · apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le]
     · apply (hg.memLp _).locallyIntegrable <;> simp [hq.1.le]
   · intro a f
-    apply Filter.Eventually.of_forall
-    intro x
-    apply le_of_eq
+    filter_upwards with x
     rw [carlesonOperator_const_smul']
-    rfl
+    exact le_of_eq rfl
   · intro f fs hf h_meas h_norm_monotone h_lim G
     have hf : LocallyIntegrable f volume := by
       apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le]
     have bound {n : ℕ} : ∀ᵐ (a : X), ‖fs n a‖ ≤ ‖f a‖ := by
-      apply Filter.Eventually.of_forall
-      intro x
-      have h_lim := (h_lim x).norm
-      have h_norm_monotone := h_norm_monotone x
-      apply h_norm_monotone.ge_of_tendsto h_lim
+      filter_upwards with x using (h_norm_monotone x).ge_of_tendsto (h_lim x).norm _
     calc _
       _ ≤ eLpNorm (fun x ↦ Filter.liminf (fun n ↦ carlesonOperator K (fs n) x) Filter.atTop) 1 (volume.restrict G) := by
         apply eLpNorm_mono_enorm
         intro x
-        simp only [enorm_eq_self]
         apply carlesonOperator_le_liminf_carlesonOperator_of_tendsto (norm ∘ f)
           (Filter.Eventually.of_forall h_meas) _ hf.norm (Filter.Eventually.of_forall h_lim)
-        apply Filter.Eventually.of_forall
-        simpa only [comp_apply]
+        filter_upwards; simpa
       _ ≤ Filter.liminf (fun n ↦ eLpNorm (carlesonOperator K (fs n)) 1 (volume.restrict G)) Filter.atTop := by
         rw [eLpNorm_one_eq_lintegral_enorm]
         simp_rw [eLpNorm_one_eq_lintegral_enorm, enorm_eq_self]
         apply lintegral_liminf_le
         intro n
-        apply (carlesonOperator_measurable _)
-        apply hf.mono (h_meas _) bound
-    apply Filter.liminf_le_limsup (by isBoundedDefault) (by isBoundedDefault)
+        exact carlesonOperator_measurable (hf.mono (h_meas _) bound)
+    exact Filter.liminf_le_limsup
   · simp
   · intro f g hfg
-    apply Filter.Eventually.of_forall
-    intro x
+    filter_upwards with x
     rw [carlesonOperator_congr_ae hfg]
 
 --TODO: move
@@ -113,7 +99,6 @@ def interpolation_param (t₀ t₁ t : ℝ) := (t - t₀) / (t₁ - t₀)
 --TODO: move
 lemma interpolation_param_interpolation {t₀ t₁ t : ℝ} (h : t₀ ≠ t₁) :
     t = (1 - interpolation_param t₀ t₁ t) * t₀ + interpolation_param t₀ t₁ t * t₁ := by
-  have : t₁ - t₀ ≠ 0 := sub_ne_zero_of_ne (id (Ne.symm h))
   unfold interpolation_param
   field_simp; ring
 
@@ -121,23 +106,21 @@ lemma interpolation_param_interpolation {t₀ t₁ t : ℝ} (h : t₀ ≠ t₁) 
 lemma interpolation_param_mem_Ioo {t₀ t₁ t : ℝ} (h : t ∈ Ioo t₀ t₁) :
     interpolation_param t₀ t₁ t ∈ Ioo 0 1 := by
   have : t₀ < t₁ := h.1.trans h.2
-  unfold interpolation_param
   constructor
   · apply div_pos (by simp [h.1]) (by simpa)
-  · rw [div_lt_one (by simpa)]
+  · rw [interpolation_param, div_lt_one (by simpa)]
     simp [h.2]
 
 /-- The constant used in `two_sided_metric_carleson_hasStrongType`. -/
 def C_carleson_hasStrongType (a : ℕ) (q : ℝ≥0) :=
-  let q₀ := (q + 2) / 2;
-  let q₁ := (q + 1) / 2;
-  let t := (interpolation_param q₀⁻¹ q₁⁻¹ q⁻¹).toNNReal;
+  letI q₀ := (q + 2) / 2;
+  letI q₁ := (q + 1) / 2;
+  letI t := (interpolation_param q₀⁻¹ q₁⁻¹ q⁻¹).toNNReal;
   (C_LorentzInterpolation q₀ q₁ q₀ q₁ q (4 * C10_0_1 a q₀ / q₀) (4 * C10_0_1 a q₁ / q₁) 1 t)
 
 /-- The constant used in `two_sided_metric_carleson_hasStrongType`. -/
-lemma C_carleson_hasStrongType_pos {a : ℕ} {q : ℝ≥0} : 0 < C_carleson_hasStrongType a q := by
-  unfold C_carleson_hasStrongType
-  apply C_LorentzInterpolation_pos
+lemma C_carleson_hasStrongType_pos {a : ℕ} {q : ℝ≥0} : 0 < C_carleson_hasStrongType a q :=
+  C_LorentzInterpolation_pos
 
 /- Theorem 10.0.1, reformulation -/
 theorem two_sided_metric_carleson_hasStrongType
@@ -202,14 +185,8 @@ theorem two_sided_metric_carleson_hasStrongType
   have hqq₀q₁ : q⁻¹ = (1 - t) / q₀ + t / q₁ := by
     have : q⁻¹.toReal = ((1 - t) / q₀ + t / q₁).toReal := by
       push_cast
-      rw [NNReal.coe_sub ht.2.le]
-      simp only [NNReal.coe_one]
-      have := @interpolation_param_interpolation q₀⁻¹ q₁⁻¹ q⁻¹
-      simp only [ne_eq, inv_inj, NNReal.coe_inj] at this
-      have := this q₀_ne_q₁
-      unfold t
-      rw [Real.coe_toNNReal _ h.1.le]
-      exact this
+      rw [NNReal.coe_sub ht.2.le, Real.coe_toNNReal _ h.1.le]
+      exact @interpolation_param_interpolation q₀⁻¹ q₁⁻¹ q⁻¹ (by simpa)
     rwa [← Real.toNNReal_eq_toNNReal_iff (by simp) (by positivity),
       Real.toNNReal_coe, Real.toNNReal_coe] at this
   have lorentzType_q₀ :

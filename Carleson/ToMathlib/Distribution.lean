@@ -352,25 +352,16 @@ lemma distribution_eq_zero_iff {ε} [TopologicalSpace ε] [ESeminormedAddMonoid 
   simp only [mem_setOf_eq, not_lt]
   constructor
   · intro h
-    apply essSup_le_of_ae_le
-    · filter_upwards [h]
-      simp
-    isBoundedDefault
+    apply essSup_le_of_ae_le _
+    filter_upwards [h] using by simp
   · rw [essSup]
     intro h
-    rw [← Filter.Eventually]
-    have : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ limsup (fun x ↦ ‖f x‖ₑ) (ae μ) := by
-      apply ENNReal.eventually_le_limsup
-    filter_upwards [this]
-    intro x hx
-    exact hx.trans h
+    filter_upwards [ENNReal.eventually_le_limsup ..] with x hx using hx.trans h
 
 lemma support_distribution {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} :
     (fun t ↦ distribution f t μ).support = Iio (eLpNormEssSup f μ) := by
   ext t
-  simp only [mem_support, ne_eq, mem_Iio]
-  rw [distribution_eq_zero_iff]
-  simp
+  simp [distribution_eq_zero_iff]
 
 lemma distribution_add {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g : α → ε}
   (h : Disjoint (Function.support f) (Function.support g)) (hg : AEStronglyMeasurable g μ) :
@@ -380,14 +371,10 @@ lemma distribution_add {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g
   · congr 1
     ext x
     simp only [Pi.add_apply, mem_setOf_eq, mem_union]
-    rcases (@or_not (x ∈ support f)) with hxf | hxf
+    by_cases hxf : x ∈ support f
     · have := disjoint_left.mp h hxf
-      simp only [mem_support, ne_eq, not_not] at this
-      rw [this]
-      simp
-    · simp only [mem_support, ne_eq, not_not] at hxf
-      rw [hxf]
-      simp
+      simp_all
+    · simp_all
   · apply nullMeasurableSet_lt aemeasurable_const hg.enorm
   · apply Disjoint.aedisjoint
     apply disjoint_of_subset _ _ h
@@ -412,9 +399,8 @@ lemma distribution_const_smul {f : α → ℝ≥0∞}
   unfold distribution
   congr with x
   simp only [Pi.smul_apply, smul_eq_mul, enorm_eq_self]
-  symm
   rw [mul_comm]
-  apply ENNReal.div_lt_iff h h'
+  apply (ENNReal.div_lt_iff h h').symm
 
 lemma distribution_mul {f : α → ℝ≥0∞}
   {a : ℝ≥0∞} (h : a ≠ ⊤ ∨ t ≠ 0) (h' : a ≠ 0 ∨ t ≠ ⊤) :
@@ -423,9 +409,7 @@ lemma distribution_mul {f : α → ℝ≥0∞}
     rw [ENNReal.div_eq_inv_mul, inv_inv]
   rw [this, ← distribution_const_smul (by simpa) (by simpa)]
   congr with x
-  rw [ENNReal.div_eq_inv_mul]
-  simp
-
+  simp [ENNReal.div_eq_inv_mul]
 
 lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
   (enorm_add : ∀ a b : ε, ‖a + b‖ₑ = ‖a‖ₑ + ‖b‖ₑ) --TODO: new type class for this property?
@@ -439,15 +423,11 @@ lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [E
     constructor
     · intro h
       contrapose! h
-      have : x ∉ support f := by exact fun a ↦ h (hfs a)
-      simp only [mem_support, ne_eq, not_not] at this
-      simp [this, h]
+      have : x ∉ support f := fun a ↦ h (hfs a)
+      simp_all
     · intro h
-      unfold indicator
       rw [enorm_add, add_comm]
-      split_ifs
-      apply lt_add_of_lt_of_nonneg _ zero_le
-      simpa [h]
+      exact lt_add_of_lt_of_nonneg (by simpa [h]) zero_le
   · push Not at ht
     congr 1 with x
     simp only [Pi.add_apply, mem_setOf_eq]
@@ -510,7 +490,8 @@ def C_distribution_le_of_eLpNorm_le (δ ε p : NNReal) : NNReal := δ * ε ^ p.t
 
 lemma C_distribution_le_of_eLpNorm_le_pos {δ ε p : NNReal} (δpos : 0 < δ) (εpos : 0 < ε) :
     0 < C_distribution_le_of_eLpNorm_le δ ε p := by
-  apply mul_pos δpos (NNReal.rpow_pos εpos)
+  -- TODO: `positivity` proves this on current mathlib -- fix after the bump!
+  exact mul_pos δpos (NNReal.rpow_pos εpos)
 
 lemma distribution_le_of_eLpNorm_le {ε' : Type*} [TopologicalSpace ε'] [ContinuousENorm ε']
   {δ ε p : NNReal} (δpos : 0 < δ) (p_pos : 0 < p) {f : α → ε'} (meas_f : AEStronglyMeasurable f μ)

@@ -95,14 +95,13 @@ theorem exceptional_set_carleson' {f : ℝ → ℂ} (cont_f : Continuous f)
           _ = δ / 4 := by simp
       · simp only [gt_iff_lt, nonpos_iff_eq_zero]
         rw [distribution_eq_zero_iff]
-        apply essSup_le_of_ae_le; swap; · isBoundedDefault
+        apply essSup_le_of_ae_le _
         rw [EventuallyLE, ae_restrict_iff' measurableSet_Ioc]
         filter_upwards with x hx
         simp only [enorm_eq_self, iSup_le_iff]
         intro N hN
-        rw [enorm_eq_nnnorm]
+        rw [enorm_eq_nnnorm, ← nnnorm_norm]
         norm_cast
-        rw [← nnnorm_norm]
         calc _
           _ ≤ ‖((δ / 4) : ℝ)‖₊ :=
             nnnorm_le_nnnorm (by simp) (hN₀ N hN x (Set.Ioc_subset_Icc_self hx))
