@@ -39,7 +39,7 @@ The precise technical result we prove is the **metric spaces Carleson theorem** 
 We also prove a **linearised metric space Carleson theorem** ([Theorem 1.1.2](https://florisvandoorn.com/carleson/blueprint/sect0001.html#linearised-metric-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/find/?pattern=LinearizedMetricCarleson#doc), [Lean proof](https://florisvandoorn.com/carleson/docs/find/?pattern=linearized_metric_carleson#doc)),
 which allows proving a generalisation of Carleson's theorem to [Walsh functions](https://en.wikipedia.org/wiki/Walsh_function).
 
-The new definitions needed to verify the *statements* of these theorems are in the file [`Carleson.Defs`](Carleson/Defs.lean), the statements themselves in [`Carleson.Statements`](Carleson/Defs.lean)
+The new definitions needed to verify the *statements* of these theorems are in the file [`Carleson.Defs`](Carleson/Defs.lean).
 
 ## Verifying the formalisation
 
@@ -54,6 +54,19 @@ Open the file `Carleson.lean` in a text editor of your choice. Add the end of th
 When the process is complete, at the very end of the output, you will see a line `'linearized_metric_carleson' depends on axioms: [propext, Classical.choice, Quot.sound]` (followed by `Build completed successfully`).
 This shows the proof is complete and correct. Had the build failed or the output included `sorryAx`, this would have indicated an error resp. an incomplete proof.
 (For the experts: this shows which axioms Lean used in the course of the proof. These three axioms are built into Lean's type theory.)
+
+### Comparator
+
+You can also check this formalization using Comparator, the gold standard for checking whether a formalization is correct. (This requires running a UNIX system.)
+* Follow installation instructions here: https://github.com/leanprover/comparator
+  * Make sure that both `comparator` and `lean4export` use the same version as specified by [`lean-toolchain`](lean-toolchain).
+  * Make sure the programs are in the PATH by running
+  `sudo cp .lake/build/bin/comparator /usr/local/bin/` and `sudo cp .lake/build/bin/lean4export /usr/local/bin/` in the respective repositories
+* Run
+```
+systemd-run --property=RestrictAddressFamilies=~AF_UNIX --user --pty -E PATH="$PATH" --working-directory "$(pwd)" -- bash -c 'lake env comparator comparator_config.json'
+```
+You will see a message like `Your solution is okay!`, indicating that comparator accepts your solution.
 
 ## Contribute
 

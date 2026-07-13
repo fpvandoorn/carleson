@@ -3,7 +3,7 @@ module
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
-public import Carleson.Statements
+public import Carleson.Defs
 public import Carleson.ToMathlib.Data.ENNReal
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
