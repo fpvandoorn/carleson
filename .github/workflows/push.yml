@@ -57,6 +57,9 @@ jobs:
           lint: true
           mk_all-check: false # would need to pass '--lib Carleson' to mk_all to enable
 
+      - name: Build comparator files
+        run: ~/.elan/bin/lake build Challenge Solution
+
       - name: Upstreaming dashboard
         uses: leanprover-community/upstreaming-dashboard-action@main
         with:
