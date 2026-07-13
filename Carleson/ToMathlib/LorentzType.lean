@@ -4,7 +4,8 @@ public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
 public import Mathlib.Order.Filter.ENNReal
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
-public import Carleson.Statements
+public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
+public import Carleson.Defs
 public import Carleson.ToMathlib.Data.ENNReal
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable

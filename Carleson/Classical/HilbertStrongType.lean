@@ -3,7 +3,7 @@ module
 public import Carleson.Classical.DirichletKernel
 public import Carleson.Classical.HilbertKernel
 public import Carleson.Classical.SpectralProjectionBound
-public import Carleson.Statements
+public import Carleson.Defs
 public import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 public import Carleson.TwoSidedCarleson.Basic
 public import Mathlib.Algebra.BigOperators.Group.Finset.Indicator

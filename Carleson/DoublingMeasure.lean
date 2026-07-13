@@ -1,6 +1,6 @@
 module
 
-public import Carleson.Statements
+public import Carleson.Defs
 public import Carleson.LipschitzNorm
 public import Carleson.ToMathlib.Annulus
 public import Carleson.ToMathlib.Data.ENNReal

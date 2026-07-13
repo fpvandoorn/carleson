@@ -4,13 +4,13 @@ public import Mathlib.Analysis.Fourier.AddCircle
 
 /-! # Key definitions and setup for the Carleson project
 
-This file contains the basic definitions to state the main theorems from the Carleson formalization
-project: Theorem 1.0.1 (classical Carleson), Theorem 1.1.1 (metric space Carleson) and
-Theorem 1.1.2 (linearised metric Carleson).
+This file contains the statements of the main theorems from the Carleson formalization project:
+Theorem 1.0.1 (classical Carleson), Theorem 1.1.1 (metric space Carleson) and Theorem 1.1.2
+(linearised metric Carleson), as well as the definitions required to state these results.
 
 These are intentionally put in a very low-level file to enable running the comparator tool.
 
-## Main definitions
+## Main definitions and results
 
 - `MeasureTheory.DoublingMeasure`: A metric space with a measure with some nice propreties,
 including a doubling condition. This is called a "doubling metric measure space" in the blueprint.
@@ -19,6 +19,17 @@ every ball.
 - `IsOneSidedKernel K` states that `K` is a one-sided Calderon-Zygmund kernel.
 - `KernelProofData`: Data common through most of chapters 2-7. These contain the minimal axioms
 for `kernel-summand`'s proof.
+- `MeasureTheory.DoublingMeasure`: A metric space with a measure with some nice propreties,
+including a doubling condition. This is called a "doubling metric measure space" in the blueprint.
+- `FunctionDistances`: class stating that continuous functions have distances associated to
+every ball.
+- `IsOneSidedKernel K` states that `K` is a one-sided Calderon-Zygmund kernel.
+- `KernelProofData`: Data common through most of chapters 2-7. These contain the minimal axioms
+for `kernel-summand`'s proof.
+- `ClassicalCarleson`: statement of Carleson's theorem asserting a.e. convergence of the partial
+Fourier sums for continous functions (Theorem 1.0.1 in the blueprint).
+- `MetricSpaceCarleson`: statement of Theorem 1.1.1 from the blueprint.
+- `LinearizedMetricCarleson`: statement of Theorem 1.1.2 from the blueprint.
 
 -/
 
@@ -81,7 +92,7 @@ class MeasureTheory.Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMe
   measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
 export IsDoubling (measure_ball_two_le_same)
 
-/-- A metric space with a measure with some nice propreties, including a doubling condition.
+/-- A metric space with a measure with some nice properties, including a doubling condition.
 This is called a "doubling metric measure space" in the blueprint.
 `A` will usually be `2 ^ a`. -/
 class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
@@ -257,3 +268,57 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
 export KernelProofData (four_le_a)
 
 attribute [implicit_reducible, instance] KernelProofData.d KernelProofData.cf
+
+attribute [instance] KernelProofData.hcz
+
+section Statements
+
+/-- The main constant in the blueprint, driving all the construction, is `D = 2 ^ (100 * a ^ 2)`.
+It turns out that the proof is robust, and works for other values of `100`, giving better constants
+in the end. We will formalize it using a parameter `𝕔` (that we fix equal to `100` to follow
+the blueprint) and having `D = 2 ^ (𝕔 * a ^ 2)`. We register two lemmas `seven_le_c` and
+`c_le_100` and will never unfold `𝕔` from this point on. -/
+irreducible_def 𝕔 : ℕ := 100
+
+/-- The constant used in `MetricSpaceCarleson` and `LinearizedMetricCarleson`.
+Has value `2 ^ (443 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ ((3 * 𝕔 + 18 + 5 * (𝕔 / 4)) * a ^ 3) / (q - 1) ^ 6
+
+set_option linter.unusedVariables false
+
+/-- A constant used on the boundedness of `T_Q^θ` and `T_*`. We generally assume
+`HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·) 2 2 volume volume (C_Ts a)`
+throughout this formalization. -/
+def C_Ts (a : ℕ) : ℝ≥0 := 2 ^ a ^ 3
+
+open Real in
+/-- Theorem 1.0.1: Carleson's theorem asserting a.e. convergence of the partial Fourier sums for
+continous functions.
+For the proof, see `classical_carleson` in the file `Carleson.Classical.ClassicalCarleson`. -/
+def ClassicalCarleson : Prop :=
+  ∀ {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)),
+    ∀ᵐ x, Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))
+
+/-- Theorem 1.1.1.
+For the proof, see `metric_carleson` in the file `Carleson.MetricCarleson.Main`. -/
+def MetricSpaceCarleson : Prop :=
+  ∀ {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ}
+    [KernelProofData a K] {f : X → ℂ} [IsCancellative X (defaultτ a)] (hq : q ∈ Ioc 1 2)
+    (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+    (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)),
+    ∫⁻ x in G, carlesonOperator K f x ≤ C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
+
+/-- Theorem 1.1.2.
+For the proof, see `linearized_metric_carleson` in the file `Carleson.MetricCarleson.Linearized`. -/
+def LinearizedMetricCarleson : Prop :=
+  ∀ {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ}
+    [KernelProofData a K] {Q : SimpleFunc X (Θ X)} {f : X → ℂ} [IsCancellative X (defaultτ a)]
+    (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+    (hT : ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+      2 2 volume volume (C_Ts a)),
+    ∫⁻ x in G, linearizedCarlesonOperator Q K f x ≤
+      C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
+
+end Statements

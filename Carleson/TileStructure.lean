@@ -59,10 +59,7 @@ class TileStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasur
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p -- 2.0.13, union contains `Q`
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : -- 2.0.13, union is disjoint
     Disjoint (Ω p) (Ω p')
-  relative_fundamental_dyadic {p p'} (h :
-    -- why is the next line needed?!!
-    letI : PartialOrder (Grid) := @instPartialOrderGrid X A _ _ D κ S o _
-    𝓘 p ≤ 𝓘 p') : -- 2.0.14
+  relative_fundamental_dyadic {p p' : _root_.𝔓 X} (h : _root_.𝓘 p ≤ _root_.𝓘 p') : -- 2.0.14
     Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
   cball_subset {p : _root_.𝔓 X} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
   subset_cball {p : _root_.𝔓 X} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
