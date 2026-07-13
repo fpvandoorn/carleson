@@ -915,6 +915,7 @@ lemma K_pos : 0 < (K' : ℝ) := by
   simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.ofNat_pos, pow_pos]
 
 variable (X) in
+@[nolint unusedArguments] -- TODO: fix overlapping instance warning; this will also fix the linter
 def C4_1_7 [ProofData a q K σ₁ σ₂ F G] : ℝ≥0 := As (defaultA a) (2 ^ 4)
 
 variable (X) in
@@ -1287,6 +1288,7 @@ section ProofData
 include q K σ₁ σ₂ F G
 
 variable (a) in
+@[nolint unusedArguments] -- TODO: linter false positive
 def const_n {t : ℝ} (_ht : t ∈ Ioo 0 1) : ℕ := ⌊-Real.logb D t / K'⌋₊
 
 variable {t : ℝ}
@@ -1814,6 +1816,7 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
 
 /-- 1 / 5 -/
 @[simp] def CΩ : ℝ := 1 / 5
+attribute [nolint simpNF] CΩ.eq_1 -- TODO: understand why the simpNF linter fires here
 
 open scoped Classical in
 def Ω (p : 𝔓 X) : Set (Θ X) :=
