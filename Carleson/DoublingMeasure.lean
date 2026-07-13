@@ -44,7 +44,7 @@ lemma c_le_100 : 𝕔 ≤ 100 := exists_c.choose_spec.2
 def nnD (a : ℕ) : ℝ≥0 := ⟨defaultD a, by simp⟩
 
 /-- The constant `κ` from (2.0.2). -/
-@[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
+def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
 
 /-- The constant `Z` from (2.0.3). -/
 @[simp] def defaultZ (a : ℕ) : ℕ := 2 ^ (12 * a)
@@ -207,7 +207,7 @@ instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
   obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
   use x
 
-instance inhabited_Space [CompatibleFunctions 𝕜 X A] : Inhabited X :=
+instance [CompatibleFunctions 𝕜 X A] : Inhabited X :=
   ⟨nonempty_Space.some⟩
 
 lemma le_localOscillation [CompatibleFunctions 𝕜 X A] (x : X) (r : ℝ) (f g : Θ X) {y z : X}
