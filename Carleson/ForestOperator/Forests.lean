@@ -266,7 +266,7 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
           fun _ hz => ⟨hz.right, Grid.mem_mono hz.left h𝔲.right⟩
       obtain ⟨𝔲,h𝔲⟩ := h
       simp only [biUnion_lt_succ, ← sdiff_sdiff] at h𝔲 ⊢
-      rw [stackSize_sdiff_eq,← Nat.sub_sub]
+      rw [stackSize_sdiff_eq, ← Nat.sub_sub]
       apply tsub_le_tsub hinduct (stackSize_remainder_ge_one_of_exists t j x _)
       rw [Set.mem_sdiff] at h𝔲
       apply (or_not).elim id

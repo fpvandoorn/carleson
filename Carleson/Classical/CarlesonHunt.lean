@@ -80,8 +80,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         add_le_add_left (enorm_add_le ..) _
       _ ≤ ‖f x - f₀ x‖ₑ + (⨆ N > N₀, ‖f₀ x - S_ N f₀ x‖ₑ) + ⨆ N, ‖S_ N (f₀ - f) x‖ₑ := by
         gcongr
-        · refine le_iSup₂_of_le N hN ?_
-          rfl
+        · exact le_iSup₂_of_le N hN (le_of_eq rfl)
         · apply le_iSup_of_le N
           rw [partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable _ _)]
           · rfl
@@ -93,7 +92,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         ((δ / 4) + (δ / 4) + (δ / 2)) (volume.restrict (Set.Ioc 0 (2 * π))) := by
       apply distribution_mono
       · filter_upwards [this] with x hx
-        simp only [gt_iff_lt, enorm_eq_self, hx]
+        simp [hx]
       · norm_cast
         ring_nf
         rfl
@@ -113,14 +112,13 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         simp
       · simp only [gt_iff_lt, nonpos_iff_eq_zero]
         rw [distribution_eq_zero_iff]
-        apply essSup_le_of_ae_le; swap; · isBoundedDefault
+        apply essSup_le_of_ae_le _
         rw [EventuallyLE, ae_restrict_iff' measurableSet_Ioc]
         filter_upwards with x hx
         simp only [enorm_eq_self, iSup_le_iff]
         intro N hN
-        rw [enorm_eq_nnnorm]
+        rw [enorm_eq_nnnorm, ← nnnorm_norm]
         norm_cast
-        rw [← nnnorm_norm]
         calc _
           _ ≤ ‖((δ / 4) : ℝ)‖₊ := by
             apply nnnorm_le_nnnorm (by simp)

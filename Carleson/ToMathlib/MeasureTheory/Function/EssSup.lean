@@ -2,19 +2,17 @@ module
 
 public import Mathlib.MeasureTheory.Function.EssSup
 
---Upstreaming status: proofs might be shortened, otherwiseready
+-- Upstreaming status: proofs might be shortened, otherwise ready
 
 public section
 
-open MeasureTheory ENNReal
+open MeasureTheory
 
 lemma essSup_le_iSup {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α}
   [CompleteLattice β] {f : α → β} :
     essSup f μ ≤ ⨆ i, f i := by
-  apply essSup_le_of_ae_le
-  · filter_upwards [] with i
-    apply le_iSup
-  isBoundedDefault
+  apply essSup_le_of_ae_le _ ?_
+  filter_upwards with i using (le_iSup ..)
 
 lemma iSup_le_essSup {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α}
   [CompleteLinearOrder β] {f : α → β} (h : ∀ ⦃x⦄, ∀ ⦃a⦄, a < f x → μ {y | a < f y} ≠ 0) :
@@ -30,9 +28,5 @@ lemma iSup_le_essSup {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Me
   have := h hc
   contrapose! this
   rw [← ENNReal.bot_eq_zero, ← le_bot_iff] at *
-  apply le_trans _ hb
-  apply measure_mono
-  intro x
-  simp only [Set.mem_setOf_eq]
-  intro hc
-  exact lt_of_le_of_lt this hc
+  grw [← hb]
+  gcongr
