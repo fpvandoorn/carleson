@@ -697,12 +697,11 @@ lemma boundary_exception {u : 𝔓 X} :
                 _ ≤ 4 * D ^ s i + dist (c i) bpt := by
                   have dist_ipt_c_i_le : dist ipt (c i) < 4 * D ^ s i := by
                     have ipt_in_ball_4 : ipt ∈ ball (c i) (4 * D ^ s i) := Grid_subset_ball hipt
-                    simp_all only [le_eq_subset, ball, mem_setOf_eq, Grid.mem_def]
+                    simp_all
                   rel [dist_ipt_c_i_le]
                 _ ≤ 4 * D ^ s i + dist bpt (c i) := by rw [dist_comm]
                 _ ≤ 4 * D ^ s i + 8 * D ^ s i := by
-                    have dist_bpt_c_i_le : dist bpt (c i) < 8 * D ^ s i := by
-                      simp_all only [le_eq_subset, ball, mem_setOf_eq, Grid.mem_def]
+                    have dist_bpt_c_i_le : dist bpt (c i) < 8 * D ^ s i := by simp_all
                     rel [dist_bpt_c_i_le]
                 _ ≤ 12 * D ^ s i := by linarith
             -- show the the triangle inequality implies distance between ipt and (𝓘 u)ᶜ <= 12 * D ^ s i
