@@ -7,7 +7,6 @@ public import Mathlib.MeasureTheory.Covering.Vitali
 public import Mathlib.MeasureTheory.Integral.Average
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Mathlib.Tactic.Field
-import Carleson.ToMathlib.MeasureTheory.Covering.Vitali
 
 @[expose] public noncomputable section
 
@@ -99,7 +98,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
     linarith
   · have : ∀ᵐ z : X ∂μ, dist z x.1 ≠ x.2 := by
       change (μ ({z | ¬ (dist z x.1 ≠ x.2)}) = 0)
-      simpa only [ne_eq, Decidable.not_not] using hμ x.1 x.2 hx_pos
+      simpa only [ne_eq, Decidable.not_not] using! hμ x.1 x.2 hx_pos
     filter_upwards [this] with y hy
     by_cases hy2 : dist y x.1 < x.2
     · simp only [indicator, ball, mem_setOf_eq]
@@ -204,7 +203,7 @@ lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStro
   _ ≤ M := by
     apply liminf_le_of_le (f := atTop)
     intro b hb
-    simp only [eventually_atTop, ge_iff_le] at hb
+    simp only [eventually_atTop] at hb
     obtain ⟨a, ha⟩ := hb
     exact le_of_lt <| lt_of_le_of_lt (ha a le_rfl) <|
-      by unfold g; rw [lintegral_indicator measurableSet_ball]; exact hns₁ a
+      by rw [lintegral_indicator measurableSet_ball]; exact hns₁ a

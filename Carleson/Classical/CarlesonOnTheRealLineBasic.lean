@@ -245,7 +245,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
     ext g
     refine ⟨by simp, ?_⟩
     simp only [Set.mem_univ, mem_ball, true_implies, dist_integer_linear_eq]
-    convert R'pos
+    convert! R'pos
     simpa using Or.inl Rpos
   set m₁ := Int.floor (f - R' / (2 * R)) with m₁def
   set! m₂ := f with m₂def
@@ -485,7 +485,7 @@ instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
     intro x x' y h
     rw [dist_comm x y] at h
     rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, ← ofReal_norm,
-      Complex.norm_conj, edist_comm x y, Real.vol_symm, ofReal_norm_eq_enorm]
+      Complex.norm_conj, edist_comm x y, Real.vol_symm, ofReal_norm]
     exact enorm_K_sub_le (K := K) h
 
 local notation "T" => carlesonOperatorReal K

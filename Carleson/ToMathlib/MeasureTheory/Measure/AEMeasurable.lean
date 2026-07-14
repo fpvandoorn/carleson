@@ -58,12 +58,12 @@ theorem aemeasurable_Ici_of_forall_Icc' {α : Type*} {m0 : MeasurableSpace α} [
   rw [h, Icc_self, Measure.restrict_singleton]
   apply aemeasurable_dirac.smul_measure
 
-@[fun_prop, measurability]
+@[fun_prop]
 lemma AEMeasurable.withDensity {α β : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
   {mβ : MeasurableSpace β} {f : α → β} {d : α → ENNReal} (hf : AEMeasurable f μ) :
     AEMeasurable f (μ.withDensity d) := hf.mono' (withDensity_absolutelyContinuous μ d)
 
-@[fun_prop, measurability]
+@[fun_prop]
 lemma AEStronglyMeasurable.withDensity {α β : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
   [TopologicalSpace β] {f : α → β} {d : α → ENNReal} (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable f (μ.withDensity d) := hf.mono_ac (withDensity_absolutelyContinuous μ d)

@@ -93,11 +93,11 @@ lemma distribution_congr_ae (h : ∀ᵐ x ∂μ, f x = g x) :
   rw [this, hy]
   rfl
 
-@[measurability, fun_prop]
+@[fun_prop]
 lemma distribution_measurable₀ : Measurable (fun t ↦ distribution f t μ) :=
   Antitone.measurable (distribution_mono_right' (f := f) (μ := μ))
 
-@[measurability, fun_prop]
+@[fun_prop]
 lemma distribution_measurable {g : α' → ℝ≥0∞} (hg : Measurable g) :
     Measurable (fun y : α' ↦ distribution f (g y) μ) := by
   fun_prop
@@ -226,19 +226,19 @@ section distribution
 
 variable {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α → ε'}
 
-@[gcongr]
+@[gcongr only]
 lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     distribution f t μ ≤ distribution g t μ := by
   have h₀ : {x | t < ‖f x‖ₑ} \ {x | t < ‖g x‖ₑ} ⊆ {x | ¬‖f x‖ₑ ≤ ‖g x‖ₑ} := fun x ↦ by
-    simp_rw [mem_diff, mem_setOf_eq, not_lt, not_le, and_imp]
+    simp_rw [Set.mem_sdiff, mem_setOf_eq, not_lt, not_le, and_imp]
     intro i₁ i₂; simpa using i₂.trans_lt i₁
   calc
     _ ≤ μ ({x | t < ‖f x‖ₑ} ∩ {x | t < ‖g x‖ₑ})
-      + μ ({x | t < ‖f x‖ₑ} \ {x | t < ‖g x‖ₑ}) := measure_le_inter_add_diff μ _ _
+      + μ ({x | t < ‖f x‖ₑ} \ {x | t < ‖g x‖ₑ}) := measure_le_inter_add_sdiff μ _ _
     _ = μ ({x | t < ‖f x‖ₑ} ∩ {x | t < ‖g x‖ₑ}) := by rw [measure_mono_null h₀ h, add_zero]
     _ ≤ _ := by apply measure_mono; simp
 
-@[gcongr]
+@[gcongr only]
 lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h₂ : t ≤ s) :
     distribution f s μ ≤ distribution g t μ :=
   (distribution_mono_left h₁).trans (distribution_mono_right h₂)
@@ -339,10 +339,10 @@ lemma distribution_indicator_superlevelSet_compl {ε} [TopologicalSpace ε] [ENo
   rw [distribution_indicator_eq]
   by_cases h : t ≤ x
   · rw [tsub_eq_zero_of_le (distribution_mono_right h), ← measure_empty (μ := μ)]
-    rw [← Set.diff_eq_compl_inter, Set.diff_eq_empty.mpr (superlevelSet_antitone h)]
+    rw [← sdiff_eq_compl_inter, sdiff_eq_empty.mpr (superlevelSet_antitone h)]
   · push Not at h
-    rw [← Set.diff_eq_compl_inter,
-      measure_diff (superlevelSet_antitone h.le) (nullMeasurableSet_superlevelSet hf) ht]
+    rw [← sdiff_eq_compl_inter,
+      measure_sdiff (superlevelSet_antitone h.le) (nullMeasurableSet_superlevelSet hf) ht]
     rfl
 
 lemma distribution_eq_zero_iff {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f : α → ε} :
@@ -353,8 +353,9 @@ lemma distribution_eq_zero_iff {ε} [TopologicalSpace ε] [ESeminormedAddMonoid 
   constructor
   · intro h
     apply essSup_le_of_ae_le
-    filter_upwards [h]
-    simp
+    · filter_upwards [h]
+      simp
+    isBoundedDefault
   · rw [essSup]
     intro h
     rw [← Filter.Eventually]
@@ -474,14 +475,14 @@ lemma distribution_indicator_add_of_support_subset_ennreal {f : α → ℝ≥0�
   {s : Set α} (hfs : Function.support f ⊆ s) :
     distribution (f + s.indicator (Function.const α c)) t μ
       = if t < c then μ s else distribution f (t - c) μ := by
-  convert distribution_indicator_add_of_support_subset (by simp) (by simpa) hfs
+  convert! distribution_indicator_add_of_support_subset (by simp) (by simpa) hfs
 
 /- NNReal version of the previous lemma -/
 lemma distribution_indicator_add_of_support_subset_nnreal {f : α → ℝ≥0} {c : ℝ≥0}
   {s : Set α} (hfs : Function.support f ⊆ s) :
     distribution (f + s.indicator (Function.const α c)) t μ
       = if t < c then μ s else distribution f (t - c) μ := by
-  convert distribution_indicator_add_of_support_subset (by simp) (by simp) hfs
+  convert! distribution_indicator_add_of_support_subset (by simp) (by simp) hfs
 
 lemma distribution_eq_distribution_prod {ε}
   [ENorm ε] {f : α → ε} {t : ℝ≥0∞}

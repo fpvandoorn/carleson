@@ -433,10 +433,10 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
   filter_upwards [ae_in_Ioo_zero_top] with a ha
   rw [ENNReal.ofReal_mul (by simp), ← add_mul]
   gcongr ?_ * _
-  convert estimate_distribution_subadditiveTrunc (tc.ran_ton a ha).1 ht <;> simp
+  convert! estimate_distribution_subadditiveTrunc (tc.ran_ton a ha).1 ht <;> simp
 
 -- TODO: the infrastructure can perhaps be improved here
-@[measurability, fun_prop]
+@[fun_prop]
 theorem ton_measurable_eLpNorm_trunc [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] (tc : ToneCouple) :
     Measurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) := by
   change Measurable ((fun t : ℝ≥0∞ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton))
@@ -1071,8 +1071,6 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
             div_eq_mul_inv, ← ofReal_inv_of_pos, ← ENNReal.ofReal_rpow_of_pos] <;> try positivity
         rw [← mul_assoc, simplify_factor₄ (ht := ht) (hC₁ := hC₁) (hq₀' := hq₀q₁.ne_top)]
             <;> try assumption
-        · rw [abs_of_pos] <;> linarith
-        · rw [abs_of_pos] <;> linarith
         · linarith
       · split_ifs with is_q₁top
         · rw [mul_zero, mul_zero]

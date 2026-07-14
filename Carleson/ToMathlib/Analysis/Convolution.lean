@@ -59,7 +59,8 @@ lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm
     hg.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x₀
   have hL' : ∀ᵐ (x : G) ∂μ, ‖L (f x) (g (x₀ - x))‖ ≤ (1 : NNReal) * ‖f x‖ * ‖g (x₀ - x)‖ := by
     simpa using Filter.Eventually.of_forall (fun x ↦ hL x (x₀ - x))
-  simpa [eLpNorm, eLpNorm'] using eLpNorm_le_eLpNorm_mul_eLpNorm'_of_norm hf hg' (L ·) _ hL' (hpqr := hpq)
+  simpa [eLpNorm, eLpNorm'] using!
+    eLpNorm_le_eLpNorm_mul_eLpNorm'_of_norm hf hg' (L ·) _ hL' (hpqr := hpq)
 
 /-- If `MemLp f p μ` and `MemLp g q μ`, where `p` and `q` are Hölder conjugates, then the
 convolution of `f` and `g` exists everywhere. -/

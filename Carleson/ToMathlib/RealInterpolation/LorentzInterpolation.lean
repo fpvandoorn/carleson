@@ -14,11 +14,7 @@ open NNReal ENNReal MeasureTheory Set Pointwise
 variable {α α' ε E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
-  [TopologicalSpace E] [TopologicalSpace E₁] [TopologicalSpace E₂] [TopologicalSpace E₃]
-  [ENormedAddCommMonoid E]
-  [ENormedAddCommMonoid E₁] [ENormedAddCommMonoid E₂] [ENormedAddCommMonoid E₃]
-  [MeasurableSpace E] [BorelSpace E]
-  [MeasurableSpace E₃] [BorelSpace E₃]
+  [TopologicalSpace E] [ENormedAddCommMonoid E] [MeasurableSpace E] [BorelSpace E]
   {f : α → E₁} {t : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
 
@@ -27,7 +23,7 @@ def C_LorentzInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : �
     sorry
 
 lemma C_LorentzInterpolation_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {C₀ C₁ A : ℝ≥0} {t : ℝ≥0∞} :
-  --TODO: probably need some assumptions
+  -- TODO: probably need some assumptions
   0 < C_LorentzInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t :=
     sorry
 

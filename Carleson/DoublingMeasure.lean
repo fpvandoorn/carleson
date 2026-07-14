@@ -44,7 +44,7 @@ lemma c_le_100 : 𝕔 ≤ 100 := exists_c.choose_spec.2
 def nnD (a : ℕ) : ℝ≥0 := ⟨defaultD a, by simp⟩
 
 /-- The constant `κ` from (2.0.2). -/
-@[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
+def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
 
 /-- The constant `Z` from (2.0.3). -/
 @[simp] def defaultZ (a : ℕ) : ℕ := 2 ^ (12 * a)
@@ -192,9 +192,7 @@ attribute [local instance] fact_isCompact_ball
 
 section FunctionDistances
 
-variable [FunctionDistances 𝕜 X]
-
-instance : ContinuousMapClass (Θ X) X 𝕜 := ⟨fun f ↦ (f : C(X, 𝕜)).2⟩
+instance [FunctionDistances 𝕜 X] : ContinuousMapClass (Θ X) X 𝕜 := ⟨fun f ↦ (f : C(X, 𝕜)).2⟩
 
 def toWithFunctionDistance {x : X} {r : ℝ} [FunctionDistances 𝕜 X] :
     Θ X ≃ WithFunctionDistance x r := .refl _
@@ -209,7 +207,7 @@ instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
   obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
   use x
 
-instance inhabited_Space [CompatibleFunctions 𝕜 X A] : Inhabited X :=
+instance [CompatibleFunctions 𝕜 X A] : Inhabited X :=
   ⟨nonempty_Space.some⟩
 
 lemma le_localOscillation [CompatibleFunctions 𝕜 X A] (x : X) (r : ℝ) (f g : Θ X) {y z : X}
@@ -272,7 +270,7 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
   constructor
   intro x r φ hr h1 h2 f g
   convert ENNReal.ofReal_le_ofReal (h (x := x) (r := r) (φ := φ) hr h1 h2 (f := f) (g := g))
-  · rw [ofReal_norm_eq_enorm]
+  · rw [ofReal_norm]
     congr 1
     rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
     have : φ y = 0 := by
@@ -398,7 +396,7 @@ lemma isOneSidedKernel_const_smul {a : ℕ} {K : X → X → ℂ} [IsOneSidedKer
     IsOneSidedKernel a (r • K) where
   measurable_K := measurable_K.const_smul r
   norm_K_le_vol_inv x y := by
-    convert mul_le_mul hr (norm_K_le_vol_inv (K := K) x y) (norm_nonneg _) (zero_le_one' ℝ) using 1
+    convert! mul_le_mul hr (norm_K_le_vol_inv (K := K) x y) (norm_nonneg _) (zero_le_one' ℝ) using 1
     all_goals simp
   norm_K_sub_le h := by
     simp only [Pi.smul_apply, real_smul]

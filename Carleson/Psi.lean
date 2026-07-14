@@ -98,7 +98,7 @@ lemma support_ψ : support (ψ D) = Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
   by_cases! hx₀ : x ≤ 1 / (4 * D)
   · suffices x ≤ (D : ℝ)⁻¹ * 4⁻¹ by simp [ψ_formula₀ hx₀, this]
     rwa [one_div, mul_inv_rev] at hx₀
-  have hx₀_inv : (D : ℝ)⁻¹ * 4⁻¹ < x := by convert hx₀ using 1; simp
+  have hx₀_inv : (D : ℝ)⁻¹ * 4⁻¹ < x := by convert! hx₀ using 1; simp
   have ne₀ : 4 * D * x - 1 ≠ 0 := ne_of_gt (by rwa [sub_pos, ← div_lt_iff₀' (by linarith)])
   by_cases! hx₁ : x ≤ 1 / (2 * D)
   · suffices (D : ℝ)⁻¹ * 4⁻¹ < x ∧ x < 2⁻¹ by simpa [ne₀, ψ_formula₁ hD ⟨hx₀.le, hx₁⟩]
@@ -320,17 +320,17 @@ open scoped ShortVariables
 
 section PseudoMetricSpace
 
-variable (X : Type*) {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X]
+variable {X : Type*} {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X]
 variable {s : ℤ} {x y : X}
 
 private lemma zpow_realD_pos (s : ℤ) : 0 < (D : ℝ) ^ s := by positivity [realD_pos a]
-
-variable {X} [KernelProofData a K]
 
 /-- K_s in the blueprint -/
 @[nolint unusedArguments]
 def Ks [KernelProofData a K] (s : ℤ) (x y : X) : ℂ :=
   K x y * ψ (D ^ (-s) * dist x y)
+
+variable [KernelProofData a K]
 
 lemma Ks_def (s : ℤ) (x y : X) : Ks s x y = K x y * ψ (D ^ (-s) * dist x y) := rfl
 
@@ -462,7 +462,6 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
   have ball_subset := ball_subset_ball (x := x) hxy
   apply le_trans <| (div_le_div_iff_of_pos_left hc v0₁ v0₂).2 <|
     ENNReal.toNNReal_mono measure_ball_ne_top (OuterMeasureClass.measure_mono _ ball_subset)
-  dsimp only
   rw [div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_iff_right₀ hc).2 <|
     DoublingMeasure.volume_real_ball_two_le_same_repeat' s x n

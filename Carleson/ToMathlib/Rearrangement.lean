@@ -64,12 +64,12 @@ lemma rearrangement_eq_zero_of_ae_zero {ε} [TopologicalSpace ε] [ESeminormedAd
 lemma rearrangement_antitone : (Antitone (fun t ↦ rearrangement f t μ)) :=
   fun _ _ h ↦ rearrangement_antitone' h
 
-@[gcongr] lemma rearrangement_mono_fun (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
+@[gcongr only] lemma rearrangement_mono_fun (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     rearrangement f x μ ≤ rearrangement g x μ := by
   apply sInf_le_sInf
   exact fun σ hσ => (distribution_mono_left h).trans hσ
 
-@[gcongr] lemma rearrangement_le_rearrangement (h1 : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h2 : x ≤ y) :
+@[gcongr only] lemma rearrangement_le_rearrangement (h1 : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h2 : x ≤ y) :
     rearrangement f y μ ≤ rearrangement g x μ :=
   le_trans (rearrangement_antitone' h2) (rearrangement_mono_fun h1)
 
@@ -80,11 +80,11 @@ lemma rearrangment_eq_rearrangement_of_distribution_eq_distribution {β : Type*}
   unfold rearrangement
   simp_rw [h]
 
-@[measurability, fun_prop]
+@[fun_prop]
 lemma rearrangement_measurable₀ : Measurable (fun t ↦ rearrangement f t μ) :=
   Antitone.measurable (rearrangement_antitone (f := f) (μ := μ))
 
-@[measurability, fun_prop]
+@[fun_prop]
 lemma rearrangement_measurable {α' : Type*} {m : MeasurableSpace α'} {g : α' → ℝ≥0∞}
   (hg : Measurable g) :
     Measurable (fun y : α' ↦ rearrangement f (g y) μ) := by fun_prop
@@ -100,21 +100,21 @@ lemma distribution_rearrangement_le : distribution f (rearrangement f x μ) μ �
       intro ε ε_pos
       have := exists_lt_of_csInf_lt (by contrapose! hx; simp_all [rearrangement]) (ENNReal.lt_add_right hx ε_pos.ne')
       rcases this with  ⟨σ, hσ₁, hσ₂⟩
-      exact le_trans ( distribution_mono_right hσ₂.le ) hσ₁;
+      exact le_trans (distribution_mono_right hσ₂.le) hσ₁;
     have h_lim : Filter.Tendsto (fun ε => distribution f (rearrangement f x μ + ε) μ) (nhdsWithin 0 (Set.Ioi 0)) (nhds (distribution f (rearrangement f x μ) μ)) := by
       have h_lim : ContinuousWithinAt (fun ε => distribution f (rearrangement f x μ + ε) μ) (Set.Ioi 0) 0 := by
         have h_lim : ContinuousWithinAt (fun ε => distribution f ε μ) (Set.Ioi (rearrangement f x μ)) (rearrangement f x μ) :=
           continuousWithinAt_distribution (rearrangement f x μ);
-        rw [ ContinuousWithinAt ] at *;
-        convert h_lim.comp ( show Filter.Tendsto ( fun ε : ℝ≥0∞ => rearrangement f x μ + ε ) ( nhdsWithin 0 ( Set.Ioi 0 ) ) ( nhdsWithin ( rearrangement f x μ ) ( Set.Ioi ( MeasureTheory.rearrangement f x μ ) ) ) from ?_ ) using 2;
+        rw [ContinuousWithinAt] at *;
+        convert! h_lim.comp (show Filter.Tendsto (fun ε : ℝ≥0∞ => rearrangement f x μ + ε) (nhdsWithin 0 (Set.Ioi 0)) (nhdsWithin (rearrangement f x μ) (Set.Ioi (MeasureTheory.rearrangement f x μ))) from ?_) using 2;
         · rw [ add_zero ];
         · rw [ tendsto_nhdsWithin_iff ];
           simp_all only [gt_iff_lt, Set.mem_Ioi]
           constructor
-          · exact tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' (by continuity) _ _ (by simp) );
+          · exact tendsto_nhdsWithin_of_tendsto_nhds (Continuous.tendsto' (by continuity) _ _ (by simp));
           · filter_upwards [ self_mem_nhdsWithin ] with n hn using ENNReal.lt_add_right hx hn.ne';
       simpa using h_lim.tendsto
-    exact le_of_tendsto h_lim ( Filter.eventually_of_mem self_mem_nhdsWithin fun ε hε => h_eps ε hε )
+    exact le_of_tendsto h_lim (Filter.eventually_of_mem self_mem_nhdsWithin fun ε hε => h_eps ε hε)
 
 -- Lemma 1.1.22 of [Ian Tice]
 lemma lt_rearrangement_iff_lt_distribution {f : α → ε} {μ : Measure α} {t : ℝ≥0∞} {y : ℝ≥0∞} :
@@ -308,23 +308,22 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
   · intro s hs
     rcases hs with ⟨t, ht⟩
     rw [← ht]
-    simp only [Set.mem_Ioi, not_lt_zero, not_false_eq_true, Set.diff_singleton_eq_self]
+    simp only [Set.mem_Ioi, not_lt_zero, not_false_eq_true, Set.sdiff_singleton_eq_self]
     rw [← distribution, ← distribution, distribution_rearrangement_eq_distribution]
   · intro s hs h
     calc _
       _ = μ {x | ‖f x‖ₑ ≠ 0} - μ {x | ‖f x‖ₑ ∈ s \ {0}} := by
-        rw [← measure_diff]
-        · nth_rw 2 [Set.diff_eq]
+        rw [← measure_sdiff]
+        · nth_rw 2 [Set.sdiff_eq]
           rw [Set.compl_setOf, ← Set.setOf_and]
           congr with x
           grind
         · simp
-        · exact AEMeasurable.nullMeasurableSet_preimage hf.enorm (by aesop)
+        · exact AEMeasurable.nullMeasurableSet_preimage hf.enorm (by simp_all)
         · rw [← lt_top_iff_ne_top]
           apply hf'.trans_le'
           gcongr
-          unfold Function.support
-          aesop
+          simp [Function.support]
       _ = volume {x | rearrangement f x μ ≠ 0} - volume {x | rearrangement f x μ ∈ s \ {0}} := by
         congr
         rw [← ENNReal.bot_eq_zero]
@@ -332,13 +331,13 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
         rw [ENNReal.bot_eq_zero, ← distribution, ← distribution_rearrangement_eq_distribution]
         rfl
       _ = volume {x | rearrangement f x μ ∈ sᶜ \ {0}} := by
-        rw [← measure_diff]
-        · nth_rw 1 [Set.diff_eq]
+        rw [← measure_sdiff]
+        · nth_rw 1 [Set.sdiff_eq]
           rw [Set.compl_setOf, ← Set.setOf_and]
           congr with x
           grind
         · simp
-        · exact AEMeasurable.nullMeasurableSet_preimage rearrangement_measurable₀.aemeasurable (by aesop)
+        · exact AEMeasurable.nullMeasurableSet_preimage rearrangement_measurable₀.aemeasurable (by simp_all)
         · rw [← lt_top_iff_ne_top]
           apply hf'.trans_le'
           rw [← distribution_zero_eq_measure_support, ← distribution_rearrangement_eq_distribution]
@@ -347,7 +346,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           simp_rw [bot_lt_iff_ne_bot]
           rw [ENNReal.bot_eq_zero]
           gcongr
-          aesop
+          simp
   · intro S hSd hSm hS
     calc _
       _ = μ (⋃ i, {x | ‖f x‖ₑ ∈ S i \ {0}}) := by
@@ -361,7 +360,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           apply Disjoint.aedisjoint
           rw [Set.disjoint_iff]
           intro x
-          simp only [Set.mem_diff, Set.mem_singleton_iff, enorm_eq_zero, Set.mem_inter_iff,
+          simp only [Set.mem_sdiff, Set.mem_singleton_iff, enorm_eq_zero, Set.mem_inter_iff,
             Set.mem_setOf_eq, Set.mem_empty_iff_false, imp_false, not_and, not_not, and_imp]
           intro hi _ hj
           exfalso
@@ -369,7 +368,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           contrapose this
           rw [Set.not_disjoint_iff]
           use ‖f x‖ₑ, hi, hj
-        · exact fun i ↦ AEMeasurable.nullMeasurableSet_preimage hf.enorm (by aesop)
+        · exact fun i ↦ AEMeasurable.nullMeasurableSet_preimage hf.enorm (by simp_all)
       _ = ∑' i,  volume {x | rearrangement f x μ ∈ S i \ {0}} := by
         congr with i
         exact hS i
@@ -381,7 +380,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           apply Disjoint.aedisjoint
           rw [Set.disjoint_iff]
           intro x
-          simp only [Set.mem_diff, Set.mem_singleton_iff, Set.mem_inter_iff,
+          simp only [Set.mem_sdiff, Set.mem_singleton_iff, Set.mem_inter_iff,
             Set.mem_setOf_eq, Set.mem_empty_iff_false, imp_false, not_and, not_not, and_imp]
           intro hi _ hj
           exfalso
@@ -400,7 +399,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite {ε} [Topo
   {f : α → ε} (hf : AEStronglyMeasurable f μ) (hf' : μ f.support < ∞) {s : Set ℝ≥0∞}
   (hs : MeasurableSet s) (zero_notin_s : 0 ∉ s) :
     μ {x | ‖f x‖ₑ ∈ s} = volume {x | rearrangement f x μ ∈ s} := by
-  have : s = s \ {0} := by aesop
+  have : s = s \ {0} := by simp_all
   rw [this]
   exact measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' hf hf' hs
 

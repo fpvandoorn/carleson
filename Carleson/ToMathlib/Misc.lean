@@ -140,7 +140,7 @@ namespace MeasureTheory
 set_option linter.style.refine false in
 variable {α : Type*} {β : Type*} {s : Set α} {f g : α → β}
   {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
-@[measurability, fun_prop]
+@[fun_prop]
 protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (hs : MeasurableSet s)
     (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) : AEMeasurable (piecewise s f g) μ := by
   refine' ⟨_, hf.measurable_mk.piecewise hs hg.measurable_mk, ?_⟩
@@ -150,7 +150,7 @@ protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (
 
 variable {α : Type*} {β : Type*} {p : α → Prop} {f g : α → β}
   {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
-@[measurability, fun_prop]
+@[fun_prop]
 protected theorem _root_.AEMeasurable.ite {d : DecidablePred p} (hp : MeasurableSet {a | p a})
     (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     AEMeasurable (fun x => ite (p x) (f x) (g x)) μ :=
@@ -494,16 +494,11 @@ section Indicator
 
 open ComplexConjugate
 
-attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
-
-lemma indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
+lemma indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M]
+    {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
     s.indicator f = s.indicator g := by
   ext x
-  unfold indicator
-  split
-  · rename_i hxs
-    exact h x hxs
-  · rfl
+  by_cases hx : x ∈ s <;> simp [h, hx]
 
 lemma indicator_eq_indicator_one_mul {ι M : Type*} [MulZeroOneClass M]
     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by

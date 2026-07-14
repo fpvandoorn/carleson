@@ -25,7 +25,7 @@ variable {k n j l : ℕ} {p p' u u' : 𝔓 X} {x : X}
 /-- Lemma 5.3.4 -/
 lemma ordConnected_tilesAt : OrdConnected (TilesAt k : Set (𝔓 X)) := by
   rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
-  simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at mp mp'' ⊢
+  simp_rw [TilesAt, mem_preimage, 𝓒, mem_sdiff, aux𝓒, mem_setOf] at mp mp'' ⊢
   constructor
   · obtain ⟨J, hJ, _⟩ := mp''.1
     use J, mp'.2.1.trans hJ
@@ -50,7 +50,7 @@ lemma ordConnected_C1 : OrdConnected (ℭ₁ k n j : Set (𝔓 X)) := by
   have mp'₁ : p' ∈ ℭ (X := X) k n := mem_of_mem_of_subset mp'
     (ordConnected_C.out (mem_of_mem_of_subset mp ℭ₁_subset_ℭ)
       (mem_of_mem_of_subset mp'' ℭ₁_subset_ℭ))
-  simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, not_and, not_le] at mp mp'' ⊢
+  simp_rw [ℭ₁, mem_sdiff, preℭ₁, mem_setOf, not_and, not_le] at mp mp'' ⊢
   simp_rw [mp.1.1, true_and, true_implies] at mp
   simp_rw [mp'₁, true_and, true_implies]
   simp_rw [mp''.1.1, true_and, true_implies] at mp''
@@ -71,7 +71,7 @@ lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
   have mp'₁ : p' ∈ ℭ₁ (X := X) k n j := mem_of_mem_of_subset mp'
     (ordConnected_C1.out mp₁ (mem_of_mem_of_subset mp'' ℭ₂_subset_ℭ₁))
   by_cases e : p = p'; · rwa [e] at mp
-  simp_rw [ℭ₂, layersAbove, mem_diff, mp'₁, true_and]
+  simp_rw [ℭ₂, layersAbove, mem_sdiff, mp'₁, true_and]
   by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
   rw [minLayer, mem_setOf, minimal_iff] at p'm
   have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
@@ -98,10 +98,10 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
   have mp'₁ : p' ∈ ℭ₃ (X := X) k n j := mem_of_mem_of_subset mp'
     (ordConnected_C3.out (mem_of_mem_of_subset mp ℭ₄_subset_ℭ₃) mp''₁)
   by_cases e : p' = p''; · rwa [← e] at mp''
-  simp_rw [ℭ₄, layersBelow, mem_diff, mp'₁, true_and]
+  simp_rw [ℭ₄, layersBelow, mem_sdiff, mp'₁, true_and]
   by_contra h; simp_rw [mem_iUnion] at h; obtain ⟨l', hl', p'm⟩ := h
   rw [maxLayer_def, mem_setOf, maximal_iff] at p'm
-  simp_rw [mem_diff] at p'm
+  simp_rw [mem_sdiff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
     replace mp'' := mp''.2; contrapose! mp''
     refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩
@@ -113,7 +113,7 @@ lemma ordConnected_C5 : OrdConnected (ℭ₅ k n j : Set (𝔓 X)) := by
   have mp₁ := mem_of_mem_of_subset mp ℭ₅_subset_ℭ₄
   have mp'₁ : p' ∈ ℭ₄ (X := X) k n j := mem_of_mem_of_subset mp'
     (ordConnected_C4.out mp₁ (mem_of_mem_of_subset mp'' ℭ₅_subset_ℭ₄))
-  simp_rw [ℭ₅, mem_diff, mp₁, mp'₁, true_and, 𝔏₄, mem_setOf,
+  simp_rw [ℭ₅, mem_sdiff, mp₁, mp'₁, true_and, 𝔏₄, mem_setOf,
     mp₁, mp'₁, true_and] at mp ⊢
   contrapose! mp; obtain ⟨u, mu, s𝓘u⟩ := mp; use u, mu, mp'.1.1.1.trans s𝓘u
 
@@ -295,7 +295,7 @@ lemma 𝔗₂_subset_ℭ₆ : 𝔗₂ k n j u ⊆ ℭ₆ k n j := inter_subset_l
 lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j u := by
   ext p; constructor <;> intro h
   · have hp : p ∈ ℭ₃ k n j := (ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃) h
-    rw [ℭ₃, mem_diff, 𝔏₂, mem_setOf] at hp
+    rw [ℭ₃, mem_sdiff, 𝔏₂, mem_setOf] at hp
     have mp := hp.1
     simp_rw [hp.1, true_and, not_not] at hp
     obtain ⟨u, mu, np, sl⟩ := hp
@@ -488,7 +488,7 @@ lemma exists_smul_le_of_𝔘₃ (u : 𝔘₃ k n j) : ∃ m : 𝔐 (X := X) k n,
   classical
   obtain ⟨u, mu⟩ := u
   replace mu := (𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁ |>.trans 𝔘₁_subset_ℭ₁) mu
-  rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, filter_mem_univ_eq_toFinset] at mu
+  rw [ℭ₁, mem_sdiff, preℭ₁, mem_setOf, filter_mem_univ_eq_toFinset] at mu
   replace mu := (show 0 < 2 ^ j by positivity).trans_le mu.1.2
   rw [Finset.card_pos] at mu; obtain ⟨m, hm⟩ := mu
   rw [mem_toFinset, 𝔅] at hm; exact ⟨⟨m, hm.1⟩, hm.2⟩
@@ -544,7 +544,7 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
       C, Grid.mem_def, Finset.filter_filter]
   have Cn : C.Nonempty := by
     by_contra! Ce
-    simp_rw [← Cc, Ce, Finset.card_empty, not_lt_zero'] at h
+    simp_rw [← Cc, Ce, Finset.card_empty, not_lt_zero] at h
   let C' : Finset (Grid X) := C.image 𝓘
   have C'n : C'.Nonempty := by rwa [Finset.image_nonempty]
   obtain ⟨i, mi, li⟩ := C'.exists_minimal C'n
@@ -772,7 +772,7 @@ lemma lintegral_carlesonSum_forest
     exact Iff.rfl
   rw [this]
   have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G')
-    (measurableSet_G.diff measurable_G') diff_subset
+    (measurableSet_G.diff measurable_G') sdiff_subset
   apply W.trans
   gcongr
   · simp only [sub_nonneg, inv_le_inv₀ zero_lt_two (q_pos X)]
@@ -788,7 +788,7 @@ lemma lintegral_carlesonSum_forest
     contrapose! this
     change p ∈ highDensityTiles at this
     apply subset_biUnion_of_mem this
-  · exact diff_subset
+  · exact sdiff_subset
 
 /-- For each forest, the integral of the norm of the Carleson sum can be controlled thanks to
 the forest theorem and to the density control coming from the fact we are away from `G₁`. Second

@@ -240,7 +240,7 @@ lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (
       _ < C2_1_2 a * m + dist_(p) (𝒬 p') (𝒬 p) := by gcongr; rw [C2_1_2]; positivity
       _ < _ := by
         rw [add_comm]; gcongr
-        exact mem_ball.mp <| mem_of_mem_of_subset (by convert mem_ball_self hk) hl.2
+        exact mem_ball.mp <| mem_of_mem_of_subset (by convert! mem_ball_self hk) hl.2
   exact ⟨hl.1, this⟩
 
 lemma dist_LTSeries {n : ℕ} {u : Set (𝔓 X)} {s : LTSeries u} (hs : s.length = n) {f g : Θ X} :
@@ -544,7 +544,7 @@ lemma pairwiseDisjoint_iteratedMaximalSubfamily_image (A : Set (𝔓 X)) (n : �
 lemma iteratedMaximalSubfamily_subset (A : Set (𝔓 X)) (n : ℕ) :
     iteratedMaximalSubfamily A n ⊆ A := by
   rw [iteratedMaximalSubfamily]
-  exact (exists_maximal_disjoint_covering_subfamily (X := X) _).choose_spec.2.1.trans diff_subset
+  exact (exists_maximal_disjoint_covering_subfamily (X := X) _).choose_spec.2.1.trans sdiff_subset
 
 set_option backward.isDefEq.respectTransparency false in
 lemma pairwiseDisjoint_iteratedMaximalSubfamily (A : Set (𝔓 X)) :
@@ -557,9 +557,9 @@ lemma pairwiseDisjoint_iteratedMaximalSubfamily (A : Set (𝔓 X)) :
     conv_lhs => rw [iteratedMaximalSubfamily]
     apply (exists_maximal_disjoint_covering_subfamily _).choose_spec.2.1
   apply subset_compl_iff_disjoint_left.1
-  rw [compl_eq_univ_diff]
+  rw [compl_eq_univ_sdiff]
   apply this.trans
-  apply diff_subset_diff (subset_univ _)
+  apply sdiff_subset_sdiff (subset_univ _)
   apply subset_iUnion_of_subset ⟨m, h'mn⟩
   simp
 
@@ -580,7 +580,7 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
   have E n (hn : n < N) : ∃ u ∈ iteratedMaximalSubfamily A n, (𝓘 p : Set X) ⊆ (𝓘 u : Set X) := by
     rw [iteratedMaximalSubfamily]
     apply (exists_maximal_disjoint_covering_subfamily _).choose_spec.2.2
-    simp only [coe_setOf, mem_setOf_eq, mem_diff, hp,
+    simp only [coe_setOf, mem_setOf_eq, mem_sdiff, hp,
       mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, true_and]
     intro i hi
     exact hN i (hi.trans hn)

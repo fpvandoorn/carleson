@@ -64,7 +64,7 @@ lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (�
   have s_mem : s ∈ Ico (-S : ℤ) (GridStructure.s (X := X) topCube) :=
     have : s ∈ Icc (-S : ℤ) S := Icc_σ_subset_Icc_S (mem_toFinset.1 hs)
     ⟨this.1, s_topCube (X := X) ▸ lt_of_le_of_ne this.2 hS⟩
-  simpa only [mem_iUnion, exists_prop] using Grid_subset_biUnion s s_mem x_mem_topCube
+  simpa only [mem_iUnion, exists_prop] using! Grid_subset_biUnion s s_mem x_mem_topCube
 
 /-- Lemma 4.0.3 -/
 theorem tile_sum_operator {G' : Set X} {f : X → ℂ} {x : X} (hx : x ∈ G \ G') :
@@ -82,7 +82,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} {x : X} (hx : x ∈ G \ G
     rw [toFinset_Icc, Finset.mem_filter]
     exact ⟨Finset.mem_Icc.2 (Icc_σ_subset_Icc_S hs), hs⟩
   · rcases exists_Grid hx.1 hs with ⟨I, Is, xI⟩
-    obtain ⟨p, 𝓘pI, Qp⟩ : ∃ (p : 𝔓 X), 𝓘 p = I ∧ Q x ∈ Ω p := by simpa using biUnion_Ω ⟨x, rfl⟩
+    obtain ⟨p, 𝓘pI, Qp⟩ : ∃ (p : 𝔓 X), 𝓘 p = I ∧ Q x ∈ Ω p := by simpa using! biUnion_Ω ⟨x, rfl⟩
     have p𝔓Xs : p ∈ 𝔓X_s s := Finset.mem_filter.mpr ⟨Finset.mem_univ _, by rw [𝔰, 𝓘pI]; exact Is⟩
     have : ∀ p' ∈ 𝔓X_s s, p' ≠ p → carlesonOn p' f x = 0 := by
       intro p' p'𝔓Xs p'p
@@ -94,7 +94,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} {x : X} (hx : x ∈ G \ G
       exact disjoint_left.1 (disjoint_Ω p'p <| Or.resolve_right (eq_or_disjoint s_eq) this) Qp' Qp
     rw [Finset.sum_eq_single_of_mem p p𝔓Xs this]
     have xEp : x ∈ E p :=
-      ⟨𝓘pI ▸ xI, Qp, by simpa only [toFinset_Icc, Finset.mem_Icc, 𝔰_eq p𝔓Xs] using hs⟩
+      ⟨𝓘pI ▸ xI, Qp, by simpa only [toFinset_Icc, Finset.mem_Icc, 𝔰_eq p𝔓Xs] using! hs⟩
     simp_rw [carlesonOn_def', indicator_of_mem xEp, 𝔰_eq p𝔓Xs]
 
 end

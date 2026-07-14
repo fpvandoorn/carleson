@@ -653,7 +653,7 @@ lemma I3_nonempty {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
 -- the additional argument `hk` to get decent equality theorems
 lemma cover_by_cubes {l : ℤ} (hl : -S ≤ l) :
     ∀ {k : ℤ}, l ≤ k → (hk : -S ≤ k) → ∀ y, I3 hk y ⊆ ⋃ (yl : Yk X l), I3 hl yl := by
-  apply Int.le_induction
+  apply Int.leInduction
   · intro _ y x hx
     rw [mem_iUnion]
     use y
@@ -915,6 +915,7 @@ lemma K_pos : 0 < (K' : ℝ) := by
   simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.ofNat_pos, pow_pos]
 
 variable (X) in
+@[nolint unusedArguments] -- TODO: fix overlapping instance warning; this will also fix the linter
 def C4_1_7 [ProofData a q K σ₁ σ₂ F G] : ℝ≥0 := As (defaultA a) (2 ^ 4)
 
 variable (X) in
@@ -1084,7 +1085,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
       congr
       symm
       apply measure_iUnion
-      · rw [Symmetric.pairwise_on]
+      · rw [Std.Symm.pairwise_on]
         · intro l' l hl
           simp only [disjoint_iUnion_right, disjoint_iUnion_left]
           intro u hu u' hu'
@@ -1132,7 +1133,6 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
               exact I3_prop_3_1 (le_s hk_mK l) u this
             exact I3_prop_3_1 (le_s hk_mK l) u this
           exact hx.left this
-        exact fun ⦃x y⦄ a ↦ id (Disjoint.symm a)
       intro k'
       letI := (Yk_countable X k').to_subtype
       apply MeasurableSet.iUnion <| fun _ ↦ MeasurableSet.iUnion <| fun _ ↦ measurableSet_ball
@@ -1288,6 +1288,7 @@ section ProofData
 include q K σ₁ σ₂ F G
 
 variable (a) in
+@[nolint unusedArguments] -- TODO: linter false positive
 def const_n {t : ℝ} (_ht : t ∈ Ioo 0 1) : ℕ := ⌊-Real.logb D t / K'⌋₊
 
 variable {t : ℝ}
@@ -1432,7 +1433,6 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
         _ ≤ D ^ (k - const_n a ht * K') + 4 * D ^ (k - const_n a ht * K') := by
           rw [ENNReal.add_le_add_iff_right]
           · have := const_n_prop_2 X ht k
-            simp only at this
             nth_rw 1 [NNReal.val_eq_coe] at this
             simp_rw [← Real.rpow_intCast] at this
             rw [← ENNReal.ofReal_le_ofReal_iff (by positivity),
@@ -1677,7 +1677,7 @@ end
 lemma 𝓩_spec : 𝓩 I ⊆ Q.range ∧ (SetLike.coe (𝓩 I)).PairwiseDisjoint (ball_{I} · C𝓩) ∧
     ∀ z ∈ 𝓩_cands I, z.card ≤ (𝓩 I).card := by
   classical
-  rw [← and_assoc]; convert (exists_𝓩_max_card I).choose_spec; change _ ↔ 𝓩 I ∈ _
+  rw [← and_assoc]; convert! (exists_𝓩_max_card I).choose_spec; change _ ↔ 𝓩 I ∈ _
   rw [𝓩_cands, Finset.mem_filter, Finset.mem_powerset]
 
 lemma 𝓩_subset : 𝓩 I ⊆ Q.range := 𝓩_spec.1
@@ -1716,7 +1716,7 @@ lemma frequency_ball_cover : (SetLike.coe Q.range) ⊆ ⋃ z ∈ 𝓩 I, ball_{I
   simp only [mem_iUnion, mem_ball, exists_prop, C𝓩, C4_2_1] at h₁z' h₂z' ⊢
   use z, hz; linarith [dist_triangle_left (α := (WithFunctionDistance (c I) (D ^ s I / 4))) θ z z']
 
-local instance tileData_existence [GridStructure X D κ S o] : PreTileStructure Q D κ S o where
+local instance tileData_existence : PreTileStructure Q D κ S o where
   𝔓 := Σ I : Grid X, 𝓩 I
   fintype_𝔓 := Sigma.instFintype
   𝓘 p := p.1
@@ -1747,7 +1747,7 @@ lemma disjoint_ball_Ω₁_aux (I : Grid X) {z z' : Θ X} (hz : z ∈ 𝓩 I) (hz
     Disjoint (ball_{I} z' C𝓩) (Ω₁_aux I (Finite.equivFin (𝓩 I) ⟨z, hz⟩)) := by
   rw [Ω₁_aux]
   simp only [(Finite.equivFin (𝓩 I) ⟨z, hz⟩).2, dite_true, Fin.eta, Equiv.symm_apply_apply]
-  rw [sdiff_sdiff_comm, ← disjoint_sdiff_comm, diff_eq_empty.mpr]
+  rw [sdiff_sdiff_comm, ← disjoint_sdiff_comm, sdiff_eq_empty.mpr]
   · exact empty_disjoint _
   · apply subset_biUnion_of_mem (show z' ∈ SetLike.coe (𝓩 I) \ {z} by tauto)
 
@@ -1769,8 +1769,8 @@ lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := by
   set k := (Finite.equivFin ↑(𝓩 p.1)) z with h'k
   simp_rw [k.2, dite_true]
   change ball_{p.1} z.1 C𝓩 ⊆ _ \ ⋃ i < k.1, Ω₁_aux p.1 i
-  refine subset_diff.mpr ⟨subset_diff.mpr ⟨ball_subset_ball (by norm_num), ?_⟩, ?_⟩
-  · rw [disjoint_iUnion₂_right]; intro i hi; rw [mem_diff_singleton] at hi
+  refine subset_sdiff.mpr ⟨subset_sdiff.mpr ⟨ball_subset_ball (by norm_num), ?_⟩, ?_⟩
+  · rw [disjoint_iUnion₂_right]; intro i hi; rw [mem_sdiff_singleton] at hi
     exact 𝓩_pairwiseDisjoint z.coe_prop hi.1 hi.2.symm
   · rw [disjoint_iUnion₂_right]; intro i hi
     let z' := (Finite.equivFin ↑(𝓩 p.1)).symm ⟨i, by lia⟩
@@ -1785,7 +1785,7 @@ lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := b
   · let z : Θ X := p.2
     have qz : 𝒬 p = z := rfl
     have zeq : z = p.2 := rfl
-    simp only [qz, zeq, Fin.eta, Equiv.symm_apply_apply, sdiff_sdiff, diff_subset]
+    simp only [qz, zeq, Fin.eta, Equiv.symm_apply_apply, sdiff_sdiff, sdiff_subset]
   · exact empty_subset _
 
 set_option backward.isDefEq.respectTransparency false in
@@ -1809,13 +1809,14 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
       replace this : i ∈ L := by simp only [L, mem_setOf_eq, this]
       exact absurd (hk i this) (not_le.mpr li)
     rw [mem_iUnion]; use f.symm k; rw [Ω₁, Ω₁_aux]; dsimp only
-    rw [Equiv.apply_symm_apply]; simp_rw [k.2]; rw [dite_true, mem_diff, mem_diff]
+    rw [Equiv.apply_symm_apply]; simp_rw [k.2]; rw [dite_true, mem_sdiff, mem_sdiff]
     refine ⟨⟨mem_k, ?_⟩, ?_⟩
     · rw [mem_iUnion₂]; push Not at h ⊢; exact fun i mi ↦ h i mi.1
     · rw [mem_iUnion₂]; push Not; exact fun i mi ↦ q ⟨i, mi.trans k.2⟩ mi
 
 /-- 1 / 5 -/
 @[simp] def CΩ : ℝ := 1 / 5
+attribute [nolint simpNF] CΩ.eq_1 -- TODO: understand why the simpNF linter fires here
 
 open scoped Classical in
 def Ω (p : 𝔓 X) : Set (Θ X) :=
@@ -1852,14 +1853,14 @@ lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
     calc
       _ ≤ dist_{I} ϑ z + dist_{I} z y := dist_triangle ..
       _ < dist_{I} ϑ z + C4_2_1 := by
-        gcongr; simpa using (Ω₁_subset_ball ⟨I, ⟨y, my⟩⟩) mz₂
+        gcongr; simpa using! (Ω₁_subset_ball ⟨I, ⟨y, my⟩⟩) mz₂
       _ ≤ C2_1_2 a * dist_{J} ϑ z + C4_2_1 := by
         gcongr; refine Grid.dist_strictMono (lt_of_le_of_ne Grid.le_succ ?_)
         contrapose! nmaxI; exact Grid.max_of_le_succ nmaxI.symm.le
       _ < C2_1_2 a * 1 + C4_2_1 := by
         gcongr
         · rw [C2_1_2]; positivity
-        · simpa only [mem_ball] using (ih ⟨z, mz₁⟩) hz
+        · simpa only [mem_ball] using! (ih ⟨z, mz₁⟩) hz
       _ < 2 ^ (-2 : ℝ) + C4_2_1 := by
         gcongr
         rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, lt_neg]
@@ -1893,7 +1894,7 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
     _ < CΩ + C2_1_2 a * 1 := by
       gcongr
       · rw [C2_1_2]; positivity
-      · simpa only using (Ω_subset_cball (p := ⟨I.succ, ⟨x, mx₁⟩⟩)) mϑ₂
+      · simpa only using! (Ω_subset_cball (p := ⟨I.succ, ⟨x, mx₁⟩⟩)) mϑ₂
     _ < CΩ + 2 ^ (-4 : ℝ) := by
       gcongr
       rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, lt_neg]
@@ -1989,7 +1990,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
       nth_rw 2 [Ω]; simp only [nmaxJ, dite_false]; intro ϑ mϑ; right; rw [mem_iUnion₂]
       refine ⟨q.2, ?_, ?_⟩
       · rw [succJ]; exact ⟨q.2.2, ma⟩
-      · change ϑ ∈ Ω ⟨q.1, q.2⟩ at mϑ; convert mϑ
+      · change ϑ ∈ Ω ⟨q.1, q.2⟩ at mϑ; convert! mϑ
     let q' : 𝔓 X := ⟨J, a⟩
     change 𝓘 p ≤ 𝓘 q' at lbJ
     rcases Ω_RFD lbJ with c | c

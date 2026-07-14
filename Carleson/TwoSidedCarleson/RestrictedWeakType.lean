@@ -277,5 +277,4 @@ theorem two_sided_metric_carleson_hasStrongType
   · simp only [coe_pos]
     exact lt_trans (zero_lt_one' ℝ≥0) hq.1
 
-
 end

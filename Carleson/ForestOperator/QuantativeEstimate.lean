@@ -339,7 +339,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
       congr with J
       rw [ofReal_setAverage hf.norm.integrable.integrableOn (Eventually.of_forall (by simp)),
         div_eq_mul_inv, mul_pow, div_eq_mul_inv, mul_assoc]
-      simp_rw [ofReal_norm_eq_enorm]
+      simp_rw [ofReal_norm]
       by_cases hJ : volume (J : Set X) = 0
       · have h0 : ∫⁻ x in (J : Set X), ‖f x‖ₑ = 0 := setLIntegral_measure_zero _ _ hJ
         rw [h0, zero_pow two_pos.ne', zero_mul, zero_mul]
@@ -348,7 +348,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J ∩ s, ‖f y‖ₑ * 1) ^ 2 / volume (J : Set X) := by
       congr with J
       congr 2
-      rw [← lintegral_inter_add_diff _ (J : Set X) hs]
+      rw [← lintegral_inter_add_sdiff _ (J : Set X) hs]
       suffices ∫⁻ x in J \ s, ‖f x‖ₑ = 0 by rw [this, add_zero]; simp_rw [mul_one]
       rw [setLIntegral_eq_zero_iff' (coeGrid_measurable.diff hs)
         hf.restrict.aestronglyMeasurable.enorm]

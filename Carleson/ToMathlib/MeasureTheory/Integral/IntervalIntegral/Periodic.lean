@@ -72,7 +72,7 @@ theorem aestronglyMeasurable {t T : ℝ} [hT : Fact (0 < T)] {f : ℝ → ℂ}
       ring_nf
     rw [this]
     apply MeasurePreserving.restrict_preimage (measurePreserving_sub_right _ _) measurableSet_Ioc
-  convert this
+  convert! this
   ext x
   simp only [comp_apply]
   rw [periodic_f.sub_zsmul_eq]

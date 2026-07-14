@@ -289,12 +289,12 @@ lemma exists_containing_subcube (l : ℤ) (h : l ∈ Icc (-S : ℤ) (s i)) {x : 
   obtain ⟨lb, ub⟩ := h
   rcases ub.eq_or_lt with ub | ub
   · exact ⟨i, ub.symm, mx⟩
-  · simpa [mem_iUnion₂, mem_preimage, mem_singleton_iff, exists_prop] using
+  · simpa [mem_iUnion₂, mem_preimage, mem_singleton_iff, exists_prop] using!
       Grid_subset_biUnion l ⟨lb, ub⟩ mx
 
 lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i ≤ j := by
   obtain ⟨lb, ub⟩ := h
-  rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using s_topCube, le_topCube⟩
+  rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using! s_topCube, le_topCube⟩
   obtain ⟨x, hx⟩ := i.nonempty
   have bound_i : -S ≤ s i ∧ s i ≤ S := scale_mem_Icc
   have ts := Grid_subset_biUnion (X := X) (i := topCube) l
@@ -401,7 +401,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       cdist_mono (ball_subset_ball (by simp_rw [div_eq_inv_mul, defaultD]; gcongr; norm_num))
     _ ≤ 2 ^ (-𝕔 * (a : ℝ)) * dist_{c I, 4 * D ^ (s I + 1)} f g := by
       rw [← div_le_iff₀' (by positivity), neg_mul, Real.rpow_neg zero_le_two, div_inv_eq_mul, mul_comm]
-      convert le_cdist_iterate (x := c I) (r := 4 * D ^ s I) (by positivity) f g (𝕔 * a) using 1
+      convert! le_cdist_iterate (x := c I) (r := 4 * D ^ s I) (by positivity) f g (𝕔 * a) using 1
       · norm_cast
       · apply dist_congr rfl
         have : (defaultA a : ℝ) ^ (𝕔 * a) = D := by
@@ -425,7 +425,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       rw [Real.rpow_add zero_lt_two, mul_assoc]
       gcongr
       rw [show (2 : ℝ) ^ (5 * (a : ℝ)) = (defaultA a) ^ 5 by norm_cast; ring]
-      convert cdist_le_iterate _ f g 5 using 1
+      convert! cdist_le_iterate _ f g 5 using 1
       · exact dist_congr rfl (by ring)
       · have := one_le_realD a; positivity
     _ = _ := by congr 1; rw [C2_1_2, ← add_mul]

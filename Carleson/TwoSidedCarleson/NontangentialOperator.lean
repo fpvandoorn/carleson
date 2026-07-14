@@ -358,10 +358,10 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
         mul_eq_zero]
         intro h
         exfalso
-        simp only [mem_compl_iff, mem_ball, not_lt, not_le, mem_diff, mem_union, not_or,
+        simp only [mem_compl_iff, mem_ball, not_lt, not_le, mem_sdiff, mem_union, not_or,
           not_and] at yx'r yx'R hy
         linarith [hy yx'R yx'r]
-      · simp only [mem_compl_iff, mem_ball, not_lt, not_le, mem_diff, mem_union,
+      · simp only [mem_compl_iff, mem_ball, not_lt, not_le, mem_sdiff, mem_union,
         not_or] at yx'r yx'R hy
         linarith
       · simp only [mem_compl_iff, mem_ball, not_lt, mul_ite, mul_zero, zero_sub, neg_eq_zero,
@@ -385,7 +385,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
     _ ≤ ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖K x' y‖ₑ * ‖g y‖ₑ := by
       apply lintegral_mono_set
       intro y
-      simp only [mem_diff, mem_ball, mem_union, not_or, not_lt, and_imp]
+      simp only [mem_sdiff, mem_ball, mem_union, not_or, not_lt, and_imp]
       intro h1 h2 h3
       simp at hr
       constructor <;>
@@ -401,7 +401,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
       unfold vol
       apply measure_mono
       intro z hz
-      simp only [mem_Ioc, mem_diff, mem_ball, not_lt] at *
+      simp only [mem_Ioc, mem_sdiff, mem_ball, not_lt] at *
       rw [dist_comm x' y]
       linarith
     _ = (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖g y‖ₑ := by
@@ -409,7 +409,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume) (hr : r
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in (ball x (2 * R)), ‖g y‖ₑ := by
       gcongr _ * ?_
       apply lintegral_mono_set
-      exact diff_subset
+      exact sdiff_subset
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * (volume (ball x (2 * R)) * globalMaximalFunction volume 1 g x) := by
       gcongr
       apply lintegral_ball_le_volume_mul_globalMaximalFunction
@@ -975,7 +975,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
         exact Annulus.oo_subset_ci (by rfl)
       apply le_trans <| enorm_add_le _ _
       gcongr
-      rw [Annulus.co_eq, inter_comm, ← diff_eq_compl_inter]
+      rw [Annulus.co_eq, inter_comm, ← sdiff_eq_compl_inter]
       refine le_iSup_of_le ?_ (i := R₂)
       refine le_iSup₂_of_le ?_ (i := R') (j := ⟨hR₁.1.trans hR'.1, hR'.2⟩)
       refine le_iSup₂_of_le ?_  (i := x') (j := hx'.trans hR'.1)
@@ -988,14 +988,14 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       · apply continuousWithinAt_const
       · apply ContinuousWithinAt.fun_add ?_ continuousWithinAt_const
         exact small_annulus_right hf hR₁.1 |>.enorm
-    simpa using le_R1
+    simpa using! le_R1
   · have (R' : ℝ) (hR' : R' ∈ Ioo (dist x' x) R₁) : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
       have hR'pos : 0 < R' := by linarith [dist_nonneg (x := x') (y := x), hR'.1]
       have : ∫ (y : X) in Annulus.co x' R₁ R₂, K x' y * f y = (∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y) +
           (∫ (y : X) in Annulus.co x' R₁ R₂, K x' y * f y) - ∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y := by
         simp
-      rw [diff_eq_compl_inter, inter_comm, ← Annulus.co_eq, this]
+      rw [sdiff_eq_compl_inter, inter_comm, ← Annulus.co_eq, this]
       have : Annulus.oo x' R' R₂ = Annulus.oo x' R' R₁ ∪ Annulus.co x' R₁ R₂ :=
         Annulus.oo_union_co hR'.2 hR₁.2.le |>.symm
       rw [← setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2) (by measurability), ← this]; swap
@@ -1018,7 +1018,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       · apply continuousWithinAt_const
       · apply ContinuousWithinAt.fun_add ?_ continuousWithinAt_const
         exact small_annulus_left hf (dist_nonneg) |>.enorm
-    simpa using le_R1
+    simpa using! le_R1
 
 omit [IsTwoSidedKernel a K] in
 /-- Part of Lemma 10.1.6. -/
@@ -1063,11 +1063,11 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
         ‖∫ (y : X) in (ball x' R₂)ᶜ, K x' y * g y‖ₑ := by
       apply le_trans _ enorm_sub_le
       have : (ball x' R₁)ᶜ = (ball x' R₂)ᶜ ∪ (ball x' R₂ \ ball x' R₁) := by
-        rw [compl_eq_univ_diff, ← union_compl_self <| ball x' R₂, union_diff_distrib, union_comm]
+        rw [compl_eq_univ_sdiff, ← union_compl_self <| ball x' R₂, union_sdiff_distrib, union_comm]
         congr
-        rw [diff_eq_compl_inter, inter_eq_right, compl_subset_compl]
+        rw [sdiff_eq_compl_inter, inter_eq_right, compl_subset_compl]
         exact ball_subset_ball hR1R2.le
-      rw [this, setIntegral_union_2 (disjoint_compl_left_iff_subset.mpr diff_subset) (by measurability)
+      rw [this, setIntegral_union_2 (disjoint_compl_left_iff_subset.mpr sdiff_subset) (by measurability)
         (by rw [← this]; exact czOperator_welldefined (K := K) hg hR1 x')]
       simp
     trans ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),

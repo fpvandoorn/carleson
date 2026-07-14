@@ -211,7 +211,7 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
         (C6_1_6 a * dens₁ A ^ (p₆ a)⁻¹ * volume (⋃ t ∈ A, (𝓘 t : Set X)) ^ (p₆ a)⁻¹) := by
       gcongr
       · exact eLpNorm_le_M14 mp hx (q₆_pos (four_le_a X))
-      · convert tile_count (h𝔄.subset sA) ⟨𝒬 p, range_𝒬 (mem_range_self p)⟩
+      · convert! tile_count (h𝔄.subset sA) ⟨𝒬 p, range_𝒬 (mem_range_self p)⟩
     _ ≤ (volume B)⁻¹ * (volume B ^ (q₆ a)⁻¹ * M14 𝔄 (q₆ a) g x₀) *
         (C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * volume B ^ (p₆ a)⁻¹) := by
       have : 0 ≤ (p₆ a)⁻¹ := by rw [Right.inv_nonneg]; exact (p₆_pos (four_le_a X)).le

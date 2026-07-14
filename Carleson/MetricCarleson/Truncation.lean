@@ -89,8 +89,8 @@ theorem finitary_carleson_step
   obtain ⟨G₁, mG₁, vG₁, hG₁⟩ := finitary_carleson X
   refine ⟨G ∩ G₁, inter_subset_left, bG.subset inter_subset_left, mG.inter mG₁, ?_, ?_⟩
   · refine le_trans ?_ vG₁; gcongr; exact inter_subset_right
-  · simp_rw [diff_self_inter]; simp_rw [toFinset_Icc, show nnq = q by rfl] at hG₁
-    convert hG₁ f mf nf using 4; rw [eq_sub_iff_add_eq]; norm_cast
+  · simp_rw [sdiff_self_inter]; simp_rw [toFinset_Icc, show nnq = q by rfl] at hG₁
+    convert! hG₁ f mf nf using 4; rw [eq_sub_iff_add_eq]; norm_cast
     exact hqq'.symm.inv_add_inv_eq_one
 
 variable (q q' F f σ₁ σ₂) in
@@ -177,12 +177,12 @@ lemma slice_integral_bound_sum :
   induction n with
   | zero =>
     rw [zero_add, Finset.range_one, Finset.sum_singleton, pow_zero, one_rpow, mul_one]
-    convert slice_integral_bound; simp [slice]
+    convert! slice_integral_bound; simp [slice]
   | succ n ih =>
-    rw [← diff_union_diff_cancel _ slice_G_subset]; swap
+    rw [← sdiff_union_sdiff_cancel _ slice_G_subset]; swap
     · exact antitone_slice_G zero_le
     rw [lintegral_union ((slice CP bG mG _).mG.diff (slice CP bG mG _).mG)]; swap
-    · exact disjoint_of_subset_right diff_subset disjoint_sdiff_left
+    · exact disjoint_of_subset_right sdiff_subset disjoint_sdiff_left
     rw [Finset.sum_range_succ, mul_add, add_mul, add_mul]; gcongr
     rw [mul_assoc _ _ (volume G ^ _), ← ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
     apply slice_integral_bound.trans; gcongr; exact volume_slice_le_inv_two_pow_mul
@@ -232,7 +232,7 @@ lemma linearized_truncation
   let CP : CP304 q q' F f σ₁ σ₂ := ⟨Q, BST_T_Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩
   calc
     _ = ∫⁻ x in ⋃ n, G \ (slice CP bG mG (n + 1)).G, ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ := by
-      apply setLIntegral_congr; rw [← diff_iInter]; refine (diff_null_ae_eq_self ?_).symm
+      apply setLIntegral_congr; rw [← sdiff_iInter]; refine (sdiff_null_ae_eq_self ?_).symm
       rw [Antitone.measure_iInter]; rotate_left
       · exact fun _ _ _ ↦ antitone_slice_G (by lia)
       · exact fun n ↦ (slice CP bG mG (n + 1)).mG.nullMeasurableSet
@@ -450,14 +450,14 @@ lemma enorm_setIntegral_annulus_le {x : X} {R₁ R₂ : ℝ} {s : ℤ} (nf : (�
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
     _ = ∫⁻ y in Annulus.oo x R₁ R₂ ∩ ball x (D ^ s), ‖Ks s x y‖ₑ * ‖f y‖ₑ := by
       simp_rw [enorm_exp_I_mul_ofReal, mul_one]
-      rw [← lintegral_inter_add_diff (B := ball x (D ^ s)) _
+      rw [← lintegral_inter_add_sdiff (B := ball x (D ^ s)) _
         (Annulus.oo x R₁ R₂) measurableSet_ball]
       conv_rhs => rw [← add_zero (lintegral ..)]
       congr 1
       refine setLIntegral_eq_zero (Annulus.measurableSet_oo.diff measurableSet_ball) fun y my ↦ ?_
       suffices Ks s x y = 0 by rw [this, enorm_zero, zero_mul, Pi.zero_apply]
       contrapose! my; replace my := dist_mem_Ioo_of_Ks_ne_zero my
-      rw [mem_diff, not_and_or, not_not]; right
+      rw [Set.mem_sdiff, not_and_or, not_not]; right
       rw [mem_Ioo, ← mem_ball'] at my; exact (ball_subset_ball (half_le_self (by positivity))) my.2
     _ ≤ ∫⁻ y in ball x (D ^ s), ‖Ks s x y‖ₑ * ‖f y‖ₑ := lintegral_mono_set inter_subset_right
     _ ≤ ∫⁻ y in ball x (D ^ s),
@@ -514,7 +514,7 @@ lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁
         ‖∑ s ∈ BR \ SR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
       have : SR ⊆ BR := Finset.Icc_subset_Icc (by lia) (by lia)
       rw [← Finset.inter_eq_right] at this
-      rw [← Finset.sum_inter_add_sum_diff BR SR, this]
+      rw [← Finset.sum_inter_add_sum_sdiff BR SR, this]
       exact enorm_add_le _ _
     _ = ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ +
         ‖∑ s ∈ BR \ SR, ∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
@@ -554,13 +554,13 @@ lemma lintegral_globalMaximalFunction_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderCo
     _ ≤ volume G ^ (q' : ℝ)⁻¹ *
         (C2_0_6 (defaultA a) 1 q * eLpNorm (F.indicator (1 : X → ℝ)) q) := by
       gcongr
-      · rw [Pi.one_def]; convert eLpNorm_indicator_const_le (1 : ℝ≥0∞) q'
+      · rw [Pi.one_def]; convert! eLpNorm_indicator_const_le (1 : ℝ≥0∞) q'
         rw [enorm_eq_self, coe_toReal, one_div, one_mul]
       · refine (hasStrongType_maximalFunction zero_lt_one hq.1 _ ?_).2
         rw [Pi.one_def]; exact memLp_indicator_const _ mF _ (.inr bF.measure_lt_top.ne)
     _ ≤ _ := by
       rw [← mul_assoc, mul_comm (_ ^ _)]; gcongr
-      rw [Pi.one_def]; convert eLpNorm_indicator_const_le (1 : ℝ) q
+      rw [Pi.one_def]; convert! eLpNorm_indicator_const_le (1 : ℝ) q
       rw [enorm_one, coe_toReal, one_div, one_mul]
 
 /-- The operator T_{R₁, R₂, R} introduced in Lemma 3.0.2. -/

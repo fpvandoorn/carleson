@@ -52,7 +52,7 @@ protected theorem induction₀ [MeasurableSpace α] [AddZeroClass γ]
   rw [← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range] at h
   induction s using Finset.induction generalizing f with
   | empty =>
-    rw [Finset.coe_empty, Set.diff_eq_empty, Set.range_subset_singleton] at h
+    rw [Finset.coe_empty, sdiff_eq_empty, range_subset_singleton] at h
     convert const 0 MeasurableSet.univ
     ext x
     simp [h]
@@ -62,8 +62,8 @@ protected theorem induction₀ [MeasurableSpace α] [AddZeroClass γ]
     have Pg : motive g := by
       apply ih
       simp only [g, SimpleFunc.coe_piecewise, Set.range_piecewise]
-      rw [Set.image_compl_preimage, Set.union_diff_distrib, Set.diff_diff_comm, h, Finset.coe_insert,
-        Set.insert_diff_self_of_notMem, Set.diff_eq_empty.mpr, Set.empty_union]
+      rw [image_compl_preimage, union_sdiff_distrib, sdiff_sdiff_comm, h, Finset.coe_insert,
+        insert_sdiff_self_of_notMem, sdiff_eq_empty.mpr, Set.empty_union]
       · rw [Set.image_subset_iff]
         convert Set.subset_univ _
         exact Set.preimage_const_of_mem (Set.mem_singleton _)
@@ -94,7 +94,7 @@ private lemma helper [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β] [C
     rw [← Finset.coe_inj]
     push_cast
     ext x
-    simp only [coe_range, mem_diff, Set.mem_range, mem_singleton_iff, coe_sub, add_singleton,
+    simp only [coe_range, Set.mem_sdiff, Set.mem_range, mem_singleton_iff, coe_sub, add_singleton,
       mem_insert_iff, mem_image, Pi.sub_apply]
     constructor
     · rintro ⟨⟨y, hfyx⟩, x_ne_zero⟩
@@ -158,28 +158,28 @@ private lemma helper [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β] [C
   · simp only [Finset.product_singleton, Finset.coe_map, Function.Embedding.coeFn_mk,
     Finset.coe_sdiff, coe_range, coe_sub, Finset.coe_singleton]
     intro p hp q hq
-    simp only [mem_image, mem_diff, Set.mem_range, Pi.sub_apply, mem_singleton_iff, ↓existsAndEq,
+    simp only [mem_image, Set.mem_sdiff, Set.mem_range, Pi.sub_apply, mem_singleton_iff, ↓existsAndEq,
       true_and] at *
     rcases hp with ⟨y, hy, hp⟩
     rcases hq with ⟨z, hz, hq⟩
     have hy : y ∈ support ⇑f := by
       contrapose! hy
-      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]
+      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), indicator]
       split_ifs
       simp at hy
       simpa
     have hy : ((const α (s.min' hs)).restrict (support ⇑f)) y = s.min' hs := by
-      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]
+      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), indicator]
       split_ifs
       simp
     have hz : z ∈ support ⇑f := by
       contrapose! hz
-      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]
+      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), indicator]
       split_ifs
       simp at hz
       simpa
     have hz : ((const α (s.min' hs)).restrict (support ⇑f)) z = s.min' hs := by
-      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]
+      rw [SimpleFunc.restrict_apply _ (measurableSet_support f), indicator]
       split_ifs
       simp
     rw [← hp, ← hq]
@@ -290,11 +290,11 @@ protected theorem antitone_induction [MeasurableSpace α] [ConditionallyComplete
   generalize h : (f.range \ {0}).card = n
   induction n generalizing f with
   | zero =>
-    rw [Finset.card_eq_zero] at h
-    rw [← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range] at h
-    rw [Finset.coe_empty, diff_eq_empty, Set.range_subset_singleton] at h
     convert const 0
     ext x
+    rw [Finset.card_eq_zero,
+      ← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range,
+      Finset.coe_empty, sdiff_eq_empty, Set.range_subset_singleton] at h
     simp [h]
   | succ n ih =>
     have nonempty : (f.range \ {0}).Nonempty := by
@@ -372,11 +372,11 @@ protected theorem induction'' [MeasurableSpace α] [LinearOrder β] [AddCommMono
   generalize h : (f.range \ {0}).card = n
   induction n generalizing f with
   | zero =>
-    rw [Finset.card_eq_zero] at h
-    rw [← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range] at h
-    rw [Finset.coe_empty, diff_eq_empty, Set.range_subset_singleton] at h
     convert const 0 MeasurableSet.univ
     ext x
+    rw [Finset.card_eq_zero,
+      ← Finset.coe_inj, Finset.coe_sdiff, Finset.coe_singleton, SimpleFunc.coe_range,
+      Finset.coe_empty, sdiff_eq_empty, Set.range_subset_singleton] at h
     simp [h]
   | succ n ih =>
     have nonempty : (f.range \ {0}).Nonempty := by

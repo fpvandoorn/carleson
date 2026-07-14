@@ -1,5 +1,7 @@
 module
 
+public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
+public import Mathlib.Order.Filter.ENNReal
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
@@ -11,7 +13,6 @@ public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
 public import Carleson.ToMathlib.Rearrangement
 public import Carleson.ToMathlib.RealInterpolation.Misc
-public import Carleson.ToMathlib.Order.Filter.ENNReal
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
 
@@ -309,7 +310,8 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         simp_rw [mul_assoc]
         rw [ENNReal.limsup_const_mul_of_ne_top (ENNReal.div_ne_top (by simp) p_ne_zero)]
         gcongr
-        rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG')]
+        rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG'),
+          mul_comm]
         gcongr
         apply Filter.limsup_le_of_le (f := _)
         filter_upwards with n

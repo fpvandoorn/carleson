@@ -254,8 +254,9 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
     linarith
   have : NeZero (volume.restrict (J : Set X) univ) := ⟨by
     rw [Measure.restrict_apply_univ]
-    exact ((measure_ball_pos _ _ (by simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA,
-      defaultD.eq_1, defaultκ.eq_1, Nat.ofNat_pos, div_pos_iff_of_pos_right]; positivity)).trans_le
+    exact ((measure_ball_pos _ _ (by
+      simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA, Nat.ofNat_pos,
+        div_pos_iff_of_pos_right]; positivity)).trans_le
       (measure_mono (μ := volume) (ball_subset_Grid (i := J)))).ne'⟩
   have : IsFiniteMeasure (volume.restrict (J : Set X)) := ⟨by
     rw [Measure.restrict_apply_univ]
@@ -266,7 +267,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   have vsupp : volume.real supp ≤ 2 * (↑8 * ↑D ^ (-s')) ^ κ * volume.real (J : Set X) := by
     simp only [supp, sub_eq_neg_add, ENNReal.zpow_add (x := D) (by simp) (by finiteness),
       ← mul_assoc]
-    convert small_boundary (i := J) (t := 8 * ↑D ^ (-s')) ?_
+    convert! small_boundary (i := J) (t := 8 * ↑D ^ (-s')) ?_
     · simp only [ENNReal.coe_mul, ENNReal.coe_ofNat]
       rw [ENNReal.coe_zpow (by simp)]
       norm_num
@@ -358,7 +359,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   gcongr
   rw [Real.toNNReal_mul (by positivity), Real.toNNReal_rpow_of_nonneg (by positivity),
     Real.toNNReal_mul (by positivity), ← Real.rpow_intCast,
-    Real.toNNReal_rpow_of_nonneg (by positivity), Real.toNNReal_coe_nat]
+    Real.toNNReal_rpow_of_nonneg (by positivity), Real.toNNReal_natCast]
   simp only [Nat.cast_pow, Nat.cast_ofNat, Real.toNNReal_ofNat, Int.cast_neg, ← pow_mul]
   rw [← mul_assoc, ← pow_succ, C7_6_4, ← NNReal.rpow_natCast, ← NNReal.rpow_intCast, Int.cast_neg]
   congr!
@@ -538,7 +539,7 @@ lemma btp_integral_bound :
       gcongr with y; rw [setLAverage_eq, ENNReal.div_eq_inv_mul]
       refine mul_le_mul_right (lintegral_mono_set (iUnion₂_subset fun p mp ↦ ?_)) _
       rw [Finset.mem_filter] at mp
-      convert (E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball _)
+      convert! (E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball _)
       · exact mp.2.2.symm
       · change (4 : ℝ) * D ^ s (𝓘 p) ≤ _
         rw [mp.2.2]; gcongr; norm_num
@@ -594,7 +595,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
       simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and] at hr ⊢
       obtain ⟨mp, h₁, h₂, h₃⟩ := hr; dsimp only [𝔠, 𝔰] at h₁ h₂ h₃ ⊢; rw [h₃] at h₁ h₂ ⊢
       refine ⟨mp, ⟨h₂, ?_, h₁⟩, ⟨h₁, rfl⟩⟩
-      rw [mem_toFinset, mem_diff] at mp; obtain ⟨mp₁, mp₂⟩ := mp; contrapose! mp₂
+      rw [mem_toFinset, Set.mem_sdiff] at mp; obtain ⟨mp₁, mp₂⟩ := mp; contrapose! mp₂
       exact overlap_implies_distance hu₁ hu₂ hu h2u (.inr mp₁) (h₃.symm ▸ mp₂)
     _ = ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *

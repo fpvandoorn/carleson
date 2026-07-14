@@ -27,8 +27,7 @@ lemma le_C2_0_2 (ha : 4 ≤ a) {q : ℝ≥0} (hq : q ∈ Ioc 1 2) :
     rw [tsub_le_iff_left]
     convert hq.2
     norm_num
-  grw [this]
-  simp only [← add_div, ge_iff_le]
+  grw [this, ← add_div]
   gcongr
   apply (add_le_pow_two_add_cube ha le_rfl ?_).trans_eq (by ring)
   have : 𝕔 / 8 ≤ 𝕔 / 4 := by lia

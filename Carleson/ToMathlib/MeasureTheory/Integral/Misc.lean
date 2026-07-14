@@ -28,7 +28,7 @@ theorem lintegral_antitone_mul_le {f g k : ℝ≥0 → ℝ≥0∞} (hf : AEMeasu
       simp only [SimpleFunc.coe_const, Function.const_apply, measurableSet_Iic, lintegral_indicator]
       rw [lintegral_const_mul'' _ hf.restrict, lintegral_const_mul'' _ hg.restrict]
       gcongr 1
-      convert (@h b) using 2
+      convert! (@h b) using 2
       · exact Measure.restrict_congr_set Iio_ae_eq_Iic.symm
       · exact Measure.restrict_congr_set Iio_ae_eq_Iic.symm
     · intro c
@@ -64,7 +64,7 @@ theorem lintegral_antitone_mul_le {f g k : ℝ≥0 → ℝ≥0∞} (hf : AEMeasu
       rw [lintegral_iSup', lintegral_iSup']
       · gcongr 1 with n
         simp only [measurableSet_Iic, lintegral_indicator]
-        convert (@h n) using 2
+        convert! (@h n) using 2
         · exact Measure.restrict_congr_set Iio_ae_eq_Iic.symm
         · exact Measure.restrict_congr_set Iio_ae_eq_Iic.symm
       · intro n

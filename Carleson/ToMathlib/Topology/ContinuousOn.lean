@@ -78,7 +78,7 @@ lemma eLpNormEssSup_nnreal_eq_iSup_nnreal {f : ℝ≥0∞ → ℝ≥0∞}
     apply ContinuousWithinAt.measure_lt_ne_zero (x := x) (μ := volume) (by simp) _ ha
     have : ContinuousWithinAt (ENNReal.ofNNReal) Set.univ x := by
       fun_prop
-    convert ContinuousWithinAt.comp_inter_of_eq (g := f) (hf a x ha) this rfl
+    convert! ContinuousWithinAt.comp_inter_of_eq (g := f) (hf a x ha) this rfl
     simp only [Set.univ_inter]
     ext y
     simp

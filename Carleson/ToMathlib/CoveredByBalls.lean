@@ -118,7 +118,7 @@ lemma pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) :
     AllBallsCoverBalls X (a ^ k) (n ^ k) := by
   intro r
   induction k with
-  | zero => simpa using fun x ↦ .ball x r
+  | zero => simpa using! fun x ↦ .ball x r
   | succ m h2 =>
     specialize h (r * a^m)
     rw [← mul_assoc, mul_comm, ← mul_assoc] at h

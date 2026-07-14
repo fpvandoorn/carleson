@@ -239,7 +239,7 @@ lemma control_approximation_effect' {δ ε : ℝ≥0} (δpos : 0 < δ) (εpos : 
           _ ≤ ∫⁻ (x : ℝ) in Set.Ioc 0 (2 * π), ↑(C_control_approximation_effect' δ ε) := by
             apply setLIntegral_mono measurable_const
             intro x _
-            rw [← ofReal_norm_eq_enorm, ENNReal.ofReal_le_coe]
+            rw [← ofReal_norm, ENNReal.ofReal_le_coe]
             exact g_bound x
           _ ≤ ↑(C_control_approximation_effect' δ ε) * ENNReal.ofReal (2 * π) := by
             rw [setLIntegral_const, Real.volume_Ioc, sub_zero]

@@ -8,7 +8,6 @@ public import Mathlib.MeasureTheory.Covering.Vitali
 public import Mathlib.MeasureTheory.Integral.Average
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Mathlib.Tactic.Field
-import Carleson.ToMathlib.MeasureTheory.Covering.Vitali
 
 open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter Pointwise
 open ENNReal hiding one_lt_two
@@ -302,7 +301,7 @@ public theorem hasStrongType_maximalFunction
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; intro _ _; simp
   intro v mlpv
-  refine ⟨measurable_maximalFunction.aestronglyMeasurable, ?_⟩; dsimp only
+  refine ⟨measurable_maximalFunction.aestronglyMeasurable, ?_⟩
   have cp₁p : 0 < (p₁ : ℝ) := by positivity
   have p₁n : p₁ ≠ 0 := by exact_mod_cast cp₁p.ne'
   conv_lhs =>
@@ -336,8 +335,8 @@ theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpa
   have hmb_one : wnorm (maximalFunction μ 𝓑 c r 1 (‖v ·‖ ^ (p : ℝ))) 1 μ
       ≤ ↑A ^ 2 * eLpNorm (fun x ↦ ‖v x‖ ^ (p : ℝ)) 1 μ := by
     apply (hasWeakType_maximalFunction_one (fun x : X ↦ ‖v x‖ ^ (p : ℝ)) _).2
-    convert MemLp.norm_rpow_div mlpv p
-    exact Eq.symm (ENNReal.div_self (coe_ne_zero.mpr p₁n) coe_ne_top)
+    convert! MemLp.norm_rpow_div mlpv p
+    exact (ENNReal.div_self (coe_ne_zero.mpr p₁n) coe_ne_top).symm
   unfold wnorm wnorm' distribution at hmb_one ⊢
   simp only [one_ne_top, ↓reduceIte, enorm_eq_self, toReal_one, inv_one, rpow_one, iSup_le_iff,
     coe_ne_top, coe_toReal] at hmb_one ⊢
@@ -346,12 +345,12 @@ theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpa
   · rw [ht]; simp
   · apply (rpow_le_rpow_iff cp).mp
     rw [ENNReal.mul_rpow_of_nonneg _ _ NNReal.zero_le_coe]
-    convert hmb_one (t ^ (p : ℝ))
-    · exact Eq.symm (coe_rpow_of_ne_zero ht ↑p)
+    convert! hmb_one (t ^ (p : ℝ))
+    · exact (coe_rpow_of_ne_zero ht p).symm
     · rw [rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n)]
       congr; ext x; rw [coe_rpow_of_ne_zero ht ↑p]; exact (lt_rpow_inv_iff cp)
     · rw [eLpNorm_norm_rpow v cp, ENNReal.mul_rpow_of_nonneg _ _ NNReal.zero_le_coe,
-          div_eq_mul_inv, rpow_mul, rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n), rpow_two]; simp
+        div_eq_mul_inv, rpow_mul, rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n), rpow_two]; simp
 
 @[expose]
 public def C_weakType_maximalFunction (A p₁ p₂ : ℝ≥0) :=

@@ -223,7 +223,7 @@ lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} 
   calc
   _ = t ^ (a + (b - a)) := by ring_nf
   _ = t ^ a * t ^ (b - a) := by rw [ENNReal.rpow_add _ _ ht.ne' ht']
-  _ ≤ t ^ a * γ ^ (b - a) := by gcongr; linarith
+  _ ≤ t ^ a * γ ^ (b - a) := by gcongr
 
 -- TODO: there is a lot of overlap between above proof and below
 lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :

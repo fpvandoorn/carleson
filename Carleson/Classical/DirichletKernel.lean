@@ -63,7 +63,7 @@ lemma dirichletKernel'_periodic : Function.Periodic (dirichletKernel' N) (2 * π
     convert exp_int_mul_two_pi_mul_I 1 using 2
     ring
 
-@[fun_prop, measurability]
+@[fun_prop]
 lemma dirichletKernel'_measurable : Measurable (dirichletKernel' N) := by
   apply Measurable.add <;> fun_prop
 

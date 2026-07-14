@@ -254,7 +254,7 @@ lemma enorm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h
   have : iHolENorm φ z (2 * R) τ = ENNReal.ofReal (iHolNNNorm φ z (2 * R) τ) := by
     simp only [iHolNNNorm, ENNReal.ofReal_coe_nnreal, ENNReal.coe_toNNReal h]
   rw [ENNReal.ofReal_rpow_of_pos (by linarith), this, ← ENNReal.ofReal_mul (by positivity),
-    ← ofReal_norm_eq_enorm, ← dist_eq_norm]
+    ← ofReal_norm, ← dist_eq_norm]
   apply ENNReal.ofReal_le_ofReal
   apply dist_holderApprox_le hR ht h't hφ
     (by simpa [nnτ_def] using HolderOnWith.of_iHolENorm_ne_top (τ_nonneg X) h) x |>.trans_eq
@@ -346,7 +346,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
         simp [measure_union_lt_top_iff, measure_ball_lt_top]
       apply Eventually.of_forall (fun y ↦ ?_)
       simp only [cutoff_comm (y := y)]
-      simpa [div_eq_inv_mul, dist_eq_norm] using (cutoff_Lipschitz hR ht (x := y)).dist_le_mul x x'
+      simpa [div_eq_inv_mul, dist_eq_norm] using! (cutoff_Lipschitz hR ht (x := y)).dist_le_mul x x'
     _ = volume.real (ball x (t * R) ∪ ball x' (t * R)) * dist x x' / (t * R) := by
       simp [Measure.real, mul_div_assoc]
     _ ≤ volume.real (ball x (2 * R)) * dist x x' / (t * R) := by

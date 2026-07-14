@@ -272,7 +272,7 @@ lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} (hmg : AEMeasura
   · refine fun i _ ↦ Measurable.indicator ?_ measurableSet_Ioc |>.aestronglyMeasurable
     exact partialFourierSum_uniformContinuous.continuous.measurable.modulationOperator _
   trans ∑ i ∈ Finset.Ico n (2 * n), eLpNorm ((Ioc 0 (2 * π)).indicator g) 2 volume; swap
-  · simp [← ofReal_norm_eq_enorm, Nat.sub_eq_of_eq_add (two_mul n)]
+  · simp [← ofReal_norm, Nat.sub_eq_of_eq_add (two_mul n)]
   refine Finset.sum_le_sum (fun i _ ↦ ?_)
   rw [eLpNorm_indicator_modulationOperator, ← eLpNorm_indicator_modulationOperator g (-i)]
   exact spectral_projection_bound (hmg.modulationOperator (-i))
@@ -681,7 +681,7 @@ lemma dist_dirichletApprox_le
   apply (norm_add_le _ _).trans
   have A : ‖(1 - exp (I * x))⁻¹ - {y | |y| ∈ Ico r 1}.indicator k x‖ ≤ 2 * niceKernel r x := by
     apply norm_sub_indicator_k h'x _ rpos hr.2
-    simpa only [Real.norm_eq_abs, abs_le] using hx
+    simpa only [Real.norm_eq_abs, abs_le] using! hx
   have B : ‖dirichletApproxAux n x‖ ≤ 10 * niceKernel r x := by
     apply norm_dirichletApproxAux_le hexpx h'x _ _ hr.1 hr.2
     · simp [abs_le, hx.1, hx.2]
@@ -889,7 +889,7 @@ lemma eLpNorm_czOperator_restrict {g : ℝ → ℂ} {r a : ℝ} (hr : r ∈ Ioo 
       eLpNorm g' 2 (volume.restrict (Ioc 1 4)) := by
     rw [eLpNorm_comp_measurePreserving (hg.restrict _).aestronglyMeasurable]
     have : MeasurePreserving (fun x ↦ x + (a - 2)) := measurePreserving_add_right volume (a - 2)
-    convert this.restrict_preimage (s := Ioc (a - 1) (a + 2)) measurableSet_Ioc
+    convert! this.restrict_preimage (s := Ioc (a - 1) (a + 2)) measurableSet_Ioc
     simp
     norm_num
   have B : eLpNorm (czOperator K r g) 2 (volume.restrict (Ioc a (a + 1))) =
@@ -899,8 +899,7 @@ lemma eLpNorm_czOperator_restrict {g : ℝ → ℂ} {r a : ℝ} (hr : r ∈ Ioo 
     rw [this, eLpNorm_comp_measurePreserving]
     · apply AEStronglyMeasurable.restrict
       apply czOperator_aestronglyMeasurable' Hilbert_kernel_measurable hg.aestronglyMeasurable
-    · have : MeasurePreserving (fun x ↦ x + (a - 2)) := measurePreserving_add_right volume (a - 2)
-      convert this.restrict_preimage (s := Ioc a (a + 1)) measurableSet_Ioc
+    · convert! (measurePreserving_add_right volume (a - 2)).restrict_preimage measurableSet_Ioc
       simp
       norm_num
   rw [A, B]
