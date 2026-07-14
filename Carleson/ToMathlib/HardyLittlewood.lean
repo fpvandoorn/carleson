@@ -38,8 +38,7 @@ variable {X E : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X] [
 
 /-- The average of the norm of a function over a particular ball is smaller than the value of the
 `globalMaximalFuntion` at a point inside that ball. -/
-public theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
-    {z : X} {r : ℝ} (h : dist x z < r) :
+public theorem laverage_le_globalMaximalFunction {z : X} {r : ℝ} (h : dist x z < r) :
     ⨍⁻ y in ball z r, ‖u y‖ₑ ∂μ ≤ globalMaximalFunction μ 1 u x := by
   apply le_iSup₂_of_le (z, r) trivial
   simp only [ENNReal.rpow_one, inv_one, indicator_of_mem (mem_ball.mpr h)]
@@ -48,7 +47,7 @@ public theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] 
 /-- The integral of the norm of a function over a particular ball is smaller than the volume of the
 ball times the value of the `globalMaximalFuntion` at a point inside that ball. -/
 public theorem lintegral_ball_le_volume_mul_globalMaximalFunction
-    [ProperSpace X] [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure] {z : X} {r : ℝ}
+    [ProperSpace X] [IsFiniteMeasureOnCompacts μ] {z : X} {r : ℝ}
     (h : dist x z < r) :
     ∫⁻ y in ball z r, ‖u y‖ₑ ∂μ ≤ μ (ball z r) * globalMaximalFunction μ 1 u x := by
   have : IsFiniteMeasure (μ.restrict (ball z r)) := isFiniteMeasure_restrict.mpr (by finiteness)
