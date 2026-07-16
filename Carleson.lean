@@ -29,7 +29,6 @@ public import Carleson.Discrete.ExceptionalSet
 public import Carleson.Discrete.ForestComplement
 public import Carleson.Discrete.ForestUnion
 public import Carleson.Discrete.MainTheorem
-public import Carleson.Discrete.SumEstimates
 public import Carleson.DoublingMeasure
 public import Carleson.FinitaryCarleson
 public import Carleson.Forest
@@ -56,7 +55,6 @@ public import Carleson.TileExistence
 public import Carleson.TileStructure
 public import Carleson.ToMathlib.Analysis.Convolution
 public import Carleson.ToMathlib.Analysis.Fourier.AddCircle
-public import Carleson.ToMathlib.Analysis.RCLike.Basic
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
 public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
@@ -66,17 +64,14 @@ public import Carleson.ToMathlib.BoundedCompactSupport
 public import Carleson.ToMathlib.BoundedFiniteSupport
 public import Carleson.ToMathlib.CoveredByBalls
 public import Carleson.ToMathlib.Data.ENNReal
-public import Carleson.ToMathlib.Data.Finset.Lattice.Fold
 public import Carleson.ToMathlib.Data.NNReal
 public import Carleson.ToMathlib.Data.Real.ConjExponents
 public import Carleson.ToMathlib.Distribution
-public import Carleson.ToMathlib.Dynamics.Ergodic.MeasurePreserving
 public import Carleson.ToMathlib.ENorm
 public import Carleson.ToMathlib.HardyLittlewood
 public import Carleson.ToMathlib.IntegralBallContinuity
 public import Carleson.ToMathlib.LorentzType
 public import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
-public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
 public import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
@@ -87,7 +82,6 @@ public import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-public import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.Indicator
 public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 public import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral.Basic

@@ -2,7 +2,7 @@ module
 
 public import Carleson.ToMathlib.ENorm
 
---Upstreaming status: ready but not sure if this should go to mathlib
+-- Upstreaming status: ready but not sure if this should go to mathlib
 
 public section
 

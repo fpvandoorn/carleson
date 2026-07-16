@@ -17,9 +17,6 @@ variable {α α' E E₁ E₂ : Type*}
 
 @[simp] lemma enorm_toReal_le {x : ℝ≥0∞} : ‖x.toReal‖ₑ ≤ x := by simp [← ofReal_norm, ofReal_toReal_le]
 
-@[simp] lemma enorm_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) : ‖x.toReal‖ₑ = x := by
-  simp [hx, ← ofReal_norm]
-
 @[simp] lemma enorm_NNReal {x : ℝ≥0} : ‖x‖ₑ = x := by rfl
 
 -- TODO appropriate generality (ENormedDivisionSemiring?), for ℝ≥0 it is already there

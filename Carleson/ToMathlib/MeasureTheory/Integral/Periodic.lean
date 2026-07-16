@@ -20,7 +20,7 @@ section AE
 
 variable (T : ℝ) [hT : Fact (0 < T)]
 
-instance AddCircle.noAtoms_volume : NoAtoms (volume : Measure (AddCircle T)) where
+instance AddCircle.noAtoms_volume : NullSingletonClass (volume : Measure (AddCircle T)) where
   measure_singleton x := by simpa [hT.out.le] using AddCircle.volume_closedBall T (x := x) 0
 
 variable {B : Type*} {T a : ℝ} [hT : Fact (0 < T)] (f : ℝ → B)

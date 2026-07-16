@@ -111,7 +111,7 @@ theorem exceptional_set_carleson' {f : ℝ → ℂ} (cont_f : Continuous f)
           (contDiff_f₀.continuous.sub cont_f).measurable
             (periodic_f₀.sub periodic_f)
         intro x
-        rw [norm_sub_rev]
+        rw [Pi.sub_apply, norm_sub_rev]
         apply (hf₀ x).trans (min_le_right _ _)
     _ = ε := by simp
 

@@ -653,7 +653,7 @@ lemma trnc_le_func {j : Bool} {a : ℝ≥0∞} {x : α} :
 /-! ## Truncations and L-p spaces -/
 
 lemma MemLp.trunc {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t) p μ := by
-  refine ⟨hf.1.trunc, lt_of_le_of_lt (eLpNorm_mono_ae' (ae_of_all _ ?_)) hf.2⟩
+  refine ⟨hf.1.trunc, lt_of_le_of_lt (eLpNorm_mono_enorm_ae (ae_of_all _ ?_)) hf.2⟩
   intro x
   unfold MeasureTheory.trunc
   split_ifs with is_fx_le_a <;> simp
@@ -664,7 +664,7 @@ lemma MemLp.trunc {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t) p μ 
 
 lemma MemLp.truncCompl {p : ℝ≥0∞} (hf : MemLp f p μ) :
     MemLp (truncCompl f t) p μ := by
-  refine ⟨hf.1.truncCompl, lt_of_le_of_lt (eLpNorm_mono_ae' (ae_of_all _ ?_)) hf.2⟩
+  refine ⟨hf.1.truncCompl, lt_of_le_of_lt (eLpNorm_mono_enorm_ae (ae_of_all _ ?_)) hf.2⟩
   intro x
   unfold MeasureTheory.truncCompl
   split_ifs with is_fx_le_a <;> simp

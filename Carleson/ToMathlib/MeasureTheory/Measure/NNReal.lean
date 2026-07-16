@@ -81,7 +81,7 @@ lemma ENNReal.volume_val {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
     _ = volume (NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s)) := NNReal.volume_val
     _ = volume (ENNReal.toReal '' s) := Eq.symm (measure_congr ENNReal.map_toReal_ae_eq_map_toReal_comap_ofReal)
 
-instance : NoAtoms (@volume ℝ≥0∞ _) where
+instance : NullSingletonClass (@volume ℝ≥0∞ _) where
   measure_singleton := by
     intro x
     rw [ENNReal.volume_val (measurableSet_singleton _), image_singleton]
@@ -89,8 +89,9 @@ instance : NoAtoms (@volume ℝ≥0∞ _) where
 
 -- TODO: move this general result to an appropriate place
 -- TODO: maybe generalize further to general measures restricted to a subtype
-lemma Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NoAtoms (volume : Measure δ)] {p : δ → Prop} (hp : MeasurableSet p) :
-    NoAtoms (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
+lemma Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NullSingletonClass (volume : Measure δ)]
+    {p : δ → Prop} (hp : MeasurableSet p) :
+    NullSingletonClass (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
   measure_singleton := by
     intro x
     calc _
@@ -99,7 +100,7 @@ lemma Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NoAtoms (volume : 
       _ = 0 := by
         simp
 
-instance : NoAtoms (@volume ℝ≥0 _) := Measure.Subtype.noAtoms measurableSet_Ici
+instance : NullSingletonClass (@volume ℝ≥0 _) := Measure.Subtype.noAtoms measurableSet_Ici
 
 --TODO: move this general result to an appropriate place
 --TODO: maybe generalize further to general measures restricted to a subtype

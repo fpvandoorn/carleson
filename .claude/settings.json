@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git symbolic-ref *)",
+      "Bash(git checkout *)",
+      "Bash(python3 __TRACKED_VAR__/sort_imports.py)"
+    ]
+  }
+}

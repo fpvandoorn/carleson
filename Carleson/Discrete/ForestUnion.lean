@@ -1,10 +1,10 @@
 module
 
 public import Carleson.Discrete.Defs
-public import Carleson.Discrete.SumEstimates
 public import Carleson.ForestOperator.Forests
 public import Carleson.MinLayerTiles
 public import Mathlib.Analysis.Complex.ExponentialBounds
+public import Mathlib.Analysis.SumIntegralExpDecay
 
 @[expose] public section
 

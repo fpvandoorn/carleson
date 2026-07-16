@@ -343,7 +343,7 @@ lemma toReal {T : (α → ε₁) → α' → ℝ≥0∞}
     AESublinearOn (T · · |>.toReal) P A ν := by
   refine ⟨fun f g hf hg ↦ ?_, fun f c hf ↦ ?_⟩
   · filter_upwards [h.1 f g hf hg, hP f hf, hP g hg] with x hx hfx hgx
-    simp only [ne_eq, hfx, not_false_eq_true, enorm_toReal, hgx] at hx ⊢
+    simp only [ne_eq, hfx, not_false_eq_true, Real.enorm_toReal, hgx] at hx ⊢
     exact enorm_toReal_le.trans hx
   · filter_upwards [h.2 f c hf, hP f hf] with x hx hfx
     rw [hx, Pi.smul_apply, toReal_smul]

@@ -413,7 +413,7 @@ lemma btp_expansion (hf : BoundedCompactSupport f) :
         ← ENNReal.div_eq_inv_mul, measureReal_def, Real.enorm_of_nonneg ENNReal.toReal_nonneg,
         ENNReal.ofReal_toReal Vlt.ne]; congr
       rw [integral_norm_eq_lintegral_enorm hf.aestronglyMeasurable.adjointCarlesonSum.restrict]
-      apply enorm_toReal
+      apply Real.enorm_toReal
       rw [← lt_top_iff_ne_top, ← eLpNorm_one_eq_lintegral_enorm]
       exact (hf.adjointCarlesonSum.restrict.memLp 1).2
     _ = _ := by

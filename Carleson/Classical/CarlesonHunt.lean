@@ -247,7 +247,7 @@ theorem carleson_hunt' {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {
   rw [AddCircle.volume_eq_smul_haarAddCircle] at *
   rw [Measure.ae_ennreal_smul_measure_eq (ofReal_ne_zero_iff.mpr two_pi_pos)] at h
   apply Measure.ae_smul_measure
-  convert AddCircle.measurePreserving_equivAddCircle.ae_comp h using 4 with x N
+  convert AddCircle.measurePreserving_equivAddCircle.quasiMeasurePreserving.ae h using 4 with x N
   · exact partialFourierSum'_comp_equivAddCircle.symm
   · unfold g
     congr

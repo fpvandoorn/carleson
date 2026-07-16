@@ -324,7 +324,7 @@ lemma eLpNorm_two_eq_enorm_integral_mul_conj {f : α → ℂ} (lpf : MemLp f 2 �
   conv_rhs => enter [1, 1, 1, 2, x]; rw [ENNReal.ofReal_pow (norm_nonneg _), ofReal_norm]
   rw [← sq_eLpNorm_two, ← enorm_norm]
   simp_rw [Complex.coe_algebraMap, Complex.norm_real, enorm_norm]
-  rw [toReal_pow, enorm_pow, enorm_toReal lpf.eLpNorm_ne_top]
+  rw [toReal_pow, enorm_pow, Real.enorm_toReal lpf.eLpNorm_ne_top]
 
 end eLpNorm
 

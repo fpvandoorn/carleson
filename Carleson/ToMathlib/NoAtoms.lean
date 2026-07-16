@@ -7,7 +7,7 @@ module
 
 public import Mathlib.MeasureTheory.Measure.Typeclasses.NoAtoms
 
---Upstreaming status: The new definition for `NoAtoms` will be developed in a separate project.
+-- Upstreaming status: the new definition for `NoAtoms` will be developed in a separate project.
 
 /-!
 # Measures having no atoms
@@ -37,7 +37,7 @@ theorem exists_nullmeasurable_between_measure_eq {s t : Set α} (hs : NullMeasur
   (ht : NullMeasurableSet t μ) (h : s ⊆ t) {x : ENNReal} (lb : μ s ≤ x) (ub : x ≤ μ t) :
     ∃ u, NullMeasurableSet u μ ∧ s ⊆ u ∧ u ⊆ t ∧ μ u = x := sorry
 
---TODO: Lyapunovs convexity theorem
+-- TODO: Lyapunov's convexity theorem
 
 end NoAtoms'
 

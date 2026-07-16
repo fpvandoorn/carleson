@@ -952,7 +952,7 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
         rw [← iSup_apply, Set.iSup_indicator ENNReal.bot_eq_zero monotone_const]
         rotate_left
         · intro n m hmn
-          simp only [compl_le_compl_iff_le, Set.le_eq_subset]
+          simp only [compl_le_compl_iff_le]
           gcongr
           exact mono_a.monotone hmn
         have : Set.univ = ⋃ n, (Set.Ioo (a n) (rearrangement f t μ))ᶜ := by
