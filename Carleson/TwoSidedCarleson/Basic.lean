@@ -1,8 +1,7 @@
 module
 
-public import Mathlib.MeasureTheory.Integral.IntegrableOn
 public import Carleson.Calculations
-public import Carleson.ToMathlib.Rearrangement
+public import Carleson.ToMathlib.BoundedFiniteSupport
 
 @[expose] public section
 

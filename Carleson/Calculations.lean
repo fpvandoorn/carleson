@@ -10,7 +10,6 @@ All lemmas are prepended with a prefix `calculation_`.
 module
 
 public import Carleson.ProofData
-public import Mathlib.Tactic.Rify
 
 public section
 

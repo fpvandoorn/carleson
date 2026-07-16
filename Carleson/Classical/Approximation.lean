@@ -1,10 +1,9 @@
 module
 
 public import Carleson.Classical.Basic
+public import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 public import Mathlib.Analysis.Calculus.BumpFunction.Convolution
 public import Mathlib.Analysis.PSeries
-public import Mathlib.Analysis.Normed.Lp.SmoothApprox
-public import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 
 public section
 

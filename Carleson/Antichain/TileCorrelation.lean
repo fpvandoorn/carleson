@@ -3,7 +3,6 @@ module
 public import Carleson.Calculations
 public import Carleson.HolderVanDerCorput
 public import Carleson.Operators
-public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 
 /-!
 # 6.2. Proof of the Tile Correlation Lemma

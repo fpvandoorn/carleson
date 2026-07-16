@@ -1,12 +1,7 @@
 module
 
-public import Carleson.Defs
-public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
-public import Carleson.ToMathlib.RealInterpolation.Main
-public import Mathlib.MeasureTheory.Covering.Vitali
-public import Mathlib.MeasureTheory.Integral.Average
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-public import Mathlib.Tactic.Field
+public import Mathlib.MeasureTheory.Covering.Vitali
 
 @[expose] public noncomputable section
 

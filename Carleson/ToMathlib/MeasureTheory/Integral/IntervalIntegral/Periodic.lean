@@ -1,6 +1,5 @@
 module
 
-public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 public import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 
 public section

@@ -1,7 +1,5 @@
 module
 
-public import Mathlib.Algebra.Order.Pi
-public import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
 public import Mathlib.MeasureTheory.Function.SimpleFunc
 
 @[expose] public section

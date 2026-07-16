@@ -1,7 +1,5 @@
 module
 
-public import Mathlib.Analysis.Normed.Field.Basic
-public import Mathlib.Topology.EMetricSpace.Lipschitz
 public import Carleson.Defs
 
 @[expose] public section

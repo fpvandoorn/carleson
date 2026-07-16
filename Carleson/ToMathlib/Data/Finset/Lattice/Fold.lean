@@ -1,9 +1,7 @@
 module
 
-public import Mathlib.Data.Finset.Lattice.Fold
-public import Mathlib.Order.ConditionallyCompleteLattice.Defs
-public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 public import Mathlib.Data.Set.Finite.Lattice
+public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 
 public section
 

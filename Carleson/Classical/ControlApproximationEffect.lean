@@ -1,7 +1,7 @@
 module
 
-public import Carleson.Classical.ControlApproximationEffectBasic
 public import Carleson.Classical.CarlesonOnTheRealLine
+public import Carleson.Classical.ControlApproximationEffectBasic
 
 @[expose] public section
 

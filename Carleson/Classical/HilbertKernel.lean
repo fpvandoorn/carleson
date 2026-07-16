@@ -1,7 +1,6 @@
 module
 
 public import Carleson.Classical.Basic
-public import Mathlib.Analysis.Real.Pi.Bounds
 
 @[expose] public section
 

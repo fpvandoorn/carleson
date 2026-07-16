@@ -1,8 +1,6 @@
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-public import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
-public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 
 @[expose] public section

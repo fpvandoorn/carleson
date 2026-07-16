@@ -1,8 +1,5 @@
 module
 
-public import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
-public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-public import Mathlib.Analysis.Normed.Group.Basic
 public import Carleson.ToMathlib.Misc
 
 public section -- for iSup_rpow

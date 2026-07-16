@@ -1,7 +1,6 @@
 module
 
 public import Carleson.ProofData
-public import Mathlib.Tactic.Field
 
 @[expose] public section
 

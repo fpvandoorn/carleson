@@ -1,6 +1,5 @@
 module
 
-public import Mathlib.Order.CompleteLattice.Basic
 public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
 
 public section

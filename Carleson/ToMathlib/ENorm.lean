@@ -1,7 +1,7 @@
 module
 
-public import Mathlib.MeasureTheory.Function.LpSeminorm.Monotonicity
 public import Carleson.ToMathlib.Data.ENNReal
+public import Mathlib.MeasureTheory.Function.LpSeminorm.Monotonicity
 
 public section
 

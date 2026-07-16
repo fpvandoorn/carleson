@@ -1,9 +1,8 @@
 module
 
-public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
-public import Mathlib.Analysis.Convolution
 public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 public import Mathlib.Algebra.Order.Interval.Set.Group
+public import Mathlib.Analysis.Convolution
 
 @[expose] public section
 

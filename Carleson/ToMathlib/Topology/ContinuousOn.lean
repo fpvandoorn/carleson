@@ -1,10 +1,8 @@
 module
 
-public import Mathlib.Analysis.SpecialFunctions.Pow.Continuity
-public import Mathlib.MeasureTheory.Measure.OpenPos
-public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
 public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
 
 --Upstreaming status: some results should probably be generalized, see TODOs
 

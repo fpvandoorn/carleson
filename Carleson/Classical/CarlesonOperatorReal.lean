@@ -1,8 +1,6 @@
 module
 
 public import Carleson.Classical.HilbertKernel
-public import Mathlib.MeasureTheory.Integral.Prod
-public import Carleson.ToMathlib.Annulus
 
 @[expose] public section
 

@@ -1,6 +1,5 @@
 module
 
-public import Mathlib.MeasureTheory.Function.L1Space.Integrable
 public import Carleson.ToMathlib.BoundedCompactSupport
 
 public section

@@ -1,10 +1,6 @@
 module
 
-public import Carleson.ToMathlib.BoundedFiniteSupport
 public import Carleson.ToMathlib.Misc
-public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
-public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
-public import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 -- Upstreaming status: all of this should go into mathlib, eventually.
 -- Most lemmas have the right form, but proofs can often be golfed.

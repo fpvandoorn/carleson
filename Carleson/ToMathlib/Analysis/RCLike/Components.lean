@@ -1,7 +1,5 @@
 module
 
-public import Mathlib.Algebra.EuclideanDomain.Field
-public import Mathlib.Analysis.InnerProductSpace.Basic
 public import Carleson.ToMathlib.Analysis.RCLike.Basic
 public import Carleson.ToMathlib.ENorm
 

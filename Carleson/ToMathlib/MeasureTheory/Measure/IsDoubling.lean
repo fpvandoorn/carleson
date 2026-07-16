@@ -1,10 +1,7 @@
 module
 
-public import Carleson.Defs
-public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.CoveredByBalls
 public import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
-public import Mathlib.Order.CompletePartialOrder
 
 @[expose] public section
 

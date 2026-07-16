@@ -1,6 +1,5 @@
 module
 
-public import Mathlib.Analysis.Normed.Group.Basic
 public import Carleson.ToMathlib.HardyLittlewood
 public import Carleson.TwoSidedCarleson.Basic
 

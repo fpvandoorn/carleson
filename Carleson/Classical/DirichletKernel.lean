@@ -2,8 +2,6 @@
 module
 
 public import Carleson.Classical.Basic
-public import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
-public import Mathlib.Tactic.Field
 
 @[expose] public section
 

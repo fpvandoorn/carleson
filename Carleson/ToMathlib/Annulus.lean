@@ -6,7 +6,6 @@ Authors: James Sundstrom
 module
 
 public import Carleson.Defs
-public import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
 public import Mathlib.Order.SuccPred.IntervalSucc
 
 /-!

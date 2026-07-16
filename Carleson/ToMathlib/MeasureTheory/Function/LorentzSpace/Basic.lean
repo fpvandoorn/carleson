@@ -1,6 +1,5 @@
 module
 
-public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
 
 @[expose] public section

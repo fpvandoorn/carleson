@@ -1,7 +1,12 @@
 module
 
+public import Carleson.Defs
+public import Carleson.ToMathlib.BoundedFiniteSupport
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
 public import Carleson.ToMathlib.Rearrangement
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 @[expose] public section
 
