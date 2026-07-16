@@ -84,7 +84,6 @@ public import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-public import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.Indicator
 public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 public import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral.Basic
