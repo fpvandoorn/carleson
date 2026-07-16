@@ -67,7 +67,6 @@ public import Carleson.ToMathlib.Data.ENNReal
 public import Carleson.ToMathlib.Data.NNReal
 public import Carleson.ToMathlib.Data.Real.ConjExponents
 public import Carleson.ToMathlib.Distribution
-public import Carleson.ToMathlib.Dynamics.Ergodic.MeasurePreserving
 public import Carleson.ToMathlib.ENorm
 public import Carleson.ToMathlib.HardyLittlewood
 public import Carleson.ToMathlib.IntegralBallContinuity
