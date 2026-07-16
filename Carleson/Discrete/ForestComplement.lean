@@ -3,8 +3,8 @@ module
 public import Carleson.Antichain.AntichainOperator
 public import Carleson.Discrete.Defs
 public import Mathlib.Analysis.Complex.ExponentialBounds
-public import Mathlib.Combinatorics.Enumerative.DoubleCounting
 public import Mathlib.Analysis.SumIntegralExpDecay
+public import Mathlib.Combinatorics.Enumerative.DoubleCounting
 
 @[expose] public section
 
