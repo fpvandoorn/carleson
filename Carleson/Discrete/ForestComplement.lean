@@ -2,9 +2,9 @@ module
 
 public import Carleson.Antichain.AntichainOperator
 public import Carleson.Discrete.Defs
-public import Carleson.Discrete.SumEstimates
 public import Mathlib.Analysis.Complex.ExponentialBounds
 public import Mathlib.Combinatorics.Enumerative.DoubleCounting
+public import Mathlib.Analysis.SumIntegralExpDecay
 
 @[expose] public section
 
