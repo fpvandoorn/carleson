@@ -8,7 +8,6 @@ module
 public import Carleson.ToMathlib.Distribution
 public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
-public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Mathlib.MeasureTheory.Integral.Layercake
 
 /-

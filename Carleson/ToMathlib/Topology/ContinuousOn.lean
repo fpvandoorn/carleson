@@ -1,6 +1,5 @@
 module
 
-public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
 

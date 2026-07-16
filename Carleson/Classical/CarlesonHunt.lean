@@ -3,7 +3,6 @@ module
 public import Carleson.Classical.Approximation
 public import Carleson.Classical.CarlesonHuntBasic
 public import Carleson.Classical.ControlApproximationEffect
-public import Carleson.ToMathlib.Dynamics.Ergodic.MeasurePreserving
 
 /-! This file contains the Carleson-Hunt theorem, a generalization of `classical_carleson`. -/
 
