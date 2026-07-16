@@ -491,8 +491,7 @@ lemma union_L'_eq_union_I_p : ⋃ (L ∈ 𝓛' 𝔄 ϑ N), L = ⋃ (p ∈ 𝔄' 
   classical
   rw [← union_L_eq_union_I_p]
   apply le_antisymm
-  · simp only [le_eq_subset, iUnion_subset_iff, 𝓛']
-    exact fun _ hL ↦ subset_biUnion_of_mem hL.1
+  · simpa using! fun _ hL ↦ subset_biUnion_of_mem hL.1
   intro x hx
   simp only [mem_iUnion, exists_prop] at hx ⊢
   obtain ⟨L, hL, hLx⟩ := hx
@@ -842,7 +841,7 @@ open Classical in
 private lemma volume_union_I_p_eq_sum :
     volume (⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 p : Set X)) = ∑ (L ∈ 𝓛' 𝔄 ϑ N), volume (L : Set X) := by
   rw [← union_L'_eq_union_I_p 𝔄 ϑ N]
-  convert MeasureTheory.measure_biUnion_finset (pairwiseDisjoint_𝓛' 𝔄 ϑ N)
+  convert! MeasureTheory.measure_biUnion_finset (pairwiseDisjoint_𝓛' 𝔄 ϑ N)
     (fun _ _ ↦ coeGrid_measurable)
   ext
   rw [mem_toFinset]

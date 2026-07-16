@@ -495,7 +495,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl_old {q q₀ p₀ : ℝ}
     exact hp₀q₀
   · unfold Function.uncurry
     -- TODO: this is quite some effort, somehow the infrastructure may need to be better
-    apply AEMeasurable.mul'
+    apply AEMeasurable.mul
     · fun_prop
     · have : (fun a ↦ ‖trnc j f (tc.ton (ENNReal.ofReal a.1)) a.2‖ₑ ^ p₀) =
           (fun a ↦ ‖trnc j f (tc.ton a.1) a.2‖ₑ ^ p₀ ) ∘
@@ -530,7 +530,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
     exact hp₀q₀
   · unfold Function.uncurry
     -- TODO: this is quite some effort, somehow the infrastructure may need to be better
-    apply AEMeasurable.mul'
+    apply AEMeasurable.mul
     · fun_prop
     · have : (fun a ↦ ‖trnc j f (tc.ton (ENNReal.ofReal a.1)) a.2‖ₑ ^ p₀) =
           (fun a ↦ ‖trnc j f (tc.ton a.1) a.2‖ₑ ^ p₀ ) ∘

@@ -1,6 +1,6 @@
 module
 
-public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
+public import Mathlib.MeasureTheory.Function.EssSup
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
 public import Carleson.ToMathlib.RealInterpolation.Misc

@@ -256,9 +256,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
           atTop (𝓝 (∫ y in ⋃ n, s n, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))) := by
     apply tendsto_setIntegral_of_monotone
     · exact fun n ↦ annulus_measurableSet
-    · intro n m nlem
-      simp only [Set.le_eq_subset]
-      intro y hy
+    · intro n m nlem y hy
       rw [sdef] at *
       simp only [one_div, Set.mem_Ioo, Set.mem_setOf_eq] at *
       refine ⟨lt_of_le_of_lt ?_ hy.1, hy.2⟩
@@ -270,9 +268,8 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       exact intervalIntegrable_mul_dirichletKernel'_specific hx hg
   calc
     _ = ‖∫ y in ⋃ n, s n, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ := by congr
-    _ ≤ ⨆ (i : ℕ), ↑‖∫ y in s i, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ := by
-      apply le_iSup_of_tendsto
-      exact Tendsto.enorm this
+    _ ≤ ⨆ (i : ℕ), ↑‖∫ y in s i, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ :=
+      le_iSup_of_tendsto this.enorm
     _ ≤ ⨆ (r : ℝ) (_ : 0 < r) (_ : r < 1), ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖ₑ := by
       apply iSup_le
       intro n

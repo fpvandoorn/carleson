@@ -175,7 +175,7 @@ lemma zorn_apply_maximal_set (k : ℤ) :
     ∃ s ∈ property_set X k, ∀ s' ∈ property_set X k, s ⊆ s' → s' = s := by
   have := zorn_subset (property_set X k) (chain_property_set_has_bound X k)
   simp_rw [maximal_iff] at this; convert this using 6
-  simp only [le_eq_subset, eq_comm]
+  simp only [eq_comm]
 
 variable (X) in
 def Yk (k : ℤ) : Set X := (zorn_apply_maximal_set X k).choose

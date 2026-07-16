@@ -56,7 +56,6 @@ public import Carleson.TileExistence
 public import Carleson.TileStructure
 public import Carleson.ToMathlib.Analysis.Convolution
 public import Carleson.ToMathlib.Analysis.Fourier.AddCircle
-public import Carleson.ToMathlib.Analysis.RCLike.Basic
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
 public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
@@ -66,7 +65,6 @@ public import Carleson.ToMathlib.BoundedCompactSupport
 public import Carleson.ToMathlib.BoundedFiniteSupport
 public import Carleson.ToMathlib.CoveredByBalls
 public import Carleson.ToMathlib.Data.ENNReal
-public import Carleson.ToMathlib.Data.Finset.Lattice.Fold
 public import Carleson.ToMathlib.Data.NNReal
 public import Carleson.ToMathlib.Data.Real.ConjExponents
 public import Carleson.ToMathlib.Distribution
@@ -76,7 +74,6 @@ public import Carleson.ToMathlib.HardyLittlewood
 public import Carleson.ToMathlib.IntegralBallContinuity
 public import Carleson.ToMathlib.LorentzType
 public import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
-public import Carleson.ToMathlib.MeasureTheory.Function.EssSup
 public import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
