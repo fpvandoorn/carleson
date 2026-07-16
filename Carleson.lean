@@ -29,7 +29,6 @@ public import Carleson.Discrete.ExceptionalSet
 public import Carleson.Discrete.ForestComplement
 public import Carleson.Discrete.ForestUnion
 public import Carleson.Discrete.MainTheorem
-public import Carleson.Discrete.SumEstimates
 public import Carleson.DoublingMeasure
 public import Carleson.FinitaryCarleson
 public import Carleson.Forest
