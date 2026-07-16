@@ -65,7 +65,6 @@ public import Carleson.ToMathlib.BoundedCompactSupport
 public import Carleson.ToMathlib.BoundedFiniteSupport
 public import Carleson.ToMathlib.CoveredByBalls
 public import Carleson.ToMathlib.Data.ENNReal
-public import Carleson.ToMathlib.Data.Finset.Lattice.Fold
 public import Carleson.ToMathlib.Data.NNReal
 public import Carleson.ToMathlib.Data.Real.ConjExponents
 public import Carleson.ToMathlib.Distribution
