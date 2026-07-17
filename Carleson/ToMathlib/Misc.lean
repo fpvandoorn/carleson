@@ -1,10 +1,11 @@
 module
 
 public import Carleson.ToMathlib.ENorm
-import Mathlib.Algebra.Order.Group.Pointwise.Bounds
 public import Mathlib.Analysis.SpecialFunctions.Log.Base
 public import Mathlib.MeasureTheory.Integral.Average
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+
+import Mathlib.Algebra.Order.Group.Pointwise.Bounds
 
 @[expose] public section
 
