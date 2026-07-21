@@ -81,11 +81,6 @@
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[subsection]
 
-%\newcommand{\N}{{\mathbb{N}}}
-\newcommand{\Z}{{\mathbb{Z}}}
-\newcommand{\Q}{{\mathbb{Q}}}
-%\newcommand{\R}{{\mathbb{R}}}
-
 \DeclareMathOperator{\ch}{\operatorname{ch}}
 \DeclareMathOperator{\dens}{\operatorname{dens}}
 \DeclareMathOperator{\supp}{\operatorname{supp}}
@@ -95,7 +90,6 @@
 \DeclareMathOperator{\bd}{\operatorname{bd}}
 \DeclareMathOperator*{\esssup}{\operatorname{ess\,sup}}
 
-\def\C{\mathbb{C}}
 \newcommand{\pc}{{\mathrm{c}}}
 \newcommand{\ps}{{\mathrm{s}}}
 \newcommand{\AD}{{\bf s}}
@@ -280,7 +274,7 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 
 \subsection{Mathematical background}\label{subsec:background}
 The basic object of study in Carleson's theorem is the Fourier series of a periodic function on the real numbers.
-Given a $2\pi$-periodic function $f : \real \to \complex$ and $n \in \mathbb{Z}$, define the {\em $n$th Fourier coefficient} of $f$ as
+Given a $2\pi$-periodic function $f\colon \real \to \complex$ and $n \in \mathbb{Z}$, define the {\em $n$th Fourier coefficient} of $f$ as
 \begin{equation}\label{eq:fourier-coefficients}
     c_n \coloneq \widehat{f}_n \coloneq \frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
 \end{equation}
@@ -402,7 +396,7 @@ at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
 \end{equation}
 
 Further, a compatible collection $\Mf$ is called \emph{cancellative} if
-for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi: X\to \C$
+for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi\colon X\to \complex$
 supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
 \begin{equation}
     \label{eq-vdc-cond}
@@ -437,7 +431,7 @@ A \emph{two-sided Calder\'on--Zygmund kernel} is a one-sided Calder\'on--Zygmund
 \end{equation}
 \end{definition}
 
-Let $f: X \to \C$ be a bounded, measurable function supported on a set of finite measure.
+Let $f\colon X \to \colon$ be a bounded, measurable function supported on a set of finite measure.
 Define the \emph{maximally truncated non-tangential singular integral} $T_{*}$ associated with $K$ by
 \begin{equation}
     \label{def-tang-unm-op}
@@ -488,7 +482,7 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
         \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
     where $T_{*}$ is defined in \eqref{def-tang-unm-op}.
-    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with
+    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f\colon X\to \complex$ with
     $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
     \begin{equation}
         \label{resweak}
@@ -513,7 +507,7 @@ It implies the Walsh-case of Carleson's theorem.
         \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
     where $T_{\tQ}^\mfa$ is defined in \eqref{def-lin-star-op}.
-    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with
+    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f\colon X\to \complex$ with
     $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
     \begin{equation}
         \label{linresweak}
@@ -533,7 +527,7 @@ In particular, the two-sided case can be applied to derive the classical Carleso
             \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
         \end{equation}
         Then for all Borel sets $F$ and $G$ in $X$ and
-        all Borel functions $f:X\to \C$ with
+        all Borel functions $f\colon X\to \complex$ with
         $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
       \begin{equation}
         \label{two-sided-resweak}
@@ -564,7 +558,7 @@ $[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. With this definiti
 \begin{theorem}[finitary Carleson]
 \label{finitary-Carleson}
 Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and ${\sigma_1}\leq \sigma_2$. Let $F,G$ be bounded Borel sets in $X$. Then there is a Borel set $G'$ in $X$ with $2\mu(G')\leq \mu(G)$ such that
-for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
+for all Borel functions $f\colon X\to \complex$ with $|f|\le \mathbf{1}_F$ we have
 \begin{equation*}
     \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right| \mathrm{d}\mu(x)
 \end{equation*}
@@ -572,7 +566,7 @@ for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
     \label{eq-linearized}
     \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac 1 q}
 \end{equation}
-where for $s \in \Z, K_s(x,y) = K(x,y)\psi(D^{-s}\rho(x,y))$.
+where for $s \in \mathbb{Z}, K_s(x,y) = K(x,y)\psi(D^{-s}\rho(x,y))$.
 \end{theorem}
 
 To reduce this finitary version of the Carleson theorem to the discrete version, we make divisions in both the spatial and frequency domains. The spatial discretization will be achieved by a \emph{grid structure}, after which a subordinate frequency discretization is encoded by a \emph{tile structure}.
@@ -655,7 +649,7 @@ and
 \begin{equation}\label{definetp}
     T_{\fp} f(x)= \mathbf{1}_{E(\fp)}(x) \int K_{\ps(\fp)}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y).
 \end{equation}
-Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$
+Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all Borel functions $f\colon X\to \complex$ with $|f|\le \mathbf{1}_F$
 we have
 \begin{equation}
     \label{disclesssim}
