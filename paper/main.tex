@@ -13,7 +13,7 @@
 \usepackage{enumitem}
 \usepackage{cleveref}
 \usepackage{listings}
-\usepackage{fontawesome} % external link 
+\usepackage{fontawesome} % external link
 \usepackage{float}
 
 \makeatletter
@@ -247,6 +247,21 @@ The project comprises around 35.6k lines of Lean code (not including spaces or c
 Throughout the article, we will introduce Lean code excerpts from the formalization and use the clickable symbol \faExternalLink\: to link to the corresponding code in our repository or in Mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
 
 \subsection{Related work}\label{subsec:rel_work}
+
+Large formalization projects have been undertaken in different proof assistants and various areas.
+Notable formalization projects in analysis include Immler's verification of the singular hyperbolicity of the Lorentz attractor \cite{ImmlerLorentzSolver} (in Isabelle/HOL),
+Immler and Tan's formalization of the Poincaré-Bendixon theorem CITE (in Isabelle), % xxx noteworthy enough?
+the flyspeck project \cite{FlyspeckComplete} formally verifying Hales' proof of the Kepler conjecture (verified using an interplay of results in the Isabelle/HOL and HOL/Light proof assistants), and the formalization of the Prime number theorem in HOL Light (by Harrison), Isabelle (by Avigad et al), Metamath (by Carneiro) and Lean (Kontorovich et al) \cite{}. % CITE ALL (or none)
+% skipped four-colour theorem: large, but single person and more combinatorics than analysis or topology
+
+The flyspeck project was also a large collaborative project, eventually involving 22 authors. This motivated the use of a mathematical blueprint, a detailed natural language proof carefully written to be accessible for non-experts, as shared basis for the formalisation. In the flyspeck project, this proof was written as a book prior to the formalization \cite{TODO}.
+More recent formalization projects (including the Liquid Tensor Experiment \cites{LTEDefinitions,LTEFinal} and the Sphere Eversion project \cite{SphereEversionCPP) have used special software (blueprints, see Section~\ref{sec:org}) to maintain such a natural language proof side by side with the formal proof.
+
+Other mathematical formalization projects involving large collaborations include the formal proof of the odd order theorem in the Rocq prover \cite{OddOrderTheorem}, the Liquid Tensor Experiment in Lean  (involving 18 authors), the PNT+ project\footnote{\url{https://alexkontorovich.github.io/PrimeNumberTheoremAnd/}} (with 59 contributors so far) and the Equational Theories project led by Terence Tao \cite{tao2025equationaltheories} (34 authors).
+The last project is notable for involving a variety of different tools, all being used to generate eventual proofs in Lean.
+
+Prior to this project, relatively little harmonic analysis had been formalized in any proof assistant: for example, the Isabelle and HOL Light libraries have an implementation of Fourier series (but no more advanced tools such as the Hardy-Littlewood maximal function or the real interpolation theorem); the Mizar Mathematical library has a formalization of $L^p$ spaces, but no definition of Fourier series (only discrete Fourier transforms).
+
 \begin{itemize}
  	\item Other large-scale formalizations in Lean.
 	\item Other harmonic analysis formalizations.
@@ -806,7 +821,7 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
 %	‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖$_e$
 %\end{lstlisting}
 
-The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L218}{\extlink} is defined as a special case of the 
+The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L218}{\extlink} is defined as a special case of the
 \lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand K (Q x) R_1 R_2 f x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details).
 In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L206}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L44}{\extlink} denotes the set of real numbers $y$ such that $R_1 < \text{dist}(x, y) < R_2$.
 \begin{lstlisting}[mathescape]
