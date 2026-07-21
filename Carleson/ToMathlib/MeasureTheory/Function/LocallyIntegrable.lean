@@ -1,7 +1,6 @@
 module
 
 public import Mathlib.MeasureTheory.Function.LocallyIntegrable
-public import Mathlib.MeasureTheory.Integral.IntegrableOn
 
 public section
 

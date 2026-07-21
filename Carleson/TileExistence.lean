@@ -1,7 +1,6 @@
 module
 
 public import Carleson.TileStructure
-import Mathlib.Algebra.Order.Interval.Set.Group
 
 @[expose] public section
 

@@ -1,6 +1,5 @@
 module
 
-public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Carleson.ToMathlib.RealInterpolation.Misc
 
 /-!

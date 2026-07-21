@@ -6,7 +6,6 @@ Authors: Johannes Hölzl, Mario Carneiro
 module
 
 public import Mathlib.MeasureTheory.Measure.Typeclasses.NullSingletonClass
-public import Mathlib.Data.PFun
 
 -- Upstreaming status: the new definition for `NoAtoms` will be developed in a separate project.
 

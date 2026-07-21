@@ -2,6 +2,7 @@ module
 
 public import Carleson.Antichain.AntichainTileCount
 public import Carleson.Antichain.TileCorrelation
+public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 
 /-!
 # 6. Proof of the Antichain Operator Proposition

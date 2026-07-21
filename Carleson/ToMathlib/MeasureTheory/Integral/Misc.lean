@@ -1,6 +1,5 @@
 module
 
-public import Carleson.ToMathlib.ENorm
 public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 

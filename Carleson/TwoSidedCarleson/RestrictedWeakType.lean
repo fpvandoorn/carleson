@@ -1,7 +1,7 @@
 module
 
-public import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
 public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
+public import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
 public import Carleson.TwoSidedCarleson.MainTheorem
 
 /-! This file contains a reformulation of Theorem 10.0.1.

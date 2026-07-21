@@ -1,6 +1,5 @@
 module
 
-public import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 
 /- This file upgrades Hölder's inequality to use enorm. -/

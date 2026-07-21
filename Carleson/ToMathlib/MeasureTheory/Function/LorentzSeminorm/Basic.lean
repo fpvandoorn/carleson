@@ -1,12 +1,10 @@
 module
 
-public import Mathlib.MeasureTheory.Function.EssSup
-public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
+public import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
 public import Carleson.ToMathlib.RealInterpolation.Misc
 public import Carleson.ToMathlib.Topology.ContinuousOn
-public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
-public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 
 /- Upstreaming status: still needs some cleanup, and more analogues to mathlib lemmas about eLpNorm
 could be added -/

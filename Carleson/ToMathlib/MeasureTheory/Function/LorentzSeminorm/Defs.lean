@@ -1,9 +1,6 @@
 module
 
-public import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
-public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
 public import Carleson.ToMathlib.WeakType
-public import Carleson.ToMathlib.Order.CompleteLattice.Basic
 
 -- Upstreaming status: mostly ready but things should be more closely aligned with mathlib Lp spaces
 

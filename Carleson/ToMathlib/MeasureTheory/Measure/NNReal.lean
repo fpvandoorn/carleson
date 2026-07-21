@@ -1,7 +1,5 @@
 module
 
-public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
-public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 public import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 
 public section

@@ -1,6 +1,5 @@
 module
 
-public import Mathlib.Order.ConditionallyCompleteLattice.Basic
 public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 
 public section

@@ -1,6 +1,5 @@
 module
 
-public import Mathlib.MeasureTheory.Function.AEEqFun
 public import Carleson.ToMathlib.Misc
 
 public section

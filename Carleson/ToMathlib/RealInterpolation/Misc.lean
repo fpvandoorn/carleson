@@ -2,8 +2,6 @@ module
 
 public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 public import Carleson.ToMathlib.WeakType
-public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
-public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 
 /-!
 This file contains some miscellaneous prerequisites for proving the Marcinkiewisz real interpolation

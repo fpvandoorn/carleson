@@ -1,7 +1,7 @@
 module
 
-public import Carleson.TileStructure
 public import Carleson.HolderNorm
+public import Carleson.TileStructure
 
 /-! This should roughly contain the contents of chapter 8. -/
 

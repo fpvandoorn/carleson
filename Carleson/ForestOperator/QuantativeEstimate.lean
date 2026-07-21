@@ -1,7 +1,6 @@
 module
 
 public import Carleson.ForestOperator.L2Estimate
-public import Carleson.ToMathlib.BoundedCompactSupport
 
 @[expose] public section
 

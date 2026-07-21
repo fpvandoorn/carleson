@@ -1,6 +1,5 @@
 module
 
-public import Mathlib.Analysis.Fourier.AddCircle
 public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 
 public section

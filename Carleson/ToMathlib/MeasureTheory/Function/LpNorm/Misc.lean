@@ -1,9 +1,7 @@
 module
 
-public import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
-public import Mathlib.MeasureTheory.Measure.WithDensity
-public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
+public import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 
 --Upstreaming status: ready
 

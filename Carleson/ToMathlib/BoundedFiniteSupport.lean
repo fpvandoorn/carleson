@@ -1,7 +1,6 @@
 module
 
 public import Carleson.Defs
-public import Mathlib.MeasureTheory.Function.L1Space.Integrable
 
 public section
 

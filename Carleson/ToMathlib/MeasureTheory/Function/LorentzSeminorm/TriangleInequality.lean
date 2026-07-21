@@ -1,10 +1,8 @@
 module
 
-public import Mathlib.Analysis.MeanInequalitiesPow
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
-public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 public import Carleson.ToMathlib.MeasureTheory.Integral.Misc
 
 /-!

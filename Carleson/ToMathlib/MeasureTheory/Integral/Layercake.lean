@@ -5,11 +5,10 @@ Authors: Kalle Kytölä
 -/
 module
 
-public import Mathlib.MeasureTheory.Integral.Layercake
-public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
-public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.Distribution
+public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
+public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
+public import Mathlib.MeasureTheory.Integral.Layercake
 
 /-
 Upstreaming status: This ports the corresponding mathlib file to use `ℝ≥0` and integrals over `ℝ≥0`

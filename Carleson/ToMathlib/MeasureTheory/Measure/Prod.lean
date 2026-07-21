@@ -1,9 +1,6 @@
 module
 
 public import Mathlib.MeasureTheory.Measure.Prod
-public import Mathlib.MeasureTheory.MeasurableSpace.Defs
-public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
-public import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 
 public section
 

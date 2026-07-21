@@ -1,9 +1,7 @@
 module
 
-public import Mathlib.Topology.Instances.AddCircle.Defs
-public import Mathlib.Topology.MetricSpace.Pseudo.Lemmas
-public import Mathlib.MeasureTheory.Measure.Haar.Unique
 public import Mathlib.Analysis.Fourier.AddCircle
+public import Mathlib.MeasureTheory.Measure.Haar.Unique
 
 public section
 

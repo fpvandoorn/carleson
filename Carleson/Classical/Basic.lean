@@ -2,12 +2,9 @@ module
 
 public import Carleson.Classical.Helper
 public import Carleson.Defs
-public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
-public import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
-public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
-public import Mathlib.Analysis.Fourier.AddCircle
 public import Carleson.ToMathlib.Analysis.Fourier.AddCircle
-public import Mathlib.Tactic.Field
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
+public import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
 
 @[expose] public section
 
