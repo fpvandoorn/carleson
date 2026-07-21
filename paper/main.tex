@@ -81,10 +81,10 @@
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[subsection]
 
-\newcommand{\N}{{\mathbb{N}}}
+%\newcommand{\N}{{\mathbb{N}}}
 \newcommand{\Z}{{\mathbb{Z}}}
 \newcommand{\Q}{{\mathbb{Q}}}
-\newcommand{\R}{{\mathbb{R}}}
+%\newcommand{\R}{{\mathbb{R}}}
 
 \DeclareMathOperator{\ch}{\operatorname{ch}}
 \DeclareMathOperator{\dens}{\operatorname{dens}}
@@ -213,7 +213,7 @@ after Lebesgue integration. For some other natural spaces, such as
 $L^1(0,2\pi)$, there is no guarantee of convergence in the norm of that space,
 even if $f$ is in the space.
 
-A second question is whether the sequence $\{ S_N f (x)\}_{\{ N \in \mathbb{N}\}}$ converges pointwise to $f(x)$ for almost every $x$. This turned out to be a significantly harder problem.
+A second question is whether the sequence $\{ S_N f (x)\}_{\{ N \in\nat\}}$ converges pointwise to $f(x)$ for almost every $x$. This turned out to be a significantly harder problem.
 Luzin \cite{Luzin13} conjectured that this convergence would hold for functions in the
 $L^2(0,2\pi)$ space. In 1923, Kolmogorov found an example \cite{Kolmogorov} of an $L^1$ function whose Fourier series diverges at almost every point, which seemed to suggest that the conjecture might be false. However, when in the 1960s Carleson tried to construct a counterexample to Luzin's conjecture, he realized that a potential counterexample would have to satisfy so many properties that they would in fact be contradictory. He was therefore able to conclude that such a counterexample could not exist, hence proving Luzin's conjecture \cite{carleson}.
 
@@ -350,7 +350,7 @@ The classical Carleson theorem is obtained by choosing a specific Carleson opera
 The specific version that has been formalized is this one:
 
 \begin{theorem}[real Carleson]\label{real-Carleson}
-    Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
+    Let $F,G$ be Borel subsets of $\real$ with finite measure. Let $f$ be a bounded measurable function on $\real$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
     \left|\int _G Tf(x) \, dx\right| \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12} \, ,
 \end{equation}
@@ -361,7 +361,7 @@ and
     T f(x)\coloneq\sup_{n\in \mathbb{Z}}
     \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right| \, ,
 \end{equation}
-with $\kappa: \R\to\C$ defined as
+with $\kappa\colon\real\to\complex$ defined as
 \begin{equation}
     \kappa(x)\coloneq\begin{cases}
         0 & \text{if $x = 0$ or $|x| \ge 1$} \\
@@ -553,8 +553,8 @@ Given the variables and assumptions of \Cref{linearized-metric-Carleson}, define
 D := 2^{100a^2}
 \]
 and let
- $\psi:\R \to \R$ be the unique compactly supported, piecewise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
- \begin{equation}
+$\psi\colon\real \to\real$ be the unique compactly supported, piecewise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
+\begin{equation}
     \label{eq-psisum}
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
 \end{equation}
@@ -707,7 +707,7 @@ theorem classical_carleson {f : ℝ → ℂ}
 The statement of the hypotheses ($f \colon \real \to \complex$ is a continuous $2\pi$-periodic function) closely resembles natural language, but understanding the conclusion requires some familiarity with Lean and \mathlib. There, $\forall^m x$ means ``for every real number $x$ away from a set of measure zero'', and
 \lean{Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on \mathlib's use of filters to represent limits).
 
-The definition \lean{partialFourierSum}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L32}{\extlink} encodes the $N$-th partial Fourier sum of $f : \R \to \C$. Here, \lean{Finset.Icc}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b} denotes the inverval $[a, b)$ and \lean{Set.Iic b} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset} versions of these intervals.
+The definition \lean{partialFourierSum}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L32}{\extlink} encodes the $N$-th partial Fourier sum of $f\colon\real \to\complex$. Here, \lean{Finset.Icc}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b} denotes the inverval $[a, b)$ and \lean{Set.Iic b} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset} versions of these intervals.
 } denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n} is the
 $n$-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))} denotes $e^{inx}$.
 \begin{lstlisting}[mathescape]
@@ -1414,7 +1414,7 @@ since it is better behaved w.r.t. multiplication and composition.
 \subsection{Common pitfalls}\label{subsec:pitfalls}
 % TODO: proof-read this section carefully
 As described in \ref{subsec:real}, at the beginning of the project we tried to avoid conversions by using the type \lean{Real} as much as possible, even if quantities were naturally nonnegative or possibly infinite. In the course of the project, in different contexts we realized that using \lean{NNReal} or \lean{ENNReal} instead would lead to shorter proofs and reduce the number of side conditions.
-While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \R_{\ge 0 \infty} \to \R_{\ge 0 \infty}}$, the following expressions should be equivalent.
+While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \real_{\ge 0 \infty} \to \real_{\ge 0 \infty}}$, the following expressions should be equivalent.
 \begin{lstlisting}[mathescape]
 ∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
 -- TODO: write out the coercion instead!
