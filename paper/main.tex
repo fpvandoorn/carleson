@@ -1237,23 +1237,23 @@ Indeed, in which of the three types to put constants,
 subsets, integrands, and perform computations?
 
 A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type-theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
-The \texttt{norm\_cast} tactic can be really useful to normalize such casts.
+The \texttt{norm\_cast} tactic can be useful to normalize such casts.
 
 However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal} maps negative numbers to zero, we get that
-$\mlean{Real.toNNReal (-2) * Real.toNNReal (-3) \ne Real.toNNReal ((-2) * (-3))}$.
+\[ \mlean{Real.toNNReal (-2) * Real.toNNReal (-3) \ne Real.toNNReal ((-2) * (-3))}. \]
 Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
 in these situations.
 This can make conversions between number types quite painful,
-and puts some pressure to limit conversions and put as many numbers as possible in the same number type.
+and adds some pressure to limit conversions and put as many numbers as possible in the same number type.
 
 Sometimes one is forced to add a conversion, because certain operations are not defined on all types.
-Consider for instance the example of performing a computation on exponents in $L^p$-function spaces.
+Consider, for instance, performing a computation on exponents in $L^p$-function spaces.
 Around the real interpolation theorem, one needs to compute $p$ in terms of other exponents that
 naturally live in $\ennreal$.
 Yet there is no definition for $a^p$ if $p$ is in $\ennreal$, and therefore conversions from
 $\ennreal$ to $\real$ are unavoidable.
 
-There are also advantages of differentiating between the spaces.
+There are also advantages of differentiating between these number types.
 An advantage of putting for instance a constant in \texttt{NNReal} over \texttt{ENNReal} or
 \texttt{Real}, is that it encodes that the constant cannot be infinity and that it needs to be non-negative.
 
@@ -1266,17 +1266,16 @@ For both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs prop
 Similarly \texttt{norm\_num} also works for numbers in $\ennreal$, but again not as well as for real numbers,
 as even with the necessary side conditions it would not simplify a term of the form $a / a$. Both \texttt{ring} and \texttt{norm\_num} fail to solve $(3/5) * (5/3) = 1$ when these numbers are viewed as numbers in $\ennreal$.
 
-On the nose, many results about real numbers transfer to $\ennreal$ provided all arguments are finite; in many cases, these finiteness hypotheses are actually necessary. Manipulating expressions in $\ennreal$ thus often requires proving such finiteness side goals. The \lean{finiteness} tactic (initially developed for the formalization of the PFR project) solves many such proof obligations automatically. We made this tactic more powerful, completing (for instance) support for all relevant cases in the Carleson project.
+On the nose, many results about real numbers transfer to $\ennreal$ provided all arguments are finite; in many cases, these finiteness hypotheses are actually necessary. Manipulating expressions in $\ennreal$ thus often requires proving such finiteness side goals. The \lean{finiteness} tactic (initially developed for the formalization of the PFR project \footnote{\url{https://teorth.github.io/pfr/}}) solves many such proof obligations automatically. We made this tactic more powerful, completing (for instance) support for all relevant cases in the Carleson project.
 
 A desirable future step is adding improved interaction with the \lean{positivity} tactic (which solves goals of the form \texttt{$0 \leq x$} or \texttt{$0 < x$}). Proving a goal \texttt{$(x + y + 1)^{-1}<\infty$} (for $x,y\in\ennreal$) requires proving that $x + y + 1$ is non-zero; this is already handled by calling \lean{positivity}. Conversely, \lean{positivity} alone cannot prove goals \texttt{$x^{-1}\neq 0$} for $x\in\ennreal$ --- as this is true only if $x$ is finite. Allowing \lean{positivity} to call \lean{finiteness} would improve automation significantly.
 
-An independently useful, more ambitious yet more powerful tactic would allow reducing goals in $\ennreal$ to $\nnreal$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\nnreal$ arithmetic; the infinite case will simplify calculations (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.
-\footnote{For multiplication, as $0 * \infty = 0$, simplifying $a*\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ should mean splitting on the cases of $a$ being infinite is not necessary any more, and (2) such splits can be performed as required.}
+An independently useful, more ambitious yet more powerful tactic would allow reducing goals in $\ennreal$ to $\nnreal$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\nnreal$ arithmetic; the infinite case will simplify calculations (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.%
+\footnote{For multiplication, as $0 * \infty = 0$, simplifying $a*\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ being zero presumably implies the the case of $a$ being infinite need not be considered separately, and (2) such splits can be performed only as required.}
 The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
-% TODO: can I point to something public, perhaps a prototype?
+% TODO: point to a prototype implementation
 
-As a final example around considerations on which number types to use,
-consider the supremum of a set.
+As a final example around considerations on which number types to use, consider the supremum of a set.
 As one eventually is anyway interested in situations in which this supremum is finite and the set
 is bounded from above, one could consider a setup in which the sets considered are subsets of
 real numbers and the suprema are real numbers as well.
@@ -1291,16 +1290,16 @@ Gradually, we came to the conclusion that, with some exceptions, it was best to 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
 
 This project motivated the creation of a new formalization abstraction: \emph{extended norms} (\lean{enorm}s for short) generalize many results from normed spaces to $\ennreal$.
-Their introduction was motivated by defining the Hardy--Littlewood maximal with codomain $\ennreal=[0,\infty]$ (see \S\ref{subsec:blueprint_changes}).
-Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. Speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, the $L^p$ norm of $f\colon X\to\ennreal$ for $p<\infty$ can be defined as $(\int_X \abs{f(x)}^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto \abs{f(x)}^p$.
+Their introduction was motivated by defining the Hardy--Littlewood maximal function with codomain $\ennreal=[0,\infty]$ (see \S\ref{subsec:blueprint_changes}).
+Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. However, speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, for finite $p$ the $L^p$ norm of $f\colon X\to\ennreal$ can be defined as $(\int_X \abs{f(x)}^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto \abs{f(x)}^p$.
 
 Motivated by this observation, we introduced a new notation class \lean{ENorm}, describing a type endowed with a function $\texttt{enorm}\colon X\to\ennreal$.
 This captures both normed spaces and $\ennreal$. The enorm of a normed space is the ambient norm, considered as a function into $\ennreal$; the enorm on $\ennreal$ is the identity function.
 Some definitions only require the existence of an enorm; many results require suitable compatibility conditions. %(For instance, on an abelian monoid $\alpha$ endowed with an enorm, we may require the enorm to respect the triangle inequality with respect to addition and be positive definite, or ask for the enorm to be continuous.)
-Most lemmas necessary in this project only require an \lean{ENormedAddCommMonoid}, i.e.\ an abelian monoid endowed with a continuous enorm that is positive definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions. % for instance, don't require positive definiteness
+Most lemmas necessary in this project only require an \lean{ESeminormedAddMonoid}, i.e.\ a monoid endowed with a continuous enorm that is positive semi-definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions. % for instance, don't require positive definiteness
 
 Pursuing this approach required generalizing all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
-The final phase involved generalizing lemmas: often, this required small changes (such as, constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no more changes needed to be made.
+The final phase involved generalizing lemmas: often, this required small changes (such as, constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no further changes needed to be made.
 
 To illustrate the magnitude of this refactoring, let us give some statistics: phase two (changing the basic definitions) changed about 300 lines of code; phase three (changing lemma statements to enorms) about 1000, and the lemma generalizations so far touched about 2500 lines of code.
 
