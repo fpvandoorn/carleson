@@ -1316,14 +1316,15 @@ The mathematical difference is very small: virtually all operations in the proje
 Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
 (For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
 While the \lean{filter_upwards} tactic simplifies reducing results from almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
-
 % is this useful to say? could be removed
 Incidentally, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}: this underscores this choice.
 % Does this have other reasons, such as transitioning between different function properties?
 
-This relates well with the use of enorms (\ref{subsec:enorm}): $\mlean{Lp E p \mu}$ as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
+% TeX note: first display was \mlean{Lp E p \mu}; doesn't print spaces
+This relates well with the use of enorms (\ref{subsec:enorm}): \texttt{Lp E p} $\mathtt{\mu}$ as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
 
-This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lean{{f : X → Y} (hf : Continuous f)} instead of the bundled \lean{f : ContinuousMap X Y}.
+% TeX note: \lean for the first argument would omit the angular brackets; \lean|...| would mis-parse the contents. This way works.
+This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lstinline|{f : X → Y} (hf : Continuous f)| instead of the bundled \lean{f : ContinuousMap X Y}.
 
 \subsection{Test function classes}\label{subsec:bdd_comp_supp}
 A common task during the formalization was to prove the various integrability and measurability side goals
