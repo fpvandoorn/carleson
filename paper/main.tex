@@ -217,15 +217,14 @@ for functions in $L^2$.
 Fefferman gave an alternative proof of Carleson's theorem \cite{fefferman} via an a priori bound for a certain maximal operator in harmonic analysis, known as the Carleson operator.
 Lacey and Thiele pointed out a duality between the approaches by Carleson and Fefferman and presented a more symmetric and self-dual proof \cite{lacey-thiele}.
 
-In recent years, the impact of Carleson's theorem has increased thanks to its connections to areas of mathematics and physics including ergodic theory and scattering theory, and various strengthenings and variants of Fefferman's estimates for Carleson's operator have appeared; see \cite[\S 1]{CarlesonBlueprint}. For more details about Carleson's theorem and its generalizations, we refer the reader to the surveys in \cite{MR2091007} and \cite{MR3334208}.
+In recent years, the impact of Carleson's theorem has increased thanks to its connections to areas of mathematics and physics including ergodic theory and scattering theory, and various strengthenings and variants of Fefferman's estimates for Carleson's operator have appeared; see \cite[\S 1]{CarlesonBlueprint}. For more details about Carleson's theorem and its generalizations, we refer the reader to the surveys by Lacey \cite{MR2091007} and Demeter \cite{MR3334208}.
 
-
-In this article, we focus on a generalization of Carleson's theorem to the setting of doubling metric measure spaces, proven in \cite{becker2024carlesonoperatorsdoublingmetric}.
+In this article, we focus on a generalization of Carleson's theorem to the setting of doubling metric measure spaces, proven by Becker, Jamneshan, Srivastavain and Thiele \cite{becker2024carlesonoperatorsdoublingmetric}.
 
 
 \subsection{Overview of the formalization project}\label{subsec:overview}
 % TODO: I assume that the classical and generalized Carleson theorems will already be mentioned in the previous subsection, so that I can cite them here.
-The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem [ref], proven in \cite{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem [ref] as a corollary of this more general result.
+The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem \cite[Theorem~1.1]{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem \cite{carleson} as a corollary of this more general result.
 
 The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization had from the beginning been envisioned as a large scale collaborative project. This posed a problem, since there are not many experts in formalization that are also experts in harmonic analysis, so most of the potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
 
@@ -233,7 +232,7 @@ To address this challenge, before the formalization started, the authors of \cit
 
 The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and smaller contributions were made by the 14 additional people listed in the acknowledgements section. This makes the Carleson project one of the largest scale formalization efforts to date.
 
-The formalization was written in Lean 4, making extensive use of Lean's mathematical library, \mathlib. The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
+The formalization was written in Lean~4, making extensive use of Lean's mathematical library, \mathlib. The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
 
 %TODO: update stats before submitting
 The project comprises around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
