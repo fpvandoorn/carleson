@@ -1183,10 +1183,10 @@ It is a better idea to try to import in the formalization the practice of
 standing assumptions, in some form. One could define a
 structure containing all these standing assumptions, and have it as a
 parameter in every lemma and every definition. The readability cost would be
-minor, but still there. In the Carleson project, we have used another
+minor, but still present. In the Carleson project, we have used another
 strategy, making all the standing assumptions completely implicit --- in
 particular, we do not need to pass them between lemmas. The implementation
-takes advantage of a feature of the language, typeclasses, initially designed
+takes advantage of a feature of the language, type classes, initially designed
 for a completely different purpose.
 
 The way to declare that a space is a metric space is the following line:
@@ -1194,27 +1194,27 @@ The way to declare that a space is a metric space is the following line:
 variable {X : Type*} [MetricSpace X]
 \end{lstlisting}
 
-The declaration between square brackets is the typeclass. When one writes the
+The declaration between square brackets is the \emph{type class}. When one writes the
 distance \texttt{dist x y} between two points $x$ and $y$ of $X$, the system
-tries to locate such a metric space typeclass instance on $X$, and uses the distance
+tries to locate such a metric space type-class instance on $X$, and uses the distance
 provided by this instance. The same system is used to provide algebraic
 operations on types, and properties of these.
 
-Typeclasses can be used to capture standing assumptions as follows.
-Let us declare a new typeclass, of the form \lean{[KernelProofData X]},
+Type classes can be used to capture standing assumptions as follows.
+Let us declare a new type class, of the form \lean{[KernelProofData X]},
 containing not a distance as in the above example, but a measure on $X$,
 a doubling constant, a family $\Theta$ of functions from $X \times X$ to
 $\real$, and so on, i.e., all our standing assumptions. Then, whenever one
 tries to use an object from the standing assumptions, the systems looks for a
-\lean{KernelProofData} instance and fetches the object from the typeclass
+\lean{KernelProofData} instance and fetches the object from the type-class
 instance, just like it fetches the distance in a metric space.
 
-Another advantage of this approach is that typeclasses can extend each other
+Another advantage of this approach is that type classes can extend each other
 (just like a normed space contains more information than a metric space).
-This means we can craft one typeclass containing the standing assumptions for
-the statements, and another extended typeclass \lean{ProofData} with more
+This means we can craft one type class containing the standing assumptions for
+the statements, and another extended type class \lean{ProofData} with more
 objects for the proofs. When a \lean{ProofData} instance is in scope but
-Lean needs a \lean{KernelProofData} instance, typeclass inference
+Lean needs a \lean{KernelProofData} instance, type-class inference
 automatically fetches the latter from the former, just as it transparently
 interprets a normed space as a metric space.
 
@@ -1236,23 +1236,23 @@ Indeed, in which of the three types to put constants,
 subsets, integrands, and perform computations?
 
 A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type-theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
-The \texttt{norm\_cast} tactic can be really useful to normalize such casts.
+The \texttt{norm\_cast} tactic can be useful to normalize such casts.
 
 However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal} maps negative numbers to zero, we get that
-$\mlean{Real.toNNReal (-2) * Real.toNNReal (-3) \ne Real.toNNReal ((-2) * (-3))}$.
+\[ \mlean{Real.toNNReal (-2) * Real.toNNReal (-3) \ne Real.toNNReal ((-2) * (-3))}. \]
 Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
 in these situations.
 This can make conversions between number types quite painful,
-and puts some pressure to limit conversions and put as many numbers as possible in the same number type.
+and adds some pressure to limit conversions and put as many numbers as possible in the same number type.
 
 Sometimes one is forced to add a conversion, because certain operations are not defined on all types.
-Consider for instance the example of performing a computation on exponents in $L^p$-function spaces.
+Consider, for instance, performing a computation on exponents in $L^p$-function spaces.
 Around the real interpolation theorem, one needs to compute $p$ in terms of other exponents that
 naturally live in $\ennreal$.
 Yet there is no definition for $a^p$ if $p$ is in $\ennreal$, and therefore conversions from
 $\ennreal$ to $\real$ are unavoidable.
 
-There are also advantages of differentiating between the spaces.
+There are also advantages of differentiating between these number types.
 An advantage of putting for instance a constant in \texttt{NNReal} over \texttt{ENNReal} or
 \texttt{Real}, is that it encodes that the constant cannot be infinity and that it needs to be non-negative.
 
@@ -1265,17 +1265,16 @@ For both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs prop
 Similarly \texttt{norm\_num} also works for numbers in $\ennreal$, but again not as well as for real numbers,
 as even with the necessary side conditions it would not simplify a term of the form $a / a$. Both \texttt{ring} and \texttt{norm\_num} fail to solve $(3/5) * (5/3) = 1$ when these numbers are viewed as numbers in $\ennreal$.
 
-On the nose, many results about real numbers transfer to $\ennreal$ provided all arguments are finite; in many cases, these finiteness hypotheses are actually necessary. Manipulating expressions in $\ennreal$ thus often requires proving such finiteness side goals. The \lean{finiteness} tactic (initially developed for the formalization of the PFR project) solves many such proof obligations automatically. We made this tactic more powerful, completing (for instance) support for all relevant cases in the Carleson project.
+On the nose, many results about real numbers transfer to $\ennreal$ provided all arguments are finite; in many cases, these finiteness hypotheses are actually necessary. Manipulating expressions in $\ennreal$ thus often requires proving such finiteness side goals. The \lean{finiteness} tactic (initially developed for the formalization of the PFR project \footnote{\url{https://teorth.github.io/pfr/}}) solves many such proof obligations automatically. We made this tactic more powerful, completing (for instance) support for all relevant cases in the Carleson project.
 
 A desirable future step is adding improved interaction with the \lean{positivity} tactic (which solves goals of the form \texttt{$0 \leq x$} or \texttt{$0 < x$}). Proving a goal \texttt{$(x + y + 1)^{-1}<\infty$} (for $x,y\in\ennreal$) requires proving that $x + y + 1$ is non-zero; this is already handled by calling \lean{positivity}. Conversely, \lean{positivity} alone cannot prove goals \texttt{$x^{-1}\neq 0$} for $x\in\ennreal$ --- as this is true only if $x$ is finite. Allowing \lean{positivity} to call \lean{finiteness} would improve automation significantly.
 
-An independently useful, more ambitious yet more powerful tactic would allow reducing goals in $\ennreal$ to $\nnreal$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\nnreal$ arithmetic; the infinite case will simplify calculations (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.
-\footnote{For multiplication, as $0 * \infty = 0$, simplifying $a*\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ should mean splitting on the cases of $a$ being infinite is not necessary any more, and (2) such splits can be performed as required.}
+An independently useful, more ambitious yet more powerful tactic would allow reducing goals in $\ennreal$ to $\nnreal$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\nnreal$ arithmetic; the infinite case will simplify calculations (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.%
+\footnote{For multiplication, as $0 * \infty = 0$, simplifying $a*\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ being zero presumably implies the the case of $a$ being infinite need not be considered separately, and (2) such splits can be performed only as required.}
 The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
-% TODO: can I point to something public, perhaps a prototype?
+% TODO: point to a prototype implementation
 
-As a final example around considerations on which number types to use,
-consider the supremum of a set.
+As a final example around considerations on which number types to use, consider the supremum of a set.
 As one eventually is anyway interested in situations in which this supremum is finite and the set
 is bounded from above, one could consider a setup in which the sets considered are subsets of
 real numbers and the suprema are real numbers as well.
@@ -1290,16 +1289,16 @@ Gradually, we came to the conclusion that, with some exceptions, it was best to 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
 
 This project motivated the creation of a new formalization abstraction: \emph{extended norms} (\lean{enorm}s for short) generalize many results from normed spaces to $\ennreal$.
-Their introduction was motivated by defining the Hardy--Littlewood maximal with codomain $\ennreal=[0,\infty]$ (see \S\ref{subsec:blueprint_changes}).
-Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. Speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, the $L^p$ norm of $f\colon X\to\ennreal$ for $p<\infty$ can be defined as $(\int_X \abs{f(x)}^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto \abs{f(x)}^p$.
+Their introduction was motivated by defining the Hardy--Littlewood maximal function with codomain $\ennreal=[0,\infty]$ (see \S\ref{subsec:blueprint_changes}).
+Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. However, speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, for finite $p$ the $L^p$ norm of $f\colon X\to\ennreal$ can be defined as $(\int_X \abs{f(x)}^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto \abs{f(x)}^p$.
 
 Motivated by this observation, we introduced a new notation class \lean{ENorm}, describing a type endowed with a function $\texttt{enorm}\colon X\to\ennreal$.
 This captures both normed spaces and $\ennreal$. The enorm of a normed space is the ambient norm, considered as a function into $\ennreal$; the enorm on $\ennreal$ is the identity function.
 Some definitions only require the existence of an enorm; many results require suitable compatibility conditions. %(For instance, on an abelian monoid $\alpha$ endowed with an enorm, we may require the enorm to respect the triangle inequality with respect to addition and be positive definite, or ask for the enorm to be continuous.)
-Most lemmas necessary in this project only require an \lean{ENormedAddCommMonoid}, i.e.\ an abelian monoid endowed with a continuous enorm that is positive definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions. % for instance, don't require positive definiteness
+Most lemmas necessary in this project only require an \lean{ESeminormedAddMonoid}, i.e.\ a monoid endowed with a continuous enorm that is positive semi-definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions. % for instance, don't require positive definiteness
 
 Pursuing this approach required generalizing all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
-The final phase involved generalizing lemmas: often, this required small changes (such as, constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no more changes needed to be made.
+The final phase involved generalizing lemmas: often, this required small changes (such as, constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no further changes needed to be made.
 
 To illustrate the magnitude of this refactoring, let us give some statistics: phase two (changing the basic definitions) changed about 300 lines of code; phase three (changing lemma statements to enorms) about 1000, and the lemma generalizations so far touched about 2500 lines of code.
 
@@ -1316,14 +1315,15 @@ The mathematical difference is very small: virtually all operations in the proje
 Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
 (For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
 While the \lean{filter_upwards} tactic simplifies reducing results from almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
-
 % is this useful to say? could be removed
 Incidentally, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}: this underscores this choice.
 % Does this have other reasons, such as transitioning between different function properties?
 
-This relates well with the use of enorms (\ref{subsec:enorm}): $\mlean{Lp E p \mu}$ as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
+% TeX note: first display was \mlean{Lp E p \mu}; doesn't print spaces
+This relates well with the use of enorms (\ref{subsec:enorm}): \texttt{Lp E p} $\mathtt{\mu}$ as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
 
-This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lean{{f : X → Y} (hf : Continuous f)} instead of the bundled \lean{f : ContinuousMap X Y}.
+% TeX note: \lean for the first argument would omit the angular brackets; \lean|...| would mis-parse the contents. This way works.
+This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lstinline|{f : X → Y} (hf : Continuous f)| instead of the bundled \lean{f : ContinuousMap X Y}.
 
 \subsection{Test function classes}\label{subsec:bdd_comp_supp}
 A common task during the formalization was to prove the various integrability and measurability side goals
@@ -1340,21 +1340,21 @@ integrability and measurability considerations are usually mathematically trivia
 
 It is desirable for this simplicity to be reflected in the formalization.
 This motivated packaging the recurring side conditions into test function classes.
-
-The structures \lean{BoundedCompactSupport} and \lean{BoundedFiniteSupport} contain essentially bounded measurable functions with compact support and with support of finite measure, respectively. A function $f$ is essentially bounded if there exists a real number $C$ such that $\|f(x)\|\le C$ almost everywhere.
+The structures \lean{BoundedCompactSupport} and \lean{BoundedFiniteSupport} contain essentially bounded measurable functions with compact support and with support of finite measure, respectively. A function $f$ is \emph{essentially bounded} if there exists a real number $C$ such that $\|f(x)\|\le C$ almost everywhere.
 
 Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
 reproving the same measure-theoretic facts. For example, from a hypothesis
 \lean{hf : BoundedCompactSupport f} one immediately obtains that \lean{f} is a member of
 any desired $L^p$ space, % in the context of this project
 or that \lean{s.indicator f} again has bounded compact support when \lean{s} is measurable.
+% TODO(MR): I'm not sure if this is clear enough: should we write \lean{BoundedCompactSupport.carlesonSum} instead?
 Lemmas such as \lean{hf.carlesonSum} show that the relevant
 operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
 
 Choosing the right definition of these structures is subtle.
 Since most functions we're working with are only well-behaved up to almost everywhere equality (see \ref{subsec:Lp}),
 there is a choice in deciding that the functions are only essentially bounded or bounded everywhere.
-Similarly, for \lean{BoundedCompactSupport} there is a choice in requiring that the function has compact support or essentially compact support
+Similarly, for \lean{BoundedCompactSupport} there is a choice in requiring that the function has compact support or \emph{essentially compact support}
 (that is, its support is the union of a relatively compact set and a null set,
 where a relatively compact set is by definition a subset of a compact set).
 
@@ -1369,7 +1369,7 @@ but the choice has impact in precisely which lemmas you can prove about it.
 For example, if $g$ is bounded with compact support, and $f$ is a closed embedding,
 is $g\circ f$ a bounded function with compact support?
 This is only true if $g$ has compact support and is bounded everywhere;
-otherwise $f$ may send a set of positive measure to a set of measure 0 where $g$ is ill-behaved.
+otherwise $f$ may send a set of positive measure to a set of measure 0 where $g$ is ill-behaved. % So we have the "worse" definition: is this an issue in Carleson, or just a trade-off to point out?
 
 Another consideration into this design decision is how nicely one can work with these functions.
 Some arguments are a little easier if we know that a function is well-behaved everywhere,
@@ -1381,11 +1381,10 @@ and not just essentially bounded.
 While these arguments could be adapted using only that this operation is only essentially bounded,
 the argument consists of some tricky manipulations with suprema over the arguments,
 and these would have to be changed to essential suprema, which are a bit trickier to work with.
-In the end, we decided to prove that this function was both bounded with compact support,
-and additionally bounded everywhere.
+In the end, we decided to prove that this function was  bounded with compact support, and additionally bounded everywhere.
 
 These classes are also tagged with the \lean{@[fun_prop]} attribute.
-\lean{fun_prop} is a \mathlib-tactic developed by Tomáš Skřivan
+\lean{fun_prop} is a \mathlib tactic developed by Tomáš Skřivan
 that automatically uses tagged lemmas to show that a function has a certain property
 (continuity, differentiability, measurability, etc.).
 This tactic is good at writing complicated functions as a composition of simpler functions,
@@ -1396,29 +1395,26 @@ as the other function properties mentioned above,
 since the composition and product of integrable functions need not be integrable.
 The class \lean{BoundedCompactSupport} is a step towards
 making \texttt{fun\_prop} more usable for integrability,
-since it is better behaved w.r.t. multiplication and composition.
+since it is better behaved w.r.t.\ multiplication and composition.
 % maybe todo: mention the ICERM group on the integrability tactic?
 
 % \begin{itemize}
-% 	\item \texttt{BoundedCompactSupport} and packaging conditions.
 % 	\item Ongoing experiments with \texttt{fun\_prop}. TODO: consider whether this should be a separate subsection.
 % \end{itemize}
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
 % TODO: proof-read this section carefully
-As described in \ref{subsec:real}, at the beginning of the project we tried to avoid conversions by using the type \lean{Real} as much as possible, even if quantities were naturally nonnegative or possibly infinite. In the course of the project, in different contexts we realized that using \lean{NNReal} or \lean{ENNReal} instead would lead to shorter proofs and reduce the number of side conditions.
-While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions should be equivalent.
+As described in Section~\ref{subsec:real}, at the beginning of the project we tried to avoid conversions by using the type \lean{Real} as much as possible, even if quantities were naturally nonnegative or possibly infinite. In the course of the project, in different contexts we realized that using \lean{NNReal} or \lean{ENNReal} instead would lead to shorter proofs and reduce the number of side conditions.
+While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent.
 \begin{lstlisting}[mathescape]
 ∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
--- TODO: write out the coercion instead!
-∫⁻ (x : ℝ≥0), f (↑x)
+∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
 ∫⁻ (x : ℝ≥0∞), f x
 \end{lstlisting}
 
 %\begin{minted}{lean}
 %∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
-%-- TODO: write out the coercion instead!
-%∫⁻ (x : ℝ≥0), f (↑x)
+%∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
 %∫⁻ (x : ℝ≥0∞), f x
 %\end{minted}
 
@@ -1436,14 +1432,12 @@ example {T : Type} [Fintype T] {s : Set T} [DecidablePred fun p $\mapsto$ p $\in
 \end{lstlisting}
 
 \section{Conclusion}\label{sec:conclusion}
-%TODO: this will likely need to be revised after \ref{sec:org}, \ref{subsec:rel_work}, \ref{subsec:blueprint_mistakes}, \ref{subsec:blueprint_lessons} and \ref{subsec:pitfalls} are finished.
+%TODO: this will likely need to be revised now that \ref{sec:org}, \ref{subsec:rel_work}, \ref{subsec:blueprint_mistakes}, \ref{subsec:blueprint_lessons} and \ref{subsec:pitfalls} are finished.
 
-
-%TODO: The "in Lean" can maybe be removed, but let's wait for \ref{subsec:rel_work} to decide.
 The Carleson project, with a total of 28 contributors,
 was one of the largest collaborative formalization efforts up to date
 (excluding extensive mathematical libraries such as \mathlib or MathComp),
-as well as the first formalization in Lean of a state-of-the-art theorem
+as well as the first formalization of a state-of-the-art theorem
 from the area of harmonic analysis.
 
 Formalizing the metric Carleson theorem required us
@@ -1472,15 +1466,14 @@ We would use \LaTeX\ environments for the main definitions in the project,
 to facilitate their discovery,
 and we would try to ensure that the results in the blueprint were already proven at the right degree of generality;
 this would specially apply to results meant for \mathlib, for which we want a general statement and proof,
-rather than an specialization to the project setting.
-Finally, we would weight more carefully the benefits of using non-standard proof methods
-in a hope to simplify the formalization,
+rather than a specialization to the project setting.
+Finally, we would consider more carefully whether to use non-standard proof methods in a hope to simplify the formalization,
 since this ended up causing most of the mathematical inaccuracies in the first version of the blueprint.
 
 % move this earlier in the conclusion?
 After the Carleson project was finished,
 we have continued to prove further results in the Carleson repository.
-\Cref{metric-space-Carleson} is strong enough to prove stronger versions of the \Cref{classical-carleson}.
+Indeed, \Cref{metric-space-Carleson} is strong enough to prove stronger versions of the \Cref{classical-carleson}.
 As Hunt \cite{MR238019} showed in 1968,
 the assumption in \Cref{classical-carleson} that $f$ is continuous
 can be weakened to the statement that $f$ is $L^p$ for $p>1$.
