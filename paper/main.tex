@@ -240,13 +240,28 @@ The project comprises around 35.6k lines of Lean code (not including spaces or c
 Throughout the article, we will introduce Lean code excerpts from the formalization and use the clickable symbol \faExternalLink\: to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
 
 \subsection{Related work}\label{subsec:rel_work}
-\begin{itemize}
- 	\item Other large-scale formalizations in Lean.
-	\item Other harmonic analysis formalizations.
-\end{itemize}
+
+Large formalization projects in mathematics have been undertaken in different proof assistants and various areas.
+Notable projects formalizing a single theorem or cluster of theorems related to analysis include Immler's verification of the singular hyperbolicity of the Lorentz attractor \cite{ImmlerLorentzSolver} (in Isabelle/HOL),
+Immler and Tan's formalization of the Poincaré-Bendixon theorem \cite{ImmlerTanPoincareBendixon} (in Isabelle/HOL),
+% 7000 LoC, but high-profile. might be off-topic enough as it's arguably dynamics
+the flyspeck project \cite{FlyspeckComplete} formally verifying Hales' proof of the Kepler conjecture (verified using an interplay of results in the Isabelle/HOL and HOL/Light proof assistants), and the formalization of the Prime number theorem in HOL Light \cite{HarrisonPNT} (by Harrison), Isabelle/HOL \cite{AvigadPNT} (by Avigad et al), Metamath \cite{CarneiroPNT} (by Carneiro) and Lean (Kontorovich et al) \footnote{\url{https://alexkontorovich.github.io/PrimeNumberTheoremAnd/}}.
+% skipped four-colour theorem: large, but single person and more combinatorics than analysis or topology
+
+Other projects formalizing a single theorem or cluster of theorems involving large collaborations include the formal proof of the Feit--Thompson theorem about finite groups in the Rocq prover \cite{OddOrderTheorem} with a 15 author team, the Liquid Tensor Experiment formalizing an important technical lemma about condensed mathematics in Lean \cites{LTEDefinitions,LTEFinal} (involving 18 authors), the PNT+ project formalising several versions of the Prime Number Theorem using modern tools (with 59 contributors so far) % xxx: is there a better number of authors?
+and the Equational Theories project classifying certain equational laws on magmas \cite{tao2025equationaltheories} (with 34 authors).
+The last project is notable for involving a variety of different tools,% (including automated theorem provers, SAT solvers)
+all being used to generate eventual proofs in Lean.
+The flyspeck project was also a large collaborative project, eventually involving 22 authors.
+
+The need for a shared mathematical proof arises naturally in large collaborations.
+A common feature is an explicit mathematical blueprint, a detailed natural language proof carefully written to be accessible for non-experts. In the flyspeck project, this proof was written as a book prior to the formalization \cite{HalesFlyspeckBook}. More recent formalization projects (including the Liquid Tensor Experiment and the Sphere Eversion project \cite{SphereEversionCPP}) have used special software (see Section~\ref{sec:org}) to maintain such a natural language proof side by side with the formal proof.
+
+Prior to the Carleson project, relatively little harmonic analysis had been formalized in any proof assistant: for example, the Isabelle and HOL Light libraries have an implementation of Fourier series \footnote{\url{https://isa-afp.org/entries/Fourier.html}} (but no more advanced tools such as the Hardy--Littlewood maximal function or the real interpolation theorem); the Mizar Mathematical library has a formalization of Minkowski's inequality \footnote{for infinite sums, \url{https://fm.mizar.org/2005-13/pdf13-1/holder_1.pdf}}, but no definition of Fourier series (only discrete Fourier transforms).
+The Hardy--Littlewood maximal estimate has been formalized in Rocq \cites{AffeldtFTCRocq,AffeldtLebesgueDiffRocq}, but only for functions $\real\to\real$.
 
 \noindent \textit{Acknowledgement.}
-The authors are grateful to Asgar Jamneshan, Rajula Srivastava and Christoph Thiele for writing the mathematical paper [cite] and the blueprint [cite] on which this formalization is based.
+The authors are grateful to Asgar Jamneshan, Rajula Srivastava and Christoph Thiele for writing the mathematical paper \cite{ThieleCarlesonPreprint} and the blueprint \cite{CarlesonBlueprint} on which this formalization is based.
 We furthermore acknowledge contributions in the form of small formalization additions,
 pointing out corrections to the blueprint,
 or supplying ideas to the Lean efforts by the following people:
