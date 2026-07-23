@@ -194,55 +194,65 @@ collaborative effort, written and developed in public.
 
 \section{Introduction}\label{sec:intro}
 
-\subsection{Brief history and significance of Carleson's theorem}\label{subsec:history}
+In 1966, Carleson proved that the Fourier series of a square-integrable periodic function
+converges to that function at almost every point~\cite{carleson},
+settling a conjecture of Luzin~\cite{Luzin13} that had been open for more than fifty years.
+In this article, we report on the formalization in the proof assistant \emph{Lean}
+of a recent, far-reaching generalization of this theorem to doubling metric measure
+spaces~\cite{ThieleCarlesonPreprint}, and of the deduction of the classical statement from it.
 
-One of the oldest questions in Fourier analysis consists of understanding the nature of convergence of Fourier series for different classes of functions (see Definition~\ref{def:fourier-series}).
-There are two main kinds of convergence that are commonly considered. First, one can ask whether the partial Fourier sums $S_N$ converge to the function $f$ in a suitable function
-space with a given topology. There are several well-known answers to this question. For instance, convergence in the Hilbert
-space sense for $f$ in $L^2(0,2\pi)$ was established in the first decade of
+This formalization project is notable for a variety of reasons.
+The first reason is the proof itself.
+Carleson's argument was famously difficult, and the later proofs due to
+Fefferman~\cite{fefferman} and to Lacey and Thiele~\cite{lacey-thiele},
+while conceptually more transparent, remain long and highly technical.
+The second reason is that this is the first formalization of a state-of-the-art theorem from
+harmonic analysis, an area that has not received very much attention from the formalization
+community.
+The third reason is the highly collaborative nature of this project.
+It was a large-scale collaborative formalization,
+developed in public and open to anyone who wanted to contribute:
+all authors formalized a significant part of the theorem.
+The last reason is that this is one of a handful of examples in mathematics where the formalization
+of a preprint was finished prior to the submission of the preprint to a journal.
+
+Carleson's theorem answers an old question in Fourier analysis about the convergence of Fourier series $S_nf$ of a function $f$ (see Definition~\ref{def:fourier-series}).
+There are two main kinds of convergence that are commonly considered.
+Convergence within a suitable function space, e.g. $L^2(0,2\pi)$, was established in the first decade of
 the twentieth century as a consequence of the rapid development of Lebesgue
-integration theory, and convergence in the sense of
-distributions for general distributional $f$ was discovered a few decades
-after Lebesgue integration. For some other natural spaces, such as
-$L^1(0,2\pi)$, there is no guarantee of convergence in the norm of that space,
-even if $f$ is in the space.
+integration theory.
+A second question that turns out to be much more difficult is whether the sequence $\{ S_n f (x)\}_{\{ n \in\nat\}}$ converges pointwise to $f(x)$ for almost every $x$.
+Luzin \cite{Luzin13} conjectured that this convergence would hold for functions in the space $L^2(0,2\pi)$. In 1923, Kolmogorov found an example \cite{Kolmogorov} of an $L^1$ function whose Fourier series diverges at almost every point, which seemed to suggest that the conjecture might be false. However, when in the 1960s Carleson tried to construct a counterexample to Luzin's conjecture, he realized that a potential counterexample would have to satisfy so many properties that they would in fact be contradictory. He was therefore able to conclude that such a counterexample could not exist, hence proving Luzin's conjecture \cite{carleson}.
 
-A second question is whether the sequence $\{ S_N f (x)\}_{\{ N \in\nat\}}$ converges pointwise to $f(x)$ for almost every $x$. This turned out to be a significantly harder problem.
-Luzin \cite{Luzin13} conjectured that this convergence would hold for functions in the
-$L^2(0,2\pi)$ space. In 1923, Kolmogorov found an example \cite{Kolmogorov} of an $L^1$ function whose Fourier series diverges at almost every point, which seemed to suggest that the conjecture might be false. However, when in the 1960s Carleson tried to construct a counterexample to Luzin's conjecture, he realized that a potential counterexample would have to satisfy so many properties that they would in fact be contradictory. He was therefore able to conclude that such a counterexample could not exist, hence proving Luzin's conjecture \cite{carleson}.
-
-Carleson's result was soon after generalized by Hunt \cite{MR238019} to the case of $L^p$ functions with $p>1$ and for functions in $L^1\log(L)^2$. Billard \cite{MR217510} adapted Carleson's arguments to prove almost everywhere convergence of Walsh--Fourier series
+Carleson's result was soon after generalized by Hunt \cite{MR238019} to the case of $L^p$ functions with $p>1$.
+Billard \cite{MR217510} adapted Carleson's arguments to prove almost everywhere convergence of Walsh--Fourier series
 for functions in $L^2$.
-
 Fefferman gave an alternative proof of Carleson's theorem \cite{fefferman} via an a priori bound for a certain maximal operator in harmonic analysis, known as the Carleson operator.
 Lacey and Thiele pointed out a duality between the approaches by Carleson and Fefferman and presented a more symmetric and self-dual proof \cite{lacey-thiele}.
-
 In recent years, the impact of Carleson's theorem has increased thanks to its connections to areas of mathematics and physics including ergodic theory and scattering theory, and various strengthenings and variants of Fefferman's estimates for Carleson's operator have appeared; see \cite[\S 1]{CarlesonBlueprint}. For more details about Carleson's theorem and its generalizations, we refer the reader to the surveys by Lacey \cite{MR2091007} and Demeter \cite{MR3334208}.
-
-In this article, we focus on a generalization of Carleson's theorem to the setting of doubling metric measure spaces, proven by Becker, Jamneshan, Srivastavain and Thiele \cite{becker2024carlesonoperatorsdoublingmetric}.
-
 
 \subsection{Overview of the formalization project}\label{subsec:overview}
 % TODO: I assume that the classical and generalized Carleson theorems will already be mentioned in the previous subsection, so that I can cite them here.
-The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem \cite[Theorem~1.1]{ThieleCarlesonPreprint}, as well as the proof of the classical Carleson theorem \cite{carleson} as a corollary of this more general result.
+The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem, \Cref{metric-space-Carleson}, as well as the proof of the classical Carleson theorem, \Cref{classical-carleson}, as a corollary of this more general result.
 
+The metric space Carleson theorem is fully proven in \cite{ThieleCarlesonPreprint}, although we give a brief proof sketch in \S\ref{subsec:main_results}.
 The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization had from the beginning been envisioned as a large scale collaborative project. This posed a problem, since there are not many experts in formalization that are also experts in harmonic analysis, so most of the potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
 
 To address this challenge, before the formalization started, the authors of \cite{ThieleCarlesonPreprint} wrote a much more detailed document \cite{CarlesonBlueprint} intended as a blueprint for the formalization, which was modified as needed while the formalization process was taking place (see \S\ref{sec:blueprint}).
 
-The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and smaller contributions were made by the 14 additional people listed in the acknowledgements section. This makes the Carleson project one of the largest scale formalization efforts to date.
+The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and smaller contributions were made by the 14 additional people listed in the acknowledgements section. This makes the Carleson project one of the larger scale formalization efforts to date.
 
 The formalization was written in Lean~4, making extensive use of Lean's mathematical library, \mathlib. The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
 
 %TODO: update stats before submitting
 The project comprises around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
 
-Throughout the article, we will introduce Lean code excerpts from the formalization and use the clickable symbol \faExternalLink\: to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
+Throughout the article, we will introduce Lean code excerpts from the formalization and use the following clickable symbol\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Statements.lean#L45}{\extlink} to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
 
 \subsection{Related work}\label{subsec:rel_work}
 
 Large formalization projects in mathematics have been undertaken in different proof assistants and various areas.
-Notable projects formalizing a single theorem or cluster of theorems related to analysis include Immler's verification of the singular hyperbolicity of the Lorentz attractor \cite{ImmlerLorentzSolver} (in Isabelle/HOL),
+Notable projects formalizing results related to analysis include Immler's verification of the singular hyperbolicity of the Lorentz attractor \cite{ImmlerLorentzSolver} (in Isabelle/HOL),
 Immler and Tan's formalization of the Poincaré-Bendixon theorem \cite{ImmlerTanPoincareBendixon} (in Isabelle/HOL),
 % 7000 LoC, but high-profile. might be off-topic enough as it's arguably dynamics
 the flyspeck project \cite{FlyspeckComplete} formally verifying Hales' proof of the Kepler conjecture (verified using an interplay of results in the Isabelle/HOL and HOL/Light proof assistants), and the formalization of the Prime number theorem in HOL Light \cite{HarrisonPNT} (by Harrison), Isabelle/HOL \cite{AvigadPNT} (by Avigad et al), Metamath \cite{CarneiroPNT} (by Carneiro) and Lean (Kontorovich et al) \footnote{\url{https://alexkontorovich.github.io/PrimeNumberTheoremAnd/}}.
@@ -257,7 +267,7 @@ The flyspeck project was also a large collaborative project, eventually involvin
 The need for a shared mathematical proof arises naturally in large collaborations.
 A common feature is an explicit mathematical blueprint, a detailed natural language proof carefully written to be accessible for non-experts. In the flyspeck project, this proof was written as a book prior to the formalization \cite{HalesFlyspeckBook}. More recent formalization projects (including the Liquid Tensor Experiment and the Sphere Eversion project \cite{SphereEversionCPP}) have used special software (see Section~\ref{sec:org}) to maintain such a natural language proof side by side with the formal proof.
 
-Prior to the Carleson project, relatively little harmonic analysis had been formalized in any proof assistant: for example, the Isabelle and HOL Light libraries have an implementation of Fourier series \footnote{\url{https://isa-afp.org/entries/Fourier.html}} (but no more advanced tools such as the Hardy--Littlewood maximal function or the real interpolation theorem); the Mizar Mathematical library has a formalization of Minkowski's inequality \footnote{for infinite sums, \url{https://fm.mizar.org/2005-13/pdf13-1/holder_1.pdf}}, but no definition of Fourier series (only discrete Fourier transforms).
+Prior to the Carleson project, relatively little harmonic analysis had been formalized in any proof assistant: for example, the Isabelle and HOL Light libraries have an implementation of Fourier series \footnote{\url{https://isa-afp.org/entries/Fourier.html}} (but no more advanced tools such as the real interpolation theorem); the Mizar Mathematical library has a formalization of Minkowski's inequality \footnote{for infinite sums, \url{https://fm.mizar.org/2005-13/pdf13-1/holder_1.pdf}}, but no definition of Fourier series (only discrete Fourier transforms).
 The Hardy--Littlewood maximal estimate has been formalized in Rocq \cites{AffeldtFTCRocq,AffeldtLebesgueDiffRocq}, but only for functions $\real\to\real$.
 
 \noindent \textit{Acknowledgement.}
@@ -289,9 +299,9 @@ J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the
 \subsection{Mathematical background}\label{subsec:background}
 The basic object of study in Carleson's theorem is the Fourier series of a periodic function on the real numbers.
 Given a $2\pi$-periodic function $f\colon \real \to \complex$ and $n \in \mathbb{Z}$, define the {\em $n$th Fourier coefficient} of $f$ as
-\begin{equation}\label{eq:fourier-coefficients}
+\begin{equation*}
     c_n \coloneq \widehat{f}_n \coloneq \frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
-\end{equation}
+\end{equation*}
 The Lean version \lean{fourierCoeffOn} uses \mathlib's formalization of the Bochner integral and thus is well-defined if $f\in L^1(0,2\pi)$.
 
 \begin{definition}\label{def:fourier-series}
@@ -306,35 +316,39 @@ which may or may not converge for a given $x\in\real$.
 The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$.
 
 \begin{definition}\label{def:doubling}
-A \emph{doubling metric measure space} $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
+A \emph{doubling metric measure space}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L87}{\extlink} $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
 equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the following doubling condition for $a\in\nat$.
 For all $x\in X$ and all $R>0$ we have
-\begin{equation}\label{doublingx}
+\begin{equation*}
 	\mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
-\end{equation}
-where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ centered at $x$ (see \lean{DoublingMeasure}).
+\end{equation*}
+where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ centered at $x$.
 \end{definition}
-%In a doubling metric measure space the closed balls are compact and $\mu$ is positive on all non-empty open sets.
 
-The proof of the metric space Carleson theorem relies on several tools from real analysis and part of the formalization is a proof of the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g. \cite{vanDoornFormalizedHaarMeasure} for an overview).
-For a function $f$ on a (not necessarily doubling) measure space $(X,\mu)$ taking values in some space $E$ endowed with an extended norm (see \ref{subsec:enorm}), we define its weak $L^p$ norm to be
-\begin{equation}
+The proof of the metric space Carleson theorem relies on several tools from real analysis, including the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Its statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g. \cite{vanDoornFormalizedHaarMeasure} for an overview).
+For a function $f$ on a measure space $(X,\mu)$ taking values in some space $E$ endowed with an extended norm (see \ref{subsec:enorm}), we define its \emph{$L^p$-norm}\href{https://github.com/leanprover-community/mathlib4/blob/5a0753dc725610d074b177e4677000ee96165b8e/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L83-L87}{\extlink} to be
+\begin{equation*}
+  \|f\|_{L^{p}} \coloneq \big(\int_X\|f(x)\|^p\, d\mu(x)\big) ^ \frac{1}{p}
+\end{equation*}
+for $0<p<\infty$. For $p=\infty$, $\|f\|_{L^{p}}$ is the essential supremum of $f$, i.e. the least value $t$ such that
+$\mu\{x\in X : t < |f(x)| \}=0$. Similarly, we define the \emph{weak $L^p$-norm}\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L37}{\extlink} as
+\begin{equation*}
   \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X : t < |f(x)| \}) ^ \frac{1}{p}
-\end{equation}
-if $0<p<\infty$, and $\|f\|_{L^{\infty,\infty}} \coloneq \|f\|_{L^{\infty}}$.
-The function $f$ is said to be in weak $L^p$ (\lean{MemWLp}) if $f$ is $\mu$-a.e. strongly measurable with respect to a fixed topology on $E$ (see e.g. \cite{vanDoornFormalizedHaarMeasure, GouezelChangeOfVariables} for motivation of the different notions of measurability in \mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
-An important consequence is that if $f$ is in weak $L^p$, then $|f|$ is finite almost everywhere (see \lean{MemWLp.ae_ne_top}).
+\end{equation*}
+for $0<p<\infty$, and $\|f\|_{L^{\infty,\infty}} \coloneq \|f\|_{L^{\infty}}$.
+The function $f$ is said to be in weak $L^p$\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L285}{\extlink} if $f$ is $\mu$-a.e. strongly measurable with respect to a fixed topology on $E$ (see e.g. \cite{GouezelChangeOfVariables} for motivation of the different notions of measurability in \mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
+An important consequence is that if $f$ is in weak $L^p$, then $|f|$ is finite almost everywhere.\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L302}{\extlink}
 
-Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T : (X \to E) \to (Y \to F)$ is of weak type $(p,p')$ if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e. strongly measurable and
+Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T : (X \to E) \to (Y \to F)$ is \emph{of weak type $(p,p')$}\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L419}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e. strongly measurable and
 \begin{equation}
   \|T f\|_{L^{p',\infty}} \le C \cdot \|f\|_{L^p}.
 \end{equation}
-Similarly, the operator $T$ is of strong type if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
+Similarly, the operator $T$ is of \emph{strong type $(p, p')$}\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L433}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
 \begin{equation}
   \|T f\|_{L^{p'}} \le C \cdot \|f\|_{L^p}.
 \end{equation}
 
-%TODO: should we state the real interpolation theorem here, in the dedicated subsection, or omit the exact formulation and just cite the paper that is to appear about its formalization?
+% TODO: state the real interpolation theorem in the dedicated subsection
 
 \subsection{Statement of the main results}\label{subsec:main_results}
 
@@ -347,74 +361,76 @@ The specific statement is as follows.
     \label{classical-carleson}
     Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
     Then for almost all $x \in \mathbb{R}$, the limit
-    $\lim_{N\to\infty} S_N f(x)$ exists and is equal to $f(x)$.
+    $\lim_{N\to\infty} S_N f(x)$ exists and is equal to $f(x)$.\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/Classical/ClassicalCarleson.lean#L131}{\extlink}
 \end{theorem}
 
-The formalization was approached through a recent result (blabla reference) which encompasses a number of generalizations of Carleson's original theorem.
-The context for this new result is called a \emph{doubling metric measure space}, accompanied by a \emph{cancellative compatible collection} of real-valued continuous functions.
-For a \emph{one-sided} respectively \emph{two-sided Calder\'on--Zygmund kernel} $K$ on this space, one obtains bounds for certain \emph{generalized Carleson operators} involving the collection of functions and the kernel.
-
-The classical Carleson theorem is obtained by choosing a specific Carleson operator, an approach that all proofs of Carleson's theorem share.
-The specific version that has been formalized is this one:
+The metric Carleson theorem is more complicated to state, but gives bounds for certain \emph{generalized Carleson operators}.
+Before we state this theorem, we state an intermediate result
+bounding a specific Carleson operator for functions on $\real$.
+Like most proofs of Carleson's theorem, we use this bound to prove \Cref{classical-carleson}.
+The specific version of the bound that we formalized is as follows.
 
 \begin{theorem}[real Carleson]\label{real-Carleson}
     Let $F,G$ be Borel subsets of $\real$ with finite measure. Let $f$ be a bounded measurable function on $\real$ with $|f|\le \mathbf{1}_F$. Then
-\begin{equation}
+\begin{equation*}
     \left|\int _G Tf(x) \, dx\right| \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12} \, ,
-\end{equation}
+\end{equation*}
 % the constant above was C_{4,2}
 and
-\begin{equation}
-    \label{define-T-carleson}
+\begin{equation*}
     T f(x)\coloneq\sup_{n\in \mathbb{Z}}
     \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right| \, ,
-\end{equation}
-with $\kappa\colon\real\to\complex$ defined as
-\begin{equation}
+\end{equation*}
+with the Hilbert kernel $\kappa\colon\real\to\complex$ defined as
+\begin{equation*}
     \kappa(x)\coloneq\begin{cases}
         0 & \text{if $x = 0$ or $|x| \ge 1$} \\
         \frac { 1-|x|}{1-e^{ix}} & \text{if $0 < |x| < 1$}.
     \end{cases}
-\end{equation}
+\end{equation*}
 \end{theorem}
 
 
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
 
+In this sections we state the definitions used in the metric space Carleson theorem.
 Let $a \ge 4$ be a natural number. A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}
 if there is a point $o\in X$ where all the functions are equal to $0$,
 and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$,
-such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied.
-For every ball $B \subset X$ and any $\mfa, \mfb \in \Mf$,
+such that the following five properties are satisfied.
+\begin{itemize}
+\item For every ball $B \subset X$ and any $\mfa, \mfb \in \Mf$,
 \begin{equation}\label{osccontrol}
     \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb)\,.
 \end{equation}
-For any two balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$ and any $\mfa,\mfb\in \Mf$,
+\item For any two balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$ and any $\mfa,\mfb\in \Mf$,
 \begin{equation}\label{firstdb}
     d_{B_2}(\mfa,\mfb) \le 2^a d_{B_1}(\mfa,\mfb) .
 \end{equation}
-For any two balls $B_1, B_2$ in $X$ with $B_1 \subset B_2$ and any $\mfa, \mfb \in \Mf$
+\item For any two balls $B_1, B_2$ in $X$ with $B_1 \subset B_2$ and any $\mfa, \mfb \in \Mf$
 \begin{equation}\label{monotonedb}
     d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa, \mfb)
 \end{equation}
-and for any two balls
+\item For any two balls
 $B_1=B(x_1,R)$, $B_2= B(x_2,2^aR)$
 with $B_1\subset B_2$, and $\mfa,\mfb\in \Mf$,
 \begin{equation}\label{seconddb}
     2d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa,\mfb) .
 \end{equation}
-For every ball $B$ in $X$ and every $d_B$-ball $\tilde B$ of radius $2R$ in $\Mf$, there is a collection $\mathcal{B}$ of
+\item For every ball $B$ in $X$ and every $d_B$-ball $\tilde B$ of radius $2R$ in $\Mf$, there is a collection $\mathcal{B}$ of
 at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
 \begin{equation}\label{thirddb}
     \tilde B\subset \bigcup \mathcal{B}.
 \end{equation}
+
+\end{itemize}
 
 Further, a compatible collection $\Mf$ is called \emph{cancellative} if
 for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi\colon X\to \complex$
 supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
 \begin{equation}
     \label{eq-vdc-cond}
-    |\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)|\le 2^a \mu(B)\|\varphi\|_{\Lip(B)}
+    \Big|\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)\Big|\le 2^a \mu(B)\|\varphi\|_{\Lip(B)}
 (1+d_B(\mfa,\mfb))^{-\frac{1}{a}},
 \end{equation}
 where $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipschitz norm on $B$:
@@ -567,7 +583,7 @@ $\psi\colon\real \to\real$ be the unique compactly supported, piecewise linear, 
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
 \end{equation}
 for all $x>0$. Note that the above sum has at most two nonzero terms, and that this function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
-$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. With this definition, the {\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/FinitaryCarleson.lean#L110}{finitary Carleson Theorem}} reads as follows.
+$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. With this definition, the finitary Carleson Theorem\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/FinitaryCarleson.lean#L110}{\extlink} reads as follows.
 
 \begin{theorem}[finitary Carleson]
 \label{finitary-Carleson}
@@ -614,7 +630,7 @@ The conditions that the objects in a grid structure satisfy are as follows.
 \end{equation}
 \end{enumerate}
 
-We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a \href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{tile structure} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc : \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc : \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc : \fP \to X$ and $\ps : \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
+We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a tile structure\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc : \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc : \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc : \fP \to X$ and $\ps : \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
 
 \begin{enumerate}[label=\roman*.]
 % note: todo: JP: as also the lean code says, this seems superfluous so I'm removing it from the list
@@ -646,7 +662,7 @@ with
 \end{equation}
 \end{enumerate}
 
-With the above definitions, it can be shown that the finitary Carleson theorem reduces to the \href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/Discrete/MainTheorem.lean#L45}{discrete Carleson theorem}.
+With the above definitions, it can be shown that the finitary Carleson theorem reduces to the discrete Carleson theorem.\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/Discrete/MainTheorem.lean#L45}{\extlink}
 
 \begin{theorem}[discrete Carleson]
 \label{discrete-Carleson}
@@ -1306,7 +1322,7 @@ Gradually, we came to the conclusion that, with some exceptions, it was best to 
 
 This project motivated the creation of a new formalization abstraction: \emph{extended norms} (\lean{enorm}s for short) generalize many results from normed spaces to $\ennreal$.
 Their introduction was motivated by defining the Hardy--Littlewood maximal with codomain $\ennreal=[0,\infty]$ (see \S\ref{subsec:blueprint_changes}).
-Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. Speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, the $L^p$ norm of $f\colon X\to\ennreal$ for $p<\infty$ can be defined as $(\int_X \abs{f(x)}^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto \abs{f(x)}^p$.
+Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. Speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, the $L^p$-norm of $f\colon X\to\ennreal$ for $p<\infty$ can be defined as $(\int_X \abs{f(x)}^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto \abs{f(x)}^p$.
 
 Motivated by this observation, we introduced a new notation class \lean{ENorm}, describing a type endowed with a function $\texttt{enorm}\colon X\to\ennreal$.
 This captures both normed spaces and $\ennreal$. The enorm of a normed space is the ambient norm, considered as a function into $\ennreal$; the enorm on $\ennreal$ is the identity function.
@@ -1505,7 +1521,7 @@ The \emph{Lorentz-norm} of a function is
 $$\|f\|_{L^{p,q}(X,\mu)}\vcentcolon=
 p^{\frac1q}\|t\mu\{|f| > t\}^{\frac1p}\|_{L^q(\mathbb{R}_{>0},\frac{dt}{t})}.$$
 It is not hard to see that the $L^{p,p}$-norm corresponds to the $L^p$-norm
-and the $L^{p,\infty}$-norm corresponds to the weak $L^p$ norm
+and the $L^{p,\infty}$-norm corresponds to the weak $L^p$-norm
 (which we also denoted $L^{p,\infty}$ before).
 Restricted weak-type estimates such as the one in \Cref{metric-space-Carleson}
 specify the boundedness of an operator with respect to the $L^{p,1}$-norm.
