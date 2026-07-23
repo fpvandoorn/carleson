@@ -454,7 +454,7 @@ theorem memLorentz_iff_memLorentz_embedRCLike {𝕂 : Type*} [RCLike 𝕂] {f : 
       apply Eventually.of_forall enorm_eq_enorm_embedRCLike
 
 lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
-  {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
+  [SigmaFinite μ] {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')}
   (T_meas : ∀ {f : α → 𝕂}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
   (T_zero : T 0 =ᶠ[ae ν] 0)
@@ -555,7 +555,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
       rw [← ofReal_norm, ← ofReal_norm, RCLike.Components.norm_eq_one hb h]
       simp
 
-lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*}
+lemma HasRestrictedWeakType.hasLorentzType [SigmaFinite μ] {𝕂 : Type*}
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
   {T : (α → 𝕂) → (α' → ε')} {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
   [SigmaFinite ν] {c : ℝ≥0} (c_pos : 0 < c)
