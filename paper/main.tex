@@ -1369,8 +1369,7 @@ but the choice has impact in precisely which lemmas you can prove about it.
 For example, if $g$ is bounded with compact support, and $f$ is a closed embedding,
 is $g\circ f$ a bounded function with compact support?
 This is only true if $g$ has compact support and is bounded everywhere;
-otherwise $f$ may send a set of positive measure to a set of measure 0 where $g$ is ill-behaved. % So we have the "worse" definition: is this an issue in Carleson, or just a trade-off to point out?
-
+otherwise $f$ may send a set of positive measure to a set of measure 0 where $g$ is ill-behaved.
 Another consideration into this design decision is how nicely one can work with these functions.
 Some arguments are a little easier if we know that a function is well-behaved everywhere,
 and not just almost everywhere.
@@ -1381,7 +1380,7 @@ and not just essentially bounded.
 While these arguments could be adapted using only that this operation is only essentially bounded,
 the argument consists of some tricky manipulations with suprema over the arguments,
 and these would have to be changed to essential suprema, which are a bit trickier to work with.
-In the end, we decided to prove that this function was  bounded with compact support, and additionally bounded everywhere.
+In the end, we decided to prove that this function was bounded with compact support, and additionally bounded everywhere.
 
 These classes are also tagged with the \lean{@[fun_prop]} attribute.
 \lean{fun_prop} is a \mathlib tactic developed by Tomáš Skřivan
