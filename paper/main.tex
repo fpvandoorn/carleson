@@ -1470,16 +1470,15 @@ rather than a specialization to the project setting.
 Finally, we would consider more carefully whether to use non-standard proof methods in a hope to simplify the formalization,
 since this ended up causing most of the mathematical inaccuracies in the first version of the blueprint.
 
-% move this earlier in the conclusion?
 After the Carleson project was finished,
 we have continued to prove further results in the Carleson repository.
 Indeed, \Cref{metric-space-Carleson} is strong enough to prove stronger versions of Carleson's theorem \Cref{classical-carleson}:
 as Hunt \cite{MR238019} showed in 1968,
 the assumption in \Cref{classical-carleson} that $f$ is continuous
 can be weakened to the statement that $f$ is $L^p$ for $p>1$.
-Proving this requires some additional techniques from analysis.
+Proving this requires \Cref{real-Carleson} combined with some additional techniques from analysis.
 
-The \emph{Lorentz-norm} of a function is
+The \emph{Lorentz norm} of a function is
 $$\|f\|_{L^{p,q}(X,\mu)}\vcentcolon=
 p^{\frac1q}\|t\mu\{|f| > t\}^{\frac1p}\|_{L^q(\mathbb{R}_{>0},\frac{dt}{t})}.$$
 It is not hard to see that the $L^{p,p}$-norm corresponds to the $L^p$-norm
