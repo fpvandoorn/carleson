@@ -86,6 +86,7 @@ theorem PFun.mem_graph'_iff {β : Type*} {f : α →. β} {a : α} {b : β} : (a
 
 open SetRel
 
+/-- Constructs a partial function `α →. β` from its graph of type `SetRel α β`. -/
 noncomputable def PFun.of_graph' {β : Type*} (r : SetRel α β) : α →. β := fun a ↦ (by
   by_cases h : ∃ b, a ~[r] b
   · exact Part.some h.choose
@@ -255,6 +256,7 @@ theorem PFun.exists_fn_of_fn_sSup {β : Type*} {fs : Set (α →. β)} (h : IsCh
   apply fn_apply_eq_fn_apply_of_le (le_sSup h hf)
 
 open Classical in
+/-- Gives the partial function sending `a` to `b` and agreeing with `f` otherwise. -/
 noncomputable def PFun.insert {β : Type*} (f : α →. β) (a : α) (b : β) : α →. β :=
   fun x ↦ if x = a then b else f x
 
@@ -287,6 +289,8 @@ theorem PFun.Prop_insert {β : Type*} {f : α →. β} {a : α} {b : β} {p : α
   · simpa [hxa]
   · apply hf
 
+/-- The property of a partial function `f` to be *monotone*, i.e. `f a ≤ f b` whenever `a ≤ b` and
+both `a` and `b` are in the domain of `f`. -/
 def PFun.Monotone [Preorder α] {β : Type*} [Preorder β] (f : α →. β) :=
   ∀ ⦃a b⦄ (ha : a ∈ f.Dom) (hb : b ∈ f.Dom), a ≤ b → f.fn a ha ≤ f.fn b hb
 

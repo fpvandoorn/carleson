@@ -17,8 +17,12 @@ open Set Measure Filter TopologicalSpace Function
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 
+/-- For a `(s : Set (α × β))` and `(ν : Measure β)`, we define `essProjFst` such that
+`x ∈ essProjFst s ν` iff `0 < ν {y | ⟨x, y⟩ ∈ s}`. -/
 def essProjFst (s : Set (α × β)) (ν : Measure β) := {x | 0 < ν ((fun y => (x, y)) ⁻¹' s)}
 
+/-- For a `(s : Set (α × β))` and `(μ : Measure α)`, we define `essProjSnd` such that
+`y ∈ essProjSnd s μ` iff `0 < μ {x | ⟨x, y⟩ ∈ s}`. -/
 def essProjSnd (s : Set (α × β)) (μ : Measure α) := {y | 0 < μ ((fun x => (x, y)) ⁻¹' s)}
 
 variable {μ : Measure α} {ν : Measure β}

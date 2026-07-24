@@ -23,6 +23,8 @@ open Set Measure Filter TopologicalSpace
 
 variable {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α} {s : Set α}
 
+/-- An *atom* of a measure `μ` is a set `s` of positive measure for which all measurable subsets
+either have measure `0` or `μ s`. -/
 @[expose]
 def IsAtom (s : Set α) (μ : Measure α) :=
   0 < μ s ∧ ∀ t ⊆ s, MeasurableSet t → μ t = 0 ∨ μ t = μ s
