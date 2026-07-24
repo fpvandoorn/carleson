@@ -1275,6 +1275,18 @@ An independently useful, more ambitious yet more powerful tactic would allow red
 The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
 % TODO: point to a prototype implementation
 
+The choice of real number type also came up when integrating over a set. Before the Carleson project, there was no definition of integral of functions on \lean{NNReal} or \lean{ENNReal}. As integrating such functions was useful, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent. This avoids another source of casting between real number types.
+\begin{lstlisting}[mathescape]
+∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
+∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
+∫⁻ (x : ℝ≥0∞), f x
+\end{lstlisting}
+%\begin{minted}{lean}
+%∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
+%∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
+%∫⁻ (x : ℝ≥0∞), f x
+%\end{minted}
+
 As a final example around considerations on which number types to use, consider the supremum of a set.
 As one eventually is anyway interested in situations in which this supremum is finite and the set
 is bounded from above, one could consider a setup in which the sets considered are subsets of
@@ -1365,7 +1377,7 @@ The reason for this is that \mathlib uses essentially bounded functions frequent
 phrased as \lean{MemLp f ∞ μ}.
 
 These notions are mathematically very similar,
-but the choice has impact in precisely which lemmas you can prove about it.
+but the choice has impact on precisely which lemmas you can prove about it.
 For example, if $g$ is bounded with compact support, and $f$ is a closed embedding,
 is $g\circ f$ a bounded function with compact support?
 This is only true if $g$ has compact support and is bounded everywhere;
@@ -1404,22 +1416,13 @@ since it is better behaved w.r.t.\ multiplication and composition.
 % \end{itemize}
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
-% TODO: proof-read this section carefully
-As described in Section~\ref{subsec:real}, at the beginning of the project we tried to avoid conversions by using the type \lean{Real} as much as possible, even if quantities were naturally nonnegative or possibly infinite. In the course of the project, in different contexts we realized that using \lean{NNReal} or \lean{ENNReal} instead would lead to shorter proofs and reduce the number of side conditions.
-While generally enabling simplifications, such changes not only came at the cost of additional conversions at the boundary between different contexts but also sometimes necessitated extending the API where \mathlib currently only supports \lean{Real}. For instance, to be able to integrate functions on \lean{NNReal} or \lean{ENNReal}, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent.
-\begin{lstlisting}[mathescape]
-∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
-∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
-∫⁻ (x : ℝ≥0∞), f x
-\end{lstlisting}
 
-%\begin{minted}{lean}
-%∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
-%∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
-%∫⁻ (x : ℝ≥0∞), f x
-%\end{minted}
+In this project, we encountered several cases of mathematically equivalent representations, and an initially non-obvious choice of the right formalization representation. One such case was of integrating on a set, i.e.\ with respect to a restricted measure, versus integrating an indicator function.
+While \mathlib allows converting between using the lemmas \lean{integral_indicator}\href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/MeasureTheory/Integral/Bochner/Set.html#MeasureTheory.integral_indicator}{\extlink} resp. \lean{lintegral_indicator}\href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/MeasureTheory/Integral/Lebesgue/Basic.html#MeasureTheory.lintegral_indicator}{\extlink},
+the former is generally preferred: both forms are equivalent when the set in question is measurable,
+but \lean{s.indicator f}\href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/Algebra/Notation/Indicator.html#Set.indicator}{\extlink} is only measurable when the set \lean{s} is measurable.
+In comparison, if \lean{f} is measurable, its restriction \lean{s.restrict f} to \lean{s} is always measurable, without any measurability hypotheses on \lean{s}.
 
-Another case of equivalent representations we encountered was that of integrating on a set, i.e. with respect to a restricted measure, versus integrating an indicator function, again both useful for different purposes. Conversion here was straightforward using the lemmas \lean{integral_indicator} resp. \lean{lintegral_indicator} in \mathlib.
 Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
 Again, in different context the existing \mathlib API was more suitable for working with one of the two versions. It is still work in progress to extend \mathlib with API for the other version where no version is naturally favorable, to reduce the overall number of conversions.
 
