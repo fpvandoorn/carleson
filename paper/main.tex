@@ -1275,7 +1275,7 @@ An independently useful, more ambitious yet more powerful tactic would allow red
 The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
 % TODO: point to a prototype implementation
 
-The choice of real number type also came up when integrating over a set. Before the Carleson project, there was no definition of integral of functions on \lean{NNReal} or \lean{ENNReal}. As integrating such functions was useful, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent. This avoids another source of casting between real number types.
+The choice of real number type also came up when integrating over a subset of real numbers. Before the Carleson project, there was no definition of integral of functions on \lean{NNReal} or \lean{ENNReal}. As integrating such functions was useful, we added \lean{volume} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent. This avoids another source of casting between real number types.
 \begin{lstlisting}[mathescape]
 ∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
 ∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
