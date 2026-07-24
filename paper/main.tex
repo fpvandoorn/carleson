@@ -1341,15 +1341,14 @@ integrability and measurability considerations are usually mathematically trivia
 
 It is desirable for this simplicity to be reflected in the formalization.
 This motivated packaging the recurring side conditions into test function classes.
-The structures \lean{BoundedCompactSupport} and \lean{BoundedFiniteSupport} contain essentially bounded measurable functions with compact support and with support of finite measure, respectively. A function $f$ is \emph{essentially bounded} if there exists a real number $C$ such that $\|f(x)\|\le C$ almost everywhere.
+The structures \lean{BoundedCompactSupport}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/ToMathlib/BoundedCompactSupport.lean#L81}{\extlink} and \lean{BoundedFiniteSupport}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L63}{\extlink} contain essentially bounded measurable functions with compact support and with support of finite measure, respectively. A function $f$ is \emph{essentially bounded} if there exists a real number $C$ such that $\|f(x)\|\le C$ almost everywhere.
 
 Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
 reproving the same measure-theoretic facts. For example, from a hypothesis
 \lean{hf : BoundedCompactSupport f} one immediately obtains that \lean{f} is a member of
 any desired $L^p$ space, % in the context of this project
 or that \lean{s.indicator f} again has bounded compact support when \lean{s} is measurable.
-% TODO(MR): I'm not sure if this is clear enough: should we write \lean{BoundedCompactSupport.carlesonSum} instead?
-Lemmas such as \lean{hf.carlesonSum} show that the relevant
+Lemmas such as \lean{hf.carlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Operators.lean#L164}{\extlink} show that the relevant
 operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
 
 Choosing the right definition of these structures is subtle.
