@@ -22,6 +22,7 @@ These are some of the points we need to consider when reviewing the full draft o
 
 * bikeshedding: Let's use "type class"/"type-class [noun]" (according to Wiktionary the "default" spelling)
 * Add links to Lean code outside of Section 2.3.
-* Unify format of external links.
+* Unify format of external links. [done?]
+* Add much more external links (to most definitions/theorems/statements in the Carleson repo that we explicitly refer to in th epaper)
 * Unify chapter vs section when referring to the blueprint.
 * Remove labels from equations that aren't referenced.

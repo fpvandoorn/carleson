@@ -216,19 +216,29 @@ all authors formalized a significant part of the theorem.
 The last reason is that this is one of a handful of examples in mathematics where the formalization
 of a preprint was finished prior to the submission of the preprint to a journal.
 
-Carleson's theorem answers an old question in Fourier analysis about the convergence of Fourier series $S_nf$ of a function $f$ (see Definition~\ref{def:fourier-series}).
-There are two main kinds of convergence that are commonly considered.
-Convergence within a suitable function space, e.g. $L^2(0,2\pi)$, was established in the first decade of
-the twentieth century as a consequence of the rapid development of Lebesgue
-integration theory.
-A second question that turns out to be much more difficult is whether the sequence $\{ S_n f (x)\}_{\{ n \in\nat\}}$ converges pointwise to $f(x)$ for almost every $x$.
-Luzin \cite{Luzin13} conjectured that this convergence would hold for functions in the space $L^2(0,2\pi)$. In 1923, Kolmogorov found an example \cite{Kolmogorov} of an $L^1$ function whose Fourier series diverges at almost every point, which seemed to suggest that the conjecture might be false. However, when in the 1960s Carleson tried to construct a counterexample to Luzin's conjecture, he realized that a potential counterexample would have to satisfy so many properties that they would in fact be contradictory. He was therefore able to conclude that such a counterexample could not exist, hence proving Luzin's conjecture \cite{carleson}.
+\subsection{Brief history and significance of Carleson's theorem}\label{subsec:history}
 
-Carleson's result was soon after generalized by Hunt \cite{MR238019} to the case of $L^p$ functions with $p>1$.
-Billard \cite{MR217510} adapted Carleson's arguments to prove almost everywhere convergence of Walsh--Fourier series
+One of the oldest questions in Fourier analysis consists of understanding the nature of convergence of Fourier series $S_nf$ of a function $f$ (see Definition~\ref{def:fourier-series}).
+There are two main kinds of convergence that are commonly considered. First, one can ask whether the partial Fourier sums $S_n$ converge to the function $f$ in a suitable function
+space. There are several well-known answers to this question. For instance, convergence in the Hilbert
+space sense for $f$ in $L^2(0,2\pi)$ was established in the first decade of
+the twentieth century as a consequence of the rapid development of Lebesgue
+integration theory, and convergence in the sense of
+distributions for general distributional $f$ was discovered a few decades
+after Lebesgue integration. For some other natural spaces, such as
+$L^1(0,2\pi)$, there is no guarantee of convergence in the norm of that space,
+even if $f$ is in the space.
+
+A second question that turns out to be much more difficult is whether the sequence $\{ S_n f (x)\}_{\{ n \in\nat\}}$ converges pointwise to $f(x)$ for almost every $x$.
+Luzin \cite{Luzin13} conjectured that this convergence would hold for functions in the
+$L^2(0,2\pi)$ space. In 1923, Kolmogorov found an example \cite{Kolmogorov} of an $L^1$ function whose Fourier series diverges at almost every point, which seemed to suggest that the conjecture might be false. However, when in the 1960s Carleson tried to construct a counterexample to Luzin's conjecture, he realized that a potential counterexample would have to satisfy so many properties that they would in fact be contradictory. He was therefore able to conclude that such a counterexample could not exist, hence proving Luzin's conjecture \cite{carleson}.
+
+Carleson's result was soon after generalized by Hunt \cite{MR238019} to the case of $L^p$ functions with $p>1$ and for functions in $L^1\log(L)^2$. Billard \cite{MR217510} adapted Carleson's arguments to prove almost everywhere convergence of Walsh--Fourier series
 for functions in $L^2$.
+
 Fefferman gave an alternative proof of Carleson's theorem \cite{fefferman} via an a priori bound for a certain maximal operator in harmonic analysis, known as the Carleson operator.
 Lacey and Thiele pointed out a duality between the approaches by Carleson and Fefferman and presented a more symmetric and self-dual proof \cite{lacey-thiele}.
+
 In recent years, the impact of Carleson's theorem has increased thanks to its connections to areas of mathematics and physics including ergodic theory and scattering theory, and various strengthenings and variants of Fefferman's estimates for Carleson's operator have appeared; see \cite[\S 1]{CarlesonBlueprint}. For more details about Carleson's theorem and its generalizations, we refer the reader to the surveys by Lacey \cite{MR2091007} and Demeter \cite{MR3334208}.
 
 \subsection{Overview of the formalization project}\label{subsec:overview}
@@ -240,7 +250,7 @@ The original reference \cite{ThieleCarlesonPreprint} was written as a traditiona
 
 To address this challenge, before the formalization started, the authors of \cite{ThieleCarlesonPreprint} wrote a much more detailed document \cite{CarlesonBlueprint} intended as a blueprint for the formalization, which was modified as needed while the formalization process was taking place (see \S\ref{sec:blueprint}).
 
-The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and smaller contributions were made by the 14 additional people listed in the acknowledgements section. This makes the Carleson project one of the larger scale formalization efforts to date.
+The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and smaller contributions were made by the 14 additional people listed in the acknowledgements section. This makes the Carleson project one of the largest scale formalization efforts in mathematics to date.
 
 The formalization was written in Lean~4, making extensive use of Lean's mathematical library, \mathlib. The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
 
@@ -1472,8 +1482,7 @@ example {T : Type} [Fintype T] {s : Set T} [DecidablePred fun p $\mapsto$ p $\in
 
 %TODO: The "in Lean" can maybe be removed, but let's wait for \ref{subsec:rel_work} to decide.
 The Carleson project, with a total of 28 contributors,
-was one of the largest collaborative formalization efforts up to date
-(excluding extensive mathematical libraries such as \mathlib or MathComp),
+was one of the largest collaborative formalization efforts of a single mathematical theorem to date,
 as well as the first formalization in Lean of a state-of-the-art theorem
 from the area of harmonic analysis.
 
