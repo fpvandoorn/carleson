@@ -87,16 +87,16 @@ theorem PFun.mem_graph'_iff {β : Type*} {f : α →. β} {a : α} {b : β} : (a
 open SetRel
 
 /-- Constructs a partial function `α →. β` from its graph of type `SetRel α β`. -/
-noncomputable def PFun.of_graph' {β : Type*} (r : SetRel α β) : α →. β := fun a ↦ (by
+noncomputable def PFun.ofGraph' {β : Type*} (r : SetRel α β) : α →. β := fun a ↦ (by
   by_cases h : ∃ b, a ~[r] b
   · exact Part.some h.choose
   · exact Part.none
   )
 
-theorem PFun.compare_of_mem_of_graph' {β : Type*} {r : SetRel α β} {a : α} {b : β}
-  (hb : b ∈ PFun.of_graph' r a) :
+theorem PFun.compare_of_mem_ofGraph' {β : Type*} {r : SetRel α β} {a : α} {b : β}
+  (hb : b ∈ PFun.ofGraph' r a) :
     a ~[r] b := by
-  unfold PFun.of_graph' at hb
+  unfold PFun.ofGraph' at hb
   split at hb
   next h =>
     simp only [Part.mem_some_iff] at hb
@@ -105,26 +105,26 @@ theorem PFun.compare_of_mem_of_graph' {β : Type*} {r : SetRel α β} {a : α} {
   next h =>
     simp at hb
 
-theorem PFun.mem_of_graph'_of_compare {β : Type*} {r : SetRel α β}
+theorem PFun.mem_ofGraph'_of_compare {β : Type*} {r : SetRel α β}
   (h : ∀ a b c, a ~[r] b → a ~[r] c → b = c) {a : α} {b : β} (hb : a ~[r] b) :
-    b ∈ PFun.of_graph' r a := by
-  unfold PFun.of_graph'
+    b ∈ PFun.ofGraph' r a := by
+  unfold PFun.ofGraph'
   split_ifs with h'
   · simp only [Part.mem_some_iff]
     exact h a  _ _ hb h'.choose_spec
   · aesop
 
-theorem PFun.mem_of_graph'_iff_compare {β : Type*} {r : SetRel α β}
+theorem PFun.mem_ofGraph'_iff_compare {β : Type*} {r : SetRel α β}
   (h : ∀ a b c, a ~[r] b → a ~[r] c → b = c) {a : α} {b : β} :
-    b ∈ PFun.of_graph' r a ↔ a ~[r] b := by
+    b ∈ PFun.ofGraph' r a ↔ a ~[r] b := by
   constructor
-  · exact compare_of_mem_of_graph'
-  · exact mem_of_graph'_of_compare h
+  · exact compare_of_mem_ofGraph'
+  · exact mem_ofGraph'_of_compare h
 
-theorem PFun.graph'_of_graph' {β : Type*} {r : SetRel α β}
-    (h : ∀ a b c, a ~[r] b → a ~[r] c → b = c) : (PFun.of_graph' r).graph' = r := by
+theorem PFun.graph'_ofGraph' {β : Type*} {r : SetRel α β}
+    (h : ∀ a b c, a ~[r] b → a ~[r] c → b = c) : (PFun.ofGraph' r).graph' = r := by
   ext ⟨a, b⟩
-  rw [PFun.mem_graph'_iff, mem_of_graph'_iff_compare h]
+  rw [PFun.mem_graph'_iff, mem_ofGraph'_iff_compare h]
 
 /-
 /-- A relation `r : α → β → Prop` is "partial function-like"
@@ -209,10 +209,10 @@ theorem PFun.apply_eq_of_le {β : Type*} {f g : α →. β} (h : f ≤ g) {a : �
   apply fn_apply_eq_fn_apply_of_le h
 
 noncomputable instance {β : Type*} : SupSet (α →. β) where
-  sSup S := PFun.of_graph' (sSup (PFun.graph' '' S))
+  sSup S := PFun.ofGraph' (sSup (PFun.graph' '' S))
 
 theorem PFun.sSup_eq {β : Type*} {fs : Set (α →. β)} :
-    sSup fs = of_graph' (⋃ a ∈ fs, a.graph') := by
+    sSup fs = ofGraph' (⋃ a ∈ fs, a.graph') := by
   unfold sSup instSupSetPFun
   simp only [sSup_eq_sUnion, sUnion_image]
 
@@ -221,14 +221,14 @@ theorem PFun.exists_mem_of_mem_sSup {β : Type*} {fs : Set (α →. β)} {a : α
     ∃ f ∈ fs, b ∈ f a := by
   unfold sSup instSupSetPFun at ha
   simp only [sSup_eq_sUnion, sUnion_image] at ha
-  have := compare_of_mem_of_graph' ha
+  have := compare_of_mem_ofGraph' ha
   simp at this
   assumption
 
 theorem PFun.le_sSup {β : Type*} {fs : Set (α →. β)} (h : IsChain (· ≤ ·) fs) {f : (α →. β)}
   (hf : f ∈ fs) :
     f ≤ sSup fs := by
-  rw [sSup_eq, le_iff, graph'_of_graph']
+  rw [sSup_eq, le_iff, graph'_ofGraph']
   · exact subset_biUnion_of_mem hf
   intro a b c
   simp only [mem_iUnion, exists_prop, forall_exists_index, and_imp]
