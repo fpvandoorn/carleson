@@ -5,7 +5,7 @@ Authors: Leo Diedering
 -/
 module
 
-public import Carleson.ToMathlib.NoAtomsBasics
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Basics
 public import Mathlib.MeasureTheory.Constructions.UnitInterval
 public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 

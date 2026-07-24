@@ -6,7 +6,7 @@ Authors: Leo Diedering
 
 module
 
-public import Carleson.ToMathlib.NoAtoms
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Defs
 public import Mathlib.MeasureTheory.Measure.Prod
 
 public section
@@ -160,26 +160,7 @@ theorem measure_essProjSnd_pos_iff [SFinite μ] [SFinite ν] {s : Set (α × β)
     0 < ν (essProjSnd s μ) ↔ 0 < (μ.prod ν) s := by
   rw [Measure.prod_apply_symm hs, lintegral_pos_iff_support (measurable_measure_prodMk_right hs),
       ← essProjSnd_eq']
-/-
-theorem exists_subset_measure_essProjFst_lt_top' [SigmaFinite μ] {s : Set (α × β)}
-  (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
-    ∃ q ⊆ essProjFst s ν, MeasurableSet q ∧ 0 < μ.prod ν (s ∩ q ×ˢ univ) ∧ μ q < ⊤ := by
-  set r := essProjFst s ν
-  have hμr : 0 < μ r := by
-    rwa [measure_essProjFst_pos_iff hs]
-  rcases exists_subset_measure_lt_top (measurableSet_essProjFst hs) hμr with
-    ⟨q, meas_q, hqr, hμq, hμq_top⟩
-  use q, hqr, meas_q
-  have meas := hs.inter (meas_q.prod MeasurableSet.univ)
-  have : essProjFst (s ∩ q ×ˢ univ) ν = q := by
-    rw [essProjFst_inter_times_univ, inter_eq_right]
-    exact hqr
-  constructor
-  · rw [Measure.prod_apply meas, lintegral_pos_iff_support (measurable_measure_prodMk_left meas)]
-    convert hμq
-    rw [← essProjFst_eq', this]
-  · exact hμq_top
--/
+
 theorem exists_subset_measure_fst_image_lt_top [SigmaFinite μ] [SFinite ν] {s : Set (α × β)}
   (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
     ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ.prod ν t ∧ μ (Prod.fst '' t) < ⊤ := by

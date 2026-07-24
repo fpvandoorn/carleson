@@ -1,8 +1,8 @@
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Integral.Layercake
-public import Carleson.ToMathlib.NoAtomsProd
-public import Carleson.ToMathlib.NoAtomsReal
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Prod
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Metric
 
 @[expose] public section
 

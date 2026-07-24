@@ -5,7 +5,7 @@ Authors: Leo Diedering
 -/
 module
 
-public import Carleson.ToMathlib.NoAtoms
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Defs
 public import Mathlib.MeasureTheory.VectorMeasure.Basic
 public import Mathlib.Data.PFun
 public import Mathlib.Analysis.Convex.Basic
@@ -120,12 +120,6 @@ theorem PFun.mem_of_graph'_iff_compare {β : Type*} {r : SetRel α β}
   · exact compare_of_mem_of_graph'
   · exact mem_of_graph'_of_compare h
 
-
-/-
-theorem PFun.of_graph'_eq {β : Type*} {r : SetRel α β} : ∀ {a b}, a ~[r] b ↔ (PFun.of_graph' r) a = b := by
-  sorry
--/
-
 theorem PFun.graph'_of_graph' {β : Type*} {r : SetRel α β}
     (h : ∀ a b c, a ~[r] b → a ~[r] c → b = c) : (PFun.of_graph' r).graph' = r := by
   ext ⟨a, b⟩
@@ -178,22 +172,6 @@ theorem PFun.graph_injective {β : Type*} : Function.Injective (@PFun.graph α �
 theorem PFun.graph'_injective {β : Type*} : Function.Injective (@PFun.graph' α β) :=
   PFun.graph_injective
 
-
---#check CompleteLattice
---def PFun.of_graph' (r : α → β → Prop) (h : ∀ (a : α), ∃! b, r a b) :
-
-/-
-instance {β : Type*} : SetLike (α →. β) (α × β) where
-  coe f := f.graph
-  coe_injective' := by
-    intro f g hfg
-    sorry
--/
-
-/-
-instance {β : Type*} : PartialOrder (α →. β) := PartialOrder.ofSetLike _ _
---instance {β : Type*} : SupSet (α →. β) := by apply
--/
 instance {β : Type*} : PartialOrder (α →. β) := PartialOrder.lift PFun.graph' PFun.graph'_injective
 
 theorem PFun.le_iff {β : Type*} {f g : α →. β} :  f ≤ g ↔ f.graph' ≤ g.graph' := by rfl
@@ -265,11 +243,6 @@ theorem PFun.le_sSup {β : Type*} {fs : Set (α →. β)} (h : IsChain (· ≤ �
   · rw [le_iff'] at h
     exact Part.mem_unique hf' (h a _ hg')
 
-/-
-theorem PFun.Dom_sSup {β : Type*} {Ts : Set (α →. β)} : (sSup Ts).Dom = ⋃₀ (PFun.Dom '' Ts) := by
-  sorry
--/
-
 theorem PFun.mem_dom_of_mem {β : Type*} {f : α →. β} {a : α} {b : β} (h : b ∈ f a) : a ∈ f.Dom := by
   aesop
 
@@ -280,8 +253,6 @@ theorem PFun.exists_fn_of_fn_sSup {β : Type*} {fs : Set (α →. β)} (h : IsCh
   use f, hf, mem_dom_of_mem hf'
   symm
   apply fn_apply_eq_fn_apply_of_le (le_sSup h hf)
-
---#check Monotone
 
 open Classical in
 noncomputable def PFun.insert {β : Type*} (f : α →. β) (a : α) (b : β) : α →. β :=
@@ -327,7 +298,6 @@ theorem PFun.Monotone.Monotone [Preorder α] {β : Type*} [Preorder β] {f : α 
   apply hf
   simpa
 
-
 theorem PFun.Monotone.insert [Preorder α] {β : Type*} [Preorder β] {f : α →. β}
   (hf : PFun.Monotone f) {a : α} {b : β}
   (hb : ∀ x ≤ a, ∀ (hx : x ∈ f.Dom), f.fn x hx ≤ b)
@@ -351,32 +321,10 @@ theorem PFun.Monotone.insert [Preorder α] {β : Type*} [Preorder β] {f : α �
       apply hf
       exact hxy
 
-
-
-/-
-noncomputable instance {β : Type*} : CompleteSemilatticeSup (α →. β) where
-  le_sSup s a hs := sorry
-  sSup_le b hb := sorry
--/
-
 --TODO: move
 instance TopologicalSpace.SeparableSpace.subtype {X : Type*} [TopologicalSpace X] [SeparableSpace X]
     [PseudoMetrizableSpace X] {s : Set X} : SeparableSpace ↑s :=
   (IsSeparable.of_separableSpace s).separableSpace
-
-/-
-instance [TopologicalSpace α] [Preorder α] [OrderTopology α] {p : α → Prop} : OrderTopology (Subtype p) := by
-  constructor
-  refine Eq.symm (TopologicalSpace.ext ?_)
-  unfold IsOpen TopologicalSpace.IsOpen instTopologicalSpaceSubtype
-  sorry
--/
-  --refine Eq.symm ((fun {X} {t t'} ↦ TopologicalSpace.ext_iff.mpr) ?_)
-  /-
-  have this : Continuous fun p : Subtype p × Subtype p => ((p.fst : α), (p.snd : α)) :=
-    continuous_subtype_val.prodMap continuous_subtype_val
-  OrderClosedTopology.mk (t.isClosed_le'.preimage this)
-  -/
 
 --TODO: move
 instance ClosedIicTopology.subtype [TopologicalSpace α] [Preorder α] [ClosedIicTopology α] {p : α → Prop} :
@@ -405,22 +353,6 @@ instance instIsCountablyGenerated_atTop [TopologicalSpace α] [LinearOrder α] [
 instance instIsCountablyGenerated_atBot [TopologicalSpace α] [LinearOrder α] [ClosedIciTopology α] [SeparableSpace α] :
     IsCountablyGenerated (atBot : Filter α) :=
   @NoAtoms'.instIsCountablyGenerated_atTop αᵒᵈ _ _ _ _
-
-/-
---TODO: move
-theorem Dense.ciSup' {γ : Type*} {α : Type*} [TopologicalSpace α] [ConditionallyCompleteLinearOrder α]
-  [ClosedIicTopology α] {f : γ → α} [TopologicalSpace γ] {S : Set γ} (hS : Dense S) (hf : Continuous f) {x : γ} :
-    ⨆ (s : S) (hs : s ≤ x), ↑s = ⨆ i, f i := by
-  sorry
--/
-
-/-
-theorem ENNReal.induction {p : ENNReal → Prop} (h_bot : p ⊥) (h_top : p ⊤)
-  (h_iSup : ∀ t, p (⨆ (x ≤ t) (hx : p x), x)) (h_iInf : ∀ t, p (⨅ (x ≥ t) (hx : p x), x))
-  (h_between : ∀ x y, p x → p y → ∃ z, x < z ∧ z < y ∧ p z) :
-    ∀ x, p x := by
-  sorry
--/
 
 protected theorem iInter_of_monotone_of_frequently
     {ι : Type*} [Preorder ι] [(atBot : Filter ι).IsCountablyGenerated] {s : ι → Set α}
@@ -455,7 +387,7 @@ theorem exists_measurable_sets_measure_eq :
         unfold Γ at hfΓ
         have hgΓ := hTs hg
         unfold Γ at hgΓ
-        simp only [mem_setOf_eq] at hfΓ hgΓ --PFun.mem_dom, PFun.fn_apply, forall_exists_index,
+        simp only [mem_setOf_eq] at hfΓ hgΓ
         rw [h, h']
         by_cases! hfg : f = g
         · simp only [hfg]
@@ -463,16 +395,14 @@ theorem exists_measurable_sets_measure_eq :
           exact hgΓ.1 _ _ hxy
         rcases hTs' hf hg hfg with h | h
         · rw [PFun.fn_apply_eq_fn_apply_of_le h hfx]
-          --have hxy : (⟨x.1, PFun.Dom_mono h hfx⟩ : g.Dom) ≤ ⟨y.1, hgy⟩ := by simpa
           exact hgΓ.1 _ _ hxy
         · rw [PFun.fn_apply_eq_fn_apply_of_le h hgy]
-          --have hxy : (⟨x.1, hfx⟩ : f.Dom) ≤ ⟨y.1, PFun.Dom_mono h hgy⟩ := by simpa
           exact hfΓ.1 _ _ hxy
       · intro x T hT
         rcases PFun.exists_fn_of_fn_sSup hTs' (PFun.mem_dom_of_mem hT) with ⟨f, hf, hfx, h⟩
         have hfΓ := hTs hf
         unfold Γ at hfΓ
-        simp only [mem_setOf_eq] at hfΓ --PFun.mem_dom, PFun.fn_apply, forall_exists_index,
+        simp only [mem_setOf_eq] at hfΓ
         rw [h]
         use (hfΓ.2 x hfx).1, (hfΓ.2 x hfx).2
     · intro f hf
@@ -496,7 +426,6 @@ theorem exists_measurable_sets_measure_eq :
     exact PFun.lt_insert S_maximal
   have S_total : ∀ x, x ∈ S.Dom := by
     intro x
-    --let dom := S.Dom
     let s := ⋃ (y : S.Dom) (hyx : y ≤ x), S.fn y y.2
     let t := ⋂ (y : S.Dom) (hyx : y ≥ x), S.fn y y.2
     let s_helper := S.Dom ∩ (Set.Iic x)

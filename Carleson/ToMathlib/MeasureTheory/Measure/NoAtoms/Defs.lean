@@ -9,6 +9,7 @@ module
 public import Mathlib.MeasureTheory.Measure.Restrict
 public import Mathlib.Topology.DiscreteSubset
 public import Mathlib.MeasureTheory.Measure.Typeclasses.NullSingletonClass
+public import Mathlib.MeasureTheory.Measure.Typeclasses.SFinite
 
 /-!
 # Measures having no atoms
@@ -91,7 +92,6 @@ theorem exists_measurable_subset_lt₀ {s : Set α} (meas_s : NullMeasurableSet 
   rcases exists_measurable_subset_lt hr hs with ⟨t, hts, ht⟩
   use t, hts.trans hrs
 
---TODO: do we really need `MeasurableSingletonClass`?
 instance instNullSingletonClass [MeasurableSingletonClass (NullMeasurableSpace α μ)] :
     NullSingletonClass μ where
   measure_singleton := by
@@ -106,12 +106,32 @@ instance instNullSingletonClass [MeasurableSingletonClass (NullMeasurableSpace �
     · rw [h] at ht'
       simp at ht'
 
---TODO: add version with SFinite assumption; maybe prove from common lemma?
+--TODO: Do we really need `SigmaFinite μ` or is `SFinite μ` sufficient?
+instance instNullSingletonClass' [SigmaFinite μ] :
+    NullSingletonClass μ where
+  measure_singleton := by
+    intro x
+    by_contra! hx
+    rw [← ENNReal.bot_eq_zero, ← bot_lt_iff_ne_bot] at hx
+    set y := toMeasurable μ {x}
+    rw [← measure_toMeasurable] at hx
+    have : IsAtom y μ := by
+      use hx
+      intro t hty meas_t
+      rw [← inter_eq_right.mpr hty, measure_toMeasurable_inter meas_t measure_singleton_lt_top.ne]
+      by_cases hxt : x ∈ t
+      · right
+        rw [inter_eq_left.mpr (by simpa), measure_toMeasurable]
+      · left
+        rw [singleton_inter_eq_empty.mpr hxt, measure_empty]
+    exact no_atoms _ (measurableSet_toMeasurable _ _) this
 
---TODO: quick sketch of counterexample(s)
+/- TODO: add sketch of counterexample(s) showing that we really need
+   `MeasurableSingletonClass (NullMeasurableSpace α μ)` resp. `SigmaFinite μ`
+-/
 
---Attempt to get rid of measurability assumption for singletons
-instance instNullSingletonClass' :
+/-
+instance instNullSingletonClass'' :
     NullSingletonClass μ where
   measure_singleton := by
     intro x
@@ -134,6 +154,7 @@ instance instNullSingletonClass' :
         simp at this
       sorry --TODO: not sure whether this is true
     exact no_atoms s meas_s this
+-/
 
 lemma restrict (s : Set α) (hs : NullMeasurableSet s μ) :
     NoAtoms' (μ.restrict s) := by
