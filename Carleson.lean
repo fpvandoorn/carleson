@@ -95,8 +95,8 @@ public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
 public import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 public import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Defs
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Basics
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Defs
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Metric
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Prod
 public import Carleson.ToMathlib.MeasureTheory.Measure.Prod
