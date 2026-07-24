@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2017 Johannes Hölzl. All rights reserved.
+Copyright (c) 2026 Leo Diedering. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Johannes Hölzl, Mario Carneiro
+Authors: Leo Diedering
 -/
 module
 
@@ -9,16 +9,6 @@ public import Carleson.ToMathlib.NoAtoms
 public import Mathlib.MeasureTheory.VectorMeasure.Basic
 public import Mathlib.Data.PFun
 public import Mathlib.Analysis.Convex.Basic
-
-/-!
-# Measures having no atoms
-
-A measure `μ` has no atoms if the measure of each singleton is zero.
-
-## TODO
-
-Should `NoAtoms` be redefined as `∀ s, 0 < μ s → ∃ t ⊆ s, 0 < μ t ∧ μ t < μ s`?
--/
 
 @[expose] public section
 
