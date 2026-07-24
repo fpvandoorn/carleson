@@ -5,11 +5,9 @@ Authors: Leo Diedering
 -/
 module
 
-public import Carleson.ToMathlib.NoAtoms
-public import Carleson.ToMathlib.MeasureTheory.Integral.Layercake
-public import Carleson.ToMathlib.NoAtomsProd
 public import Carleson.ToMathlib.NoAtomsBasics
 public import Mathlib.MeasureTheory.Constructions.UnitInterval
+public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 
 public section
 
@@ -17,29 +15,17 @@ namespace MeasureTheory
 
 open Set Measure Filter TopologicalSpace ENNReal
 
---variable {α : Type*} {m0 : MeasurableSpace α}
-
 namespace NoAtoms'
 
-#check IsPreconnected.intermediate_value₂_eventually₂
-
-#check IsPreconnected.intermediate_value_Iic
-
-#check Monotone.continuousAt_iff_leftLim_eq_rightLim
-
-#check IntegrableOn.continuousOn_Iic_primitive_Iic
-
-#check Metric.iUnion_inter_closedBall_nat
-
-lemma of_metric {α : Type*} [MeasurableSpace α] [PseudoMetricSpace α] {μ : Measure α} :
-    NoAtoms' (@volume ℝ _) := by
+--TODO: should we use `Nonempty α` or rather `Inhabited α` ?
+lemma of_metric {α : Type*} [ne : Nonempty α] [PseudoMetricSpace α] [ProperSpace α]
+  [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [IsFiniteMeasureOnCompacts μ]
+  (hμ : ∀ r, μ (Metric.closedBall ne.some r) = μ (Metric.ball ne.some r)) :
+    NoAtoms' μ := by
   rw [no_atoms_iff]
   intro s meas_s hs
-  /-
-  wlog s_ne_top : volume s ≠ ⊤
-  · sorry
-  -/
-  set f := fun r ↦ volume ((Metric.ball 0 r) ∩ s)
+  let c := ne.some
+  set f := fun r ↦ μ ((Metric.ball c r) ∩ s)
   have hf : Monotone f := by
     intro a b hab
     apply measure_mono
@@ -50,8 +36,7 @@ lemma of_metric {α : Type*} [MeasurableSpace α] [PseudoMetricSpace α] {μ : M
     rw [← iSup_subtype'', ← Monotone.measure_iUnion]
     · rw [← iUnion_inter]
       congr with y
-      simp only [iUnion_coe_set, mem_Iio, mem_iUnion, Metric.mem_ball, dist_zero_right,
-        Real.norm_eq_abs, exists_prop]
+      simp only [iUnion_coe_set, mem_Iio, mem_iUnion, Metric.mem_ball, exists_prop]
       constructor
       · grind
       · intro h
@@ -67,30 +52,30 @@ lemma of_metric {α : Type*} [MeasurableSpace α] [PseudoMetricSpace α] {μ : M
     · rw [← iInter_inter]
       apply measure_congr
       apply ae_eq_set_inter _ (by rfl)
-      have : ⋂ (i : Ioi x), Metric.ball (0 : ℝ) i = Metric.closedBall 0 x := by
+      have : ⋂ (i : Ioi x), Metric.ball c i = Metric.closedBall c x := by
         ext y
-        simp only [iInter_coe_set, mem_Ioi, mem_iInter, Metric.mem_ball, dist_zero_right,
-          Real.norm_eq_abs, Metric.mem_closedBall]
+        simp only [iInter_coe_set, mem_Ioi, mem_iInter, Metric.mem_ball, Metric.mem_closedBall]
         exact forall_gt_iff_le
       rw [this]
-      sorry --TODO: add assumption for this
+      symm
+      exact ae_eq_of_subset_of_measure_ge Metric.ball_subset_closedBall (by rw [hμ])
+        measurableSet_ball.nullMeasurableSet measure_closedBall_lt_top.ne
     · intro a b hab
-      apply inter_subset_inter_left
-      exact Metric.ball_subset_ball (by simpa)
+      exact inter_subset_inter_left _ (Metric.ball_subset_ball (by simpa))
     · measurability
-    · sorry --TODO: assumption for this
-  have iSup_f : ⨆ r, f r = volume s := by
+    · rcases exists_gt x with ⟨r, hr⟩
+      use ⟨r, hr⟩, measure_inter_ne_top_of_left_ne_top measure_ball_ne_top
+  have iSup_f : ⨆ r, f r = μ s := by
     rw [← Monotone.measure_iUnion]
     · rw [← iUnion_inter]
       congr
       rw [iUnion_eq_univ_iff.mpr, univ_inter]
-      simp only [Metric.mem_ball, dist_zero_right, Real.norm_eq_abs]
+      simp only [Metric.mem_ball]
       intro x
-      exact exists_gt |x|
+      exact exists_gt _
     · intro a b hab
-      apply inter_subset_inter_left
-      exact Metric.ball_subset_ball hab
-  have : Ico (f 0) (volume s) ⊆ f '' (Ici 0) := by
+      exact inter_subset_inter_left _ (Metric.ball_subset_ball hab)
+  have : Ico (f 0) (μ s) ⊆ f '' (Ici 0) := by
     have ha : (0 : ℝ) ∈ Ici 0 := by simp
     have hl : atTop (α := ℝ) ≤ 𝓟 (Ici 0) := le_principal_iff.mpr (Ici_mem_atTop 0)
     apply IsPreconnected.intermediate_value_Ico isPreconnected_Ici ha hl
@@ -116,10 +101,19 @@ lemma of_metric {α : Type*} [MeasurableSpace α] [PseudoMetricSpace α] {μ : M
     aesop
   rcases this with ⟨r, _, hr⟩
   rw [← hr] at hμt hμts
-  use Metric.ball 0 r ∩ s, inter_subset_right, measurableSet_ball.inter meas_s
+  use Metric.ball c r ∩ s, inter_subset_right, measurableSet_ball.inter meas_s
 
-instance : NoAtoms' (@volume ℝ _) := by
-  sorry
+instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
+    [FiniteDimensional ℝ E] (μ : Measure E) [μ.IsAddHaarMeasure] [Nontrivial E] : NoAtoms' μ := by
+  apply of_metric
+  apply addHaar_closedBall_eq_addHaar_ball
+
+--TODO: Prove more general result, possibly using this :
+--https://math.stackexchange.com/questions/3881683/does-mu-x-0-imply-non-atomic-for-radon-measure
+--#check MeasureTheory.Measure.IsAddHaarMeasure.noAtoms
+--#check MeasureTheory.Measure.prod.instNoAtoms_snd
+
+instance : NoAtoms' (volume : Measure unitInterval) := subtype measurableSet_Icc
 
 end NoAtoms'
 

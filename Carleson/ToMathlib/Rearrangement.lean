@@ -2,8 +2,7 @@ module
 
 public import Carleson.ToMathlib.MeasureTheory.Integral.Layercake
 public import Carleson.ToMathlib.NoAtomsProd
-public import Carleson.ToMathlib.NoAtomsBasics
-public import Mathlib.MeasureTheory.Constructions.UnitInterval
+public import Carleson.ToMathlib.NoAtomsReal
 
 @[expose] public section
 
@@ -1154,7 +1153,6 @@ lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral [SigmaFinite μ
   wlog na : NoAtoms' μ
   · -- This is a nice trick to get rid of the `NoAtoms` assumption
     let ν := @volume unitInterval
-    have hν : NoAtoms' ν := sorry
     simp_rw [rearrangement_eq_rearrangement_prod (ν := ν) (f := f),
             rearrangement_eq_rearrangement_prod (ν := ν) (f := g),
             rearrangement_eq_rearrangement_prod (ν := ν) (f := f + g)]
@@ -1163,10 +1161,6 @@ lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral [SigmaFinite μ
       ext x
       simp
     rw [h]
-    --TODO: prove something along these lines :
-    --https://math.stackexchange.com/questions/3881683/does-mu-x-0-imply-non-atomic-for-radon-measure
-    --#check MeasureTheory.Measure.IsAddHaarMeasure.noAtoms
-    --#check MeasureTheory.Measure.prod.instNoAtoms_snd
     have na : NoAtoms' (μ.prod ν) := by infer_instance
     exact this hf.comp_fst hg.comp_fst na
   rw [lintegral_rearrangement_eq_and (hf.add hg), lintegral_rearrangement_eq_and hf, lintegral_rearrangement_eq_and hg]
