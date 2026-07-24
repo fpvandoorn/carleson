@@ -1418,10 +1418,12 @@ since it is better behaved w.r.t.\ multiplication and composition.
 \subsection{Common pitfalls}\label{subsec:pitfalls}
 
 In this project, we encountered several cases of mathematically equivalent representations, and an initially non-obvious choice of the right formalization representation. One such case was of integrating on a set, i.e.\ with respect to a restricted measure, versus integrating an indicator function.
-While \mathlib allows converting between using the lemmas \lean{integral_indicator}\href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/MeasureTheory/Integral/Bochner/Set.html#MeasureTheory.integral_indicator}{\extlink} resp. \lean{lintegral_indicator}\href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/MeasureTheory/Integral/Lebesgue/Basic.html#MeasureTheory.lintegral_indicator}{\extlink},
-the former is generally preferred: both forms are equivalent when the set in question is measurable,
-but \lean{s.indicator f}\href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/Algebra/Notation/Indicator.html#Set.indicator}{\extlink} is only measurable when the set \lean{s} is measurable.
-In comparison, if \lean{f} is measurable, its restriction \lean{s.restrict f} to \lean{s} is always measurable, without any measurability hypotheses on \lean{s}.
+Both forms are equivalent when the set in question is measurable,\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Integral/Lebesgue/Basic.lean#L496-L503}{\extlink}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Integral/Bochner/Set.lean#L170-L183}{\extlink}
+but the form using a restricted measure is preferred.
+The reason is that \lean{s.indicator f}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Algebra/Notation/Indicator.lean#L51-L51}{\extlink}
+is generally only measurable when the set \lean{s} is measurable,
+while if \lean{f} is measurable with respect to the measure \lean{μ}, then it is unconditionally
+measurable with respect to \lean{μ.restrict s}.\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Function/StronglyMeasurable/AEStronglyMeasurable.lean#L220-L223}{\extlink}
 
 Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
 Again, in different context the existing \mathlib API was more suitable for working with one of the two versions. It is still work in progress to extend \mathlib with API for the other version where no version is naturally favorable, to reduce the overall number of conversions.
