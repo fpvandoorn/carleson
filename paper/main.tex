@@ -300,9 +300,9 @@ Dennis Tsar,
 Andrew Yang, and
 Ruben van de Velde.
 
-L.B., M.I.d.F.F., L.D., F.v.D., M.R. were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
-L.B. was also supported by SFB 1060.
-J.R. was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the Fall 2024 trimester program in Bonn.
+L.B., M.I.d.F.F., L.D., F.v.D., M.R.\ were funded by the Deutsche For\-schungs\-gemein\-schaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
+L.B.\ was also supported by SFB 1060.
+J.R.\ was supported in part by NSF grant DMS-2154835 and a HIM fellowship for the Fall 2024 trimester program in Bonn.
 
 \section{The Metric Space Carleson theorem}\label{sec:main_thm}
 
@@ -335,21 +335,21 @@ For all $x\in X$ and all $R>0$ we have
 where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ centered at $x$.
 \end{definition}
 
-The proof of the metric space Carleson theorem relies on several tools from real analysis, including the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Its statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g. \cite{vanDoornFormalizedHaarMeasure} for an overview).
+The proof of the metric space Carleson theorem relies on several tools from real analysis, including the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Its statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g.\ \cite{vanDoornFormalizedHaarMeasure} for an overview).
 For a function $f$ on a measure space $(X,\mu)$ taking values in some space $E$ endowed with an extended norm (see \ref{subsec:enorm}), we define its \emph{$L^p$-norm}\href{https://github.com/leanprover-community/mathlib4/blob/5a0753dc725610d074b177e4677000ee96165b8e/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L83-L87}{\extlink} to be
 \begin{equation*}
   \|f\|_{L^{p}} \coloneq \big(\int_X\|f(x)\|^p\, d\mu(x)\big) ^ \frac{1}{p}
 \end{equation*}
-for $0<p<\infty$. For $p=\infty$, $\|f\|_{L^{p}}$ is the essential supremum of $f$, i.e. the least value $t$ such that
-$\mu\{x\in X : t < |f(x)| \}=0$. Similarly, we define the \emph{weak $L^p$-norm}\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L37}{\extlink} as
+for $0<p<\infty$. For $p=\infty$, the norm $\|f\|_{L^{p}}$ is the essential supremum of $f$, i.e.\ the least value $t$ such that
+$\mu\{x\in X \mid t < |f(x)| \}=0$. Similarly, we define the \emph{weak $L^p$-norm}\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L37}{\extlink} as
 \begin{equation*}
-  \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X : t < |f(x)| \}) ^ \frac{1}{p}
+  \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X \mid t < |f(x)| \}) ^ \frac{1}{p}
 \end{equation*}
 for $0<p<\infty$, and $\|f\|_{L^{\infty,\infty}} \coloneq \|f\|_{L^{\infty}}$.
-The function $f$ is said to be in weak $L^p$\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L285}{\extlink} if $f$ is $\mu$-a.e. strongly measurable with respect to a fixed topology on $E$ (see e.g. \cite{GouezelChangeOfVariables} for motivation of the different notions of measurability in \mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
+The function $f$ is said to be in weak $L^p$\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L285}{\extlink} if $f$ is $\mu$-a.e.\ strongly measurable with respect to a fixed topology on $E$ (see e.g.\ \cite{GouezelChangeOfVariables} for motivation of the different notions of measurability in \mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
 An important consequence is that if $f$ is in weak $L^p$, then $|f|$ is finite almost everywhere.\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L302}{\extlink}
 
-Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T : (X \to E) \to (Y \to F)$ is \emph{of weak type $(p,p')$}\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L419}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e. strongly measurable and
+Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T\colon (X \to E) \to (Y \to F)$ is \emph{of weak type $(p,p')$}\href{https://github.com/fpvandoorn/carleson/blob/a73d875b95d17f80c6b94f03191951e39f190bc7/Carleson/ToMathlib/WeakType.lean#L419}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
 \begin{equation}
   \|T f\|_{L^{p',\infty}} \le C \cdot \|f\|_{L^p}.
 \end{equation}
@@ -611,7 +611,7 @@ where for $s \in \mathbb{Z}, K_s(x,y) = K(x,y)\psi(D^{-s}\rho(x,y))$.
 
 To reduce this finitary version of the Carleson theorem to the discrete version, we make divisions in both the spatial and frequency domains. The spatial discretization will be achieved by a \emph{grid structure}, after which a subordinate frequency discretization is encoded by a \emph{tile structure}.
 
-A grid structure on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of so-called dyadic cubes, a function $c : \mathcal{D} \to X$ called the center function, and a surjective function $s : \mathcal{D} \to [-S, S]$ called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary} below. Here, a dyadic cube is just a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$.
+A grid structure on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of so-called dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$ called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary} below. Here, a dyadic cube is just a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$.
 
 The conditions that the objects in a grid structure satisfy are as follows.
 \begin{enumerate}[label=\roman*.]
@@ -636,11 +636,11 @@ The conditions that the objects in a grid structure satisfy are as follows.
 \item \label{it:eq-small-boundary} For every dyadic cube $I$ and every $t$ with $t D^{s(I)} \geq D^{-S}$, the boundary of $I$ is small in the sense that
 \begin{equation}
     \label{eq-small-boundary}
-    \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I)\,.
+    \mu(\{x \in I \mid \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I)\,.
 \end{equation}
 \end{enumerate}
 
-We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a tile structure\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc : \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc : \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc : \fP \to X$ and $\ps : \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
+We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a tile structure\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc\colon \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc\colon \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc\colon \fP \to X$ and $\ps\colon \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
 
 \begin{enumerate}[label=\roman*.]
 % note: todo: JP: as also the lean code says, this seems superfluous so I'm removing it from the list
@@ -664,7 +664,7 @@ We now further subdivide in the frequency domain, intuitively partitioning for e
 \end{equation}
 where
 \begin{equation}
-    B_{\fp} (\mfa, R) := \{\mfb \in \Mf \, : \, d_{\fp}(\mfa, \mfb) < R\,\} ,
+    B_{\fp} (\mfa, R) := \{\mfb \in \Mf \mid d_{\fp}(\mfa, \mfb) < R\,\} ,
 \end{equation}
 with
 \begin{equation}\label{defdp}
@@ -717,7 +717,7 @@ In each class in the final classification, we mark certain tiles as so-called \e
 Then we eliminate 5 separate subclasses of tiles from the class.
 Four of these subclasses are antichains with respect to the aforementioned order on the tiles.
 The main result of Section 6 of the blueprint gives good bounds for the
-Carleson operator on an antichain $\mathfrak{A}\subseteq\fP$, i.e. for the operator
+Carleson operator on an antichain $\mathfrak{A}\subseteq\fP$, i.e.\ for the operator
 $$\sum_{\fp\in\mathfrak{A}}T_{\fp}.$$
 The fifth subclass is small, and we can choose $G'$
 so that it contains $\scI(\fp)$ for all tiles $\fp$ in this subclass.
@@ -858,7 +858,7 @@ def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → 
   $\sqcup$ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
 \end{lstlisting}
 
-The statement of the \lean{linearized_metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Linearized.lean#L109}{\extlink} theorem (Theorem \ref{linearized-metric-Carleson}) should now be easy to parse. It requires an extra input in the form of a Borel function $Q : X \to \Theta$ with finite range, and its conclusion involves the
+The statement of the \lean{linearized_metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Linearized.lean#L109}{\extlink} theorem (Theorem \ref{linearized-metric-Carleson}) should now be easy to parse. It requires an extra input in the form of a Borel function $Q\colon X \to \Theta$ with finite range, and its conclusion involves the
 \lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink} $T_Q$. The hypothesis \lean{hT} encodes equation (\ref{linnontanbound}), written in terms of the
 \lean{linearizedNontangentialOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L194}{\extlink}.
 \begin{lstlisting}[mathescape]
@@ -889,7 +889,7 @@ We have also verified the classical Carleson theorem (Theorem~\ref{classical-car
 \section{Project organization}\label{sec:org}
 
 Planning for the Carleson project started in Fall 2023 by
-F.v.D. and the harmonic analysis group in Bonn,
+F.v.D.\ and the harmonic analysis group in Bonn,
 consisting of L.B., Christoph Thiele and Rajula Srivastava.
 At that time, L.B., Asgar Jamneshan, Rajula Srivastava and Christoph Thiele had written a 30-page proof of Theorem \ref{metric-space-Carleson}, which turned into the preprint \cite{ThieleCarlesonPreprint}.
 While the proof was precise and written with a lot of care,
@@ -908,7 +908,7 @@ and is not necessary for formalizing the proof of a single lemma.
 
 The proof in the blueprint was divided into 179 lemmas.
 To prepare for the collaborative formalization effort,
-F.v.D. formalized the statements of most lemmas and the definitions referred to in them, which helped to ensure consistency across statements in the project. Since most contributors were only formalizing proofs, this also helped them to find the relevant definitions. To aid with this last point, specially for definitions only appearing inside proofs, we also manually maintained a table
+F.v.D.\ formalized the statements of most lemmas and the definitions referred to in them, which helped to ensure consistency across statements in the project. Since most contributors were only formalizing proofs, this also helped them to find the relevant definitions. To aid with this last point, specially for definitions only appearing inside proofs, we also manually maintained a table
 that recorded the correspondence between notation and definitions in the blueprint on one side,
 and Lean notation and declarations on the other.
 
@@ -953,7 +953,7 @@ prior to contributing to the Carleson project.
 When the project was finished, it comprised 35.6k lines of code (excluding blank lines and comments), of which 9.6k were in the \texttt{ToMathlib} subfolder (using commit \texttt{\href{https://github.com/fpvandoorn/carleson/tree/32c2adc411c5c274ed8f19aa8041157e394fa38a}{32c2adc4}}).
 
 % maybe mention in "Lessons Learned":
-% Because F.v.D. formalized most lemma statements, but much fewer proofs, there were a few cases that a lemma was stated suboptimally, but this was not immediately caught when the proof was formalized. Example: \lean{MemLp (s.indicator f) p \mu} instead of \lean{MemLp f p (\mu.restrict s)}
+% Because F.v.D.\ formalized most lemma statements, but much fewer proofs, there were a few cases that a lemma was stated suboptimally, but this was not immediately caught when the proof was formalized. Example: \lean{MemLp (s.indicator f) p \mu} instead of \lean{MemLp f p (\mu.restrict s)}
 
 \section{Working with a blueprint}\label{sec:blueprint}
 \subsection{The blueprint writing process}\label{subsec:blueprint_writing}
@@ -1056,7 +1056,7 @@ we have formalized a more general argument that is also conceptually clearer: fo
 \begin{theorem}[real interpolation theorem]
     Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces, let $E$ be a topological space with the structure of an additive monoid endowed with a compatible continuous extended seminorm, let $F$ be a topological space with a continuous extended norm function.
     Let $p_0, p_1, q_0, q_1, p, q \in \ennreal$ such that $p_0 \in (0,q_0], p_1 \in (0,q_1], q_0 \ne q_1$ and there exists $t \in (0,1)$ such that $\frac{1}{p} = \frac{1-t}{p_0} + \frac{t}{p_1}$ and $\frac{1}{q} = \frac{1-t}{q_0} + \frac{t}{q_1}$.
-    Let $T : (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^p_0(X; E) \cup L^p_1(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e. $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e. strongly measurable.
+    Let $T\colon (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^p_0(X; E) \cup L^p_1(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e.\ $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e.\ strongly measurable.
 
     Then, if $T$ has both weak type $(p_0, q_0)$ and weak type $(p_1, q_1)$, $T$ has strong type $(p,q)$.
 \end{theorem}
@@ -1171,7 +1171,7 @@ meant that definitions were absent from the dependency graph. This was specially
 
 \section{Design decisions}\label{sec:design}
 \subsection{Treatment of constants}\label{subsec:constants}
-In analysis papers, one often needs to compare the growth of two functions $f, g : X \to Y$, where $X, Y$ are real or complex normed vector spaces. This is often expressed by statements of the form
+In analysis papers, one often needs to compare the growth of two functions $f, g\colon X \to Y$, where $X, Y$ are real or complex normed vector spaces. This is often expressed by statements of the form
 \begin{align}\label{eq:const}
 	\exists C > 0, \forall x \in X, \| f (x) \| \le C\|g(x)\|.
 \end{align}
@@ -1302,7 +1302,7 @@ For real numbers, computations are much easier to perform, using the \texttt{lin
 For terms in $\nnreal$, support in \texttt{linarith} was only added after this project was completed.\footnote{\url{https://github.com/leanprover-community/mathlib4/pull/35155}}
 Neither \texttt{linarith} nor \texttt{field\_simp} support terms in $\ennreal$.
 The tactic \texttt{ring} \emph{does} work for these types, but not as well, and the performance for terms in $\ennreal$ is even worse than for terms in $\nnreal$.
-For both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs properties of subtraction: it even fails to prove that $x - x = 0$. If $x : \nnreal$, the \texttt{ring} tactic can prove that $(x^{-1})^2 = (x ^ 2)^{-1}$, or that $3 / x = 3 x^{-1}$, but it fails if $x : \ennreal$.
+For both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs properties of subtraction: it even fails to prove that $x - x = 0$. If $x\colon \nnreal$, the \texttt{ring} tactic can prove that $(x^{-1})^2 = (x ^ 2)^{-1}$, or that $3 / x = 3 x^{-1}$, but it fails if $x\colon \ennreal$.
 Similarly \texttt{norm\_num} also works for numbers in $\ennreal$, but again not as well as for real numbers,
 as even with the necessary side conditions it would not simplify a term of the form $a / a$. Both \texttt{ring} and \texttt{norm\_num} fail to solve $(3/5) * (5/3) = 1$ when these numbers are viewed as numbers in $\ennreal$.
 
@@ -1504,7 +1504,7 @@ and in particular to discuss potential inaccuracies within the blueprint proofs.
 To make this more efficient, we would ask one of the topic experts
 (in our case, an expert in harmonic analysis)
 to frequently monitor this chat and respond to questions,
-instead of having F.v.D. as an intermediary between the remote formalizers and the harmonic analysis experts.
+instead of having F.v.D.\ as an intermediary between the remote formalizers and the harmonic analysis experts.
 
 We would also modify some aspects of the blueprint for the formalization.
 We would use \LaTeX\ environments for the main definitions in the project,
