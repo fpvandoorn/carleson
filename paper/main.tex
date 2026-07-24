@@ -1462,8 +1462,9 @@ Both forms are equivalent when the set in question is measurable,\href{https://g
 but the form using a restricted measure is preferred.
 The reason is that \lean{s.indicator f}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Algebra/Notation/Indicator.lean#L51-L51}{\extlink}
 is generally only measurable when the set \lean{s} is measurable,
-while if \lean{f} is measurable with respect to the measure \lean{μ}, then it is unconditionally
-measurable with respect to \lean{μ.restrict s}.\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Function/StronglyMeasurable/AEStronglyMeasurable.lean#L220-L223}{\extlink}
+while if \lean{f} is measurable with respect to the measure $\mu$, then it is unconditionally
+% TeX note: \mu in math mode doesn't print nicely
+measurable with respect to $\mlean{\mu.restrict\;\; s}$\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Function/StronglyMeasurable/AEStronglyMeasurable.lean#L220-L223}{\extlink}.
 
 Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
 Again, in different context the existing \mathlib API was more suitable for working with one of the two versions. It is still work in progress to extend \mathlib with API for the other version where no version is naturally favorable, to reduce the overall number of conversions.
