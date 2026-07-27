@@ -18,18 +18,19 @@ noncomputable section
 -- mathlib) and improving the code quality. Follow mathlib style (line length!), can use dot
 -- notation more, and the code can sometimes also be golfed.
 
-variable {X E : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E]
+variable {X E ε : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E]
+  [ENorm ε]
   {μ : Measure X} [μ.IsDoubling A]
-  {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → E} {x : X}
+  {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → ε} {x : X}
 
 /-- The uncentered Hardy-Littlewood maximal function, for a family of balls. -/
 @[expose] public def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ) (p : ℝ)
-    (u : X → E) (x : X) : ℝ≥0∞ :=
+    (u : X → ε) (x : X) : ℝ≥0∞ :=
   ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
     fun _ ↦ (⨍⁻ y in ball (c i) (r i), ‖u y‖ₑ ^ p ∂μ) ^ p⁻¹
 
 /-- The uncentered Hardy-Littlewood maximal function. -/
-@[expose] public def globalMaximalFunction (μ : Measure X) (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
+@[expose] public def globalMaximalFunction (μ : Measure X) (p : ℝ) (u : X → ε) (x : X) : ℝ≥0∞ :=
   maximalFunction μ (univ (α := X × ℝ)) (·.fst) (·.snd) p u x
 
 /-- The average of the norm of a function over a particular ball is smaller than the value of the
@@ -56,6 +57,7 @@ lemma indicator_rpow {α : Type*} {p : ℝ} (hp : 0 < p) {s : Set α} {f : α �
     s.indicator (fun y ↦ f y ^ p) = (s.indicator f) ^ p :=
   indicator_comp_of_zero (g := fun a => a ^ p) (ENNReal.zero_rpow_of_pos hp)
 
+variable {u : X → E} in
 lemma maximalFunction_eq_maximalFunction_one_rpow (hp : 0 < p) :
     maximalFunction μ 𝓑 c r p u x = (maximalFunction μ 𝓑 c r 1 (‖u ·‖ ^ p) x) ^ p⁻¹ := by
   simp only [maximalFunction, indicator_rpow (inv_pos_of_pos hp),
@@ -80,6 +82,7 @@ private lemma T.add_le [MeasurableSpace E] [BorelSpace E]
 -- move to `ENNReal.Basic` or similar
 lemma NNReal.smul_ennreal_eq_mul (x : ℝ≥0) (y : ℝ≥0∞) : x • y = x * y := rfl
 
+variable {u : X → E} in
 private lemma T.smul [NormedSpace ℝ E] {c r} {i : ι} {d : ℝ≥0} :
     T μ c r i (d • u) = d • T μ c r i u := by
   simp [T, NNReal.smul_def, NNReal.smul_ennreal_eq_mul,
@@ -186,6 +189,7 @@ public theorem maximalFunction_one_le_eLpNormEssSup :
     _ ≤ eLpNormEssSup u μ := by
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
+variable {u : X → E} in
 theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
     maximalFunction μ 𝓑 c r p u x < ∞ := by
   rw [maximalFunction_eq_maximalFunction_one_rpow (by positivity)]
@@ -197,7 +201,7 @@ theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u
   refine lt_of_le_of_lt maximalFunction_one_le_eLpNormEssSup this.eLpNormEssSup_lt_top
 
 theorem hasStrongType_maximalFunction_top [BorelSpace X] :
-    HasStrongType (maximalFunction (E := E) μ 𝓑 c r 1) ⊤ ⊤ μ μ 1 := by
+    HasStrongType (maximalFunction (ε := E) μ 𝓑 c r 1) ⊤ ⊤ μ μ 1 := by
   intro f _
   use measurable_maximalFunction.aestronglyMeasurable
   simp only [one_mul, eLpNorm_exponent_top]
@@ -205,7 +209,7 @@ theorem hasStrongType_maximalFunction_top [BorelSpace X] :
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
 theorem hasWeakType_maximalFunction_one [BorelSpace X] [SeparableSpace X] :
-    HasWeakType (maximalFunction (E := E) μ 𝓑 c r 1) 1 1 μ μ (A ^ 2) := by
+    HasWeakType (maximalFunction (ε := E) μ 𝓑 c r 1) 1 1 μ μ (A ^ 2) := by
   intro f _
   use measurable_maximalFunction.aestronglyMeasurable
   let Bₗ (ℓ : ℝ≥0∞) := { (c, r) | ∫⁻ y in (ball c r), ‖f y‖ₑ ∂μ ≥ ℓ * μ (ball c r) }
@@ -230,7 +234,7 @@ theorem hasWeakType_maximalFunction_one [BorelSpace X] [SeparableSpace X] :
 theorem sublinearOn_maximalFunction_one
     [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] :
-    SublinearOn (maximalFunction (E := E) μ 𝓑 c r 1) (fun f ↦ AEMeasurable f μ) 1 := by
+    SublinearOn (maximalFunction (ε := E) μ 𝓑 c r 1) (fun f ↦ AEMeasurable f μ) 1 := by
   refine .iSup₂ fun i hi => .indicator _ ?_
   simp_rw [inv_one, ENNReal.rpow_one]
   exact SublinearOn.const (T μ c r i) _ (fun hf hg ↦ by exact T.add_le hf) (fun f d hf ↦ T.smul)
@@ -268,12 +272,12 @@ Use the real interpolation theorem instead of following the blueprint. -/
 public lemma hasStrongType_maximalFunction_one [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E]
     [BorelSpace E] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
     {p : ℝ≥0} (hp : 1 < p) :
-    HasStrongType (maximalFunction (E := E) μ 𝓑 c r 1) p p μ μ (CMB A p) := by
+    HasStrongType (maximalFunction (ε := E) μ 𝓑 c r 1) p p μ μ (CMB A p) := by
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; intro _ _; simp
   rw [CMB]
   refine exists_hasStrongType_real_interpolation
-    (T := maximalFunction (E := E) μ 𝓑 c r 1) (p := p) (q := p) (A := 1) (t := (↑p)⁻¹)
+    (T := maximalFunction (ε := E) μ 𝓑 c r 1) (p := p) (q := p) (A := 1) (t := (↑p)⁻¹)
     ⟨ENNReal.zero_lt_top, le_rfl⟩
     ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
@@ -292,7 +296,7 @@ public lemma hasStrongType_maximalFunction_one [BorelSpace X] [NormedSpace ℝ E
 public theorem hasStrongType_maximalFunction
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
-    HasStrongType (maximalFunction (E := E) μ 𝓑 c r p₁) p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
+    HasStrongType (maximalFunction (ε := E) μ 𝓑 c r p₁) p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; intro _ _; simp
   intro v mlpv
@@ -319,7 +323,7 @@ public theorem hasStrongType_maximalFunction
 
 theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpace X]
     {p : ℝ≥0} (hp : 0 < p) :
-    HasWeakType (maximalFunction (E := E) μ 𝓑 c r p) p p μ μ (A ^ ((2 / p : ℝ))) := by
+    HasWeakType (maximalFunction (ε := E) μ 𝓑 c r p) p p μ μ (A ^ ((2 / p : ℝ))) := by
   intro v mlpv
   constructor; · exact measurable_maximalFunction.aestronglyMeasurable
   have cp : 0 < (p : ℝ) := by positivity
