@@ -746,7 +746,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     apply add_le_add (cotlar_estimate ha hT hg ?hrR) (by rfl)
     case hrR => rw [mem_Ioc]; exact ⟨hr, hR.le⟩
   unfold pointwise
-  have hst_gmf : HasStrongType (globalMaximalFunction (X := X) (E := ℂ) volume 1) 2 2 _ _ _ :=
+  have hst_gmf : HasStrongType (globalMaximalFunction (X := X) (ε := ℂ) volume 1) 2 2 _ _ _ :=
     hasStrongType_maximalFunction (p₁ := 1) zero_lt_one one_lt_two
   norm_cast at hst_gmf
   have hst_gmf_g := hst_gmf g (hg.memLp 2)
@@ -758,9 +758,9 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   apply le_trans <| eLpNorm_add_le (by fun_prop) (by fun_prop) one_le_two
   apply le_trans <| add_le_add (eLpNorm_add_le (by fun_prop) (by fun_prop) one_le_two) (by rfl)
   rw [
-    show eLpNorm ((4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g)) 2 volume = ‖(4 : ℝ≥0)‖ₑ * eLpNorm (globalMaximalFunction volume 1 (czOperator K r g)) 2 volume from eLpNorm_const_smul',
-    show eLpNorm (C10_1_5 a • globalMaximalFunction volume 1 g) 2 volume = ‖C10_1_5 a‖ₑ * eLpNorm (globalMaximalFunction volume 1 g) 2 volume from eLpNorm_const_smul',
-    show eLpNorm (C10_1_2 a • globalMaximalFunction volume 1 g) 2 volume = ‖C10_1_2 a‖ₑ * eLpNorm (globalMaximalFunction volume 1 g) 2 volume from eLpNorm_const_smul',
+    show eLpNorm ((4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g)) 2 volume = ‖(4 : ℝ≥0)‖ₑ * eLpNorm (globalMaximalFunction volume 1 (czOperator K r g)) 2 volume from eLpNorm_const_smul' (ε' := ℝ≥0∞),
+    show eLpNorm (C10_1_5 a • globalMaximalFunction volume 1 g) 2 volume = ‖C10_1_5 a‖ₑ * eLpNorm (globalMaximalFunction volume 1 g) 2 volume from eLpNorm_const_smul' (ε' := ℝ≥0∞),
+    show eLpNorm (C10_1_2 a • globalMaximalFunction volume 1 g) 2 volume = ‖C10_1_2 a‖ₑ * eLpNorm (globalMaximalFunction volume 1 g) 2 volume from eLpNorm_const_smul' (ε' := ℝ≥0∞),
     enorm_NNReal, enorm_NNReal, enorm_NNReal, add_assoc, ← add_mul
   ]
   apply le_trans <| add_le_add
