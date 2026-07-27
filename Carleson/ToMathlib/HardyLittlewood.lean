@@ -273,17 +273,19 @@ public lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 
   norm_num
   ring
 
+variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε] [PseudoMetrizableSpace ε]
+  [MeasurableSpace ε] [BorelSpace ε] in
 /-- Special case of equation (2.0.44). The proof is given between (9.0.12) and (9.0.34).
 Use the real interpolation theorem instead of following the blueprint. -/
-public lemma hasStrongType_maximalFunction_one [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E]
-    [BorelSpace E] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
+public lemma hasStrongType_maximalFunction_one [BorelSpace X]
+    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
     {p : ℝ≥0} (hp : 1 < p) :
-    HasStrongType (maximalFunction (ε := E) μ 𝓑 c r 1) p p μ μ (CMB A p) := by
+    HasStrongType (maximalFunction (ε := ε) μ 𝓑 c r 1) p p μ μ (CMB A p) := by
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; intro _ _; simp
   rw [CMB]
   refine exists_hasStrongType_real_interpolation
-    (T := maximalFunction (ε := E) μ 𝓑 c r 1) (p := p) (q := p) (A := 1) (t := (↑p)⁻¹)
+    (T := maximalFunction (ε := ε) μ 𝓑 c r 1) (p := p) (q := p) (A := 1) (t := (↑p)⁻¹)
     ⟨ENNReal.zero_lt_top, le_rfl⟩
     ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
@@ -317,7 +319,7 @@ public theorem hasStrongType_maximalFunction
   calc
     _ ≤ (CMB A (p₂ / p₁) * eLpNorm (fun y ↦ ‖v y‖ ^ (p₁ : ℝ)) (p₂ / p₁) μ) ^ p₁.toReal⁻¹ := by
       apply ENNReal.rpow_le_rpow _ (by positivity)
-      convert (hasStrongType_maximalFunction_one (E := ℝ) (μ := μ) _ (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
+      convert (hasStrongType_maximalFunction_one (μ := μ) _ (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
       · rw [ENNReal.coe_div p₁n]
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
       · rw [ENNReal.coe_div p₁n]; exact mlpv.norm_rpow_div p₁
