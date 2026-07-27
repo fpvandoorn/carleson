@@ -65,6 +65,10 @@ lemma maximalFunction_eq_maximalFunction_one_rpow (hp : 0 < p) :
   congr! 8
   rw [Real.enorm_rpow_of_nonneg (by positivity) hp.le, enorm_norm]
 
+lemma maximalFunction_eq_maximalFunction_one_rpow' (hp : 0 < p) :
+    maximalFunction μ 𝓑 c r p u x = (maximalFunction μ 𝓑 c r 1 (‖u ·‖ₑ ^ p) x) ^ p⁻¹ := by
+  simp [maximalFunction, indicator_rpow (inv_pos_of_pos hp), iSup_rpow (inv_pos_of_pos hp)]
+
 -- The average that appears in the definition of `MB`
 variable (μ c r) in
 private def T (i : ι) (u : X → ε) := ⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖ₑ ∂μ
@@ -189,15 +193,16 @@ public theorem maximalFunction_one_le_eLpNormEssSup :
     _ ≤ eLpNormEssSup u μ := by
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
-variable {u : X → E} in
-theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
+variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] {u : X → ε} in
+theorem MeasureTheory.MemLp.maximalFunction_lt_top
+    (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
     maximalFunction μ 𝓑 c r p u x < ∞ := by
-  rw [maximalFunction_eq_maximalFunction_one_rpow (by positivity)]
+  rw [maximalFunction_eq_maximalFunction_one_rpow' (by positivity)]
   apply rpow_lt_top_of_nonneg (by positivity) (lt_top_iff_ne_top.mp _)
-  have : MemLp (fun x ↦ ‖u x‖ ^ p) ⊤ μ := by
+  have : MemLp (fun x ↦ ‖u x‖ₑ ^ p) ⊤ μ := by
     rw [← toReal_ofReal hp₁.le,
       show ∞ = ∞ / (ENNReal.ofReal p) from ENNReal.top_div_of_ne_top (by finiteness) |>.symm]
-    exact hu.norm_rpow_div _
+    exact hu.enorm_rpow_div _
   refine lt_of_le_of_lt maximalFunction_one_le_eLpNormEssSup this.eLpNormEssSup_lt_top
 
 theorem hasStrongType_maximalFunction_top [TopologicalSpace ε] [BorelSpace X] :
