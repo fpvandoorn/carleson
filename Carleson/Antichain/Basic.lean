@@ -240,7 +240,7 @@ namespace Lemma6_1_3
 variable (𝔄 : Set (𝔓 X)) {f g : X → ℂ}
 
 /-- The maximal function used in the proof of Lemma 6.1.3 -/
-def 𝓜 := maximalFunction (E := ℂ) volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) 1
+def 𝓜 := maximalFunction (ε := ℂ) volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) 1
 
 -- Define exponents used in the proof and collect some basic facts about them.
 section
@@ -274,7 +274,7 @@ lemma p_lt_two : p X < 2 := inv_lt_inv₀ (by norm_num) (p_pos X)
 end
 
 /-- The `p` maximal function used in the proof. -/
-def 𝓜p (p : ℝ) := maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) p.toNNReal (E := ℂ)
+def 𝓜p (p : ℝ) := maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8 * D ^ 𝔰 𝔭) p.toNNReal (ε := ℂ)
 
 /-- Maximal function bound needed in the proof -/
 lemma eLpNorm_𝓜p_le (hf : MemLp f 2) :

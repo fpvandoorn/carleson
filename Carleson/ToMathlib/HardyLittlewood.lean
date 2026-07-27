@@ -67,13 +67,14 @@ lemma maximalFunction_eq_maximalFunction_one_rpow (hp : 0 < p) :
 
 -- The average that appears in the definition of `MB`
 variable (μ c r) in
-private def T (i : ι) (u : X → E) := ⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖ₑ ∂μ
+private def T (i : ι) (u : X → ε) := ⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖ₑ ∂μ
 
 -- We replace the criterion `P` used in `MeasureTheory.AESublinearOn.maximalFunction` with the
 -- weaker criterion `AEMeasurable` that is closed under addition and scalar multiplication.
 
-private lemma T.add_le [MeasurableSpace E] [BorelSpace E]
-    {i} {f g : X → E} (hf : AEMeasurable f μ) :
+variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
+  [MeasurableSpace ε] [BorelSpace ε] in
+private lemma T.add_le {i} {f g : X → ε} (hf : AEMeasurable f μ) :
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
   simp only [T, Pi.add_apply, enorm_eq_self]
   rw [← laverage_add_left hf.restrict.enorm]
@@ -200,16 +201,16 @@ theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u
     exact hu.norm_rpow_div _
   refine lt_of_le_of_lt maximalFunction_one_le_eLpNormEssSup this.eLpNormEssSup_lt_top
 
-theorem hasStrongType_maximalFunction_top [BorelSpace X] :
-    HasStrongType (maximalFunction (ε := E) μ 𝓑 c r 1) ⊤ ⊤ μ μ 1 := by
+theorem hasStrongType_maximalFunction_top [TopologicalSpace ε] [BorelSpace X] :
+    HasStrongType (maximalFunction (ε := ε) μ 𝓑 c r 1) ⊤ ⊤ μ μ 1 := by
   intro f _
   use measurable_maximalFunction.aestronglyMeasurable
   simp only [one_mul, eLpNorm_exponent_top]
   exact essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ maximalFunction_one_le_eLpNormEssSup)
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
-theorem hasWeakType_maximalFunction_one [BorelSpace X] [SeparableSpace X] :
-    HasWeakType (maximalFunction (ε := E) μ 𝓑 c r 1) 1 1 μ μ (A ^ 2) := by
+theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [SeparableSpace X] :
+    HasWeakType (maximalFunction (ε := ε) μ 𝓑 c r 1) 1 1 μ μ (A ^ 2) := by
   intro f _
   use measurable_maximalFunction.aestronglyMeasurable
   let Bₗ (ℓ : ℝ≥0∞) := { (c, r) | ∫⁻ y in (ball c r), ‖f y‖ₑ ∂μ ≥ ℓ * μ (ball c r) }
