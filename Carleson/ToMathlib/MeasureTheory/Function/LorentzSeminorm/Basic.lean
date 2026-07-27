@@ -57,9 +57,11 @@ theorem eLorentzNorm_congr_ae {f g : α → ε'} (hfg : f =ᵐ[μ] g) :
 theorem eLorentzNorm_enorm (f : α → ε) : eLorentzNorm (fun x ↦ ‖f x‖ₑ) p q μ = eLorentzNorm f p q μ :=
   eLorentzNorm_congr_enorm_ae <| Eventually.of_forall fun _ => enorm_enorm _
 
-variable {ε : Type*} [TopologicalSpace ε]
+section
 
-lemma eLorentzNorm'_eq_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α → ε}
+variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
+
+lemma eLorentzNorm'_eq_zero_of_ae_enorm_zero {f : α → ε}
   (h : enorm ∘ f =ᵐ[μ] 0) (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) :
     eLorentzNorm' f p q μ = 0 := by
   unfold eLorentzNorm'
@@ -69,7 +71,7 @@ lemma eLorentzNorm'_eq_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α �
     mul_zero]
   simp
 
-lemma eLorentzNorm_eq_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
+lemma eLorentzNorm_eq_zero_of_ae_enorm_zero {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     eLorentzNorm f p q μ = 0 := by
   simp only [eLorentzNorm, ite_eq_left_iff]
   intro p_ne_zero
@@ -78,25 +80,27 @@ lemma eLorentzNorm_eq_zero_of_ae_enorm_zero [ESeminormedAddMonoid ε] {f : α �
   intro p_ne_top
   exact eLorentzNorm'_eq_zero_of_ae_enorm_zero h p_ne_zero p_ne_top
 
-lemma eLorentzNorm'_eq_zero_of_ae_zero [ESeminormedAddMonoid ε] {f : α → ε}
+lemma eLorentzNorm'_eq_zero_of_ae_zero {f : α → ε}
     (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (h : f =ᵐ[μ] 0) :
     eLorentzNorm' f p q μ = 0 := by
   apply eLorentzNorm'_eq_zero_of_ae_enorm_zero _ p_ne_zero p_ne_top
   filter_upwards [h]
   simp +contextual
 
-lemma eLorentzNorm_eq_zero_of_ae_zero [ESeminormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+lemma eLorentzNorm_eq_zero_of_ae_zero {f : α → ε} (h : f =ᵐ[μ] 0) :
     eLorentzNorm f p q μ = 0 := by
   apply eLorentzNorm_eq_zero_of_ae_enorm_zero
   filter_upwards [h]
   simp +contextual
+
+end
 
 section ENormedAddMonoid -- TODO: do all of these results require positive definiteness?
 
 variable {ε : Type*} [TopologicalSpace ε] [ENormedAddMonoid ε]
 
 theorem ae_eq_zero_of_eLorentzNorm'_eq_zero {f : α → ε} (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
-  (q_ne_zero : q ≠ 0) (h : eLorentzNorm' f p q μ = 0) :
+    (q_ne_zero : q ≠ 0) (h : eLorentzNorm' f p q μ = 0) :
     f =ᵐ[μ] 0 := by
   rw [eLorentzNorm', mul_eq_zero, eLpNorm_eq_zero_iff (by fun_prop) q_ne_zero] at h
   contrapose! h
@@ -122,13 +126,13 @@ theorem ae_eq_zero_of_eLorentzNorm'_eq_zero {f : α → ε} (p_ne_zero : p ≠ 0
     use h
 
 theorem eLorentzNorm'_eq_zero_iff {f : α → ε}
-  (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (q_ne_zero : q ≠ 0) :
+    (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) (q_ne_zero : q ≠ 0) :
     eLorentzNorm' f p q μ = 0 ↔ f =ᵐ[μ] 0 :=
   ⟨ae_eq_zero_of_eLorentzNorm'_eq_zero p_ne_zero p_ne_top q_ne_zero,
     eLorentzNorm'_eq_zero_of_ae_zero p_ne_zero p_ne_top⟩
 
 theorem eLorentzNorm_eq_zero_iff {f : α → ε}
-  (p_ne_zero : p ≠ 0) (q_ne_zero : q ≠ 0) :
+    (p_ne_zero : p ≠ 0) (q_ne_zero : q ≠ 0) :
     eLorentzNorm f p q μ = 0 ↔ f =ᵐ[μ] 0 := by
   unfold eLorentzNorm
   split_ifs with p_zero p_top q_zero
