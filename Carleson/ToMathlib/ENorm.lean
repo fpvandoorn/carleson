@@ -83,6 +83,16 @@ lemma esub_zero [TopologicalSpace E] [ENormedAddCommSubMonoid E] {x : E} : x - 0
   apply sub_add_cancel_of_enorm_le
   simp_rw [enorm_zero, zero_le]
 
+section
+
+-- TODO: find better place for this?
+theorem _root_.ENNReal.toNNReal_smul {α : Type*} {c : ℝ≥0∞} (hc : c ≠ ⊤) {f : α → ℝ≥0∞} :
+    c.toNNReal • f = c • f := by
+  ext x
+  simp [ENNReal.smul_def, hc]
+
+end
+
 section ENormedSpace
 
 variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
@@ -156,12 +166,6 @@ theorem eLpNorm_top_smul {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
         rw [ENNReal.smul_def, smul_eq_mul]
         gcongr
         exact le_top
-
--- TODO: find better place for this?
-theorem _root_.ENNReal.toNNReal_smul {α : Type*} {c : ℝ≥0∞} (hc : c ≠ ⊤) {f : α → ℝ≥0∞} :
-    c.toNNReal • f = c • f := by
-  ext x
-  simp [ENNReal.smul_def, hc]
 
 -- TODO: put next to eLpNorm_const_smul
 set_option backward.isDefEq.respectTransparency false in
