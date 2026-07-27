@@ -237,7 +237,7 @@ theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [Se
     exact mul_le_of_le_div <| le_of_lt (by simpa [setLAverage_eq, hx] using ht)
   · exact fun (c, r) h ↦ h.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
 
-variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε] [ENormSMulClass ℝ≥0 ε]
+variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
   [MeasurableSpace ε] [BorelSpace ε] in
 theorem sublinearOn_maximalFunction_one
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] :
@@ -277,7 +277,7 @@ public lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 
 /-- Special case of equation (2.0.44). The proof is given between (9.0.12) and (9.0.34).
 Use the real interpolation theorem instead of following the blueprint. -/
 public lemma hasStrongType_maximalFunction_one [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E]
-    [BorelSpace E] [ENormSMulClass ℝ≥0 E] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
+    [BorelSpace E] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
     {p : ℝ≥0} (hp : 1 < p) :
     HasStrongType (maximalFunction (ε := E) μ 𝓑 c r 1) p p μ μ (CMB A p) := by
   by_cases h : Nonempty X; swap
@@ -318,7 +318,6 @@ public theorem hasStrongType_maximalFunction
   calc
     _ ≤ (CMB A (p₂ / p₁) * eLpNorm (fun y ↦ ‖v y‖ ^ (p₁ : ℝ)) (p₂ / p₁) μ) ^ p₁.toReal⁻¹ := by
       apply ENNReal.rpow_le_rpow _ (by positivity)
-      have : ENormSMulClass ℝ≥0 ℝ := sorry
       convert (hasStrongType_maximalFunction_one (E := ℝ) (μ := μ) _ (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
       · rw [ENNReal.coe_div p₁n]
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
