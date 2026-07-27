@@ -93,6 +93,14 @@ lemma eLorentzNorm_eq_zero_of_ae_zero {f : α → ε} (h : f =ᵐ[μ] 0) :
   filter_upwards [h]
   simp +contextual
 
+@[simp]
+lemma eLorentzNorm_zero : eLorentzNorm (0 : α → ε) p q μ = 0 := by
+  apply eLorentzNorm_eq_zero_of_ae_enorm_zero
+  simp
+
+@[simp]
+lemma eLorentzNorm_zero' : eLorentzNorm (fun _ : α ↦  (0 : ε)) p q μ = 0 := eLorentzNorm_zero
+
 end
 
 section ENormedAddMonoid -- TODO: do all of these results require positive definiteness?
@@ -143,19 +151,7 @@ theorem eLorentzNorm_eq_zero_iff {f : α → ε}
 
 end ENormedAddMonoid
 
-section
-
-variable [ESeminormedAddMonoid ε]
-
-@[simp]
-lemma eLorentzNorm_zero : eLorentzNorm (0 : α → ε) p q μ = 0 := by
-  apply eLorentzNorm_eq_zero_of_ae_enorm_zero
-  simp
-
-@[simp]
-lemma eLorentzNorm_zero' : eLorentzNorm (fun _ : α ↦  (0 : ε)) p q μ = 0 := eLorentzNorm_zero
-
-end
+variable {ε : Type*} [TopologicalSpace ε]
 
 variable [ContinuousENorm ε] in
 lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
