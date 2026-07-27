@@ -601,7 +601,6 @@ lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
 
 attribute [fun_prop] continuous_conj Continuous.comp_aestronglyMeasurable
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Sub-equations (7.5.10) and (7.5.11) in Lemma 7.5.5. -/
 lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     edist (exp (.I * 𝒬 u x) * adjointCarleson p f x) (exp (.I * 𝒬 u x') * adjointCarleson p f x') ≤
