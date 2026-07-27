@@ -18,7 +18,7 @@ noncomputable section
 -- mathlib) and improving the code quality. Follow mathlib style (line length!), can use dot
 -- notation more, and the code can sometimes also be golfed.
 
-variable {X E ε : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E]
+variable {X E ε ε' : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E]
   [ENorm ε]
   {μ : Measure X} [μ.IsDoubling A]
   {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → ε} {x : X}
@@ -68,9 +68,8 @@ private def T (i : ι) (u : X → ε) := ⨍⁻ (y : X) in ball (c i) (r i), ‖
 -- We replace the criterion `P` used in `MeasureTheory.AESublinearOn.maximalFunction` with the
 -- weaker criterion `AEMeasurable` that is closed under addition and scalar multiplication.
 
-variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
-  [MeasurableSpace ε] [BorelSpace ε] in
-private lemma T.add_le {i} {f g : X → ε} (hf : AEMeasurable f μ) :
+variable [TopologicalSpace ε'] [ESeminormedAddMonoid ε'] [MeasurableSpace ε'] [BorelSpace ε'] in
+private lemma T.add_le {i} {f g : X → ε'} (hf : AEMeasurable f μ) :
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
   simp only [T, Pi.add_apply, enorm_eq_self]
   rw [← laverage_add_left hf.restrict.enorm]
@@ -185,7 +184,7 @@ public theorem maximalFunction_one_le_eLpNormEssSup :
     _ ≤ eLpNormEssSup u μ := by
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
-variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] {u : X → ε} in
+variable [TopologicalSpace ε'] [ContinuousENorm ε'] {u : X → ε'} in
 theorem MeasureTheory.MemLp.maximalFunction_lt_top
     (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
     maximalFunction μ 𝓑 c r p u x < ∞ := by
@@ -228,11 +227,10 @@ theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [Se
     exact mul_le_of_le_div <| le_of_lt (by simpa [setLAverage_eq, hx] using ht)
   · exact fun (c, r) h ↦ h.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
 
-variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
-  [MeasurableSpace ε] [BorelSpace ε] in
+variable [TopologicalSpace ε'] [ENormedSpace ε'] [MeasurableSpace ε'] [BorelSpace ε'] in
 theorem sublinearOn_maximalFunction_one
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] :
-    SublinearOn (maximalFunction (ε := ε) μ 𝓑 c r 1) (fun f ↦ AEMeasurable f μ) 1 := by
+    SublinearOn (maximalFunction (ε := ε') μ 𝓑 c r 1) (fun f ↦ AEMeasurable f μ) 1 := by
   refine .iSup₂ fun i hi => .indicator _ ?_
   simp_rw [inv_one, ENNReal.rpow_one]
   exact SublinearOn.const (T μ c r i) _ (fun hf hg ↦ by exact T.add_le hf) (fun f d hf ↦ T.smul)
@@ -265,19 +263,19 @@ public lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 
   norm_num
   ring
 
-variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε] [PseudoMetrizableSpace ε]
-  [MeasurableSpace ε] [BorelSpace ε] in
+variable [TopologicalSpace ε'] [ENormedSpace ε']
+  [PseudoMetrizableSpace ε'] [MeasurableSpace ε'] [BorelSpace ε'] in
 /-- Special case of equation (2.0.44). The proof is given between (9.0.12) and (9.0.34).
 Use the real interpolation theorem instead of following the blueprint. -/
 public lemma hasStrongType_maximalFunction_one [BorelSpace X]
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
     {p : ℝ≥0} (hp : 1 < p) :
-    HasStrongType (maximalFunction (ε := ε) μ 𝓑 c r 1) p p μ μ (CMB A p) := by
+    HasStrongType (maximalFunction (ε := ε') μ 𝓑 c r 1) p p μ μ (CMB A p) := by
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; intro _ _; simp
   rw [CMB]
   refine exists_hasStrongType_real_interpolation
-    (T := maximalFunction (ε := ε) μ 𝓑 c r 1) (p := p) (q := p) (A := 1) (t := (↑p)⁻¹)
+    (T := maximalFunction (ε := ε') μ 𝓑 c r 1) (p := p) (q := p) (A := 1) (t := (↑p)⁻¹)
     ⟨ENNReal.zero_lt_top, le_rfl⟩
     ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
@@ -292,12 +290,12 @@ public lemma hasStrongType_maximalFunction_one [BorelSpace X]
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
 @[expose] public def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) ^ (p₁⁻¹ : ℝ)
 
-variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] in
+variable [TopologicalSpace ε'] [ContinuousENorm ε'] in
 /-- The `maximalFunction` has strong type when `p₁ < p₂`. -/
 public theorem hasStrongType_maximalFunction
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
-    HasStrongType (maximalFunction (ε := ε) μ 𝓑 c r p₁) p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
+    HasStrongType (maximalFunction (ε := ε') μ 𝓑 c r p₁) p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; intro _ _; simp
   intro v mlpv
@@ -322,10 +320,10 @@ public theorem hasStrongType_maximalFunction
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
-variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] in
+variable [TopologicalSpace ε'] [ContinuousENorm ε'] in
 theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpace X]
     {p : ℝ≥0} (hp : 0 < p) :
-    HasWeakType (maximalFunction (ε := ε) μ 𝓑 c r p) p p μ μ (A ^ ((2 / p : ℝ))) := by
+    HasWeakType (maximalFunction (ε := ε') μ 𝓑 c r p) p p μ μ (A ^ ((2 / p : ℝ))) := by
   intro v mlpv
   constructor; · exact measurable_maximalFunction.aestronglyMeasurable
   have cp : 0 < (p : ℝ) := by positivity
