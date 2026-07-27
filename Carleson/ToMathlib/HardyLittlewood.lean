@@ -313,7 +313,6 @@ public theorem hasStrongType_maximalFunction
       apply ENNReal.rpow_le_rpow _ (by positivity)
       convert! (hasStrongType_maximalFunction_one (μ := μ) _ (fun x ↦ ‖v x‖ₑ ^ (p₁ : ℝ)) _).2
       · rw [ENNReal.coe_div p₁n]
-      · exact ENormedSpace.enormSMulClass -- TODO: infer_instance doesn't fire
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
       · rw [ENNReal.coe_div p₁n]; exact mlpv.enorm_rpow_div p₁
     _ = _ := by

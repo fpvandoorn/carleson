@@ -31,7 +31,9 @@ class ENormedAddCommSubMonoid (E : Type*) [TopologicalSpace E] extends ENormedAd
   esub_self : ∀ x : E, x - x = 0
 
 /-- An enormed space is an additive monoid endowed with a continuous enorm.
-Note: not sure if this is the "right" class to add to Mathlib. -/
+Note: not sure if this is the "right" class to add to Mathlib.
+In fact, it is now just the conjunction of the classes `ENormedAddCommMonoid E`, `Module ℝ≥0 E` and
+`ENormSMulClass ℝ≥0 E`: should this be deprecated and deleted instead? -/
 class ENormedSpace (E : Type*) [TopologicalSpace E] extends ENormedAddCommMonoid E, Module ℝ≥0 E where
   enorm_smul_eq_smul : ∀ (c : ℝ≥0) (x : E), ‖c • x‖ₑ = c • ‖x‖ₑ
 
@@ -101,13 +103,17 @@ variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε] [SMul ℝ�
 instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
   continuous_const_smul t := ENNReal.continuous_const_mul (by simp)
 
+instance : ENormSMulClass ℝ≥0 ℝ≥0∞ where
+  enorm_smul := by simp [ENNReal.smul_def]
+
 open MeasureTheory
 
 -- TODO: put next to MeasureTheory.eLpNorm_const_smul_le (which perhaps can stay)
-theorem eLpNorm_const_nnreal_smul_le {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
-  {μ : Measure α} {c : ℝ≥0} {f : α → ε} : eLpNorm (c • f) p μ ≤ ‖c‖ₑ * eLpNorm f p μ := by
+theorem eLpNorm_const_nnreal_smul_le
+    {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
+    {μ : Measure α} {c : ℝ≥0} {f : α → ε} : eLpNorm (c • f) p μ ≤ ‖c‖ₑ * eLpNorm f p μ := by
   apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' (p := p) ?_
-  filter_upwards with x using by simp [ENNReal.smul_def]
+  filter_upwards with x using le_of_eq (by simp [enorm_smul])
 
 -- TODO: put next to eLpNorm_const_smul
 theorem eLpNorm_const_smul' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
@@ -119,8 +125,9 @@ theorem eLpNorm_const_smul' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0�
   simpa [ENNReal.div_eq_inv_mul, hc] using eLpNorm_const_nnreal_smul_le (c := c⁻¹) (f := c • f)
 
 set_option backward.isDefEq.respectTransparency false in
-theorem eLpNorm_top_smul {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
-  {μ : Measure α} {f : α → ℝ≥0∞} (hf : AEStronglyMeasurable f μ) : eLpNorm (∞ • f) p μ = ⊤ * eLpNorm f p μ := by
+theorem eLpNorm_top_smul
+    {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
+    {μ : Measure α} {f : α → ℝ≥0∞} (hf : AEStronglyMeasurable f μ) : eLpNorm (∞ • f) p μ = ⊤ * eLpNorm f p μ := by
   by_cases hp : p = 0
   · simp [hp]
   by_cases h : f =ᶠ[ae μ] 0
@@ -181,7 +188,7 @@ theorem eLpNorm_const_smul''' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥
 -- TODO: put next to the unprimed version; perhaps both should stay
 lemma eLpNormEssSup_const_nnreal_smul_le {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {c : ℝ≥0} {f : α → ε} : eLpNormEssSup (c • f) μ ≤ ‖c‖ₑ * eLpNormEssSup f μ := by
-  have (x : α) : ‖(c • f) x‖ₑ ≤ ↑c * ‖f x‖ₑ := by simp [ENNReal.smul_def]
+  have (x : α) : ‖(c • f) x‖ₑ ≤ ↑c * ‖f x‖ₑ := by simp [enorm_smul]
   apply eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul'
   filter_upwards with x using this x
 
