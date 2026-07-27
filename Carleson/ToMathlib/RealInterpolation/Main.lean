@@ -172,7 +172,6 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
   apply hx.trans
   gcongr <;> apply le_biSup _ hi
 
-variable {ε₁ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] in
 lemma indicator {T : (α → ε₁) → α' → ε} {P : (α → ε₁) → Prop} {A : ℝ≥0∞}
     (sa : AESubadditiveOn T P A ν) (S : Set α') :
     AESubadditiveOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
@@ -189,9 +188,9 @@ lemma const (T : (α → ε₁) → ε) (P : (α → ε₁) → Prop)
 
 end AESubadditiveOn
 
-variable [TopologicalSpace ε] [ENormedAddMonoid ε] [SMul ℝ≥0 ε]
+variable [TopologicalSpace ε] [ESeminormedAddMonoid ε] [SMul ℝ≥0 ε]
 
-variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [SMul ℝ≥0 ε₁]
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [SMul ℝ≥0 ε₁]
 
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
 def SublinearOn (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞) :
@@ -229,7 +228,7 @@ lemma iSup₂ {ι : Type*} {κ : ι → Sort*} {T : (i : ι) → κ i → (α �
   simp_rw [iSup_psigma']
   exact .iSup (fun ⟨i,j⟩ ↦ h i j)
 
-variable {ε : Type*} [TopologicalSpace ε] [ENormedAddCommMonoid ε] [Module ℝ≥0 ε] in
+variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddCommMonoid ε] [Module ℝ≥0 ε] in
 lemma indicator {T : (α → ε₁) → α' → ε} {P : (α → ε₁) → Prop} {A : ℝ≥0∞} (S : Set α')
     (sl : SublinearOn T P A) :
     SublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A := by
@@ -323,7 +322,7 @@ lemma biSup2 {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (
   · rintro _ c ⟨f, hf, g, hg, rfl⟩
     exact ⟨c • f, hsP hf, c • g, hsQ hg, by module⟩
 
-variable {ε : Type*} [TopologicalSpace ε] [ENormedAddCommMonoid ε] [Module ℝ≥0 ε] in
+variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddCommMonoid ε] [Module ℝ≥0 ε] in
 lemma indicator {T : (α → ε₁) → α' → ε} {P : (α → ε₁) → Prop} {A : ℝ≥0∞} (S : Set α')
     (sl : AESublinearOn T P A ν) :
     AESublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
