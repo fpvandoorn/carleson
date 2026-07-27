@@ -227,7 +227,8 @@ theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [Se
     exact mul_le_of_le_div <| le_of_lt (by simpa [setLAverage_eq, hx] using ht)
   · exact fun (c, r) h ↦ h.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
 
-variable [TopologicalSpace ε'] [ENormedSpace ε'] [MeasurableSpace ε'] [BorelSpace ε'] in
+variable [TopologicalSpace ε'] [ESeminormedAddMonoid ε'] [SMul ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
+  [MeasurableSpace ε'] [BorelSpace ε'] in
 theorem sublinearOn_maximalFunction_one
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] :
     SublinearOn (maximalFunction (ε := ε') μ 𝓑 c r 1) (fun f ↦ AEMeasurable f μ) 1 := by
