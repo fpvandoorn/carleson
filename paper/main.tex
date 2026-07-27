@@ -183,7 +183,7 @@ University of Trento}
 
 \begin{abstract}
 We present the formalization of Carleson's theorem in the proof assistant \emph{Lean}.
-This paper describes the mathematical content, organization of the project, the blueprint,
+This paper describes the mathematical content, the organization of the project, the blueprint,
 and the main design decisions behind the formalization. It is the result of a large
 collaborative effort, written and developed in public.
 \end{abstract}
@@ -252,7 +252,8 @@ To address this challenge, before the formalization started, the authors of \cit
 
 The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and smaller contributions were made by the 14 additional people listed in the acknowledgements section. This makes the Carleson project one of the largest scale formalization efforts in mathematics to date.
 
-The formalization was written in Lean~4, making extensive use of Lean's mathematical library, \mathlib. The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
+The formalization was written in Lean~4, making extensive use of Lean's mathematical library, \mathlib\footnote{\url{https://github.com/leanprover-community/mathlib4}}.
+The code was developed in a public GitHub repository\footnote{\url{https://github.com/fpvandoorn/carleson}}, with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat\footnote{\url{https://leanprover.zulipchat.com}}. For more details, see \S\ref{sec:org}.
 
 %TODO: update stats before submitting
 The project comprises around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
@@ -270,7 +271,7 @@ the flyspeck project \cite{FlyspeckComplete} formally verifying Hales' proof of 
 
 Other projects formalizing a single theorem or cluster of theorems involving large collaborations include the formal proof of the Feit--Thompson theorem about finite groups in the Rocq prover \cite{OddOrderTheorem} with a 15 author team, the Liquid Tensor Experiment formalizing an important technical lemma about condensed mathematics in Lean \cites{LTEDefinitions,LTEFinal} (involving 18 authors), the PNT$+$ project formalising several versions of the Prime Number Theorem using modern tools (with 59 contributors so far) % xxx: is there a better number of authors?
 and the Equational Theories project classifying certain equational laws on magmas \cite{tao2025equationaltheories} (with 34 authors).
-The last project is notable for involving a variety of different tools,% (including automated theorem provers, SAT solvers)
+The last project is notable for involving a variety of different tools, % (including automated theorem provers, SAT solvers)
 all being used to generate eventual proofs in Lean.
 The flyspeck project was also a large collaborative project, eventually involving 22 authors.
 
@@ -611,7 +612,7 @@ where for $s \in \mathbb{Z}, K_s(x,y) = K(x,y)\psi(D^{-s}\rho(x,y))$.
 
 To reduce this finitary version of the Carleson theorem to the discrete version, we make divisions in both the spatial and frequency domains. The spatial discretization will be achieved by a \emph{grid structure}, after which a subordinate frequency discretization is encoded by a \emph{tile structure}.
 
-A grid structure on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of so-called dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$ called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary} below. Here, a dyadic cube is just a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$.
+A \emph{grid structure} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of so-called dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$ called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary} below. Here, a dyadic cube is just a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$.
 
 The conditions that the objects in a grid structure satisfy are as follows.
 \begin{enumerate}[label=\roman*.]
@@ -640,7 +641,7 @@ The conditions that the objects in a grid structure satisfy are as follows.
 \end{equation}
 \end{enumerate}
 
-We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a tile structure\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc\colon \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc\colon \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc\colon \fP \to X$ and $\ps\colon \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
+We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a \emph{tile structure}\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc\colon \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc\colon \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc\colon \fP \to X$ and $\ps\colon \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
 
 \begin{enumerate}[label=\roman*.]
 % note: todo: JP: as also the lean code says, this seems superfluous so I'm removing it from the list
@@ -750,7 +751,7 @@ def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ :=
     fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * π))
 \end{lstlisting}
 
-On the other hand, in order to formalize the \emph{statements} of the metric and linearized versions of Carleson's theorem, we first needed to formalize a good amount of new concepts, starting with the definition of doubling metric measure space (see Definition~\ref{def:doubling}), which we denote by \lean{MeasureTheory.DoublingMeasure}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L87}{\extlink}. The constant $A$ appearing in this definition will typically be $2^a$.
+In contrast to the classical result, to be able to formalize the statements of the metric and linearized versions of Carleson's theorem, we first needed to formalize a good amount of new concepts, starting with the definition of doubling metric measure space (see Definition~\ref{def:doubling}), which we denote by \lean{MeasureTheory.DoublingMeasure}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L87}{\extlink}. The constant $A$ appearing in this definition will typically be $2^a$.
 \begin{lstlisting}[mathescape]
 class MeasureTheory.Measure.IsDoubling {X : Type*} [MeasurableSpace X]
     [PseudoMetricSpace X] (μ : Measure X) (A : outParam ℝ≥0) : Prop where
@@ -841,7 +842,7 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
 %\end{lstlisting}
 
 The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L218}{\extlink} is defined as a special case of the
-\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand K (Q x) R_1 R_2 f x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details).
+\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand K (Q x) R_1 R_2 f x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details). % JMS the \mlean command does not render correct, don't have a clear fix
 In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L206}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L44}{\extlink} denotes the set of real numbers $y$ such that $R_1 < \text{dist}(x, y) < R_2$.
 \begin{lstlisting}[mathescape]
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
@@ -882,7 +883,7 @@ Another aspect is making the relevant definitions easy to audit: to this end, we
 In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon --- which implies getting careful review (and reduces the need to trust code beyond \mathlib further).
 
 Lean ensures that the formalized proof matches the given statement.
-For maximum robustness (also suitable against adversarial code), we should double-check the theorem statement's meaning is not changed (via overriding notation or abuse of Lean's metaprogramming facilities). We achieve this in two ways. Firstly, each theorem is a Lean definition (with the proof constructing a term of that type) --- this way, the theorem statements only require auditing the same 160 lines above.
+For maximum robustness (also suitable against adversarial code), we should double-check the theorem statement's meaning is not changed, e.g. via overriding notation or abuse of Lean's metaprogramming facilities. We achieve this in two ways. Firstly, each theorem is a Lean definition (with the proof constructing a term of that type) --- this way, the theorem statements only require auditing the same 170 lines above.
 Secondly, the \emph{comparator} tool\footnote{\url{https://github.com/leanprover/comparator}} can verify such a correspondence of a given proof to a provided theorem, in a matter that is robust against malicious code or abuse of Lean's metaprogramming facilities. It is the gold standard for verification of formalisations.
 We have also verified the classical Carleson theorem (Theorem~\ref{classical-carleson}) and its metric space (Theorem~\ref{metric-space-Carleson}) and linearized metric space generalizations (Theorem~\ref{linearized-metric-Carleson}) using comparator. %: this certifies that the statements in the Lean file \texttt{Challenge.lean} match what is actually proven.
 
@@ -908,7 +909,7 @@ and is not necessary for formalizing the proof of a single lemma.
 
 The proof in the blueprint was divided into 179 lemmas.
 To prepare for the collaborative formalization effort,
-F.v.D.\ formalized the statements of most lemmas and the definitions referred to in them, which helped to ensure consistency across statements in the project. Since most contributors were only formalizing proofs, this also helped them to find the relevant definitions. To aid with this last point, specially for definitions only appearing inside proofs, we also manually maintained a table
+F.v.D.\ formalized the statements of most lemmas and the definitions referred to in them, which helped to ensure consistency across statements in the project. Since most contributors were only formalizing proofs, this also helped them to find the relevant definitions. To aid with this last point, especially for definitions only appearing inside proofs, we also manually maintained a table
 that recorded the correspondence between notation and definitions in the blueprint on one side,
 and Lean notation and declarations on the other.
 
@@ -959,10 +960,10 @@ When the project was finished, it comprised 35.6k lines of code (excluding blank
 \subsection{The blueprint writing process}\label{subsec:blueprint_writing}
 
 As mentioned in \S\ref{sec:org}, the blueprint~\cite{CarlesonBlueprint} for the Carleson formalization project was written
-by the harmonic analysis group in Bonn. When the formalization project was announced, it was not finished in its entirety: some parts of Chapter~7,
+by the harmonic analysis group in Bonn. When the formalization project was announced, it was not finished in its entirety: some parts of Section~7,
 which deals with arguably the most complicated case of the proof of \Cref{discrete-Carleson},
 were still being finalized, and
-Chapter~3, which reduces \Cref{metric-space-Carleson} to \Cref{finitary-Carleson},
+Section~3, which reduces \Cref{metric-space-Carleson} to \Cref{finitary-Carleson},
 had to still be written in its entirity.
 However, the rest of the blueprint was finalized
 and contained more than enough material to start the formalization.
@@ -1409,7 +1410,7 @@ Similarly, for \lean{BoundedCompactSupport} there is a choice in requiring that 
 where a relatively compact set is by definition a subset of a compact set).
 
 In Carleson, we originally started with functions that are bounded everywhere and have compact support,
-but we switched\footnote{see pull requests \href{https://github.com/fpvandoorn/carleson/pull/311}{311} and \href{https://github.com/fpvandoorn/carleson/pull/342}{342}} to functions that are only essentially bounded,
+but we switched\footnote{see pull requests \href{https://github.com/fpvandoorn/carleson/pull/311}{311\extlink} and \href{https://github.com/fpvandoorn/carleson/pull/342}{342\extlink}} to functions that are only essentially bounded,
 but still have compact support.
 The reason for this is that \mathlib uses essentially bounded functions frequently in measure theory,
 phrased as \lean{MemLp f ∞ μ}.
@@ -1433,7 +1434,7 @@ and these would have to be changed to essential suprema, which are a bit trickie
 In the end, we decided to prove that this function was bounded with compact support, and additionally bounded everywhere.
 
 These classes are also tagged with the \lean{@[fun_prop]} attribute.
-\lean{fun_prop} is a \mathlib tactic developed by Tomáš Skřivan
+\lean{fun_prop}\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/FunProp.html}} is a \mathlib tactic developed by Tomáš Skřivan
 that automatically uses tagged lemmas to show that a function has a certain property
 (continuity, differentiability, measurability, etc.).
 This tactic is good at writing complicated functions as a composition of simpler functions,
@@ -1484,7 +1485,7 @@ was one of the largest collaborative formalization efforts of a single mathemati
 as well as the first formalization of a state-of-the-art theorem
 from the area of harmonic analysis.
 
-Formalizing the metric Carleson theorem required us
+Formalizing the metric space Carleson theorem required us
 to formalize foundational results from harmonic analysis,
 which we are submitting to \mathlib
 and which will be useful for the formalization of other results from this field.
