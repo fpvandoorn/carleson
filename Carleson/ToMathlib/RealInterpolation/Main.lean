@@ -282,7 +282,7 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
   specialize hx i hi
   simpa only [Pi.smul_apply, smul_eq_mul] using hx
 
-variable {ε₁ : Type*} [TopologicalSpace ε₁] [ENormedSpace ε₁] in
+variable {ε₁ : Type*} [TopologicalSpace ε₁] [ESeminormedAddCommMonoid ε₁] [Module ℝ≥0 ε₁] in
 lemma biSup2 {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → ε₁) → α' → ℝ≥0∞}
     {P : (α → ε₁) → Prop} {Q : (α → ε₁) → Prop}
     (hPT : ∀ (u : α → ε₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
