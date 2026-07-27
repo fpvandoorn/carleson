@@ -607,7 +607,7 @@ lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞
     (h : HasBoundedStrongType T p p' μ ν c) (r : ℝ≥0) :
     HasBoundedStrongType (r • T) p p' μ ν (r • c) := by
   intro f hf
-  rw [Pi.smul_apply, MeasureTheory.eLpNorm_const_smul']
+  rw [Pi.smul_apply, MeasureTheory.eLpNorm_const_smul' (ε' := ℝ≥0∞)]
   exact ⟨(h f hf).1.const_smul _, le_of_le_of_eq (mul_le_mul_right (h f hf).2 ‖r‖ₑ) (by simp; rfl)⟩
 
 end HasBoundedStrongType

@@ -95,15 +95,8 @@ end
 
 section ENormedSpace
 
-variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
-
--- TODO: this lemma and Mathlib's `enorm_smul` could be unified using a `ENormedDivisionSemiring`
--- typeclass (which includes ENNReal and normed fields like ℝ and ℂ),
--- i.e. assuming 𝕜 is a normed semifield.
--- Investigate if this is worthwhile when upstreaming this to mathlib.
--- Update: change this lemma to prove ENormSMulClass for ENormedSpace's.
-lemma enorm_smul_eq_mul {c : ℝ≥0} (z : ε) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
-  ENormedSpace.enorm_smul_eq_smul _ _
+variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε] [SMul ℝ≥0 ε] [ENormSMulClass ℝ≥0 ε]
+  {ε' : Type*} [TopologicalSpace ε'] [ESeminormedAddCommMonoid ε'] [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
 
 instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
   continuous_const_smul t := ENNReal.continuous_const_mul (by simp)
@@ -118,7 +111,7 @@ theorem eLpNorm_const_nnreal_smul_le {α : Type*} {m0 : MeasurableSpace α} {p :
 
 -- TODO: put next to eLpNorm_const_smul
 theorem eLpNorm_const_smul' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
-  {μ : Measure α} {c : ℝ≥0} {f : α → ε} :
+    {μ : Measure α} {c : ℝ≥0} {f : α → ε'} :
     eLpNorm (c • f) p μ = ‖c‖ₑ * eLpNorm f p μ := by
   obtain rfl | hc := eq_or_ne c 0
   · simp
@@ -152,7 +145,7 @@ theorem eLpNorm_top_smul {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
       _ = r / eLpNorm f p μ * eLpNorm f p μ := by
         rw [mul_comm, ENNReal.mul_div_cancel this h']
       _ = eLpNorm ((r / eLpNorm f p μ).toNNReal • f) p μ := by
-        rw [eLpNorm_const_smul']
+        rw [eLpNorm_const_smul' (ε' := ℝ≥0∞)]
         congr
         simp only [toNNReal_div, toNNReal_coe, enorm_NNReal]
         rw [ENNReal.coe_div (by apply toNNReal_ne_zero.mpr; use this, h')]
@@ -172,7 +165,7 @@ set_option backward.isDefEq.respectTransparency false in
 theorem eLpNorm_const_smul'' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
   {μ : Measure α} {c : ℝ≥0∞} (hc : c ≠ ⊤) {f : α → ℝ≥0∞} :
     eLpNorm (c • f) p μ = c * eLpNorm f p μ := by
-  rw [← ENNReal.toNNReal_smul hc, eLpNorm_const_smul']
+  rw [← ENNReal.toNNReal_smul hc, eLpNorm_const_smul' (ε' := ℝ≥0∞)]
   congr
   simp [hc]
 
