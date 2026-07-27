@@ -83,11 +83,16 @@ private lemma T.add_le {i} {f g : X → ε} (hf : AEMeasurable f μ) :
 -- move to `ENNReal.Basic` or similar
 lemma NNReal.smul_ennreal_eq_mul (x : ℝ≥0) (y : ℝ≥0∞) : x • y = x * y := rfl
 
-variable {u : X → E} in
-private lemma T.smul [NormedSpace ℝ E] {c r} {i : ι} {d : ℝ≥0} :
+private lemma T.smul' [SMul ℝ≥0 ε] [ENormSMulClass ℝ≥0 ε] {c r} {i : ι} {d : ℝ≥0} :
     T μ c r i (d • u) = d • T μ c r i u := by
-  simp [T, NNReal.smul_def, NNReal.smul_ennreal_eq_mul,
+  simp [T, NNReal.smul_ennreal_eq_mul,
     laverage_const_mul (by finiteness), enorm_smul]
+
+-- variable {u : X → E} in
+-- private lemma T.smul [NormedSpace ℝ E] {c r} {i : ι} {d : ℝ≥0} :
+--     T μ c r i (d • u) = d • T μ c r i u := by
+--   simp [T, NNReal.smul_def, NNReal.smul_ennreal_eq_mul,
+--     laverage_const_mul (by finiteness), enorm_smul]
 
 section MeasureBiUnionBall
 
