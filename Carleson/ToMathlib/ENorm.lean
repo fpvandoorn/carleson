@@ -35,7 +35,7 @@ Note: not sure if this is the "right" class to add to Mathlib. -/
 class ENormedSpace (E : Type*) [TopologicalSpace E] extends ENormedAddCommMonoid E, Module ℝ≥0 E where
   enorm_smul_eq_smul : ∀ (c : ℝ≥0) (x : E), ‖c • x‖ₑ = c • ‖x‖ₑ
 
-instance [TopologicalSpace E] [ENormedSpace E] : ENormSMulClass ℝ≥0 E where
+instance ENormedSpace.enormSMulClass [TopologicalSpace E] [ENormedSpace E] : ENormSMulClass ℝ≥0 E where
   enorm_smul := ENormedSpace.enorm_smul_eq_smul
 
 export ENormedAddCommSubMonoid

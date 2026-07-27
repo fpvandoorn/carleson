@@ -264,7 +264,7 @@ public lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 
   norm_num
   ring
 
-variable [TopologicalSpace ε'] [ENormedSpace ε']
+variable [TopologicalSpace ε'] [ESeminormedAddMonoid ε'] [SMul ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
   [PseudoMetrizableSpace ε'] [MeasurableSpace ε'] [BorelSpace ε'] in
 /-- Special case of equation (2.0.44). The proof is given between (9.0.12) and (9.0.34).
 Use the real interpolation theorem instead of following the blueprint. -/
@@ -313,6 +313,7 @@ public theorem hasStrongType_maximalFunction
       apply ENNReal.rpow_le_rpow _ (by positivity)
       convert! (hasStrongType_maximalFunction_one (μ := μ) _ (fun x ↦ ‖v x‖ₑ ^ (p₁ : ℝ)) _).2
       · rw [ENNReal.coe_div p₁n]
+      · exact ENormedSpace.enormSMulClass -- TODO: infer_instance doesn't fire
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
       · rw [ENNReal.coe_div p₁n]; exact mlpv.enorm_rpow_div p₁
     _ = _ := by
