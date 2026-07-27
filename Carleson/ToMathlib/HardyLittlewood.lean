@@ -83,16 +83,10 @@ private lemma T.add_le {i} {f g : X → ε} (hf : AEMeasurable f μ) :
 -- move to `ENNReal.Basic` or similar
 lemma NNReal.smul_ennreal_eq_mul (x : ℝ≥0) (y : ℝ≥0∞) : x • y = x * y := rfl
 
-private lemma T.smul' [SMul ℝ≥0 ε] [ENormSMulClass ℝ≥0 ε] {c r} {i : ι} {d : ℝ≥0} :
+private lemma T.smul [SMul ℝ≥0 ε] [ENormSMulClass ℝ≥0 ε] {c r} {i : ι} {d : ℝ≥0} :
     T μ c r i (d • u) = d • T μ c r i u := by
   simp [T, NNReal.smul_ennreal_eq_mul,
     laverage_const_mul (by finiteness), enorm_smul]
-
--- variable {u : X → E} in
--- private lemma T.smul [NormedSpace ℝ E] {c r} {i : ι} {d : ℝ≥0} :
---     T μ c r i (d • u) = d • T μ c r i u := by
---   simp [T, NNReal.smul_def, NNReal.smul_ennreal_eq_mul,
---     laverage_const_mul (by finiteness), enorm_smul]
 
 section MeasureBiUnionBall
 
@@ -244,7 +238,7 @@ theorem sublinearOn_maximalFunction_one
     SublinearOn (maximalFunction (ε := ε) μ 𝓑 c r 1) (fun f ↦ AEMeasurable f μ) 1 := by
   refine .iSup₂ fun i hi => .indicator _ ?_
   simp_rw [inv_one, ENNReal.rpow_one]
-  exact SublinearOn.const (T μ c r i) _ (fun hf hg ↦ by exact T.add_le hf) (fun f d hf ↦ T.smul')
+  exact SublinearOn.const (T μ c r i) _ (fun hf hg ↦ by exact T.add_le hf) (fun f d hf ↦ T.smul)
 
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
 public def CMB (A p : ℝ≥0) : ℝ≥0 := C_realInterpolation ⊤ 1 ⊤ 1 p 1 (A ^ 2) 1 p⁻¹
