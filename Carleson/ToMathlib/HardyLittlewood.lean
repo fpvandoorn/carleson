@@ -57,15 +57,7 @@ lemma indicator_rpow {α : Type*} {p : ℝ} (hp : 0 < p) {s : Set α} {f : α �
     s.indicator (fun y ↦ f y ^ p) = (s.indicator f) ^ p :=
   indicator_comp_of_zero (g := fun a => a ^ p) (ENNReal.zero_rpow_of_pos hp)
 
-variable {u : X → E} in
 lemma maximalFunction_eq_maximalFunction_one_rpow (hp : 0 < p) :
-    maximalFunction μ 𝓑 c r p u x = (maximalFunction μ 𝓑 c r 1 (‖u ·‖ ^ p) x) ^ p⁻¹ := by
-  simp only [maximalFunction, indicator_rpow (inv_pos_of_pos hp),
-    Pi.pow_apply, rpow_one, inv_one, iSup_rpow (inv_pos_of_pos hp)]
-  congr! 8
-  rw [Real.enorm_rpow_of_nonneg (by positivity) hp.le, enorm_norm]
-
-lemma maximalFunction_eq_maximalFunction_one_rpow' (hp : 0 < p) :
     maximalFunction μ 𝓑 c r p u x = (maximalFunction μ 𝓑 c r 1 (‖u ·‖ₑ ^ p) x) ^ p⁻¹ := by
   simp [maximalFunction, indicator_rpow (inv_pos_of_pos hp), iSup_rpow (inv_pos_of_pos hp)]
 
@@ -197,7 +189,7 @@ variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] {u : X → ε} 
 theorem MeasureTheory.MemLp.maximalFunction_lt_top
     (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
     maximalFunction μ 𝓑 c r p u x < ∞ := by
-  rw [maximalFunction_eq_maximalFunction_one_rpow' (by positivity)]
+  rw [maximalFunction_eq_maximalFunction_one_rpow (by positivity)]
   apply rpow_lt_top_of_nonneg (by positivity) (lt_top_iff_ne_top.mp _)
   have : MemLp (fun x ↦ ‖u x‖ₑ ^ p) ⊤ μ := by
     rw [← toReal_ofReal hp₁.le,
@@ -314,7 +306,7 @@ public theorem hasStrongType_maximalFunction
   have p₁n : p₁ ≠ 0 := by exact_mod_cast cp₁p.ne'
   conv_lhs =>
     enter [1, x]
-    rw [maximalFunction_eq_maximalFunction_one_rpow' cp₁p, ← enorm_eq_self (maximalFunction ..)]
+    rw [maximalFunction_eq_maximalFunction_one_rpow cp₁p, ← enorm_eq_self (maximalFunction ..)]
   rw [eLpNorm_enorm_rpow _ (by positivity), ENNReal.ofReal_inv_of_pos cp₁p,
     ENNReal.ofReal_coe_nnreal, ← div_eq_mul_inv, ← ENNReal.coe_div p₁n]
   calc
@@ -330,21 +322,21 @@ public theorem hasStrongType_maximalFunction
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
+variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] in
 theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpace X]
     {p : ℝ≥0} (hp : 0 < p) :
-    HasWeakType (maximalFunction (ε := E) μ 𝓑 c r p) p p μ μ (A ^ ((2 / p : ℝ))) := by
+    HasWeakType (maximalFunction (ε := ε) μ 𝓑 c r p) p p μ μ (A ^ ((2 / p : ℝ))) := by
   intro v mlpv
   constructor; · exact measurable_maximalFunction.aestronglyMeasurable
   have cp : 0 < (p : ℝ) := by positivity
   have p₁n : p ≠ 0 := by exact_mod_cast cp.ne'
   conv_lhs =>
     enter [1, x]
-    rw [maximalFunction_eq_maximalFunction_one_rpow' cp]
+    rw [maximalFunction_eq_maximalFunction_one_rpow cp]
   have hmb_one : wnorm (maximalFunction μ 𝓑 c r 1 (‖v ·‖ₑ ^ (p : ℝ))) 1 μ
       ≤ ↑A ^ 2 * eLpNorm (fun x ↦ ‖v x‖ₑ ^ (p : ℝ)) 1 μ := by
     apply (hasWeakType_maximalFunction_one (fun x : X ↦ ‖v x‖ₑ ^ (p : ℝ)) _).2
-    convert! MemLp.norm_rpow_div mlpv p
-    · sorry
+    convert! MemLp.enorm_rpow_div mlpv p
     exact (ENNReal.div_self (coe_ne_zero.mpr p₁n) coe_ne_top).symm
   unfold wnorm wnorm' distribution at hmb_one ⊢
   simp only [one_ne_top, ↓reduceIte, enorm_eq_self, toReal_one, inv_one, rpow_one, iSup_le_iff,
