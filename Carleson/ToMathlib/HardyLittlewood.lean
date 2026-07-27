@@ -18,7 +18,7 @@ noncomputable section
 -- mathlib) and improving the code quality. Follow mathlib style (line length!), can use dot
 -- notation more, and the code can sometimes also be golfed.
 
-variable {X E ε ε' : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E]
+variable {X ε ε' : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X]
   [ENorm ε]
   {μ : Measure X} [μ.IsDoubling A]
   {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → ε} {x : X}
@@ -363,12 +363,13 @@ public lemma C_weakType_maximalFunction_lt_top {A p₁ p₂ : ℝ≥0} :
   · apply rpow_lt_top_of_nonneg (by positivity) (by simp)
   · simp
 
+variable [TopologicalSpace ε'] [ContinuousENorm ε'] in
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`, but where `p₁ = p₂` is possible and
 we only conclude a weak-type estimate. -/
 public theorem hasWeakType_maximalFunction
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (hp₁ : 0 < p₁) (hp₁₂ : p₁ ≤ p₂) :
-    HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
+    HasWeakType (fun (u : X → ε') (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
       p₂ p₂ μ μ (C_weakType_maximalFunction A p₁ p₂) := by
   unfold C_weakType_maximalFunction
   split_ifs with hps
@@ -377,10 +378,11 @@ public theorem hasWeakType_maximalFunction
   · apply HasStrongType.hasWeakType (coe_lt_coe_of_lt (hp₁.trans_le hp₁₂))
     exact hasStrongType_maximalFunction hp₁ (lt_of_le_of_ne hp₁₂ hps)
 
+variable [TopologicalSpace ε'] [ContinuousENorm ε'] in
 include A in
 theorem maximalFunction_ae_lt_top [BorelSpace X] [ProperSpace X] [IsFiniteMeasureOnCompacts μ]
     [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 0 < p₁) (hp₁₂ : p₁ ≤ p₂)
-    {u : X → E} (hu : MemLp u p₂ μ) :
+    {u : X → ε'} (hu : MemLp u p₂ μ) :
     ∀ᵐ x ∂μ, maximalFunction μ 𝓑 c r p₁ u x < ∞ := by
   simpa only [lt_top_iff_ne_top, enorm_eq_self] using
     hasWeakType_maximalFunction hp₁ hp₁₂ |>.memWLp hu C_weakType_maximalFunction_lt_top |>.ae_ne_top
