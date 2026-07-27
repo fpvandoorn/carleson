@@ -700,7 +700,6 @@ end MeasureTheory
 
 namespace ENNReal
 
-set_option backward.isDefEq.respectTransparency false in
 theorem lintegral_Lp_smul {α : Type*} [MeasurableSpace α] {μ : MeasureTheory.Measure α}
     {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) {p : ℝ} (hp : p > 0) (c : NNReal) :
     (∫⁻ x : α, (c • f) x ^ p ∂μ) ^ (1 / p) = c • (∫⁻ x : α, f x ^ p ∂μ) ^ (1 / p) := by

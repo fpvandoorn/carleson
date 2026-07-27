@@ -729,7 +729,6 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
       have : 4 ≤ (a : ℝ) := by norm_cast; exact four_le_a X
       linarith
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 7.2.3. -/
 lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     eLpNorm (t.boundaryOperator u f) 2 volume ≤ C7_2_3 a * eLpNorm f 2 volume := by
