@@ -336,11 +336,12 @@ theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpa
   have p₁n : p ≠ 0 := by exact_mod_cast cp.ne'
   conv_lhs =>
     enter [1, x]
-    rw [maximalFunction_eq_maximalFunction_one_rpow cp]
-  have hmb_one : wnorm (maximalFunction μ 𝓑 c r 1 (‖v ·‖ ^ (p : ℝ))) 1 μ
-      ≤ ↑A ^ 2 * eLpNorm (fun x ↦ ‖v x‖ ^ (p : ℝ)) 1 μ := by
-    apply (hasWeakType_maximalFunction_one (fun x : X ↦ ‖v x‖ ^ (p : ℝ)) _).2
+    rw [maximalFunction_eq_maximalFunction_one_rpow' cp]
+  have hmb_one : wnorm (maximalFunction μ 𝓑 c r 1 (‖v ·‖ₑ ^ (p : ℝ))) 1 μ
+      ≤ ↑A ^ 2 * eLpNorm (fun x ↦ ‖v x‖ₑ ^ (p : ℝ)) 1 μ := by
+    apply (hasWeakType_maximalFunction_one (fun x : X ↦ ‖v x‖ₑ ^ (p : ℝ)) _).2
     convert! MemLp.norm_rpow_div mlpv p
+    · sorry
     exact (ENNReal.div_self (coe_ne_zero.mpr p₁n) coe_ne_top).symm
   unfold wnorm wnorm' distribution at hmb_one ⊢
   simp only [one_ne_top, ↓reduceIte, enorm_eq_self, toReal_one, inv_one, rpow_one, iSup_le_iff,
@@ -354,7 +355,7 @@ theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpa
     · exact (coe_rpow_of_ne_zero ht p).symm
     · rw [rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n)]
       congr; ext x; rw [coe_rpow_of_ne_zero ht ↑p]; exact (lt_rpow_inv_iff cp)
-    · rw [eLpNorm_norm_rpow v cp, ENNReal.mul_rpow_of_nonneg _ _ NNReal.zero_le_coe,
+    · rw [eLpNorm_enorm_rpow v cp, ENNReal.mul_rpow_of_nonneg _ _ NNReal.zero_le_coe,
         div_eq_mul_inv, rpow_mul, rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n), rpow_two]; simp
 
 @[expose]
