@@ -187,59 +187,59 @@ lemma cc_subset_closedBall {x : X} {r R : ℝ} : cc x r R ⊆ closedBall x R :=
 lemma oc_union_oo {x : X} {r r' R : ℝ} (h₁ : r ≤ r') (h₂ : r' < R) :
     oc x r r' ∪ oo x r' R = oo x r R := by
   -- XXX: should this proof be written as `ext; grind [oc, oo]` instead? Same question below.
-  ext; simp_rw [oc, oo, mem_union, mem_setOf_eq, ← mem_union, Ioc_union_Ioo_eq_Ioo h₁ h₂]
+  ext; simp_rw [oc, oo, mem_union, mem_ofPred_eq, ← mem_union, Ioc_union_Ioo_eq_Ioo h₁ h₂]
 
 @[simp]
 lemma oc_union_oc {x : X} {r r' R : ℝ} (h₁ : r ≤ r') (h₂ : r' ≤ R) :
     oc x r r' ∪ oc x r' R = oc x r R := by
-  ext; simp_rw [oc, mem_union, mem_setOf_eq, ← mem_union, Ioc_union_Ioc_eq_Ioc h₁ h₂]
+  ext; simp_rw [oc, mem_union, mem_ofPred_eq, ← mem_union, Ioc_union_Ioc_eq_Ioc h₁ h₂]
 
 @[simp]
 lemma oo_union_co {x : X} {r r' R : ℝ} (h₁ : r < r') (h₂ : r' ≤ R) :
     oo x r r' ∪ co x r' R = oo x r R := by
-  ext; simp_rw [oo, co, mem_union, mem_setOf_eq, ← mem_union, Ioo_union_Ico_eq_Ioo h₁ h₂]
+  ext; simp_rw [oo, co, mem_union, mem_ofPred_eq, ← mem_union, Ioo_union_Ico_eq_Ioo h₁ h₂]
 
 @[simp]
 lemma oo_union_cc {x : X} {r r' R : ℝ} (h₁ : r < r') (h₂ : r' ≤ R) :
     oo x r r' ∪ cc x r' R = oc x r R := by
-  ext; simp_rw [oo, cc, oc, mem_union, mem_setOf_eq, ← mem_union, Ioo_union_Icc_eq_Ioc h₁ h₂]
+  ext; simp_rw [oo, cc, oc, mem_union, mem_ofPred_eq, ← mem_union, Ioo_union_Icc_eq_Ioc h₁ h₂]
 
 @[simp]
 lemma cc_union_oo {x : X} {r r' R : ℝ} (h₁ : r ≤ r') (h₂ : r' < R) :
     cc x r r' ∪ oo x r' R = co x r R := by
-  ext; simp_rw [cc, oo, co, mem_union, mem_setOf_eq, ← mem_union, Icc_union_Ioo_eq_Ico h₁ h₂]
+  ext; simp_rw [cc, oo, co, mem_union, mem_ofPred_eq, ← mem_union, Icc_union_Ioo_eq_Ico h₁ h₂]
 
 @[simp]
 lemma cc_union_oc {x : X} {r r' R : ℝ} (h₁ : r ≤ r') (h₂ : r' ≤ R) :
     cc x r r' ∪ oc x r' R = cc x r R := by
-  ext; simp_rw [cc, oc, mem_union, mem_setOf_eq, ← mem_union, Icc_union_Ioc_eq_Icc h₁ h₂]
+  ext; simp_rw [cc, oc, mem_union, mem_ofPred_eq, ← mem_union, Icc_union_Ioc_eq_Icc h₁ h₂]
 
 @[simp]
 lemma co_union_co {x : X} {r r' R : ℝ} (h₁ : r ≤ r') (h₂ : r' ≤ R) :
     co x r r' ∪ co x r' R = co x r R := by
-  ext; simp_rw [co, mem_union, mem_setOf_eq, ← mem_union, Ico_union_Ico_eq_Ico h₁ h₂]
+  ext; simp_rw [co, mem_union, mem_ofPred_eq, ← mem_union, Ico_union_Ico_eq_Ico h₁ h₂]
 
 @[simp]
 lemma co_union_cc {x : X} {r r' R : ℝ} (h₁ : r ≤ r') (h₂ : r' ≤ R) :
     co x r r' ∪ cc x r' R = cc x r R := by
-  ext; simp_rw [co, cc, mem_union, mem_setOf_eq, ← mem_union, Ico_union_Icc_eq_Icc h₁ h₂]
+  ext; simp_rw [co, cc, mem_union, mem_ofPred_eq, ← mem_union, Ico_union_Icc_eq_Icc h₁ h₂]
 
 @[simp]
 lemma oc_union_oi {x : X} {r R : ℝ} (h : r ≤ R) : oc x r R ∪ oi x R = oi x r := by
-  ext; simp_rw [oc, oi, mem_union, mem_setOf_eq, ← mem_union, Ioc_union_Ioi_eq_Ioi h]
+  ext; simp_rw [oc, oi, mem_union, mem_ofPred_eq, ← mem_union, Ioc_union_Ioi_eq_Ioi h]
 
 @[simp]
 lemma oo_union_ci {x : X} {r R : ℝ} (h : r < R) :
     oo x r R ∪ ci x R = oi x r := by
-  ext; simp_rw [oo, ci, oi, mem_union, mem_setOf_eq, ← mem_union, Ioo_union_Ici_eq_Ioi h]
+  ext; simp_rw [oo, ci, oi, mem_union, mem_ofPred_eq, ← mem_union, Ioo_union_Ici_eq_Ioi h]
 
 @[simp]
 lemma cc_union_oi {x : X} {r R : ℝ} (h : r ≤ R) : cc x r R ∪ oi x R = ci x r := by
-  ext; simp_rw [cc, oi, ci, mem_union, mem_setOf_eq, ← mem_union, Icc_union_Ioi_eq_Ici h]
+  ext; simp_rw [cc, oi, ci, mem_union, mem_ofPred_eq, ← mem_union, Icc_union_Ioi_eq_Ici h]
 
 @[simp]
 lemma co_union_ci {x : X} {r R : ℝ} (h : r ≤ R) : co x r R ∪ ci x R = ci x r := by
-  ext; simp_rw [co, ci, mem_union, mem_setOf_eq, ← mem_union, Ico_union_Ici_eq_Ici h]
+  ext; simp_rw [co, ci, mem_union, mem_ofPred_eq, ← mem_union, Ico_union_Ici_eq_Ici h]
 
 variable {α : Type*} [LinearOrder α]
 open Order
@@ -535,59 +535,59 @@ lemma cc_subset_ci {x : X} {r₁ R₁ r₂ : ℝ≥0∞} (hr : r₂ ≤ r₁) : 
 @[simp]
 lemma oc_union_oo {x : X} {r r' R : ℝ≥0∞} (h₁ : r ≤ r') (h₂ : r' < R) :
     oc x r r' ∪ oo x r' R = oo x r R := by
-  ext; simp_rw [oc, oo, mem_union, mem_setOf_eq, ← mem_union, Ioc_union_Ioo_eq_Ioo h₁ h₂]
+  ext; simp_rw [oc, oo, mem_union, mem_ofPred_eq, ← mem_union, Ioc_union_Ioo_eq_Ioo h₁ h₂]
 
 @[simp]
 lemma oc_union_oc {x : X} {r r' R : ℝ≥0∞} (h₁ : r ≤ r') (h₂ : r' ≤ R) :
     oc x r r' ∪ oc x r' R = oc x r R := by
-  ext; simp_rw [oc, mem_union, mem_setOf_eq, ← mem_union, Ioc_union_Ioc_eq_Ioc h₁ h₂]
+  ext; simp_rw [oc, mem_union, mem_ofPred_eq, ← mem_union, Ioc_union_Ioc_eq_Ioc h₁ h₂]
 
 @[simp]
 lemma oo_union_co {x : X} {r r' R : ℝ≥0∞} (h₁ : r < r') (h₂ : r' ≤ R) :
     oo x r r' ∪ co x r' R = oo x r R := by
-  ext; simp_rw [oo, co, mem_union, mem_setOf_eq, ← mem_union, Ioo_union_Ico_eq_Ioo h₁ h₂]
+  ext; simp_rw [oo, co, mem_union, mem_ofPred_eq, ← mem_union, Ioo_union_Ico_eq_Ioo h₁ h₂]
 
 @[simp]
 lemma oo_union_cc {x : X} {r r' R : ℝ≥0∞} (h₁ : r < r') (h₂ : r' ≤ R) :
     oo x r r' ∪ cc x r' R = oc x r R := by
-  ext; simp_rw [oo, cc, oc, mem_union, mem_setOf_eq, ← mem_union, Ioo_union_Icc_eq_Ioc h₁ h₂]
+  ext; simp_rw [oo, cc, oc, mem_union, mem_ofPred_eq, ← mem_union, Ioo_union_Icc_eq_Ioc h₁ h₂]
 
 @[simp]
 lemma cc_union_oo {x : X} {r r' R : ℝ≥0∞} (h₁ : r ≤ r') (h₂ : r' < R) :
     cc x r r' ∪ oo x r' R = co x r R := by
-  ext; simp_rw [cc, oo, co, mem_union, mem_setOf_eq, ← mem_union, Icc_union_Ioo_eq_Ico h₁ h₂]
+  ext; simp_rw [cc, oo, co, mem_union, mem_ofPred_eq, ← mem_union, Icc_union_Ioo_eq_Ico h₁ h₂]
 
 @[simp]
 lemma cc_union_oc {x : X} {r r' R : ℝ≥0∞} (h₁ : r ≤ r') (h₂ : r' ≤ R) :
     cc x r r' ∪ oc x r' R = cc x r R := by
-  ext; simp_rw [cc, oc, mem_union, mem_setOf_eq, ← mem_union, Icc_union_Ioc_eq_Icc h₁ h₂]
+  ext; simp_rw [cc, oc, mem_union, mem_ofPred_eq, ← mem_union, Icc_union_Ioc_eq_Icc h₁ h₂]
 
 @[simp]
 lemma co_union_co {x : X} {r r' R : ℝ≥0∞} (h₁ : r ≤ r') (h₂ : r' ≤ R) :
     co x r r' ∪ co x r' R = co x r R := by
-  ext; simp_rw [co, mem_union, mem_setOf_eq, ← mem_union, Ico_union_Ico_eq_Ico h₁ h₂]
+  ext; simp_rw [co, mem_union, mem_ofPred_eq, ← mem_union, Ico_union_Ico_eq_Ico h₁ h₂]
 
 @[simp]
 lemma co_union_cc {x : X} {r r' R : ℝ≥0∞} (h₁ : r ≤ r') (h₂ : r' ≤ R) :
     co x r r' ∪ cc x r' R = cc x r R := by
-  ext; simp_rw [co, cc, mem_union, mem_setOf_eq, ← mem_union, Ico_union_Icc_eq_Icc h₁ h₂]
+  ext; simp_rw [co, cc, mem_union, mem_ofPred_eq, ← mem_union, Ico_union_Icc_eq_Icc h₁ h₂]
 
 @[simp]
 lemma oc_union_oi {x : X} {r R : ℝ≥0∞} (h : r ≤ R) : oc x r R ∪ oi x R = oi x r := by
-  ext; simp_rw [oc, oi, mem_union, mem_setOf_eq, ← mem_union, Ioc_union_Ioi_eq_Ioi h]
+  ext; simp_rw [oc, oi, mem_union, mem_ofPred_eq, ← mem_union, Ioc_union_Ioi_eq_Ioi h]
 
 @[simp]
 lemma oo_union_ci {x : X} {r R : ℝ≥0∞} (h : r < R) :
     oo x r R ∪ ci x R = oi x r := by
-  ext; simp_rw [oo, ci, oi, mem_union, mem_setOf_eq, ← mem_union, Ioo_union_Ici_eq_Ioi h]
+  ext; simp_rw [oo, ci, oi, mem_union, mem_ofPred_eq, ← mem_union, Ioo_union_Ici_eq_Ioi h]
 
 @[simp]
 lemma cc_union_oi {x : X} {r R : ℝ≥0∞} (h : r ≤ R) : cc x r R ∪ oi x R = ci x r := by
-  ext; simp_rw [cc, oi, ci, mem_union, mem_setOf_eq, ← mem_union, Icc_union_Ioi_eq_Ici h]
+  ext; simp_rw [cc, oi, ci, mem_union, mem_ofPred_eq, ← mem_union, Icc_union_Ioi_eq_Ici h]
 
 @[simp]
 lemma co_union_ci {x : X} {r R : ℝ≥0∞} (h : r ≤ R) : co x r R ∪ ci x R = ci x r := by
-  ext; simp_rw [co, ci, mem_union, mem_setOf_eq, ← mem_union, Ico_union_Ici_eq_Ici h]
+  ext; simp_rw [co, ci, mem_union, mem_ofPred_eq, ← mem_union, Ico_union_Ici_eq_Ici h]
 
 
 variable [MeasurableSpace X] [OpensMeasurableSpace X]

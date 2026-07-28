@@ -138,7 +138,7 @@ lemma pairwiseDisjoint_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
   change Disjoint (𝔄_aux _ _ _).toFinset ((𝔄_aux _ _ _).toFinset)
   wlog hl : i < j generalizing i j
   · exact (this _ mj _ mi hn.symm (by lia)).symm
-  simp_rw [Finset.disjoint_left, 𝔄_aux, mem_toFinset, mem_setOf_eq, not_and, and_imp]
+  simp_rw [Finset.disjoint_left, 𝔄_aux, mem_toFinset, mem_ofPred_eq, not_and, and_imp]
   refine fun p mp md _ ↦ ?_
   rw [mem_Ico, not_and_or, not_le]
   exact Or.inl <| md.2.trans_le (pow_le_pow_right₀ one_le_two (by lia))
@@ -373,7 +373,7 @@ private lemma 𝔄_aux_sum_splits :
       simp only [Finset.mem_union, mem_toFinset, not_or] at hp'
       by_contra h
       by_cases hs : 𝔰 p = -S
-      · exact hp'.2 (by simp only [𝔄_min, mem_setOf_eq]; use mem_toFinset.mp hp)
+      · exact hp'.2 (by simp only [𝔄_min, mem_ofPred_eq]; use mem_toFinset.mp hp)
       · exact hp'.1 ⟨mem_toFinset.mp hp, h,
           lt_of_le_of_ne (range_s_subset (X := X) (mem_range_self (𝓘 p))).1 (Ne.symm hs)⟩
     have : E p ∩ G  = ∅ := by rw [← subset_empty_iff, ← hem]; gcongr; exact fun _ hx ↦ hx.1
@@ -407,13 +407,13 @@ private lemma 𝔄_min_sum_le :
         simp only [Finset.sum_const, h1, one_smul]
       · intro L p
         refine ⟨fun ⟨hL, hp⟩ ↦ ?_, fun ⟨hL, hp⟩ ↦ ?_⟩
-        · simp only [𝔄_min, mem_setOf_eq, mem_toFinset,Finset.mem_filter] at hL hp ⊢
+        · simp only [𝔄_min, mem_ofPred_eq, mem_toFinset,Finset.mem_filter] at hL hp ⊢
           use ⟨hL, hp.2⟩, hp.1
-          simp only [𝓛_min, Subtype.exists, exists_prop, mem_setOf_eq] at hL
+          simp only [𝓛_min, Subtype.exists, exists_prop, mem_ofPred_eq] at hL
           obtain ⟨p', hp', hpL'⟩ := hL
           simp only [𝔰, hp.2, hpL']
           exact hp'.2
-        · simp only [𝔄_min, mem_setOf_eq, mem_toFinset,Finset.mem_filter] at hL hp ⊢
+        · simp only [𝔄_min, mem_ofPred_eq, mem_toFinset,Finset.mem_filter] at hL hp ⊢
           use hL.1, hp.1, hL.2
     _ ≤ ∑ L ∈ (𝓛_min 𝔄 ϑ N).toFinset, 2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (L : Set X) := by
       gcongr; apply stack_density
@@ -426,12 +426,12 @@ private lemma 𝔄_min_sum_le :
         intro x hx
         simp only [mem_toFinset, mem_iUnion, exists_prop] at hx ⊢
         obtain ⟨L, hL, hLx⟩ := hx
-        simp only [𝓛_min, Subtype.exists, exists_prop, mem_setOf_eq] at hL
+        simp only [𝓛_min, Subtype.exists, exists_prop, mem_ofPred_eq] at hL
         obtain ⟨p, hp, hpL⟩ := hL
         use p, hp.1.1, (hpL ▸ hLx)
       · simp only [coe_toFinset, pairwiseDisjoint_iff]
         intro L hL L' hL' h
-        simp only [𝓛_min, Subtype.exists, exists_prop, mem_setOf_eq] at hL hL'
+        simp only [𝓛_min, Subtype.exists, exists_prop, mem_ofPred_eq] at hL hL'
         obtain ⟨p, hp, hpL⟩ := hL
         obtain ⟨p', hp', hpL'⟩ := hL'
         have hs : 𝔰 p = 𝔰 p' := by rw [hp.2.2, hp'.2.2]
@@ -451,7 +451,7 @@ lemma I_p_subset_union_L (p : 𝔄' 𝔄 ϑ N) : (𝓘 (p : 𝔓 X) : Set X) ⊆
       obtain ⟨I, hI, hxI⟩ := Grid.exists_containing_subcube (i := 𝓘 (p : 𝔓 X)) (-S)
         (by simp [mem_Icc, scale_mem_Icc.1]) hx
       have hsI : s I ≤ s (𝓘 (p : 𝔓 X)) := hI ▸ scale_mem_Icc.1
-      simp only [Grid.le_def, mem_setOf_eq, mem_iUnion, exists_prop]
+      simp only [Grid.le_def, mem_ofPred_eq, mem_iUnion, exists_prop]
       exact ⟨I, ⟨hI, Or.resolve_right (GridStructure.fundamental_dyadic' hsI)
         (not_disjoint_iff.mpr ⟨x, hxI, hx⟩), hsI⟩, hxI⟩
     _ ⊆ ⋃ (L ∈ 𝓛 𝔄 ϑ N), L := by
@@ -518,7 +518,7 @@ private lemma exists_p'_ge_L : ∃ (p : 𝔄' 𝔄 ϑ N), L ≤ 𝓘 (p : 𝔓 X
 open Classical in
 private lemma SL_nonempty : (SL 𝔄 ϑ N L).toFinset.Nonempty := by
   use (exists_p'_ge_L hL).choose
-  simp only [mem_toFinset, SL, mem_setOf_eq, (exists_p'_ge_L hL).choose_spec, and_true,
+  simp only [mem_toFinset, SL, mem_ofPred_eq, (exists_p'_ge_L hL).choose_spec, and_true,
     Subtype.coe_prop]
 
 open Classical in
@@ -531,7 +531,7 @@ private lemma p'_mem : p' hL ∈ (SL 𝔄 ϑ N L).toFinset :=
 
 private lemma L_le_I_p' : L ≤ 𝓘 (p' hL : 𝔓 X) := by
   have hp' := p'_mem hL
-  simp only [SL, mem_setOf_eq, mem_toFinset] at hp'
+  simp only [SL, mem_ofPred_eq, mem_toFinset] at hp'
   exact hp'.2
 
 private lemma not_I_p'_le_L : ¬ 𝓘 (p' hL) ≤ L := by
@@ -544,14 +544,14 @@ private lemma not_I_p'_le_L : ¬ 𝓘 (p' hL) ≤ L := by
   simp only [sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter, Finset.mem_filter,
     Finset.mem_univ, true_and] at hp'
   by_cases hIqL : 𝓘 (p' hL) ≤ L
-  · simp only [Subtype.forall, mem_setOf_eq] at hL'
+  · simp only [Subtype.forall, mem_ofPred_eq] at hL'
     exact absurd (hL'.2 (p' hL) hp'.1.1 hIqL) (ne_of_gt (hp'.1.1.2.2))
   · exact hIqL
 
 private lemma s_L_le_s_p' : s L < 𝔰 (p' hL) := by
     have hp'L := not_I_p'_le_L hL
     have hp' := p'_mem hL
-    simp only [SL, Grid.le_def, sep_and, mem_setOf_eq, mem_toFinset, mem_inter_iff] at hp'
+    simp only [SL, Grid.le_def, sep_and, mem_ofPred_eq, mem_toFinset, mem_inter_iff] at hp'
     by_contra! h
     have h' : ¬ Disjoint (𝓘 (p' hL) : Set X) ↑L := by
       rw [Set.not_disjoint_iff_nonempty_inter, inter_eq_right.mpr hp'.1.2]
@@ -605,10 +605,10 @@ private lemma L'_le_I_p' : L' hL ≤ 𝓘 (p' hL : 𝔓 X) := by
 private lemma exists_p''_le_L' : ∃ (p : 𝔓 X), p ∈ 𝔄' 𝔄 ϑ N ∧ 𝓘 p ≤ L' hL := by
   let p' := p' hL
   have hp'_mem := p'_mem hL
-  simp only [SL, mem_setOf_eq, mem_toFinset] at hp'_mem
+  simp only [SL, mem_ofPred_eq, mem_toFinset] at hp'_mem
   have hex : ∃ p' ∈ 𝔄' 𝔄 ϑ N, L' hL ≤ 𝓘 p' := ⟨p', hp'_mem.1, L'_le_I_p' hL⟩
   have hL' : ¬ L' hL ∈ 𝓛 𝔄 ϑ N := L'_not_mem hL
-  simp only [𝓛, Subtype.exists, exists_prop, Subtype.forall, mem_setOf_eq, not_and_or] at hL'
+  simp only [𝓛, Subtype.exists, exists_prop, Subtype.forall, mem_ofPred_eq, not_and_or] at hL'
   have := Or.neg_resolve_left hL' hex
   simp only [not_forall] at this
   obtain ⟨p, ⟨hp_mem, ⟨hp_le, hp⟩⟩⟩ := this
@@ -655,7 +655,7 @@ lemma pΘ_unique (h : ¬ 𝓘 (p'' hL) = L' hL) :
 -- Eq. 6.3.35
 private lemma eq_6_3_35 : ϑ.val ∈ ball_(p'' hL) (𝒬 (p'' hL)) (2 ^ (N + 1)) := by
   have hp'' := p''_mem hL
-  simp only [𝔄', 𝔄_aux, mem_Ico, sep_and, mem_inter_iff, mem_setOf_eq, ne_eq] at hp''
+  simp only [𝔄', 𝔄_aux, mem_Ico, sep_and, mem_inter_iff, mem_ofPred_eq, ne_eq] at hp''
   apply lt_trans _ hp''.1.2.2
   rw [dist_comm (α := WithFunctionDistance _ _)]
   exact lt_one_add _
@@ -692,10 +692,10 @@ private lemma ineq_6_3_38 : volume (E₂ (2 ^ (N + 3)) (pΘ hL)) ≤
   apply volume_E₂_le_dens₁_mul_volume (𝔓' := 𝔄) (p' := p'' hL) (p := pΘ hL)
     (l := 2 ^ (N + 3)) ?_ (p''_mem hL).1.1 (mod_cast Nat.le_self_pow (by linarith) 2)
     (ineq_6_3_36 hL)
-  simp only [lowerCubes, mem_setOf_eq]
+  simp only [lowerCubes, mem_ofPred_eq]
   refine ⟨p' hL, ?_, I_pΘ_eq_L' hL ▸ L'_le_I_p' hL⟩
   have := (p'_mem hL)
-  simp only [SL, 𝔄', 𝔄_aux, mem_setOf_eq, mem_toFinset] at this
+  simp only [SL, 𝔄', 𝔄_aux, mem_ofPred_eq, mem_toFinset] at this
   exact this.1.1.1
 
 -- Ineq. 6.3.39
@@ -718,7 +718,7 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) :
         simp only [this, measure_empty, ite_self, zero_le]
       · have hL2 := hL
         simp only [𝓛', Maximal, 𝓛, Grid.le_def,
-          Subtype.exists, exists_and_left, exists_prop, and_imp, Subtype.forall, mem_setOf_eq,
+          Subtype.exists, exists_and_left, exists_prop, and_imp, Subtype.forall, mem_ofPred_eq,
           forall_exists_index] at hL2
         by_cases hp' : 𝓘 x = L' hL
         · rw [if_pos hp']

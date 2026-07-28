@@ -222,7 +222,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
     exact 𝓘p_eq_J ▸ le_mul_of_one_le_left zero_le (one_le_pow_of_one_le' one_le_two _)
   have ⟨J', hJJ', hsJ'⟩ := J.exists_scale_succ (J.scale_lt_scale_topCube J_top)
   have : J' ∉ 𝓙₀ (t u) := fun h ↦ succ_ne_self (s J) <| hJ.eq_of_le h hJJ' ▸ hsJ'.symm
-  rw [𝓙₀, mem_setOf_eq] at this
+  rw [𝓙₀, mem_ofPred_eq] at this
   push Not at this
   obtain ⟨p, hpu, hp⟩ := this.2
   have d0 := realD_pos a

@@ -550,7 +550,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   · apply lintegral_mono
     intro y
     apply indicator_le_indicator'
-    rw [mem_setOf_eq]
+    rw [mem_ofPred_eq]
     exact le_of_lt
   trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
   · apply lintegral_mono

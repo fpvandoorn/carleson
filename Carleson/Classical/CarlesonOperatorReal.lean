@@ -20,7 +20,7 @@ def carlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) :
 lemma annulus_real_eq {x r R : ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.Ioo r R} = Set.Ioo (x - R) (x - r) ∪ Set.Ioo (x + r) (x + R) := by
   ext y
   simp only [Real.dist_eq, Set.mem_Ioo, lt_abs, neg_sub, abs_lt, neg_lt_sub_iff_lt_add,
-    Set.mem_setOf_eq, Set.mem_union]
+    Set.mem_ofPred_eq, Set.mem_union]
   constructor
   · rintro ⟨(h₀ | h₀), h₁, h₂⟩
     · left; constructor <;> linarith
@@ -189,14 +189,14 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (meas_f : AEStronglyMeas
         simp only [Set.mem_Ioo]
         rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
         · rw [Set.mem_Ioi, min_lt_iff] at ht
-          simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
+          simp only [Set.mem_ofPred_eq, eq_iff_iff, iff_false, not_and, not_lt]
           intro h
           rcases ht with h' | h'
           · exfalso
             exact (lt_self_iff_false _).mp (h'.trans h)
           · exact (h'.trans h).le
         · rw [Set.mem_Ioi, min_lt_iff] at hs
-          simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
+          simp only [Set.mem_ofPred_eq, eq_iff_iff, iff_false, not_and, not_lt]
           intro h
           rcases hs with h' | h'
           · exfalso
@@ -213,7 +213,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (meas_f : AEStronglyMeas
         intro y hy
         have hxy : dist x y = r := by
           contrapose! hy
-          rw [Set.mem_setOf_eq, not_not]
+          rw [Set.mem_ofPred_eq, not_not]
           exact contOn y r hy.symm
         rw [Real.dist_eq, abs_eq hr.le] at hxy
         simp only [Finset.coe_insert, Finset.coe_singleton, Set.mem_insert_iff,

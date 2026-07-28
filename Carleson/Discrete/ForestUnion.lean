@@ -672,7 +672,7 @@ def forest : Forest X n where
       apply subset_biUnion_of_mem (u := fun u' ↦ ⋃ (_ : URel k n j u u'), 𝔗₁ k n j u') m
     apply Nonempty.mono this
     rw [inter_comm]
-    simp only [𝔘₂, not_disjoint_iff_nonempty_inter, mem_setOf_eq] at m
+    simp only [𝔘₂, not_disjoint_iff_nonempty_inter, mem_ofPred_eq] at m
     exact m.2
   ordConnected' {u} hu := forest_convex
   𝓘_ne_𝓘' {u} hu p hp := by
@@ -723,7 +723,7 @@ lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') {
   · intro p hp h'p
     rw [Finset.mem_filter_univ] at hp h'p
     have : x ∉ 𝓘 p := by
-      simp only [ℭ₆, mem_setOf_eq, not_and, Decidable.not_not] at h'p
+      simp only [ℭ₆, mem_ofPred_eq, not_and, Decidable.not_not] at h'p
       intro h'x
       exact hx.2 (h'p hp h'x)
     have : x ∉ E p := by simp at this; simp [E, this]

@@ -367,7 +367,7 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
       (fun p'' mp'' ↦ ?_) (fun t _ o₁ mo₁ o₂ mo₂ ↦ ?_)).trans cT
   · have := (tO _ mp'').trans uT (mem_ball_self (by positivity))
     rwa [mem_iUnion₂, bex_def] at this
-  · simp_rw [mem_setOf_eq] at mo₁ mo₂
+  · simp_rw [mem_ofPred_eq] at mo₁ mo₂
     exact djO.elim mo₁.1 mo₂.1 (not_disjoint_iff.mpr ⟨t, mem_ball_comm.mp mo₁.2, mem_ball_comm.mp mo₂.2⟩)
 
 section
@@ -605,7 +605,7 @@ to the (disjoint) decomposition in Lemma 5.5.1.
 lemma carlesonSum_𝔓₁_compl_eq_𝔓pos_inter (f : X → ℂ) :
     ∀ᵐ x, x ∈ G \ G' → carlesonSum 𝔓₁ᶜ f x = carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ) f x := by
   have A p (hp : p ∈ (𝔓pos (X := X))ᶜ) : ∀ᵐ x, x ∈ G \ G' → x ∉ 𝓘 p := by
-    simp only [𝔓pos, mem_compl_iff, mem_setOf_eq, not_lt, nonpos_iff_eq_zero] at hp
+    simp only [𝔓pos, mem_compl_iff, mem_ofPred_eq, not_lt, nonpos_iff_eq_zero] at hp
     filter_upwards [measure_eq_zero_iff_ae_notMem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
     exact hx ⟨⟨h''x, h'x.1⟩, h'x.2⟩
   rw [← ae_ball_iff (to_countable 𝔓posᶜ)] at A
@@ -878,7 +878,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
         apply eq_empty_of_subset_empty
         intro x hx
         exact (hx.2.1.1 (W hx.1.1)).elim
-      simp only [𝔓pos, mem_setOf_eq, this, measure_empty, lt_self_iff_false, not_false_eq_true]
+      simp only [𝔓pos, mem_ofPred_eq, this, measure_empty, lt_self_iff_false, not_false_eq_true]
     contrapose! this
     have : p ∈ highDensityTiles := mem_preimage.mp this
     apply subset_biUnion_of_mem this

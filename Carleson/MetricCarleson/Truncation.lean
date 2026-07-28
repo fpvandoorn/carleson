@@ -46,7 +46,7 @@ lemma measurable_T_lin (mf : Measurable f) (mσ₁ : Measurable σ₁) (mσ₂ :
         congr! with s ms; rw [indicator_of_mem (by simpa using ms)]
       _ = _ := by
         refine Finset.sum_subset (Finset.Icc_subset_Icc (hlb x) (hub x)) fun s ms ns ↦ ?_
-        apply indicator_of_notMem; rwa [mem_setOf_eq, mem_Icc, ← Finset.mem_Icc]
+        apply indicator_of_notMem; rwa [mem_ofPred_eq, mem_Icc, ← Finset.mem_Icc]
   rw [rearr]
   refine Finset.measurable_sum _ fun _ _ ↦ (measurable_T_inner_integral mf).indicator ?_
   rw [measurableSet_setOf]; apply (measurable_set_mem _).comp
@@ -296,7 +296,7 @@ lemma S_truncation
         candσ₁ ⁻¹' ((Finset.Icc (-B : ℤ) B).powerset.filter fun c ↦ n ∈ c ∧ ∀ m ∈ c, n ≤ m) := by
       ext x
       simp_rw [mem_preimage, mem_singleton_iff, Finset.coe_filter, Finset.mem_powerset,
-        mem_setOf_eq, scσ₁, true_and]
+        mem_ofPred_eq, scσ₁, true_and]
       constructor <;> intro h
       · rw [← h]; exact ⟨eσ₁ x, fun m ↦ minσ₁ x⟩
       · rw [← (candσ₁ x).le_min'_iff (necσ₁ x)] at h; obtain ⟨h₁, h₂ : n ≤ σ₁ x⟩ := h
@@ -347,7 +347,7 @@ lemma S_truncation
         candσ₂ ⁻¹' ((Finset.Icc (-B : ℤ) B).powerset.filter fun c ↦ n ∈ c ∧ ∀ m ∈ c, n ≤ m) := by
       ext x
       simp_rw [mem_preimage, mem_singleton_iff, Finset.coe_filter, Finset.mem_powerset,
-        mem_setOf_eq, scσ₂, true_and]
+        mem_ofPred_eq, scσ₂, true_and]
       constructor <;> intro h
       · rw [← h]; exact ⟨eσ₂ x, fun m ↦ minσ₂ x⟩
       · rw [← (candσ₂ x).le_min'_iff (necσ₂ x)] at h; obtain ⟨h₁, h₂ : n ≤ σ₂ x⟩ := h
@@ -408,13 +408,13 @@ include K in
 lemma monotoneOn_L302 : MonotoneOn (L302 a) {r | 0 < r} := fun r₁ pr₁ r₂ pr₂ hle ↦ by
   unfold L302; gcongr
   · exact one_lt_realD X
-  · rw [mem_setOf_eq] at pr₁; positivity
+  · rw [mem_ofPred_eq] at pr₁; positivity
 
 include K in
 lemma monotoneOn_U302 : MonotoneOn (U302 a) {r | 0 < r} := fun r₁ pr₁ r₂ pr₂ hle ↦ by
   unfold U302; gcongr
   · exact one_lt_realD X
-  · rw [mem_setOf_eq] at pr₁; positivity
+  · rw [mem_ofPred_eq] at pr₁; positivity
 
 include K in
 /-- There exists a uniform bound for all possible values of `L302` and `U302` over the annulus in
@@ -496,7 +496,7 @@ lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁
     _ = ‖∫ y in Annulus.oo x R₁ R₂, ∑ s ∈ BR, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
       unfold carlesonOperatorIntegrand; congr 1
       refine setIntegral_congr_fun Annulus.measurableSet_oo fun y my ↦ ?_
-      have dpos : 0 < dist x y := by rw [Annulus.oo, mem_setOf_eq] at my; exact hR₁.trans my.1
+      have dpos : 0 < dist x y := by rw [Annulus.oo, mem_ofPred_eq] at my; exact hR₁.trans my.1
       simp_rw [← Finset.sum_mul]; congr
       refine (sum_Ks (Finset.Icc_subset_Icc ?_ ?_) Dg1 dpos).symm
       · rw [L302, add_sub_assoc, show (3 : ℤ) - 2 = 1 by norm_num, add_comm 1, Int.floor_add_one]
@@ -522,7 +522,7 @@ lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁
       refine setIntegral_eq_integral_of_forall_compl_eq_zero fun y ny ↦ ?_
       suffices Ks s x y = 0 by simp_rw [this, zero_mul]
       contrapose! ny; replace ny := dist_mem_Ioo_of_Ks_ne_zero ny
-      rw [Annulus.oo, mem_setOf_eq]; refine mem_of_mem_of_subset ny (Ioo_subset_Ioo ?_ ?_)
+      rw [Annulus.oo, mem_ofPred_eq]; refine mem_of_mem_of_subset ny (Ioo_subset_Ioo ?_ ?_)
       · apply R₁_le_D_zpow_div_four (X := X).trans; gcongr; exacts [Dg1.le, ms.1]
       · refine le_trans ?_ (D_zpow_div_two_le_R₂ (X := X) (hR₁.trans hR₂))
         gcongr; exacts [Dg1.le, ms.2]
@@ -688,7 +688,7 @@ lemma R_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
         simp_rw [indicator_of_mem (sG mx)]
         refine setIntegral_congr_fun Annulus.measurableSet_oo fun y my ↦ ?_
         congr 2; symm; rw [indicator_apply_eq_self]; apply absurd
-        specialize sG mx; rw [Annulus.oo, mem_setOf_eq] at my; rw [mem_ball] at sG ⊢
+        specialize sG mx; rw [Annulus.oo, mem_ofPred_eq] at my; rw [mem_ball] at sG ⊢
         calc
           _ ≤ dist x y + dist x o := dist_triangle_left ..
           _ < R₂ + R := add_lt_add my.2 sG

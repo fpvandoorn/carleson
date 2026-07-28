@@ -82,7 +82,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
       volume (F ∩ (ball (𝔠 p) r)) ≥ K * volume (ball (𝔠 p) r) := by
     intro p hp
-    simp_rw [highDensityTiles, mem_setOf_eq, dens₂, lt_iSup_iff, mem_singleton_iff] at hp
+    simp_rw [highDensityTiles, mem_ofPred_eq, dens₂, lt_iSup_iff, mem_singleton_iff] at hp
     rcases hp with ⟨p, rfl, r, hr, h⟩
     use r, hr
     refine ENNReal.lt_div_iff_mul_lt ?_ (Or.inl measure_ball_ne_top) |>.mp h |>.le
@@ -208,7 +208,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
   -- Rewrite second sum of RHS of (5.2.6) so that it sums over tiles `q` satisfying `L < 𝓘 q`
   nth_rw 2 [← stackSize_setOf_add_stackSize_setOf_not (P := fun p' ↦ Disjoint (𝓘 p' : Set X) L)]
     at mx
-  simp_rw [mem_setOf_eq, and_assoc] at mx
+  simp_rw [mem_ofPred_eq, and_assoc] at mx
   have mid0 : stackSize { p' ∈ 𝔐 k n | ¬𝓘 p' ≤ L ∧ Disjoint (𝓘 p' : Set X) L} x = 0 := by
     simp_rw [stackSize, Finset.sum_eq_zero_iff, indicator_apply_eq_zero, Finset.mem_filter_univ,
       show ¬(1 : X → ℕ) x = 0 by simp, imp_false]
@@ -219,7 +219,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
       { p' | p' ∈ 𝔐 k n ∧ ¬𝓘 p' ≤ L ∧ ¬Disjoint (𝓘 p' : Set X) L } =
       { p' | p' ∈ 𝔐 k n ∧ L < 𝓘 p' } := by
     ext q
-    simp_rw [mem_setOf_eq, and_congr_right_iff]
+    simp_rw [mem_ofPred_eq, and_congr_right_iff]
     refine fun _ ↦ ⟨fun h ↦ ?_, ?_⟩
     · apply lt_of_le_of_ne <| (le_or_ge_or_disjoint.resolve_left h.1).resolve_right h.2
       by_contra k; subst k; exact absurd le_rfl h.1
@@ -233,7 +233,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     by_cases h : IsMax L
     · rw [Grid.isMax_iff] at h
       have : Q₂ = ∅ := by
-        ext y; simp_rw [Q₂, mem_setOf_eq, Set.notMem_empty, iff_false, not_and, h, Grid.lt_def,
+        ext y; simp_rw [Q₂, mem_ofPred_eq, Set.notMem_empty, iff_false, not_and, h, Grid.lt_def,
           not_and_or, not_lt]
         exact fun _ ↦ Or.inr (Grid.le_topCube).2
       simp [stackSize, this]
@@ -253,7 +253,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
           mem_of_mem_of_subset mx' (Lslq q mq).1]
       _ ≤ stackSize (𝔐 (X := X) k n) x' := by
         refine stackSize_mono <| sep_subset ..
-      _ ≤ l * 2 ^ (n + 1) := by rwa [setA, mem_setOf_eq, not_lt] at nx'
+      _ ≤ l * 2 ^ (n + 1) := by rwa [setA, mem_ofPred_eq, not_lt] at nx'
   -- so the (unchanged) first sum of RHS is at least `2 ^ (n + 1)`
   rw [add_one_mul] at mx; lia
 
@@ -294,7 +294,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       refine setLIntegral_mono (Finset.measurable_sum Q₁ Q₁m) fun x ⟨mx, mx₂⟩ ↦ ?_
       have : 2 ^ (n + 1) ≤ ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
         convert john_nirenberg_aux1 mL mx mx₂
-        simp_rw [stackSize, Q₁, mem_setOf_eq]
+        simp_rw [stackSize, Q₁, mem_ofPred_eq]
       have lcast : (2 : ℝ≥0∞) ^ (n + 1) = ((2 ^ (n + 1) : ℕ) : ℝ).toNNReal := by
         rw [Real.toNNReal_natCast, ENNReal.coe_natCast]; norm_cast
       have rcast : ∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℝ≥0∞) x =

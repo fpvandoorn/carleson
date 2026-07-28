@@ -309,7 +309,7 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) : ∀ᵐ x �
   set A := {x | ‖f x‖ₑ = ∞} with hA
   simp only [MemWLp, wnorm, wnorm', hp_inf] at hf
   rw [Filter.eventually_iff, mem_ae_iff]
-  simp only [ne_eq, compl_def, mem_setOf_eq, Decidable.not_not, ← hA]
+  simp only [ne_eq, compl_def, mem_ofPred_eq, Decidable.not_not, ← hA]
   have hp_toReal_zero := toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩
   have h1 (t : ℝ≥0) : μ A ≤ distribution f t μ := by
     refine μ.mono ?_
@@ -774,7 +774,7 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
     distribution f t μ + distribution g s μ := by
   have h₀ : {x | ‖L‖ₑ * t * s < ‖(fun x ↦ (L (f x)) (g x)) x‖ₑ} ⊆
       {x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ} := fun z hz ↦ by
-    simp only [mem_union, mem_setOf_eq] at hz ⊢
+    simp only [mem_union, mem_ofPred_eq] at hz ⊢
     contrapose! hz
     calc
       ‖(L (f z)) (g z)‖ₑ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ := by calc
@@ -821,7 +821,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
     symm
     apply measure_eq_measure_of_null_sdiff
     · intro x hx
-      simp only [mem_setOf_eq] at *
+      simp only [mem_ofPred_eq] at *
       rwa [ofReal_lt_iff_lt_toReal ht.le]
       by_contra hfx
       rw [hfx] at hx
@@ -830,7 +830,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
     dsimp [sdiff, Set.diff]
     apply measure_mono_null _ ae_finite
     intro x hx
-    dsimp only [mem_setOf_eq] at *
+    dsimp only [mem_ofPred_eq] at *
     by_contra hf_top
     rw [ofReal_lt_iff_lt_toReal ht.le hf_top] at hx
     exact hx.2 hx.1

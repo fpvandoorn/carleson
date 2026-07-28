@@ -4,6 +4,7 @@ public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 
 public section
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem fourier_comp_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)] [hq : Fact (0 < q)]
   {x : AddCircle p} {n : ℤ} :
     fourier n (AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne' x) = fourier n x := by

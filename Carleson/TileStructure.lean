@@ -580,7 +580,7 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
   have E n (hn : n < N) : ∃ u ∈ iteratedMaximalSubfamily A n, (𝓘 p : Set X) ⊆ (𝓘 u : Set X) := by
     rw [iteratedMaximalSubfamily]
     apply (exists_maximal_disjoint_covering_subfamily _).choose_spec.2.2
-    simp only [coe_setOf, mem_setOf_eq, mem_sdiff, hp,
+    simp only [coe_setOf, mem_ofPred_eq, mem_sdiff, hp,
       mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, true_and]
     intro i hi
     exact hN i (hi.trans hn)
@@ -602,7 +602,7 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
     rintro p hp
     simp only [Finset.mem_filter_univ, mem_image, mem_Iio] at hp
     rcases hp with ⟨n, hn, rfl⟩
-    simp only [ne_eq, mem_setOf_eq, Finset.mem_filter,
+    simp only [ne_eq, mem_ofPred_eq, Finset.mem_filter,
       Finset.mem_univ, iteratedMaximalSubfamily_subset _ _ (hu n hn), true_and]
     rintro rfl
     exact hN n hn (hu n hn)

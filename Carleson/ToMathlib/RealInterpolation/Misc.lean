@@ -399,7 +399,7 @@ variable {ε' : Type*} [ENorm ε'] [Zero ε'] {f : α → ε'}
 def trunc (f : α → ε') (t : ℝ≥0∞) (x : α) : ε' := if ‖f x‖ₑ ≤ t then f x else 0
 
 lemma trunc_eq_indicator : trunc f t = {x | ‖f x‖ₑ ≤ t}.indicator f := by
-  ext x; simp_rw [trunc, Set.indicator, mem_setOf_eq, ite_eq_ite]
+  ext x; simp_rw [trunc, Set.indicator, mem_ofPred_eq, ite_eq_ite]
 
 @[simp]
 lemma trunc_top : trunc f ∞ = f := by simp [trunc_eq_indicator]
@@ -409,7 +409,7 @@ def truncCompl (f : α → ε') (t : ℝ≥0∞) (x : α) : ε' := if ‖f x‖�
 
 lemma truncCompl_eq_indicator : truncCompl f t = {x | ‖f x‖ₑ ≤ t}ᶜ.indicator f := by
   ext x
-  simp only [truncCompl, Set.indicator, mem_compl_iff, mem_setOf_eq, ite_not]
+  simp only [truncCompl, Set.indicator, mem_compl_iff, mem_ofPred_eq, ite_not]
 
 @[simp]
 lemma truncCompl_top : truncCompl f ∞ = (fun _ ↦ 0) := by simp [truncCompl_eq_indicator]
@@ -506,7 +506,7 @@ protected lemma StronglyMeasurable.truncCompl (hf : StronglyMeasurable f) :
 --   apply measure_mono_null ?_ wg2
 --   intro x
 --   contrapose
---   simp only [mem_compl_iff, mem_setOf_eq, not_not]
+--   simp only [mem_compl_iff, mem_ofPred_eq, not_not]
 --   intro h₂
 --   unfold trunc
 --   rewrite [h₂]
@@ -524,7 +524,7 @@ protected lemma StronglyMeasurable.truncCompl (hf : StronglyMeasurable f) :
 --   · apply measure_mono_null ?_ wg2
 --     intro x
 --     contrapose
---     simp only [mem_compl_iff, mem_setOf_eq, not_not]
+--     simp only [mem_compl_iff, mem_ofPred_eq, not_not]
 --     intro f_eq_g; unfold truncCompl; unfold trunc; dsimp only [Pi.sub_apply]; rw [f_eq_g]
 
 @[fun_prop]
@@ -682,7 +682,7 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
     · apply (setLIntegral_eq_of_support_subset _).symm
       unfold Function.support
       intro x
-      rw [truncCompl_eq, mem_setOf_eq]
+      rw [truncCompl_eq, mem_ofPred_eq]
       dsimp only [Pi.sub_apply]
       split_ifs with is_a_lt_fx
       · exact fun _ ↦ is_a_lt_fx
@@ -759,7 +759,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         apply setLIntegral_eq_of_support_subset
         unfold Function.support
         intro x
-        dsimp only [Pi.sub_apply, mem_setOf_eq]
+        dsimp only [Pi.sub_apply, mem_ofPred_eq]
         unfold trunc
         split_ifs with is_fx_le_a
         · intro fx_rpow_ne_zero
@@ -837,10 +837,10 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
     split_ifs with hx hx' hx''
     · exact hfgs hs
     · exfalso
-      simp only [mem_compl_iff, mem_setOf_eq, not_le, not_lt, hfgs hs] at hx hx'
+      simp only [mem_compl_iff, mem_ofPred_eq, not_le, not_lt, hfgs hs] at hx hx'
       order
     · exfalso
-      simp only [mem_compl_iff, mem_setOf_eq, not_le, not_lt, hfgs hs] at hx hx''
+      simp only [mem_compl_iff, mem_ofPred_eq, not_le, not_lt, hfgs hs] at hx hx''
       order
     · rfl
   apply MemLp.ae_eq ae_eq_trunc.symm

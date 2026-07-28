@@ -66,7 +66,7 @@ lemma pairwiseDisjoint_𝓙 : (𝓙 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
 lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonempty) (h : topCube ∈ 𝓙₀ 𝔖) :
     S = 0 := by
   suffices (S : ℤ) = -(S : ℤ) by exact_mod_cast eq_zero_of_neg_eq this.symm
-  rw [𝓙₀, mem_setOf_eq, s, s_topCube] at h
+  rw [𝓙₀, mem_ofPred_eq, s, s_topCube] at h
   apply h.resolve_right
   push Not
   have ⟨p, hp⟩ := h𝔖
@@ -543,7 +543,7 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
   classical
   let Js := Set.toFinset { J ∈ 𝓙 (t u) | ((J : Set X) ∩ ball x (D ^ (𝔰 p) / 2)).Nonempty }
   have mem_Js {J : Grid X} : J ∈ Js ↔ J ∈ 𝓙 (t.𝔗 u) ∧ (↑J ∩ ball x (D ^ 𝔰 p / 2)).Nonempty := by
-    simp only [Js, Set.mem_toFinset, Set.mem_setOf_eq]
+    simp only [Js, Set.mem_toFinset, Set.mem_ofPred_eq]
   have Js_disj : (Js : Set (Grid X)).Pairwise (Disjoint on fun J ↦ (J : Set X)) :=
     fun i₁ hi₁ i₂ hi₂ h ↦ pairwiseDisjoint_𝓙 (mem_Js.mp hi₁).1 (mem_Js.mp hi₂).1 h
   calc

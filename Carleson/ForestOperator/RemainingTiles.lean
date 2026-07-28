@@ -45,7 +45,7 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) : ⋃ J ∈ 𝓙₆ t u₁, (J : Set X)
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
       unfold 𝓙₆
-      rw [inter_def, mem_setOf_eq]
+      rw [inter_def, mem_ofPred_eq]
       refine ⟨cube_in_𝓙, ?_⟩
       simp only [mem_Iic, Grid.le_def]
       have smaller := calc s cube
@@ -63,7 +63,7 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) : ⋃ J ∈ 𝓙₆ t u₁, (J : Set X)
         _ ⊆ cube := by
           apply subset_of_notMem_Iic_of_not_disjoint cube
           · have notIn : cube ∉ t.𝓙₆ u₁ := fun a ↦ contr cube a xInCube
-            rw [𝓙₆, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
+            rw [𝓙₆, inter_def, Set.mem_ofPred_eq, not_and_or] at notIn
             exact Or.resolve_left notIn (Set.not_notMem.mpr cube_in_𝓙)
           · exact notDisjoint
         _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
@@ -71,7 +71,7 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) : ⋃ J ∈ 𝓙₆ t u₁, (J : Set X)
         _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
           unfold ball
           intro y xy
-          rw [mem_setOf_eq] at xy ⊢
+          rw [mem_ofPred_eq] at xy ⊢
           have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
             gcongr
             · linarith
@@ -344,7 +344,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
         Finset.mem_univ, true_and, indicator_apply_eq_zero, Metric.mem_eball, Pi.one_apply,
         one_ne_zero, imp_false, not_lt, and_imp]
       intro I e hI₁ _
-      simp only [Grid.mem_def, mem_setOf_eq, not_and, not_le, supp, ← e] at hx'
+      simp only [Grid.mem_def, mem_ofPred_eq, not_and, not_le, supp, ← e] at hx'
       exact (hx' hx).le.trans (iInf₂_le (c I)
         fun h ↦ Set.disjoint_iff.mp hI₁ ⟨Grid.c_mem_Grid, hJ.2.1 h⟩)
   have est₂' (x) (hx : x ∈ J) : _ ≤ supp.indicator (fun _ ↦ (↑(defaultA a ^ 7 : ℕ) : ℝ≥0∞) ^ 2) x :=
@@ -532,7 +532,7 @@ lemma btp_integral_bound :
       congr! with y
       refine (lintegral_biUnion_finset (fun p₁ mp₁ p₂ mp₂ hn ↦ ?_)
         (fun p mp ↦ measurableSet_E) _).symm
-      rw [Finset.coe_filter, mem_setOf_eq] at mp₁ mp₂
+      rw [Finset.coe_filter, mem_ofPred_eq] at mp₁ mp₂
       exact disjoint_E hn (mp₂.2.2.symm ▸ mp₁.2.2)
     _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
         ⨍⁻ y in ball (c I) (8 * D ^ s I), ‖f y‖ₑ ∂volume := by
