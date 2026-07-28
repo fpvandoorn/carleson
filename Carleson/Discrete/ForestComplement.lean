@@ -80,6 +80,7 @@ lemma dens'_le_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : dens' k {p} ≤ 2 ^
       rw [aux𝓒, mem_ofPred] at mp'; push Not at mp'; specialize mp' (𝓘 p') le_rfl
       rw [inter_comm] at E; exact (measure_mono E).trans mp'
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_E₂_volume_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ r : ℕ, 0 < volume (E₂ r p) := by
   apply exists_measure_pos_of_not_measure_iUnion_null
   change volume (⋃ n : ℕ, 𝓘 p ∩ G ∩ Q ⁻¹' ball_(p) (𝒬 p) n) ≠ 0
@@ -320,6 +321,7 @@ open scoped Classical in
 def 𝔒 (p' : 𝔓 X) (l : ℝ≥0) : Finset (𝔓 X) :=
   {p'' | 𝓘 p'' = 𝓘 p' ∧ ¬Disjoint (ball_(p') (𝒬 p') l) (Ω p'')}
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card ≤ ⌊2 ^ (4 * a) * l ^ a⌋₊ := by
   have djO : PairwiseDisjoint (SetLike.coe (𝔒 p' l)) fun p'' ↦ ball_(p') (𝒬 p'') 5⁻¹ :=
     fun p₁ mp₁ p₂ mp₂ hn ↦ by
@@ -402,6 +404,7 @@ lemma l_upper_bound : l < 2 ^ n := by
       nth_rw 1 [← one_mul (l ^ a)]; gcongr; exact_mod_cast Nat.one_le_two_pow
     _ < _ := qp'
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_𝔒_with_le_quotient :
     ∃ b ∈ 𝔒 p' l, 2 ^ (-n : ℤ) < volume (E₁ b) / volume (𝓘 b : Set X) := by
   classical
@@ -441,6 +444,7 @@ lemma exists_𝔒_with_le_quotient :
 
 end
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Main part of Lemma 5.5.2. -/
 lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   classical
@@ -537,6 +541,7 @@ private instance : Preorder (ℭ₁' (X := X) k n j) where
     change smul _ _ ≤ smul _ _ at xy yz ⊢
     exact xy.trans yz
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 5.5.3 -/
 lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
   classical

@@ -24,6 +24,7 @@ namespace TileStructure.Forest
 Has value `2 ^ (101 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 1) * a ^ 3)
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Part 1 of Lemma 7.3.2. -/
 lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
     (hp₂ : ∃ p ∈ t u, ¬Disjoint ↑L (E p) ∧ 𝔰 p ≤ s L) :
@@ -85,6 +86,7 @@ lemma volume_bound_of_Grid_lt {L L' : Grid X} (lL : L ≤ L') (sL : s L' = s L +
     Real.logb_self_eq_one one_lt_two, mul_one, Nat.ceil_natCast, ENNReal.coe_pow, ENNReal.coe_ofNat]
   ring
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 7.3.2. -/
 lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
     volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by

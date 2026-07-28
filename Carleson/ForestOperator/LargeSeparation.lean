@@ -202,6 +202,7 @@ lemma bigger_than_𝓙_is_not_in_𝓙₀ {𝔖 : Set (𝔓 X)} {A B : Grid X}
   · exact (A_in contr le.1 (le_of_lt sle)).2
   · exact sle
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 7.5.3 (stated somewhat differently). -/
 lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙₅ t u₁ u₂)
     (hd : ¬Disjoint (ball (c J) (8 * D ^ s J)) (ball (c J') (8 * D ^ s J'))) :
@@ -664,6 +665,7 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
 /-- Multiplicative factor for the bound on `‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ`. -/
 irreducible_def Q7_5_5 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (6 * a)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma QQQQ_bound_real {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u)
     (hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) (hx' : x' ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
     ‖-Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ ≤ Q7_5_5 a * (dist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
@@ -2007,6 +2009,7 @@ lemma le_C7_4_5 (a4 : 4 ≤ a) :
   · exact one_le_two
   · linarith [sixteen_times_le_cube a4]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 7.4.5 -/
 lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :

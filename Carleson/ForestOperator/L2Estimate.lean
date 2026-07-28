@@ -602,6 +602,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       congr! with J - y -; rw [Finset.mul_sum]
       congr with I; rw [mul_ite, mul_zero, ← mul_rotate]
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Classical in
 /-- Bound for the inner sum in Equation (7.2.8). -/
 lemma boundary_geometric_series :

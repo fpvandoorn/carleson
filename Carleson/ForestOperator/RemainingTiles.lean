@@ -129,6 +129,7 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
   rw [𝓙₀, mem_ofPred] at J'nm; push Not at J'nm; obtain ⟨p', mp', sp'⟩ := J'nm.2
   exact ⟨b1, ⟨J', lJ', sJ', ⟨p', mp', sp'⟩⟩⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The key relation of Lemma 7.6.3, which will eventually be shown to lead to a contradiction. -/
 lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₆ t u₁)
@@ -236,6 +237,7 @@ lemma thin_scale_impact' (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
 /-- The constant used in `square_function_count`. -/
 irreducible_def C7_6_4 (a : ℕ) (s : ℤ) : ℝ≥0 := 2 ^ (14 * (a : ℝ) + 1) * (8 * D ^ (- s)) ^ κ
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Classical in
 /-- Lemma 7.6.4. -/
 lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
