@@ -1554,6 +1554,7 @@ def 𝓓.coe (z : 𝓓 X) : Set X := I3 z.hk z.y
 variable (X) in
 def forget_map (x : 𝓓 X) : (k : Set.Icc (-S : ℤ) S) × (Yk X k) := ⟨⟨x.k,And.intro x.hk x.hk_max⟩,x.y⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma forget_map_inj : Function.Injective (forget_map X) := by
   intro x1 x2 h
   dsimp only [forget_map] at h
@@ -1665,6 +1666,7 @@ open scoped Classical in
 def 𝓩_cands : Finset (Finset (Θ X)) :=
   Q.range.powerset.filter fun z ↦ (SetLike.coe z).PairwiseDisjoint (ball_{I} · C𝓩)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_𝓩_max_card : ∃ zmax ∈ 𝓩_cands I, ∀ z ∈ 𝓩_cands I, z.card ≤ zmax.card :=
   (𝓩_cands I).exists_max_image Finset.card ⟨∅, by simp [𝓩_cands]⟩
 
@@ -1683,6 +1685,7 @@ lemma 𝓩_subset : 𝓩 I ⊆ Q.range := 𝓩_spec.1
 lemma 𝓩_pairwiseDisjoint : (SetLike.coe (𝓩 I)).PairwiseDisjoint (ball_{I} · C𝓩) := 𝓩_spec.2.1
 lemma 𝓩_max_card : ∀ z ∈ 𝓩_cands I, z.card ≤ (𝓩 I).card := 𝓩_spec.2.2
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma 𝓩_nonempty : (𝓩 I).Nonempty := by
   by_contra h; rw [Finset.not_nonempty_iff_eq_empty] at h
   have j := 𝓩_max_card (I := I)

@@ -400,6 +400,7 @@ lemma lintegral_inv_vol_le {R₁ R₂ : ℝ≥0} (hR₁ : 0 < R₁) (hR₂ : R�
       apply ENNReal.div_le_of_le_mul'
       convert! measure_ball_two_le_same_iterate (μ := volume) x (dist x y) n; norm_cast
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma edist_carlesonOperatorIntegrand_le
     {R₁ R₂ : ℝ≥0} (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
     edist (carlesonOperatorIntegrand K θ R₁ R₂ f x) (carlesonOperatorIntegrand K ϑ R₁ R₂ f x) ≤
@@ -443,6 +444,7 @@ lemma edist_carlesonOperatorIntegrand_le
       rw [← mul_rotate, ← coe_mul, mul_comm (_ ^ _), C3_0_1, C_K, ← Nat.cast_pow,
         NNReal.rpow_natCast]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma dist_carlesonOperatorIntegrand_le
     {R₁ R₂ : ℝ≥0} (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
     dist (carlesonOperatorIntegrand K θ R₁ R₂ f x) (carlesonOperatorIntegrand K ϑ R₁ R₂ f x) ≤

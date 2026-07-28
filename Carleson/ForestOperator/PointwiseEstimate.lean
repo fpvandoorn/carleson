@@ -375,6 +375,7 @@ private lemma dist_lt_5 (hu : u ∈ t) (mp : p ∈ t.𝔗 u) (Qxp : Q x ∈ Ω p
     add_lt_add ((t.smul_four_le hu mp).2 (by convert! mem_ball_self zero_lt_one)) (subset_cball Qxp)
   _ = 5 := by norm_num
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- The bound in the third display in the proof of Lemma 7.1.4
 private lemma L7_1_4_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) {y : X} (hKxy : Ks s x y ≠ 0) :
     ‖exp (.I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ₑ ≤
@@ -665,6 +666,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       rw [hpₛ]; gcongr ?_ / _
       rw [← hpₛ]; exact L7_1_4_integral_le_integral hu hf pₛu xpₛ
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 7.1.5 -/
 lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) :
     ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖ₑ ≤
@@ -753,6 +755,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
 Has value `2 ^ (128 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔 / 4) * a ^ 3)
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Used in the proof of Lemmas 7.1.3 and 7.1.6 to translate between `∑ p` into `∑ s`
 open scoped Classical in
 private lemma p_sum_eq_s_sum {α : Type*} [AddCommMonoid α] (I : ℤ → X → α) :
@@ -833,6 +836,7 @@ private lemma L7_1_6_integral_eq {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
     change Integrable ((⨍ z in (J : Set X), Ks i x z) • f) (volume.restrict J)
     exact hf.integrable.restrict.smul _
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Integral norm bound used implicitly in the third display of the proof of Lemma 7.1.6.
 private lemma L7_1_6_integral_le {J : Grid X} (hJ : J ∈ 𝓙 (t u)) {i : ℤ}
     (hf : BoundedCompactSupport f) : ‖∫ y in J, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖ₑ ≤

@@ -809,6 +809,7 @@ lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioc 0 q) {f : α → ε} (hf : MemLp f p �
       · finiteness
     · exact (rpow_lt_top_iff_of_pos (toReal_pos hpq.1.ne' p_ne_top)).mpr hf.2
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f x‖ₑ} < ⊤) :
     MemLp (trnc ⊥ f t) p μ := by
   by_cases hp_top : p = ⊤
@@ -864,7 +865,7 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
     rw [Filter.eventuallyEq_iff_exists_mem] at wg2
     rcases wg2 with ⟨s, hs, hfgs⟩
     rw [Filter.eventuallyEq_iff_exists_mem]
-    exact ⟨s, hs, fun a ha ↦ by simp [setOf, hfgs.symm ha]⟩
+    exact ⟨s, hs, fun a ha ↦ by simp [ofPred, hfgs.symm ha]⟩
   _ < ∞ := h
 
 -- is there a better name?
@@ -1049,6 +1050,7 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
         order
       · simp [hp]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma lintegral_trunc_mul₁ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple} :
     ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
     ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p := by

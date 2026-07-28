@@ -257,6 +257,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
   -- so the (unchanged) first sum of RHS is at least `2 ^ (n + 1)`
   rw [add_one_mul] at mx; lia
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Equation (5.2.11) in the proof of Lemma 5.2.5. -/
 lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) :
     2 * volume (setA (X := X) (l + 1) k n ∩ L) ≤ volume (L : Set X) := by
@@ -308,6 +309,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       congr!; exact lintegral_indicator_one coeGrid_measurable
     _ ≤ _ := e529
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 5.2.5 -/
 lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * volume G := by
   induction l with
@@ -396,6 +398,7 @@ def layervol (k n : ℕ) (t : ℝ) : ℝ≥0∞ :=
   volume {x | t ≤ ∑ m with m ∈ 𝔐 (X := X) k n,
     (𝓘 m : Set X).indicator (1 : X → ℝ) x}
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma indicator_sum_eq_natCast {s : Finset (𝔓 X)} :
     ∑ m ∈ s, (𝓘 m : Set X).indicator (1 : X → ℝ) x =
     Nat.cast (∑ m ∈ s, (𝓘 m : Set X).indicator (1 : X → ℕ) x) := by
@@ -543,6 +546,7 @@ private lemma 𝒬m_mem_ball : 𝒬 m ∈ ball_(u) (𝒬 u) 100 := by
   simp only [𝔘, mem_filter, smul] at hu
   exact hu.2.2.2 (by simp)
 
+set_option backward.isDefEq.respectTransparency.types false in
 include hu hu' in
 private lemma 𝓘_not_lt_𝓘 : ¬𝓘 u < 𝓘 u' := by
   classical
@@ -563,6 +567,7 @@ include hu hu' in
 private lemma ball_eq_ball : ball_(u) = ball_(u') := by
   delta 𝔠 𝔰; rw [𝓘_eq_𝓘 hu hu']
 
+set_option backward.isDefEq.respectTransparency.types false in
 include hu hu' hu'' in
 private lemma disjoint_balls (h : u' ≠ u'') :
     Disjoint (ball_(u) (𝒬 u') 0.2) (ball_(u) (𝒬 u'') 0.2) := by
@@ -577,6 +582,7 @@ private lemma mem_big_ball : 𝒬 u' ∈ big_ball m u := by
   simp only [big_ball, mem_ball] at this ⊢
   exact this.trans (by norm_num)
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Classical in
 include hu in
 private lemma subset_big_ball (f : Θ X) (hf : f ∈ (𝔘 k n j x m).image 𝒬) : f ∈ big_ball m u := by
@@ -635,6 +641,7 @@ private lemma interchange :
 
 end 𝔘
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Inequality (5.2.20) in the proof of Lemma 5.2.8
 open scoped Classical in
 private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·),
@@ -655,6 +662,7 @@ private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ �
   simp only [TileLike.le_def, smul_fst, Finset.mem_filter] at hm
   simp only [Set.indicator_of_mem (hm.2.2.1.1 hx), Pi.one_apply]
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Finset in
 /-- Lemma 5.2.8 -/
 lemma tree_count :
@@ -678,6 +686,7 @@ lemma tree_count :
   rw [sub_eq_add_neg, zpow_add₀ two_ne_zero, ← pow_mul, mul_comm 9, mul_comm (2 ^ _)]
   norm_cast
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 5.2.9 -/
 lemma boundary_exception {u : 𝔓 X} :
     volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by

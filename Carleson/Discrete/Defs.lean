@@ -278,6 +278,7 @@ end AntichainDecomp
 def highDensityTiles : Set (𝔓 X) :=
   { p : 𝔓 X | 2 ^ (2 * a + 5) * volume F / volume G < dens₂ {p} }
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma highDensityTiles_empty (hF : volume F = 0) : highDensityTiles = (∅ : Set (𝔓 X)) := by
   suffices ∀ (p : 𝔓 X), dens₂ {p} = 0 by simp [highDensityTiles, this]; rfl
   simp_rw [dens₂, ENNReal.iSup_eq_zero, ENNReal.div_eq_zero_iff]
