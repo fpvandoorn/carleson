@@ -301,7 +301,7 @@ lemma S_truncation
       · rw [← h]; exact ⟨eσ₁ x, fun m ↦ minσ₁ x⟩
       · rw [← (candσ₁ x).le_min'_iff (necσ₁ x)] at h; obtain ⟨h₁, h₂ : n ≤ σ₁ x⟩ := h
         exact le_antisymm ((candσ₁ x).min'_le _ h₁) h₂
-    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_setOf_eq, measurableSet_setOfPred]
+    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_ofPred_eq, measurableSet_setOfPred]
     refine Measurable.and ?_ (mcσ₁.and (Measurable.forall fun m ↦ mcσ₁.imp measurable_const))
     simp [scσ₁]
   have rσ₁ : (range σ₁).Finite := by
@@ -352,7 +352,7 @@ lemma S_truncation
       · rw [← h]; exact ⟨eσ₂ x, fun m ↦ minσ₂ x⟩
       · rw [← (candσ₂ x).le_min'_iff (necσ₂ x)] at h; obtain ⟨h₁, h₂ : n ≤ σ₂ x⟩ := h
         exact le_antisymm ((candσ₂ x).min'_le _ h₁) h₂
-    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_setOf_eq, measurableSet_setOfPred]
+    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_ofPred_eq, measurableSet_setOfPred]
     refine Measurable.and ?_ (mcσ₂.and (Measurable.forall fun m ↦ mcσ₂.imp measurable_const))
     simp [scσ₂]
   have rσ₂ : (range σ₂).Finite := by

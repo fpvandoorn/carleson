@@ -222,7 +222,7 @@ theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ℝ≥0∞} (
   intro x
   simp only [gt_iff_lt, enorm_eq_self, Set.mem_ofPred_eq]
   intro hx
-  simp only [Set.preimage_setOf_eq, Set.mem_ofPred_eq]
+  simp only [Set.preimage_ofPred_eq, Set.mem_ofPred_eq]
   convert hx using 5 with N hN
   unfold g
   simp only [AddCircle.coe_equivIoc]

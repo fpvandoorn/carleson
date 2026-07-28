@@ -164,7 +164,7 @@ lemma lowerSemicontinuous_LNT {Q : SimpleFunc X (Θ X)} {θ : Θ X} :
   refine fun M ↦ isOpen_iUnion fun R₂ ↦ isOpen_biUnion fun R₁ hR₁ ↦ isOpen_iUnion fun x' ↦ ?_
   by_cases hx' : M < ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁)
       (min (ENNReal.ofReal R₂) (upperRadius Q θ x')), K x' y * f y‖ₑ
-  · simp_rw [hx', and_true, mem_ball_comm, setOf_mem_eq, isOpen_ball]
+  · simp_rw [hx', and_true, mem_ball_comm, ofPred_mem_eq, isOpen_ball]
   · simp [hx']
 
 lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}

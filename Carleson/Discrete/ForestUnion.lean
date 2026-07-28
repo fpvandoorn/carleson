@@ -648,7 +648,7 @@ lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 
     · intro a ha b hb hab
       apply Finset.disjoint_coe.1
       apply disjoint_iff_forall_ne.2 (fun p hp q hq ↦ ?_)
-      simp only [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at hp hq
+      simp only [Finset.coe_filter, Finset.mem_univ, true_and, ofPred_mem_eq] at hp hq
       have := pairwiseDisjoint_iteratedMaximalSubfamily (𝔘₃ (X := X) k n j)
         (mem_univ a) (mem_univ b) hab
       exact disjoint_iff_forall_ne.1 this hp hq
