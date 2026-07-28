@@ -192,6 +192,7 @@ lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) 
       simp_rw [toFinset_union, subset_toFinset, Finset.coe_union, coe_toFinset, union_subset_iff]
       exact ⟨usp, u'sp⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 5.4.1, part 1. -/
 lemma URel.eq (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : URel k n j u u') : 𝓘 u = 𝓘 u' := by
   by_cases e : u = u'; · rw [e]
@@ -204,6 +205,7 @@ lemma URel.eq (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : UR
   · exact eq_of_le_of_not_lt (Grid.le_dyadic h sl₁.1 sl₂.1) n₁
   · exact (eq_of_le_of_not_lt (Grid.le_dyadic h.le sl₂.1 sl₁.1) n₂).symm
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Helper for 5.4.2 that is also used in 5.4.9. -/
 lemma urel_of_not_disjoint {x y : 𝔓 X} (my : y ∈ 𝔘₂ k n j) (xye : 𝓘 x = 𝓘 y)
     (nd : ¬Disjoint (ball_(x) (𝒬 x) 100) (ball_(y) (𝒬 y) 100)) : URel k n j y x := by
@@ -231,6 +233,7 @@ lemma urel_of_not_disjoint {x y : 𝔓 X} (my : y ∈ 𝔘₂ k n j) (xye : 𝓘
         exact mem_ball.mp ϑx
     _ < _ := by norm_num
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 5.4.2. -/
 lemma equivalenceOn_urel : EquivalenceOn (URel (X := X) k n j) (𝔘₂ k n j) where
   refl _ _ := .rfl
@@ -326,6 +329,7 @@ lemma forest_disjoint : (𝔘₃ k n j).PairwiseDisjoint (fun u ↦ 𝔗₂ (X :
     exact (equivalenceOn_urel (X := X)).symm (𝔘₃_subset_𝔘₂ hu') v'_mem v'_rel
   exact (equivalenceOn_urel (X := X)).reprs_inj hu hu' this
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 5.4.4, verifying (2.0.32) -/
 lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : smul 4 p ≤ smul 1 u := by
   rw [𝔗₂, mem_inter_iff, mem_iUnion₂] at hp
@@ -369,6 +373,7 @@ lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
   use (ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁) mp'₅, pnu.ne
   exact (wiggle_order_11_10 mp'.2 (C5_3_3_le (X := X).trans (by norm_num))).trans sl
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 5.4.6, verifying (2.0.36)
 Note: swapped `u` and `u'` to match (2.0.36) -/
 lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) (huu' : u ≠ u')
@@ -497,6 +502,7 @@ variable (k n j) in
 /-- The good choice of an element to get a contradiction in the proof of Lemma 5.4.8. -/
 def mf (u : 𝔘₃ (X := X) k n j) : 𝔐 (X := X) k n := (exists_smul_le_of_𝔘₃ u).choose
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma mf_injOn : InjOn (mf k n j) {u | x ∈ 𝓘 u.1} := fun u mu u' mu' e ↦ by
   set m := mf k n j u
   have iu : smul 100 u.1 ≤ smul 1 m.1 := (exists_smul_le_of_𝔘₃ u).choose_spec
@@ -632,6 +638,7 @@ lemma pairwiseDisjoint_𝔘₄ : univ.PairwiseDisjoint (𝔘₄ (X := X) k n j) 
   have := pairwiseDisjoint_iteratedMaximalSubfamily (𝔘₃ (X := X) k n j) (mem_univ a) (mem_univ b) h
   exact disjoint_iff_forall_ne.1 this xa yb
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 2 ^ n := by classical calc
   stackSize (𝔘₄ (X := X) k n j l) x
   _ = ∑ i ∈ Finset.Ico (l * 2 ^ n) ((l + 1) * 2 ^ n),
