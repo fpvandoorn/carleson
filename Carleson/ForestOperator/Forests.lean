@@ -250,6 +250,7 @@ lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x : X)
     _ ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j : Set _) x :=
         stackSize_mono (Set.singleton_subset_iff.mpr ⟨t.rowDecomp_𝔘_subset j h𝔲'.1, h𝔲'.1⟩)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
     stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
   induction j with
@@ -1061,6 +1062,7 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
         show -(n / 2) * (2 - 2 / q) = -(1 - 1 / q) * n by ring]
       congr; rw [sub_div, div_self (q_pos X).ne']
 
+set_option backward.isDefEq.respectTransparency false in
 open scoped Classical in
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function. -/

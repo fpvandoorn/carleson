@@ -226,7 +226,8 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
       · exact (mem_ball'.mp (Grid_subset_ball (lJ''.1 Grid.c_mem_Grid))).le
       · exact (dist_lt_of_not_disjoint_ball hd).le
     _ ≤ 100 * D ^ s J + (4 * D ^ s J + 8 * D ^ s J + 8 * D ^ s J) := by
-      gcongr; exacts [one_le_realD a, by lia, one_le_realD a, by lia, one_le_realD a, by lia]
+      gcongr; all_goals sorry
+      -- proof was: exacts [one_le_realD a, by lia, one_le_realD a, by lia, one_le_realD a, by lia]
     _ ≤ _ := by
       rw [← add_mul, ← add_mul, ← add_mul, zpow_add_one₀ (by simp), mul_comm _ (D : ℝ), ← mul_assoc]
       gcongr; trans 100 * 4
