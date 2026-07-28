@@ -349,6 +349,7 @@ section ContinuousENorm
 
 variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma distribution_le [MeasurableSpace ε] [OpensMeasurableSpace ε]
     {c : ℝ≥0∞} (hc : c ≠ 0) {μ : Measure α} (hf : AEMeasurable f μ) :
     distribution f c μ ≤ c⁻¹ * (∫⁻ y, ‖f y‖ₑ ∂μ) := by

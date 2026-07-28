@@ -156,6 +156,7 @@ def TileLike.snd (x : TileLike X) : Set (Θ X) := x.2
 @[simp] lemma TileLike.fst_mk (x : Grid X) (y : Set (Θ X)) : TileLike.fst (x, y) = x := by rfl
 @[simp] lemma TileLike.snd_mk (x : Grid X) (y : Set (Θ X)) : TileLike.snd (x, y) = y := by rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
 
 lemma TileLike.le_def (x y : TileLike X) : x ≤ y ↔ x.fst ≤ y.fst ∧ y.snd ⊆ x.snd := by rfl
@@ -218,6 +219,7 @@ lemma dist_𝒬_lt_one_of_le {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 q) (�
 lemma dist_𝒬_lt_one_of_le' {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 p) (𝒬 q) < 1 :=
   mem_ball'.mp (dist_𝒬_lt_one_of_le h)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := fun _ _ h ↦ h.le.1.lt_of_ne <|
   fun h' ↦ disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
 
@@ -243,6 +245,7 @@ lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (
         exact mem_ball.mp <| mem_of_mem_of_subset (by convert! mem_ball_self hk) hl.2
   exact ⟨hl.1, this⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma dist_LTSeries {n : ℕ} {u : Set (𝔓 X)} {s : LTSeries u} (hs : s.length = n) {f g : Θ X} :
     dist_(s.head.1) f g ≤ C2_1_2 a ^ n * dist_(s.last.1) f g := by
   induction n generalizing s with
@@ -474,6 +477,7 @@ lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
       exact hx _ hp
     linarith
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma eq_empty_of_forall_stackSize_zero (s : Set (𝔓 X)) :
     (∀ x, stackSize s x = 0) → s = ∅ := by
   intro h
