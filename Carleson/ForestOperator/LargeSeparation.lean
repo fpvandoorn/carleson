@@ -1892,9 +1892,9 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       suffices s (𝓘 u₁) > s (𝓘 p) by linarith
       by_contra! smaller
       have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
-      apply HasSubset.Subset.not_ssubset
+      apply LE.le.not_ssuperset
         ((fundamental_dyadic smaller).resolve_right (IF_subset_THEN_not_disjoint pIsSubset))
-      apply HasSubset.Subset.ssubset_of_ne pIsSubset
+      apply LE.le.ssubset_of_ne pIsSubset
       by_contra! sameSet
       apply Forest.𝓘_ne_𝓘 (hu := hu₁) (hp := belongs)
       exact Grid.inj (Prod.ext sameSet sameScale)
