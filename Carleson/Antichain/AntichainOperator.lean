@@ -178,7 +178,7 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
   unfold dach
   set B := ball (𝔠 p) (14 * D ^ 𝔰 p)
   set A : Set (𝔓 X) := {p' | (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ B}
-  have sA : A ⊆ 𝔄 := fun _ ↦ by simp only [A, mem_setOf_eq, and_imp]; tauto
+  have sA : A ⊆ 𝔄 := fun _ ↦ by simp only [A, mem_ofPred_eq, and_imp]; tauto
   calc
     _ = (volume B)⁻¹ * ∫⁻ x, B.indicator (‖g ·‖ₑ) x *
           ∑ p' with p' ∈ A, (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
@@ -190,7 +190,7 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
         rw [← mul_assoc, ← mul_assoc, mul_comm _ (_ ^ _), mul_assoc, mul_assoc]
       congr! 2 with p' mp'
       rw [← mul_assoc, ← inter_indicator_mul]; simp_rw [Pi.one_apply, mul_one]
-      simp_rw [A, mem_setOf_eq, Finset.mem_filter_univ] at mp'
+      simp_rw [A, mem_ofPred_eq, Finset.mem_filter_univ] at mp'
       rw [inter_eq_right.mpr (E_subset_𝓘.trans mp'.2)]
       by_cases hx : x ∈ G
       · rw [indicator_of_mem hx, Pi.one_apply, mul_one]
@@ -219,7 +219,7 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
       gcongr
       · exact dens₁_mono sA
       · refine iUnion₂_subset fun p' mp' ↦ ?_
-        simp_rw [A, mem_setOf_eq] at mp'; exact mp'.2
+        simp_rw [A, mem_ofPred_eq] at mp'; exact mp'.2
     _ = _ := by
       rw [mul_comm, mul_assoc]; congr 1
       have vpos : 0 < volume B := by apply measure_ball_pos; unfold defaultD; positivity
@@ -282,7 +282,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
       rw [← lintegral_biUnion_finset _ (fun _ _ ↦ measurableSet_E)]
       · simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       · intro p mp p' mp' hn
-        simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at mp mp'
+        simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, ofPred_mem_eq] at mp mp'
         exact not_not.mp ((tile_disjointness h𝔄 mp mp').mt hn)
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         ∫⁻ y, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by gcongr; exact Measure.restrict_le_self

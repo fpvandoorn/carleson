@@ -159,16 +159,16 @@ def rowDecomp_zornset (s : Set (𝔓 X)) :=
 lemma mem_rowDecomp_zornset_iff (s s' : Set (𝔓 X)) :
     s' ∈ rowDecomp_zornset s ↔ (s' ⊆ s ∧ s'.PairwiseDisjoint (𝓘 ·: _ → Set X) ∧
       ∀ u ∈ s', Maximal (· ∈ 𝓘 '' s) (𝓘 u)) := by
-  simp_rw [rowDecomp_zornset, mem_inter_iff, mem_setOf, and_assoc]
+  simp_rw [rowDecomp_zornset, mem_inter_iff, mem_ofPred, and_assoc]
   nth_rw 2 [subset_def]
-  simp_rw [mem_setOf]
+  simp_rw [mem_ofPred]
 
 lemma rowDecomp_zornset_chain_Union_bound (s' : Set (𝔓 X)) {c : Set (Set (𝔓 X))} (hc : c ⊆ rowDecomp_zornset s')
     (hc_chain : IsChain (· ⊆ ·) c) :
     (⋃ s ∈ c,s) ∈ rowDecomp_zornset s' ∧ ∀ s ∈ c, s ⊆ ⋃ s'' ∈ c, s'' := by
   simp_rw [rowDecomp_zornset,subset_inter_iff] at hc ⊢
   obtain ⟨⟨hc₁,hc₂⟩,hc₃⟩ := hc
-  simp_rw [mem_inter_iff,mem_setOf]
+  simp_rw [mem_inter_iff,mem_ofPred]
   repeat constructor
   · exact iUnion₂_subset_iff.mpr hc₁
   · exact (hc_chain.pairwiseDisjoint_iUnion₂ _).mpr hc₂
@@ -250,6 +250,7 @@ lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x : X)
     _ ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j : Set _) x :=
         stackSize_mono (Set.singleton_subset_iff.mpr ⟨t.rowDecomp_𝔘_subset j h𝔲'.1, h𝔲'.1⟩)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) (x : X) :
     stackSize (t \ ⋃ i < j, t.rowDecomp i : Set _) x ≤ 2 ^ n - j := by
   induction j with
@@ -1061,6 +1062,7 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
         show -(n / 2) * (2 - 2 / q) = -(1 - 1 / q) * n by ring]
       congr; rw [sub_div, div_self (q_pos X).ne']
 
+set_option backward.isDefEq.respectTransparency false in
 open scoped Classical in
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function. -/

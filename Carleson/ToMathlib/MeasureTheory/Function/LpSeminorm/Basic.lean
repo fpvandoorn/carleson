@@ -72,12 +72,12 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
   simp_rw [eLpNormEssSup, essSup_eq_sInf, enorm_eq_self]
   apply le_antisymm
   · apply sInf_le
-    simp only [mem_setOf_eq]
+    simp only [mem_ofPred_eq]
     apply nonpos_iff_eq_zero.mp
     calc
     _ ≤ μ (⋃ i, {x | ⨆ n, sInf {a | μ {x | a < f n x} = 0} < f i x}) := by
       refine measure_mono fun x hx ↦ mem_iUnion.mpr ?_
-      simp only [mem_setOf_eq] at hx
+      simp only [mem_ofPred_eq] at hx
       exact lt_iSup_iff.mp hx
     _ ≤ _ := measure_iUnion_le _
     _ ≤ ∑' i, μ {x | sInf {a | μ {x | a < f i x} = 0} < f i x} := by
@@ -89,7 +89,7 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
     _ = ∑' i, 0 := by congr with i; exact meas_eLpNormEssSup_lt
     _ = 0 := by simp
   · refine iSup_le fun i ↦ le_sInf fun b hb ↦ sInf_le ?_
-    simp only [mem_setOf_eq] at hb ⊢
+    simp only [mem_ofPred_eq] at hb ⊢
     exact nonpos_iff_eq_zero.mp <|le_of_le_of_eq
         (measure_mono fun ⦃x⦄ h ↦ lt_of_lt_of_le h (le_iSup (fun i ↦ f i x) i)) hb
 

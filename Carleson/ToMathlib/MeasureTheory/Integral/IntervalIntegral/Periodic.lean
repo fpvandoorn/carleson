@@ -130,7 +130,7 @@ open Set ENNReal
 theorem MeasureTheory.eLpNorm_eq_eLpNorm_liftIoc {T : ℝ} [hT : Fact (0 < T)] {t : ℝ} {f : ℝ → ℂ}
   (hf : AEStronglyMeasurable f (volume.restrict (Ioc t (t + T)))) {p : ℝ≥0∞} :
     eLpNorm f p (volume.restrict (Ioc t (t + T))) = eLpNorm (AddCircle.liftIoc T t f) p volume := by
-  simp only [AddCircle.liftIoc, Set.restrict_def, Function.comp_def]
+  simp only [AddCircle.liftIoc, Set.domRestrict_def, Function.comp_def]
   rw [← Function.comp_def, eLpNorm_comp_measurePreserving (g := f) (p := p) hf]
   refine .comp (measurePreserving_subtype_coe measurableSet_Ioc) ?_
   exact AddCircle.measurePreserving_equivIoc T

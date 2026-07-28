@@ -23,7 +23,7 @@ lemma czOperator_bound {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r
   · let M1 := (C_K a / volume (ball x r)).toNNReal
     let M2 := (eLpNorm g ∞).toNNReal
     have : { y | ¬‖K x y * g y‖ ≤ M0} ⊆ { y | ¬‖K x y‖ ≤ M1 ∨ ¬‖g y‖ ≤ M2} := by
-      rw [setOf_subset_setOf]
+      rw [ofPred_subset_ofPred]
       intro y
       contrapose!
       intro hy
@@ -36,7 +36,7 @@ lemma czOperator_bound {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r
       rw [← toNNReal_mul]
     rw [← Measure.restrict_apply₀']
     · apply measure_mono_null_ae this.eventuallyLE
-      rw [setOf_or]
+      rw [ofPred_or]
       apply measure_union_null
       · rw [← ae_iff]
         apply ae_restrict_of_forall_mem measurableSet_ball.compl
@@ -103,7 +103,7 @@ lemma czOperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
         arg 1; arg 2;
         rw [← inter_assoc]
         refine (left_eq_inter.mpr ?_).symm
-        exact inter_subset_left.trans <| setOf_subset.mpr tmp_Kxg
+        exact inter_subset_left.trans <| ofPred_subset.mpr tmp_Kxg
       rw [← Measure.restrict_apply₀' (by measurability), ← ae_iff]
       exact hM
     · apply NullMeasurableSet.inter

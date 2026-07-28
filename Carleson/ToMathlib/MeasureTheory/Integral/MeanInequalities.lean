@@ -541,7 +541,7 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
       eLpNorm g q (volume.restrict (Ioc a (a + T))) := by
     apply eLpNorm_Ioc_convolution_le_of_norm_le_mul_aux L a hp hq hr hpqr hfT hgT _ hg
     · intro x y
-      simp only [liftIoc, Function.comp_apply, restrict_apply, f'', f']
+      simp only [liftIoc, Function.comp_apply, domRestrict_apply, f'', f']
       apply hL
     have A : AEStronglyMeasurable f'
         (Measure.map (fun (x : ℝ) ↦ (x : AddCircle T)) (volume : Measure ℝ)) :=

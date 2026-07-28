@@ -66,6 +66,7 @@ lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal' {s : Set ℝ≥0∞} (h : �
     · use ∞, h
       simp only [toReal_top, hx.symm]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma ENNReal.map_toReal_ae_eq_map_toReal_comap_ofReal {s : Set ℝ≥0∞} :
     ENNReal.toReal '' s =ᵐ[volume] NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) := by
   by_cases h : ∞ ∈ s
@@ -146,6 +147,7 @@ lemma NNReal.volume_eq_volume_ennreal {s : Set ℝ≥0} (hs : MeasurableSet (ofN
   congr 1
   exact Eq.symm (image_image ENNReal.toReal ofNNReal s)
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem NNReal.smul_map_volume_mul_left {a : ℝ≥0} (h : a ≠ 0) :
     a • Measure.map (a * ·) volume = volume := by
   ext s hs
@@ -584,12 +586,14 @@ example : volume (Set.Icc (3 : ℝ≥0∞) 42) = 39 := by
     toReal_ofNat, Real.volume_Icc, ofReal_eq_ofNat]
   norm_num
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma lintegral_nnreal_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ici (0 : ℝ), f x.toNNReal := by
   change ∫⁻ (x : ℝ≥0), f x = ∫⁻ (x : ℝ) in Ici 0, (f ∘ Real.toNNReal) x
   rw [← lintegral_subtype_comap measurableSet_Ici]
   simp
   rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma lintegral_nnreal_Ici_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} :
     ∫⁻ x in Ici a, f x = ∫⁻ x in Ici (a : ℝ), f x.toNNReal := by
   rw [← lintegral_indicator measurableSet_Ici, lintegral_nnreal_eq_lintegral_Ici_ofReal]

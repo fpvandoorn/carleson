@@ -664,7 +664,7 @@ def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
         simp only [one_div]
         split_ifs with is_n_zero
         · simp [is_n_zero] at wn
-        · simp only [mem_setOf_eq]
+        · simp only [mem_ofPred_eq]
           refine inv_le_iff_inv_le.mpr ?_
           apply le_of_lt
           refine lt_trans wn ?_
@@ -687,7 +687,7 @@ lemma support_sigma_finite_from_MemLp
     unfold Function.support g
     ext x
     simp only [ne_eq, ENNReal.rpow_eq_zero_iff, not_or, not_and, not_lt,
-      toReal_nonneg, implies_true, and_true, mem_setOf_eq]
+      toReal_nonneg, implies_true, and_true, mem_ofPred_eq]
     constructor
     · contrapose
       simp [Classical.not_imp, not_le, toReal_pos hp' hp]
