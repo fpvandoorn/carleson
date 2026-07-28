@@ -1205,7 +1205,7 @@ lemma gtc_integral_bound {k : ℤ} {ℭ : Set (𝔓 X)}
       refine (lintegral_biUnion_finset (fun p₁ mp₁ p₂ mp₂ hn ↦ ?_)
         (fun _ _ ↦ measurableSet_E) _).symm
       contrapose! hn; obtain ⟨x, mx₁ : x ∈ E p₁, mx₂ : x ∈ E p₂⟩ := not_disjoint_iff.mp hn
-      rw [E, mem_setOf] at mx₁ mx₂
+      rw [E, mem_ofPred] at mx₁ mx₂
       simp_rw [Finset.mem_coe, V, Finset.mem_filter, mem_toFinset] at mp₁ mp₂
       have i_eq := mp₂.2.2 ▸ mp₁.2.2
       replace i_eq : 𝓘 p₁ = 𝓘 p₂ :=

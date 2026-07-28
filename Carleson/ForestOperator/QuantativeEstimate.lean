@@ -102,9 +102,9 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
   obtain ⟨p'', mp'', lp''⟩ : ∃ p'' ∈ t u, 𝓘 p'' ≤ L' := by
     have L'nm : L' ∉ 𝓛₀ (t u) := by
       by_contra h
-      simp_rw [𝓛, mem_setOf, maximal_iff] at hL
+      simp_rw [𝓛, mem_ofPred, maximal_iff] at hL
       exact lL'.ne (hL.2 h lL'.le)
-    rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push Not at L'nm
+    rw [𝓛₀, mem_ofPred, not_or, not_and_or] at L'nm; push Not at L'nm
     have nfa : ¬∀ p ∈ t u, ¬L' ≤ 𝓘 p := by
       push Not; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; lia
     simp_rw [nfa, false_or] at L'nm; exact L'nm.2

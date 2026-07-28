@@ -47,7 +47,7 @@ lemma exists_mem_aux𝓒 {i : Grid X} (hi : 0 < volume (G ∩ i)) : ∃ k, i ∈
 lemma exists_k_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ k, p ∈ TilesAt k := by
   let C : Set ℕ := {k | 𝓘 p ∈ aux𝓒 k}
   have Cn : C.Nonempty := by
-    rw [𝔓pos, mem_setOf] at h
+    rw [𝔓pos, mem_ofPred] at h
     have vpos : 0 < volume (G ∩ 𝓘 p) := by
       rw [inter_comm]; exact h.trans_le (measure_mono inter_subset_left)
     obtain ⟨k, hk⟩ := exists_mem_aux𝓒 vpos; exact ⟨_, hk⟩
@@ -56,7 +56,7 @@ lemma exists_k_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ k, p ∈ TilesA
   have s_min : ∀ t ∈ C, s ≤ t := fun t mt ↦ WellFounded.min_le _ mt
   have s_pos : 0 < s := by
     by_contra! h; rw [nonpos_iff_eq_zero] at h
-    simp_rw [h, C, aux𝓒, mem_setOf] at s_mem; apply absurd s_mem; push Not; intro _ _
+    simp_rw [h, C, aux𝓒, mem_ofPred] at s_mem; apply absurd s_mem; push Not; intro _ _
     rw [Int.neg_ofNat_zero, zpow_zero, one_mul]; exact measure_mono inter_subset_right
   use s - 1; rw [TilesAt, mem_preimage, 𝓒, mem_sdiff, Nat.sub_add_cancel s_pos]
   have : ∀ t < s, t ∉ C := fun t mt ↦ by contrapose! mt; exact s_min t mt
@@ -66,7 +66,7 @@ lemma dens'_le_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : dens' k {p} ≤ 2 ^
   simp_rw [dens', mem_singleton_iff, iSup_iSup_eq_left, iSup_le_iff]; intro l hl p' mp' sl
   have vpos : 0 < volume (𝓘 p' : Set X) := by
     refine lt_of_lt_of_le ?_ (measure_mono sl.1.1)
-    rw [𝔓pos, mem_setOf, inter_assoc] at h; exact h.trans_le (measure_mono inter_subset_left)
+    rw [𝔓pos, mem_ofPred, inter_assoc] at h; exact h.trans_le (measure_mono inter_subset_left)
   rw [ENNReal.div_le_iff vpos.ne' volume_coeGrid_lt_top.ne]
   calc
     _ ≤ volume (E₂ l p') := by
@@ -77,7 +77,7 @@ lemma dens'_le_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : dens' k {p} ≤ 2 ^
     _ ≤ _ := by
       have E : E₂ l p' ⊆ 𝓘 p' ∩ G := inter_subset_left
       rw [TilesAt, mem_preimage, 𝓒, mem_sdiff] at mp'; replace mp' := mp'.2
-      rw [aux𝓒, mem_setOf] at mp'; push Not at mp'; specialize mp' (𝓘 p') le_rfl
+      rw [aux𝓒, mem_ofPred] at mp'; push Not at mp'; specialize mp' (𝓘 p') le_rfl
       rw [inter_comm] at E; exact (measure_mono E).trans mp'
 
 lemma exists_E₂_volume_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ r : ℕ, 0 < volume (E₂ r p) := by
@@ -86,7 +86,7 @@ lemma exists_E₂_volume_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ r
   rw [← inter_iUnion]
   suffices ⋃ i : ℕ, Q ⁻¹' ball_(p) (𝒬 p) i = univ by
     rw [this, inter_univ, ← pos_iff_ne_zero]
-    rw [𝔓pos, mem_setOf] at h; exact h.trans_le (measure_mono inter_subset_left)
+    rw [𝔓pos, mem_ofPred] at h; exact h.trans_le (measure_mono inter_subset_left)
   simp_rw [iUnion_eq_univ_iff, mem_preimage]
   exact fun x ↦ exists_nat_gt (dist_(p) (Q x) (𝒬 p))
 
@@ -147,7 +147,7 @@ private lemma two_mul_n_add_six_lt : 2 * n + 6 < 2 ^ (n + 3) := by
 lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k n) (hkn : k ≤ n) :
     p ∈ 𝔏₀ k n ∨ ∃ j ≤ 2 * n + 3, p ∈ ℭ₁ k n j := by
   classical
-  rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc] at h
+  rw [𝔓pos, mem_ofPred, inter_comm _ G'ᶜ, ← inter_assoc] at h
   replace h : 0 < volume (G'ᶜ ∩ (𝓘 p : Set X)) := h.trans_le (measure_mono inter_subset_left)
   rw [inter_comm, G', compl_union, compl_union, inter_comm G₁ᶜ, ← inter_assoc, ← inter_assoc] at h
   replace h : 0 < volume ((𝓘 p : Set X) ∩ G₂ᶜ) :=
@@ -165,7 +165,7 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
       _ = stackSize (𝔐 k n) x := by
         simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
           Finset.filter_filter]; rfl
-      _ ≤ (2 * n + 6) * 2 ^ (n + 1) := by rwa [setA, mem_setOf, not_lt] at nx
+      _ ≤ (2 * n + 6) * 2 ^ (n + 1) := by rwa [setA, mem_ofPred, not_lt] at nx
       _ < _ := by
         rw [show 2 * n + 4 = (n + 3) + (n + 1) by lia, pow_add _ (n + 3)]
         exact mul_lt_mul_of_pos_right two_mul_n_add_six_lt (by positivity)
@@ -231,7 +231,7 @@ lemma notMem_ℭ₅_iff_mem_𝔏₃ (hkn : k ≤ n) (hj : j ≤ 2 * n + 3)
   have nG₃ : ¬(𝓘 p : Set X) ⊆ G₃ := by
     suffices ¬(𝓘 p : Set X) ⊆ G' by contrapose! this; exact subset_union_of_subset_right this _
     by_contra hv
-    rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc, ← sdiff_eq_compl_inter,
+    rw [𝔓pos, mem_ofPred, inter_comm _ G'ᶜ, ← inter_assoc, ← sdiff_eq_compl_inter,
       sdiff_eq_empty.mpr hv] at h
     simp at h
   contrapose! nG₃
@@ -323,7 +323,7 @@ def 𝔒 (p' : 𝔓 X) (l : ℝ≥0) : Finset (𝔓 X) :=
 lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card ≤ ⌊2 ^ (4 * a) * l ^ a⌋₊ := by
   have djO : PairwiseDisjoint (SetLike.coe (𝔒 p' l)) fun p'' ↦ ball_(p') (𝒬 p'') 5⁻¹ :=
     fun p₁ mp₁ p₂ mp₂ hn ↦ by
-      simp_rw [𝔒, Finset.coe_filter, mem_setOf, Finset.mem_univ, true_and] at mp₁ mp₂
+      simp_rw [𝔒, Finset.coe_filter, mem_ofPred, Finset.mem_univ, true_and] at mp₁ mp₂
       change Disjoint (ball_{𝓘 p'} (𝒬 p₁) 5⁻¹) (ball_{𝓘 p'} (𝒬 p₂) 5⁻¹)
       conv => enter [1]; rw [← mp₁.1]
       conv => enter [2]; rw [← mp₂.1]
@@ -456,7 +456,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   have 𝓘p'b : 𝓘 p' = 𝓘 b := by rw [𝔒, Finset.mem_filter] at mb; exact mb.2.1.symm
   replace qb := ENNReal.mul_lt_of_lt_div qb
   have mba : b ∈ (aux𝔐 k n).toFinset := by
-    simp_rw [mem_toFinset, aux𝔐, mem_setOf, qb, and_true]; rw [TilesAt, mem_preimage] at mp' ⊢
+    simp_rw [mem_toFinset, aux𝔐, mem_ofPred, qb, and_true]; rw [TilesAt, mem_preimage] at mp' ⊢
     exact 𝓘p'b ▸ mp'
   obtain ⟨m, lm, maxm⟩ := (aux𝔐 k n).toFinset.exists_le_maximal mba
   replace maxm : m ∈ 𝔐 k n := by simpa only [mem_toFinset] using! maxm
@@ -562,10 +562,10 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
   by_cases mu : z.last.1 ∈ 𝔘₁ k n j
   · have px : z.head ≤ z.last := z.monotone (Fin.zero_le _)
     rw [mz] at px
-    apply absurd mp'; rw [𝔏₂, mem_setOf, not_and_or, not_not]; right; use z.last.1, mu
+    apply absurd mp'; rw [𝔏₂, mem_ofPred, not_and_or, not_not]; right; use z.last.1, mu
     have : 𝓘 p' < 𝓘 p := 𝓘_strictMono l
     exact ⟨(this.trans_le px.1).ne, (p200.trans px).trans (smul_mono_left (by norm_num))⟩
-  · simp_rw [𝔘₁, mem_setOf, not_and, z.last.2, true_implies, not_forall, exists_prop] at mu
+  · simp_rw [𝔘₁, mem_ofPred, not_and, z.last.2, true_implies, not_forall, exists_prop] at mu
     obtain ⟨q, mq, lq, ndjq⟩ := mu; rw [not_disjoint_iff] at ndjq; obtain ⟨ϑ, mϑ₁, mϑ₂⟩ := ndjq
     have cpos : 0 < C2_1_2 a := by rw [C2_1_2]; positivity
     have s200 : smul 200 z.last.1 ≤ smul 200 q := by

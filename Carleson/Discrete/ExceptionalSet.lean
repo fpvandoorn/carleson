@@ -140,7 +140,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     { j | 2 ^ (-(k + 1 : ℕ) : ℤ) * volume (j : Set X) < volume (G ∩ j) }
   have s₁ : ⋃ i ∈ 𝓒 (X := X) k, (i : Set X) ⊆ ⋃ i ∈ M, ↑i := by
     simp_rw [𝓒]; intro q mq; rw [mem_iUnion₂] at mq ⊢; obtain ⟨i, hi, mi⟩ := mq
-    rw [aux𝓒, mem_sdiff, mem_setOf] at hi; obtain ⟨j, hj, mj⟩ := hi.1
+    rw [aux𝓒, mem_sdiff, mem_ofPred] at hi; obtain ⟨j, hj, mj⟩ := hi.1
     use j, ?_, mem_of_mem_of_subset mi hj.1
     simp only [M, Finset.mem_filter_univ]; exact mj
   let M' := Grid.maxCubes M
@@ -174,18 +174,18 @@ lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p m
   rw [mem_preimage] at mxp mxp'
   have l𝓘 := Grid.le_def.mpr ⟨(fundamental_dyadic hs).resolve_right (disjoint_comm.not.mpr h𝓘), hs⟩
   have sΩ := (relative_fundamental_dyadic l𝓘).resolve_left <| not_disjoint_iff.mpr ⟨_, mxp', mxp⟩
-  rw [𝔐, mem_setOf] at mp mp'
+  rw [𝔐, mem_ofPred] at mp mp'
   exact mp'.eq_of_ge mp.prop ⟨l𝓘, sΩ⟩
 
 open scoped Classical in
 /-- Lemma 5.2.4 -/
 lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Set X) ⊆ setA l k n := by
   let M : Finset (𝔓 X) := { p | p ∈ 𝔐 k n ∧ x ∈ 𝓘 p }
-  simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
+  simp_rw [setA, mem_ofPred, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at hx ⊢
   obtain ⟨b, memb, minb⟩ := M.exists_min_image 𝔰 (Finset.card_pos.mp (zero_le.trans_lt hx))
   simp_rw [M, Finset.mem_filter_univ] at memb minb
-  use 𝓘 b, memb.2; intro c mc; rw [mem_setOf]
+  use 𝓘 b, memb.2; intro c mc; rw [mem_ofPred]
   refine hx.trans_le (Finset.card_le_card fun y hy ↦ ?_)
   rw [Finset.mem_filter_univ] at hy ⊢
   exact ⟨hy.1, mem_of_mem_of_subset mc (le_of_mem_of_mem (minb y hy) memb.2 hy.2).1⟩
@@ -204,7 +204,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     stackSize { q ∈ 𝔐 (X := X) k n | 𝓘 q ≤ L} x := by
   classical
   -- LHS of equation (5.2.6) is strictly greater than `(l + 1) * 2 ^ (n + 1)`
-  rw [setA, mem_setOf, ← stackSize_setOf_add_stackSize_setOf_not (P := fun p' ↦ 𝓘 p' ≤ L)] at mx
+  rw [setA, mem_ofPred, ← stackSize_setOf_add_stackSize_setOf_not (P := fun p' ↦ 𝓘 p' ≤ L)] at mx
   -- Rewrite second sum of RHS of (5.2.6) so that it sums over tiles `q` satisfying `L < 𝓘 q`
   nth_rw 2 [← stackSize_setOf_add_stackSize_setOf_not (P := fun p' ↦ Disjoint (𝓘 p' : Set X) L)]
     at mx
@@ -280,7 +280,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
     calc
       _ ≤ ∑ q ∈ Q₁, 2 ^ n * volume (E₁ q) := by
         refine Finset.sum_le_sum fun q mq ↦ ?_
-        simp_rw [Q₁, Finset.mem_filter, 𝔐, mem_setOf, maximal_iff, aux𝔐, mem_setOf] at mq
+        simp_rw [Q₁, Finset.mem_filter, 𝔐, mem_ofPred, maximal_iff, aux𝔐, mem_ofPred] at mq
         replace mq := mq.2.1.1.2
         rw [← ENNReal.rpow_intCast, show (-(n : ℕ) : ℤ) = (-n : ℝ) by simp, mul_comm,
           ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
@@ -405,7 +405,7 @@ open scoped Classical in
 lemma layervol_eq_zero_of_lt {t : ℝ} (ht : (𝔐 (X := X) k n).toFinset.card < t) :
     layervol (X := X) k n t = 0 := by
   rw [layervol, measure_eq_zero_iff_ae_notMem]
-  refine ae_of_all volume fun x ↦ ?_; rw [mem_setOf, not_le]
+  refine ae_of_all volume fun x ↦ ?_; rw [mem_ofPred, not_le]
   calc
     _ ≤ ((𝔐 (X := X) k n).toFinset.card : ℝ) := by
       simp_rw [indicator_sum_eq_natCast, Nat.cast_le, indicator_apply, Pi.one_apply,
@@ -495,7 +495,7 @@ lemma top_tiles : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) �
       · congr; simp
     _ = 2 ^ (n + 1) * ∑ l ∈ Finset.range Mc, volume (setA (X := X) l k n) := by
       unfold layervol setA stackSize; congr! 3; ext x
-      rw [mem_setOf, mem_setOf, indicator_sum_eq_natCast, Nat.cast_le]
+      rw [mem_ofPred, mem_ofPred, indicator_sum_eq_natCast, Nat.cast_le]
       exact Nat.add_one_le_iff
     _ ≤ 2 ^ (n + 1) * ∑ l ∈ Finset.range Mc, 2 ^ (k + 1 - l : ℤ) * volume G :=
       mul_le_mul_right (Finset.sum_le_sum fun _ _ ↦ john_nirenberg) _

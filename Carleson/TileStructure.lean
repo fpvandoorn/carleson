@@ -334,10 +334,10 @@ def lowerCubes (𝔓' : Set (𝔓 X)) : Set (𝔓 X) :=
 lemma mem_lowerCubes {𝔓' : Set (𝔓 X)} : p ∈ lowerCubes 𝔓' ↔ ∃ p' ∈ 𝔓', 𝓘 p ≤ 𝓘 p' := by rfl
 
 lemma lowerCubes_mono : Monotone (lowerCubes (X := X)) := fun 𝔓₁ 𝔓₂ hs p mp ↦ by
-  rw [lowerCubes, mem_setOf] at mp ⊢; obtain ⟨p', mp', hp'⟩ := mp; use p', hs mp'
+  rw [lowerCubes, mem_ofPred] at mp ⊢; obtain ⟨p', mp', hp'⟩ := mp; use p', hs mp'
 
 lemma subset_lowerCubes {𝔓' : Set (𝔓 X)} : 𝔓' ⊆ lowerCubes 𝔓' := fun p mp ↦ by
-  rw [lowerCubes, mem_setOf]; use p
+  rw [lowerCubes, mem_ofPred]; use p
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=

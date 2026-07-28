@@ -1796,7 +1796,7 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
   · obtain ⟨z', mz', hz'⟩ := h
     exact subset_iUnion_of_subset _ subset_rfl (ball_subset_Ω₁ ⟨I, ⟨z', mz'⟩⟩ hz')
   · let L := {k : Fin (Nat.card (𝓩 I)) | ϑ ∈ ball_{I} (f.symm k).1 C4_2_1}
-    have Ln : L.Nonempty := by use f ⟨z, mz⟩; rwa [mem_setOf, Equiv.symm_apply_apply]
+    have Ln : L.Nonempty := by use f ⟨z, mz⟩; rwa [mem_ofPred, Equiv.symm_apply_apply]
     obtain ⟨k, mem_k, hk⟩ := L.exists_min_image id L.toFinite Ln
     simp_rw [L, mem_ofPred_eq] at mem_k
     simp only [id_eq] at hk

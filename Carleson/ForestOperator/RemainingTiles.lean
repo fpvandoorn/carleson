@@ -115,8 +115,8 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
   obtain ⟨q, mq⟩ := t.nonempty hu₁
   have qlt : 𝓘 q < 𝓘 u₁ := lt_of_le_of_ne (t.smul_four_le hu₁ mq).1 (t.𝓘_ne_𝓘 hu₁ mq)
   have u₁nm : 𝓘 u₁ ∉ 𝓙₆ t u₁ := by
-    simp_rw [𝓙₆, mem_inter_iff, mem_Iic, le_rfl, and_true, 𝓙, mem_setOf, Maximal, not_and_or]; left
-    rw [𝓙₀, mem_setOf]; push Not; rw [Grid.lt_def] at qlt
+    simp_rw [𝓙₆, mem_inter_iff, mem_Iic, le_rfl, and_true, 𝓙, mem_ofPred, Maximal, not_and_or]; left
+    rw [𝓙₀, mem_ofPred]; push Not; rw [Grid.lt_def] at qlt
     refine ⟨(scale_mem_Icc.1.trans_lt qlt.2).ne',
       ⟨q, mq, qlt.1.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩⟩
     change 4 * (D : ℝ) ^ (𝔰 u₁) ≤ 100 * D ^ (𝔰 u₁ + 1); gcongr
@@ -126,7 +126,7 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
   replace lJ' : J < J' := Grid.lt_def.mpr ⟨lJ'.1, by lia⟩
   have J'nm : J' ∉ 𝓙₀ (t u₁) := by
     by_contra hh; apply absurd hJ.1.2; push Not; use J', hh, lJ'.le, not_le_of_gt lJ'
-  rw [𝓙₀, mem_setOf] at J'nm; push Not at J'nm; obtain ⟨p', mp', sp'⟩ := J'nm.2
+  rw [𝓙₀, mem_ofPred] at J'nm; push Not at J'nm; obtain ⟨p', mp', sp'⟩ := J'nm.2
   exact ⟨b1, ⟨J', lJ', sJ', ⟨p', mp', sp'⟩⟩⟩
 
 /-- The key relation of Lemma 7.6.3, which will eventually be shown to lead to a contradiction. -/
@@ -180,7 +180,7 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
       cdist_le_iterate (by unfold defaultD; positivity) ..
     _ ≤ _ := by
       obtain ⟨hp₁, hp₂⟩ := hp
-      simp_rw [𝔖₀, mem_setOf, not_and_or, mem_union, hp₁, or_true, not_true_eq_false,
+      simp_rw [𝔖₀, mem_ofPred, not_and_or, mem_union, hp₁, or_true, not_true_eq_false,
         false_or, not_le] at hp₂
       simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul, ← Real.rpow_natCast 2]
       push_cast; gcongr
@@ -802,7 +802,7 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
         -- `I`, being in `𝓙₆`, should be a maximal cube in `𝓙₀ 𝔖`,
         -- but `p` is above it and also in `𝓙₀ 𝔖`; contradiction
         rw [𝓙₆, mem_inter_iff, mem_Iic] at mI
-        rw [𝓙, mem_setOf] at mp mI
+        rw [𝓙, mem_ofPred] at mp mI
         exact nIp <| le_antisymm (mI.2.trans Ulp) (mI.1.2 mp.1 (mI.2.trans Ulp))
     _ = _ := by
       congr! 3 with p mp

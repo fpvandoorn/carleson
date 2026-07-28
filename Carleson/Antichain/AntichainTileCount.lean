@@ -340,7 +340,7 @@ lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
       exact empty_subset _
   · simp only [Finset.coe_filter]
     intro q hq q' hq' hqq'
-    rw [𝔄_aux, mem_setOf, toFinset_setOf, Finset.mem_filter_univ] at hq hq'
+    rw [𝔄_aux, mem_ofPred, toFinset_setOf, Finset.mem_filter_univ] at hq hq'
     have hE : Disjoint (E q) (E q') := by simpa using (tile_disjointness h𝔄 hq.1.1 hq'.1.1).mt hqq'
     rw [Function.onFun, inter_assoc, inter_assoc]
     exact (hE.inter_right _).inter_left _

@@ -248,14 +248,14 @@ open Order
 theorem biUnion_Ici_co_map_succ [SuccOrder α] [IsSuccArchimedean α] {x : X} {f : α → ℝ}
     {a : α} (hf : ∀ i ∈ Ici a, f a ≤ f i) (h2f : ¬BddAbove (f '' Ici a)) :
     ⋃ i ∈ Ici a, co x (f i) (f (succ i)) = ci x (f a) := by
-  simp [co, ci, iUnion_setOf, ← biUnion_Ici_Ico_map_succ hf h2f]
+  simp [co, ci, iUnion_ofPred, ← biUnion_Ici_Ico_map_succ hf h2f]
 
 /-- Union formula for `Set.Annulus.oc x (f i) (f (Order.succ i))` over `i ∈ Ici a`. See also
 `iUnion_oc_map_succ_eq_oi` for the specialization `a = ⊥`. -/
 theorem biUnion_Ici_oc_map_succ [SuccOrder α] [IsSuccArchimedean α] {x : X} {f : α → ℝ}
     {a : α} (hf : ∀ i ∈ Ici a, f a ≤ f i) (h2f : ¬BddAbove (f '' Ici a)) :
     ⋃ i ∈ Ici a, oc x (f i) (f (succ i)) = oi x (f a) := by
-  simp [oc, oi, iUnion_setOf, ← biUnion_Ici_Ioc_map_succ hf h2f]
+  simp [oc, oi, iUnion_ofPred, ← biUnion_Ici_Ioc_map_succ hf h2f]
 
 /-- Special case `a = ⊥` of `biUnion_Ici_co_map_succ`. -/
 theorem iUnion_co_map_succ_eq_ci [OrderBot α] [SuccOrder α] [IsSuccArchimedean α] {x : X}

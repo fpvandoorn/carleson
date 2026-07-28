@@ -115,7 +115,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     intro i
     have est_edist : ∀y ∈ dom_i i, (edist x x' / edist x y) ≤ (1 / (2 : ℝ≥0)) ^ (i + 1) := by
       unfold dom_i Annulus.co
-      simp_rw [← Ico_def, mem_setOf]
+      simp_rw [← Ico_def, mem_ofPred]
       intro y hdist
       trans edist x x' / (2 ^ (i + 1) * r.toNNReal)
       · gcongr
@@ -134,7 +134,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       exact Real.toNNReal_le_toNNReal hx
     have est_vol : ∀y ∈ dom_i i, vol x y ≥ volume (ball x (2 ^ (i + 1) * r)) := by
       unfold dom_i Annulus.co
-      simp_rw [← Ico_def, mem_setOf]
+      simp_rw [← Ico_def, mem_ofPred]
       apply fun y h ↦ measure_mono (ball_subset_ball h.left)
     trans ∫⁻ (y : X) in dom_i i, (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K a / volume (ball x (2 ^ (i + 1) * r))) * ‖g y‖ₑ
     · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)

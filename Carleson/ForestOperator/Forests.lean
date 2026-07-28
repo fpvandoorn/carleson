@@ -159,16 +159,16 @@ def rowDecomp_zornset (s : Set (𝔓 X)) :=
 lemma mem_rowDecomp_zornset_iff (s s' : Set (𝔓 X)) :
     s' ∈ rowDecomp_zornset s ↔ (s' ⊆ s ∧ s'.PairwiseDisjoint (𝓘 ·: _ → Set X) ∧
       ∀ u ∈ s', Maximal (· ∈ 𝓘 '' s) (𝓘 u)) := by
-  simp_rw [rowDecomp_zornset, mem_inter_iff, mem_setOf, and_assoc]
+  simp_rw [rowDecomp_zornset, mem_inter_iff, mem_ofPred, and_assoc]
   nth_rw 2 [subset_def]
-  simp_rw [mem_setOf]
+  simp_rw [mem_ofPred]
 
 lemma rowDecomp_zornset_chain_Union_bound (s' : Set (𝔓 X)) {c : Set (Set (𝔓 X))} (hc : c ⊆ rowDecomp_zornset s')
     (hc_chain : IsChain (· ⊆ ·) c) :
     (⋃ s ∈ c,s) ∈ rowDecomp_zornset s' ∧ ∀ s ∈ c, s ⊆ ⋃ s'' ∈ c, s'' := by
   simp_rw [rowDecomp_zornset,subset_inter_iff] at hc ⊢
   obtain ⟨⟨hc₁,hc₂⟩,hc₃⟩ := hc
-  simp_rw [mem_inter_iff,mem_setOf]
+  simp_rw [mem_inter_iff,mem_ofPred]
   repeat constructor
   · exact iUnion₂_subset_iff.mpr hc₁
   · exact (hc_chain.pairwiseDisjoint_iUnion₂ _).mpr hc₂

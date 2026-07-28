@@ -944,7 +944,7 @@ lemma res_subset_Ioi {j : Bool} {β : ℝ≥0∞} : res j β ⊆ Ioi 0 := by
   · simp
   · simp only [Ioi]
     intro s hs
-    rw [mem_setOf]
+    rw [mem_ofPred]
     exact hs.1
   · exact Ioi_subset_Ioi toReal_nonneg
 

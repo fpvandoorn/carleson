@@ -123,7 +123,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     rw [sub_eq_iff_eq_add, ← setIntegral_union _ measurableSet_oo]; rotate_left
     · exact iof.mono_set (oc_subset_oo le_rfl dy.2)
     · exact iof.mono_set (by gcongr)
-    · simp_rw [disjoint_left, oc, oo, mem_setOf, mem_Ioc, mem_Ioo, not_and_or, not_lt]
+    · simp_rw [disjoint_left, oc, oo, mem_ofPred, mem_Ioc, mem_Ioo, not_and_or, not_lt]
       exact fun z mz ↦ .inl mz.2
     rw [oc_union_oo ly dy.2]
   -- Obtain a strictly antitone sequence of numbers less than `R₂` and converging to `R₁`.
@@ -143,7 +143,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
   -- Split the annulus along the `u n`...
   let s (n : ℕ) := oc x (u (n + 1)) (u n)
   have us (k : ℕ) : ⋃ n, s (k + n) = oc x R₁ (u k) := by
-    ext y; simp_rw [mem_iUnion, s, oc, mem_setOf, mem_Ioc]; constructor <;> intro h
+    ext y; simp_rw [mem_iUnion, s, oc, mem_ofPred, mem_Ioc]; constructor <;> intro h
     · obtain ⟨n, hn₁, hn₂⟩ := h
       exact ⟨(mu (k + n + 1)).1.trans hn₁, hn₂.trans (sau.antitone (Nat.le_add_right ..))⟩
     · let T : Set ℕ := {n | u (k + n) < dist x y}
@@ -155,7 +155,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
           sub_lt_sub_iff_right] at hN; use N, hN
       have wfT : T.IsWF := IsWF.of_wellFoundedLT T
       use wfT.min neT - 1
-      have minT_mem := wfT.min_mem neT; simp_rw [T, mem_setOf] at minT_mem
+      have minT_mem := wfT.min_mem neT; simp_rw [T, mem_ofPred] at minT_mem
       have minT_pos : wfT.min neT ≠ 0 := by
         by_contra! h'; rw [h'] at minT_mem; exact absurd h.2 (not_le.mpr minT_mem)
       nth_rw 1 [← Nat.add_sub_assoc (by lia), Nat.sub_add_cancel (by lia), ← not_lt]
@@ -164,7 +164,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
   have ds (k : ℕ) : Pairwise (Function.onFun Disjoint fun n ↦ s (k + n)) := fun i j hn ↦ by
     change Disjoint (s (k + i)) (s (k + j))
     wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by lia)).symm
-    simp_rw [s, disjoint_left, oc, mem_setOf, mem_Ioc]; intro y my
+    simp_rw [s, disjoint_left, oc, mem_ofPred, mem_Ioc]; intro y my
     rw [not_and_or, not_le]; right
     exact (sau.antitone (show k + i + 1 ≤ k + j by lia)).trans_lt my.1
   -- ...and appeal to `ENNReal.tendsto_sum_nat_add`
@@ -206,7 +206,7 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     rw [sub_eq_iff_eq_add', ← setIntegral_union _ measurableSet_co]; rotate_left
     · exact iof.mono_set (by gcongr)
     · exact iof.mono_set (co_subset_oo dy.2 le_rfl)
-    · simp_rw [disjoint_left, co, oo, mem_setOf, mem_Ico, mem_Ioo, not_and_or, not_le]
+    · simp_rw [disjoint_left, co, oo, mem_ofPred, mem_Ico, mem_Ioo, not_and_or, not_le]
       exact fun z mz ↦ .inl mz.2
     rw [oo_union_co dy.2 ly]
   -- Obtain a strictly monotone sequence of numbers greater than `R₁` and converging to `R₂`.
@@ -226,7 +226,7 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
   -- Split the annulus along the `u n`...
   let s (n : ℕ) := co x (u n) (u (n + 1))
   have us (k : ℕ) : ⋃ n, s (k + n) = co x (u k) R₂ := by
-    ext y; simp_rw [mem_iUnion, s, co, mem_setOf, mem_Ico]; constructor <;> intro h
+    ext y; simp_rw [mem_iUnion, s, co, mem_ofPred, mem_Ico]; constructor <;> intro h
     · obtain ⟨n, hn₁, hn₂⟩ := h
       exact ⟨(smu.monotone (Nat.le_add_right ..)).trans hn₁, hn₂.trans (mu (k + n + 1)).2⟩
     · let T : Set ℕ := {n | dist x y < u (k + n)}
@@ -238,7 +238,7 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
           sub_lt_sub_iff_left] at hN; use N, hN
       have wfT : T.IsWF := IsWF.of_wellFoundedLT T
       use wfT.min neT - 1
-      have minT_mem := wfT.min_mem neT; simp_rw [T, mem_setOf] at minT_mem
+      have minT_mem := wfT.min_mem neT; simp_rw [T, mem_ofPred] at minT_mem
       have minT_pos : wfT.min neT ≠ 0 := by
         by_contra! h'; rw [h'] at minT_mem; exact absurd h.1 (not_le.mpr minT_mem)
       nth_rw 2 [← Nat.add_sub_assoc (by lia)]; rw [Nat.sub_add_cancel (by lia), ← not_lt]
@@ -247,7 +247,7 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
   have ds (k : ℕ) : Pairwise (Function.onFun Disjoint fun n ↦ s (k + n)) := fun i j hn ↦ by
     change Disjoint (s (k + i)) (s (k + j))
     wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by lia)).symm
-    simp_rw [s, disjoint_left, co, mem_setOf, mem_Ico]; intro y my
+    simp_rw [s, disjoint_left, co, mem_ofPred, mem_Ico]; intro y my
     rw [not_and_or, not_le]; left
     exact my.2.trans_le (smu.monotone (show k + i + 1 ≤ k + j by lia))
   -- ...and appeal to `ENNReal.tendsto_sum_nat_add`
@@ -270,7 +270,7 @@ lemma integrableOn_annulus_of_bounded (mf : AEStronglyMeasurable f volume)
     calc
       _ ≤ volume (ball x R₂) := by
         refine measure_mono fun y my ↦ ?_
-        rw [Annulus.oo, mem_setOf, mem_Ioo] at my; rw [mem_ball']; exact my.2
+        rw [Annulus.oo, mem_ofPred, mem_Ioo] at my; rw [mem_ball']; exact my.2
       _ < _ := measure_ball_lt_top
   · exact mf
   · exact Eventually.of_forall nf
@@ -285,7 +285,7 @@ lemma integrableOn_coi_inner_annulus' (nf : IntegrableOn f (Annulus.oo x R₁ R�
     · exact ((Complex.measurable_ofReal.comp (by fun_prop)).const_mul I).cexp.aestronglyMeasurable
     · refine ae_of_all _ fun x => ?_
       rw [mul_comm, norm_exp_ofReal_mul_I]
-  · rw [Annulus.oo, mem_setOf, mem_Ioo] at my
+  · rw [Annulus.oo, mem_ofPred, mem_Ioo] at my
     rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le
 
 /-- The integrand of `carlesonOperatorIntegrand` is integrable over the `R₁, R₂` annulus. -/
@@ -391,7 +391,7 @@ lemma lintegral_inv_vol_le {R₁ R₂ : ℝ≥0} (hR₁ : 0 < R₁) (hR₂ : R�
     obtain ⟨n, hn₁, hn₂⟩ := exists_nat_pow_near this one_lt_two; use n + 1; constructor
     · rw [div_lt_iff₀ hR₁, ← NNReal.coe_lt_coe, NNReal.coe_mul, NNReal.coe_pow,
         NNReal.coe_ofNat] at hn₂
-      rw [Annulus.oo, mem_setOf, mem_Ioo] at my; apply hn₂.le.trans; gcongr; exact my.1.le
+      rw [Annulus.oo, mem_ofPred, mem_Ioo] at my; apply hn₂.le.trans; gcongr; exact my.1.le
     · rw [pow_succ', mul_div_assoc]; gcongr
   calc
     _ ≤ volume (ball x (2 ^ n * dist x y)) / (2 ^ a) ^ n := by
@@ -429,7 +429,7 @@ lemma edist_carlesonOperatorIntegrand_le
               ← Complex.exp_add, ← mul_add, sub_add_cancel]
           _ ≤ ‖θ y - ϑ y - θ o + ϑ o‖ := Real.norm_exp_I_mul_ofReal_sub_one_le
           _ ≤ _ := by
-            rw [Annulus.oo, mem_setOf, mem_Ioo] at my
+            rw [Annulus.oo, mem_ofPred, mem_Ioo] at my
             apply oscillation_le_cdist
             · rw [mem_ball']; exact my.2.trans_le (le_add_of_nonneg_left dist_nonneg)
             · rw [mem_ball, lt_add_iff_pos_right]; exact hR₁.trans hR₂
