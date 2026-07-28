@@ -553,7 +553,7 @@ private lemma 𝓘_not_lt_𝓘 : ¬𝓘 u < 𝓘 u' := by
   intro h
   rw [Grid.lt_def] at h
   have 𝒬m_mem_inter := mem_inter (𝒬m_mem_ball hu) (𝒬m_mem_ball hu')
-  simp only [𝔘, 𝔘₁, Grid.lt_def, and_imp, toFinset_setOf, mem_filter] at hu
+  simp only [𝔘, 𝔘₁, Grid.lt_def, and_imp, toFinset_ofPred, mem_filter] at hu
   exact not_disjoint_iff_nonempty_inter.2 (nonempty_of_mem 𝒬m_mem_inter) <| hu.1.2.2
     u' (mem_toFinset.mp (mem_filter.mp hu').1).1 h.1 h.2
 
@@ -655,7 +655,7 @@ private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ �
         rw [Set.indicator_of_mem hx, Pi.one_apply, ← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0), neg_add_cancel, zpow_zero]
     _ ≤ (2 : ℝ) ^ (-j : ℤ) * stackSize (𝔐' k n u) x := by gcongr
   norm_cast
-  simp only [𝔘₁, Finset.mem_filter, toFinset_setOf] at hu
+  simp only [𝔘₁, Finset.mem_filter, toFinset_ofPred] at hu
   apply le_of_le_of_eq hu.1.2.1.1.2
   simp only [Finset.coe_filter, mem_toFinset, 𝔐', Finset.card_eq_sum_ones]
   refine Finset.sum_congr rfl (fun m hm ↦ ?_)

@@ -680,12 +680,12 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   rw [indicator_compl, czOperator_sub hg (hg.indicator measurableSet_ball) hr.1, Pi.sub_apply]
   have h1x' : ‖czOperator K r g x'‖ₑ ≤ 4 * globalMaximalFunction volume 1 (czOperator K r g) x := by
     suffices x' ∉ F1 by
-      rw [notMem_setOf_iff, not_lt] at this
+      rw [notMem_ofPred_iff, not_lt] at this
       exact this
     exact notMem_subset subset_union_left ((mem_compl_iff _ _).mp hx'.1)
   have h2x' : ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ ≤ C10_1_4 a * globalMaximalFunction volume 1 g x := by
     suffices x' ∉ F2 by
-      rw [notMem_setOf_iff, not_lt] at this
+      rw [notMem_ofPred_iff, not_lt] at this
       exact this
     exact notMem_subset subset_union_right ((mem_compl_iff _ _).mp hx'.1)
   apply add_le_add (add_le_add h1x' h2x' |> enorm_sub_le.trans) (by rfl) |> le_trans
@@ -708,7 +708,7 @@ lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} :
   apply isOpen_iUnion; intro hR
   apply isOpen_iUnion; intro x'
   by_cases hx' : y < ‖czOperator K R g x'‖ₑ
-  · simp_rw [hx', and_true, setOf_mem_eq, isOpen_ball]
+  · simp_rw [hx', and_true, ofPred_mem_eq, isOpen_ball]
   · simp [hx']
 
 omit [IsTwoSidedKernel a K] in
@@ -883,7 +883,7 @@ theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ 
             linarith [Real.sub_le_dist r R₁]
         filter_upwards [this] with r hr
         exact fun hy ↦ hr.not_gt hy.2
-      · filter_upwards with r; unfold Annulus.oo; rw [notMem_setOf_iff]; exact fun hy2 ↦ hy hy2.1
+      · filter_upwards with r; unfold Annulus.oo; rw [notMem_ofPred_iff]; exact fun hy2 ↦ hy hy2.1
     rw [Filter.tendsto_iff_forall_eventually_mem]
     intro s hs
     filter_upwards [this] with r hr
@@ -940,7 +940,7 @@ theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R
             linarith [Real.sub_le_dist R₂ r]
         filter_upwards [this] with r hr
         exact fun hy ↦ hr.not_gt hy.1
-      · filter_upwards with r; unfold Annulus.oo; rw [notMem_setOf_iff]; exact fun hy2 ↦ hy hy2.2
+      · filter_upwards with r; unfold Annulus.oo; rw [notMem_ofPred_iff]; exact fun hy2 ↦ hy hy2.2
     rw [Filter.tendsto_iff_forall_eventually_mem]
     intro s hs
     filter_upwards [this] with r hr
@@ -1030,7 +1030,7 @@ lemma lowerSemicontinuous_nontangentialOperator {g : X → ℂ} :
   apply isOpen_biUnion; intro R₁ hR₁
   apply isOpen_iUnion; intro x'
   by_cases hx' : M < ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * g y‖ₑ
-  · simp_rw [hx', and_true, mem_ball_comm, setOf_mem_eq, isOpen_ball]
+  · simp_rw [hx', and_true, mem_ball_comm, ofPred_mem_eq, isOpen_ball]
   · simp [hx']
 
 omit [IsTwoSidedKernel a K] in

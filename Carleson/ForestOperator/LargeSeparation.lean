@@ -916,7 +916,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
     rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
     have J'Touches𝔖₀ : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ (le := belongs)
       (sle := by linarith [plusOne]) (A_in := hJ.1)
-    rw [𝓙₀, Set.notMem_setOf_iff] at J'Touches𝔖₀
+    rw [𝓙₀, Set.notMem_ofPred_iff] at J'Touches𝔖₀
     push Not at J'Touches𝔖₀
     exact J'Touches𝔖₀.right
   apply calculation_9 (X := X)

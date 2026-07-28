@@ -60,7 +60,7 @@ def 𝓙 (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
 lemma 𝓙_subset_𝓙₀ {𝔖 : Set (𝔓 X)} : 𝓙 𝔖 ⊆ 𝓙₀ 𝔖 := sep_subset ..
 
 lemma pairwiseDisjoint_𝓙 : (𝓙 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X)) := fun I mI J mJ hn ↦ by
-  have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOf_maximal_antichain _
+  have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOfPred_maximal_antichain _
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
 lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonempty) (h : topCube ∈ 𝓙₀ 𝔖) :
@@ -344,7 +344,7 @@ lemma biUnion_𝓛 : ⋃ J ∈ 𝓛 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
 
 /-- Part of Lemma 7.1.2 -/
 lemma pairwiseDisjoint_𝓛 : (𝓛 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X)) := fun I mI J mJ hn ↦ by
-  have : IsAntichain (· ≤ ·) (𝓛 𝔖) := setOf_maximal_antichain _
+  have : IsAntichain (· ≤ ·) (𝓛 𝔖) := setOfPred_maximal_antichain _
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
 /-- The constant used in `first_tree_pointwise`.

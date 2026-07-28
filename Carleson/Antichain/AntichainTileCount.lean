@@ -155,7 +155,7 @@ lemma biUnion_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
   · let f (p : 𝔓 X) := ⌊Real.logb 2 (1 + dist_(p) (𝒬 p) ϑ)⌋₊
     obtain ⟨p₀, mp₀, hp₀⟩ := 𝔄.toFinset.exists_max_image f (Aesop.toFinset_nonempty_of_nonempty h𝔄)
     use f p₀ + 1; ext p
-    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_biUnion,
+    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_ofPred, Finset.mem_biUnion,
       Finset.mem_range, Finset.mem_inter, Finset.mem_filter_univ, mem_toFinset]
     refine ⟨fun hp ↦ hp.choose_spec.2.1.1, fun hp ↦ ?_⟩
     simp only [hp, true_and]
@@ -306,7 +306,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
     (not_disjoint_iff_nonempty_inter.mpr h𝓘), le_of_lt hs⟩
   -- Ineq. 6.3.22
   have hϑin : dist_(p) (𝒬 p) ϑ < ((2 : ℝ)^(N + 1)) := by
-    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter,
+    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_ofPred, Finset.mem_inter,
       Finset.mem_filter_univ] at hpin
     exact (lt_one_add (dist_(p) (𝒬 p) ϑ)).trans hpin.2.2
   -- Ineq. 6.3.23
@@ -345,7 +345,7 @@ lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
       exact empty_subset _
   · simp only [Finset.coe_filter]
     intro q hq q' hq' hqq'
-    rw [𝔄_aux, mem_ofPred, toFinset_setOf, Finset.mem_filter_univ] at hq hq'
+    rw [𝔄_aux, mem_ofPred, toFinset_ofPred, Finset.mem_filter_univ] at hq hq'
     have hE : Disjoint (E q) (E q') := by simpa using (tile_disjointness h𝔄 hq.1.1 hq'.1.1).mt hqq'
     rw [Function.onFun, inter_assoc, inter_assoc]
     exact (hE.inter_right _).inter_left _
@@ -408,7 +408,7 @@ private lemma 𝔄_min_sum_le :
           rw [Finset.card_eq_one]
           use 𝓘 p
           rw [Finset.eq_singleton_iff_unique_mem]
-          simp only [𝓛_min, Subtype.exists, exists_prop, toFinset_setOf, Finset.mem_filter,
+          simp only [𝓛_min, Subtype.exists, exists_prop, toFinset_ofPred, Finset.mem_filter,
             Finset.mem_univ, true_and, and_true]
           exact ⟨⟨p, (mem_toFinset.mp hp), rfl⟩, fun _ hL ↦ hL.2.symm⟩
         simp only [Finset.sum_const, h1, one_smul]
@@ -489,7 +489,7 @@ open Classical in
 lemma pairwiseDisjoint_𝓛' :
     ((𝓛' 𝔄 ϑ N).toFinset : Set (Grid X)).PairwiseDisjoint (fun I ↦ (I : Set X)) :=
   fun I mI J mJ hn ↦ by
-    have : IsAntichain (· ≤ ·) (𝓛' 𝔄 ϑ N : Set (Grid X)) := setOf_maximal_antichain _
+    have : IsAntichain (· ≤ ·) (𝓛' 𝔄 ϑ N : Set (Grid X)) := setOfPred_maximal_antichain _
     exact (le_or_ge_or_disjoint.resolve_left
         (this (mem_toFinset.mp mI) (mem_toFinset.mp mJ) hn)).resolve_left
       (this (mem_toFinset.mp mJ) (mem_toFinset.mp mI) hn.symm)
@@ -1043,7 +1043,7 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
       · intro i mi j mj hn
         rw [mul_assoc (2 ^ _), ← inter_indicator_mul, mul_assoc _ _ (G.indicator 1 x),
           ← inter_indicator_mul, mul_mul_mul_comm, ← inter_indicator_mul, inter_inter_inter_comm]
-        rw [𝔄_aux, toFinset_setOf, Finset.mem_filter_univ] at mi mj
+        rw [𝔄_aux, toFinset_ofPred, Finset.mem_filter_univ] at mi mj
         have key := (tile_disjointness h𝔄 mi.1 mj.1).mt hn
         rw [not_not, disjoint_iff_inter_eq_empty] at key; simp [key]
       rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
