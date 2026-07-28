@@ -134,7 +134,7 @@ def QΘ' (n : ℕ) : SimpleFunc X (Θ X) where
         exact enumΘ'ArgMax_mem_range nΘ' g
       simp_rw [this]; exact measurable_const
     simp_rw [enumΘ'ArgMax_eq_iff nΘ' g hi]; apply Measurable.and
-    all_goals refine (Measurable.forall fun j ↦ measurable_const.imp ?_); rw [← measurableSet_setOf]
+    all_goals refine (Measurable.forall fun j ↦ measurable_const.imp ?_); rw [← measurableSet_setOfPred]
     · exact measurableSet_le (mg _) (mg _)
     · exact measurableSet_lt (mg _) (mg _)
   finite_range' := by

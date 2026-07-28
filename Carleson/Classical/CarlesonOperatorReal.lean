@@ -167,9 +167,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (meas_f : AEStronglyMeas
       grind
     · have contOn1 : ∀ (y : ℝ), ContinuousOn (F x · y) (Set.Iio (dist x y)) := by
         intro y
-        rw [continuousOn_iff_continuous_restrict]
+        rw [continuousOn_iff_continuous_domRestrict]
         apply continuous_of_const
-        simp only [Set.restrict_apply, Subtype.forall]
+        simp only [Set.domRestrict_apply, Subtype.forall]
         intro s hs t ht
         rw [Fdef]
         simp only [Set.mem_Ioo]
@@ -181,9 +181,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (meas_f : AEStronglyMeas
           all_goals simpa using fun _ ↦ h
       have contOn2 : ∀ (y : ℝ), ContinuousOn (fun s ↦ F x s y) (Set.Ioi (min (dist x y) 1)) := by
         intro y
-        rw [continuousOn_iff_continuous_restrict]
+        rw [continuousOn_iff_continuous_domRestrict]
         apply continuous_of_const
-        simp only [Set.restrict_apply, Subtype.forall]
+        simp only [Set.domRestrict_apply, Subtype.forall]
         intro s hs t ht
         rw [Fdef]
         simp only [Set.mem_Ioo]

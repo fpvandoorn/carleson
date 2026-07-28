@@ -49,7 +49,7 @@ lemma measurable_T_lin (mf : Measurable f) (mσ₁ : Measurable σ₁) (mσ₂ :
         apply indicator_of_notMem; rwa [mem_ofPred_eq, mem_Icc, ← Finset.mem_Icc]
   rw [rearr]
   refine Finset.measurable_sum _ fun _ _ ↦ (measurable_T_inner_integral mf).indicator ?_
-  rw [measurableSet_setOf]; apply (measurable_set_mem _).comp
+  rw [measurableSet_setOfPred]; apply (measurable_set_mem _).comp
   apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
   · exact measurable_from_prod_countable_left fun _ _ _ ↦ trivial
   · exact mσ₁.prodMk mσ₂
@@ -284,7 +284,7 @@ lemma S_truncation
   have scσ₁ (x : X) : candσ₁ x ⊆ Finset.Icc (-B) B := by simp [candσ₁]
   have mcσ₁ {n : ℤ} : Measurable (n ∈ candσ₁ ·) := by
     simp_rw [candσ₁, Finset.mem_filter, Finset.mem_Icc]
-    apply measurable_const.and; rw [← measurableSet_setOf]; exact measurableSet_eq_fun mT1 mT1'
+    apply measurable_const.and; rw [← measurableSet_setOfPred]; exact measurableSet_eq_fun mT1 mT1'
   -- Define `σ₁` and prove its measurability and finite range
   let σ₁ (x : X) := (candσ₁ x).min' (necσ₁ x)
   have eσ₁ (x : X) : σ₁ x ∈ candσ₁ x := (candσ₁ x).min'_mem (necσ₁ x)
@@ -301,7 +301,7 @@ lemma S_truncation
       · rw [← h]; exact ⟨eσ₁ x, fun m ↦ minσ₁ x⟩
       · rw [← (candσ₁ x).le_min'_iff (necσ₁ x)] at h; obtain ⟨h₁, h₂ : n ≤ σ₁ x⟩ := h
         exact le_antisymm ((candσ₁ x).min'_le _ h₁) h₂
-    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_setOf_eq, measurableSet_setOf]
+    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_setOf_eq, measurableSet_setOfPred]
     refine Measurable.and ?_ (mcσ₁.and (Measurable.forall fun m ↦ mcσ₁.imp measurable_const))
     simp [scσ₁]
   have rσ₁ : (range σ₁).Finite := by
@@ -327,8 +327,8 @@ lemma S_truncation
     simp_rw [candσ₂, Finset.mem_filter, Finset.mem_Icc]
     apply Measurable.and
     · apply Measurable.and ?_ measurable_const
-      rw [← measurableSet_setOf]; exact measurableSet_le mσ₁ measurable_const
-    · rw [← measurableSet_setOf]; apply measurableSet_eq_fun
+      rw [← measurableSet_setOfPred]; exact measurableSet_le mσ₁ measurable_const
+    · rw [← measurableSet_setOfPred]; apply measurableSet_eq_fun
       · apply Measurable.comp (f := fun x ↦ (x, σ₁ x)) (g := fun p ↦ T1' p.1 p.2)
         · exact measurable_from_prod_countable_left fun _ ↦ mT1'
         · exact measurable_id.prodMk mσ₁
@@ -352,7 +352,7 @@ lemma S_truncation
       · rw [← h]; exact ⟨eσ₂ x, fun m ↦ minσ₂ x⟩
       · rw [← (candσ₂ x).le_min'_iff (necσ₂ x)] at h; obtain ⟨h₁, h₂ : n ≤ σ₂ x⟩ := h
         exact le_antisymm ((candσ₂ x).min'_le _ h₁) h₂
-    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_setOf_eq, measurableSet_setOf]
+    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_setOf_eq, measurableSet_setOfPred]
     refine Measurable.and ?_ (mcσ₂.and (Measurable.forall fun m ↦ mcσ₂.imp measurable_const))
     simp [scσ₂]
   have rσ₂ : (range σ₂).Finite := by

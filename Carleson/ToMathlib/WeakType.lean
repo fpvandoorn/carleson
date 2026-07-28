@@ -276,7 +276,7 @@ lemma wnorm_iSup_of_monotone {α : Type*} [MeasurableSpace α] {p : ℝ≥0∞} 
     rw [←Monotone.measure_iUnion, iUnion_ofPred]
     · congr with x
       exact lt_iSup_iff
-    · apply monotone_setOf
+    · apply monotone_ofPred
       intro x
       exact monotone_lt.comp (hf.apply₂ x)
 

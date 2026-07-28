@@ -138,8 +138,8 @@ lemma disjoint_E {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoi
 
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
-  · rw [← measurableSet_setOf]; exact coeGrid_measurable
-  · simp_rw [← mem_preimage, ← measurableSet_setOf]; exact SimpleFunc.measurableSet_preimage ..
+  · rw [← measurableSet_setOfPred]; exact coeGrid_measurable
+  · simp_rw [← mem_preimage, ← measurableSet_setOfPred]; exact SimpleFunc.measurableSet_preimage ..
   · apply (measurable_set_mem _).comp
     apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
     · exact measurable_from_prod_countable_left fun _ _ _ ↦ trivial
