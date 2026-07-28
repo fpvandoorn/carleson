@@ -848,7 +848,7 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
   simp only [bot_eq_false, trnc_false]
   rw [truncCompl_eq_indicator,
       eLpNorm_indicator_eq_eLpNorm_restrict
-        (by rw [compl_setOf]; simp only [not_le]; exact measurableSet_lt measurable_const (by fun_prop))]
+        (by rw [compl_ofPred]; simp only [not_le]; exact measurableSet_lt measurable_const (by fun_prop))]
   rw [eLpNorm_eq_eLpNorm' hp0 hp_top]
   apply (eLpNorm'_le_eLpNormEssSup_mul_rpow_measure_univ hp_pos).trans_lt
   apply ENNReal.mul_lt_top
@@ -857,7 +857,7 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
     rwa [eLpNorm_congr_ae wg2.symm]
   apply ENNReal.rpow_lt_top_of_nonneg (by simp [hp_pos.le])
   simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
-  rw [← lt_top_iff_ne_top, compl_setOf]
+  rw [← lt_top_iff_ne_top, compl_ofPred]
   calc
   _ = μ {a | t < ‖f a‖ₑ} := by
     apply measure_congr

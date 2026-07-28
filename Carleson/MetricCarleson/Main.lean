@@ -159,7 +159,7 @@ end Enum
 lemma lowerSemicontinuous_LNT {Q : SimpleFunc X (Θ X)} {θ : Θ X} :
     LowerSemicontinuous (linearizedNontangentialOperator Q θ K f) := by
   unfold linearizedNontangentialOperator
-  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_ofPred,
     exists_prop]
   refine fun M ↦ isOpen_iUnion fun R₂ ↦ isOpen_biUnion fun R₁ hR₁ ↦ isOpen_iUnion fun x' ↦ ?_
   by_cases hx' : M < ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁)

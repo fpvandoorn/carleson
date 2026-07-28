@@ -448,7 +448,7 @@ theorem lintegral_comp_eq_lintegral_distribution_mul (μ : Measure α)
         rfl
       · intro n m
         use max n m
-        simp only [setOf_subset_setOf]
+        simp only [ofPred_subset_ofPred]
         constructor <;>
         · intro ω hω
           apply hω.trans_le (hfs _ _)

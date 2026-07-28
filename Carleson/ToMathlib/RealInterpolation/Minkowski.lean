@@ -417,7 +417,7 @@ lemma restrict_to_support {p : ℝ} (hp : 0 < p) [TopologicalSpace E₁] [ESemin
     ∫⁻ x : α in f.support, ‖trunc f t x‖ₑ ^ p ∂ μ = ∫⁻ x : α, ‖trunc f t x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
   unfold Function.support trunc
-  rw [setOf_subset_setOf]
+  rw [ofPred_subset_ofPred]
   intro x
   contrapose!
   intro f_zero
@@ -430,7 +430,7 @@ lemma restrict_to_support_truncCompl {p : ℝ} [TopologicalSpace E₁] [ESeminor
     ∫⁻ x : α, ‖(truncCompl f t) x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
   unfold Function.support
-  rw [truncCompl_eq, setOf_subset_setOf]
+  rw [truncCompl_eq, ofPred_subset_ofPred]
   intro x
   contrapose!
   intro f_zero
@@ -443,7 +443,7 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁]
     ∫⁻ x : α, ‖trnc j f t x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
   unfold Function.support -- trnc trunc truncCompl
-  rw [setOf_subset_setOf]
+  rw [ofPred_subset_ofPred]
   intro x
   contrapose!
   have : ‖trnc j f t x‖ₑ ≤ ‖f x‖ₑ := by

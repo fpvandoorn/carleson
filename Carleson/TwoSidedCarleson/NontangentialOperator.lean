@@ -701,7 +701,7 @@ omit [IsTwoSidedKernel a K] in
 lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} :
     LowerSemicontinuous (simpleNontangentialOperator K r g) := by
   unfold simpleNontangentialOperator
-  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_ofPred,
     mem_ball_comm, exists_prop]
   intro y
   apply isOpen_iUnion; intro R
@@ -1023,7 +1023,7 @@ omit [IsTwoSidedKernel a K] in
 lemma lowerSemicontinuous_nontangentialOperator {g : X → ℂ} :
     LowerSemicontinuous (nontangentialOperator K g) := by
   unfold nontangentialOperator
-  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_ofPred,
     exists_prop]
   intro M
   apply isOpen_iUnion; intro R₂

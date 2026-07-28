@@ -273,7 +273,7 @@ lemma wnorm_iSup_of_monotone {α : Type*} [MeasurableSpace α] {p : ℝ≥0∞} 
     rw [←ENNReal.mul_iSup]; congr
     rw [←(iSup_rpow (toReal_pos hp hp' |> inv_pos_of_pos))]; congr
     simp only [enorm_eq_self]
-    rw [←Monotone.measure_iUnion, iUnion_setOf]
+    rw [←Monotone.measure_iUnion, iUnion_ofPred]
     · congr with x
       exact lt_iSup_iff
     · apply monotone_setOf
@@ -313,14 +313,14 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) : ∀ᵐ x �
   have hp_toReal_zero := toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩
   have h1 (t : ℝ≥0) : μ A ≤ distribution f t μ := by
     refine μ.mono ?_
-    simp_all only [setOf_subset_setOf, coe_lt_top, implies_true, A]
+    simp_all only [ofPred_subset_ofPred, coe_lt_top, implies_true, A]
   set C := ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹
   by_cases hC_zero : C = 0
   · simp only [ENNReal.iSup_eq_zero, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_neg'', C] at hC_zero
     specialize hC_zero 1
     simp only [one_ne_zero, ENNReal.coe_one, toReal_nonneg.not_gt, and_false, or_false,
       false_or] at hC_zero
-    exact measure_mono_null (setOf_subset_setOf.mpr fun x hx => hx ▸ one_lt_top) hC_zero.1
+    exact measure_mono_null (ofPred_subset_ofPred.mpr fun x hx => hx ▸ one_lt_top) hC_zero.1
   by_contra h
   have h2 : C < ∞ := by aesop
   have h3 (t : ℝ≥0) : distribution f t μ ≤ (C / t) ^ p.toReal := by
@@ -808,7 +808,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
     · apply lintegral_congr_ae
       rw [Filter.eventuallyEq_iff_exists_mem]
       use {x | ‖f x‖ₑ ≠ ∞}
-      rw [mem_ae_iff, compl_setOf]
+      rw [mem_ae_iff, compl_ofPred]
       simp only [ne_eq, Decidable.not_not]
       use ae_finite
       intro x hx

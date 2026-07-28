@@ -313,7 +313,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
       _ = μ {x | ‖f x‖ₑ ≠ 0} - μ {x | ‖f x‖ₑ ∈ s \ {0}} := by
         rw [← measure_sdiff]
         · nth_rw 2 [Set.sdiff_eq]
-          rw [Set.compl_setOf, ← Set.setOf_and]
+          rw [Set.compl_ofPred, ← Set.ofPred_and]
           congr with x
           grind
         · simp
@@ -331,7 +331,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
       _ = volume {x | rearrangement f x μ ∈ sᶜ \ {0}} := by
         rw [← measure_sdiff]
         · nth_rw 1 [Set.sdiff_eq]
-          rw [Set.compl_setOf, ← Set.setOf_and]
+          rw [Set.compl_ofPred, ← Set.ofPred_and]
           congr with x
           grind
         · simp
@@ -348,7 +348,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
   · intro S hSd hSm hS
     calc _
       _ = μ (⋃ i, {x | ‖f x‖ₑ ∈ S i \ {0}}) := by
-        rw [Set.iUnion_setOf]
+        rw [Set.iUnion_ofPred]
         congr with x
         simp
       _ = ∑' i, μ ({x | ‖f x‖ₑ ∈ S i \ {0}}) := by
@@ -388,7 +388,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           use ‖rearrangement f x μ‖ₑ, hi, hj
         · exact fun i ↦ AEMeasurable.nullMeasurableSet_preimage rearrangement_measurable₀.aemeasurable (by aesop)
       _ = volume {x | rearrangement f x μ ∈ (⋃ i, S i) \ {0}} := by
-        rw [Set.iUnion_setOf]
+        rw [Set.iUnion_ofPred]
         congr with x
         simp
 
@@ -935,7 +935,7 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
         gcongr
         rw [Set.inter_eq_left.mpr]
         apply hE'.trans
-        simp only [Set.setOf_subset_setOf, superlevelSet]
+        simp only [Set.ofPred_subset_ofPred, superlevelSet]
         exact fun a_2 a_3 ↦ Std.lt_of_le_of_lt has a_3
     rcases exists_seq_strictMono_tendsto' h_zero with ⟨a, mono_a, ha, a_tendsto⟩
     calc _
