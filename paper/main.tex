@@ -586,7 +586,7 @@ $\psi\colon\real \to\real$ be the unique compactly supported, piecewise linear, 
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
 \end{equation}
 for all $x>0$. Note that the above sum has at most two nonzero terms, and that this function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
-$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. With this definition, the finitary Carleson Theorem\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/FinitaryCarleson.lean#L110}{\extlink} reads as follows.
+$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. With this definition, the finitary Carleson Theorem\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/FinitaryCarleson.lean#L110}{\extlink} reads as follows.
 
 \begin{theorem}[finitary Carleson]
 \label{finitary-Carleson}
@@ -631,7 +631,7 @@ The conditions that the objects in a grid structure satisfy are as follows.
 \end{equation}
 \end{enumerate}
 
-We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a tile structure\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TileStructure.lean#L54}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc\colon \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc\colon \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc\colon \fP \to X$ and $\ps\colon \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
+We now further subdivide in the frequency domain, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a tile structure\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc\colon \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc\colon \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc\colon \fP \to X$ and $\ps\colon \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
 
 \begin{enumerate}[label=\roman*.]
 % note: todo: JP: as also the lean code says, this seems superfluous so I'm removing it from the list
@@ -810,7 +810,7 @@ abbrev HolderConjugate (p q : ℝ≥0) := HolderTriple p q 1
 \fi
 
 We have now described most of the prerequisites for understanding the Lean statement of Theorem~\ref{metric-space-Carleson}, available as
-\lean{metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/MetricCarleson/Main.lean#L203}{\extlink}. The hypothesis \lean{hT} relies on the definition \lean{HasBoundedStrongType}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L80}{\extlink} to express the bound (\ref{nontanbound}) for the
+\lean{metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Main.lean#L203}{\extlink}. The hypothesis \lean{hT} relies on the definition \lean{HasBoundedStrongType}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L80}{\extlink} to express the bound (\ref{nontanbound}) for the
 \lean{nontangentialOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L211}{\extlink}.
 
 \begin{lstlisting}[mathescape]
@@ -848,7 +848,7 @@ def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → 
   $\sqcup$ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
 \end{lstlisting}
 
-The statement of the \lean{linearized_metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/MetricCarleson/Linearized.lean#L109}{\extlink} theorem (Theorem~\ref{linearized-metric-Carleson}) should now be easy to parse. It requires an extra input in the form of a Borel function $Q\colon X \to \Theta$ with finite range, and its conclusion involves the
+The statement of the \lean{linearized_metric_carleson}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/MetricCarleson/Linearized.lean#L109}{\extlink} theorem (Theorem~\ref{linearized-metric-Carleson}) should now be easy to parse. It requires an extra input in the form of a Borel function $Q\colon X \to \Theta$ with finite range, and its conclusion involves the
 \lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L222}{\extlink} $T_Q$. The hypothesis \lean{hT} encodes equation (\ref{linnontanbound}), written in terms of the
 \lean{linearizedNontangentialOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L204}{\extlink}.
 \begin{lstlisting}[mathescape]
@@ -1177,7 +1177,7 @@ In the formalization, we introduced a constant \lean{c} with a value of 100, com
 Every other constant is defined in terms of $a$, $q$ and \lean{c}, and we use the notation convention \lean{Cx_y_z} to denote the constant appearing in result \lean{x.y.z} of the blueprint.
 
 %TODO: I am not sure about linking to the code, since now `c` and `seven_le_c` etc. are defined in different files, and the comments have not been updated accordingly.
-As a side effect of the formalization project, once the main result had been formalized we were able to check that, replacing $D := 2^{100a^2}$ by $2^{7a^2}$, the results still hold without needing to make any adjustments to the proofs\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/DoublingMeasure.lean#L25-L36}{\extlink}. This improves the constant appearing in the main theorem by an order of magnitude.
+As a side effect of the formalization project, once the main result had been formalized we were able to check that, replacing $D := 2^{100a^2}$ by $2^{7a^2}$, the results still hold without needing to make any adjustments to the proofs\href{https://github.com/fpvandoorn/carleson/blob/32d3284ce04e16118646f222e63e034930434e80/Carleson/DoublingMeasure.lean#L25-L36}{\extlink}. This improves the constant appearing in the main theorem by an order of magnitude.
 
 
 \subsection{Standing assumptions and the \texttt{ProofData} pattern}\label{subsec:proof_data}
@@ -1381,14 +1381,14 @@ integrability and measurability considerations are usually mathematically trivia
 
 It is desirable for this simplicity to be reflected in the formalization.
 This motivated packaging the recurring side conditions into test function classes.
-The structures \lean{BoundedCompactSupport}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/BoundedCompactSupport.lean#L81}{\extlink} and \lean{BoundedFiniteSupport}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L74}{\extlink} contain essentially bounded measurable functions with compact support and with support of finite measure, respectively. A function $f$ is \emph{essentially bounded} if there exists a real number $C$ such that $\|f(x)\|\le C$ almost everywhere.
+The structures \lean{BoundedCompactSupport}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/ToMathlib/BoundedCompactSupport.lean#L81}{\extlink} and \lean{BoundedFiniteSupport}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L74}{\extlink} contain essentially bounded measurable functions with compact support and with support of finite measure, respectively. A function $f$ is \emph{essentially bounded} if there exists a real number $C$ such that $\|f(x)\|\le C$ almost everywhere.
 
 Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
 reproving the same measure-theoretic facts. For example, from a hypothesis
 \lean{hf : BoundedCompactSupport f} one immediately obtains that \lean{f} is a member of
 any desired $L^p$ space, % in the context of this project
 or that \lean{s.indicator f} again has bounded compact support when \lean{s} is measurable.
-Lemmas such as \lean{hf.carlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Operators.lean#L164}{\extlink} show that the relevant
+Lemmas such as \lean{hf.carlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Operators.lean#L164}{\extlink} show that the relevant
 operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
 
 Choosing the right definition of these structures is subtle.
@@ -1413,7 +1413,7 @@ otherwise $f$ may send a set of positive measure to a set of measure 0 where $g$
 Another consideration into this design decision is how nicely one can work with these functions.
 Some arguments are a little easier if we know that a function is well-behaved everywhere,
 and not just almost everywhere.
-In the Carleson project, there were two tricky arguments using an operation \lean{adjointCarlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Operators.lean#L215}{\extlink}.
+In the Carleson project, there were two tricky arguments using an operation \lean{adjointCarlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/2e755e6a67d8c0628104cc45f599df4888974a79/Carleson/Operators.lean#L215}{\extlink}.
 We prove that this operation is bounded with compact support,
 for these arguments it was convenient to use that this operation is bounded everywhere,
 and not just essentially bounded.
