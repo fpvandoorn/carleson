@@ -612,7 +612,7 @@ where for $s \in \mathbb{Z}, K_s(x,y) = K(x,y)\psi(D^{-s}\rho(x,y))$.
 
 To reduce this finitary version of the Carleson theorem to the discrete version, we make divisions in both the spatial and frequency domains. The spatial discretization will be achieved by a \emph{grid structure}, after which a subordinate frequency discretization is encoded by a \emph{tile structure}.
 
-A \emph{grid structure} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of so-called dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$ called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary} below. Here, a dyadic cube is just a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$.
+A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/GridStructure.lean#L20}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of so-called dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$ called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary} below. Here, a dyadic cube is just a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$.
 
 The conditions that the objects in a grid structure satisfy are as follows.
 \begin{enumerate}[label=\roman*.]
@@ -751,7 +751,8 @@ def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ :=
     fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * π))
 \end{lstlisting}
 
-In contrast to the classical result, to be able to formalize the statements of the metric and linearized versions of Carleson's theorem, we first needed to formalize a good amount of new concepts, starting with the definition of doubling metric measure space (see Definition~\ref{def:doubling}), which we denote by \lean{MeasureTheory.DoublingMeasure}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L87}{\extlink}. The constant $A$ appearing in this definition will typically be $2^a$.
+In contrast to the classical result, to be able to formalize the statements of the metric and linearized versions of Carleson's theorem, we first needed to formalize a good amount of new concepts.
+The first such concept is a doubling metric measure space (see Definition~\ref{def:doubling}), which we denote by \lean{MeasureTheory.DoublingMeasure}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L87}{\extlink}. The constant $A$ appearing in this definition will typically be $2^a$.
 \begin{lstlisting}[mathescape]
 class MeasureTheory.Measure.IsDoubling {X : Type*} [MeasurableSpace X]
     [PseudoMetricSpace X] (μ : Measure X) (A : outParam ℝ≥0) : Prop where
@@ -842,7 +843,8 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
 %\end{lstlisting}
 
 The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L218}{\extlink} is defined as a special case of the
-\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand K (Q x) R_1 R_2 f x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details). % JMS the \mlean command does not render correct, don't have a clear fix
+\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L212}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand K (Q x) R_1 R_2 f x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details).
+% JMS the \mlean command does not render correctly (spaces are not rendered)
 In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L206}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Defs.lean#L44}{\extlink} denotes the set of real numbers $y$ such that $R_1 < \text{dist}(x, y) < R_2$.
 \begin{lstlisting}[mathescape]
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
@@ -1434,7 +1436,7 @@ and these would have to be changed to essential suprema, which are a bit trickie
 In the end, we decided to prove that this function was bounded with compact support, and additionally bounded everywhere.
 
 These classes are also tagged with the \lean{@[fun_prop]} attribute.
-\lean{fun_prop}\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/FunProp.html}} is a \mathlib tactic developed by Tomáš Skřivan
+\lean{fun_prop}\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/tactics.html#Mathlib.Meta.FunProp.funPropTacStx}} is a \mathlib tactic developed by Tomáš Skřivan
 that automatically uses tagged lemmas to show that a function has a certain property
 (continuity, differentiability, measurability, etc.).
 This tactic is good at writing complicated functions as a composition of simpler functions,
