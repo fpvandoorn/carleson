@@ -42,7 +42,6 @@ export ENormedSpace (enorm_smul_eq_smul)
 -- mathlib has this (in the _root_ namespace), in a less general setting
 attribute [simp] ENormedSpace.enorm_smul_eq_smul
 
-set_option backward.isDefEq.respectTransparency false in
 instance : ENormedSpace ℝ≥0∞ where
   enorm := id
   enorm_zero := by simp
@@ -68,7 +67,6 @@ instance : ENormedSpace ℝ≥0 where
   continuous_enorm := by fun_prop
   enorm_smul_eq_smul c x := by simp [ENNReal.smul_def]
 
-set_option backward.isDefEq.respectTransparency false in
 instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormedSpace E where
   enorm_smul_eq_smul := by
     simp_rw [enorm_eq_nnnorm, ENNReal.smul_def, NNReal.smul_def, nnnorm_smul]; simp
@@ -79,6 +77,16 @@ lemma esub_zero [TopologicalSpace E] [ENormedAddCommSubMonoid E] {x : E} : x - 0
   rw [← add_zero (x - 0)]
   apply sub_add_cancel_of_enorm_le
   simp_rw [enorm_zero, zero_le]
+
+section
+
+-- TODO: find better place for this?
+theorem _root_.ENNReal.toNNReal_smul {α : Type*} {c : ℝ≥0∞} (hc : c ≠ ⊤) {f : α → ℝ≥0∞} :
+    c.toNNReal • f = c • f := by
+  ext x
+  simp [ENNReal.smul_def, hc]
+
+end
 
 section ENormedSpace
 
@@ -153,12 +161,6 @@ theorem eLpNorm_top_smul {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
         rw [ENNReal.smul_def, smul_eq_mul]
         gcongr
         exact le_top
-
--- TODO: find better place for this?
-theorem _root_.ENNReal.toNNReal_smul {α : Type*} {c : ℝ≥0∞} (hc : c ≠ ⊤) {f : α → ℝ≥0∞} :
-    c.toNNReal • f = c • f := by
-  ext x
-  simp [ENNReal.smul_def, hc]
 
 -- TODO: put next to eLpNorm_const_smul
 set_option backward.isDefEq.respectTransparency false in

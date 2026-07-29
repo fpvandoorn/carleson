@@ -414,7 +414,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
           gcongr
           intro x hx
           unfold G at hx
-          rw [Set.mem_setOf_eq] at hx ⊢; exact hx.le
+          rw [Set.mem_ofPred_eq] at hx ⊢; exact hx.le
       apply mul_meas_ge_le_lintegral₀ hf'.enorm.restrict
     _ ≤ (c * _ * ν G ^ q⁻¹.toReal) / ν G ^ q⁻¹.toReal := by
       gcongr

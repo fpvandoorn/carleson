@@ -24,6 +24,7 @@ namespace TileStructure.Forest
 Has value `2 ^ (101 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 1) * a ^ 3)
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Part 1 of Lemma 7.3.2. -/
 lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
     (hp₂ : ∃ p ∈ t u, ¬Disjoint ↑L (E p) ∧ 𝔰 p ≤ s L) :
@@ -85,6 +86,7 @@ lemma volume_bound_of_Grid_lt {L L' : Grid X} (lL : L ≤ L') (sL : s L' = s L +
     Real.logb_self_eq_one one_lt_two, mul_one, Nat.ceil_natCast, ENNReal.coe_pow, ENNReal.coe_ofNat]
   ring
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 7.3.2. -/
 lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
     volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
@@ -102,9 +104,9 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
   obtain ⟨p'', mp'', lp''⟩ : ∃ p'' ∈ t u, 𝓘 p'' ≤ L' := by
     have L'nm : L' ∉ 𝓛₀ (t u) := by
       by_contra h
-      simp_rw [𝓛, mem_setOf, maximal_iff] at hL
+      simp_rw [𝓛, mem_ofPred, maximal_iff] at hL
       exact lL'.ne (hL.2 h lL'.le)
-    rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push Not at L'nm
+    rw [𝓛₀, mem_ofPred, not_or, not_and_or] at L'nm; push Not at L'nm
     have nfa : ¬∀ p ∈ t u, ¬L' ≤ 𝓘 p := by
       push Not; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; lia
     simp_rw [nfa, false_or] at L'nm; exact L'nm.2
@@ -222,7 +224,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
     exact 𝓘p_eq_J ▸ le_mul_of_one_le_left zero_le (one_le_pow_of_one_le' one_le_two _)
   have ⟨J', hJJ', hsJ'⟩ := J.exists_scale_succ (J.scale_lt_scale_topCube J_top)
   have : J' ∉ 𝓙₀ (t u) := fun h ↦ succ_ne_self (s J) <| hJ.eq_of_le h hJJ' ▸ hsJ'.symm
-  rw [𝓙₀, mem_setOf_eq] at this
+  rw [𝓙₀, mem_ofPred_eq] at this
   push Not at this
   obtain ⟨p, hpu, hp⟩ := this.2
   have d0 := realD_pos a

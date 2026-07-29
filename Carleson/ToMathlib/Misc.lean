@@ -700,7 +700,6 @@ end MeasureTheory
 
 namespace ENNReal
 
-set_option backward.isDefEq.respectTransparency false in
 theorem lintegral_Lp_smul {α : Type*} [MeasurableSpace α] {μ : MeasureTheory.Measure α}
     {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) {p : ℝ} (hp : p > 0) (c : NNReal) :
     (∫⁻ x : α, (c • f) x ^ p ∂μ) ^ (1 / p) = c • (∫⁻ x : α, f x ^ p ∂μ) ^ (1 / p) := by
@@ -788,10 +787,10 @@ lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint
 theorem measurable_measure_ball {α : Type*} [PseudoMetricSpace α] [SecondCountableTopology α]
     [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [SFinite μ] :
     Measurable fun (a, r) ↦ μ (Metric.ball a r) := by
-  let s : Set (α × α × ℝ) := setOf fun (b, a, r) ↦ b ∈ Metric.ball a r
+  let s : Set (α × α × ℝ) := ofPred fun (b, a, r) ↦ b ∈ Metric.ball a r
   apply measurable_measure_prodMk_right (s := s)
   unfold s Metric.ball
-  simp_rw [mem_setOf]
+  simp_rw [mem_ofPred]
   apply measurableSet_lt
   · fun_prop
   · fun_prop

@@ -30,6 +30,7 @@ namespace Antichain
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 6.3.1. -/
 -- hp is eq. 6.3.1, hp' is eq. 6.3.2.
 lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) ϑ ≤ 2 ^ N)
@@ -132,17 +133,19 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
 def 𝔄_aux (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) : Set (𝔓 X) :=
   {p ∈ 𝔄 | 1 + dist_(p) (𝒬 p) ϑ ∈ Ico (2 ^ N) (2 ^ (N + 1))}
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Classical in
 lemma pairwiseDisjoint_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
     univ.PairwiseDisjoint (fun N ↦ (𝔄_aux 𝔄 ϑ N).toFinset) := fun i mi j mj hn ↦ by
   change Disjoint (𝔄_aux _ _ _).toFinset ((𝔄_aux _ _ _).toFinset)
   wlog hl : i < j generalizing i j
   · exact (this _ mj _ mi hn.symm (by lia)).symm
-  simp_rw [Finset.disjoint_left, 𝔄_aux, mem_toFinset, mem_setOf_eq, not_and, and_imp]
+  simp_rw [Finset.disjoint_left, 𝔄_aux, mem_toFinset, mem_ofPred_eq, not_and, and_imp]
   refine fun p mp md _ ↦ ?_
   rw [mem_Ico, not_and_or, not_le]
   exact Or.inl <| md.2.trans_le (pow_le_pow_right₀ one_le_two (by lia))
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Classical in
 lemma biUnion_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
     ∃ N, (Finset.range N).biUnion (fun N ↦ (𝔄_aux 𝔄 ϑ N).toFinset) = 𝔄.toFinset := by
@@ -152,7 +155,7 @@ lemma biUnion_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
   · let f (p : 𝔓 X) := ⌊Real.logb 2 (1 + dist_(p) (𝒬 p) ϑ)⌋₊
     obtain ⟨p₀, mp₀, hp₀⟩ := 𝔄.toFinset.exists_max_image f (Aesop.toFinset_nonempty_of_nonempty h𝔄)
     use f p₀ + 1; ext p
-    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_biUnion,
+    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_ofPred, Finset.mem_biUnion,
       Finset.mem_range, Finset.mem_inter, Finset.mem_filter_univ, mem_toFinset]
     refine ⟨fun hp ↦ hp.choose_spec.2.1.1, fun hp ↦ ?_⟩
     simp only [hp, true_and]
@@ -166,6 +169,7 @@ lemma biUnion_𝔄_aux {𝔄 : Set (𝔓 X)} {ϑ : Θ X} :
 
 open Metric
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Classical in
 /-- Lemma 6.3.2. -/
 lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
@@ -290,6 +294,7 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
     rw [this, Finset.sum_empty]
     exact zero_le
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Classical in
 /-- We prove inclusion 6.3.24 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
  `(𝓘 p : Set X) ∩ (𝓘 p') ≠ ∅`. The variable `p'` corresponds to `𝔭_ϑ` in the blueprint. -/
@@ -301,7 +306,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Set (𝔓 X)} (ϑ : Θ X) (N : ℕ)
     (not_disjoint_iff_nonempty_inter.mpr h𝓘), le_of_lt hs⟩
   -- Ineq. 6.3.22
   have hϑin : dist_(p) (𝒬 p) ϑ < ((2 : ℝ)^(N + 1)) := by
-    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter,
+    simp only [𝔄_aux, mem_Ico, sep_and, toFinset_inter, toFinset_ofPred, Finset.mem_inter,
       Finset.mem_filter_univ] at hpin
     exact (lt_one_add (dist_(p) (𝒬 p) ϑ)).trans hpin.2.2
   -- Ineq. 6.3.23
@@ -340,7 +345,7 @@ lemma local_antichain_density {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
       exact empty_subset _
   · simp only [Finset.coe_filter]
     intro q hq q' hq' hqq'
-    rw [𝔄_aux, mem_setOf, toFinset_setOf, Finset.mem_filter_univ] at hq hq'
+    rw [𝔄_aux, mem_ofPred, toFinset_ofPred, Finset.mem_filter_univ] at hq hq'
     have hE : Disjoint (E q) (E q') := by simpa using (tile_disjointness h𝔄 hq.1.1 hq'.1.1).mt hqq'
     rw [Function.onFun, inter_assoc, inter_assoc]
     exact (hE.inter_right _).inter_left _
@@ -359,6 +364,7 @@ def 𝔄' : Set (𝔓 X) := {p ∈ 𝔄_aux 𝔄 ϑ N | ((𝓘 p : Set X) ∩ G)
 /-- The set `𝔄_-S` defined in Lemma 6.3.4. -/
 def 𝔄_min : Set (𝔓 X) := {p ∈ 𝔄_aux 𝔄 ϑ N | ((𝓘 p : Set X) ∩ G) ≠ ∅ ∧ 𝔰 p = -S}
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Classical in
 private lemma 𝔄_aux_sum_splits :
     ∑ p ∈ (𝔄_aux 𝔄 ϑ N).toFinset, volume (E p ∩ G) =
@@ -373,7 +379,7 @@ private lemma 𝔄_aux_sum_splits :
       simp only [Finset.mem_union, mem_toFinset, not_or] at hp'
       by_contra h
       by_cases hs : 𝔰 p = -S
-      · exact hp'.2 (by simp only [𝔄_min, mem_setOf_eq]; use mem_toFinset.mp hp)
+      · exact hp'.2 (by simp only [𝔄_min, mem_ofPred_eq]; use mem_toFinset.mp hp)
       · exact hp'.1 ⟨mem_toFinset.mp hp, h,
           lt_of_le_of_ne (range_s_subset (X := X) (mem_range_self (𝓘 p))).1 (Ne.symm hs)⟩
     have : E p ∩ G  = ∅ := by rw [← subset_empty_iff, ← hem]; gcongr; exact fun _ hx ↦ hx.1
@@ -386,6 +392,7 @@ private lemma 𝔄_aux_sum_splits :
 /-- The set `𝓛_{-S}` defined in Lemma 6.3.4. -/
 def 𝓛_min : Set (Grid X) := {I : Grid X | ∃ (p : 𝔄_min 𝔄 ϑ N), I = 𝓘 (p : 𝔓 X)}
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Ineq. 6.3.26
 open Classical in
 private lemma 𝔄_min_sum_le :
@@ -401,19 +408,19 @@ private lemma 𝔄_min_sum_le :
           rw [Finset.card_eq_one]
           use 𝓘 p
           rw [Finset.eq_singleton_iff_unique_mem]
-          simp only [𝓛_min, Subtype.exists, exists_prop, toFinset_setOf, Finset.mem_filter,
+          simp only [𝓛_min, Subtype.exists, exists_prop, toFinset_ofPred, Finset.mem_filter,
             Finset.mem_univ, true_and, and_true]
           exact ⟨⟨p, (mem_toFinset.mp hp), rfl⟩, fun _ hL ↦ hL.2.symm⟩
         simp only [Finset.sum_const, h1, one_smul]
       · intro L p
         refine ⟨fun ⟨hL, hp⟩ ↦ ?_, fun ⟨hL, hp⟩ ↦ ?_⟩
-        · simp only [𝔄_min, mem_setOf_eq, mem_toFinset,Finset.mem_filter] at hL hp ⊢
+        · simp only [𝔄_min, mem_ofPred_eq, mem_toFinset,Finset.mem_filter] at hL hp ⊢
           use ⟨hL, hp.2⟩, hp.1
-          simp only [𝓛_min, Subtype.exists, exists_prop, mem_setOf_eq] at hL
+          simp only [𝓛_min, Subtype.exists, exists_prop, mem_ofPred_eq] at hL
           obtain ⟨p', hp', hpL'⟩ := hL
           simp only [𝔰, hp.2, hpL']
           exact hp'.2
-        · simp only [𝔄_min, mem_setOf_eq, mem_toFinset,Finset.mem_filter] at hL hp ⊢
+        · simp only [𝔄_min, mem_ofPred_eq, mem_toFinset,Finset.mem_filter] at hL hp ⊢
           use hL.1, hp.1, hL.2
     _ ≤ ∑ L ∈ (𝓛_min 𝔄 ϑ N).toFinset, 2 ^ (a * (N + 5)) * dens₁ 𝔄 * volume (L : Set X) := by
       gcongr; apply stack_density
@@ -426,12 +433,12 @@ private lemma 𝔄_min_sum_le :
         intro x hx
         simp only [mem_toFinset, mem_iUnion, exists_prop] at hx ⊢
         obtain ⟨L, hL, hLx⟩ := hx
-        simp only [𝓛_min, Subtype.exists, exists_prop, mem_setOf_eq] at hL
+        simp only [𝓛_min, Subtype.exists, exists_prop, mem_ofPred_eq] at hL
         obtain ⟨p, hp, hpL⟩ := hL
         use p, hp.1.1, (hpL ▸ hLx)
       · simp only [coe_toFinset, pairwiseDisjoint_iff]
         intro L hL L' hL' h
-        simp only [𝓛_min, Subtype.exists, exists_prop, mem_setOf_eq] at hL hL'
+        simp only [𝓛_min, Subtype.exists, exists_prop, mem_ofPred_eq] at hL hL'
         obtain ⟨p, hp, hpL⟩ := hL
         obtain ⟨p', hp', hpL'⟩ := hL'
         have hs : 𝔰 p = 𝔰 p' := by rw [hp.2.2, hp'.2.2]
@@ -442,6 +449,7 @@ private lemma 𝔄_min_sum_le :
 def 𝓛 : Set (Grid X) := {I : Grid X | (∃ (p : 𝔄' 𝔄 ϑ N), I ≤ 𝓘 (p : 𝔓 X)) ∧
     (∀ (p : 𝔄' 𝔄 ϑ N), 𝓘 (p : 𝔓 X) ≤ I → 𝔰 (p : 𝔓 X) = - S)}
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Ineq. 6.3.27
 lemma I_p_subset_union_L (p : 𝔄' 𝔄 ϑ N) : (𝓘 (p : 𝔓 X) : Set X) ⊆ ⋃ (L ∈ 𝓛 𝔄 ϑ N), L := by
   calc (𝓘 (p : 𝔓 X) : Set X)
@@ -451,7 +459,7 @@ lemma I_p_subset_union_L (p : 𝔄' 𝔄 ϑ N) : (𝓘 (p : 𝔓 X) : Set X) ⊆
       obtain ⟨I, hI, hxI⟩ := Grid.exists_containing_subcube (i := 𝓘 (p : 𝔓 X)) (-S)
         (by simp [mem_Icc, scale_mem_Icc.1]) hx
       have hsI : s I ≤ s (𝓘 (p : 𝔓 X)) := hI ▸ scale_mem_Icc.1
-      simp only [Grid.le_def, mem_setOf_eq, mem_iUnion, exists_prop]
+      simp only [Grid.le_def, mem_ofPred_eq, mem_iUnion, exists_prop]
       exact ⟨I, ⟨hI, Or.resolve_right (GridStructure.fundamental_dyadic' hsI)
         (not_disjoint_iff.mpr ⟨x, hxI, hx⟩), hsI⟩, hxI⟩
     _ ⊆ ⋃ (L ∈ 𝓛 𝔄 ϑ N), L := by
@@ -481,7 +489,7 @@ open Classical in
 lemma pairwiseDisjoint_𝓛' :
     ((𝓛' 𝔄 ϑ N).toFinset : Set (Grid X)).PairwiseDisjoint (fun I ↦ (I : Set X)) :=
   fun I mI J mJ hn ↦ by
-    have : IsAntichain (· ≤ ·) (𝓛' 𝔄 ϑ N : Set (Grid X)) := setOf_maximal_antichain _
+    have : IsAntichain (· ≤ ·) (𝓛' 𝔄 ϑ N : Set (Grid X)) := setOfPred_maximal_antichain _
     exact (le_or_ge_or_disjoint.resolve_left
         (this (mem_toFinset.mp mI) (mem_toFinset.mp mJ) hn)).resolve_left
       (this (mem_toFinset.mp mJ) (mem_toFinset.mp mI) hn.symm)
@@ -515,10 +523,11 @@ include L hL
 
 private lemma exists_p'_ge_L : ∃ (p : 𝔄' 𝔄 ϑ N), L ≤ 𝓘 (p : 𝔓 X) := hL.1.1
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Classical in
 private lemma SL_nonempty : (SL 𝔄 ϑ N L).toFinset.Nonempty := by
   use (exists_p'_ge_L hL).choose
-  simp only [mem_toFinset, SL, mem_setOf_eq, (exists_p'_ge_L hL).choose_spec, and_true,
+  simp only [mem_toFinset, SL, mem_ofPred_eq, (exists_p'_ge_L hL).choose_spec, and_true,
     Subtype.coe_prop]
 
 open Classical in
@@ -529,11 +538,13 @@ open Classical in
 private lemma p'_mem : p' hL ∈ (SL 𝔄 ϑ N L).toFinset :=
   ((Finset.exists_minimalFor 𝔰 (SL 𝔄 ϑ N L).toFinset (SL_nonempty hL)).choose_spec).1
 
+set_option backward.isDefEq.respectTransparency.types false in
 private lemma L_le_I_p' : L ≤ 𝓘 (p' hL : 𝔓 X) := by
   have hp' := p'_mem hL
-  simp only [SL, mem_setOf_eq, mem_toFinset] at hp'
+  simp only [SL, mem_ofPred_eq, mem_toFinset] at hp'
   exact hp'.2
 
+set_option backward.isDefEq.respectTransparency.types false in
 private lemma not_I_p'_le_L : ¬ 𝓘 (p' hL) ≤ L := by
   classical
   have hL' : L ∈ 𝓛 𝔄 ϑ N  := hL.1
@@ -541,17 +552,18 @@ private lemma not_I_p'_le_L : ¬ 𝓘 (p' hL) ≤ L := by
   have hp' : p' hL ∈ (SL 𝔄 ϑ N L).toFinset :=
     (Finset.exists_minimalFor 𝔰 (SL 𝔄 ϑ N L).toFinset (SL_nonempty hL)).choose_spec.1
   simp only [Grid.le_def, Antichain.SL, SL] at hp'
-  simp only [sep_and, toFinset_inter, toFinset_setOf, Finset.mem_inter, Finset.mem_filter,
+  simp only [sep_and, toFinset_inter, toFinset_ofPred, Finset.mem_inter, Finset.mem_filter,
     Finset.mem_univ, true_and] at hp'
   by_cases hIqL : 𝓘 (p' hL) ≤ L
-  · simp only [Subtype.forall, mem_setOf_eq] at hL'
+  · simp only [Subtype.forall, mem_ofPred_eq] at hL'
     exact absurd (hL'.2 (p' hL) hp'.1.1 hIqL) (ne_of_gt (hp'.1.1.2.2))
   · exact hIqL
 
+set_option backward.isDefEq.respectTransparency.types false in
 private lemma s_L_le_s_p' : s L < 𝔰 (p' hL) := by
     have hp'L := not_I_p'_le_L hL
     have hp' := p'_mem hL
-    simp only [SL, Grid.le_def, sep_and, mem_setOf_eq, mem_toFinset, mem_inter_iff] at hp'
+    simp only [SL, Grid.le_def, sep_and, mem_ofPred_eq, mem_toFinset, mem_inter_iff] at hp'
     by_contra! h
     have h' : ¬ Disjoint (𝓘 (p' hL) : Set X) ↑L := by
       rw [Set.not_disjoint_iff_nonempty_inter, inter_eq_right.mpr hp'.1.2]
@@ -602,13 +614,14 @@ private lemma L'_le_I_p' : L' hL ≤ 𝓘 (p' hL : 𝔓 X) := by
   obtain ⟨x, ⟨hxp, hxL⟩⟩ := hpL
   use x, (L_le_L' hL).1 hxL
 
+set_option backward.isDefEq.respectTransparency.types false in
 private lemma exists_p''_le_L' : ∃ (p : 𝔓 X), p ∈ 𝔄' 𝔄 ϑ N ∧ 𝓘 p ≤ L' hL := by
   let p' := p' hL
   have hp'_mem := p'_mem hL
-  simp only [SL, mem_setOf_eq, mem_toFinset] at hp'_mem
+  simp only [SL, mem_ofPred_eq, mem_toFinset] at hp'_mem
   have hex : ∃ p' ∈ 𝔄' 𝔄 ϑ N, L' hL ≤ 𝓘 p' := ⟨p', hp'_mem.1, L'_le_I_p' hL⟩
   have hL' : ¬ L' hL ∈ 𝓛 𝔄 ϑ N := L'_not_mem hL
-  simp only [𝓛, Subtype.exists, exists_prop, Subtype.forall, mem_setOf_eq, not_and_or] at hL'
+  simp only [𝓛, Subtype.exists, exists_prop, Subtype.forall, mem_ofPred_eq, not_and_or] at hL'
   have := Or.neg_resolve_left hL' hex
   simp only [not_forall] at this
   obtain ⟨p, ⟨hp_mem, ⟨hp_le, hp⟩⟩⟩ := this
@@ -652,10 +665,11 @@ lemma pΘ_unique (h : ¬ 𝓘 (p'' hL) = L' hL) :
   simp only [pΘ, if_neg h]
   exact (exists_pΘ_eq_L' hL).choose_spec.2
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Eq. 6.3.35
 private lemma eq_6_3_35 : ϑ.val ∈ ball_(p'' hL) (𝒬 (p'' hL)) (2 ^ (N + 1)) := by
   have hp'' := p''_mem hL
-  simp only [𝔄', 𝔄_aux, mem_Ico, sep_and, mem_inter_iff, mem_setOf_eq, ne_eq] at hp''
+  simp only [𝔄', 𝔄_aux, mem_Ico, sep_and, mem_inter_iff, mem_ofPred_eq, ne_eq] at hp''
   apply lt_trans _ hp''.1.2.2
   rw [dist_comm (α := WithFunctionDistance _ _)]
   exact lt_one_add _
@@ -669,6 +683,7 @@ private lemma eq_6_3_37 : ϑ.val ∈ ball_(pΘ hL) (𝒬 (pΘ hL)) (2 ^ (N + 1))
     apply ball_subset_ball (α := WithFunctionDistance _ _) h1
     convert! subset_cball (theta_mem_Omega_pΘ hL h)
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Ineq. 6.3.36
 private lemma ineq_6_3_36 : smul (2^(N + 3)) (p'' hL) ≤ smul (2^(N + 3)) (pΘ hL) := by
   by_cases heq : 𝓘 (p'' hL) = L' hL
@@ -683,6 +698,7 @@ private lemma ineq_6_3_36 : smul (2^(N + 3)) (p'' hL) ≤ smul (2^(N + 3)) (pΘ 
     · simp only [𝔰, I_pΘ_eq_L']
       exact (Grid.lt_def.mp (lt_of_le_of_ne (I_p''_le_L' hL) heq)).2
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Ineq. 6.3.38
 private lemma ineq_6_3_38 : volume (E₂ (2 ^ (N + 3)) (pΘ hL)) ≤
       2 ^ (a * N + a * 3) * (dens₁ (𝔄 : Set (𝔓 X)) * volume (L' hL : Set X)) := by
@@ -692,10 +708,10 @@ private lemma ineq_6_3_38 : volume (E₂ (2 ^ (N + 3)) (pΘ hL)) ≤
   apply volume_E₂_le_dens₁_mul_volume (𝔓' := 𝔄) (p' := p'' hL) (p := pΘ hL)
     (l := 2 ^ (N + 3)) ?_ (p''_mem hL).1.1 (mod_cast Nat.le_self_pow (by linarith) 2)
     (ineq_6_3_36 hL)
-  simp only [lowerCubes, mem_setOf_eq]
+  simp only [lowerCubes, mem_ofPred_eq]
   refine ⟨p' hL, ?_, I_pΘ_eq_L' hL ▸ L'_le_I_p' hL⟩
   have := (p'_mem hL)
-  simp only [SL, 𝔄', 𝔄_aux, mem_setOf_eq, mem_toFinset] at this
+  simp only [SL, 𝔄', 𝔄_aux, mem_ofPred_eq, mem_toFinset] at this
   exact this.1.1.1
 
 -- Ineq. 6.3.39
@@ -718,7 +734,7 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) :
         simp only [this, measure_empty, ite_self, zero_le]
       · have hL2 := hL
         simp only [𝓛', Maximal, 𝓛, Grid.le_def,
-          Subtype.exists, exists_and_left, exists_prop, and_imp, Subtype.forall, mem_setOf_eq,
+          Subtype.exists, exists_and_left, exists_prop, and_imp, Subtype.forall, mem_ofPred_eq,
           forall_exists_index] at hL2
         by_cases hp' : 𝓘 x = L' hL
         · rw [if_pos hp']
@@ -1027,7 +1043,7 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
       · intro i mi j mj hn
         rw [mul_assoc (2 ^ _), ← inter_indicator_mul, mul_assoc _ _ (G.indicator 1 x),
           ← inter_indicator_mul, mul_mul_mul_comm, ← inter_indicator_mul, inter_inter_inter_comm]
-        rw [𝔄_aux, toFinset_setOf, Finset.mem_filter_univ] at mi mj
+        rw [𝔄_aux, toFinset_ofPred, Finset.mem_filter_univ] at mi mj
         have key := (tile_disjointness h𝔄 mi.1 mj.1).mt hn
         rw [not_not, disjoint_iff_inter_eq_empty] at key; simp [key]
       rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
@@ -1102,6 +1118,7 @@ lemma le_C6_1_6 (a4 : 4 ≤ a) :
       · exact one_le_two
       · lia
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Classical in
 /-- Lemma 6.1.6. -/
 lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : range (Q (X := X))) :

@@ -144,7 +144,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
       unfold 𝓙₅
-      rw [inter_def, mem_setOf_eq]
+      rw [inter_def, mem_ofPred_eq]
       refine ⟨cube_in_𝓙, ?_⟩
       simp only [mem_Iic, Grid.le_def]
       have smaller := calc s cube
@@ -162,14 +162,14 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
         _ ⊆ cube := by
           apply subset_of_notMem_Iic_of_not_disjoint cube
           · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := fun a ↦ contr cube a xInCube
-            rw [𝓙₅, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
+            rw [𝓙₅, inter_def, Set.mem_ofPred_eq, not_and_or] at notIn
             exact Or.resolve_left notIn (Set.not_notMem.mpr cube_in_𝓙)
           · exact notDisjoint
         _ ⊆ ball (c cube) (4 * D ^ s cube) := by
           exact Grid_subset_ball (i := cube)
         _ ⊆ ball (c cube) (100 * D ^ (s cube + 1)) := by
           intro y xy
-          rw [ball, mem_setOf_eq] at xy ⊢
+          rw [ball, mem_ofPred_eq] at xy ⊢
           exact gt_trans (calculation_16 (X := X) (s := s cube)) xy
       have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * D ^ (s cube + 1)) := by
         have in_𝔖₀ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
@@ -202,6 +202,7 @@ lemma bigger_than_𝓙_is_not_in_𝓙₀ {𝔖 : Set (𝔓 X)} {A B : Grid X}
   · exact (A_in contr le.1 (le_of_lt sle)).2
   · exact sle
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma 7.5.3 (stated somewhat differently). -/
 lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙₅ t u₁ u₂)
     (hd : ¬Disjoint (ball (c J) (8 * D ^ s J)) (ball (c J') (8 * D ^ s J'))) :
@@ -215,7 +216,7 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
     rw [lt_sub_iff_add_lt] at hs; exact hs.le.trans scale_mem_Icc.2
   obtain ⟨p, mp, sp⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * D ^ (s J' + 1 + 1)) := by
     have : J'' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ lJ'' (by linarith) hJ'.1
-    rw [𝓙₀, mem_setOf_eq, sJ''] at this; push Not at this; exact this.2
+    rw [𝓙₀, mem_ofPred_eq, sJ''] at this; push Not at this; exact this.2
   use p, mp, sp.trans (ball_subset_ball' ?_)
   calc
     _ ≤ 100 * D ^ (s J' + 1 + 1) + (dist (c J'') (c J') + dist (c J) (c J')) :=
@@ -225,7 +226,8 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
       · exact (mem_ball'.mp (Grid_subset_ball (lJ''.1 Grid.c_mem_Grid))).le
       · exact (dist_lt_of_not_disjoint_ball hd).le
     _ ≤ 100 * D ^ s J + (4 * D ^ s J + 8 * D ^ s J + 8 * D ^ s J) := by
-      gcongr; exacts [one_le_realD a, by lia, one_le_realD a, by lia, one_le_realD a, by lia]
+      gcongr
+      exacts [one_le_realD a, by omega, one_le_realD a, by omega, one_le_realD a, by omega]
     _ ≤ _ := by
       rw [← add_mul, ← add_mul, ← add_mul, zpow_add_one₀ (by simp), mul_comm _ (D : ℝ), ← mul_assoc]
       gcongr; trans 100 * 4
@@ -601,7 +603,6 @@ lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
 
 attribute [fun_prop] continuous_conj Continuous.comp_aestronglyMeasurable
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Sub-equations (7.5.10) and (7.5.11) in Lemma 7.5.5. -/
 lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     edist (exp (.I * 𝒬 u x) * adjointCarleson p f x) (exp (.I * 𝒬 u x') * adjointCarleson p f x') ≤
@@ -665,6 +666,7 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
 /-- Multiplicative factor for the bound on `‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ`. -/
 irreducible_def Q7_5_5 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (6 * a)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma QQQQ_bound_real {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u)
     (hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) (hx' : x' ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
     ‖-Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ ≤ Q7_5_5 a * (dist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
@@ -917,7 +919,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
     rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
     have J'Touches𝔖₀ : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ (le := belongs)
       (sle := by linarith [plusOne]) (A_in := hJ.1)
-    rw [𝓙₀, Set.notMem_setOf_iff] at J'Touches𝔖₀
+    rw [𝓙₀, Set.notMem_ofPred_iff] at J'Touches𝔖₀
     push Not at J'Touches𝔖₀
     exact J'Touches𝔖₀.right
   apply calculation_9 (X := X)
@@ -964,7 +966,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
     _ ≤ 2 ^ ((-(𝕔 - 6) : ℝ) * a) * 2 ^ ((Z : ℝ) * n / 2) := by
       rcases hp with ⟨tile, notIn𝔖₀⟩
       unfold 𝔖₀ at notIn𝔖₀
-      simp only [mem_setOf_eq, not_or, not_and, sep_union, mem_union] at notIn𝔖₀
+      simp only [mem_ofPred_eq, not_or, not_and, sep_union, mem_union] at notIn𝔖₀
       gcongr
       apply le_of_not_ge
       exact notIn𝔖₀.2 tile
@@ -1106,7 +1108,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
       · by_contra h; rw [not_disjoint_iff] at h; obtain ⟨x, mx₁ : x ∈ E p, mx₂ : x ∈ E q⟩ := h
         apply absurd (disjoint_Ω hn hi); rw [not_disjoint_iff]; use Q x, mx₁.2.1, mx₂.2.1
       · apply disjoint_of_subset E_subset_𝓘 E_subset_𝓘
-        simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, mem_setOf_eq] at mp mq
+        simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, mem_ofPred_eq] at mp mq
         have := eq_or_disjoint (mq.1 ▸ mp.1)
         exact this.resolve_left hi
     _ ≤ 2 ^ ((𝕔 + 3) * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
@@ -1206,7 +1208,7 @@ lemma gtc_integral_bound {k : ℤ} {ℭ : Set (𝔓 X)}
       refine (lintegral_biUnion_finset (fun p₁ mp₁ p₂ mp₂ hn ↦ ?_)
         (fun _ _ ↦ measurableSet_E) _).symm
       contrapose! hn; obtain ⟨x, mx₁ : x ∈ E p₁, mx₂ : x ∈ E p₂⟩ := not_disjoint_iff.mp hn
-      rw [E, mem_setOf] at mx₁ mx₂
+      rw [E, mem_ofPred] at mx₁ mx₂
       simp_rw [Finset.mem_coe, V, Finset.mem_filter, mem_toFinset] at mp₁ mp₂
       have i_eq := mp₂.2.2 ▸ mp₁.2.2
       replace i_eq : 𝓘 p₁ = 𝓘 p₂ :=
@@ -1890,9 +1892,9 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       suffices s (𝓘 u₁) > s (𝓘 p) by linarith
       by_contra! smaller
       have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
-      apply HasSubset.Subset.not_ssubset
+      apply LE.le.not_ssuperset
         ((fundamental_dyadic smaller).resolve_right (IF_subset_THEN_not_disjoint pIsSubset))
-      apply HasSubset.Subset.ssubset_of_ne pIsSubset
+      apply LE.le.ssubset_of_ne pIsSubset
       by_contra! sameSet
       apply Forest.𝓘_ne_𝓘 (hu := hu₁) (hp := belongs)
       exact Grid.inj (Prod.ext sameSet sameScale)
@@ -1912,7 +1914,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
     apply bigger_than_𝓙_is_not_in_𝓙₀ (sle := by linarith) (le := JleJ')
     exact mem_of_mem_inter_left hJ
   unfold 𝓙₀ at notIn𝓙₀
-  simp only [mem_setOf_eq, not_or, not_forall] at notIn𝓙₀
+  simp only [mem_ofPred_eq, not_or, not_forall] at notIn𝓙₀
   push Not at notIn𝓙₀
   obtain ⟨_, ⟨ p, pIn, pSubset ⟩⟩ := notIn𝓙₀
   have thus :=
@@ -1926,7 +1928,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       _ ≤ 100 * D ^ (s J' + 1) + dist (c J') (c J) := by
         rw [ball, Set.subset_def] at pSubset
         have := pSubset point (ball_subset_Grid pointIn)
-        rw [mem_setOf_eq] at this
+        rw [mem_ofPred_eq] at this
         gcongr
       _ ≤ 100 * D ^ (s J' + 1) + 4 * D ^ (s J') := by
         have : dist (c J) (c J') < 4 * D ^ (s J') :=
@@ -2008,6 +2010,7 @@ lemma le_C7_4_5 (a4 : 4 ≤ a) :
   · exact one_le_two
   · linarith [sixteen_times_le_cube a4]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 7.4.5 -/
 lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :

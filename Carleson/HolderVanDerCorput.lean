@@ -502,6 +502,7 @@ lemma iLipENorm_holderApprox_le {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
 Has value `2 ^ (7 * a)` in the blueprint. -/
 def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (7 * a)
 
+set_option backward.isDefEq.respectTransparency.types false in
 --NOTE (MI) : there was a missing minus sign in the exponent.
 /-- Proposition 2.0.5. -/
 theorem holder_van_der_corput {z : X} {R : ℝ} {φ : X → ℂ}

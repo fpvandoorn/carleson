@@ -138,8 +138,8 @@ lemma disjoint_E {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoi
 
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
-  · rw [← measurableSet_setOf]; exact coeGrid_measurable
-  · simp_rw [← mem_preimage, ← measurableSet_setOf]; exact SimpleFunc.measurableSet_preimage ..
+  · rw [← measurableSet_setOfPred]; exact coeGrid_measurable
+  · simp_rw [← mem_preimage, ← measurableSet_setOfPred]; exact SimpleFunc.measurableSet_preimage ..
   · apply (measurable_set_mem _).comp
     apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
     · exact measurable_from_prod_countable_left fun _ _ _ ↦ trivial
@@ -156,7 +156,8 @@ def TileLike.snd (x : TileLike X) : Set (Θ X) := x.2
 @[simp] lemma TileLike.fst_mk (x : Grid X) (y : Set (Θ X)) : TileLike.fst (x, y) = x := by rfl
 @[simp] lemma TileLike.snd_mk (x : Grid X) (y : Set (Θ X)) : TileLike.snd (x, y) = y := by rfl
 
-instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
+instance : PartialOrder (TileLike X) :=
+  inferInstanceAs <| PartialOrder <| Grid X × OrderDual (Set (Θ X))
 
 lemma TileLike.le_def (x y : TileLike X) : x ≤ y ↔ x.fst ≤ y.fst ∧ y.snd ⊆ x.snd := by rfl
 
@@ -243,6 +244,7 @@ lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (
         exact mem_ball.mp <| mem_of_mem_of_subset (by convert! mem_ball_self hk) hl.2
   exact ⟨hl.1, this⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma dist_LTSeries {n : ℕ} {u : Set (𝔓 X)} {s : LTSeries u} (hs : s.length = n) {f g : Θ X} :
     dist_(s.head.1) f g ≤ C2_1_2 a ^ n * dist_(s.last.1) f g := by
   induction n generalizing s with
@@ -334,10 +336,10 @@ def lowerCubes (𝔓' : Set (𝔓 X)) : Set (𝔓 X) :=
 lemma mem_lowerCubes {𝔓' : Set (𝔓 X)} : p ∈ lowerCubes 𝔓' ↔ ∃ p' ∈ 𝔓', 𝓘 p ≤ 𝓘 p' := by rfl
 
 lemma lowerCubes_mono : Monotone (lowerCubes (X := X)) := fun 𝔓₁ 𝔓₂ hs p mp ↦ by
-  rw [lowerCubes, mem_setOf] at mp ⊢; obtain ⟨p', mp', hp'⟩ := mp; use p', hs mp'
+  rw [lowerCubes, mem_ofPred] at mp ⊢; obtain ⟨p', mp', hp'⟩ := mp; use p', hs mp'
 
 lemma subset_lowerCubes {𝔓' : Set (𝔓 X)} : 𝔓' ⊆ lowerCubes 𝔓' := fun p mp ↦ by
-  rw [lowerCubes, mem_setOf]; use p
+  rw [lowerCubes, mem_ofPred]; use p
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
@@ -474,6 +476,7 @@ lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
       exact hx _ hp
     linarith
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma eq_empty_of_forall_stackSize_zero (s : Set (𝔓 X)) :
     (∀ x, stackSize s x = 0) → s = ∅ := by
   intro h
@@ -580,7 +583,7 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
   have E n (hn : n < N) : ∃ u ∈ iteratedMaximalSubfamily A n, (𝓘 p : Set X) ⊆ (𝓘 u : Set X) := by
     rw [iteratedMaximalSubfamily]
     apply (exists_maximal_disjoint_covering_subfamily _).choose_spec.2.2
-    simp only [coe_setOf, mem_setOf_eq, mem_sdiff, hp,
+    simp only [coe_ofPred, mem_ofPred_eq, mem_sdiff, hp,
       mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, true_and]
     intro i hi
     exact hN i (hi.trans hn)
@@ -602,7 +605,7 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
     rintro p hp
     simp only [Finset.mem_filter_univ, mem_image, mem_Iio] at hp
     rcases hp with ⟨n, hn, rfl⟩
-    simp only [ne_eq, mem_setOf_eq, Finset.mem_filter,
+    simp only [ne_eq, mem_ofPred_eq, Finset.mem_filter,
       Finset.mem_univ, iteratedMaximalSubfamily_subset _ _ (hu n hn), true_and]
     rintro rfl
     exact hN n hn (hu n hn)
