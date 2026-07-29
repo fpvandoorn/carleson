@@ -361,7 +361,7 @@ lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) : ∃ j ∈ 
 
 lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
     PairwiseDisjoint (SetLike.coe (maxCubes s)) fun i ↦ (i : Set X) := fun i mi j mj hn ↦ by
-  simp only [maxCubes, Finset.coe_filter, mem_setOf_eq] at mi mj
+  simp only [maxCubes, Finset.coe_filter, mem_ofPred_eq] at mi mj
   exact le_or_ge_or_disjoint.resolve_left ((mi.2 j mj.1).mt hn)
     |>.resolve_left ((mj.2 i mi.1).mt hn.symm)
 

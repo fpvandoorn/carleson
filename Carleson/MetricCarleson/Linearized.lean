@@ -77,7 +77,7 @@ lemma measurable_lcoConvergent {n : ℕ} (mf : Measurable f) (nf : (‖f ·‖) 
     exact measurableSet_lt measurable_const
       ((measurable_carlesonOperatorIntegrand mf).indicator measurableSet_ball).enorm
   ext x
-  simp_rw [mem_preimage, mem_Ioi, lcoConvergent, lt_biSup_iff, mem_iUnion₂, mem_setOf_eq,
+  simp_rw [mem_preimage, mem_Ioi, lcoConvergent, lt_biSup_iff, mem_iUnion₂, mem_ofPred_eq,
     exists_prop]
   constructor <;> intro h
   · obtain ⟨R₁, mR₁, R₂, mR₂, hR⟩ := h; unfold T_R at hR ⊢

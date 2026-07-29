@@ -27,6 +27,7 @@ lemma MeasureTheory.LocallyIntegrable.integrableOn_ball [ProperSpace X]
     {f : X → E} (hf : LocallyIntegrable f μ) {x : X} {r : ℝ} : IntegrableOn f (ball x r) μ :=
   hf.integrableOn_of_isBounded isBounded_ball
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Topology in
 lemma continuous_integral_ball [OpensMeasurableSpace X]
     (g : X → ℝ≥0∞) (hg : ∀ x : X, ∀ r > (0 : ℝ), ∫⁻ (y : X) in ball x r, g y ∂μ < ⊤)
@@ -46,11 +47,11 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
   have hz' : Tendsto z atTop (𝓝 x) := tendsto_nhds_of_tendsto_nhdsWithin hz
   have := isBounded_range_of_tendsto z hz'
   obtain ⟨r, hr⟩ := Bornology.IsBounded.subset_ball this x
-  simp only [range, ball, setOf_subset_setOf, forall_exists_index, forall_apply_eq_imp_iff] at hr
+  simp only [range, ball, ofPred_subset_ofPred, forall_exists_index, forall_apply_eq_imp_iff] at hr
   simp_rw [Prod.dist_eq] at hr
   have hsub (n : ℕ) : ball (z n).1 (z n).2 ⊆ ball x.1 (x.2 + 2 * r) := by
     intro y hy
-    simp only [ball, mem_setOf_eq] at hy ⊢
+    simp only [ball, mem_ofPred_eq] at hy ⊢
     calc dist y x.1
     _  ≤ dist y (z n).1 + dist (z n).1 x.1 := dist_triangle y (z n).1 x.1
     _ ≤ (z n).2 + dist (z n).1 x.1 := by gcongr
@@ -96,7 +97,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
       simpa only [ne_eq, Decidable.not_not] using! hμ x.1 x.2 hx_pos
     filter_upwards [this] with y hy
     by_cases hy2 : dist y x.1 < x.2
-    · simp only [indicator, ball, mem_setOf_eq]
+    · simp only [indicator, ball, mem_ofPred_eq]
       split_ifs
       apply tendsto_nhds_of_eventually_eq
       have hz2 : ∀ᶠ n : ℕ in atTop, dist y (z n).1 < (z n).2 := by
@@ -115,7 +116,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
         have hy2 : 0 < dist y x.1 - x.2 := sub_pos.mpr hy2
         have : ∀ᶠ (n : ℕ) in atTop, 0 < dist y (z n).1 - (z n).2 := Tendsto.eventually_const_lt hy2 hcmp
         filter_upwards [this]; simp
-      simp only [indicator, ball, mem_setOf_eq]
+      simp only [indicator, ball, mem_ofPred_eq]
       apply tendsto_nhds_of_eventually_eq
       filter_upwards [hz2] with n hn
       have : ¬ (dist y (z n).1 < (z n).2) := by linarith

@@ -112,7 +112,7 @@ variable (X) in
 lemma property_set_nonempty (k : ℤ) : (if k = S then {o} else ∅) ∈ property_set X k := by
   dsimp only [property_set]
   split
-  · simp only [mem_setOf_eq, singleton_subset_iff, mem_ball, dist_self, sub_pos,
+  · simp only [mem_ofPred_eq, singleton_subset_iff, mem_ball, dist_self, sub_pos,
       pairwiseDisjoint_singleton, mem_singleton_iff, implies_true, and_self, and_true]
     rename_i hk
     rw [hk, zpow_natCast, lt_mul_iff_one_lt_left (by norm_num)]
@@ -143,17 +143,17 @@ lemma chain_property_set_has_bound (k : ℤ) :
       use z, hz
       specialize hc hz
       dsimp only [property_set] at hc
-      rw [mem_setOf_eq] at hc
+      rw [mem_ofPred_eq] at hc
       exact hc.right.right r.left
     · exact fun hex ↦ Or.intro_left (x ∈ if k = ↑S then {o} else ∅) hex
   simp_rw [this]
   dsimp only [property_set] at hc ⊢
-  simp only [mem_setOf_eq, iUnion_subset_iff]
+  simp only [mem_ofPred_eq, iUnion_subset_iff]
   constructor
   · constructor
     · intro i hi
       specialize hc hi
-      rw [mem_setOf_eq] at hc
+      rw [mem_ofPred_eq] at hc
       exact hc.left
     constructor
     · intro x hx y hy
@@ -990,7 +990,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
           volume (⋃ (z ∈ {z' : Yk X k' | clProp((le_s hk_mK k'),z'|hk,y) }),
             I3 (le_s hk_mK k') z) := by
       apply Finset.sum_le_sum
-      simp only [Finset.mem_univ, mem_setOf_eq, true_implies]
+      simp only [Finset.mem_univ, mem_ofPred_eq, true_implies]
       intro k'
       apply volume.mono
       simp only [iUnion_subset_iff]
@@ -1017,7 +1017,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
       letI := (Yk_countable X k').to_subtype
       refine measure_iUnion ?_ ?_
       · intro i i' hneq
-        simp only [mem_setOf_eq, disjoint_iUnion_right, disjoint_iUnion_left]
+        simp only [mem_ofPred_eq, disjoint_iUnion_right, disjoint_iUnion_left]
         intro _ _
         rw [Set.disjoint_iff]
         intro x hx
@@ -1402,7 +1402,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
           I3 hconst_n y') := by
       apply volume.mono
       intro x
-      simp only [mem_setOf_eq, NNReal.val_eq_coe, and_imp]
+      simp only [mem_ofPred_eq, NNReal.val_eq_coe, and_imp]
       intro hxi3 hxb'
       have : x ∈ ⋃ (y' : Yk X (k - const_n a ht * K')), I3 hconst_n y' :=
         cover_by_cubes hconst_n hconst_n_k hk y hxi3
@@ -1554,6 +1554,7 @@ def 𝓓.coe (z : 𝓓 X) : Set X := I3 z.hk z.y
 variable (X) in
 def forget_map (x : 𝓓 X) : (k : Set.Icc (-S : ℤ) S) × (Yk X k) := ⟨⟨x.k,And.intro x.hk x.hk_max⟩,x.y⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma forget_map_inj : Function.Injective (forget_map X) := by
   intro x1 x2 h
   dsimp only [forget_map] at h
@@ -1665,6 +1666,7 @@ open scoped Classical in
 def 𝓩_cands : Finset (Finset (Θ X)) :=
   Q.range.powerset.filter fun z ↦ (SetLike.coe z).PairwiseDisjoint (ball_{I} · C𝓩)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_𝓩_max_card : ∃ zmax ∈ 𝓩_cands I, ∀ z ∈ 𝓩_cands I, z.card ≤ zmax.card :=
   (𝓩_cands I).exists_max_image Finset.card ⟨∅, by simp [𝓩_cands]⟩
 
@@ -1683,6 +1685,7 @@ lemma 𝓩_subset : 𝓩 I ⊆ Q.range := 𝓩_spec.1
 lemma 𝓩_pairwiseDisjoint : (SetLike.coe (𝓩 I)).PairwiseDisjoint (ball_{I} · C𝓩) := 𝓩_spec.2.1
 lemma 𝓩_max_card : ∀ z ∈ 𝓩_cands I, z.card ≤ (𝓩 I).card := 𝓩_spec.2.2
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma 𝓩_nonempty : (𝓩 I).Nonempty := by
   by_contra h; rw [Finset.not_nonempty_iff_eq_empty] at h
   have j := 𝓩_max_card (I := I)
@@ -1796,16 +1799,16 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
   · obtain ⟨z', mz', hz'⟩ := h
     exact subset_iUnion_of_subset _ subset_rfl (ball_subset_Ω₁ ⟨I, ⟨z', mz'⟩⟩ hz')
   · let L := {k : Fin (Nat.card (𝓩 I)) | ϑ ∈ ball_{I} (f.symm k).1 C4_2_1}
-    have Ln : L.Nonempty := by use f ⟨z, mz⟩; rwa [mem_setOf, Equiv.symm_apply_apply]
+    have Ln : L.Nonempty := by use f ⟨z, mz⟩; rwa [mem_ofPred, Equiv.symm_apply_apply]
     obtain ⟨k, mem_k, hk⟩ := L.exists_min_image id L.toFinite Ln
-    simp_rw [L, mem_setOf_eq] at mem_k
+    simp_rw [L, mem_ofPred_eq] at mem_k
     simp only [id_eq] at hk
     have q : ∀ i < k, ϑ ∉ Ω₁_aux I i := by
       by_contra! h; obtain ⟨i, li, hi⟩ := h
       have := Ω₁_subset_ball ⟨I, f.symm i⟩
       simp_rw [Ω₁, ← hf, Equiv.apply_symm_apply] at this
       replace this : ϑ ∈ ball_{I} (f.symm i).1 C4_2_1 := this hi
-      replace this : i ∈ L := by simp only [L, mem_setOf_eq, this]
+      replace this : i ∈ L := by simp only [L, mem_ofPred_eq, this]
       exact absurd (hk i this) (not_le.mpr li)
     rw [mem_iUnion]; use f.symm k; rw [Ω₁, Ω₁_aux]; dsimp only
     rw [Equiv.apply_symm_apply]; simp_rw [k.2]; rw [dite_true, mem_sdiff, mem_sdiff]

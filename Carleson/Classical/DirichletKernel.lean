@@ -138,7 +138,7 @@ lemma dirichletKernel'_eq_zero {x : ℝ} (h : cexp (I * x) = 1) : dirichletKerne
 lemma dirichletKernel_eq_ae : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
   have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ Set.range (fun (n : ℤ) ↦ n * (2 * π)) := by
     intro x hx
-    simp only [Set.mem_setOf_eq] at hx ⊢
+    simp only [Set.mem_ofPred_eq] at hx ⊢
     contrapose! hx
     apply dirichletKernel_eq ?_
     simpa [← ofReal_injective.ne_iff, Complex.exp_eq_one_iff, mul_comm I, ← mul_assoc, eq_comm] using hx

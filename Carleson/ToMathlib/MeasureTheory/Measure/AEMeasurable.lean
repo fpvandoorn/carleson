@@ -1,7 +1,6 @@
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-public import Carleson.ToMathlib.Order.Interval.Set.Disjoint
 public import Mathlib.MeasureTheory.Function.AEEqOfLIntegral
 
 public section
@@ -24,10 +23,11 @@ lemma aeMeasurable_withDensity_inv {f : NNReal → ENNReal} (hf : AEMeasurable f
       simp only [ne_eq, Set.compl_ne_eq_singleton]
       apply measure_singleton
     · intro x hx
-      simp only [ne_eq, Set.mem_setOf_eq] at *
+      simp only [ne_eq, Set.mem_ofPred_eq] at *
       exact (ENNReal.coe_inv hx).symm
   · fun_prop
   · fun_prop
+
 
 -- analogous to `aemeasurable_Ioi_of_forall_Ioc` in mathlib
 open MeasureTheory MeasureTheory.Measure Filter Set Function ENNReal in

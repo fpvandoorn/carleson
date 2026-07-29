@@ -91,7 +91,7 @@ lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {
     apply lt_e.trans_le'
     have := hk n
     unfold Eε superlevelSet at this
-    simp only [gt_iff_lt, enorm_eq_self, Set.mem_setOf_eq, not_lt, iSup_le_iff,
+    simp only [gt_iff_lt, enorm_eq_self, Set.mem_ofPred_eq, not_lt, iSup_le_iff,
       enorm_le_coe] at this
     have := this N hN
     rw [← toNNReal_le_toNNReal_iff (εpos _ _).le]
@@ -110,7 +110,7 @@ lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {
   apply le_trans' Emeasure
   apply measure_mono
   intro x hx
-  simp only [Set.mem_compl_iff, Set.mem_setOf_eq] at hx
+  simp only [Set.mem_compl_iff, Set.mem_ofPred_eq] at hx
   contrapose! hx
   exact hE x hx
 
@@ -132,14 +132,14 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
     · intro h
       rcases h with ⟨k, hk⟩
       rw [Set.mem_vadd_set_iff_neg_vadd_mem, vadd_eq_add, ← sub_eq_neg_add, E_interval_def] at hk
-      simp only [Classical.not_imp, Set.mem_setOf_eq, hP.sub_zsmul_eq k] at hk
+      simp only [Classical.not_imp, Set.mem_ofPred_eq, hP.sub_zsmul_eq k] at hk
       exact hk.2
     · dsimp
       rcases (hP.exists_mem_Ico' hT x a) with ⟨n, hn, hxn⟩
       rw [hxn]
       refine fun h ↦ ⟨n, ?_⟩
       rw [Set.mem_vadd_set_iff_neg_vadd_mem, vadd_eq_add, ← sub_eq_neg_add, E_interval_def]
-      simp only [Classical.not_imp, Set.mem_setOf_eq]
+      simp only [Classical.not_imp, Set.mem_ofPred_eq]
       exact ⟨hn, h⟩
   -- The union still has measure zero
   have Emeasure : volume E = 0 := by

@@ -146,7 +146,7 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
     use max 1 A^2, Set.univ, by simp, Set.univ
     simp only [mem_principal, Set.subset_univ, Set.inter_self, true_and]
     ext r
-    simp only [ENNReal.coe_pow, Set.mem_setOf_eq, Set.mem_univ, iff_true]
+    simp only [ENNReal.coe_pow, Set.mem_ofPred_eq, Set.mem_univ, iff_true]
     intro x
     letI : Nonempty X := ⟨x⟩
     by_cases hr : r ≤ 0

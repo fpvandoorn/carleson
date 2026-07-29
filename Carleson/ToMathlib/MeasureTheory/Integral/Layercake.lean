@@ -254,7 +254,7 @@ theorem lintegral_comp_eq_lintegral_meas_le_mul_of_measurable' (μ : Measure α)
   -- let `M` be the largest number such that `g` vanishes ae on `(0, M]`.
   let M := sSup {s | g =ᵐ[volume.restrict (Iic s)] 0}
   have zero_mem : 0 ∈ {s | g =ᵐ[volume.restrict (Iic s)] 0} := by
-    simp only [mem_setOf_eq]
+    simp only [mem_ofPred_eq]
     have : Iic (0 : ℝ≥0∞) = {0} := by unfold Iic; simp
     rw [this]
     simp only [restrict_singleton, measure_singleton, zero_smul, ae_zero]
@@ -329,7 +329,7 @@ theorem lintegral_comp_eq_lintegral_meas_le_mul_of_measurable' (μ : Measure α)
         rw [← ae_restrict_iff'₀ (by measurability)]
         apply ae_mono (restrict_mono ?_ le_rfl) hgM
         simpa using hs
-      simp only [mem_compl_iff, mem_setOf_eq, not_lt] at hs
+      simp only [mem_compl_iff, mem_ofPred_eq, not_lt] at hs
       simp [this]
     simp only [lintegral_const, zero_mul] at I
     rw [← lintegral_add_compl _ meas, I, add_zero]
@@ -444,11 +444,11 @@ theorem lintegral_comp_eq_lintegral_distribution_mul (μ : Measure α)
       rw [← Directed.measure_iUnion]
       · congr 1
         ext ω
-        rw [mem_iUnion, mem_setOf_eq, lt_iSup_iff]
+        rw [mem_iUnion, mem_ofPred_eq, lt_iSup_iff]
         rfl
       · intro n m
         use max n m
-        simp only [setOf_subset_setOf]
+        simp only [ofPred_subset_ofPred]
         constructor <;>
         · intro ω hω
           apply hω.trans_le (hfs _ _)

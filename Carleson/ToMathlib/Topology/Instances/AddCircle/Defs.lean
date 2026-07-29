@@ -28,11 +28,11 @@ include hf
 -- `liftIco_coe_apply` and `liftIoc_coe_apply` which are already in Mathlib
 
 theorem liftIco_coe_apply_of_periodic (x : 𝕜) : liftIco p a f ↑x = f x := by
-  rw [liftIco, equivIco, comp_apply, restrict_apply, QuotientAddGroup.equivIcoMod_coe]
+  rw [liftIco, equivIco, comp_apply, domRestrict_apply, QuotientAddGroup.equivIcoMod_coe]
   simp_rw [← self_sub_toIcoDiv_zsmul, hf.sub_zsmul_eq]
 
 theorem liftIoc_coe_apply_of_periodic (x : 𝕜) : liftIoc p a f ↑x = f x := by
-  rw [liftIoc, equivIoc, comp_apply, restrict_apply, QuotientAddGroup.equivIocMod_coe]
+  rw [liftIoc, equivIoc, comp_apply, domRestrict_apply, QuotientAddGroup.equivIocMod_coe]
   simp_rw [← self_sub_toIocDiv_zsmul, hf.sub_zsmul_eq]
 
 theorem liftIco_comp_mk_eq_of_periodic : liftIco p a f ∘ QuotientAddGroup.mk = f := by
