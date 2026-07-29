@@ -50,7 +50,6 @@ lemma intervalIntegrable_continuous_mul_lipschitzOnWith
     apply mem_image_of_mem
     exact Ioo_subset_Icc_self hx
 
-set_option backward.isDefEq.respectTransparency false in
 lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {φ : ℝ → ℂ} {B K : ℝ≥0}
     (h1 : LipschitzOnWith K φ (Ioo a b)) (h2 : ∀ x ∈ Ioo a b, ‖φ x‖ ≤ B) :
     ‖∫ x in a..b, exp (I * n * x) * φ x‖ ≤

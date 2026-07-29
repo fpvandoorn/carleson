@@ -50,7 +50,7 @@ private lemma sum_eq_zero_of_notMem_Icc {f : X → ℂ} {x : X} (s : ℤ)
   rw [Finset.mem_filter_univ] at hp
   simp only [mem_Icc, not_and, not_le, toFinset_Icc, Finset.mem_filter, Finset.mem_Icc] at hs
   rw [carlesonOn, Set.indicator_of_notMem]
-  simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_setOf_eq, not_and, not_le]
+  simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_ofPred_eq, not_and, not_le]
   exact fun _ ⟨_, h⟩ _ ↦ hp ▸ hs.2 (hp ▸ h)
 
 lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset) :
@@ -87,7 +87,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} {x : X} (hx : x ∈ G \ G
     have : ∀ p' ∈ 𝔓X_s s, p' ≠ p → carlesonOn p' f x = 0 := by
       intro p' p'𝔓Xs p'p
       apply indicator_of_notMem
-      simp only [E, mem_setOf_eq, not_and]
+      simp only [E, mem_ofPred_eq, not_and]
       refine fun x_in_𝓘p' Qp' ↦ False.elim ?_
       have s_eq := 𝔰_eq p𝔓Xs ▸ 𝔰_eq p'𝔓Xs
       have : ¬ Disjoint (𝓘 p' : Set X) (𝓘 p : Set X) := not_disjoint_iff.2 ⟨x, x_in_𝓘p', 𝓘pI ▸ xI⟩

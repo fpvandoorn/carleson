@@ -191,6 +191,7 @@ def C6_2_3 (a : ℕ) : ℝ≥0 := 2 ^ (8 * a)
 private lemma ineq_6_2_16 {p : 𝔓 X} {x : X} (hx : x ∈ E p) : dist_(p) (Q x) (𝒬 p) < 1 :=
   subset_cball hx.2.1
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 6.2.3 (dist version). -/
 lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂)
     (hinter : (ball (𝔠 p₁) (5 * D ^ 𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D ^ 𝔰 p₂)).Nonempty) {x₁ x₂ : X}
@@ -289,6 +290,7 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
       rw [mul_comm 3]
       gcongr
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 6.2.3 (edist version). -/
 lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂)
     (hinter : (ball (𝔠 p₁) (5 * D ^ 𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D ^ 𝔰 p₂)).Nonempty) {x₁ x₂ : X}
@@ -313,7 +315,6 @@ lemma C6_1_5_bound (ha : 4 ≤ a) :
 
 open GridStructure
 
-set_option backward.isDefEq.respectTransparency false in
 lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
     conj (∫ y1 in E p, conj (Ks (𝔰 p) y1 y) * exp (I * (Q y1 y1 - Q y1 y)) * g y1) =
     ∫ y1 in E p, Ks (𝔰 p) y1 y * exp (I * (-Q y1 y1 + Q y1 y)) * conj (g y1) := by
@@ -326,6 +327,7 @@ lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
 def I12 (p p' : 𝔓 X) (g : X → ℂ) (x1 x2 : X) : ℝ≥0∞ :=
   ‖(∫ y, exp (I * (-Q x1 y + Q x2 y)) * correlation (𝔰 p') (𝔰 p) x1 x2 y) * g x1 * g x2‖ₑ
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Inequality (6.2.28). -/
 lemma I12_le' {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (x1 : E p') (x2 : E p) :
     I12 p p' g x1 x2 ≤
@@ -587,7 +589,6 @@ lemma boundedCompactSupport_aux_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
     · exact .inl (.inr (eq_zero_of_notMem_closedBall hg1 hx))
     · exact .inr (.inr (eq_zero_of_notMem_closedBall hg1 hx))
 
-set_option backward.isDefEq.respectTransparency false in
 lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
     let f := fun (x, z1, z2) ↦
       conj (Ks (𝔰 p') z1 x) * exp (I * (Q z1 z1 - Q z1 x)) * g z1 *
@@ -614,7 +615,6 @@ lemma bound_6_2_26_aux {p p' : 𝔓 X} {g : X → ℂ} :
   rw [mul_add I, exp_add]
   ring_nf
 
-set_option backward.isDefEq.respectTransparency false in
 lemma bound_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ ≤

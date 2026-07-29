@@ -82,7 +82,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
       volume (F ∩ (ball (𝔠 p) r)) ≥ K * volume (ball (𝔠 p) r) := by
     intro p hp
-    simp_rw [highDensityTiles, mem_setOf_eq, dens₂, lt_iSup_iff, mem_singleton_iff] at hp
+    simp_rw [highDensityTiles, mem_ofPred_eq, dens₂, lt_iSup_iff, mem_singleton_iff] at hp
     rcases hp with ⟨p, rfl, r, hr, h⟩
     use r, hr
     refine ENNReal.lt_div_iff_mul_lt ?_ (Or.inl measure_ball_ne_top) |>.mp h |>.le
@@ -140,7 +140,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     { j | 2 ^ (-(k + 1 : ℕ) : ℤ) * volume (j : Set X) < volume (G ∩ j) }
   have s₁ : ⋃ i ∈ 𝓒 (X := X) k, (i : Set X) ⊆ ⋃ i ∈ M, ↑i := by
     simp_rw [𝓒]; intro q mq; rw [mem_iUnion₂] at mq ⊢; obtain ⟨i, hi, mi⟩ := mq
-    rw [aux𝓒, mem_sdiff, mem_setOf] at hi; obtain ⟨j, hj, mj⟩ := hi.1
+    rw [aux𝓒, mem_sdiff, mem_ofPred] at hi; obtain ⟨j, hj, mj⟩ := hi.1
     use j, ?_, mem_of_mem_of_subset mi hj.1
     simp only [M, Finset.mem_filter_univ]; exact mj
   let M' := Grid.maxCubes M
@@ -174,18 +174,18 @@ lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p m
   rw [mem_preimage] at mxp mxp'
   have l𝓘 := Grid.le_def.mpr ⟨(fundamental_dyadic hs).resolve_right (disjoint_comm.not.mpr h𝓘), hs⟩
   have sΩ := (relative_fundamental_dyadic l𝓘).resolve_left <| not_disjoint_iff.mpr ⟨_, mxp', mxp⟩
-  rw [𝔐, mem_setOf] at mp mp'
+  rw [𝔐, mem_ofPred] at mp mp'
   exact mp'.eq_of_ge mp.prop ⟨l𝓘, sΩ⟩
 
 open scoped Classical in
 /-- Lemma 5.2.4 -/
 lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Set X) ⊆ setA l k n := by
   let M : Finset (𝔓 X) := { p | p ∈ 𝔐 k n ∧ x ∈ 𝓘 p }
-  simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
+  simp_rw [setA, mem_ofPred, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at hx ⊢
   obtain ⟨b, memb, minb⟩ := M.exists_min_image 𝔰 (Finset.card_pos.mp (zero_le.trans_lt hx))
   simp_rw [M, Finset.mem_filter_univ] at memb minb
-  use 𝓘 b, memb.2; intro c mc; rw [mem_setOf]
+  use 𝓘 b, memb.2; intro c mc; rw [mem_ofPred]
   refine hx.trans_le (Finset.card_le_card fun y hy ↦ ?_)
   rw [Finset.mem_filter_univ] at hy ⊢
   exact ⟨hy.1, mem_of_mem_of_subset mc (le_of_mem_of_mem (minb y hy) memb.2 hy.2).1⟩
@@ -204,11 +204,11 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     stackSize { q ∈ 𝔐 (X := X) k n | 𝓘 q ≤ L} x := by
   classical
   -- LHS of equation (5.2.6) is strictly greater than `(l + 1) * 2 ^ (n + 1)`
-  rw [setA, mem_setOf, ← stackSize_setOf_add_stackSize_setOf_not (P := fun p' ↦ 𝓘 p' ≤ L)] at mx
+  rw [setA, mem_ofPred, ← stackSize_setOf_add_stackSize_setOf_not (P := fun p' ↦ 𝓘 p' ≤ L)] at mx
   -- Rewrite second sum of RHS of (5.2.6) so that it sums over tiles `q` satisfying `L < 𝓘 q`
   nth_rw 2 [← stackSize_setOf_add_stackSize_setOf_not (P := fun p' ↦ Disjoint (𝓘 p' : Set X) L)]
     at mx
-  simp_rw [mem_setOf_eq, and_assoc] at mx
+  simp_rw [mem_ofPred_eq, and_assoc] at mx
   have mid0 : stackSize { p' ∈ 𝔐 k n | ¬𝓘 p' ≤ L ∧ Disjoint (𝓘 p' : Set X) L} x = 0 := by
     simp_rw [stackSize, Finset.sum_eq_zero_iff, indicator_apply_eq_zero, Finset.mem_filter_univ,
       show ¬(1 : X → ℕ) x = 0 by simp, imp_false]
@@ -219,7 +219,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
       { p' | p' ∈ 𝔐 k n ∧ ¬𝓘 p' ≤ L ∧ ¬Disjoint (𝓘 p' : Set X) L } =
       { p' | p' ∈ 𝔐 k n ∧ L < 𝓘 p' } := by
     ext q
-    simp_rw [mem_setOf_eq, and_congr_right_iff]
+    simp_rw [mem_ofPred_eq, and_congr_right_iff]
     refine fun _ ↦ ⟨fun h ↦ ?_, ?_⟩
     · apply lt_of_le_of_ne <| (le_or_ge_or_disjoint.resolve_left h.1).resolve_right h.2
       by_contra k; subst k; exact absurd le_rfl h.1
@@ -233,7 +233,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     by_cases h : IsMax L
     · rw [Grid.isMax_iff] at h
       have : Q₂ = ∅ := by
-        ext y; simp_rw [Q₂, mem_setOf_eq, Set.notMem_empty, iff_false, not_and, h, Grid.lt_def,
+        ext y; simp_rw [Q₂, mem_ofPred_eq, Set.notMem_empty, iff_false, not_and, h, Grid.lt_def,
           not_and_or, not_lt]
         exact fun _ ↦ Or.inr (Grid.le_topCube).2
       simp [stackSize, this]
@@ -253,10 +253,11 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
           mem_of_mem_of_subset mx' (Lslq q mq).1]
       _ ≤ stackSize (𝔐 (X := X) k n) x' := by
         refine stackSize_mono <| sep_subset ..
-      _ ≤ l * 2 ^ (n + 1) := by rwa [setA, mem_setOf_eq, not_lt] at nx'
+      _ ≤ l * 2 ^ (n + 1) := by rwa [setA, mem_ofPred_eq, not_lt] at nx'
   -- so the (unchanged) first sum of RHS is at least `2 ^ (n + 1)`
   rw [add_one_mul] at mx; lia
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Equation (5.2.11) in the proof of Lemma 5.2.5. -/
 lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) :
     2 * volume (setA (X := X) (l + 1) k n ∩ L) ≤ volume (L : Set X) := by
@@ -280,7 +281,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
     calc
       _ ≤ ∑ q ∈ Q₁, 2 ^ n * volume (E₁ q) := by
         refine Finset.sum_le_sum fun q mq ↦ ?_
-        simp_rw [Q₁, Finset.mem_filter, 𝔐, mem_setOf, maximal_iff, aux𝔐, mem_setOf] at mq
+        simp_rw [Q₁, Finset.mem_filter, 𝔐, mem_ofPred, maximal_iff, aux𝔐, mem_ofPred] at mq
         replace mq := mq.2.1.1.2
         rw [← ENNReal.rpow_intCast, show (-(n : ℕ) : ℤ) = (-n : ℝ) by simp, mul_comm,
           ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
@@ -294,7 +295,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       refine setLIntegral_mono (Finset.measurable_sum Q₁ Q₁m) fun x ⟨mx, mx₂⟩ ↦ ?_
       have : 2 ^ (n + 1) ≤ ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
         convert john_nirenberg_aux1 mL mx mx₂
-        simp_rw [stackSize, Q₁, mem_setOf_eq]
+        simp_rw [stackSize, Q₁, mem_ofPred_eq]
       have lcast : (2 : ℝ≥0∞) ^ (n + 1) = ((2 ^ (n + 1) : ℕ) : ℝ).toNNReal := by
         rw [Real.toNNReal_natCast, ENNReal.coe_natCast]; norm_cast
       have rcast : ∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℝ≥0∞) x =
@@ -308,6 +309,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
       congr!; exact lintegral_indicator_one coeGrid_measurable
     _ ≤ _ := e529
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 5.2.5 -/
 lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * volume G := by
   induction l with
@@ -396,6 +398,7 @@ def layervol (k n : ℕ) (t : ℝ) : ℝ≥0∞ :=
   volume {x | t ≤ ∑ m with m ∈ 𝔐 (X := X) k n,
     (𝓘 m : Set X).indicator (1 : X → ℝ) x}
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma indicator_sum_eq_natCast {s : Finset (𝔓 X)} :
     ∑ m ∈ s, (𝓘 m : Set X).indicator (1 : X → ℝ) x =
     Nat.cast (∑ m ∈ s, (𝓘 m : Set X).indicator (1 : X → ℕ) x) := by
@@ -405,7 +408,7 @@ open scoped Classical in
 lemma layervol_eq_zero_of_lt {t : ℝ} (ht : (𝔐 (X := X) k n).toFinset.card < t) :
     layervol (X := X) k n t = 0 := by
   rw [layervol, measure_eq_zero_iff_ae_notMem]
-  refine ae_of_all volume fun x ↦ ?_; rw [mem_setOf, not_le]
+  refine ae_of_all volume fun x ↦ ?_; rw [mem_ofPred, not_le]
   calc
     _ ≤ ((𝔐 (X := X) k n).toFinset.card : ℝ) := by
       simp_rw [indicator_sum_eq_natCast, Nat.cast_le, indicator_apply, Pi.one_apply,
@@ -495,7 +498,7 @@ lemma top_tiles : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X) �
       · congr; simp
     _ = 2 ^ (n + 1) * ∑ l ∈ Finset.range Mc, volume (setA (X := X) l k n) := by
       unfold layervol setA stackSize; congr! 3; ext x
-      rw [mem_setOf, mem_setOf, indicator_sum_eq_natCast, Nat.cast_le]
+      rw [mem_ofPred, mem_ofPred, indicator_sum_eq_natCast, Nat.cast_le]
       exact Nat.add_one_le_iff
     _ ≤ 2 ^ (n + 1) * ∑ l ∈ Finset.range Mc, 2 ^ (k + 1 - l : ℤ) * volume G :=
       mul_le_mul_right (Finset.sum_le_sum fun _ _ ↦ john_nirenberg) _
@@ -543,13 +546,14 @@ private lemma 𝒬m_mem_ball : 𝒬 m ∈ ball_(u) (𝒬 u) 100 := by
   simp only [𝔘, mem_filter, smul] at hu
   exact hu.2.2.2 (by simp)
 
+set_option backward.isDefEq.respectTransparency.types false in
 include hu hu' in
 private lemma 𝓘_not_lt_𝓘 : ¬𝓘 u < 𝓘 u' := by
   classical
   intro h
   rw [Grid.lt_def] at h
   have 𝒬m_mem_inter := mem_inter (𝒬m_mem_ball hu) (𝒬m_mem_ball hu')
-  simp only [𝔘, 𝔘₁, Grid.lt_def, and_imp, toFinset_setOf, mem_filter] at hu
+  simp only [𝔘, 𝔘₁, Grid.lt_def, and_imp, toFinset_ofPred, mem_filter] at hu
   exact not_disjoint_iff_nonempty_inter.2 (nonempty_of_mem 𝒬m_mem_inter) <| hu.1.2.2
     u' (mem_toFinset.mp (mem_filter.mp hu').1).1 h.1 h.2
 
@@ -563,6 +567,7 @@ include hu hu' in
 private lemma ball_eq_ball : ball_(u) = ball_(u') := by
   delta 𝔠 𝔰; rw [𝓘_eq_𝓘 hu hu']
 
+set_option backward.isDefEq.respectTransparency.types false in
 include hu hu' hu'' in
 private lemma disjoint_balls (h : u' ≠ u'') :
     Disjoint (ball_(u) (𝒬 u') 0.2) (ball_(u) (𝒬 u'') 0.2) := by
@@ -577,6 +582,7 @@ private lemma mem_big_ball : 𝒬 u' ∈ big_ball m u := by
   simp only [big_ball, mem_ball] at this ⊢
   exact this.trans (by norm_num)
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Classical in
 include hu in
 private lemma subset_big_ball (f : Θ X) (hf : f ∈ (𝔘 k n j x m).image 𝒬) : f ∈ big_ball m u := by
@@ -635,6 +641,7 @@ private lemma interchange :
 
 end 𝔘
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Inequality (5.2.20) in the proof of Lemma 5.2.8
 open scoped Classical in
 private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·),
@@ -648,13 +655,14 @@ private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ �
         rw [Set.indicator_of_mem hx, Pi.one_apply, ← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0), neg_add_cancel, zpow_zero]
     _ ≤ (2 : ℝ) ^ (-j : ℤ) * stackSize (𝔐' k n u) x := by gcongr
   norm_cast
-  simp only [𝔘₁, Finset.mem_filter, toFinset_setOf] at hu
+  simp only [𝔘₁, Finset.mem_filter, toFinset_ofPred] at hu
   apply le_of_le_of_eq hu.1.2.1.1.2
   simp only [Finset.coe_filter, mem_toFinset, 𝔐', Finset.card_eq_sum_ones]
   refine Finset.sum_congr rfl (fun m hm ↦ ?_)
   simp only [TileLike.le_def, smul_fst, Finset.mem_filter] at hm
   simp only [Set.indicator_of_mem (hm.2.2.1.1 hx), Pi.one_apply]
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Finset in
 /-- Lemma 5.2.8 -/
 lemma tree_count :
@@ -678,6 +686,7 @@ lemma tree_count :
   rw [sub_eq_add_neg, zpow_add₀ two_ne_zero, ← pow_mul, mul_comm 9, mul_comm (2 ^ _)]
   norm_cast
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 5.2.9 -/
 lemma boundary_exception {u : 𝔓 X} :
     volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by

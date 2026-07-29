@@ -141,7 +141,7 @@ lemma distribution_rearrangement_eq_distribution {f : α → ε} {μ : Measure �
   simp only [enorm_eq_self]
   have : {x | t < rearrangement f x μ} = Set.Iio (distribution f t μ) := by
     ext x
-    simp only [Set.mem_setOf_eq, Set.mem_Iio]
+    simp only [Set.mem_ofPred_eq, Set.mem_Iio]
     exact lt_rearrangement_iff_lt_distribution
   rw [this, ENNReal.volume_Iio]
   rfl
@@ -211,14 +211,14 @@ lemma rearrangement_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMo
     · apply sInf_le
       simp
     · apply le_sInf
-      simp only [Set.mem_setOf_eq]
+      simp only [Set.mem_ofPred_eq]
       intro b hb
       contrapose! hb
       rwa [ite_cond_eq_true]
       simpa
   · rw [← ENNReal.bot_eq_zero, eq_bot_iff]
     apply sInf_le
-    simp only [not_lt, bot_eq_zero', Set.mem_setOf_eq] at *
+    simp only [not_lt, bot_eq_zero', Set.mem_ofPred_eq] at *
     split_ifs
     · assumption
     · simp
@@ -247,13 +247,13 @@ lemma rearrangement_const_smul {f : α → ℝ≥0∞} {a : ℝ≥0∞} :
       rw [hx, mul_zero]
   apply le_antisymm
   · apply sInf_le
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     rw [distribution_const_smul (Or.inl a_zero) (Or.inl a_top),
       mul_div_assoc, ENNReal.mul_div_cancel a_zero a_top]
     apply distribution_rearrangement_le
   · apply le_sInf
     intro s hs
-    simp only [Set.mem_setOf_eq] at hs
+    simp only [Set.mem_ofPred_eq] at hs
     rw [distribution_const_smul (Or.inl a_zero) (Or.inl a_top)] at hs
     calc _
       _ ≤ a * rearrangement f (distribution f (s / a) μ) μ := by gcongr
@@ -272,7 +272,7 @@ lemma rearrangement_indicator_superlevelSet {ε} [TopologicalSpace ε] [ENormedA
   simp_rw [distribution_indicator_superlevelSet]
   simp only [inf_le_iff]
   unfold Set.indicator superlevelSet
-  simp only [enorm_eq_self, Set.mem_setOf_eq]
+  simp only [enorm_eq_self, Set.mem_ofPred_eq]
   split_ifs with h
   · rw [lt_rearrangement_iff_lt_distribution] at h
     unfold rearrangement
@@ -313,7 +313,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
       _ = μ {x | ‖f x‖ₑ ≠ 0} - μ {x | ‖f x‖ₑ ∈ s \ {0}} := by
         rw [← measure_sdiff]
         · nth_rw 2 [Set.sdiff_eq]
-          rw [Set.compl_setOf, ← Set.setOf_and]
+          rw [Set.compl_ofPred, ← Set.ofPred_and]
           congr with x
           grind
         · simp
@@ -331,7 +331,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
       _ = volume {x | rearrangement f x μ ∈ sᶜ \ {0}} := by
         rw [← measure_sdiff]
         · nth_rw 1 [Set.sdiff_eq]
-          rw [Set.compl_setOf, ← Set.setOf_and]
+          rw [Set.compl_ofPred, ← Set.ofPred_and]
           congr with x
           grind
         · simp
@@ -348,7 +348,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
   · intro S hSd hSm hS
     calc _
       _ = μ (⋃ i, {x | ‖f x‖ₑ ∈ S i \ {0}}) := by
-        rw [Set.iUnion_setOf]
+        rw [Set.iUnion_ofPred]
         congr with x
         simp
       _ = ∑' i, μ ({x | ‖f x‖ₑ ∈ S i \ {0}}) := by
@@ -359,7 +359,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           rw [Set.disjoint_iff]
           intro x
           simp only [Set.mem_sdiff, Set.mem_singleton_iff, enorm_eq_zero, Set.mem_inter_iff,
-            Set.mem_setOf_eq, Set.mem_empty_iff_false, imp_false, not_and, not_not, and_imp]
+            Set.mem_ofPred_eq, Set.mem_empty_iff_false, imp_false, not_and, not_not, and_imp]
           intro hi _ hj
           exfalso
           have := hSd hij
@@ -379,7 +379,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           rw [Set.disjoint_iff]
           intro x
           simp only [Set.mem_sdiff, Set.mem_singleton_iff, Set.mem_inter_iff,
-            Set.mem_setOf_eq, Set.mem_empty_iff_false, imp_false, not_and, not_not, and_imp]
+            Set.mem_ofPred_eq, Set.mem_empty_iff_false, imp_false, not_and, not_not, and_imp]
           intro hi _ hj
           exfalso
           have := hSd hij
@@ -388,7 +388,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
           use ‖rearrangement f x μ‖ₑ, hi, hj
         · exact fun i ↦ AEMeasurable.nullMeasurableSet_preimage rearrangement_measurable₀.aemeasurable (by aesop)
       _ = volume {x | rearrangement f x μ ∈ (⋃ i, S i) \ {0}} := by
-        rw [Set.iUnion_setOf]
+        rw [Set.iUnion_ofPred]
         congr with x
         simp
 
@@ -434,7 +434,7 @@ lemma measure_enorm_eq_eq_volume_rearrangement_eq {ε} [TopologicalSpace ε] [EN
       rw [← ENNReal.volume_Iio (a := ∞)]
       gcongr
       intro x hx
-      simp only [Set.mem_Iio, Set.mem_setOf_eq] at *
+      simp only [Set.mem_Iio, Set.mem_ofPred_eq] at *
       apply le_antisymm
       · rw [rearrangement_le_iff_distribution_le]
         have :  distribution ((superlevelSet f a)ᶜ.indicator f) a μ = 0 := by
@@ -442,7 +442,7 @@ lemma measure_enorm_eq_eq_volume_rearrangement_eq {ε} [TopologicalSpace ε] [EN
           rw [← measure_empty (μ := μ)]
           congr 1
           ext x
-          simp only [Set.mem_compl_iff, Set.mem_setOf_eq, not_lt, Set.mem_empty_iff_false,
+          simp only [Set.mem_compl_iff, Set.mem_ofPred_eq, not_lt, Set.mem_empty_iff_false,
             iff_false]
           split_ifs
           · assumption
@@ -452,7 +452,7 @@ lemma measure_enorm_eq_eq_volume_rearrangement_eq {ε} [TopologicalSpace ε] [EN
       · unfold rearrangement
         apply le_sInf
         intro b
-        simp only [Set.mem_setOf_eq]
+        simp only [Set.mem_ofPred_eq]
         contrapose!
         intro hb
         unfold distribution
@@ -485,7 +485,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem {ε} [TopologicalSpace ε] [
   have hμ : {x | ‖f x‖ₑ ∈ s} = ⋃ n, {x | ‖(superlevelSet f (u n)).indicator f x‖ₑ ∈ s} := by
     ext x
     unfold superlevelSet Set.indicator
-    simp only [Set.mem_setOf_eq, Set.mem_iUnion]
+    simp only [Set.mem_ofPred_eq, Set.mem_iUnion]
     constructor
     · intro hfs
       have : ∃ i, u i < ‖f x‖ₑ := by
@@ -502,7 +502,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem {ε} [TopologicalSpace ε] [
       = ⋃ n, {x | (superlevelSet (rearrangement f · μ) (u n)).indicator (rearrangement f · μ) x ∈ s} := by
     ext x
     unfold superlevelSet Set.indicator
-    simp only [Set.mem_setOf_eq, Set.mem_iUnion]
+    simp only [Set.mem_ofPred_eq, Set.mem_iUnion]
     constructor
     · intro hfs
       have : ∃ i, u i < rearrangement f x μ := by
@@ -528,12 +528,12 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem {ε} [TopologicalSpace ε] [
     simp only
     unfold Set.indicator
     intro x
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     split_ifs with hn hm
     · exact id
     · exfalso
       unfold superlevelSet at hn hm
-      simp only [enorm_eq_self, Set.mem_setOf_eq, not_lt] at hn hm
+      simp only [enorm_eq_self, Set.mem_ofPred_eq, not_lt] at hn hm
       have := antitone_u hmn
       order
     · simp [zero_notin_s]
@@ -542,12 +542,12 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem {ε} [TopologicalSpace ε] [
     simp only
     unfold Set.indicator
     intro x
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     split_ifs with hn hm
     · exact id
     · exfalso
       unfold superlevelSet at hn hm
-      simp only [Set.mem_setOf_eq, not_lt] at hn hm
+      simp only [Set.mem_ofPred_eq, not_lt] at hn hm
       have := antitone_u hmn
       order
     · simp [zero_notin_s]
@@ -618,7 +618,7 @@ lemma lintegral_comp_rearrangement' {ε} [TopologicalSpace ε] [ENormedAddMonoid
     exact hs.trans_le' (distribution_mono_right hsσ.le)
   unfold T at hT
   rw [← ENNReal.bot_eq_zero, sInf_eq_bot] at hT
-  simp only [bot_eq_zero', Set.mem_setOf_eq, not_forall, not_exists,
+  simp only [bot_eq_zero', Set.mem_ofPred_eq, not_forall, not_exists,
     not_and, not_lt] at hT
   simp_rw [← not_lt, imp_not_comm, not_lt, top_le_iff] at hT
   rcases hT with ⟨u, u_pos, hu⟩
@@ -888,7 +888,7 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
       unfold distribution
       gcongr
       intro x
-      simp only [Set.mem_setOf_eq, Set.mem_inter_iff]
+      simp only [Set.mem_ofPred_eq, Set.mem_inter_iff]
       intro hs
       simp only [hs, and_true]
       apply hs.trans_le'
@@ -925,7 +925,7 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
         rw [Set.inter_eq_right.mpr]
         apply hE.trans'
         intro x hx
-        simp only [Set.mem_setOf_eq] at *
+        simp only [Set.mem_ofPred_eq] at *
         exact hx.trans_le' h'
       · have has : s ≤ a := by
           rw [rearrangement_le_iff_distribution_le] at h
@@ -935,7 +935,7 @@ lemma lintegral_rearrangement_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε]
         gcongr
         rw [Set.inter_eq_left.mpr]
         apply hE'.trans
-        simp only [Set.setOf_subset_setOf, superlevelSet]
+        simp only [Set.ofPred_subset_ofPred, superlevelSet]
         exact fun a_2 a_3 ↦ Std.lt_of_le_of_lt has a_3
     rcases exists_seq_strictMono_tendsto' h_zero with ⟨a, mono_a, ha, a_tendsto⟩
     calc _

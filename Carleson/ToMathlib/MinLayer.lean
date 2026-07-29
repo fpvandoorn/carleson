@@ -50,13 +50,14 @@ def layersBelow (A : Set α) (n : ℕ) : Set α :=
 
 variable {A : Set α} {m n : ℕ} {a : α}
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma maxLayer_def : A.maxLayer n = {a | Maximal (· ∈ A \ ⋃ (k < n), A.maxLayer k) a} := by
   rw [maxLayer, minLayer]; rfl
 
 lemma minLayer_subset : A.minLayer n ⊆ A :=
   calc
     _ ⊆ A \ ⋃ (k < n), A.minLayer k := by
-      rw [minLayer]; refine fun _ h ↦ ?_; rw [mem_setOf] at h; exact h.prop
+      rw [minLayer]; refine fun _ h ↦ ?_; rw [mem_ofPred] at h; exact h.prop
     _ ⊆ A := sdiff_subset
 
 lemma maxLayer_subset : A.maxLayer n ⊆ A := minLayer_subset
@@ -86,10 +87,10 @@ lemma pairwiseDisjoint_maxLayer : univ.PairwiseDisjoint A.maxLayer := fun _ _ _ 
   disjoint_minLayer_of_ne
 
 lemma isAntichain_minLayer : IsAntichain (· ≤ ·) (A.minLayer n) := by
-  rw [minLayer]; apply setOf_minimal_antichain
+  rw [minLayer]; apply setOfPred_minimal_antichain
 
 lemma isAntichain_maxLayer : IsAntichain (· ≤ ·) (A.maxLayer n) := by
-  rw [maxLayer_def]; apply setOf_maximal_antichain
+  rw [maxLayer_def]; apply setOfPred_maximal_antichain
 
 lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
     ∃ c ∈ A.minLayer m, c ≤ a := by
@@ -98,7 +99,7 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
   | succ n _ ih =>
     have nma : a ∉ A.minLayer n :=
       disjoint_right.mp (disjoint_minLayer_of_ne (by lia)) ha
-    rw [minLayer, mem_setOf, minimal_iff] at ha nma
+    rw [minLayer, mem_ofPred, minimal_iff] at ha nma
     have al : a ∈ A \ ⋃ (l < n), A.minLayer l := by
       have : a ∈ A \ ⋃ (k < n + 1), A.minLayer k := ha.1
       push (_ ∈ _) at this ⊢; push Not at this ⊢
@@ -134,7 +135,7 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
   induction n using Nat.strongRec with
   | ind n ih =>
     ext x
-    simp only [mem_setOf_eq]
+    simp only [mem_ofPred_eq]
     wlog hxs : x ∈ A
     · simp only [hxs, IsEmpty.exists_iff, iff_false]
       contrapose! hxs; exact minLayer_subset hxs
@@ -144,11 +145,11 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
     simp +contextual only [ih]; clear ih
     have : Minimal (n ≤ height ·) (⟨x, hxs⟩ : A) ↔
         Minimal (· ∈ {y | n ≤ height y}) (⟨x, hxs⟩ : A) := Eq.to_iff rfl
-    rw [this, subtype_mk_minimal_iff, mem_setOf]
+    rw [this, subtype_mk_minimal_iff, mem_ofPred]
     congr! 2 with y
     wlog hys : y ∈ A
     · simp [hys]
-    simp only [mem_sdiff, hys, mem_iUnion, exists_prop, not_exists, not_and, true_and, mem_setOf_eq,
+    simp only [mem_sdiff, hys, mem_iUnion, exists_prop, not_exists, not_and, true_and, mem_ofPred_eq,
       exists_true_left]
     cases height (⟨y, hys⟩ : A)
     · simp
@@ -204,7 +205,7 @@ lemma exists_le_in_layersAbove_of_le [Finite α] (ha : a ∈ A.layersAbove n) (h
     not_and, mem_toFinset] at ma' mina'
   conv at mina' => enter [x]; rw [and_imp]
   have ma'₁ : a' ∈ A.minLayer n := by
-    rw [minLayer, mem_setOf, minimal_iff]
+    rw [minLayer, mem_ofPred, minimal_iff]
     push _ ∈ _; push Not
     exact ⟨ma'.1, fun y hy ly ↦ le_antisymm (mina' hy (ly.trans ma'.2) ly) ly⟩
   obtain ⟨c, mc, lc⟩ := exists_le_in_minLayer_of_le ma'₁ hm

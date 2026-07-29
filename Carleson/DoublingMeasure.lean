@@ -217,6 +217,7 @@ lemma le_localOscillation [CompatibleFunctions 𝕜 X A] (x : X) (r : ℝ) (f g 
   · exact lt_of_le_of_lt CompatibleFunctions.localOscillation_le_cdist ENNReal.ofReal_lt_top |>.ne
   · exact le_of_eq_of_le (Eq.symm (iSup_pos ⟨hy, hz⟩)) (le_iSup f ⟨y, z⟩)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma oscillation_le_cdist [CompatibleFunctions 𝕜 X A] (x : X) (r : ℝ) (f g : Θ X) {y z : X}
     (hy : y ∈ ball x r) (hz : z ∈ ball x r) :
     ‖coeΘ f y - coeΘ g y - coeΘ f z + coeΘ g z‖ ≤ dist_{x, r} f g := by
@@ -239,6 +240,7 @@ lemma cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X
 
 variable [hXA : DoublingMeasure X A]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancellative X τ]
     {x : X} {r : ℝ} {φ : X → ℂ} (h2 : support φ ⊆ ball x r) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * φ x‖ₑ ≤
@@ -258,6 +260,7 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
     simp [h1, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
   exact IsCancellative.enorm_integral_exp_le' hr h1 h2
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
 lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ X A]
     (h : ∀ {x : X} {r : ℝ} {φ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm φ x r ≠ ∞)
@@ -322,7 +325,6 @@ lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x :
     (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
   apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
-set_option backward.isDefEq.respectTransparency false in
 private lemma carlesonOperatorIntegrand_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
     carlesonOperatorIntegrand (z • K) θ R₁ R₂ f = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
@@ -345,14 +347,12 @@ lemma carlesonOperator_const_smul [FunctionDistances ℝ X] (K : X → X → ℂ
   simp_rw [linearizedCarlesonOperator_const_smul, Pi.smul_apply, ← smul_iSup]
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 lemma nontangentialOperator_const_smul (z : ℂ) {K : X → X → ℂ} :
     nontangentialOperator (z • K) = ‖z‖ₑ • nontangentialOperator K := by
   unfold nontangentialOperator
   simp_rw [Pi.smul_apply, smul_eq_mul, mul_assoc, integral_const_mul, enorm_mul, ← ENNReal.mul_iSup]
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 private lemma carlesonOperatorIntegrand_const_smul' [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (z : ℂ) :
     carlesonOperatorIntegrand K θ R₁ R₂ (z • f) = z • carlesonOperatorIntegrand K θ R₁ R₂ f := by
@@ -491,6 +491,7 @@ section Iterate
 
 variable [CompatibleFunctions ℝ X (defaultA a)]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
     2 ^ k * dist_{x, r} f g ≤ dist_{x, (defaultA a) ^ k * r} f g := by
   induction k with
@@ -504,6 +505,7 @@ lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
       · nth_rw 1 [← one_mul ((defaultA a) ^ k * r)]; gcongr
         rw [← Nat.cast_one, Nat.cast_le]; exact Nat.one_le_two_pow
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
     dist_{x, 2 ^ k * r} f g ≤ (defaultA a) ^ k * dist_{x, r} f g := by
   induction k with
