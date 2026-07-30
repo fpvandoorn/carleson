@@ -787,10 +787,10 @@ lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint
 theorem measurable_measure_ball {α : Type*} [PseudoMetricSpace α] [SecondCountableTopology α]
     [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [SFinite μ] :
     Measurable fun (a, r) ↦ μ (Metric.ball a r) := by
-  let s : Set (α × α × ℝ) := setOf fun (b, a, r) ↦ b ∈ Metric.ball a r
+  let s : Set (α × α × ℝ) := ofPred fun (b, a, r) ↦ b ∈ Metric.ball a r
   apply measurable_measure_prodMk_right (s := s)
   unfold s Metric.ball
-  simp_rw [mem_setOf]
+  simp_rw [mem_ofPred]
   apply measurableSet_lt
   · fun_prop
   · fun_prop

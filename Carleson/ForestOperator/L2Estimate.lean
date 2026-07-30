@@ -62,7 +62,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
   refine subset_trans ?_ (Annulus.oo_subset_cc (le_refl _) (le_refl _))
   intro y hy
   rw [mem_support] at hy
-  simp only [Annulus.oo, mem_Ioo, mem_setOf_eq]
+  simp only [Annulus.oo, mem_Ioo, mem_ofPred_eq]
   contrapose! hy
   refine Finset.sum_eq_zero (fun s hs ↦ ?_)
   rw [toFinset_Icc] at hs
@@ -125,7 +125,7 @@ private lemma annulus_integral_bound {x : X} {g : X → ℂ} {r₁ r₂ r₃ r�
         _ ≤ _ := enorm_integral_le_lintegral_enorm _
         _ ≤ ∫⁻ y in Annulus.cc x r₁ r₂ ∪ Annulus.oc x r₃ r₄, ‖g y‖ₑ := by
           refine lintegral_mono_set (fun y ↦ ?_)
-          simp only [Annulus.cc, mem_Icc, Annulus.oc, mem_Ioc, mem_inter_iff, mem_setOf_eq,
+          simp only [Annulus.cc, mem_Icc, Annulus.oc, mem_Ioc, mem_inter_iff, mem_ofPred_eq,
             mem_compl_iff, not_and, not_le, mem_union, and_imp]
           intro hr₁ hr₄ hr₂₃
           by_cases hr₂ : r₂ < dist x y
@@ -171,21 +171,21 @@ private lemma nontangential_integral_bound₁
   calc
     _ = ‖∫ y in EAnnulus.oc x' (ENNReal.ofReal R₁) (ENNReal.ofReal R₂), K x' y * f y‖ₑ := by
       congr; unfold Annulus.oc EAnnulus.oc; ext y
-      simp_rw [mem_setOf_eq, mem_Ioc, edist_dist, ENNReal.ofReal_le_ofReal_iff pR₂.le,
+      simp_rw [mem_ofPred_eq, mem_Ioc, edist_dist, ENNReal.ofReal_le_ofReal_iff pR₂.le,
         ENNReal.ofReal_lt_ofReal_iff_of_nonneg pR₁.le]
     _ = ‖(∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) R₃, K x' y * f y) -
         ∫ y in EAnnulus.oo x' (ENNReal.ofReal R₂) R₃, K x' y * f y‖ₑ := by
       congr; rw [eq_sub_iff_add_eq, ← setIntegral_union]; rotate_left
       · rw [disjoint_left]; intro y my
-        rw [EAnnulus.oc, mem_setOf_eq, mem_Ioc] at my
-        rw [EAnnulus.oo, mem_setOf_eq, mem_Ioo, not_and_or, not_lt]; exact .inl my.2
+        rw [EAnnulus.oc, mem_ofPred_eq, mem_Ioc] at my
+        rw [EAnnulus.oo, mem_ofPred_eq, mem_Ioo, not_and_or, not_lt]; exact .inl my.2
       · exact EAnnulus.measurableSet_oo
       · refine integrableOn_K_mul hf.integrable.restrict x' pR₁ fun y my ↦ ?_
-        simp_rw [EAnnulus.oc, mem_Ioc, mem_setOf_eq, edist_dist] at my
+        simp_rw [EAnnulus.oc, mem_Ioc, mem_ofPred_eq, edist_dist] at my
         rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg pR₁.le] at my
         simp_rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le
       · refine integrableOn_K_mul hf.integrable.restrict x' pR₂ fun y my ↦ ?_
-        rw [EAnnulus.oo, mem_setOf_eq, mem_Ioo, edist_dist,
+        rw [EAnnulus.oo, mem_ofPred_eq, mem_Ioo, edist_dist,
           ENNReal.ofReal_lt_ofReal_iff_of_nonneg pR₂.le] at my
         simp_rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le
       rw [EAnnulus.oc_union_oo ((ENNReal.ofReal_le_ofReal_iff pR₂.le).mpr lR₂.le) hR₃.1]
@@ -230,7 +230,7 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
       refine lintegral_mono' (Measure.le_iff.mpr (fun T hT ↦  ?_)) (le_refl _)
       rw [Measure.restrict_apply hT, Measure.restrict_apply hT]
       refine measure_mono (inter_subset_inter_right T (fun y ↦ ?_))
-      simp only [Annulus.cc, mem_Icc, mem_setOf_eq, mem_ball, and_imp, dist_comm x']
+      simp only [Annulus.cc, mem_Icc, mem_ofPred_eq, mem_ball, and_imp, dist_comm x']
       intro _ h
       calc dist y (c I)
         _ ≤ dist y x' + dist x' (c I) := dist_triangle y x' (c I)
@@ -602,6 +602,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       congr! with J - y -; rw [Finset.mul_sum]
       congr with I; rw [mul_ite, mul_zero, ← mul_rotate]
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Classical in
 /-- Bound for the inner sum in Equation (7.2.8). -/
 lemma boundary_geometric_series :

@@ -60,13 +60,13 @@ def 𝓙 (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
 lemma 𝓙_subset_𝓙₀ {𝔖 : Set (𝔓 X)} : 𝓙 𝔖 ⊆ 𝓙₀ 𝔖 := sep_subset ..
 
 lemma pairwiseDisjoint_𝓙 : (𝓙 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X)) := fun I mI J mJ hn ↦ by
-  have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOf_maximal_antichain _
+  have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOfPred_maximal_antichain _
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
 lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonempty) (h : topCube ∈ 𝓙₀ 𝔖) :
     S = 0 := by
   suffices (S : ℤ) = -(S : ℤ) by exact_mod_cast eq_zero_of_neg_eq this.symm
-  rw [𝓙₀, mem_setOf_eq, s, s_topCube] at h
+  rw [𝓙₀, mem_ofPred_eq, s, s_topCube] at h
   apply h.resolve_right
   push Not
   have ⟨p, hp⟩ := h𝔖
@@ -344,7 +344,7 @@ lemma biUnion_𝓛 : ⋃ J ∈ 𝓛 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
 
 /-- Part of Lemma 7.1.2 -/
 lemma pairwiseDisjoint_𝓛 : (𝓛 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X)) := fun I mI J mJ hn ↦ by
-  have : IsAntichain (· ≤ ·) (𝓛 𝔖) := setOf_maximal_antichain _
+  have : IsAntichain (· ≤ ·) (𝓛 𝔖) := setOfPred_maximal_antichain _
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
 /-- The constant used in `first_tree_pointwise`.
@@ -375,6 +375,7 @@ private lemma dist_lt_5 (hu : u ∈ t) (mp : p ∈ t.𝔗 u) (Qxp : Q x ∈ Ω p
     add_lt_add ((t.smul_four_le hu mp).2 (by convert! mem_ball_self zero_lt_one)) (subset_cball Qxp)
   _ = 5 := by norm_num
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- The bound in the third display in the proof of Lemma 7.1.4
 private lemma L7_1_4_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) {y : X} (hKxy : Ks s x y ≠ 0) :
     ‖exp (.I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ₑ ≤
@@ -543,7 +544,7 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
   classical
   let Js := Set.toFinset { J ∈ 𝓙 (t u) | ((J : Set X) ∩ ball x (D ^ (𝔰 p) / 2)).Nonempty }
   have mem_Js {J : Grid X} : J ∈ Js ↔ J ∈ 𝓙 (t.𝔗 u) ∧ (↑J ∩ ball x (D ^ 𝔰 p / 2)).Nonempty := by
-    simp only [Js, Set.mem_toFinset, Set.mem_setOf_eq]
+    simp only [Js, Set.mem_toFinset, Set.mem_ofPred_eq]
   have Js_disj : (Js : Set (Grid X)).Pairwise (Disjoint on fun J ↦ (J : Set X)) :=
     fun i₁ hi₁ i₂ hi₂ h ↦ pairwiseDisjoint_𝓙 (mem_Js.mp hi₁).1 (mem_Js.mp hi₂).1 h
   calc
@@ -665,6 +666,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       rw [hpₛ]; gcongr ?_ / _
       rw [← hpₛ]; exact L7_1_4_integral_le_integral hu hf pₛu xpₛ
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 7.1.5 -/
 lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) :
     ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖ₑ ≤
@@ -753,6 +755,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
 Has value `2 ^ (128 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ ((𝕔 + 3 + 𝕔 / 4) * a ^ 3)
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Used in the proof of Lemmas 7.1.3 and 7.1.6 to translate between `∑ p` into `∑ s`
 open scoped Classical in
 private lemma p_sum_eq_s_sum {α : Type*} [AddCommMonoid α] (I : ℤ → X → α) :
@@ -833,6 +836,7 @@ private lemma L7_1_6_integral_eq {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
     change Integrable ((⨍ z in (J : Set X), Ks i x z) • f) (volume.restrict J)
     exact hf.integrable.restrict.smul _
 
+set_option backward.isDefEq.respectTransparency.types false in
 -- Integral norm bound used implicitly in the third display of the proof of Lemma 7.1.6.
 private lemma L7_1_6_integral_le {J : Grid X} (hJ : J ∈ 𝓙 (t u)) {i : ℤ}
     (hf : BoundedCompactSupport f) : ‖∫ y in J, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖ₑ ≤

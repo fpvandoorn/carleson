@@ -399,7 +399,7 @@ variable {ε' : Type*} [ENorm ε'] [Zero ε'] {f : α → ε'}
 def trunc (f : α → ε') (t : ℝ≥0∞) (x : α) : ε' := if ‖f x‖ₑ ≤ t then f x else 0
 
 lemma trunc_eq_indicator : trunc f t = {x | ‖f x‖ₑ ≤ t}.indicator f := by
-  ext x; simp_rw [trunc, Set.indicator, mem_setOf_eq, ite_eq_ite]
+  ext x; simp_rw [trunc, Set.indicator, mem_ofPred_eq, ite_eq_ite]
 
 @[simp]
 lemma trunc_top : trunc f ∞ = f := by simp [trunc_eq_indicator]
@@ -409,7 +409,7 @@ def truncCompl (f : α → ε') (t : ℝ≥0∞) (x : α) : ε' := if ‖f x‖�
 
 lemma truncCompl_eq_indicator : truncCompl f t = {x | ‖f x‖ₑ ≤ t}ᶜ.indicator f := by
   ext x
-  simp only [truncCompl, Set.indicator, mem_compl_iff, mem_setOf_eq, ite_not]
+  simp only [truncCompl, Set.indicator, mem_compl_iff, mem_ofPred_eq, ite_not]
 
 @[simp]
 lemma truncCompl_top : truncCompl f ∞ = (fun _ ↦ 0) := by simp [truncCompl_eq_indicator]
@@ -506,7 +506,7 @@ protected lemma StronglyMeasurable.truncCompl (hf : StronglyMeasurable f) :
 --   apply measure_mono_null ?_ wg2
 --   intro x
 --   contrapose
---   simp only [mem_compl_iff, mem_setOf_eq, not_not]
+--   simp only [mem_compl_iff, mem_ofPred_eq, not_not]
 --   intro h₂
 --   unfold trunc
 --   rewrite [h₂]
@@ -524,7 +524,7 @@ protected lemma StronglyMeasurable.truncCompl (hf : StronglyMeasurable f) :
 --   · apply measure_mono_null ?_ wg2
 --     intro x
 --     contrapose
---     simp only [mem_compl_iff, mem_setOf_eq, not_not]
+--     simp only [mem_compl_iff, mem_ofPred_eq, not_not]
 --     intro f_eq_g; unfold truncCompl; unfold trunc; dsimp only [Pi.sub_apply]; rw [f_eq_g]
 
 @[fun_prop]
@@ -682,7 +682,7 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
     · apply (setLIntegral_eq_of_support_subset _).symm
       unfold Function.support
       intro x
-      rw [truncCompl_eq, mem_setOf_eq]
+      rw [truncCompl_eq, mem_ofPred_eq]
       dsimp only [Pi.sub_apply]
       split_ifs with is_a_lt_fx
       · exact fun _ ↦ is_a_lt_fx
@@ -759,7 +759,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         apply setLIntegral_eq_of_support_subset
         unfold Function.support
         intro x
-        dsimp only [Pi.sub_apply, mem_setOf_eq]
+        dsimp only [Pi.sub_apply, mem_ofPred_eq]
         unfold trunc
         split_ifs with is_fx_le_a
         · intro fx_rpow_ne_zero
@@ -809,6 +809,7 @@ lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioc 0 q) {f : α → ε} (hf : MemLp f p �
       · finiteness
     · exact (rpow_lt_top_iff_of_pos (toReal_pos hpq.1.ne' p_ne_top)).mpr hf.2
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f x‖ₑ} < ⊤) :
     MemLp (trnc ⊥ f t) p μ := by
   by_cases hp_top : p = ⊤
@@ -837,10 +838,10 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
     split_ifs with hx hx' hx''
     · exact hfgs hs
     · exfalso
-      simp only [mem_compl_iff, mem_setOf_eq, not_le, not_lt, hfgs hs] at hx hx'
+      simp only [mem_compl_iff, mem_ofPred_eq, not_le, not_lt, hfgs hs] at hx hx'
       order
     · exfalso
-      simp only [mem_compl_iff, mem_setOf_eq, not_le, not_lt, hfgs hs] at hx hx''
+      simp only [mem_compl_iff, mem_ofPred_eq, not_le, not_lt, hfgs hs] at hx hx''
       order
     · rfl
   apply MemLp.ae_eq ae_eq_trunc.symm
@@ -848,7 +849,7 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
   simp only [bot_eq_false, trnc_false]
   rw [truncCompl_eq_indicator,
       eLpNorm_indicator_eq_eLpNorm_restrict
-        (by rw [compl_setOf]; simp only [not_le]; exact measurableSet_lt measurable_const (by fun_prop))]
+        (by rw [compl_ofPred]; simp only [not_le]; exact measurableSet_lt measurable_const (by fun_prop))]
   rw [eLpNorm_eq_eLpNorm' hp0 hp_top]
   apply (eLpNorm'_le_eLpNormEssSup_mul_rpow_measure_univ hp_pos).trans_lt
   apply ENNReal.mul_lt_top
@@ -857,14 +858,14 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
     rwa [eLpNorm_congr_ae wg2.symm]
   apply ENNReal.rpow_lt_top_of_nonneg (by simp [hp_pos.le])
   simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
-  rw [← lt_top_iff_ne_top, compl_setOf]
+  rw [← lt_top_iff_ne_top, compl_ofPred]
   calc
   _ = μ {a | t < ‖f a‖ₑ} := by
     apply measure_congr
     rw [Filter.eventuallyEq_iff_exists_mem] at wg2
     rcases wg2 with ⟨s, hs, hfgs⟩
     rw [Filter.eventuallyEq_iff_exists_mem]
-    exact ⟨s, hs, fun a ha ↦ by simp [setOf, hfgs.symm ha]⟩
+    exact ⟨s, hs, fun a ha ↦ by simp [ofPred, hfgs.symm ha]⟩
   _ < ∞ := h
 
 -- is there a better name?
@@ -944,7 +945,7 @@ lemma res_subset_Ioi {j : Bool} {β : ℝ≥0∞} : res j β ⊆ Ioi 0 := by
   · simp
   · simp only [Ioi]
     intro s hs
-    rw [mem_setOf]
+    rw [mem_ofPred]
     exact hs.1
   · exact Ioi_subset_Ioi toReal_nonneg
 
@@ -1049,6 +1050,7 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
         order
       · simp [hp]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma lintegral_trunc_mul₁ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple} :
     ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
     ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p := by

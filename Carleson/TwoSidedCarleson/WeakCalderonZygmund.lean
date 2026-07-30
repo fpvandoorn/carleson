@@ -322,7 +322,7 @@ lemma ball_covering' (hO : IsOpen O ∧ O ≠ univ) :
   let W : Set (Set X) := {U | U ⊆ O ∧ U.PairwiseDisjoint fun c ↦ ball c ((depth O c).toReal / 6)}
   obtain ⟨U, maxU⟩ : ∃ U, Maximal (· ∈ W) U := by
     refine zorn_subset _ fun U sU cU ↦ ⟨⋃₀ U, ?_, fun _ ↦ subset_sUnion_of_mem⟩
-    simp only [W, sUnion_subset_iff, mem_setOf_eq]
+    simp only [W, sUnion_subset_iff, mem_ofPred_eq]
     exact ⟨fun u hu ↦ (sU hu).1, (pairwiseDisjoint_sUnion cU.directedOn).2 fun u hu ↦ (sU hu).2⟩
   have countU : U.Countable := by
     refine maxU.1.2.countable_of_isOpen (fun _ _ ↦ isOpen_ball) (fun u mu ↦ ?_)
@@ -410,7 +410,7 @@ lemma ball_covering_finite (hO : IsOpen O ∧ O ≠ univ) {U : Set X} {r' : X �
         · exact disjoint_left.mpr fun i mi₁ mi₂ ↦ mi₁.1 mi₂.1
       _ = 0 + {u ∈ SetLike.coe U | x ∈ ball u (3 * r' u)}.encard := by
         congr
-        · simp_rw [encard_eq_zero, eq_empty_iff_forall_notMem, mem_setOf_eq, not_and]; intro i hi
+        · simp_rw [encard_eq_zero, eq_empty_iff_forall_notMem, mem_ofPred_eq, not_and]; intro i hi
           simp [r, hi]
         · set A := {i | i < U.card ∧ x ∈ ball (c i) (3 * r i)}
           set B := {u ∈ SetLike.coe U | x ∈ ball u (3 * r' u)}
@@ -418,7 +418,7 @@ lemma ball_covering_finite (hO : IsOpen O ∧ O ≠ univ) {U : Set X} {r' : X �
             refine ⟨Subtype.coe_prop _, ?_⟩
             have := i.2.2; simp_rw [r, c, i.2.1, dite_true] at this; exact this⟩
           let g (u : B) : A := ⟨e ⟨u.1, u.2.1⟩, by
-            simp_rw [A, r, c, mem_setOf_eq, Fin.is_lt, dite_true, Fin.eta, Equiv.symm_apply_apply,
+            simp_rw [A, r, c, mem_ofPred_eq, Fin.is_lt, dite_true, Fin.eta, Equiv.symm_apply_apply,
               u.2.2, true_and]⟩
           let eqv : A ≃ B := ⟨f, g, fun i ↦ by simp [f, g], fun u ↦ by simp [f, g]⟩
           exact encard_congr eqv
@@ -457,9 +457,9 @@ theorem ball_covering (hO : IsOpen O ∧ O ≠ univ) :
           set B := {u ∈ U | x ∈ ball u (3 * r' u)}
           let f (i : A) : B := ⟨e.symm i, by
             refine ⟨Subtype.coe_prop _, ?_⟩
-            have := i.2; simp_rw [A, mem_setOf_eq, r, c] at this; exact this⟩
+            have := i.2; simp_rw [A, mem_ofPred_eq, r, c] at this; exact this⟩
           let g (u : B) : A := ⟨e ⟨u.1, u.2.1⟩, by
-            simp_rw [A, r, c, mem_setOf_eq, Equiv.symm_apply_apply, u.2.2]⟩
+            simp_rw [A, r, c, mem_ofPred_eq, Equiv.symm_apply_apply, u.2.2]⟩
           let eqv : A ≃ B := ⟨f, g, fun i ↦ by simp [f, g], fun u ↦ by simp [f, g]⟩
           exact encard_congr eqv
         _ ≤ _ := Ubi x mx
@@ -763,7 +763,7 @@ lemma aemeasurable_czApproximation {hf : AEMeasurable f} : AEMeasurable (czAppro
         simpa [czA, hx] using h
       · exact Or.inl ⟨hx, by simpa [czA, hx, hX] using h⟩
     · cases h with
-      | inl h => simpa [czA, mem_setOf_eq ▸ mem_setOf_eq ▸ h.1] using h.2
+      | inl h => simpa [czA, mem_ofPred_eq ▸ mem_ofPred_eq ▸ h.1] using h.2
       | inr h => obtain ⟨_, ⟨⟨i, ⟨hi, rfl⟩⟩, hxi⟩⟩ := h
                  have hx : ∃ j, x ∈ czPartition hX j := ⟨i, hxi⟩
                  simpa [czA, hx, czPartition_pairwiseDisjoint' hx.choose_spec hxi] using hi
@@ -1227,7 +1227,7 @@ private lemma 𝒥₁_bound (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x
     apply congrArg
     apply setIntegral_eq_of_subset_of_ae_sdiff_eq_zero measurableSet_ball.compl.nullMeasurableSet
     · intro y hy
-      simp only [𝒥₁, mem_setOf_eq, mem_ball, mem_compl_iff] at hj hy ⊢
+      simp only [𝒥₁, mem_ofPred_eq, mem_ball, mem_compl_iff] at hj hy ⊢
       linarith [dist_triangle_left x (czCenter hX j) y]
     · refine Eventually.of_forall (fun y hy ↦ mul_eq_zero_of_right (K x y) ?_)
       exact notMem_support.mp <| notMem_subset support_czRemainder'_subset (notMem_of_mem_sdiff hy)
@@ -1394,7 +1394,7 @@ private lemma A_subset (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α
   rw [mem_ball'] at hy
   have : 6 * czRadius hX j ≤ dist x (czCenter hX j) := six_mul_czRadius_le_of_mem_Ω hx hX j
   have hj := Subtype.coe_prop j
-  simp only [𝒥₂, tsub_le_iff_right, mem_setOf_eq] at hj
+  simp only [𝒥₂, tsub_le_iff_right, mem_ofPred_eq] at hj
   constructor
   · linarith [dist_triangle_right x (czCenter hX j) y]
   · linarith [dist_triangle x (czCenter hX j) y]
@@ -1605,7 +1605,7 @@ lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
       rw [inter_comm, ← Measure.restrict_apply']; swap
       · apply MeasurableSet.compl; simp_rw [Ω, hX, dite_true]
         exact MeasurableSet.iUnion fun _ ↦ measurableSet_ball
-      gcongr; intro x mx; simp only [mem_preimage, mem_Ioi, mem_setOf_eq] at mx ⊢; exact mx.le
+      gcongr; intro x mx; simp only [mem_preimage, mem_Ioi, mem_ofPred_eq] at mx ⊢; exact mx.le
     _ ≤ (∫⁻ x in (Ω f (α' a α))ᶜ, czOperatorBound hX x) / (α / 8) := by
       apply meas_ge_le_lintegral_div
       · refine ((AEMeasurable.tsum fun i ↦ ?_).const_mul _).restrict
@@ -1656,8 +1656,8 @@ lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
       _ ≤ volume (Ω f (α' a α) ∪
           {x ∈ (Ω f (α' a α))ᶜ | α / 2 < ‖czOperator K r (czRemainder f (α' a α)) x‖ₑ}) := by
         refine measure_mono fun x mx ↦ ?_
-        rw [mem_setOf_eq] at mx
-        simp_rw [mem_union, mem_setOf_eq, mx, and_true, mem_compl_iff]; tauto
+        rw [mem_ofPred_eq] at mx
+        simp_rw [mem_union, mem_ofPred_eq, mx, and_true, mem_compl_iff]; tauto
       _ ≤ volume (Ω f (α' a α)) +
           volume {x ∈ (Ω f (α' a α))ᶜ | α / 2 < ‖czOperator K r (czRemainder f (α' a α)) x‖ₑ} :=
         measure_union_le _ _
@@ -1665,7 +1665,7 @@ lemma estimate_bad (ha : 4 ≤ a) (hr : 0 < r)
           volume ((Ω f (α' a α))ᶜ ∩ czOperatorBound hX ⁻¹' Ioi (α / 8)) := by
         gcongr
         · simp_rw [Ω, hX, dite_true]; exact measure_iUnion_le _
-        · intro x mx; simp_rw [mem_setOf_eq, mem_inter_iff, mem_preimage, mem_Ioi] at mx ⊢
+        · intro x mx; simp_rw [mem_ofPred_eq, mem_inter_iff, mem_preimage, mem_Ioi] at mx ⊢
           obtain ⟨mx₁, mx₂⟩ := mx; refine ⟨mx₁, ?_⟩; contrapose! mx₂
           calc
             _ ≤ 3 * czOperatorBound hX x + α / 8 := estimate_bad_partial hf hr hα mx₁ hX
@@ -1713,8 +1713,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
         · have := (EventuallyEq.rfl (f := (K x ·))).mul hf₂
           simp only [mul_zero] at this; exact this.restrict
         simp
-      simp_rw [op0, distribution, Pi.zero_apply, enorm_zero, not_lt_zero, setOf_false,
-        measure_empty, zero_le]
+      simp [op0]
     conv_rhs at hα =>
       enter [1, 2, x]; rw [div_eq_mul_inv, c10_0_3, coe_inv (by positivity), inv_inv]
     rw [lintegral_mul_const' _ _ (by finiteness), ← eLpNorm_one_eq_lintegral_enorm] at hα
@@ -1732,7 +1731,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
     _ ≤ distribution (czOperator K r (czApproximation f (α' a α))) (α / 2) volume +
         distribution (czOperator K r (czRemainder f (α' a α))) (α / 2) volume := by
       refine le_trans (measure_mono fun x mx ↦ ?_) (measure_union_le _ _)
-      simp only [mem_union, mem_setOf_eq] at mx ⊢; contrapose! mx
+      simp only [mem_union, mem_ofPred_eq] at mx ⊢; contrapose! mx
       calc
         _ = ‖czOperator K r (czApproximation f (α' a α)) x +
             czOperator K r (czRemainder f (α' a α)) x‖ₑ := by
