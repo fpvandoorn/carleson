@@ -18,8 +18,7 @@ noncomputable section
 -- mathlib) and improving the code quality. Follow mathlib style (line length!), can use dot
 -- notation more, and the code can sometimes also be golfed.
 
-variable {X ε ε' : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X]
-  [ENorm ε]
+variable {X ε ε' : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X] [ENorm ε]
   {μ : Measure X} [μ.IsDoubling A]
   {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → ε} {x : X}
 
@@ -185,8 +184,7 @@ public theorem maximalFunction_one_le_eLpNormEssSup :
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
 variable [TopologicalSpace ε'] [ContinuousENorm ε'] {u : X → ε'} in
-theorem MeasureTheory.MemLp.maximalFunction_lt_top
-    (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
+theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
     maximalFunction μ 𝓑 c r p u x < ∞ := by
   rw [maximalFunction_eq_maximalFunction_one_rpow (by positivity)]
   apply rpow_lt_top_of_nonneg (by positivity) (lt_top_iff_ne_top.mp _)
