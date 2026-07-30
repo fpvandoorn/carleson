@@ -191,6 +191,7 @@ def C6_2_3 (a : ℕ) : ℝ≥0 := 2 ^ (8 * a)
 private lemma ineq_6_2_16 {p : 𝔓 X} {x : X} (hx : x ∈ E p) : dist_(p) (Q x) (𝒬 p) < 1 :=
   subset_cball hx.2.1
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 6.2.3 (dist version). -/
 lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂)
     (hinter : (ball (𝔠 p₁) (5 * D ^ 𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D ^ 𝔰 p₂)).Nonempty) {x₁ x₂ : X}
@@ -289,6 +290,7 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
       rw [mul_comm 3]
       gcongr
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Lemma 6.2.3 (edist version). -/
 lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂)
     (hinter : (ball (𝔠 p₁) (5 * D ^ 𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D ^ 𝔰 p₂)).Nonempty) {x₁ x₂ : X}
@@ -325,6 +327,7 @@ lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
 def I12 (p p' : 𝔓 X) (g : X → ℂ) (x1 x2 : X) : ℝ≥0∞ :=
   ‖(∫ y, exp (I * (-Q x1 y + Q x2 y)) * correlation (𝔰 p') (𝔰 p) x1 x2 y) * g x1 * g x2‖ₑ
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Inequality (6.2.28). -/
 lemma I12_le' {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (x1 : E p') (x2 : E p) :
     I12 p p' g x1 x2 ≤

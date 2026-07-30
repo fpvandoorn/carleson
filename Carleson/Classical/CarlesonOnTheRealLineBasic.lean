@@ -216,6 +216,7 @@ theorem frequency_ball_growth {x₁ x₂ r : ℝ} {f g : Θ ℝ} :
     · simp
     all_goals linarith [r_nonneg]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
     CoveredByBalls (ball f (2 * R')) 3 R' := by
   unfold WithFunctionDistance at f
@@ -358,6 +359,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R} :
             rw [mul_comm, ←mul_assoc, inv_mul_cancel₀ Rpos.ne.symm, one_mul]
     _ = R' := by ring
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
   eq_zero := by
     use 0

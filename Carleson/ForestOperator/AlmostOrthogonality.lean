@@ -243,7 +243,7 @@ lemma adjoint_tree_control
 lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₁ ∪ t u₂)
     (hpu₁ : ¬Disjoint (𝓘 p : Set X) (𝓘 u₁)) : p ∈ 𝔖₀ t u₁ u₂ := by
-  simp_rw [𝔖₀, mem_setOf, hp, true_and]
+  simp_rw [𝔖₀, mem_ofPred, hp, true_and]
   wlog plu₁ : 𝓘 p ≤ 𝓘 u₁ generalizing p
   · have u₁lp : 𝓘 u₁ ≤ 𝓘 p := (le_or_ge_or_disjoint.resolve_left plu₁).resolve_right hpu₁
     obtain ⟨p', mp'⟩ := t.nonempty hu₁

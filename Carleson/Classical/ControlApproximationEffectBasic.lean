@@ -234,11 +234,11 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
     ext y
     constructor
     · intro hy
-      rw [Set.mem_setOf_eq, Set.mem_Ioo] at hy
+      rw [Set.mem_ofPred_eq, Set.mem_Ioo] at hy
       obtain ⟨n, hn⟩ := exists_nat_gt (1 / dist x y)
       rw [Set.mem_iUnion]
       use n
-      rw [sdef, Set.mem_setOf_eq, one_div]
+      rw [sdef, Set.mem_ofPred_eq, one_div]
       refine ⟨?_, hy.2⟩
       rw [inv_lt_comm₀ (by linarith) hy.1, inv_eq_one_div]
       apply lt_trans hn
@@ -247,7 +247,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       simp only [Set.mem_iUnion] at hy
       rcases hy with ⟨n, hn⟩
       rw [sdef] at hn
-      simp only [one_div, Set.mem_Ioo, Set.mem_setOf_eq] at hn
+      simp only [one_div, Set.mem_Ioo, Set.mem_ofPred_eq] at hn
       refine ⟨lt_trans' hn.1 ?_, hn.2⟩
       norm_num
       linarith
@@ -257,7 +257,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
     · exact fun n ↦ annulus_measurableSet
     · intro n m nlem y hy
       rw [sdef] at *
-      simp only [one_div, Set.mem_Ioo, Set.mem_setOf_eq] at *
+      simp only [one_div, Set.mem_Ioo, Set.mem_ofPred_eq] at *
       refine ⟨lt_of_le_of_lt ?_ hy.1, hy.2⟩
       rw [inv_le_inv₀]
       on_goal 1 => norm_cast

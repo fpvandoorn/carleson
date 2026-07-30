@@ -115,7 +115,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     intro i
     have est_edist : ∀y ∈ dom_i i, (edist x x' / edist x y) ≤ (1 / (2 : ℝ≥0)) ^ (i + 1) := by
       unfold dom_i Annulus.co
-      simp_rw [← Ico_def, mem_setOf]
+      simp_rw [← Ico_def, mem_ofPred]
       intro y hdist
       trans edist x x' / (2 ^ (i + 1) * r.toNNReal)
       · gcongr
@@ -134,7 +134,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       exact Real.toNNReal_le_toNNReal hx
     have est_vol : ∀y ∈ dom_i i, vol x y ≥ volume (ball x (2 ^ (i + 1) * r)) := by
       unfold dom_i Annulus.co
-      simp_rw [← Ico_def, mem_setOf]
+      simp_rw [← Ico_def, mem_ofPred]
       apply fun y h ↦ measure_mono (ball_subset_ball h.left)
     trans ∫⁻ (y : X) in dom_i i, (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K a / volume (ball x (2 ^ (i + 1) * r))) * ‖g y‖ₑ
     · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
@@ -550,7 +550,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   · apply lintegral_mono
     intro y
     apply indicator_le_indicator'
-    rw [mem_setOf_eq]
+    rw [mem_ofPred_eq]
     exact le_of_lt
   trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
   · apply lintegral_mono
@@ -680,12 +680,12 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   rw [indicator_compl, czOperator_sub hg (hg.indicator measurableSet_ball) hr.1, Pi.sub_apply]
   have h1x' : ‖czOperator K r g x'‖ₑ ≤ 4 * globalMaximalFunction volume 1 (czOperator K r g) x := by
     suffices x' ∉ F1 by
-      rw [notMem_setOf_iff, not_lt] at this
+      rw [notMem_ofPred_iff, not_lt] at this
       exact this
     exact notMem_subset subset_union_left ((mem_compl_iff _ _).mp hx'.1)
   have h2x' : ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ ≤ C10_1_4 a * globalMaximalFunction volume 1 g x := by
     suffices x' ∉ F2 by
-      rw [notMem_setOf_iff, not_lt] at this
+      rw [notMem_ofPred_iff, not_lt] at this
       exact this
     exact notMem_subset subset_union_right ((mem_compl_iff _ _).mp hx'.1)
   apply add_le_add (add_le_add h1x' h2x' |> enorm_sub_le.trans) (by rfl) |> le_trans
@@ -701,14 +701,14 @@ omit [IsTwoSidedKernel a K] in
 lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} :
     LowerSemicontinuous (simpleNontangentialOperator K r g) := by
   unfold simpleNontangentialOperator
-  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_ofPred,
     mem_ball_comm, exists_prop]
   intro y
   apply isOpen_iUnion; intro R
   apply isOpen_iUnion; intro hR
   apply isOpen_iUnion; intro x'
   by_cases hx' : y < ‖czOperator K R g x'‖ₑ
-  · simp_rw [hx', and_true, setOf_mem_eq, isOpen_ball]
+  · simp_rw [hx', and_true, ofPred_mem_eq, isOpen_ball]
   · simp [hx']
 
 omit [IsTwoSidedKernel a K] in
@@ -883,7 +883,7 @@ theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ 
             linarith [Real.sub_le_dist r R₁]
         filter_upwards [this] with r hr
         exact fun hy ↦ hr.not_gt hy.2
-      · filter_upwards with r; unfold Annulus.oo; rw [notMem_setOf_iff]; exact fun hy2 ↦ hy hy2.1
+      · filter_upwards with r; unfold Annulus.oo; rw [notMem_ofPred_iff]; exact fun hy2 ↦ hy hy2.1
     rw [Filter.tendsto_iff_forall_eventually_mem]
     intro s hs
     filter_upwards [this] with r hr
@@ -940,7 +940,7 @@ theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R
             linarith [Real.sub_le_dist R₂ r]
         filter_upwards [this] with r hr
         exact fun hy ↦ hr.not_gt hy.1
-      · filter_upwards with r; unfold Annulus.oo; rw [notMem_setOf_iff]; exact fun hy2 ↦ hy hy2.2
+      · filter_upwards with r; unfold Annulus.oo; rw [notMem_ofPred_iff]; exact fun hy2 ↦ hy hy2.2
     rw [Filter.tendsto_iff_forall_eventually_mem]
     intro s hs
     filter_upwards [this] with r hr
@@ -1023,14 +1023,14 @@ omit [IsTwoSidedKernel a K] in
 lemma lowerSemicontinuous_nontangentialOperator {g : X → ℂ} :
     LowerSemicontinuous (nontangentialOperator K g) := by
   unfold nontangentialOperator
-  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_ofPred,
     exists_prop]
   intro M
   apply isOpen_iUnion; intro R₂
   apply isOpen_biUnion; intro R₁ hR₁
   apply isOpen_iUnion; intro x'
   by_cases hx' : M < ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * g y‖ₑ
-  · simp_rw [hx', and_true, mem_ball_comm, setOf_mem_eq, isOpen_ball]
+  · simp_rw [hx', and_true, mem_ball_comm, ofPred_mem_eq, isOpen_ball]
   · simp [hx']
 
 omit [IsTwoSidedKernel a K] in

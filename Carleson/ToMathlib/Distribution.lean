@@ -214,8 +214,8 @@ lemma distribution_pow (ε : Type*) [SeminormedRing ε] [NormOneClass ε] [NormM
     distribution (f ^ n) (t ^ n) μ = distribution f t μ := by
   simp_rw [distribution, Pi.pow_apply]
   refine congrArg μ <| ext fun x ↦ ⟨fun hx ↦ ?_, fun hx ↦ ?_⟩
-  · rw [mem_setOf_eq, enorm_pow (f x) n] at hx; simpa using lt_of_pow_lt_pow_left' n hx
-  · rw [mem_setOf_eq, enorm_pow (f x) n]; exact ENNReal.pow_right_strictMono hn hx
+  · rw [mem_ofPred_eq, enorm_pow (f x) n] at hx; simpa using lt_of_pow_lt_pow_left' n hx
+  · rw [mem_ofPred_eq, enorm_pow (f x) n]; exact ENNReal.pow_right_strictMono hn hx
 
 
 section distribution
@@ -226,7 +226,7 @@ variable {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α → ε'}
 lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     distribution f t μ ≤ distribution g t μ := by
   have h₀ : {x | t < ‖f x‖ₑ} \ {x | t < ‖g x‖ₑ} ⊆ {x | ¬‖f x‖ₑ ≤ ‖g x‖ₑ} := fun x ↦ by
-    simp_rw [Set.mem_sdiff, mem_setOf_eq, not_lt, not_le, and_imp]
+    simp_rw [Set.mem_sdiff, mem_ofPred_eq, not_lt, not_le, and_imp]
     intro i₁ i₂; simpa using i₂.trans_lt i₁
   calc
     _ ≤ μ ({x | t < ‖f x‖ₑ} ∩ {x | t < ‖g x‖ₑ})
@@ -247,7 +247,7 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {
   calc
     _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := by
       refine measure_mono fun x h ↦ ?_
-      simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
+      simp only [mem_union, mem_ofPred_eq, Pi.add_apply] at h ⊢
       contrapose! h
       exact (enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
@@ -261,7 +261,7 @@ lemma distribution_eq_zero_of_ae_zero_enorm {f : α → ε} (h : enorm ∘ f =�
     _ ≤ μ {x | 0 < ‖f x‖ₑ} := by
       apply measure_mono
       intro x hx
-      simp only [Set.mem_setOf_eq] at hx
+      simp only [Set.mem_ofPred_eq] at hx
       exact pos_of_gt hx
     _ = μ {x | ‖f x‖ₑ ≠ 0} := by
       congr
@@ -294,7 +294,7 @@ lemma distribution_indicator_eq {ε} [TopologicalSpace ε] [ESeminormedAddMonoid
   congr 1
   ext y
   unfold Set.indicator
-  simp only [Set.mem_setOf_eq, Set.mem_inter_iff]
+  simp only [Set.mem_ofPred_eq, Set.mem_inter_iff]
   split_ifs with hy <;> simp [hy]
 
 -- Lemma 1.1.24 of [Ian Tice]
@@ -345,7 +345,7 @@ lemma distribution_eq_zero_iff {ε} [TopologicalSpace ε] [ESeminormedAddMonoid 
     distribution f t μ = 0 ↔ eLpNormEssSup f μ ≤ t := by
   rw [distribution, eLpNormEssSup]
   rw [← compl_compl {x | t < ‖f x‖ₑ}, ← mem_ae_iff, compl_def]
-  simp only [mem_setOf_eq, not_lt]
+  simp only [mem_ofPred_eq, not_lt]
   constructor
   · intro h
     apply essSup_le_of_ae_le _
@@ -366,7 +366,7 @@ lemma distribution_add {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g
   rw [← measure_union₀]
   · congr 1
     ext x
-    simp only [Pi.add_apply, mem_setOf_eq, mem_union]
+    simp only [Pi.add_apply, mem_ofPred_eq, mem_union]
     by_cases hxf : x ∈ support f
     · have := disjoint_left.mp h hxf
       simp_all
@@ -375,14 +375,14 @@ lemma distribution_add {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g
   · apply Disjoint.aedisjoint
     apply disjoint_of_subset _ _ h
     · intro x
-      simp only [mem_setOf_eq, mem_support, ne_eq]
+      simp only [mem_ofPred_eq, mem_support, ne_eq]
       intro h'
       have := LT.lt.ne_bot h'
       rw [ENNReal.bot_eq_zero] at this
       contrapose! this
       rw [this, enorm_zero]
     · intro x
-      simp only [mem_setOf_eq, mem_support, ne_eq]
+      simp only [mem_ofPred_eq, mem_support, ne_eq]
       intro h'
       have := LT.lt.ne_bot h'
       rw [ENNReal.bot_eq_zero] at this
@@ -415,7 +415,7 @@ lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [E
   unfold distribution
   split_ifs with ht
   · congr 1 with x
-    simp only [Pi.add_apply, mem_setOf_eq]
+    simp only [Pi.add_apply, mem_ofPred_eq]
     constructor
     · intro h
       contrapose! h
@@ -426,7 +426,7 @@ lemma distribution_indicator_add_of_support_subset {ε} [TopologicalSpace ε] [E
       exact lt_add_of_lt_of_nonneg (by simpa [h]) zero_le
   · push Not at ht
     congr 1 with x
-    simp only [Pi.add_apply, mem_setOf_eq]
+    simp only [Pi.add_apply, mem_ofPred_eq]
     rw [enorm_add, ENNReal.sub_lt_iff_lt_right hc ht]
     constructor
     · intro h

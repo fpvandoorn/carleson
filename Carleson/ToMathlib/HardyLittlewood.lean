@@ -214,14 +214,14 @@ theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [Se
     (u := fun x ↦ ‖f x‖ₑ) ?_)
   · refine mul_right_mono <| μ.mono (fun x hx ↦ mem_iUnion₂.mpr ?_)
     -- We need a ball in `Bₗ t` containing `x`. Since `MB μ 𝓑 c r f x` is large, such a ball exists
-    simp only [mem_setOf_eq, maximalFunction, ENNReal.rpow_one, inv_one] at hx
+    simp only [mem_ofPred_eq, maximalFunction, ENNReal.rpow_one, inv_one] at hx
     obtain ⟨i, ht⟩ := lt_iSup_iff.mp hx
     obtain ⟨hi, ht⟩ := lt_iSup_iff.mp ht
     replace hx : x ∈ ball (c i) (r i) := by
       by_contra h
       exact not_lt_of_ge (zero_le (a := t)) (ENNReal.coe_lt_coe.mp <| by simp [h] at ht)
     refine ⟨(c i, r i), ?_, hx⟩
-    simp only [ge_iff_le, mem_setOf_eq, Bₗ]
+    simp only [ge_iff_le, mem_ofPred_eq, Bₗ]
     exact mul_le_of_le_div <| le_of_lt (by simpa [setLAverage_eq, hx] using ht)
   · exact fun (c, r) h ↦ h.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
 

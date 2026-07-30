@@ -713,7 +713,7 @@ lemma norm_czOperator_le_add
       contrapose! h
       exact ⟨by linarith [(h'g h).1, (h'g h).2], by linarith [(h'g h).1, (h'g h).2]⟩
     · simp only [indicator, mem_compl_iff, Metric.mem_ball, dist_eq_norm, Real.norm_eq_abs,
-        abs_sub_comm, not_lt, mem_Ico, mem_setOf_eq]
+        abs_sub_comm, not_lt, mem_Ico, mem_ofPred_eq]
       by_cases h : r ≤ |x - y|
       · simpa only [↓reduceIte, h, true_and, left_eq_ite_iff, not_lt] using k_of_one_le_abs
       simp [h]
