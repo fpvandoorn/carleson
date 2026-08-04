@@ -1042,10 +1042,14 @@ Recall that, given $f\colon\real^d\to\complex$, the (centered) Hardy–Littlewoo
 \begin{equation*}
 Mf\colon\real^d \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
 \end{equation*}
-If $f$ is integrable, then $M f$ is (weak) $L^1$, and hence finite almost everywhere. Initially, the blueprint only used a variant taking a supremum over finitely many balls: this ensured the resulting function was \emph{always} finite, hence real-valued. Applying it to a countable collection of balls required taking a limit and using the monotone convergence theorem.
+If $f$ is integrable, then $M f$ is (weak) $L^1$, and hence finite almost everywhere.\href{https://github.com/fpvandoorn/carleson/blob/c0ee0ad335fc74d4d507393b443759d1ce929e63/Carleson/ToMathlib/HardyLittlewood.lean#L369}{\extlink} Initially, the blueprint only used a variant taking a supremum over finitely many balls: this ensured the resulting function was \emph{always} finite, hence real-valued. Applying it to a countable collection of balls required taking a limit and using the monotone convergence theorem.
 This is a somewhat inelegant solution: most results about the maximal function do hold for any suprema, hence should be proven in the appropriate generality. We also prefer to avoid a superfluous limiting argument.
 
-For the formal proof, we changed the definition to allow arbitrary suprema: this means the maximal function is $[0,\infty]$-valued. Being able to speak of $L^p$-functions valued in $[0,\infty]$ prompted the introduction of \emph{extended norms}, see \S\ref{subsec:enorm}.
+For the formal proof, we changed the definition
+\href{https://github.com/fpvandoorn/carleson/blob/696c07687a9c26c87c8a1d36b16da3775d9d11e8/Carleson/ToMathlib/HardyLittlewood.lean#L32}{\extlink}
+to allow arbitrary suprema: this means the maximal function is $[0,\infty]$-valued.
+Being able to speak of $L^p$-functions valued in $[0,\infty]$ prompted the introduction of \emph{extended norms}, see \S\ref{subsec:enorm}.
+We also generalized the allowed input functions to any function from a pseudo-metric space to any space with an extended norm.
 
 \subsubsection{The real interpolation theorem}\label{subsubsec:real_interpolation}
 The Marcinkiewicz real interpolation theorem is a standard result in functional analysis.
