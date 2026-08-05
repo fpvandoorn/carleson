@@ -10,6 +10,9 @@ public import Mathlib.MeasureTheory.VectorMeasure.Basic
 public import Mathlib.Data.PFun
 public import Mathlib.Analysis.Convex.Basic
 
+-- Upstreaming status: Needs significant clean-up (refactoring, code style, extracting lemmas,
+-- moving to proper location etc.)
+
 @[expose] public section
 
 namespace MeasureTheory
@@ -180,15 +183,15 @@ theorem PFun.le_iff {β : Type*} {f g : α →. β} :  f ≤ g ↔ f.graph' ≤ 
 theorem PFun.le_iff' {β : Type*} {f g : α →. β} :  f ≤ g ↔ ∀ (a : α), ∀ b ∈ f a, b ∈ g a := by
   rw [PFun.le_iff]
   unfold PFun.graph'
-  simp only [setOf_subset_setOf, Prod.forall]
+  simp only [ofPred_subset_ofPred, Prod.forall]
 
 theorem PFun.Dom_mono {β : Type*} {f g : α →. β} (h : f ≤ g) : f.Dom ⊆ g.Dom := by
   unfold PFun.Dom --Part.Dom
   intro a ha
-  simp only [mem_setOf_eq] at *
+  simp only [mem_ofPred_eq] at *
   rw [PFun.le_iff] at h
   unfold PFun.graph' at h
-  simp only [setOf_subset_setOf, Prod.forall] at h
+  simp only [ofPred_subset_ofPred, Prod.forall] at h
   rw [Part.dom_iff_mem] at *
   have := h a ha.choose ha.choose_spec
   use ha.choose
@@ -196,6 +199,7 @@ theorem PFun.Dom_mono {β : Type*} {f g : α →. β} (h : f ≤ g) : f.Dom ⊆ 
 theorem PFun.fn_mem {β : Type*} {f : α →. β} {a : α} (ha : a ∈ f.Dom) : f.fn a ha ∈ f a :=
   (Part.eq_get_iff_mem ha).mp rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem PFun.fn_apply_eq_fn_apply_of_le {β : Type*} {f g : α →. β} (h : f ≤ g) {a : α} (ha : a ∈ f.Dom) :
     f.fn a ha = g.fn a (PFun.Dom_mono h ha) := by
   nth_rw 2 [PFun.fn_apply]
@@ -265,9 +269,10 @@ theorem PFun.Dom_insert {β : Type*} {f : α →. β} {a : α} {b : β} :
     (PFun.insert f a b).Dom = f.Dom.insert a := by
   unfold PFun.insert PFun.Dom Set.insert
   ext x
-  simp only [Part.coe_some, mem_setOf_eq]
+  simp only [Part.coe_some, mem_ofPred_eq]
   split_ifs with hx <;> simp [hx]
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem PFun.lt_insert {β : Type*} {f : α →. β} {a : α} {b : β} (ha : a ∉ f.Dom) :
     f ≤ PFun.insert f a b ∧ ¬PFun.insert f a b ≤ f := by
   unfold PFun.insert
@@ -278,6 +283,7 @@ theorem PFun.lt_insert {β : Type*} {f : α →. β} {a : α} {b : β} (ha : a �
     use a
     aesop
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem PFun.Prop_insert {β : Type*} {f : α →. β} {a : α} {b : β} {p : α → β → Prop}
   (hf : ∀ x, ∀ (hx : x ∈ f.Dom), p x (f.fn x hx)) (hb : p a b) :
     let g := PFun.insert f a b;
@@ -302,6 +308,7 @@ theorem PFun.Monotone.Monotone [Preorder α] {β : Type*} [Preorder β] {f : α 
   apply hf
   simpa
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem PFun.Monotone.insert [Preorder α] {β : Type*} [Preorder β] {f : α →. β}
   (hf : PFun.Monotone f) {a : α} {b : β}
   (hb : ∀ x ≤ a, ∀ (hx : x ∈ f.Dom), f.fn x hx ≤ b)
@@ -345,7 +352,7 @@ instance instIsCountablyGenerated_atTop [TopologicalSpace α] [LinearOrder α] [
   · obtain ⟨s, s_count, hs⟩ := exists_countable_dense α
     have : atTop = generate (Ici '' s) := by
       refine atTop_eq_generate_of_not_bddAbove fun ⟨x, hx⟩ ↦ ?_
-      simp only [eq_empty_iff_forall_notMem, IsTop, mem_setOf_eq, not_forall, not_le] at h
+      simp only [eq_empty_iff_forall_notMem, IsTop, mem_ofPred_eq, not_forall, not_le] at h
       obtain ⟨y, hy, hxy⟩ := hs.exists_mem_open isOpen_Ioi (h x)
       exact (hx hy).not_gt hxy
     rw [this]
@@ -372,6 +379,7 @@ protected theorem iInter_of_monotone {ι : Type*} [Preorder ι] [IsCodirectedOrd
   | inl _ => simp
   | inr _ => exact MeasureTheory.NoAtoms'.iInter_of_monotone_of_frequently hsm <| .of_forall hs
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem exists_measurable_sets_measure_eq :
     ∃ Ts : Set.Iic (μ univ) → Set α, Monotone Ts ∧ ∀ x, MeasurableSet (Ts x) ∧ μ (Ts x) = x := by
   set Γ := {S : Set.Iic (μ univ) →. (Set α) | PFun.Monotone S ∧
@@ -382,7 +390,7 @@ theorem exists_measurable_sets_measure_eq :
     use sSup Ts
     constructor
     · unfold Γ
-      simp only [PFun.mem_dom, forall_exists_index, mem_setOf_eq]
+      simp only [PFun.mem_dom, forall_exists_index, mem_ofPred_eq]
       constructor
       · intro x y hx hy hxy
         rcases PFun.exists_fn_of_fn_sSup hTs' hx with ⟨f, hf, hfx, h⟩
@@ -391,7 +399,7 @@ theorem exists_measurable_sets_measure_eq :
         unfold Γ at hfΓ
         have hgΓ := hTs hg
         unfold Γ at hgΓ
-        simp only [mem_setOf_eq] at hfΓ hgΓ
+        simp only [mem_ofPred_eq] at hfΓ hgΓ
         rw [h, h']
         by_cases! hfg : f = g
         · simp only [hfg]
@@ -406,14 +414,14 @@ theorem exists_measurable_sets_measure_eq :
         rcases PFun.exists_fn_of_fn_sSup hTs' (PFun.mem_dom_of_mem hT) with ⟨f, hf, hfx, h⟩
         have hfΓ := hTs hf
         unfold Γ at hfΓ
-        simp only [mem_setOf_eq] at hfΓ
+        simp only [mem_ofPred_eq] at hfΓ
         rw [h]
         use (hfΓ.2 x hfx).1, (hfΓ.2 x hfx).2
     · intro f hf
       apply PFun.le_sSup hTs' hf
   rcases this with ⟨S, hSΓ, S_maximal⟩
   unfold Γ at hSΓ
-  simp only [mem_setOf_eq] at hSΓ
+  simp only [mem_ofPred_eq] at hSΓ
   have hμuniv : ⟨μ univ, self_mem_Iic⟩ ∈ S.Dom := by
     contrapose! S_maximal
     use PFun.insert S ⟨μ univ, self_mem_Iic⟩ univ
