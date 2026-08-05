@@ -581,7 +581,11 @@ Given the variables and assumptions of \Cref{linearized-metric-Carleson}, define
 \[
 D := 2^{100a^2}
 \]
-and let
+and
+\[
+\kappa := 2^{-10a}.
+\]
+Let
 $\psi\colon\real \to\real$ be the unique compactly supported, piecewise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
 \begin{equation}
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
@@ -604,9 +608,9 @@ where for $s \in \mathbb{Z}, K_s(x,y) := K(x,y)\psi(D^{-s}\rho(x,y))$.
 
 To reduce this finitary version of the Carleson theorem to the discrete version, we make divisions in both the spatial and frequency domains. The spatial discretization will be achieved by a \emph{grid structure}, after which a subordinate frequency discretization is encoded by a \emph{tile structure}.
 
-A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/GridStructure.lean#L20}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of so-called dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$ called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary} below. Here, a dyadic cube is just a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$. The dyadic cubes are ordered by $I \le J$ if and only if $I \subseteq J$ and $s(I) \le s(J)$.
+A grid structure consists of dyadic cubes. A \emph{dyadic cube} is a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$ for some fixed natural number $S$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$. We write $I \le J$ to mean that for two cubes $(I, k)$ and $(J, l)$, we have $I \subseteq J$ and $k \le l$.
 
-The conditions that the objects in a grid structure satisfy are as follows.
+A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/GridStructure.lean#L20}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$, $(I, k) \mapsto k$, called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary}:
 \begin{enumerate}[label=\roman*.]
 \item \label{it:coverdyadic} For every dyadic cube $I$ and every $-S \leq k < s(I)$,
 \begin{equation}
@@ -872,7 +876,7 @@ The Lean kernel checks that all proofs are correct. It cannot ascertain that all
 One strategy (going back to at least the Liquid Tensor Experiment \cite{LTEDefinitions}) is to prove interesting theorems about these definitions (such as Carleson's classical theorem, \Cref{classical-carleson}).
 Another aspect is making the relevant definitions easy to audit: to this end, we have collected all definitions and set-up necessary for stating the main theorems, as well as the main theorems' statements, into a single file. Auditing these 170 lines of Lean code (on top of \mathlib) ensures the theorems say what they claim --- two orders of magnitude smaller than the entire project.
 % 137 lines of Lean code (without comments) in BasicDefinitions, 26 in Challenge
-In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon --- which implies getting careful review (and reduces the need to trust code beyond \mathlib further).
+In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon --- which implies getting careful review (and further reduces the need to trust code beyond \mathlib).
 
 Lean ensures that the formalized proof matches the given statement.
 For maximum robustness (also suitable against adversarial code), we should double-check the theorem statement's meaning is not changed, e.g. via overriding notation or abuse of Lean's metaprogramming facilities. We achieve this in two ways. Firstly, each theorem is a Lean definition (with the proof constructing a term of that type) --- this way, the theorem statements only require auditing the same 170 lines above.
@@ -956,7 +960,7 @@ by the harmonic analysis group in Bonn. When the formalization project was annou
 which deals with arguably the most complicated case of the proof of \Cref{discrete-Carleson},
 were still being finalized, and
 Section~3, which reduces \Cref{metric-space-Carleson} to \Cref{finitary-Carleson},
-had to still be written in its entirity.
+had to still be written in its entirety.
 However, the rest of the blueprint was finalized
 and contained more than enough material to start the formalization.
 
@@ -968,7 +972,7 @@ Finally, we wanted to streamline the argument to simplify the formalization.
 One part of the formalization that we were worried about is the so-called ``invisible mathematics'' \cite{Bauer-2023} that one has to formalize.
 These are arguments that are not written on paper,
 but have to be done by the formalizer to arrive at a formal proof.%
-\footnote{There is also invisible mathematics that is performed by the proof assistent,
+\footnote{There is also invisible mathematics that is performed by the proof assistant,
 such as interpreting the meaning of notation or the scope of variables,
 which we will not discuss here.}
 Examples include proofs of integrability or measurability of side-goals, which are required
