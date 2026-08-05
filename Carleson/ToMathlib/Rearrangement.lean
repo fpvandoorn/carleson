@@ -1,8 +1,8 @@
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Integral.Layercake
-public import Carleson.ToMathlib.NoAtoms
-public import Mathlib.MeasureTheory.Constructions.UnitInterval
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Prod
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Metric
 
 @[expose] public section
 
@@ -1144,7 +1144,7 @@ lemma lintegral_rearrangement_eq''' {ε} [TopologicalSpace ε] [ContinuousENorm 
 -/
 
 --Remark 4.18 in https://doi.org/10.1007/978-3-319-30034-4
-lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral {ε}
+lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral [SigmaFinite μ] {ε}
   [TopologicalSpace ε] [ESeminormedAddMonoid ε] [ContinuousAdd ε] {f g : α → ε}
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) {t : ℝ≥0∞} :
       ∫⁻ (s : ℝ≥0∞) in Set.Iio t, rearrangement (f + g) s μ
@@ -1161,11 +1161,7 @@ lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral {ε}
       ext x
       simp
     rw [h]
-    --TODO: prove something along these lines :
-    --https://math.stackexchange.com/questions/3881683/does-mu-x-0-imply-non-atomic-for-radon-measure
-    --#check MeasureTheory.Measure.IsAddHaarMeasure.noAtoms
-    --#check MeasureTheory.Measure.prod.instNoAtoms_snd
-    have na : NoAtoms' (μ.prod ν) := by sorry
+    have na : NoAtoms' (μ.prod ν) := by infer_instance
     exact this hf.comp_fst hg.comp_fst na
   rw [lintegral_rearrangement_eq_and (hf.add hg), lintegral_rearrangement_eq_and hf, lintegral_rearrangement_eq_and hg]
   calc _
