@@ -1057,7 +1057,7 @@ we have formalized a more general argument that is also conceptually clearer: fo
 \begin{theorem}[real interpolation theorem\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/RealInterpolation/Main.lean\#L1436}{\extlink}]
     Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces, let $E$ be a topological space with the structure of an additive monoid endowed with a compatible continuous extended seminorm, let $F$ be a topological space with a continuous extended norm function.
     Let $p_0, p_1, q_0, q_1, p, q \in \ennreal$ such that $p_0 \in (0,q_0], p_1 \in (0,q_1], q_0 \ne q_1$ and there exists $t \in (0,1)$ such that $\frac{1}{p} = \frac{1-t}{p_0} + \frac{t}{p_1}$ and $\frac{1}{q} = \frac{1-t}{q_0} + \frac{t}{q_1}$.
-    Let $T\colon (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^p_0(X; E) \cup L^p_1(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e.\ $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e.\ strongly measurable.
+    Let $T\colon (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^{p_0}(X; E) \cup L^{p_1}(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e.\ $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e.\ strongly measurable.
 
     Then, if $T$ has both weak type $(p_0, q_0)$ and weak type $(p_1, q_1)$, $T$ has strong type $(p,q)$.
 \end{theorem}
