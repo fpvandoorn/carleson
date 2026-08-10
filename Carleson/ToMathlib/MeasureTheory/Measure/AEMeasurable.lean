@@ -34,7 +34,7 @@ open MeasureTheory MeasureTheory.Measure Filter Set Function ENNReal in
 theorem aemeasurable_Ici_of_forall_Icc {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α} {β : Type*}
   {mβ : MeasurableSpace β} [LinearOrder α] [(atTop : Filter α).IsCountablyGenerated] {x : α} {g : α → β}
   (g_meas : ∀ t ≥ x, AEMeasurable g (μ.restrict (Set.Icc x t))) : AEMeasurable g (μ.restrict (Set.Ici x)) := by
-  haveI : Nonempty α := ⟨x⟩
+  have : Nonempty α := ⟨x⟩
   obtain ⟨u, hu_tendsto⟩ := exists_seq_tendsto (atTop : Filter α)
   have Ici_eq_iUnion : Ici x = ⋃ n : ℕ, Icc x (u n) := by
     rw [iUnion_Icc_eq_Ici_self_iff.mpr _]

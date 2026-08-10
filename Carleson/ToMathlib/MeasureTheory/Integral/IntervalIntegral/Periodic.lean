@@ -25,7 +25,7 @@ theorem setIntegral_Ioc_add_eq (hf : Periodic f T) (t s : ℝ) :
     ∫ x in Ioc t (t + T), f x = ∫ x in Ioc s (s + T), f x := by
   wlog! hT : 0 < T
   · rw [Ioc_eq_empty (by simpa), Ioc_eq_empty (by simpa)]
-  haveI : VAddInvariantMeasure (AddSubgroup.zmultiples T) ℝ volume :=
+  have : VAddInvariantMeasure (AddSubgroup.zmultiples T) ℝ volume :=
     ⟨fun c s _ => measure_preimage_add _ _ _⟩
   apply IsAddFundamentalDomain.setIntegral_eq (G := AddSubgroup.zmultiples T)
   exacts [isAddFundamentalDomain_Ioc hT t, isAddFundamentalDomain_Ioc hT s, hf.map_vadd_zmultiples]
@@ -34,7 +34,7 @@ theorem setLIntegral_Ioc_add_eq {f : ℝ → ℝ≥0∞} (hf : Periodic f T) (t 
     ∫⁻ x in Ioc t (t + T), f x = ∫⁻ x in Ioc s (s + T), f x := by
   wlog! hT : 0 < T
   · rw [Ioc_eq_empty (by simpa), Ioc_eq_empty (by simpa)]
-  haveI : VAddInvariantMeasure (AddSubgroup.zmultiples T) ℝ volume :=
+  have : VAddInvariantMeasure (AddSubgroup.zmultiples T) ℝ volume :=
     ⟨fun c s _ => measure_preimage_add _ _ _⟩
   apply IsAddFundamentalDomain.setLIntegral_eq (G := AddSubgroup.zmultiples T)
   exacts [isAddFundamentalDomain_Ioc hT t, isAddFundamentalDomain_Ioc hT s,

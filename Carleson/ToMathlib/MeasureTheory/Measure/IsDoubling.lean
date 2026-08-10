@@ -148,7 +148,7 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
     ext r
     simp only [ENNReal.coe_pow, Set.mem_ofPred_eq, Set.mem_univ, iff_true]
     intro x
-    letI : Nonempty X := ⟨x⟩
+    let : Nonempty X := ⟨x⟩
     by_cases hr : r ≤ 0
     · have cball_eq : closedBall x (2 * r) = closedBall x r:= by
         by_cases! hr' : r < 0
