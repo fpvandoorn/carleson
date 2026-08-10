@@ -15,6 +15,9 @@ public import Mathlib.MeasureTheory.Measure.Typeclasses.SFinite
 # Measures having no atoms
 -/
 
+-- Upstreaming status: Needs significant clean-up (refactoring, code style, extracting lemmas,
+-- moving to proper location etc.)
+
 public section
 
 namespace MeasureTheory
