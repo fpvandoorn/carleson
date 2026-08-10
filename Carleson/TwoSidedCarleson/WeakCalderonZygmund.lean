@@ -301,7 +301,7 @@ lemma ball_covering_bounded_intersection
       apply measure_ball_two_le_same_iterate
     _ = 2 ^ (3 * a) * volume (⋃ v : V, ball v.1 ((depth O v.1).toReal / 6)) := by
       have VsU : V ⊆ U := sep_subset ..
-      haveI : Countable V := by rw [countable_coe_iff]; exact countU.mono VsU
+      have : Countable V := by rw [countable_coe_iff]; exact countU.mono VsU
       congr 1
       refine (measure_iUnion (fun ⟨v₁, mv₁⟩ ⟨v₂, mv₂⟩ hn ↦ ?_) (fun _ ↦ measurableSet_ball)).symm
       rw [ne_eq, Subtype.mk.injEq] at hn

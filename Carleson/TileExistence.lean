@@ -358,7 +358,7 @@ mutual
     · let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
       have h1: 0 ≤ S + (k - 1) := by linarith
       rw [I1, dif_neg hk_s]
-      letI := (Yk_countable X (k - 1)).to_subtype
+      let := (Yk_countable X (k - 1)).to_subtype
       refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball y (D ^ k))) ?_
       simp only [mem_preimage]
       exact fun b _ ↦ I3_measurableSet (I_induction_proof hk hk_s) b
@@ -370,7 +370,7 @@ mutual
       exact measurableSet_ball
     · let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
       rw [I2, dif_neg hk_s]
-      letI := (Yk_countable X (k - 1)).to_subtype
+      let := (Yk_countable X (k - 1)).to_subtype
       refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball (↑y) (2 * D ^ k))) ?_
       · simp only [mem_preimage]
         exact fun b _ ↦ I3_measurableSet (I_induction_proof hk hk_s) b
@@ -378,7 +378,7 @@ mutual
 
   lemma Xk_measurableSet {k : ℤ} (hk : -S ≤ k) : MeasurableSet (Xk hk) := by
     rw [Xk]
-    letI := (Yk_countable X k).to_subtype
+    let := (Yk_countable X k).to_subtype
     apply MeasurableSet.iUnion fun b ↦ I1_measurableSet hk b
   termination_by (3 * (S+k).toNat + 1, 0)
 
@@ -387,7 +387,7 @@ mutual
     refine MeasurableSet.union (I1_measurableSet hk y) ?_
     refine (MeasurableSet.diff (I2_measurableSet hk y))
       (MeasurableSet.union (Xk_measurableSet hk) ?_)
-    letI := (Yk_countable X k).to_subtype
+    let := (Yk_countable X k).to_subtype
     exact (MeasurableSet.iUnion fun b ↦ MeasurableSet.iUnion fun _ ↦ I3_measurableSet hk b)
   termination_by (3 * (S + k).toNat + 2, sizeOf y)
 end
@@ -956,7 +956,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
     · exact this
     · exact (NeZero.ne (2 ^ (4 * a)))
     · finiteness
-  letI : Countable (Yk X (k - K')) := (Yk_countable X (k - K')).to_subtype
+  let : Countable (Yk X (k - K')) := (Yk_countable X (k - K')).to_subtype
   classical
   calc
     K' * ∑' (z : ↑(Yk X (k - K'))), volume (⋃ (_ : clProp(hk_mK,z|hk,y)), I3 hk_mK z)
@@ -1014,7 +1014,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
       apply Finset.sum_congr (rfl)
       intro k'
       simp only [Finset.mem_univ, true_implies]
-      letI := (Yk_countable X k').to_subtype
+      let := (Yk_countable X k').to_subtype
       refine measure_iUnion ?_ ?_
       · intro i i' hneq
         simp only [mem_ofPred_eq, disjoint_iUnion_right, disjoint_iUnion_left]
@@ -1051,7 +1051,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
       congr
       ext k'
       symm
-      letI := (Yk_countable X k').to_subtype
+      let := (Yk_countable X k').to_subtype
       apply measure_iUnion _ <| fun _ ↦ MeasurableSet.iUnion <| fun _ ↦ measurableSet_ball
       intro i i' hneq
       simp only [disjoint_iUnion_right, disjoint_iUnion_left]
@@ -1133,7 +1133,7 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
             exact I3_prop_3_1 (le_s hk_mK l) u this
           exact hx.left this
       intro k'
-      letI := (Yk_countable X k').to_subtype
+      let := (Yk_countable X k').to_subtype
       apply MeasurableSet.iUnion <| fun _ ↦ MeasurableSet.iUnion <| fun _ ↦ measurableSet_ball
     _ ≤ C4_1_7 X * volume (I3 hk y) := by
       gcongr
@@ -1229,7 +1229,7 @@ lemma smaller_boundary (n : ℕ) :
     _ = ∑' (y' : Yk X (k - K')), ∑ᶠ (_ : clProp(le_s_2' n hk_mnK,y'|hk,y)),
           volume (⋃ (y'' : Yk X (k - (n + 1 : ℕ) * K')),
             ⋃ (_ : clProp(hk_mnK,y''|le_s_2' n hk_mnK,y')), I3 hk_mnK y'') := by
-      letI := (Yk_countable X (k - K')).to_subtype
+      let := (Yk_countable X (k - K')).to_subtype
       rw [measure_iUnion]
       · congr with y'
         classical
@@ -1245,7 +1245,7 @@ lemma smaller_boundary (n : ℕ) :
       intro y'
       apply MeasurableSet.iUnion
       intro _
-      letI := (Yk_countable X (k-(n+1:ℕ)*K')).to_subtype
+      let := (Yk_countable X (k-(n+1:ℕ)*K')).to_subtype
       apply MeasurableSet.iUnion
       intro y''
       apply MeasurableSet.iUnion (fun _ ↦ I3_measurableSet hk_mnK y'')

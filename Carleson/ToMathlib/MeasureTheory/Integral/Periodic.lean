@@ -25,9 +25,8 @@ instance AddCircle.noAtoms_volume : NullSingletonClass (volume : Measure (AddCir
 
 variable {B : Type*} {T a : ℝ} [hT : Fact (0 < T)] (f : ℝ → B)
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc T a f =ᵐ[volume] liftIco T a f :=
-  .mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne)
+  .mono (volume.ae_ne _) (fun _ ↦ liftIoc_eq_liftIco_of_ne)
 
 end AE
 

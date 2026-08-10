@@ -3,11 +3,13 @@ Copyright (c) 2026 Leo Diedering. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leo Diedering
 -/
-
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Defs
 public import Mathlib.MeasureTheory.Measure.Prod
+
+-- Upstreaming status: Needs significant clean-up (refactoring, code style, extracting lemmas,
+-- moving to proper location etc.)
 
 public section
 
@@ -31,7 +33,7 @@ theorem essProjSnd_eq_essProjFst_swap {s : Set (α × β)} :
     essProjSnd s μ = essProjFst (Prod.swap ⁻¹' s) μ := by
   unfold essProjFst essProjSnd
   ext y
-  simp only [mem_setOf_eq]
+  simp only [mem_ofPred_eq]
   congr!
 
 theorem essProjFst_subset {s : Set (α × β)} :
@@ -39,7 +41,7 @@ theorem essProjFst_subset {s : Set (α × β)} :
   unfold essProjFst
   intro x
   contrapose!
-  simp only [mem_image, Prod.exists, exists_and_right, exists_eq_right, not_exists, mem_setOf_eq,
+  simp only [mem_image, Prod.exists, exists_and_right, exists_eq_right, not_exists, mem_ofPred_eq,
     not_lt, nonpos_iff_eq_zero]
   intro h
   convert measure_empty (μ := ν)
@@ -78,7 +80,7 @@ theorem essProjFst_times_univ {s : Set α} (h : ν ≠ 0) :
     essProjFst (s ×ˢ univ) ν = s := by
   unfold essProjFst
   ext y
-  simp only [mem_setOf_eq]
+  simp only [mem_ofPred_eq]
   constructor
   · contrapose!
     intro hy
@@ -99,7 +101,7 @@ theorem essProjFst_mono {s t : Set (α × β)} (h : s ⊆ t) :
     essProjFst s ν ⊆ essProjFst t ν := by
   unfold essProjFst
   intro x hx
-  simp_all only [mem_setOf_eq]
+  simp_all only [mem_ofPred_eq]
   apply hx.trans_le
   gcongr
 
@@ -118,7 +120,7 @@ theorem essProjFst_inter {s t : Set (α × β)} {ν : Measure α} :
     essProjFst (s ∩ t) ν ⊆ essProjFst s ν ∩ essProjFst t ν := by
   intro b
   unfold essProjFst
-  simp only [preimage_inter, mem_setOf_eq, mem_inter_iff]
+  simp only [preimage_inter, mem_ofPred_eq, mem_inter_iff]
   sorry
 -/
 
@@ -126,7 +128,7 @@ theorem essProjFst_inter_times_univ {s : Set (α × β)} {t : Set α} :
     essProjFst (s ∩ t ×ˢ univ) ν = essProjFst s ν ∩ t := by
   unfold essProjFst
   ext y
-  simp only [preimage_inter, mem_setOf_eq, mem_inter_iff]
+  simp only [preimage_inter, mem_ofPred_eq, mem_inter_iff]
   constructor
   · intro hy
     constructor
