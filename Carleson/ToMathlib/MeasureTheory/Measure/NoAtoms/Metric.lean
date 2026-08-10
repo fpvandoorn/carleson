@@ -9,6 +9,9 @@ public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Basics
 public import Mathlib.MeasureTheory.Constructions.UnitInterval
 public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 
+-- Upstreaming status: Needs significant clean-up (refactoring, code style, extracting lemmas,
+-- moving to proper location etc.)
+
 public section
 
 namespace MeasureTheory

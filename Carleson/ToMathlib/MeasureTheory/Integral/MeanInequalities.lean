@@ -1,6 +1,5 @@
 module
 
-public import Carleson.ToMathlib.Data.Real.ConjExponents
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 public import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique

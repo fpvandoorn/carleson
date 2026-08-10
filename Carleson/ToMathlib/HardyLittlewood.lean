@@ -227,8 +227,7 @@ theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [Se
 
 variable [TopologicalSpace ε'] [ESeminormedAddMonoid ε'] [SMul ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
   [MeasurableSpace ε'] [BorelSpace ε'] in
-theorem sublinearOn_maximalFunction_one
-    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] :
+theorem sublinearOn_maximalFunction_one :
     SublinearOn (maximalFunction (ε := ε') μ 𝓑 c r 1) (fun f ↦ AEMeasurable f μ) 1 := by
   refine .iSup₂ fun i hi => .indicator _ ?_
   simp_rw [inv_one, ENNReal.rpow_one]
@@ -375,7 +374,7 @@ public theorem hasWeakType_maximalFunction
   split_ifs with hps
   · rw [← hps]
     exact hasWeakType_maximalFunction_equal_exponents (A := A) hp₁
-  · apply HasStrongType.hasWeakType (coe_lt_coe_of_lt (hp₁.trans_le hp₁₂))
+  · apply HasStrongType.hasWeakType (coe_lt_coe.mpr (hp₁.trans_le hp₁₂))
     exact hasStrongType_maximalFunction hp₁ (lt_of_le_of_ne hp₁₂ hps)
 
 variable [TopologicalSpace ε'] [ContinuousENorm ε'] in

@@ -349,7 +349,6 @@ section ContinuousENorm
 
 variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
 
-set_option backward.isDefEq.respectTransparency.types false in
 lemma distribution_le [MeasurableSpace ε] [OpensMeasurableSpace ε]
     {c : ℝ≥0∞} (hc : c ≠ 0) {μ : Measure α} (hf : AEMeasurable f μ) :
     distribution f c μ ≤ c⁻¹ * (∫⁻ y, ‖f y‖ₑ ∂μ) := by
@@ -358,9 +357,8 @@ lemma distribution_le [MeasurableSpace ε] [OpensMeasurableSpace ε]
   apply (mul_le_iff_le_inv hc hc_top).mp
   simp_rw [distribution, ← setLIntegral_one, ← lintegral_const_mul' _ _ hc_top, mul_one]
   refine le_trans (lintegral_mono_ae ?_) (setLIntegral_le_lintegral _ _)
-  simp only [Filter.Eventually, ae, mem_ofCountableUnion]
-  rw [Measure.restrict_apply₀']
-  · convert measure_empty (μ := μ); ext; simpa using le_of_lt
+  apply ae_restrict_mem₀ _ |>.mono
+  · grind
   · exact hf.enorm.nullMeasurableSet_preimage measurableSet_Ioi
 
 lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (p0 : 0 < p) :
