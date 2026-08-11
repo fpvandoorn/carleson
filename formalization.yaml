@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+# formalization.yaml (v0.3): repo-root metadata for formalization projects.
+# Requiredness/conformance:
+#   - Fields marked [required] should be present and filled.
+#   - Fields not marked [required] are examples/recommended metadata only; they may be omitted.
+#   - Projects may add extra YAML keys at any level. Readers should tolerate unknown keys.
+# This is a lightweight reporting schema, not a closed validation schema.
+
+version: "v0.3"
+
+# project - the formalization itself (not the source).
+project:
+  name: "Carleson"
+  authors: [Lars Becker, María Inés de Frutos-Fernández, Leo Diedering, Floris van Doorn, Sébastien Gouëzel, Evgenia Karunus, Edward van de Meent, Pietro Monticone, Jasper Mulder-Sohn, Jim Portegies, Joris Roos, Michael Rothgang, James Sundstrom, Jeremy Tan]
+  license: "Apache v2.0"
+
+# sources - what was formalized. List of papers/textbooks/blueprints/etc.
+sources:
+  - title: "A blueprint for the formalization of Carleson’s theorem on convergence of Fourier series"
+    authors: [Lars Becker, María Inés de Frutos-Fernández, Leo Diedering, Floris van Doorn, Sébastien Gouëzel, Asgar Jamneshan, Evgenia Karunus, Edward van de Meent, Pietro Monticone, Jasper Mulder-Sohn, Jim Portegies, Joris Roos, Michael Rothgang, Rajula Srivastava, James Sundstrom, Jeremy Tan, Christoph Thiele]
+    id: "https://florisvandoorn.com/carleson/blueprint/"
+    type: "blueprint"                   # kind of source (textbook, preprint, blueprint, ...)
+    license: "Apache v2.0"
+    author_contacted: "yes"
+
+# project status
+status:
+  scope: "A general Carleson theorem for doubling measure metric spaces and Carleson's classical theorem for continuous periodic functions on the real line."
+  sorry_count: 2               # Note: these are only for the declaration carleson_hunt, not for the main theorems we prove
+  sorry_in_definitions: 1      # A constant of the Lorentz interpolation theorem.
+  axioms: [propext, Classical.choice, Quot.sound]
+  main_results:                # list the main results of the project
+  - declaration: "metric_carleson"            # declaration proving this main result
+    file: "Carleson/MetricCarleson/Main.lean"                   # file containing the declaration
+    sorry_count: 0             # number of sorries used for this declaration
+    axioms: [propext, Classical.choice, Quot.sound]                 # axioms used for this result
+    comparator_config: "comparator_config.json"      # path to the comparator (leanprover/comparator) JSON config that verifies this result
+    literature_dependencies:   # results this result relies on but does not prove, assumed from the literature
+    - statement: ""            # the result being relied on
+      source: ""               # the specific source it comes from (reference a `sources` entry)
+  - declaration: "classical_carleson"            # declaration proving this main result
+    file: "Carleson/Classical/ClassicalCarleson.lean"                   # file containing the declaration
+    sorry_count: 0             # number of sorries used for this declaration
+    axioms: [propext, Classical.choice, Quot.sound]                 # axioms used for this result
+    comparator_config: "comparator_config.json"      # path to the comparator (leanprover/comparator) JSON config that verifies this result
+  - declaration: "carleson_hunt"            # declaration proving this main result
+    file: "Carleson/Classical/CarlesonHunt.lean"                   # file containing the declaration
+    sorry_count: 3             # number of sorries used for this declaration
+    axioms: [propext, sorryAx, Classical.choice, Quot.sound]                 # axioms used for this result
+    comparator_config: "N/A"   # not yet finished
+
+# how it was produced. Extra per-entry fields are allowed.
+automation:                    # [required]
+  methods:                     # [required] one entry per distinct phase/run/tool
+    - method: "manual"               # [required] manual | copilot | agent | autonomous | other
+  spend_usd: "0 (roughly)"
+  notes: "no AI usage, except perhaps the occasional mathematical question"
+
+# fidelity
+fidelity:
+  divergences: "The classical Carleson theorem is only proven for continuous functions. Compared to the blueprint, we proved a general version of the Marcinkiewicz interpolation theorem"              # places the formalization deviates from sources: generalizations, weakened hypotheses, renamed lemmas, etc.
+
+# review status
+review:
+  status: "self-assessed, author-reviewed, under peer-review"                   # [required] unchecked | agent-reviewed | self-assessed | peer-reviewed | author-verified | other/freeform
+  reviewers: []
+  notes: ""                    # more details on the review process
+
+# alignment - freeform YAML describing how source statements map to formal declarations.
+# The structured table below is only a suggested shape; replace or extend it as useful.
+alignment:
+  notes: "See blueprint"
+
+# acknowledgements - optional credits for libraries, tools, discussions, etc.
+acknowledgements: ""
