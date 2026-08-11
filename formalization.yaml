@@ -58,7 +58,7 @@ automation:                    # [required]
 
 # fidelity
 fidelity:
-  divergences: "The classical Carleson theorem is only proven for continuous functions. Compared to the blueprint, we proved a general version of the Marcinkiewicz interpolation theorem"              # places the formalization deviates from sources: generalizations, weakened hypotheses, renamed lemmas, etc.
+  divergences: "The classical Carleson theorem is only proven for continuous functions. Compared to the blueprint proof, we proved a general version of the Marcinkiewicz interpolation theorem, and there were minor divergences related to the Hardy--Littlewood's maximal function"              # places the formalization deviates from sources: generalizations, weakened hypotheses, renamed lemmas, etc.
 
 # review status
 review:
