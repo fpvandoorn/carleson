@@ -387,12 +387,12 @@ The specific version of the bound that we formalized is as follows.
     \left|\int _G Tf(x) \, dx\right| \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12} \, ,
 \end{equation*}
 % the constant above was C_{4,2}
-and
+where
 \begin{equation*}
     T f(x)\coloneq\sup_{n\in \mathbb{Z}}
     \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right| \, ,
 \end{equation*}
-with the Hilbert kernel $\kappa\colon\real\to\complex$ defined as
+and the Hilbert kernel $\kappa\colon\real\to\complex$ is defined as
 \begin{equation*}
     \kappa(x)\coloneq\begin{cases}
         0 & \text{if $x = 0$ or $|x| \ge 1$} \\
@@ -443,7 +443,7 @@ supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
     \Big|\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)\Big|\le 2^a \mu(B)\|\varphi\|_{\Lip(B)}
 (1+d_B(\mfa,\mfb))^{-\frac{1}{a}},
 \end{equation}
-where $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipschitz norm on $B$:
+where $e(r) = e^{ir}$ and $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipschitz norm on $B$:
 $$
     \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
 $$
@@ -581,7 +581,11 @@ Given the variables and assumptions of \Cref{linearized-metric-Carleson}, define
 \[
 D := 2^{100a^2}
 \]
-and let
+and
+\[
+\kappa := 2^{-10a}.
+\]
+Let
 $\psi\colon\real \to\real$ be the unique compactly supported, piecewise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
 \begin{equation}
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
@@ -597,26 +601,26 @@ for all Borel functions $f\colon X\to \complex$ with $|f|\le \mathbf{1}_F$ we ha
     \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right| \mathrm{d}\mu(x)
 \end{equation*}
 \begin{equation}
-    \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac 1 q}
+    \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac 1 q},
 \end{equation}
-where for $s \in \mathbb{Z}, K_s(x,y) = K(x,y)\psi(D^{-s}\rho(x,y))$.
+where for $s \in \mathbb{Z}, K_s(x,y) := K(x,y)\psi(D^{-s}\rho(x,y))$.
 \end{theorem}
 
 To reduce this finitary version of the Carleson theorem to the discrete version, we make divisions in both the spatial and frequency domains. The spatial discretization will be achieved by a \emph{grid structure}, after which a subordinate frequency discretization is encoded by a \emph{tile structure}.
 
-A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/GridStructure.lean#L20}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of so-called dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$ called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary} below. Here, a dyadic cube is just a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$. The dyadic cubes are ordered by $I \le J$ if and only if $I \subseteq J$ and $s(I) \le s(J)$.
+A grid structure consists of dyadic cubes. A \emph{dyadic cube} is a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$ for some fixed natural number $S$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$. We write $I \le J$ to mean that for two cubes $(I, k)$ and $(J, l)$, we have $I \subseteq J$ and $k \le l$.
 
-The conditions that the objects in a grid structure satisfy are as follows.
+A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/GridStructure.lean#L20}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$, $(I, k) \mapsto k$, called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary}:
 \begin{enumerate}[label=\roman*.]
 \item \label{it:coverdyadic} For every dyadic cube $I$ and every $-S \leq k < s(I)$,
 \begin{equation}
     I\subseteq \bigcup_{J\in \mathcal {D}: s(J)=k}J\, .
 \end{equation}
-\item \label{it:dyadicproperty} For every non-disjoint dyadic cubes $I, J$ with $s(I) \leq s(J)$, we have that
+\item \label{it:dyadicproperty} For all non-disjoint dyadic cubes $I, J$ with $s(I) \leq s(J)$, we have that
 \begin{equation}
     I\le J.
 \end{equation}
-\item \label{it:subsetmaxcube} The exists a cube $I_0 \in \mathcal{D}$ with scale $s(I_0) = S$ and center $c(I_0) = o$ (the point where all $\mfa \in \Mf$ vanish), and for all dyadic cubes $J$ it holds that
+\item \label{it:subsetmaxcube} There exists a cube $I_0 \in \mathcal{D}$ with scale $s(I_0) = S$ and center $c(I_0) = o$ (the point where all $\mfa \in \Mf$ vanish), and for all dyadic cubes $J$ it holds that
 \begin{equation}\label{subsetmaxcube}
     J \le I_0\,.
 \end{equation}
@@ -872,7 +876,7 @@ The Lean kernel checks that all proofs are correct. It cannot ascertain that all
 One strategy (going back to at least the Liquid Tensor Experiment \cite{LTEDefinitions}) is to prove interesting theorems about these definitions (such as Carleson's classical theorem, \Cref{classical-carleson}).
 Another aspect is making the relevant definitions easy to audit: to this end, we have collected all definitions and set-up necessary for stating the main theorems, as well as the main theorems' statements, into a single file. Auditing these 170 lines of Lean code (on top of \mathlib) ensures the theorems say what they claim --- two orders of magnitude smaller than the entire project.
 % 137 lines of Lean code (without comments) in BasicDefinitions, 26 in Challenge
-In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon --- which implies getting careful review (and reduces the need to trust code beyond \mathlib further).
+In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon --- which implies getting careful review (and further reduces the need to trust code beyond \mathlib).
 
 Lean ensures that the formalized proof matches the given statement.
 For maximum robustness (also suitable against adversarial code), we should double-check the theorem statement's meaning is not changed, e.g. via overriding notation or abuse of Lean's metaprogramming facilities. We achieve this in two ways. Firstly, each theorem is a Lean definition (with the proof constructing a term of that type) --- this way, the theorem statements only require auditing the same 170 lines above.
@@ -956,7 +960,7 @@ by the harmonic analysis group in Bonn. When the formalization project was annou
 which deals with arguably the most complicated case of the proof of \Cref{discrete-Carleson},
 were still being finalized, and
 Section~3, which reduces \Cref{metric-space-Carleson} to \Cref{finitary-Carleson},
-had to still be written in its entirity.
+had to still be written in its entirety.
 However, the rest of the blueprint was finalized
 and contained more than enough material to start the formalization.
 
@@ -968,7 +972,7 @@ Finally, we wanted to streamline the argument to simplify the formalization.
 One part of the formalization that we were worried about is the so-called ``invisible mathematics'' \cite{Bauer-2023} that one has to formalize.
 These are arguments that are not written on paper,
 but have to be done by the formalizer to arrive at a formal proof.%
-\footnote{There is also invisible mathematics that is performed by the proof assistent,
+\footnote{There is also invisible mathematics that is performed by the proof assistant,
 such as interpreting the meaning of notation or the scope of variables,
 which we will not discuss here.}
 Examples include proofs of integrability or measurability of side-goals, which are required
@@ -978,7 +982,7 @@ The main part of the proof was done in a finite setting:
 there are only finitely many cubes in the grid structure
 and only finitely many tiles in the tile structure.
 Moreover, we integrate over a subset of finite measure,
-and the input function is a bounded whose support has finite measure.
+and the input function is a bounded function whose support has finite measure.
 Only in the final steps of the proof,
 multiple limiting arguments are used to derive \Cref{metric-space-Carleson}
 from its finitary version, \Cref{finitary-Carleson}.
@@ -993,8 +997,8 @@ The axioms for a grid structure are meant to convey that the scale of a cube rou
 Indeed, Equation \eqref{eq-vol-sp-cube}, together with the fact that $D\gg 16$,
 states that if we have cubes $I$ and $J$ with different scales, then they are subsets/supersets of balls with drastically different radii.
 More precisely, if $I\subseteq J$ and $s(I)<s(J)$,
-then $s(I)$ is a subset of a ball with $4D^{s(I)}$
-and $s(J)$ is a superset of a ball with radius $\frac{1}{4}D^{s(J)}\gg 4D^{s(I)}$.
+then $I$ is a subset of a ball with radius $4D^{s(I)}$
+and $J$ is a superset of a ball with radius $\frac{1}{4}D^{s(J)}\gg 4D^{s(I)}$.
 It is therefore tempting to conclude that $J$ must be a strict superset of $I$.
 This might not be the case in an arbitrary metric space,
 since there is no guarantee that there are points
@@ -1053,7 +1057,7 @@ we have formalized a more general argument that is also conceptually clearer: fo
 \begin{theorem}[real interpolation theorem\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/RealInterpolation/Main.lean\#L1436}{\extlink}]
     Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces, let $E$ be a topological space with the structure of an additive monoid endowed with a compatible continuous extended seminorm, let $F$ be a topological space with a continuous extended norm function.
     Let $p_0, p_1, q_0, q_1, p, q \in \ennreal$ such that $p_0 \in (0,q_0], p_1 \in (0,q_1], q_0 \ne q_1$ and there exists $t \in (0,1)$ such that $\frac{1}{p} = \frac{1-t}{p_0} + \frac{t}{p_1}$ and $\frac{1}{q} = \frac{1-t}{q_0} + \frac{t}{q_1}$.
-    Let $T\colon (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^p_0(X; E) \cup L^p_1(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e.\ $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e.\ strongly measurable.
+    Let $T\colon (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^{p_0}(X; E) \cup L^{p_1}(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e.\ $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e.\ strongly measurable.
 
     Then, if $T$ has both weak type $(p_0, q_0)$ and weak type $(p_1, q_1)$, $T$ has strong type $(p,q)$.
 \end{theorem}
@@ -1330,7 +1334,7 @@ This was the choice at the outset of the project.
 However, in this setup, one needs to constantly carry around a proof or assumption that the
 set is indeed bounded.
 This is cumbersome, and therefore it turned out to be much better to
-let suprema just take values in the \texttt{ENNReal}s.
+let suprema just take values in \texttt{ENNReal}.
 
 Gradually, we came to the conclusion that, with some exceptions, it was best to use $\ennreal$ as much as possible.
 
