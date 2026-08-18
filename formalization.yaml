@@ -1,12 +1,12 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
-# formalization.yaml (v0.3): repo-root metadata for formalization projects.
+# formalization.yaml (v0.4): repo-root metadata for formalization projects.
 # Requiredness/conformance:
 #   - Fields marked [required] should be present and filled.
 #   - Fields not marked [required] are examples/recommended metadata only; they may be omitted.
 #   - Projects may add extra YAML keys at any level. Readers should tolerate unknown keys.
 # This is a lightweight reporting schema, not a closed validation schema.
 
-version: "v0.3"
+version: "v0.4"
 
 # project - the formalization itself (not the source).
 project:
@@ -21,7 +21,11 @@ sources:
     id: "https://florisvandoorn.com/carleson/blueprint/"
     type: "blueprint"                   # kind of source (textbook, preprint, blueprint, ...)
     license: "Apache v2.0"
-    author_contacted: "yes"
+    author_endorsement: "participated"
+
+classification:
+  arXiv: ["math.CA"]
+  msc: ["42B20"]
 
 # project status
 status:
