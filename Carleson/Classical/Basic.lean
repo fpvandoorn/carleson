@@ -56,7 +56,7 @@ lemma partialFourierSum_eq_partialFourierSum' (N : ℕ) (f : ℝ → ℂ) :
   ext x
   unfold partialFourierSum partialFourierSum' liftIoc
   simp only [
-    Function.comp_apply, Set.restrict_apply, Int.ofNat_eq_natCast, ContinuousMap.coe_sum,
+    Function.comp_apply, Set.domRestrict_apply, Int.ofNat_eq_natCast, ContinuousMap.coe_sum,
     ContinuousMap.coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
   congr with n
   rw [← liftIoc, fourierCoeff_liftIoc_eq]
@@ -67,7 +67,7 @@ lemma partialFourierSum_eq_partialFourierSum' (N : ℕ) (f : ℝ → ℂ) :
     rw [coe_eq_coe_iff_of_mem_Ioc (Subtype.coe_prop _) hb]
     have : (liftIoc (2 * π) 0 (fun x ↦ x)) b = (fun x ↦ x) b := liftIoc_coe_apply hb
     unfold liftIoc at this
-    rw [Function.comp_apply, Set.restrict_apply] at this
+    rw [Function.comp_apply, Set.domRestrict_apply] at this
     exact this
 
 lemma partialFourierSum_eq_partialFourierSum'_apply (N : ℕ) (f : ℝ → ℂ)

@@ -18,8 +18,7 @@ noncomputable section
 -- mathlib) and improving the code quality. Follow mathlib style (line length!), can use dot
 -- notation more, and the code can sometimes also be golfed.
 
-variable {X ε ε' : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X]
-  [ENorm ε]
+variable {X ε ε' : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X] [ENorm ε]
   {μ : Measure X} [μ.IsDoubling A]
   {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → ε} {x : X}
 
@@ -185,8 +184,7 @@ public theorem maximalFunction_one_le_eLpNormEssSup :
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
 variable [TopologicalSpace ε'] [ContinuousENorm ε'] {u : X → ε'} in
-theorem MeasureTheory.MemLp.maximalFunction_lt_top
-    (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
+theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u ⊤ μ) :
     maximalFunction μ 𝓑 c r p u x < ∞ := by
   rw [maximalFunction_eq_maximalFunction_one_rpow (by positivity)]
   apply rpow_lt_top_of_nonneg (by positivity) (lt_top_iff_ne_top.mp _)
@@ -216,21 +214,20 @@ theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [Se
     (u := fun x ↦ ‖f x‖ₑ) ?_)
   · refine mul_right_mono <| μ.mono (fun x hx ↦ mem_iUnion₂.mpr ?_)
     -- We need a ball in `Bₗ t` containing `x`. Since `MB μ 𝓑 c r f x` is large, such a ball exists
-    simp only [mem_setOf_eq, maximalFunction, ENNReal.rpow_one, inv_one] at hx
+    simp only [mem_ofPred_eq, maximalFunction, ENNReal.rpow_one, inv_one] at hx
     obtain ⟨i, ht⟩ := lt_iSup_iff.mp hx
     obtain ⟨hi, ht⟩ := lt_iSup_iff.mp ht
     replace hx : x ∈ ball (c i) (r i) := by
       by_contra h
       exact not_lt_of_ge (zero_le (a := t)) (ENNReal.coe_lt_coe.mp <| by simp [h] at ht)
     refine ⟨(c i, r i), ?_, hx⟩
-    simp only [ge_iff_le, mem_setOf_eq, Bₗ]
+    simp only [ge_iff_le, mem_ofPred_eq, Bₗ]
     exact mul_le_of_le_div <| le_of_lt (by simpa [setLAverage_eq, hx] using ht)
   · exact fun (c, r) h ↦ h.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
 
 variable [TopologicalSpace ε'] [ESeminormedAddMonoid ε'] [SMul ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
   [MeasurableSpace ε'] [BorelSpace ε'] in
-theorem sublinearOn_maximalFunction_one
-    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] :
+theorem sublinearOn_maximalFunction_one :
     SublinearOn (maximalFunction (ε := ε') μ 𝓑 c r 1) (fun f ↦ AEMeasurable f μ) 1 := by
   refine .iSup₂ fun i hi => .indicator _ ?_
   simp_rw [inv_one, ENNReal.rpow_one]
@@ -311,7 +308,8 @@ public theorem hasStrongType_maximalFunction
   calc
     _ ≤ (CMB A (p₂ / p₁) * eLpNorm (fun y ↦ ‖v y‖ₑ ^ (p₁ : ℝ)) (p₂ / p₁) μ) ^ p₁.toReal⁻¹ := by
       apply ENNReal.rpow_le_rpow _ (by positivity)
-      convert! (hasStrongType_maximalFunction_one (μ := μ) _ (fun x ↦ ‖v x‖ₑ ^ (p₁ : ℝ)) _).2
+      convert! (hasStrongType_maximalFunction_one (ε' := ℝ≥0∞) (μ := μ) _
+          (fun x ↦ ‖v x‖ₑ ^ (p₁ : ℝ)) _).2
       · rw [ENNReal.coe_div p₁n]
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
       · rw [ENNReal.coe_div p₁n]; exact mlpv.enorm_rpow_div p₁
@@ -376,7 +374,7 @@ public theorem hasWeakType_maximalFunction
   split_ifs with hps
   · rw [← hps]
     exact hasWeakType_maximalFunction_equal_exponents (A := A) hp₁
-  · apply HasStrongType.hasWeakType (coe_lt_coe_of_lt (hp₁.trans_le hp₁₂))
+  · apply HasStrongType.hasWeakType (coe_lt_coe.mpr (hp₁.trans_le hp₁₂))
     exact hasStrongType_maximalFunction hp₁ (lt_of_le_of_ne hp₁₂ hps)
 
 variable [TopologicalSpace ε'] [ContinuousENorm ε'] in

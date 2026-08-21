@@ -26,10 +26,9 @@ instance AddCircle.noAtoms_volume : NullSingletonClass (volume : Measure (AddCir
 variable {B : Type*} {T a : ℝ} [hT : Fact (0 < T)] (f : ℝ → B)
 
 theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc T a f =ᵐ[volume] liftIco T a f :=
-  .mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne)
+  .mono (volume.ae_ne _) (fun _ ↦ liftIoc_eq_liftIco_of_ne)
 
 end AE
-
 
 namespace AddCircle
 
@@ -38,12 +37,12 @@ variable (T : ℝ) [hT : Fact (0 < T)]
 -- Add before `measurableEquivIoc`
 theorem measurable_equivIoc (a : ℝ) : Measurable (equivIoc T a) :=
   measurable_of_measurable_on_compl_singleton _
-    (continuousOn_iff_continuous_restrict.mp <| continuousOn_of_forall_continuousAt fun _x hx =>
+    (continuousOn_iff_continuous_domRestrict.mp <| continuousOn_of_forall_continuousAt fun _x hx =>
       continuousAt_equivIoc T a hx).measurable
 
 theorem measurable_equivIco (a : ℝ) : Measurable (equivIco T a) :=
   measurable_of_measurable_on_compl_singleton _
-    (continuousOn_iff_continuous_restrict.mp <| continuousOn_of_forall_continuousAt fun _x hx =>
+    (continuousOn_iff_continuous_domRestrict.mp <| continuousOn_of_forall_continuousAt fun _x hx =>
       continuousAt_equivIco T a hx).measurable
 
 -- Replacement for existing proof of `measurableEquivIoc` now that the proof of `measurable_toFun`

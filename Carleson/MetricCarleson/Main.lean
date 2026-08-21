@@ -134,7 +134,7 @@ def QΘ' (n : ℕ) : SimpleFunc X (Θ X) where
         exact enumΘ'ArgMax_mem_range nΘ' g
       simp_rw [this]; exact measurable_const
     simp_rw [enumΘ'ArgMax_eq_iff nΘ' g hi]; apply Measurable.and
-    all_goals refine (Measurable.forall fun j ↦ measurable_const.imp ?_); rw [← measurableSet_setOf]
+    all_goals refine (Measurable.forall fun j ↦ measurable_const.imp ?_); rw [← measurableSet_setOfPred]
     · exact measurableSet_le (mg _) (mg _)
     · exact measurableSet_lt (mg _) (mg _)
   finite_range' := by
@@ -159,12 +159,12 @@ end Enum
 lemma lowerSemicontinuous_LNT {Q : SimpleFunc X (Θ X)} {θ : Θ X} :
     LowerSemicontinuous (linearizedNontangentialOperator Q θ K f) := by
   unfold linearizedNontangentialOperator
-  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_ofPred,
     exists_prop]
   refine fun M ↦ isOpen_iUnion fun R₂ ↦ isOpen_biUnion fun R₁ hR₁ ↦ isOpen_iUnion fun x' ↦ ?_
   by_cases hx' : M < ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁)
       (min (ENNReal.ofReal R₂) (upperRadius Q θ x')), K x' y * f y‖ₑ
-  · simp_rw [hx', and_true, mem_ball_comm, setOf_mem_eq, isOpen_ball]
+  · simp_rw [hx', and_true, mem_ball_comm, ofPred_mem_eq, isOpen_ball]
   · simp [hx']
 
 lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}

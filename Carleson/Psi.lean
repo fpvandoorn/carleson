@@ -290,6 +290,7 @@ lemma support_ψS_subset_Icc {b c : ℤ} {x : ℝ}
   · rw [Int.ceil_le, Real.logb_le_iff_le_rpow hD (mul_pos four_pos hx), mul_comm]
     exact_mod_cast (le_div_iff₀ four_pos).mp h.2
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma finsum_ψ (hx : 0 < x) : ∑ᶠ s : ℤ, ψ D (D ^ (-s) * x) = 1 := by
   refine Eq.trans ?_ (sum_ψ hD hx)
   have hfin : HasFiniteSupport (fun s : ℤ ↦ ψ D (D ^ (-s) * x)) := by

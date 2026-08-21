@@ -273,10 +273,10 @@ lemma wnorm_iSup_of_monotone {α : Type*} [MeasurableSpace α] {p : ℝ≥0∞} 
     rw [←ENNReal.mul_iSup]; congr
     rw [←(iSup_rpow (toReal_pos hp hp' |> inv_pos_of_pos))]; congr
     simp only [enorm_eq_self]
-    rw [←Monotone.measure_iUnion, iUnion_setOf]
+    rw [←Monotone.measure_iUnion, iUnion_ofPred]
     · congr with x
       exact lt_iSup_iff
-    · apply monotone_setOf
+    · apply monotone_ofPred
       intro x
       exact monotone_lt.comp (hf.apply₂ x)
 
@@ -309,18 +309,18 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) : ∀ᵐ x �
   set A := {x | ‖f x‖ₑ = ∞} with hA
   simp only [MemWLp, wnorm, wnorm', hp_inf] at hf
   rw [Filter.eventually_iff, mem_ae_iff]
-  simp only [ne_eq, compl_def, mem_setOf_eq, Decidable.not_not, ← hA]
+  simp only [ne_eq, compl_def, mem_ofPred_eq, Decidable.not_not, ← hA]
   have hp_toReal_zero := toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩
   have h1 (t : ℝ≥0) : μ A ≤ distribution f t μ := by
     refine μ.mono ?_
-    simp_all only [setOf_subset_setOf, coe_lt_top, implies_true, A]
+    simp_all only [ofPred_subset_ofPred, coe_lt_top, implies_true, A]
   set C := ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹
   by_cases hC_zero : C = 0
   · simp only [ENNReal.iSup_eq_zero, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_neg'', C] at hC_zero
     specialize hC_zero 1
     simp only [one_ne_zero, ENNReal.coe_one, toReal_nonneg.not_gt, and_false, or_false,
       false_or] at hC_zero
-    exact measure_mono_null (setOf_subset_setOf.mpr fun x hx => hx ▸ one_lt_top) hC_zero.1
+    exact measure_mono_null (ofPred_subset_ofPred.mpr fun x hx => hx ▸ one_lt_top) hC_zero.1
   by_contra h
   have h2 : C < ∞ := by aesop
   have h3 (t : ℝ≥0) : distribution f t μ ≤ (C / t) ^ p.toReal := by
@@ -357,9 +357,8 @@ lemma distribution_le [MeasurableSpace ε] [OpensMeasurableSpace ε]
   apply (mul_le_iff_le_inv hc hc_top).mp
   simp_rw [distribution, ← setLIntegral_one, ← lintegral_const_mul' _ _ hc_top, mul_one]
   refine le_trans (lintegral_mono_ae ?_) (setLIntegral_le_lintegral _ _)
-  simp only [Filter.Eventually, ae, mem_ofCountableUnion]
-  rw [Measure.restrict_apply₀']
-  · convert measure_empty (μ := μ); ext; simpa using le_of_lt
+  apply ae_restrict_mem₀ _ |>.mono
+  · grind
   · exact hf.enorm.nullMeasurableSet_preimage measurableSet_Ioi
 
 lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (p0 : 0 < p) :
@@ -779,7 +778,7 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
     distribution f t μ + distribution g s μ := by
   have h₀ : {x | ‖L‖ₑ * t * s < ‖(fun x ↦ (L (f x)) (g x)) x‖ₑ} ⊆
       {x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ} := fun z hz ↦ by
-    simp only [mem_union, mem_setOf_eq] at hz ⊢
+    simp only [mem_union, mem_ofPred_eq] at hz ⊢
     contrapose! hz
     calc
       ‖(L (f z)) (g z)‖ₑ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ := by calc
@@ -813,7 +812,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
     · apply lintegral_congr_ae
       rw [Filter.eventuallyEq_iff_exists_mem]
       use {x | ‖f x‖ₑ ≠ ∞}
-      rw [mem_ae_iff, compl_setOf]
+      rw [mem_ae_iff, compl_ofPred]
       simp only [ne_eq, Decidable.not_not]
       use ae_finite
       intro x hx
@@ -826,7 +825,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
     symm
     apply measure_eq_measure_of_null_sdiff
     · intro x hx
-      simp only [mem_setOf_eq] at *
+      simp only [mem_ofPred_eq] at *
       rwa [ofReal_lt_iff_lt_toReal ht.le]
       by_contra hfx
       rw [hfx] at hx
@@ -835,7 +834,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
     dsimp [sdiff, Set.diff]
     apply measure_mono_null _ ae_finite
     intro x hx
-    dsimp only [mem_setOf_eq] at *
+    dsimp only [mem_ofPred_eq] at *
     by_contra hf_top
     rw [ofReal_lt_iff_lt_toReal ht.le hf_top] at hx
     exact hx.2 hx.1

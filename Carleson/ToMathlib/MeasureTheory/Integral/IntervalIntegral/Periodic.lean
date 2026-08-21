@@ -25,7 +25,7 @@ theorem setIntegral_Ioc_add_eq (hf : Periodic f T) (t s : ℝ) :
     ∫ x in Ioc t (t + T), f x = ∫ x in Ioc s (s + T), f x := by
   wlog! hT : 0 < T
   · rw [Ioc_eq_empty (by simpa), Ioc_eq_empty (by simpa)]
-  haveI : VAddInvariantMeasure (AddSubgroup.zmultiples T) ℝ volume :=
+  have : VAddInvariantMeasure (AddSubgroup.zmultiples T) ℝ volume :=
     ⟨fun c s _ => measure_preimage_add _ _ _⟩
   apply IsAddFundamentalDomain.setIntegral_eq (G := AddSubgroup.zmultiples T)
   exacts [isAddFundamentalDomain_Ioc hT t, isAddFundamentalDomain_Ioc hT s, hf.map_vadd_zmultiples]
@@ -34,7 +34,7 @@ theorem setLIntegral_Ioc_add_eq {f : ℝ → ℝ≥0∞} (hf : Periodic f T) (t 
     ∫⁻ x in Ioc t (t + T), f x = ∫⁻ x in Ioc s (s + T), f x := by
   wlog! hT : 0 < T
   · rw [Ioc_eq_empty (by simpa), Ioc_eq_empty (by simpa)]
-  haveI : VAddInvariantMeasure (AddSubgroup.zmultiples T) ℝ volume :=
+  have : VAddInvariantMeasure (AddSubgroup.zmultiples T) ℝ volume :=
     ⟨fun c s _ => measure_preimage_add _ _ _⟩
   apply IsAddFundamentalDomain.setLIntegral_eq (G := AddSubgroup.zmultiples T)
   exacts [isAddFundamentalDomain_Ioc hT t, isAddFundamentalDomain_Ioc hT s,
@@ -130,7 +130,7 @@ open Set ENNReal
 theorem MeasureTheory.eLpNorm_eq_eLpNorm_liftIoc {T : ℝ} [hT : Fact (0 < T)] {t : ℝ} {f : ℝ → ℂ}
   (hf : AEStronglyMeasurable f (volume.restrict (Ioc t (t + T)))) {p : ℝ≥0∞} :
     eLpNorm f p (volume.restrict (Ioc t (t + T))) = eLpNorm (AddCircle.liftIoc T t f) p volume := by
-  simp only [AddCircle.liftIoc, Set.restrict_def, Function.comp_def]
+  simp only [AddCircle.liftIoc, Set.domRestrict_def, Function.comp_def]
   rw [← Function.comp_def, eLpNorm_comp_measurePreserving (g := f) (p := p) hf]
   refine .comp (measurePreserving_subtype_coe measurableSet_Ioc) ?_
   exact AddCircle.measurePreserving_equivIoc T

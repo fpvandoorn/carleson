@@ -220,9 +220,9 @@ theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ℝ≥0∞} (
     ← AddCircle.volume_preimage_equivIoc (by exact (measurableSet_superlevelSet (by fun_prop)))]
   apply measure_mono
   intro x
-  simp only [gt_iff_lt, enorm_eq_self, Set.mem_setOf_eq]
+  simp only [gt_iff_lt, enorm_eq_self, Set.mem_ofPred_eq]
   intro hx
-  simp only [Set.preimage_setOf_eq, Set.mem_setOf_eq]
+  simp only [Set.preimage_ofPred_eq, Set.mem_ofPred_eq]
   convert hx using 5 with N hN
   unfold g
   simp only [AddCircle.coe_equivIoc]

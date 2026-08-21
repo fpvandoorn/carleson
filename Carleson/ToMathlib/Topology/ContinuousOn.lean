@@ -40,7 +40,7 @@ lemma ContinuousWithinAt.measure_lt_ne_zero {α : Type*} {m : MeasurableSpace α
     _ ≤ μ {y | a < f y} := by
       apply measure_mono
       unfold s Set.preimage
-      simp only [Set.mem_Ioi, Set.setOf_subset_setOf]
+      simp only [Set.mem_Ioi, Set.ofPred_subset_ofPred]
       intro y h
       exact h
 

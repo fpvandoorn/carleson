@@ -416,7 +416,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
           gcongr
           intro x hx
           unfold G at hx
-          rw [Set.mem_setOf_eq] at hx ⊢; exact hx.le
+          rw [Set.mem_ofPred_eq] at hx ⊢; exact hx.le
       apply mul_meas_ge_le_lintegral₀ hf'.enorm.restrict
     _ ≤ (c * _ * ν G ^ q⁻¹.toReal) / ν G ^ q⁻¹.toReal := by
       gcongr
@@ -456,7 +456,7 @@ theorem memLorentz_iff_memLorentz_embedRCLike {𝕂 : Type*} [RCLike 𝕂] {f : 
       apply Eventually.of_forall enorm_eq_enorm_embedRCLike
 
 lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
-  {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedAddMonoid ε']
+  [SigmaFinite μ] {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedAddMonoid ε']
   {T : (α → 𝕂) → (α' → ε')}
   (T_meas : ∀ {f : α → 𝕂}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
   (T_zero : T 0 =ᶠ[ae ν] 0)
@@ -557,7 +557,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
       rw [← ofReal_norm, ← ofReal_norm, RCLike.Components.norm_eq_one hb h]
       simp
 
-lemma HasRestrictedWeakType.hasLorentzType {𝕂 : Type*}
+lemma HasRestrictedWeakType.hasLorentzType [SigmaFinite μ] {𝕂 : Type*}
   [RCLike 𝕂] [TopologicalSpace ε'] [ENormedAddCommMonoid ε'] [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
   {T : (α → 𝕂) → (α' → ε')} {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
   [SigmaFinite ν] {c : ℝ≥0} (c_pos : 0 < c)
