@@ -7,7 +7,6 @@ public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
 
 @[expose] public section
 
-
 -- Upstreaming status: proofs need cleanup
 
 noncomputable section
@@ -297,10 +296,10 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         apply SimpleFunc.nnapprox_le hf
       _ ≤ (c / p) * eLorentzNorm' f p 1 μ * ν G ^ q⁻¹.toReal := by
         simp_rw [mul_assoc]
-        rw [ENNReal.limsup_const_mul_of_ne_top (ENNReal.div_ne_top (by simp) p_ne_zero)]
+        have : 0 ≤ q⁻¹.toReal := by simp
+        rw [ENNReal.limsup_const_mul_of_ne_top (by finiteness)]
         gcongr
-        rw [ENNReal.limsup_mul_const_of_ne_top (ENNReal.rpow_ne_top_of_nonneg (by simp) hG'),
-          mul_comm]
+        rw [ENNReal.limsup_mul_const_of_ne_top (by finiteness), mul_comm]
         gcongr
         apply Filter.limsup_le_of_le (f := _)
         filter_upwards with n
@@ -327,14 +326,13 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
     unfold G
     exact nullMeasurableSet_lt aemeasurable_const (by fun_prop)
   rcases hG.exists_measurable_superset_ae_eq  with ⟨G', _, hG', G'G⟩
-  have measure_G'G := measure_congr G'G
   have measure_G : ν G = distribution (T f) l ν := by rfl
   rw [← measure_G]
   have p_toReal_pos : 0 < p.toReal := toReal_pos hpq.ne_zero hp
   have q_toReal_pos : 0 < q.toReal := toReal_pos hpq.symm.ne_zero hq
   by_cases G_finite : ν G = ⊤
   · exfalso
-    rw [← measure_G'G] at G_finite
+    rw [← measure_congr G'G] at G_finite
     set r := (c * eLorentzNorm f p 1 μ / ↑l) ^ p.toReal with r_def
     have : r < ν G' := by
       rw [G_finite]
@@ -345,20 +343,17 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
     rcases ν.exists_subset_measure_lt_top hG' this with ⟨H, hH, H_subset_G', H_gt, H_finite⟩
     have H_pos := zero_le.trans_lt H_gt
     apply (hT f hf H hH).2.not_gt
+    have : 0 ≤ q⁻¹.toReal := by simp
     calc _
       _ < l * ν H := by
-        rw [← ENNReal.lt_div_iff_mul_lt
-            (by left; rw [ne_eq, ENNReal.rpow_eq_zero_iff_of_pos (by simpa)]; exact H_pos.ne.symm)
-            (by left; apply ENNReal.rpow_ne_top_of_nonneg (by simp) H_finite.ne), mul_div_assoc]
+        rw [← ENNReal.lt_div_iff_mul_lt (by left; finiteness) (by left; finiteness), mul_div_assoc]
         nth_rw 1 [← ENNReal.rpow_one (ν H)]
         have : 1 - q⁻¹.toReal = p⁻¹.toReal := by
           have hpq' := ENNReal.holderConjugate_iff.mp hpq
           have : 1 = ENNReal.toReal 1 := by simp
           rw [this, ← hpq', toReal_add, add_sub_cancel_right]
-          · simp only [ne_eq, inv_eq_top]
-            exact hpq.ne_zero
-          · simp only [ne_eq, inv_eq_top]
-            exact hpq.symm.ne_zero
+          · simp [hpq.ne_zero]
+          · simp [hpq.symm.ne_zero]
         rw [← ENNReal.rpow_sub _ _ H_pos.ne.symm H_finite.ne, this, mul_comm (ofNNReal l),
             ← ENNReal.div_lt_iff (by left; simpa) (by left; simp),
             ← ENNReal.rpow_rpow_inv (toReal_ne_zero.mpr ⟨hpq.ne_zero, hp⟩) (c * _ / ↑l),
@@ -377,8 +372,6 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
       _ = eLpNorm (T f) 1 (ν.restrict H) := by
         rw [eLpNorm_one_eq_lintegral_enorm]
   rw [← Ne, ← lt_top_iff_ne_top] at G_finite
-  have G'_finite : ν G' < ∞ := by
-    convert G_finite
   by_cases G_zero : ν G = 0
   · rw [G_zero, zero_rpow_of_pos]
     · simp
@@ -422,14 +415,14 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
       · rw [eLpNorm_one_eq_lintegral_enorm]
         apply setLIntegral_congr G'G.symm
       · congr 1
-        exact measure_G'G.symm
+        exact measure_congr G'G.symm
     _ = c * _  := by
       apply ENNReal.mul_div_cancel_right
       · contrapose! G_zero
         rwa [ENNReal.rpow_eq_zero_iff_of_pos] at G_zero
         simp only [toReal_inv, inv_pos]
         apply toReal_pos hpq.symm.ne_zero hq
-      · exact ENNReal.rpow_ne_top' G_zero G_finite.ne
+      · finiteness
 
 open RCLike in
 theorem memLorentz_iff_memLorentz_embedRCLike {𝕂 : Type*} [RCLike 𝕂] {f : α → ℝ≥0} :
@@ -616,10 +609,9 @@ lemma HasRestrictedWeakType.hasLorentzType [SigmaFinite μ] {𝕂 : Type*}
           div_one, toReal_one, inv_one, ENNReal.rpow_one]
         split_ifs
         · simp
-        apply mul_lt_top (Ne.lt_top p_ne_top)
-        exact rpow_lt_top_of_nonneg (by simp) F_finite.ne
-    · simp only
-      convert this.2
+        have : 0 ≤ p.toReal⁻¹ := by simp
+        finiteness
+    · convert this.2
       ext x
       simp only [comp_apply, NNReal.coe_indicator, NNReal.coe_one]
       unfold indicator
