@@ -606,7 +606,7 @@ lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞
     (h : HasBoundedStrongType T p p' μ ν c) (r : ℝ≥0) :
     HasBoundedStrongType (r • T) p p' μ ν (r • c) := by
   intro f hf
-  rw [Pi.smul_apply, MeasureTheory.eLpNorm_const_smul']
+  rw [Pi.smul_apply, MeasureTheory.eLpNorm_const_smul' (ε' := ℝ≥0∞)]
   exact ⟨(h f hf).1.const_smul _, le_of_le_of_eq (mul_le_mul_right (h f hf).2 ‖r‖ₑ) (by simp; rfl)⟩
 
 end HasBoundedStrongType
@@ -616,7 +616,8 @@ variable {f g : α → ε}
 section
 
 variable {ε ε' : Type*} [TopologicalSpace ε] [ENorm ε]
-variable [TopologicalSpace ε'] [ENormedSpace ε']
+variable [TopologicalSpace ε'] [ESeminormedAddCommMonoid ε'] [SMul ℝ≥0 ε']
+  [ENormSMulClass ℝ≥0 ε']
 
 -- TODO: this lemma and its primed version could be unified using a `NormedSemifield` typeclass
 -- (which includes NNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
@@ -631,7 +632,7 @@ lemma distribution_smul_left {f : α → ε'} {c : ℝ≥0} (hc : c ≠ 0) :
   congr with x
   simp only [Pi.smul_apply]
   rw [← @ENNReal.mul_lt_mul_iff_left (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
-    enorm_smul_eq_mul (c := c) _, ENNReal.div_mul_cancel h₀ coe_ne_top, mul_comm]
+    enorm_smul _, ENNReal.div_mul_cancel h₀ coe_ne_top, mul_comm]
 
 variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [NormSMulClass 𝕜 E]
   {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [NormSMulClass 𝕜 E']
@@ -678,6 +679,8 @@ lemma HasStrongType.const_mul'
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul' e
 
+variable {ε' : Type*} [TopologicalSpace ε'] [ESeminormedAddCommMonoid ε']
+  [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε'] in
 lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
     wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
   by_cases ptop : p = ⊤
@@ -723,13 +726,15 @@ lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E} 
   apply le_of_eq
   congr <;> exact (coe_div knorm_ne_zero).symm
 
+variable {ε' : Type*} [TopologicalSpace ε'] [ESeminormedAddCommMonoid ε']
+  [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε'] in
 lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
     {T : (α → ε) → (α' → ε')} (hp' : p' ≠ 0) {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : ℝ≥0) :
     HasWeakType (k • T) p p' μ ν (k * c) := by
   intro f hf
   refine ⟨(h f hf).1.const_smul k, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' _
+    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' _ (ε' := ε')
     _ ≤ k * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2

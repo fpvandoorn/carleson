@@ -273,9 +273,8 @@ public lemma hasStrongType_maximalFunction_one [BorelSpace X]
   · have := not_nonempty_iff.mp h; intro _ _; simp
   rw [CMB]
   refine exists_hasStrongType_real_interpolation
-    (T := maximalFunction (ε := ε') μ 𝓑 c r 1) (p := p) (q := p) (A := 1) (t := (↑p)⁻¹)
-    ⟨ENNReal.zero_lt_top, le_rfl⟩
-    ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
+    (T := maximalFunction μ 𝓑 c r 1) (p := p) (q := p) (A := 1) (t := (↑p)⁻¹)
+    ⟨ENNReal.zero_lt_top, le_rfl⟩ ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp) (by simp)
     (fun f _ ↦ measurable_maximalFunction.aestronglyMeasurable)
@@ -308,8 +307,7 @@ public theorem hasStrongType_maximalFunction
   calc
     _ ≤ (CMB A (p₂ / p₁) * eLpNorm (fun y ↦ ‖v y‖ₑ ^ (p₁ : ℝ)) (p₂ / p₁) μ) ^ p₁.toReal⁻¹ := by
       apply ENNReal.rpow_le_rpow _ (by positivity)
-      convert! (hasStrongType_maximalFunction_one (ε' := ℝ≥0∞) (μ := μ) _
-          (fun x ↦ ‖v x‖ₑ ^ (p₁ : ℝ)) _).2
+      convert! (hasStrongType_maximalFunction_one (μ := μ) _ (fun x ↦ ‖v x‖ₑ ^ (p₁ : ℝ)) _).2
       · rw [ENNReal.coe_div p₁n]
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
       · rw [ENNReal.coe_div p₁n]; exact mlpv.enorm_rpow_div p₁

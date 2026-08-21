@@ -57,10 +57,6 @@ theorem eLorentzNorm_congr_ae {f g : α → ε'} (hfg : f =ᵐ[μ] g) :
 theorem eLorentzNorm_enorm (f : α → ε) : eLorentzNorm (fun x ↦ ‖f x‖ₑ) p q μ = eLorentzNorm f p q μ :=
   eLorentzNorm_congr_enorm_ae <| Eventually.of_forall fun _ => enorm_enorm _
 
-section
-
-variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
-
 lemma eLorentzNorm'_eq_zero_of_ae_enorm_zero {f : α → ε}
   (h : enorm ∘ f =ᵐ[μ] 0) (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) :
     eLorentzNorm' f p q μ = 0 := by
@@ -70,6 +66,10 @@ lemma eLorentzNorm'_eq_zero_of_ae_enorm_zero {f : α → ε}
     ENNReal.zero_rpow_of_pos (by simp only [ENNReal.toReal_inv, inv_pos]; apply ENNReal.toReal_pos p_ne_zero p_ne_top),
     mul_zero]
   simp
+
+section
+
+variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
 
 lemma eLorentzNorm_eq_zero_of_ae_enorm_zero {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
     eLorentzNorm f p q μ = 0 := by
@@ -151,9 +151,8 @@ theorem eLorentzNorm_eq_zero_iff {f : α → ε}
 
 end ENormedAddMonoid
 
-variable {ε' : Type*} [TopologicalSpace ε'] [ContinuousENorm ε']
-
-lemma eLorentzNorm_eq_eLpNorm {f : α → ε'} (hf : AEStronglyMeasurable f μ) :
+variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] in
+lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
     eLorentzNorm f p p μ = eLpNorm f p μ := by
   by_cases p_zero : p = 0
   · simp [p_zero]
@@ -394,6 +393,7 @@ lemma eLorentzNorm_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → �
   · contradiction
   exact eLorentzNorm'_eq p_nonzero p_ne_top
 
+variable {ε' : Type*} [TopologicalSpace ε'] [ContinuousENorm ε'] in
 lemma MemLorentz_iff_MemLp {f : α → ε'} : MemLorentz f p p μ ↔ MemLp f p μ := by
   unfold MemLorentz MemLp
   constructor
@@ -402,10 +402,9 @@ lemma MemLorentz_iff_MemLp {f : α → ε'} : MemLorentz f p p μ ↔ MemLp f p 
   · intro h
     rwa [eLorentzNorm_eq_eLpNorm h.1]
 
-variable [TopologicalSpace ε] in
 -- TODO: could maybe be strengthened to ↔
-lemma MemLorentz_of_MemLorentz_ge {r₁ r₂ : ℝ≥0∞} (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) {f : α → ε}
-  (hf : MemLorentz f p r₁ μ) :
+lemma MemLorentz_of_MemLorentz_ge [TopologicalSpace ε]
+    {r₁ r₂ : ℝ≥0∞} (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) {f : α → ε} (hf : MemLorentz f p r₁ μ) :
     MemLorentz f p r₂ μ := by
   unfold MemLorentz at *
   rcases hf with ⟨meas_f, norm_f⟩
@@ -537,8 +536,6 @@ lemma MemLorentz_of_MemLorentz_ge {r₁ r₂ : ℝ≥0∞} (r₁_pos : 0 < r₁)
       rw [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable r₁_pos.ne'] at norm_zero
       rwa [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable (r₁_pos.trans_le r₁_le_r₂).ne']
 
-section
-
 variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
 
 lemma eLorentzNorm'_indicator_const {a : ε} (ha : ‖a‖ₑ ≠ ⊤)
@@ -664,7 +661,5 @@ lemma MemLorentz.memLp {f : α → ε} (hf : MemLorentz f p q μ) (h : q ∈ Set
     MemLp f p μ := by
   rw [← MemLorentz_iff_MemLp]
   apply MemLorentz_of_MemLorentz_ge h.1 h.2 hf
-
-end
 
 end MeasureTheory

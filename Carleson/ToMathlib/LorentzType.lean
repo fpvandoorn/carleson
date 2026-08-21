@@ -128,7 +128,8 @@ def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε]
   ∀ (_ : MemLorentz f p 1 μ) (G : Set α'),
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T ⇑(fs n)) 1 (ν.restrict G)) Filter.atTop
 
-theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε'] [ENormedSpace ε']
+theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
+    [TopologicalSpace ε'] [ENormedAddCommMonoid ε'] [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
     {c : ℝ≥0} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'} (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
     (hpq : p.HolderConjugate q)
     (T_meas : ∀ {f : α → ℝ≥0}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
@@ -191,7 +192,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
           rw [← eLpNorm_const_smul']
           apply eLpNorm_mono_enorm_ae
           apply ae_restrict_le
-          simp only [Pi.smul_apply, enorm_smul_eq_smul]
+          simp only [Pi.smul_apply, enorm_smul]
           apply T_submul
         _ ≤ ‖a‖ₑ * (c * (μ s) ^ p⁻¹.toReal * (ν G) ^ q⁻¹.toReal) := by
           gcongr
@@ -309,7 +310,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal [TopologicalSpace ε
         exact SimpleFunc.approx_le hf bot_eq_zero'
 
 lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
-  {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
+  {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ContinuousENorm ε']
   {T : (α → 𝕂) → (α' → ε')} (hpq : p.HolderConjugate q) (hp : p ≠ ⊤) (hq : q ≠ ⊤)
   {c : ℝ≥0∞} (hc : c ≠ ⊤) (hT : HasRestrictedWeakType' T p q μ ν c) :
     HasLorentzType T p 1 p ∞ μ ν c := by
@@ -447,7 +448,7 @@ theorem memLorentz_iff_memLorentz_embedRCLike {𝕂 : Type*} [RCLike 𝕂] {f : 
       apply Eventually.of_forall enorm_eq_enorm_embedRCLike
 
 lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
-  [SigmaFinite μ] {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
+  [SigmaFinite μ] {𝕂 : Type*} [RCLike 𝕂] [TopologicalSpace ε'] [ENormedAddMonoid ε']
   {T : (α → 𝕂) → (α' → ε')}
   (T_meas : ∀ {f : α → 𝕂}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
   (T_zero : T 0 =ᶠ[ae ν] 0)
@@ -549,7 +550,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
       simp
 
 lemma HasRestrictedWeakType.hasLorentzType [SigmaFinite μ] {𝕂 : Type*}
-  [RCLike 𝕂] [TopologicalSpace ε'] [ENormedSpace ε']
+  [RCLike 𝕂] [TopologicalSpace ε'] [ENormedAddCommMonoid ε'] [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
   {T : (α → 𝕂) → (α' → ε')} {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
   [SigmaFinite ν] {c : ℝ≥0} (c_pos : 0 < c)
   (hT : HasRestrictedWeakType T p q μ ν c)
