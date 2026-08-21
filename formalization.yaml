@@ -12,6 +12,8 @@ version: "v0.4"
 project:
   name: "Carleson"
   authors: [Lars Becker, María Inés de Frutos-Fernández, Leo Diedering, Floris van Doorn, Sébastien Gouëzel, Evgenia Karunus, Edward van de Meent, Pietro Monticone, Jasper Mulder-Sohn, Jim Portegies, Joris Roos, Michael Rothgang, James Sundstrom, Jeremy Tan]
+  responsible_maintainers: [Floris van Doorn, María Inés de Frutos-Fernández, Michael Rothgang]
+  description: "A general Carleson theorem for doubling measure metric spaces, implying Carleson's classical theorem about pointwise a.e. convergence of Fourier series for continuous periodic functions on the real line"
   license: "Apache v2.0"
 
 # sources - what was formalized. List of papers/textbooks/blueprints/etc.
@@ -20,6 +22,7 @@ sources:
     authors: [Lars Becker, María Inés de Frutos-Fernández, Leo Diedering, Floris van Doorn, Sébastien Gouëzel, Asgar Jamneshan, Evgenia Karunus, Edward van de Meent, Pietro Monticone, Jasper Mulder-Sohn, Jim Portegies, Joris Roos, Michael Rothgang, Rajula Srivastava, James Sundstrom, Jeremy Tan, Christoph Thiele]
     id: "https://florisvandoorn.com/carleson/blueprint/"
     type: "blueprint"                   # kind of source (textbook, preprint, blueprint, ...)
+    relationship: "formalizes"
     license: "Apache v2.0"
     author_endorsement: "participated"
 
