@@ -6,6 +6,7 @@ Authors: Jeremy Tan, Joachim Breitner
 module
 
 public import Mathlib.Order.KrullDimension
+import Mathlib.Data.Nat.Cast.Order.Basic
 
 /-!
 # Minimal and maximal layers of a set
