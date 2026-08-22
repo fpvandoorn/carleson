@@ -61,7 +61,7 @@ theorem aemeasurable_Ici_of_forall_Icc' {α : Type*} {m0 : MeasurableSpace α} [
 @[fun_prop]
 lemma AEMeasurable.withDensity {α β : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
   {mβ : MeasurableSpace β} {f : α → β} {d : α → ENNReal} (hf : AEMeasurable f μ) :
-    AEMeasurable f (μ.withDensity d) := hf.mono' (withDensity_absolutelyContinuous μ d)
+    AEMeasurable f (μ.withDensity d) := hf.mono_ac (withDensity_absolutelyContinuous μ d)
 
 @[fun_prop]
 lemma AEStronglyMeasurable.withDensity {α β : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
