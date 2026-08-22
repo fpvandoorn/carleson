@@ -689,13 +689,6 @@ theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [Measura
       exact g_ae_nonneg.mono (fun _ h _ ↦ h)
     · simp [hi, μ₀]
 
--- Analogous to `MeasureTheory.integral_smul_const` in Mathlib
-theorem average_smul_const {X : Type*} {E : Type*} [MeasurableSpace X]
-    {μ : MeasureTheory.Measure X} [NormedAddCommGroup E] [NormedSpace ℝ E] {𝕜 : Type*}
-    [RCLike 𝕜] [NormedSpace 𝕜 E] [CompleteSpace E] (f : X → 𝕜) (c : E) :
-    ⨍ (x : X), f x • c ∂μ = (⨍ (x : X), f x ∂μ) • c :=
-  integral_smul_const f c
-
 end MeasureTheory
 
 namespace ENNReal
