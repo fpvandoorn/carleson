@@ -818,7 +818,7 @@ private lemma L7_1_6_integral_eq {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
       ∫ (y : X) in ↑J, ⨍ (z : X) in ↑J, Ks i x y • f y - Ks i x z • f y := by
     apply setIntegral_congr_fun coeGrid_measurable
     intro y _
-    exact (average_smul_const (fun z ↦ Ks i x y - Ks i x z) (f y)).symm.trans
+    exact (average_smul_const _ (fun z ↦ Ks i x y - Ks i x z) (f y)).symm.trans
       (by simp_rw [sub_smul])
   rw [rhs_rw, setIntegral_congr_fun coeGrid_measurable eq2, integral_sub]
   · congr 1 -- Check that corresponding integrals are equal
