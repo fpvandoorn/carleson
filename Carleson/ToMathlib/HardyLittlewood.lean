@@ -1,7 +1,6 @@
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
-public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
 public import Carleson.ToMathlib.RealInterpolation.Main
 public import Mathlib.MeasureTheory.Covering.Vitali
 
