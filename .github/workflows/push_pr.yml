@@ -22,8 +22,11 @@ jobs:
 
       - name: Build and lint project
         uses: leanprover/lean-action@v1
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
         with:
           build: true
+          build-args: "Carleson Challenge Solution"
           lint: true
           mk_all-check: true
           mk_all-args: "--lib Carleson"
