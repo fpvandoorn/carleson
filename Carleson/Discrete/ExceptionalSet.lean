@@ -102,7 +102,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     suffices (𝓘 p : Set X) ⊆ ball (𝔠 p) (r p) from this xp
     apply Grid_subset_ball.trans ∘ ball_subset_ball
     convert! (hr hp).1.le
-    simp only [r, dif_pos hp]
+    simp only [r, dite_eq_left hp]
   apply (OuterMeasureClass.measure_mono volume this).trans
   -- Apply `measure_biUnion_le_lintegral` to `u := F.indicator 1` to bound the volume of ⋃ 𝓑.
   let u := F.indicator (1 : X → ℝ≥0∞)
