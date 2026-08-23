@@ -289,12 +289,12 @@ noncomputable def LorentzAddConst (p r : ℝ≥0∞) : ℝ≥0∞ :=
   if p = 0 ∨ r ∈ Set.Icc 1 p then 1 else 2 ^ p.toReal⁻¹ * LpAddConst r
 
 theorem LorentzAddConst_of_one_le (hr : q ∈ Set.Icc 1 p) : LorentzAddConst p q = 1 := by
-  rw [LorentzAddConst, if_pos]
+  rw [LorentzAddConst, ite_eq_left]
   right
   assumption
 
 theorem LorentzAddConst_zero : LorentzAddConst 0 q = 1 := by
-  rw [LorentzAddConst, if_pos]
+  rw [LorentzAddConst, ite_eq_left]
   left
   rfl
 
