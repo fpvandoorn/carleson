@@ -214,7 +214,7 @@ lemma rearrangement_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMo
       simp only [Set.mem_ofPred_eq]
       intro b hb
       contrapose! hb
-      rwa [ite_cond_eq_true]
+      rwa [ite_eq_left_of_eq_true]
       simpa
   · rw [← ENNReal.bot_eq_zero, eq_bot_iff]
     apply sInf_le
