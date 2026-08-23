@@ -187,7 +187,7 @@ lemma depth_lt_top_iff_ne_univ : depth O x < ⊤ ↔ O ≠ univ := by
   constructor <;> intro h
   · contrapose! h; simp_rw [top_le_iff, depth, iSup₂_eq_top, h, subset_univ, exists_const]
     intro r rlt; lift r to ℝ≥0 using rlt.ne
-    use r + 1; exact coe_lt_coe_of_lt (lt_add_one r)
+    use r + 1; exact coe_lt_coe.mpr (lt_add_one r)
   · obtain ⟨p, np⟩ := (ne_univ_iff_exists_notMem _).mp h
     calc
       _ ≤ edist x p := by
