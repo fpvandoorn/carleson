@@ -174,10 +174,10 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (meas_f : AEStronglyMeas
         rw [Fdef]
         simp only [Set.mem_Ioo]
         by_cases! h : dist x y < 1
-        · rw [Set.indicator_apply, ite_cond_eq_true, Set.indicator_apply, ite_cond_eq_true]
+        · rw [Set.indicator_apply, ite_eq_left_of_eq_true, Set.indicator_apply, ite_eq_left_of_eq_true]
           · simpa using ⟨ht, h⟩
           · simpa using ⟨hs, h⟩
-        · rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
+        · rw [Set.indicator_apply, ite_eq_right_of_eq_false, Set.indicator_apply, ite_eq_right_of_eq_false]
           all_goals simpa using fun _ ↦ h
       have contOn2 : ∀ (y : ℝ), ContinuousOn (fun s ↦ F x s y) (Set.Ioi (min (dist x y) 1)) := by
         intro y
@@ -187,7 +187,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (meas_f : AEStronglyMeas
         intro s hs t ht
         rw [Fdef]
         simp only [Set.mem_Ioo]
-        rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
+        rw [Set.indicator_apply, ite_eq_right_of_eq_false, Set.indicator_apply, ite_eq_right_of_eq_false]
         · rw [Set.mem_Ioi, min_lt_iff] at ht
           simp only [Set.mem_ofPred_eq, eq_iff_iff, iff_false, not_and, not_lt]
           intro h
