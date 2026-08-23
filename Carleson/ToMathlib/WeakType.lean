@@ -233,7 +233,7 @@ theorem wnorm_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid �
       intro b hb
       use ‖a‖ₑ.toNNReal / 2
       simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, coe_div, coe_ofNat]
-      rwa [ENNReal.coe_toNNReal ha', indicator, ite_cond_eq_true, ENNReal.top_rpow_of_pos hp, ENNReal.mul_top]
+      rwa [ENNReal.coe_toNNReal ha', indicator, ite_eq_left_of_eq_true, ENNReal.top_rpow_of_pos hp, ENNReal.mul_top]
       · simpa
       · simp only [mem_Iio, eq_iff_iff, iff_true]
         apply ENNReal.div_lt_of_lt_mul'
@@ -251,7 +251,7 @@ theorem wnorm_indicator_const {ε} [TopologicalSpace ε] [ESeminormedAddMonoid �
         contradiction
       · rw [hc.1]
         exact le_top
-    rw [indicator_apply, ite_cond_eq_true, ENNReal.coe_toNNReal hc', ENNReal.div_mul_cancel]
+    rw [indicator_apply, ite_eq_left_of_eq_true, ENNReal.coe_toNNReal hc', ENNReal.div_mul_cancel]
     · simp only [ne_eq, ENNReal.rpow_eq_zero_iff, inv_pos, inv_neg'', not_or, not_and, not_lt,
       toReal_nonneg, implies_true, and_true]
       intro h
