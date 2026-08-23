@@ -185,7 +185,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
           simp only [Finset.mem_filter, Finset.mem_univ, Subtype.coe_prop, and_self]
         rw [carlesonSum, Finset.sum_eq_single_of_mem p.1 hp hne_p]
     _ ≤ ∫⁻ y, ‖exp (I * (Q x y - Q x x)) * Ks (𝔰 p.1) x y * f y‖ₑ := by
-        rw [carlesonOn, indicator, if_pos hxE]
+        rw [carlesonOn, indicator, ite_eq_left hxE]
         exact le_trans (enorm_integral_le_lintegral_enorm _) (lintegral_mono fun z ↦ le_rfl)
     _ ≤ ∫⁻ y, ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
       simp only [enorm_mul]
@@ -211,7 +211,7 @@ lemma maximal_bound_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤
     _ ≤ C6_1_2 a * (ball (𝔠 p.1) (8 * D ^ 𝔰 p.1)).indicator (x := x)
         (fun _ ↦ ⨍⁻ y in ball (𝔠 p.1) (8 * D ^ 𝔰 p.1), ‖f y‖ₑ ∂volume) := by
       simp only [indicator, mem_ball, mul_ite, mul_zero]
-      rw [if_pos]
+      rw [ite_eq_left]
       · gcongr
         rw [C6_1_2, add_comm (5 * a), add_assoc]; norm_cast
         apply pow_le_pow_right₀ one_le_two
