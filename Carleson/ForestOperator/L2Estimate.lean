@@ -637,7 +637,7 @@ lemma boundary_geometric_series :
       set J' := (Grid.exists_supercube k h).choose
       have pJ' : s J' = k ∧ J ≤ J' := (Grid.exists_supercube k h).choose_spec
       by_cases hs : k = s I; swap;
-      · rw [if_neg (fun h ↦ hs h.2)]; exact zero_le
+      · rw [ite_eq_right (fun h ↦ hs h.2)]; exact zero_le
       suffices (J : Set X) ⊆ ball (c I) (16 * D ^ s I) → I ∈ kissing J' by
         split_ifs; exacts [by simp_all, by tauto, by positivity, by rfl]
       intro mJ; simp_rw [kissing, Finset.mem_filter_univ]
