@@ -30,51 +30,44 @@ class ENormedAddCommSubMonoid (E : Type*) [TopologicalSpace E] extends ENormedAd
   add_right_cancel_of_enorm_lt_top : ∀ ⦃x : E⦄, ‖x‖ₑ < ⊤ → ∀ {y z : E}, y + x = z + x → y = z
   esub_self : ∀ x : E, x - x = 0
 
-/-- An enormed space is an additive monoid endowed with a continuous enorm.
-Note: not sure if this is the "right" class to add to Mathlib.
-In fact, it is now just the conjunction of the classes `ENormedAddCommMonoid E`, `Module ℝ≥0 E` and
-`ENormSMulClass ℝ≥0 E`: should this be deprecated and deleted instead? -/
-class ENormedSpace (E : Type*) [TopologicalSpace E] extends ENormedAddCommMonoid E, Module ℝ≥0 E where
-  enorm_smul_eq_smul : ∀ (c : ℝ≥0) (x : E), ‖c • x‖ₑ = c • ‖x‖ₑ
-
-instance ENormedSpace.enormSMulClass [TopologicalSpace E] [ENormedSpace E] : ENormSMulClass ℝ≥0 E where
-  enorm_smul := ENormedSpace.enorm_smul_eq_smul
+/-
+The generalization of `NormedSpace` to `ENorm` is
+`[ENormedAddCommMonoid E] [Module ℝ≥0 E] [ENormSMulClass ℝ≥0 E]`.
+This could be its own class `ENormedSpace`, but this seems not worth it.
+-/
 
 export ENormedAddCommSubMonoid
   (sub_add_cancel_of_enorm_le add_right_cancel_of_enorm_lt_top esub_self)
-export ENormedSpace (enorm_smul_eq_smul)
 
--- mathlib has this (in the _root_ namespace), in a less general setting
-attribute [simp] ENormedSpace.enorm_smul_eq_smul
+attribute [simp] enorm_smul
 
-instance : ENormedSpace ℝ≥0∞ where
-  enorm := id
+#synth ENormedAddCommMonoid ℝ≥0∞
+#synth Module ℝ≥0 ℝ≥0∞
+
+instance : ENormSMulClass ℝ≥0∞ ℝ≥0∞ where
+  enorm_smul := by simp
+
+instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
+  continuous_const_smul t := ENNReal.continuous_const_mul (by simp)
+
+instance : ContinuousENorm ℝ≥0 where
+  continuous_enorm := by change Continuous ofNNReal; fun_prop
+
+instance : ENormedAddCommMonoid ℝ≥0 where
   enorm_zero := by simp
-  enorm_eq_zero := by simp
-  -- enorm_neg := by simp
-  enorm_add_le := by simp
-  add_comm := by simp [add_comm]
-  continuous_enorm := continuous_id
-  enorm_smul_eq_smul := by simp
-  add_smul := fun _ _ _ ↦ Module.add_smul ..
-  zero_smul := by simp
-
-instance : ENormedSpace ℝ≥0 where
-  enorm := ofNNReal
-  enorm_zero := by simp
-  add_smul r s x := by
-    simp only [smul_eq_mul]
-    ring
-  zero_smul := by simp
   enorm_eq_zero := by simp
   enorm_add_le := by simp
   add_comm := by simp [add_comm]
   continuous_enorm := by fun_prop
-  enorm_smul_eq_smul c x := by simp [ENNReal.smul_def]
 
-instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormedSpace E where
-  enorm_smul_eq_smul := by
-    simp_rw [enorm_eq_nnnorm, ENNReal.smul_def, NNReal.smul_def, nnnorm_smul]; simp
+#synth Module ℝ≥0 ℝ≥0
+
+instance : ENormSMulClass ℝ≥0 ℝ≥0∞ where
+  enorm_smul := by simp [ENNReal.smul_def]
+
+instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormSMulClass ℝ≥0 E where
+  enorm_smul := by
+    simp_rw [enorm_eq_nnnorm, NNReal.smul_def, nnnorm_smul]; simp
 
 namespace MeasureTheory
 
@@ -97,12 +90,6 @@ section ENormedSpace
 
 variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε] [SMul ℝ≥0 ε] [ENormSMulClass ℝ≥0 ε]
   {ε' : Type*} [TopologicalSpace ε'] [ESeminormedAddCommMonoid ε'] [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
-
-instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
-  continuous_const_smul t := ENNReal.continuous_const_mul (by simp)
-
-instance : ENormSMulClass ℝ≥0 ℝ≥0∞ where
-  enorm_smul := by simp [ENNReal.smul_def]
 
 open MeasureTheory
 
@@ -159,9 +146,8 @@ theorem eLpNorm_top_smul
       _ ≤ eLpNorm (∞ • f) p μ := by
         apply eLpNorm_mono_enorm
         intro x
-        simp only [toNNReal_div, toNNReal_coe, Pi.smul_apply, enorm_smul_eq_smul, enorm_eq_self,
-          smul_eq_mul]
-        rw [ENNReal.smul_def, smul_eq_mul]
+        simp only [toNNReal_div, toNNReal_coe, Pi.smul_apply, enorm_smul, enorm_eq_self,
+          smul_eq_mul, enorm_NNReal]
         gcongr
         exact le_top
 
