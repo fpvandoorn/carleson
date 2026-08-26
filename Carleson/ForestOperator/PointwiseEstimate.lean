@@ -229,7 +229,7 @@ protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ
   let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
     ‖∑ i ∈ (Icc (s I) s₂), ∫ (y : X), Ks i x' y * f y‖ₑ
   have : (fun x ↦ ⨆ (_ : x ∈ I), c) = fun x ↦ ite (x ∈ I) c 0 := by
-    ext x; by_cases hx : x ∈ I <;> simp only [hx, iSup_pos, iSup_neg, if_pos, if_neg, bot_eq_zero, not_false_eq_true]
+    ext x; by_cases hx : x ∈ I <;> simp only [hx, iSup_pos, iSup_neg, ite_eq_left, ite_eq_right, bot_eq_zero, not_false_eq_true]
   convert! (measurable_const.ite coeGrid_measurable measurable_const) using 1
 
 -- Set used in definition of `boundaryOperator`
@@ -818,7 +818,7 @@ private lemma L7_1_6_integral_eq {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
       ∫ (y : X) in ↑J, ⨍ (z : X) in ↑J, Ks i x y • f y - Ks i x z • f y := by
     apply setIntegral_congr_fun coeGrid_measurable
     intro y _
-    exact (average_smul_const (fun z ↦ Ks i x y - Ks i x z) (f y)).symm.trans
+    exact (average_smul_const _ (fun z ↦ Ks i x y - Ks i x z) (f y)).symm.trans
       (by simp_rw [sub_smul])
   rw [rhs_rw, setIntegral_congr_fun coeGrid_measurable eq2, integral_sub]
   · congr 1 -- Check that corresponding integrals are equal
@@ -1144,7 +1144,7 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
     · refine ae_of_all _ fun x ↦ (norm_sum_le _ _).trans <| Finset.sum_le_sum (fun J hJ ↦ ?_)
       by_cases h : x ∈ (J : Set X)
       · rw [Set.indicator_of_mem h]
-      · rw [Set.indicator_apply, if_neg h, norm_zero]
+      · rw [Set.indicator_apply, ite_eq_right h, norm_zero]
         exact norm_nonneg _
   have : ∀ (y : X), ‖cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ ≤ 2 := by
     refine fun y ↦ le_of_le_of_eq (norm_sub_le _ _) ?_

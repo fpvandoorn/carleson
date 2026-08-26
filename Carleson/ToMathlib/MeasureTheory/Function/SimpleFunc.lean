@@ -153,11 +153,11 @@ private lemma helper [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β] [C
           exact y'_ne_zero
   rw [this, Finset.card_insert_of_notMem, Finset.add_def, Finset.card_image_of_injOn]
   · simp
-  · simp only [Finset.product_singleton, Finset.coe_map, Function.Embedding.coeFn_mk,
-    Finset.coe_sdiff, coe_range, coe_sub, Finset.coe_singleton]
+  · simp only [Finset.product_singleton, Finset.coe_map, Finset.coe_sdiff, coe_range, coe_sub,
+    Finset.coe_singleton]
     intro p hp q hq
     simp only [mem_image, Set.mem_sdiff, Set.mem_range, Pi.sub_apply, mem_singleton_iff, ↓existsAndEq,
-      true_and] at *
+      Function.Embedding.sectL_apply] at *
     rcases hp with ⟨y, hy, hp⟩
     rcases hq with ⟨z, hz, hq⟩
     have hy : y ∈ support ⇑f := by
@@ -192,8 +192,8 @@ private lemma helper [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β] [C
       simpa
   · rw [Finset.add_def]
     simp only [Finset.product_singleton, Finset.mem_image, Finset.mem_map, Finset.mem_sdiff,
-      mem_range, coe_sub, Set.mem_range, Pi.sub_apply, Finset.mem_singleton,
-      Function.Embedding.coeFn_mk, ↓existsAndEq, true_and, exists_exists_and_eq_and, not_exists,
+      mem_range, coe_sub, Set.mem_range, Pi.sub_apply, Finset.mem_singleton, ↓existsAndEq,
+      Function.Embedding.sectL_apply, true_and, exists_exists_and_eq_and, not_exists,
       not_and]
     intro x
     rw [SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator]

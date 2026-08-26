@@ -1168,7 +1168,7 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j
           rw [lintegral_rpow_of_gt_abs htcinv.le hγ, ENNReal.ofReal_div_of_pos
               (by rw [abs_pos]; linarith), ← ENNReal.ofReal_rpow_of_pos htcinv,
               ofReal_toReal_eq_iff.mpr htop]
-    · simp only [eq_false_of_ne_true xor_split, Bool.false_eq_true, ↓reduceIte]
+    · simp only [Bool.eq_false_of_ne_true xor_split, Bool.false_eq_true, ↓reduceIte]
       split_ifs with htop
       · rw [htop, top_rpow_of_neg (by linarith)]; simp
       · by_cases hzero : β = 0

@@ -2005,7 +2005,6 @@ lemma le_C7_4_5 (a4 : 4 ≤ a) :
       * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) ≤ C7_4_5 a n := by
   rw [C2_0_5, C7_5_4, C7_4_5]
   conv_lhs => enter [1, 1, 1, 2]; norm_cast
-  conv_lhs => enter [1, 1, 2, 2]; norm_cast
   simp_rw [NNReal.rpow_natCast, ← pow_add]; gcongr
   · exact one_le_two
   · linarith [sixteen_times_le_cube a4]

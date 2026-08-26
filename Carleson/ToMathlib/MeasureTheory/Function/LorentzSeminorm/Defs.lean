@@ -90,7 +90,7 @@ lemma eLorentzNorm_exponent_top_top {f : α → ε} : eLorentzNorm f ∞ ∞ μ 
 lemma eLorentzNorm_exponent_top' {f : α → ε} (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) (hf : eLpNormEssSup f μ ≠ 0) :
     eLorentzNorm f ∞ q μ = ∞ := by
   simp only [eLorentzNorm, ENNReal.top_ne_zero, ↓reduceIte]
-  rw [ite_cond_eq_false, ite_cond_eq_false, ENNReal.top_mul hf] <;> simpa
+  rw [ite_eq_right_of_eq_false, ite_eq_right_of_eq_false, ENNReal.top_mul hf] <;> simpa
 
 lemma eLorentzNorm_exponent_top {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
   (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) (hf : ¬ f =ᶠ[ae μ] 0) :

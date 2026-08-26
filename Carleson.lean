@@ -103,7 +103,6 @@ public import Carleson.ToMathlib.MinLayer
 public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.Order.CompleteLattice.Basic
 public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
-public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Indexed
 public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 public import Carleson.ToMathlib.RealInterpolation.LorentzInterpolation
 public import Carleson.ToMathlib.RealInterpolation.Main

@@ -252,12 +252,12 @@ lemma stack_density (𝔄 : Set (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
       -- We only care about the restriction of f to 𝔄'
       set f : 𝔓 X → Θ X := fun q ↦ if hq : q ∈ 𝔄' then (hex q hq).choose else ϑ with hf_def
       refine (Finset.card_le_card_of_injOn f (fun q hq ↦ ?_) ?_).trans hΘ'_card
-      · simp_rw [hf_def, dif_pos (mem_toFinset.mp hq)]
+      · simp_rw [hf_def, dite_eq_left (mem_toFinset.mp hq)]
         exact (hex q (mem_toFinset.mp hq)).choose_spec.1
       · intro q hq q' hq' hf
         simp only [coe_toFinset] at hq hq'
-        have hfq : f q = (hex q hq).choose := by simp only [hf_def, dif_pos hq]
-        have hfq' : f q' = (hex q' hq').choose := by simp only [hf_def, dif_pos hq']
+        have hfq : f q = (hex q hq).choose := by simp only [hf_def, dite_eq_left hq]
+        have hfq' : f q' = (hex q' hq').choose := by simp only [hf_def, dite_eq_left hq']
         specialize hcap q q' hq hq'
         contrapose! hcap
         refine ⟨hcap, ⟨(hex q hq).choose, ⟨(hex q hq).choose_spec.1, ?_⟩⟩⟩
@@ -657,12 +657,12 @@ lemma I_pΘ_eq_L' : 𝓘 (pΘ hL) = L' hL := by
   · exact (exists_pΘ_eq_L' hL).choose_spec.1.1
 
 lemma theta_mem_Omega_pΘ (h : ¬ 𝓘 (p'' hL) = L' hL) : ϑ.val ∈ Ω (pΘ hL)  := by
-  simp only [pΘ, if_neg h]
+  simp only [pΘ, ite_eq_right h]
   exact (exists_pΘ_eq_L' hL).choose_spec.1.2
 
 lemma pΘ_unique (h : ¬ 𝓘 (p'' hL) = L' hL) :
     ∀ (y : 𝔓 X), (fun p ↦ 𝓘 p = L' hL ∧ ↑ϑ ∈ Ω p) y → y = (pΘ hL) := by
-  simp only [pΘ, if_neg h]
+  simp only [pΘ, ite_eq_right h]
   exact (exists_pΘ_eq_L' hL).choose_spec.2
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -677,7 +677,7 @@ private lemma eq_6_3_35 : ϑ.val ∈ ball_(p'' hL) (𝒬 (p'' hL)) (2 ^ (N + 1))
 -- Eq. 6.3.37
 private lemma eq_6_3_37 : ϑ.val ∈ ball_(pΘ hL) (𝒬 (pΘ hL)) (2 ^ (N + 1)) := by
   by_cases h : 𝓘 (p'' hL) = L' hL
-  · rw [pΘ, if_pos h]
+  · rw [pΘ, ite_eq_left h]
     exact eq_6_3_35 hL
   · have h1 : (1 : ℝ) ≤ (2 ^ (N + 1)) := by exact_mod_cast Nat.one_le_two_pow
     apply ball_subset_ball (α := WithFunctionDistance _ _) h1
@@ -687,7 +687,7 @@ set_option backward.isDefEq.respectTransparency.types false in
 -- Ineq. 6.3.36
 private lemma ineq_6_3_36 : smul (2^(N + 3)) (p'' hL) ≤ smul (2^(N + 3)) (pΘ hL) := by
   by_cases heq : 𝓘 (p'' hL) = L' hL
-  · have heq' : p'' hL = pΘ hL := by simp only [pΘ, if_pos heq]
+  · have heq' : p'' hL = pΘ hL := by simp only [pΘ, ite_eq_left heq]
     rw [heq']
   · have hpθ : ϑ.val ∈ ball_(pΘ hL) (𝒬 (pΘ hL)) (2 ^ (N + 1)) := eq_6_3_37 hL
     have hp'' : ϑ.val ∈ ball_(p'' hL) (𝒬 (p'' hL)) (2 ^ (N + 1)) := eq_6_3_35 hL
@@ -737,7 +737,7 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) :
           Subtype.exists, exists_and_left, exists_prop, and_imp, Subtype.forall, mem_ofPred_eq,
           forall_exists_index] at hL2
         by_cases hp' : 𝓘 x = L' hL
-        · rw [if_pos hp']
+        · rw [ite_eq_left hp']
           exact zero_le
         · have hs : 𝔰 (pΘ hL) < 𝔰 x := by
             have hpL' : (L' hL : Set X)  ∩ (𝓘 x : Set X) ≠ ∅ := by
@@ -773,7 +773,7 @@ private lemma ineq_6_3_39 (h𝔄 : IsAntichain (· ≤ ·) 𝔄) :
               simp only [disjoint_iff] at this
               simp [Or.resolve_right this hpL']
             exact hp' heq.symm
-          rw [if_neg hp', if_pos hs]
+          rw [ite_eq_right hp', ite_eq_left hs]
           gcongr
           exact I_pΘ_eq_L' hL ▸ (L_le_L' hL).1
     _ ≤ ∑ p ∈ (𝔄_aux 𝔄 ϑ N).toFinset with 𝔰 (pΘ hL) < 𝔰 p, volume (E p ∩ G ∩ ↑(𝓘 (pΘ hL))) := by

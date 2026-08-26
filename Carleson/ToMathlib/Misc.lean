@@ -395,24 +395,24 @@ protected noncomputable def out (x : α) : α :=
   if hx : x ∈ s then (Quotient.out (s := hr.setoid) ⟦⟨x, hx⟩⟧ : s) else x
 
 lemma out_mem (hx : x ∈ s) : hr.out x ∈ s := by
-  rw [EquivalenceOn.out, dif_pos hx]
+  rw [EquivalenceOn.out, dite_eq_left hx]
   apply Subtype.prop
 
 @[simp]
 lemma out_mem_iff : hr.out x ∈ s ↔ x ∈ s := by
   refine ⟨fun h ↦ ?_, out_mem⟩
   by_contra hx
-  rw [EquivalenceOn.out, dif_neg hx] at h
+  rw [EquivalenceOn.out, dite_eq_right hx] at h
   exact hx h
 
 lemma out_rel (hx : x ∈ s) : r (hr.out x) x := by
-  rw [EquivalenceOn.out, dif_pos hx]
+  rw [EquivalenceOn.out, dite_eq_left hx]
   exact @Quotient.mk_out _ (hr.setoid) ⟨x, hx⟩
 
 lemma rel_out (hx : x ∈ s) : r x (hr.out x) := hr.symm (out_mem hx) hx (out_rel hx)
 
 lemma out_inj (hx : x ∈ s) (hy : y ∈ s) (h : r x y) : hr.out x = hr.out y := by
-  simp_rw [EquivalenceOn.out, dif_pos hx, dif_pos hy]
+  simp_rw [EquivalenceOn.out, dite_eq_left hx, dite_eq_left hy]
   congr 1
   simp_rw [Quotient.out_inj, Quotient.eq]
   exact h
@@ -688,13 +688,6 @@ theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [Measura
     · simp only [Pi.zero_apply, hi, reduceIte, μ₀, ← res_res i hi, ae_restrict_iff meas, ← hg]
       exact g_ae_nonneg.mono (fun _ h _ ↦ h)
     · simp [hi, μ₀]
-
--- Analogous to `MeasureTheory.integral_smul_const` in Mathlib
-theorem average_smul_const {X : Type*} {E : Type*} [MeasurableSpace X]
-    {μ : MeasureTheory.Measure X} [NormedAddCommGroup E] [NormedSpace ℝ E] {𝕜 : Type*}
-    [RCLike 𝕜] [NormedSpace 𝕜 E] [CompleteSpace E] (f : X → 𝕜) (c : E) :
-    ⨍ (x : X), f x • c ∂μ = (⨍ (x : X), f x ∂μ) • c :=
-  integral_smul_const f c
 
 end MeasureTheory
 

@@ -353,11 +353,11 @@ lemma I3_subset_I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
 mutual
   lemma I1_measurableSet {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : MeasurableSet (I1 hk y) := by
     by_cases hk_s : k = -S
-    · rw [I1, dif_pos hk_s]
+    · rw [I1, dite_eq_left hk_s]
       exact measurableSet_ball
     · let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
       have h1: 0 ≤ S + (k - 1) := by linarith
-      rw [I1, dif_neg hk_s]
+      rw [I1, dite_eq_right hk_s]
       let := (Yk_countable X (k - 1)).to_subtype
       refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball y (D ^ k))) ?_
       simp only [mem_preimage]
@@ -366,10 +366,10 @@ mutual
 
   lemma I2_measurableSet {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : MeasurableSet (I2 hk y) := by
     by_cases hk_s : k = -S
-    · rw [I2, dif_pos hk_s]
+    · rw [I2, dite_eq_left hk_s]
       exact measurableSet_ball
     · let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
-      rw [I2, dif_neg hk_s]
+      rw [I2, dite_eq_right hk_s]
       let := (Yk_countable X (k - 1)).to_subtype
       refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball (↑y) (2 * D ^ k))) ?_
       · simp only [mem_preimage]
@@ -399,7 +399,7 @@ mutual
       x ∈ I1 hk y1 ∩ I1 hk y2 → y1 = y2 := by
     rw [I1,I1]
     by_cases hk_s : k = -S
-    · rw [dif_pos hk_s,dif_pos hk_s]
+    · rw [dite_eq_left hk_s,dite_eq_left hk_s]
       subst hk_s
       intro hx
       ext
@@ -410,7 +410,7 @@ mutual
       have : ((2 * (S + (k - 1))).toNat : ℤ) + 1 < 2 * (S + k) := by
         rw [Int.toNat_of_nonneg (by linarith)]
         linarith
-      rw [dif_neg hk_s, dif_neg hk_s]
+      rw [dite_eq_right hk_s, dite_eq_right hk_s]
       intro hx
       push _ ∈ _ at hx
       obtain ⟨⟨z1, hz1, hz1'⟩, ⟨z2, hz2, hz2'⟩⟩ := hx
@@ -451,11 +451,11 @@ lemma I3_prop_3_2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
   have : x ∈ I2 hk y := I3_subset_I2 hk y hx
   simp only [I2] at this
   by_cases hk_s : k = -S
-  · rw [dif_pos hk_s] at this
+  · rw [dite_eq_left hk_s] at this
     subst hk_s
     revert this
     apply ball_subset_ball (by gcongr; norm_num)
-  · rw [dif_neg hk_s] at this
+  · rw [dite_eq_right hk_s] at this
     push _ ∈ _ at this
     obtain ⟨y',hy',hyi3⟩ := this
     have : -S ≤ k - 1 := I_induction_proof hk hk_s
@@ -481,7 +481,7 @@ mutual
       ball o (4 * D ^ S - 2 * D ^ k) ⊆ ⋃ (y : Yk X k), I2 hk y := by
     simp only [I2, mem_preimage, iUnion_coe_set]
     by_cases hk_s : k = -S
-    · simp_rw [dif_pos hk_s]
+    · simp_rw [dite_eq_left hk_s]
       subst hk_s
       calc
         ball o (4 * D ^ S - 2 * (D ^ (-S : ℤ)))
@@ -490,7 +490,7 @@ mutual
             rw [two_mul,tsub_le_iff_right,sub_add_add_cancel,le_add_iff_nonneg_right]
             positivity
         _ ⊆ ⋃ (i ∈ Yk X (-S)), ball i (2 * D ^ (-S : ℤ)) := cover_big_ball (-S : ℤ)
-    · simp_rw [dif_neg hk_s]
+    · simp_rw [dite_eq_right hk_s]
       intro x hx
       have : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
       have : ((2 * (S + (k - 1))).toNat : ℤ) + 1 < 2 * (S + k) := by
@@ -578,12 +578,12 @@ lemma I3_prop_3_1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
   rw [I3, I1]
   apply subset_trans _ subset_union_left
   by_cases hk_s : k = -S
-  · rw [dif_pos hk_s]
+  · rw [dite_eq_left hk_s]
     subst hk_s
     apply ball_subset_ball
     nth_rw 2 [← one_mul (D ^ (-S : ℤ) : ℝ)]
     gcongr; norm_num
-  · rw [dif_neg hk_s]
+  · rw [dite_eq_right hk_s]
     simp only [mem_preimage]
     have : (y : X) ∈ ball o (4 * D ^ S - D ^ k : ℝ) := Yk_subset k y.property
     have : ball (y : X) (2⁻¹ * D ^ k) ⊆ ⋃ (y' : Yk X (k - 1)), I3 (I_induction_proof hk hk_s) y' := by
@@ -661,7 +661,7 @@ lemma cover_by_cubes {l : ℤ} (hl : -S ≤ l) :
   intro hk1 y x hx
   have h : -S < k + 1 := by linarith
   have : x ∈ I2 hk1 y := I3_subset_I2 hk1 y hx
-  rw [I2, dif_neg h.ne'] at this
+  rw [I2, dite_eq_right h.ne'] at this
   push _ ∈ _ at this
   obtain ⟨z, _, hz'⟩ := this
   specialize hind (I_induction_proof hk1 h.ne') z hz'
@@ -700,7 +700,7 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         rw [not_iff_false_intro hx_mem_Xk,false_and,and_false,or_false] at hxk
         exact hxk
       rw [I1] at hx_i1
-      rw [dif_neg hk_not_neg_s] at hx_i1
+      rw [dite_eq_right hk_not_neg_s] at hx_i1
       push _ ∈ _ at hx_i1
       obtain ⟨u, hu, hu'⟩ := hx_i1
       have hxy'' : x ∈ I3 _ y'' := this hxl
@@ -709,7 +709,7 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         use hxy''
       subst this
       apply Subset.trans _ (I1_subset_I3 _ _)
-      rw [I1,dif_neg hk_not_neg_s]
+      rw [I1,dite_eq_right hk_not_neg_s]
       intro x' hx'
       push _ ∈ _
       use y''
@@ -737,7 +737,7 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         intro h
         obtain ⟨v, hv, hv'⟩ := hx_notMem_i3_u h
         exact hx_mem_i2_and.right v (hv.trans hu) hv'
-      rw [I2, dif_neg hk_not_neg_s] at hx_mem_i2
+      rw [I2, dite_eq_right hk_not_neg_s] at hx_mem_i2
       push _ ∈ _ at hx_mem_i2
       obtain ⟨u, hu, hxu⟩ := hx_mem_i2
       obtain rfl : y'' = u := by
@@ -752,7 +752,7 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
         simp only [mem_iUnion] at hx_xk' ⊢
         obtain ⟨u, hu⟩ := hx_xk'
         use u
-        rw [I1,dif_neg hk_not_neg_s] at hu ⊢
+        rw [I1,dite_eq_right hk_not_neg_s] at hu ⊢
         push _ ∈ _ at hu ⊢
         obtain ⟨u', hu', hu''⟩ := hu
         use u', hu'
@@ -770,7 +770,7 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
       simp only [exists_prop, not_or, not_exists, not_and, iff_true_intro hx_not_xk, true_and]
       right
       constructor
-      · rw [I2, dif_neg hk_not_neg_s]
+      · rw [I2, dite_eq_right hk_not_neg_s]
         push _ ∈ _
         use y''
       intro u hu
@@ -787,7 +787,7 @@ lemma dyadic_property {l : ℤ} (hl : -S ≤ l) {k : ℤ} (hl_k : l ≤ k) :
       intro hx_i2'
       by_contra
       apply hx_notMem_i2_u u hu
-      rw [I2, dif_neg hk_not_neg_s] at hx_i2' ⊢
+      rw [I2, dite_eq_right hk_not_neg_s] at hx_i2' ⊢
       push _ ∈ _ at hx_i2' ⊢
       obtain ⟨z,hz,hz'⟩ := hx_i2'
       use z, hz
@@ -983,9 +983,9 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
       · intro i
         rw [Set.iUnion_eq_if]
         by_cases h : (clProp(hk_mK, i | hk, y))
-        · rw [if_pos h]
+        · rw [ite_eq_left h]
           exact I3_measurableSet hk_mK i
-        · simp [if_neg h]
+        · simp [ite_eq_right h]
     _ ≤ ∑ (k' : Ioc (k - K') k),
           volume (⋃ (z ∈ {z' : Yk X k' | clProp((le_s hk_mK k'),z'|hk,y) }),
             I3 (le_s hk_mK k') z) := by
@@ -1035,9 +1035,9 @@ lemma small_boundary' (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk 
       intro z
       simp_rw [iUnion_eq_if,apply_ite volume,measure_empty, mul_ite, mul_zero]
       by_cases h : clProp(le_s hk_mK k',z|hk,y)
-      · simp_rw [if_pos h]
+      · simp_rw [ite_eq_left h]
         exact volume_tile_le_volume_ball (↑k') (le_s hk_mK k') z
-      · repeat rw [if_neg h]
+      · repeat rw [ite_eq_right h]
     _ = C4_1_7 X * ∑ (k' : Ioc (k - K') k), ∑' (z : Yk X k'),
           volume (⋃ (_ : clProp((le_s hk_mK k'),z|hk,y)), ball (z : X) (4⁻¹ * D ^ (k' : ℤ))) := by
       rw [Finset.mul_sum]
@@ -1155,8 +1155,8 @@ lemma small_boundary (k : ℤ) (hk : -S ≤ k) (hk_mK : -S ≤ k - K') (y : Yk X
       classical
       rw [finsum_eq_if, iUnion_eq_if]
       by_cases h : clProp(hk_mK, z | hk, y)
-      · simp_rw [if_pos h]
-      · simp_rw [if_neg h, measure_empty]
+      · simp_rw [ite_eq_left h]
+      · simp_rw [ite_eq_right h, measure_empty]
     _ ≤ 2⁻¹ * volume (I3 hk y) := small_boundary' k hk hk_mK y
 
 lemma le_s_1' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n + 1 : ℕ) * K') : (-S ≤ (k - K') - n * K') := by
@@ -1268,7 +1268,7 @@ lemma smaller_boundary (n : ℕ) :
       classical
       by_cases h : clProp(le_s_2' n hk_mnK , y' | hk, y)
       · rw [finsum_eq_if, finsum_eq_if]
-        simp_rw [if_pos h]
+        simp_rw [ite_eq_left h]
         apply hinduction
       · simp_all
     _ = 2⁻¹ ^ n * ∑' (y' : Yk X (k - K')), ∑ᶠ (_ : clProp(le_s_2' n hk_mnK,y'|hk,y)),
@@ -1462,7 +1462,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
           intro h
           by_contra
           exact ht.left.ne h.symm
-        rw [if_neg this]
+        rw [ite_eq_right this]
         exact hsuf
       rw [ENNReal.coe_le_coe]
       calc

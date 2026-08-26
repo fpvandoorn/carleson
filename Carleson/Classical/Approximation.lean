@@ -117,7 +117,7 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
   rw [← s.summable_compl_iff]
   refine (summable_congr fun ⟨b, hb⟩ ↦ ?_).mpr (s.summable_compl_iff.mpr summablef)
   rw [mem_singleton] at hb
-  exact if_neg hb
+  exact ite_eq_right hb
 
 lemma continuous_bounded {f : ℝ → ℂ} (hf : ContinuousOn f (Set.Icc 0 (2 * π))) :
     ∃ C, ∀ x ∈ Set.Icc 0 (2 * π), ‖f x‖ ≤ C := by

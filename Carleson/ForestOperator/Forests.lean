@@ -42,11 +42,8 @@ lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
 
 lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
     C7_4_6 a n ≤ 2 ^ ((2 * 𝕔 + 9 + 𝕔 / 4) * a ^ 3) * 2 ^ (-(4 * n : ℝ)) := by
-  simp_rw [C7_4_6, C7_2_1, C7_6_2, C2_1_3, ← mul_assoc]
-  conv_lhs => enter [1, 1, 1, 2]; norm_cast
-  conv_lhs => enter [1, 1, 2, 2]; norm_cast
-  rw [← pow_add, ← pow_add]
-  simp_rw [NNReal.rpow_neg, ← div_eq_mul_inv]
+  simp_rw [C7_4_6, C7_2_1, C7_6_2, C2_1_3, ← mul_assoc, ← pow_add, NNReal.rpow_neg,
+    ← div_eq_mul_inv]
   gcongr 2 ^ ?_ / 2 ^ ?_
   · exact one_le_two
   · suffices 21 * a + 5 ≤ 2 * a ^ 3 by linarith
