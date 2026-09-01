@@ -41,7 +41,9 @@ export ENormedAddCommSubMonoid
 
 attribute [simp] enorm_smul
 
+#guard_msgs (drop info) in
 #synth ENormedAddCommMonoid ℝ≥0∞
+#guard_msgs (drop info) in
 #synth Module ℝ≥0 ℝ≥0∞
 
 instance : ENormSMulClass ℝ≥0∞ ℝ≥0∞ where
@@ -50,9 +52,13 @@ instance : ENormSMulClass ℝ≥0∞ ℝ≥0∞ where
 instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
   continuous_const_smul t := ENNReal.continuous_const_mul (by simp)
 
+-- TODO: the generated instance name has suffix `_carleson`, not 100% sure why
+@[nolint defsWithUnderscore]
 instance : ContinuousENorm ℝ≥0 where
   continuous_enorm := by change Continuous ofNNReal; fun_prop
 
+-- TODO: the generated instance name has suffix `_carleson`, not 100% sure why
+@[nolint defsWithUnderscore]
 instance : ENormedAddCommMonoid ℝ≥0 where
   enorm_zero := by simp
   enorm_eq_zero := by simp
@@ -60,6 +66,7 @@ instance : ENormedAddCommMonoid ℝ≥0 where
   add_comm := by simp [add_comm]
   continuous_enorm := by fun_prop
 
+#guard_msgs (drop info) in
 #synth Module ℝ≥0 ℝ≥0
 
 instance : ENormSMulClass ℝ≥0 ℝ≥0∞ where
