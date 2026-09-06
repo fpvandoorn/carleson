@@ -1388,7 +1388,9 @@ integrability and measurability considerations are usually mathematically trivia
 
 It is desirable for this simplicity to be reflected in the formalization.
 This motivated packaging the recurring side conditions into test function classes.
-The structures \lean{BoundedCompactSupport}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/ToMathlib/BoundedCompactSupport.lean#L81}{\extlink} and \lean{BoundedFiniteSupport}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L74}{\extlink} contain essentially bounded measurable functions with compact support and with support of finite measure, respectively. A function $f$ is \emph{essentially bounded} if there exists a real number $C$ such that $\|f(x)\|\le C$ almost everywhere.
+The structures \lean{BoundedCompactSupport}%\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/ToMathlib/BoundedCompactSupport.lean#L81}{\extlink}
+and \lean{BoundedFiniteSupport}%\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L74}{\extlink}
+contain bounded measurable functions with compact support and with support of finite measure, respectively.
 
 Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
 reproving the same measure-theoretic facts. For example, from a hypothesis
@@ -1398,39 +1400,32 @@ or that \lean{s.indicator f} again has bounded compact support when \lean{s} is 
 Lemmas such as \lean{hf.carlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Operators.lean#L164}{\extlink} show that the relevant
 operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
 
-Choosing the right definition of these structures is subtle.
-Since most functions we're working with are only well-behaved up to almost everywhere equality (see \ref{subsec:Lp}),
-there is a choice in deciding that the functions are only essentially bounded or bounded everywhere.
-Similarly, for \lean{BoundedCompactSupport} there is a choice in requiring that the function has compact support or \emph{essentially compact support}
-(that is, its support is the union of a relatively compact set and a null set,
-where a relatively compact set is by definition a subset of a compact set).
+Choosing the right definition of these structures can be subtle.
+With the existing measure theory developments in Mathlib in mind,
+one might be tempted to use the notion of {\em essential boundedness}
+(i.e. boundedness potentially up to a set of measure zero)
+rather than {\em everywhere boundedness} (and similarly, one might want to use {\em essential compactness}
+rather than genuine compactness).
 
-In Carleson, we originally started with functions that are bounded everywhere and have compact support,
-but we switched\footnote{see pull requests \href{https://github.com/fpvandoorn/carleson/pull/311}{311\extlink} and \href{https://github.com/fpvandoorn/carleson/pull/342}{342\extlink}} to functions that are only essentially bounded,
-but still have compact support.
-The reason for this is that \mathlib uses essentially bounded functions frequently in measure theory,
-phrased as \lean{MemLp f ∞ μ}.
-
-These notions are mathematically very similar,
-but the choice has impact on precisely which lemmas you can prove about it.
+In this context, it seems preferable to impose the stronger requirements. In analysis, test functions
+are typically chosen to have strong properties, making it easier to prove {\em a priori} estimates,
+which can then be extended via density arguments.
+Bounded functions of compact support are a natural function class that stays invariant with respect
+to many common operations in analysis such as convolutions, fiberwise integration and projection.
+Weakening assumptions to almost everywhere variants destroys this invariance for operations
+related to measure zero sets.
 For example, if $g$ is bounded with compact support, and $f$ is a closed embedding,
 is $g\circ f$ a bounded function with compact support?
 This is only true if $g$ has compact support and is bounded everywhere;
-otherwise $f$ may send a set of positive measure to a set of measure 0 where $g$ is ill-behaved.
-Another consideration into this design decision is how nicely one can work with these functions.
-Some arguments are a little easier if we know that a function is well-behaved everywhere,
-and not just almost everywhere.
-In the Carleson project, there were two tricky arguments using an operation \lean{adjointCarlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/2e755e6a67d8c0628104cc45f599df4888974a79/Carleson/Operators.lean#L215}{\extlink}.
-We prove that this operation is bounded with compact support,
-for these arguments it was convenient to use that this operation is bounded everywhere,
-and not just essentially bounded.
-While these arguments could be adapted using only that this operation is only essentially bounded,
-the argument consists of some tricky manipulations with suprema over the arguments,
-and these would have to be changed to essential suprema, which are a bit trickier to work with.
-In the end, we decided to prove that this function was bounded with compact support, and additionally bounded everywhere.
+otherwise $f$ may send a set of positive measure to a set of measure zero where $g$ is ill-behaved.
 
-These classes are also tagged with the \lean{@[fun_prop]} attribute.
-\lean{fun_prop}\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/tactics.html\#Mathlib.Meta.FunProp.funPropTacStx}} is a \mathlib tactic developed by Tomáš Skřivan
+Staying close to mathematical convention and using everywhere boundedness and ordinary compactness
+pays dividends in formalization, allowing us to provide a richer and more robust API leading
+to simpler proofs.
+Further streamlining is possible by using \lean{fun_prop}.
+
+\lean{fun_prop}\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/tactics.html\#Mathlib.Meta.FunProp.funPropTacStx}}
+is a \mathlib tactic developed by Tomáš Skřivan
 that automatically uses tagged lemmas to show that a function has a certain property
 (continuity, differentiability, measurability, etc.).
 This tactic is good at writing complicated functions as a composition of simpler functions,
@@ -1445,10 +1440,6 @@ since it is better behaved w.r.t.\ multiplication and composition.
 % maybe: mention the ICERM group on the integrability tactic; https://github.com/leanprover-community/mathlib4/pull/39323
 % There is experimental work (involving some of this paper's authors) on making \texttt{fun\_prop} support integrability properties, building on these structures.
 % maybe not: does not build on these structures...
-
-% \begin{itemize}
-% 	\item Ongoing experiments with \texttt{fun\_prop}. TODO: consider whether this should be a separate subsection.
-% \end{itemize}
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
 

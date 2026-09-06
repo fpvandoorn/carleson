@@ -13,7 +13,7 @@ public import Carleson.ToMathlib.Misc
 # Bounded compactly supported functions
 
 The purpose of this file is to provide helper lemmas to streamline proofs that
-functions are (essentially) bounded, compactly supported and measurable.
+functions are bounded, compactly supported and measurable.
 
 Most functions we need to deal with are of this class.
 This can be a useful way to streamline proofs of `L^p` membership,
@@ -30,7 +30,7 @@ Upstreaming status: should be upstreamed, but need to clarify design questions f
   there any operation which preserves `BoundedCompactSupport` but not `BoundedFiniteSupport`?
   Decide if we want both classes in mathlib or just one of them. If the latter, rewrite all of
   Carleson/ToMathlib to use that one class.
-  (Discussion on Zulip)
+  (Discussion on Zulip, Result: keep both here, but upstream only `BoundedCompactSupport`)
 -/
 
 public section
@@ -75,7 +75,10 @@ theorem MemLp.ae_norm_le (hf : MemLp f ∞ μ) : ∀ᵐ x ∂μ, ‖f x‖ ≤ (
 variable [TopologicalSpace E] [ENorm E] [Zero E] in
 /- currently we assume that the functions are a.e.-bounded, since that plays better with mathlib.
 Since it might be nicer to work with suprema instead of essential suprema, we need to prove
-everywhere-boundedness in one place. -/
+everywhere-boundedness in one place.
+TODO: Refactor this back to every boundedness (plus measurability)
+-/
+
 /-- Bounded compactly supported measurable functions -/
 @[fun_prop]
 structure BoundedCompactSupport (f : X → E) (μ : Measure X := by volume_tac) :
