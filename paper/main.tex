@@ -610,7 +610,7 @@ To reduce this finitary version of the Carleson theorem to the discrete version,
 
 A grid structure consists of dyadic cubes. A \emph{dyadic cube} is a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$ for some fixed natural number $S$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$. We write $I \le J$ to mean that for two cubes $(I, k)$ and $(J, l)$, we have $I \subseteq J$ and $k \le l$.
 
-A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/GridStructure.lean#L20}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$, $(I, k) \mapsto k$, called the scale function, that together satisfy the conditions \ref{it:coverdyadic}-\ref{it:eq-small-boundary}:
+A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/GridStructure.lean#L20}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$, $(I, k) \mapsto k$, called the scale function, that together satisfy the conditions \ref{it:coverdyadic}--\ref{it:eq-small-boundary}:
 \begin{enumerate}[label=\roman*.]
 \item \label{it:coverdyadic} For every dyadic cube $I$ and every $-S \leq k < s(I)$,
 \begin{equation}
