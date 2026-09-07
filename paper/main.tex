@@ -377,7 +377,7 @@ The specific statement is as follows.
     $\lim_{N\to\infty} S_N f(x)$ exists and is equal to $f(x)$.\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Classical/ClassicalCarleson.lean#L131}{\extlink}
 \end{theorem}
 
-The metric Carleson theorem is more complicated to state, but gives bounds for certain \emph{generalized Carleson operators}.
+The metric space Carleson theorem is more complicated to state, but gives bounds for certain \emph{generalized Carleson operators}.
 Before we state this theorem, we state an intermediate result
 bounding a specific Carleson operator for functions on $\real$.
 Like most proofs of Carleson's theorem, we use this bound to prove \Cref{classical-carleson}.
@@ -438,7 +438,7 @@ at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
 
 \end{itemize}
 
-Further, a compatible collection $\Mf$ is called \emph{cancellative} if
+Furthermore, a compatible collection $\Mf$ is called \emph{cancellative} if
 for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi\colon X\to \complex$
 supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
 \begin{equation}
@@ -500,7 +500,7 @@ and define further
     T_{\tQ}^\mfa f(x):=\sup_{R_1<R_2} \ \sup_{\rho(x,x')<R_1}
     \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
 \end{equation}
-Define further the \emph{linearized generalized Carleson operator} $T_\tQ$ by
+Finally, define the \emph{linearized generalized Carleson operator} $T_\tQ$ by
 \begin{equation}
     \label{def-lin-main-op}
     T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|\, ,
@@ -803,7 +803,7 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
   hcz : IsOneSidedKernel a K
 \end{lstlisting}
 
-The statement of the metric Carleson theorem also requires fixing two positive real numbers $q, q'$ satisfying the equality $q^{-1} + q'^{-1} = 1$, encoded by definition \lean{HolderConjugate}\href{https://github.com/leanprover-community/mathlib4/blob/5a0753dc725610d074b177e4677000ee96165b8e/Mathlib/Data/Real/ConjExponents.lean#L59}{\extlink} from \mathlib.
+The statement of the metric space Carleson theorem also requires fixing two positive real numbers $q, q'$ satisfying the equality $q^{-1} + q'^{-1} = 1$, encoded by definition \lean{HolderConjugate}\href{https://github.com/leanprover-community/mathlib4/blob/5a0753dc725610d074b177e4677000ee96165b8e/Mathlib/Data/Real/ConjExponents.lean#L59}{\extlink} from \mathlib.
 
 \iffalse
 %Probably not worth including.
@@ -839,7 +839,7 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
 %\end{lstlisting}
 
 The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L228}{\extlink} is defined as a special case of the
-\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L222}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand K (Q x) R_1 R_2 f x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details).
+\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L222}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand \ K \ (Q \ x) \ R_1 \ R_2 \ f \ x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details).
 % JMS the \mlean command does not render correctly (spaces are not rendered)
 In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L216}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L55}{\extlink} denotes the set of real numbers $y$ such that $R_1 < \text{dist}(x, y) < R_2$.
 \begin{lstlisting}[mathescape]
@@ -967,13 +967,13 @@ However, the rest of the blueprint was finalized
 and contained more than enough material to start the formalization.
 
 The main objective of the blueprint was to provide very detailed proofs for the lemmas and propositions
-needed for the metric Carleson theorem.
+needed for the metric space Carleson theorem.
 Another objective was to include a detailed proof
 of the reduction of \Cref{metric-space-Carleson} to \Cref{classical-carleson}.
 Finally, we wanted to streamline the argument to simplify the formalization.
 One part of the formalization that we were worried about is the so-called ``invisible mathematics'' \cite{Bauer-2023} that one has to formalize.
 These are arguments that are not written on paper,
-but have to be done by the formalizer to arrive at a formal proof.%
+but have to be provided by the formalizer to arrive at a formal proof.%
 \footnote{There is also invisible mathematics that is performed by the proof assistant,
 such as interpreting the meaning of notation or the scope of variables,
 which we will not discuss here.}
@@ -1050,7 +1050,7 @@ We also generalized the allowed input functions to any function from a pseudo-me
 \subsubsection{The real interpolation theorem}\label{subsubsec:real_interpolation}
 The Marcinkiewicz real interpolation theorem is a standard result in functional analysis.
 It is also a key prerequisite for the proof of Carleson's theorem: for example, it is applied to the Hardy–Littlewood maximal function to deduce it is of strong type $L^p$, for $p\in(0,\infty)$.
-Our formalized version aims to reduce superfluous assumptions commonly found in the mathematical literature. For instance, it applies to any sub-additive function (not merely sub-linear ones) --- that is, there is no need for a scalar multiplication on the target. Similarly, any positive exponent $p$ is allowed (as opposed to demanding $p\geq 1$).
+Our formalized version aims to reduce superfluous assumptions commonly found in the mathematical literature. For instance, it applies to any sub-additive operator (not merely sub-linear ones) --- that is, there is no need for a scalar multiplication on the target. Similarly, any positive exponent $p$ is allowed (as opposed to demanding $p\geq 1$).
 
 In light of generalizing the Hardy--Littlewood maximal function, this proof had to be generalized again:
 applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any monoid with a continuous extended norm function).
@@ -1100,7 +1100,7 @@ the proof strategy.
 
 \subsection{Dealing with inaccuracies}\label{subsec:blueprint_mistakes}
 
-Our formalization of the metric Carleson theorem certified that the main result in \cite{ThieleCarlesonPreprint} was correct, and that its detailed proof provided in \cite{CarlesonBlueprint} did not contain any serious mathematical mistakes. However, the formalization surfaced various small inaccuracies in the blueprint.  This is not surprising, since experience shows that a human-written mathematical document of this scale usually contains at least a few minor technical flaws.
+Our formalization of the metric space Carleson theorem certified that the main result in \cite{ThieleCarlesonPreprint} was correct, and that its detailed proof provided in \cite{CarlesonBlueprint} did not contain any serious mathematical mistakes. However, the formalization surfaced various small inaccuracies in the blueprint.  This is not surprising, since experience shows that a human-written mathematical document of this scale usually contains at least a few minor technical flaws.
 Most of these flaws were not present in the original paper; instead they were introduced during the blueprint writing process, which required to provide a much higher level of detail than in a standard harmonic analysis paper.
 
 Many proofs in the blueprint relied on non-standard finitary arguments, which sometimes led to proofs that were not correct in the edge cases.
@@ -1168,7 +1168,7 @@ and led to small inaccuracies in the blueprint again causing some confusion duri
 Some general results, such as the Marcinkiewicz real interpolation theorem, were proven in the blueprint only in the generality required to apply them in the proof of the main result. However, we ended up formalizing a more general version so that these theorems could be reused in other formalization projects. This would have been easier if their statements and proofs had already been generalized during the writing of the blueprint.
 
 A final point is that the lack of definition environments in the blueprint also
-meant that definitions were absent from the dependency graph. This was specially problematic for those contributors formalizing statements, since sometimes the definitions appearing in them had been declared a few chapters before and there was not a convenient way to find them. This issue was mitigated by maintaining a table for the definitions, as explained in \S\ref{sec:org}. This table was sparse at the beginning of the formalization, but more definitions were added to it as the project advanced.
+meant that definitions were absent from the dependency graph. This was especially problematic for those contributors formalizing statements, since sometimes the definitions appearing in them had been declared a few chapters before and there was not a convenient way to find them. This issue was mitigated by maintaining a table for the definitions, as explained in \S\ref{sec:org}. This table was sparse at the beginning of the formalization, but more definitions were added to it as the project advanced.
 
 \section{Design decisions}\label{sec:design}
 \subsection{Treatment of constants}\label{subsec:constants}
@@ -1243,11 +1243,11 @@ provided by this instance. The same system is used to provide algebraic
 operations on types, and properties of these.
 
 Type classes can be used to capture standing assumptions as follows.
-Let us declare a new type class, of the form \lean{[KernelProofData X]},
+We declared a new type class, of the form \lean{[KernelProofData X]},
 containing not a distance as in the above example, but a measure on $X$,
 a doubling constant, a family $\Theta$ of functions from $X \times X$ to
 $\real$, and so on, i.e., all our standing assumptions. Then, whenever one
-tries to use an object from the standing assumptions, the systems looks for a
+tries to use an object from the standing assumptions, the system looks for a
 \lean{KernelProofData} instance and fetches the object from the type-class
 instance, just like it fetches the distance in a metric space.
 
@@ -1280,7 +1280,7 @@ subsets, integrands, and perform computations?
 A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type-theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
 The \texttt{norm\_cast} tactic can be useful to normalize such casts.
 
-However, one also needs conversions in the other directions: sometimes one would need to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Data/NNReal/Defs.lean#L154-L156}{\extlink} maps negative numbers to zero, we get that
+However, one also needs conversions in the other directions, for instance to convert real numbers to nonnegative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Data/NNReal/Defs.lean#L154-L156}{\extlink} maps negative numbers to zero, we get that
 \[ \mlean{Real.toNNReal (-2) * Real.toNNReal (-3) \ne Real.toNNReal ((-2) * (-3))}. \]
 Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
 in these situations.
@@ -1316,12 +1316,13 @@ An independently useful, more ambitious yet more powerful tactic would allow red
 The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
 % TODO: point to a prototype implementation
 
-The choice of real number type also came up when integrating over a subset of real numbers. Before the Carleson project, there was no definition of integral of functions on \lean{NNReal}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Data/NNReal/Defs.lean#L58}{\extlink} or \lean{ENNReal}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Data/ENNReal/Basic.lean#L101}{\extlink}. As integrating such functions was useful, we added \lean{volume}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/MeasureTheory/Measure/MeasureSpaceDef.lean#L355}{\extlink} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent. This avoids another source of casting between real number types.
+The choice of real number type also came up when integrating over a subset of real numbers. Before the Carleson project, there was no definition of integration over \lean{NNReal}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Data/NNReal/Defs.lean#L58}{\extlink} or \lean{ENNReal}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Data/ENNReal/Basic.lean#L101}{\extlink}. As integrating such functions was useful, we added \lean{volume}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/MeasureTheory/Measure/MeasureSpaceDef.lean#L355}{\extlink} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent.
 \begin{lstlisting}[mathescape]
 ∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
 ∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
 ∫⁻ (x : ℝ≥0∞), f x
 \end{lstlisting}
+This avoids another source of casting between real number types.
 %\begin{minted}{lean}
 %∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
 %∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
@@ -1352,7 +1353,7 @@ Some definitions only require the existence of an enorm; many results require su
 Most lemmas necessary in this project only require an \lean{ESeminormedAddMonoid}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Analysis/Normed/Group/Defs.lean#L111-L117}{\extlink}, i.e.\ a monoid endowed with a continuous enorm that is positive semi-definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions. % for instance, don't require positive definiteness
 
 Pursuing this approach required generalizing all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
-The final phase involved generalizing lemmas: often, this required small changes (such as, constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no further changes needed to be made.
+The final phase involved generalizing lemmas: often, this required small changes (such as constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no further changes needed to be made.
 
 To illustrate the magnitude of this refactoring, let us give some statistics: phase two (changing the basic definitions) changed about 300 lines of code; phase three (changing lemma statements to enorms) about 1000, and the lemma generalizations so far touched about 2500 lines of code.
 
@@ -1364,7 +1365,7 @@ The process of generalization revealed that this abstraction is also useful on i
 
 % shorter version would start with
 % Experience in this project has demonstrated that working with $L^p$ functions as actual functions (using \lean{MemLp}) as opposed to their equivalence classes (\lean{MeasureTheory.Lp}) is much more ergonomic.
-Working with $L^p$ functions presents a design choice: should one work with members of $L^p$ space (i.e., equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink}), or work with representatives (\lean{MemLp}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}) instead?
+Working with $L^p$ functions presents a further design choice: should one work with members of $L^p$ space (i.e., equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink}), or work with representatives (\lean{MemLp}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}) instead?
 The mathematical difference is very small: virtually all operations in the project respect a.e.\ equality.
 Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
 (For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
@@ -1482,7 +1483,7 @@ Formalizing the metric space Carleson theorem required us
 to formalize foundational results from harmonic analysis,
 which we are submitting to \mathlib
 and which will be useful for the formalization of other results from this field.
-Future projects will also benefit from the insights we learned during the project,
+Future projects will also benefit from the insights we obtained during the project,
 including the creation of extended norms
 and our reflections about the most convenient ways to work with real number types.
 
@@ -1503,7 +1504,7 @@ We would also modify some aspects of the blueprint for the formalization.
 We would use \LaTeX\ environments for the main definitions in the project,
 to facilitate their discovery,
 and we would try to ensure that the results in the blueprint were already proven at the right degree of generality;
-this would specially apply to results meant for \mathlib, for which we want a general statement and proof,
+this would especially apply to results meant for \mathlib, for which we want a general statement and proof,
 rather than a specialization to the project setting.
 Finally, we would consider more carefully whether to use non-standard proof methods in a hope to simplify the formalization,
 since this ended up causing most of the mathematical inaccuracies in the first version of the blueprint.
