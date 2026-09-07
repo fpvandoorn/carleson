@@ -246,7 +246,7 @@ In recent years, the impact of Carleson's theorem has increased thanks to its co
 The goal of the Carleson project was to formalize the proof of the metric space Carleson theorem, \Cref{metric-space-Carleson}, as well as the proof of the classical Carleson theorem, \Cref{classical-carleson}, as a corollary of this more general result.
 
 The metric space Carleson theorem is fully proven in \cite{ThieleCarlesonPreprint}, although we give a brief proof sketch in \S\ref{subsec:main_results}.
-The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization had from the beginning been envisioned as a large scale collaborative project. This posed a problem, since there are not many experts in formalization that are also experts in harmonic analysis, so most of the potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
+The original reference \cite{ThieleCarlesonPreprint} was written as a traditional paper for experts in harmonic analysis, but its formalization had from the beginning been envisioned as a large scale collaborative project. This posed a problem, since many potential contributors to the formalization would not have the required expertise to fill in the gaps that are considered routine arguments in a harmonic analysis paper.
 
 To address this challenge, before the formalization started, the authors of \cite{ThieleCarlesonPreprint} wrote a much more detailed document \cite{CarlesonBlueprint} intended as a blueprint for the formalization, which was modified as needed while the formalization process was taking place (see \S\ref{sec:blueprint}).
 
@@ -943,9 +943,8 @@ We put the former material in a separate \texttt{ToMathlib} subfolder,
 emphasizing the aim to upstream this material to \mathlib.
 We also ensured as much as we could that these concepts and theorems would be developed in a greater generality than what was needed to formalize the current result, so that it would have an appropriate generality for \mathlib.
 
-The material specific to this formalization was usually stated only at the required level of generality, and we relaxed some of the contribution requirements for this part of the project: for instance, we did not try to optimize all proofs or insist that they adhered to \mathlib's style conventions. This lowered the barrier to contributing to the Carleson project.
-Indeed, some authors of this paper had not contributed to \mathlib or another collaborative formalization project
-prior to contributing to the Carleson project.
+The material specific to this formalization was usually stated only at the required level of generality, and we relaxed some of the contribution requirements for this part of the project: for instance, we did not try to optimize all proofs or insist that they adhered to \mathlib's style conventions.
+This helped make the Carleson project accessible to a broader range of potential contributors.
 
 % todo: duplication of earlier information, but maybe that's not a problem
 When the project was finished, it comprised 35.6k lines of code (excluding blank lines and comments), of which 9.6k were in the \texttt{ToMathlib} subfolder (using commit \texttt{\href{https://github.com/fpvandoorn/carleson/tree/32c2adc411c5c274ed8f19aa8041157e394fa38a}{32c2adc4}}).
