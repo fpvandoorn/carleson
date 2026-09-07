@@ -455,7 +455,7 @@ $$
 $$
 
 \begin{definition}\label{def:one-sided-kernel}
-A \emph{one-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L250}{\extlink} $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
+A \emph{one-sided Calder\'on--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L250}{\extlink} $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
 is a measurable function $K:X\times X\to \mathbb{C}$ such that for all $x,y',y\in X$ with $x\neq y$, we have
 \begin{equation}
 	|K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
@@ -469,7 +469,7 @@ where $V(x,y):=\mu(B(x,\rho(x,y)))$.
 
 
 \begin{definition}\label{def:two-sided-kernel}
-A \emph{two-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TwoSidedCarleson/WeakCalderonZygmund.lean#L17}{\extlink} is a one-sided Calderón--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
+A \emph{two-sided Calder\'on--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TwoSidedCarleson/WeakCalderonZygmund.lean#L17}{\extlink} is a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
 \begin{equation}
 	|K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
 \end{equation}
@@ -520,7 +520,7 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
 \label{metric-space-Carleson}
     For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
-    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$.
+    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$.
     Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{nontanbound}
         \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
@@ -534,7 +534,7 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
 \end{theorem}
 
 In some applications, such as the Walsh-case of Carleson's theorem, the kernel $K$ naturally depends also on the modulation functions $\mfa$.
-The fact that we don't assume Hölder-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
+The fact that we don't assume H\"older-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
 
 The second version of our main result has a slightly weaker replacement of the assumption \eqref{nontanbound}.
 It implies the Walsh-case of Carleson's theorem.
@@ -545,7 +545,7 @@ It implies the Walsh-case of Carleson's theorem.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
     cancellative compatible collection of functions.
     Let $\tQ:X\to \Mf$ be a Borel function with finite range.
-    Let $K$ be a one-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    Let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{linnontanbound}
         \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
@@ -557,14 +557,14 @@ It implies the Walsh-case of Carleson's theorem.
     \end{equation}
 \end{theorem}
 
-The third version of the main result involves two-sided Calderón--Zygmund kernels, whose additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
+The third version of the main result involves two-sided Calder\'on--Zygmund kernels, whose additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
 In particular, the two-sided case can be applied to derive the classical Carleson's theorem.
 
 \begin{theorem}[two-sided metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TwoSidedCarleson/MainTheorem.lean\#L30}{\extlink}]
     \label{two-sided-metric-space-Carleson}
         For all  integers $a \ge  4$ and real numbers $1<q\le 2$ the following holds.
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
-        cancellative compatible collection of functions and let $K$ be a two-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
+        cancellative compatible collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
       \begin{equation}
             \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
         \end{equation}
@@ -785,7 +785,7 @@ cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
   (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
 \end{lstlisting}
 
-The class \lean{IsOneSidedKernel} captures the notion of one-sided Calderón--Zygmund kernel (Definition~\ref{def:one-sided-kernel}).
+The class \lean{IsOneSidedKernel} captures the notion of one-sided Calder\'on--Zygmund kernel (Definition~\ref{def:one-sided-kernel}).
 
 \begin{lstlisting}[mathescape]
 class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
@@ -795,7 +795,7 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
     (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
 \end{lstlisting}
 
-To avoid constant repetition of hypotheses, we create a class \lean{KernelProofData}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L261}{\extlink} which contains data used in most of chapters 2 through 7 of the blueprint: a doubling measure on $X$, a natural number greater than three, a collection of compatible functions, and a one-sided Calderón--Zygmund kernel. See \S\ref{subsec:proof_data} for a more detailed discussion of this design choice.
+To avoid constant repetition of hypotheses, we create a class \lean{KernelProofData}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L261}{\extlink} which contains data used in most of chapters 2 through 7 of the blueprint: a doubling measure on $X$, a natural number greater than three, a collection of compatible functions, and a one-sided Calder\'on--Zygmund kernel. See \S\ref{subsec:proof_data} for a more detailed discussion of this design choice.
 \begin{lstlisting}[mathescape]
 class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
     [PseudoMetricSpace X] where
@@ -1147,19 +1147,19 @@ well controlled. These additional assumptions were satisfied in the
 rest of the proof.
 
 Finally, Lemma~8.0.1 in the blueprint is a regularization lemma, saying that
-some Hölder functions can be approximated by Lipschitz functions,
+some H\"older functions can be approximated by Lipschitz functions,
 constructed through a smoothing integral formula. The original proof
 assumed implicitly that a continuous function which is
-$\tau$--Hölder--continuous in a closed ball $B(z,R)$ and supported
-there is globally $\tau$--Hölder--continuous with the same control.
+$\tau$--H\"older--continuous in a closed ball $B(z,R)$ and supported
+there is globally $\tau$--H\"older--continuous with the same control.
 This is true in well-behaved spaces, for instance in $\real^n$, but not
 in the generality of the paper. For instance, if the annulus $\{y \mid
 d(x,y) \in [R-\epsilon, R+\epsilon]\}$ is empty, then the
-characteristic function of $B(z, R)$ is Hölder--continuous on the ball
+characteristic function of $B(z, R)$ is H\"older--continuous on the ball
 with a uniform bound and supported there, but its extension to the
 whole space has a norm which may grow like $\epsilon^{-\tau}$. The fix
 was to modify the assumptions of the lemma, assuming from the start
-that the function is $\tau$--Hölder--continuous in the larger ball
+that the function is $\tau$--H\"older--continuous in the larger ball
 $B(z, 2R)$. This more restrictive assumption is satisfied in all the
 places where the lemma is used, although this forced us to alter
 some constants in lemma statements.
@@ -1229,7 +1229,7 @@ that they involve a metric space $X$, a measure $\mu$ on $X$ which is
 doubling for a constant $2^a$, a family $\Theta$ of functions from $X$ to
 $\real$, a distance on $\Theta$ satisfying five properties as well as a
 cancellativity condition, and a kernel $K\colon X \times X \to \real$ with
-Calderón--Zygmund like properties. The proofs involve even more additional
+Calder\'on--Zygmund like properties. The proofs involve even more additional
 data, notably two bounded measurable sets $F$ and $G$, an integrability
 exponent $q\in (1, 2]$ and two measurable functions $\sigma_1$ and
 $\sigma_2$ with finite range.
