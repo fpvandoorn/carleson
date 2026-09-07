@@ -218,7 +218,7 @@ of a preprint was finished prior to the submission of the preprint to a journal.
 
 \subsection{Brief history and significance of Carleson's theorem}\label{subsec:history}
 
-One of the oldest questions in Fourier analysis consists of understanding the nature of convergence of Fourier series $S_nf$ of a function $f$ (see Definition~\ref{def:fourier-series}).
+One of the oldest questions in Fourier analysis consists of understanding the nature of convergence of the partial Fourier sums $S_n f$ of a function $f$ (see Definition~\ref{def:fourier-series}).
 There are two main kinds of convergence that are commonly considered. First, one can ask whether the partial Fourier sums $S_n$ converge to the function $f$ in a suitable function
 space. There are several well-known answers to this question. For instance, convergence in the Hilbert
 space sense for $f$ in $L^2(0,2\pi)$ was established in the first decade of
@@ -229,7 +229,7 @@ after Lebesgue integration. For some other natural spaces, such as
 $L^1(0,2\pi)$, there is no guarantee of convergence in the norm of that space,
 even if $f$ is in the space.
 
-A second question that turns out to be much more difficult is whether the sequence $\{ S_n f (x)\}_{\{ n \in\nat\}}$ converges pointwise to $f(x)$ for almost every $x$.
+A second question that turns out to be much more difficult is whether the sequence $\{S_n f(x)\}_{n\in\nat}$ converges pointwise to $f(x)$ for almost every $x$.
 Luzin \cite{Luzin13} conjectured that this convergence would hold for functions in the
 $L^2(0,2\pi)$ space. In 1923, Kolmogorov found an example \cite{Kolmogorov} of an $L^1$ function whose Fourier series diverges at almost every point, which seemed to suggest that the conjecture might be false. However, when in the 1960s Carleson tried to construct a counterexample to Luzin's conjecture, he realized that a potential counterexample would have to satisfy so many properties that they would in fact be contradictory. He was therefore able to conclude that such a counterexample could not exist, hence proving Luzin's conjecture \cite{carleson}.
 
@@ -263,8 +263,8 @@ Throughout the article, we will introduce Lean code excerpts from the formalizat
 \subsection{Related work}\label{subsec:rel_work}
 
 Large formalization projects in mathematics have been undertaken in different proof assistants and various areas.
-Notable projects formalizing results related to analysis include Immler's verification of the singular hyperbolicity of the Lorentz attractor \cite{ImmlerLorentzSolver} (in Isabelle/HOL),
-Immler and Tan's formalization of the Poincaré-Bendixon theorem \cite{ImmlerTanPoincareBendixon} (in Isabelle/HOL),
+Notable projects formalizing results related to analysis include Immler's verification of the singular hyperbolicity of the Lorenz attractor \cite{ImmlerLorentzSolver} (in Isabelle/HOL),
+Immler and Tan's formalization of the Poincaré--Bendixson theorem \cite{ImmlerTanPoincareBendixon} (in Isabelle/HOL),
 % 7000 LoC, but high-profile. might be off-topic enough as it's arguably dynamics
 the flyspeck project \cite{FlyspeckComplete} formally verifying Hales' proof of the Kepler conjecture (verified using an interplay of results in the Isabelle/HOL and HOL/Light proof assistants), and the formalization of the Prime number theorem in HOL Light \cite{HarrisonPNT} (by Harrison), Isabelle/HOL \cite{AvigadPNT} (by Avigad et al), Metamath \cite{CarneiroPNT} (by Carneiro) and Lean (Kontorovich et al)\footnote{\url{https://alexkontorovich.github.io/PrimeNumberTheoremAnd/}}.
 % skipped four-colour theorem: large, but single person and more combinatorics than analysis or topology
@@ -278,7 +278,7 @@ The flyspeck project was also a large collaborative project, eventually involvin
 The need for a shared mathematical proof arises naturally in large collaborations.
 A common feature is an explicit mathematical blueprint, a detailed natural language proof carefully written to be accessible for non-experts. In the flyspeck project, this proof was written as a book prior to the formalization \cite{HalesFlyspeckBook}. More recent formalization projects (including the Liquid Tensor Experiment and the Sphere Eversion project \cite{SphereEversionCPP}) have used special software (see Section~\ref{sec:org}) to maintain such a natural language proof side by side with the formal proof.
 
-Prior to the Carleson project, relatively little harmonic analysis had been formalized in any proof assistant: for example, the Isabelle and HOL Light libraries have an implementation of Fourier series\footnote{\url{https://isa-afp.org/entries/Fourier.html}} (but no more advanced tools such as the real interpolation theorem); the Mizar Mathematical library has a formalization of Minkowski's inequality \footnote{for infinite sums, \url{https://fm.mizar.org/005-13/pdf13-1/holder_1.pdf}}, but no definition of Fourier series (only discrete Fourier transforms).
+Prior to the Carleson project, relatively little harmonic analysis had been formalized in any proof assistant: for example, the Isabelle and HOL Light libraries have an implementation of Fourier series\footnote{\url{https://isa-afp.org/entries/Fourier.html}} (but no more advanced tools such as the real interpolation theorem); the Mizar Mathematical library has a formalization of Minkowski's inequality \footnote{for infinite sums, \url{https://fm.mizar.org/2005-13/pdf13-1/holder_1.pdf}}, but no definition of Fourier series (only discrete Fourier transforms).
 Mathlib knows some Fourier analysis thanks to Doll's work on tempered distributions \cite{DollSobolevFourier}.
 The Hardy--Littlewood maximal estimate has been formalized in Rocq \cites{AffeldtFTCRocq,AffeldtLebesgueDiffRocq}, but only for functions $\real\to\real$.
 The \href{https://github.com/TauCetiProject/TauCeti}{Tau Ceti library} also contains a definition of the Hardy--Littlewood maximal function and proofs of the maximal inequality. These were completed after this project, and explicitly copied and built on the insights in this project.\footnote{The \href{https://github.com/TauCetiProject/TauCetiRoadmap/blob/main/TauCetiRoadmap/PDE/README.md}{design notes} specifically say ``vendor heavily from the Carleson project''.}
@@ -311,7 +311,7 @@ J.R.\ was supported in part by NSF grant DMS-2154835 and a HIM fellowship for th
 
 \subsection{Mathematical background}\label{subsec:background}
 The basic object of study in Carleson's theorem is the Fourier series of a periodic function on the real numbers.
-Given a $2\pi$-periodic function $f\colon \real \to \complex$ and $n \in \mathbb{Z}$, define the \emph{$n$th Fourier coefficient} of $f$ as
+Given a $2\pi$-periodic function $f\colon \real \to \complex$ integrable on $[0, 2\pi]$ and $n \in \mathbb{Z}$, define the \emph{$n$th Fourier coefficient} of $f$ as
 \begin{equation*}
     c_n \coloneq \widehat{f}_n \coloneq \frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
 \end{equation*}
@@ -339,18 +339,18 @@ where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ cent
 \end{definition}
 
 The proof of the metric space Carleson theorem relies on several tools from real analysis, including the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Its statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g.\ \cite{vanDoornFormalizedHaarMeasure} for an overview).
-For a function $f$ on a measure space $(X,\mu)$ taking values in some space $E$ endowed with an extended norm (see \ref{subsec:enorm}), we define its \emph{$L^p$-norm}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L83-L87}{\extlink} to be
+For a function $f$ on a measure space $(X,\mu)$ taking values in some space $E$ endowed with an extended norm $\|\cdot\|_e$ (see \ref{subsec:enorm}), we define its \emph{$L^p$-norm}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L83-L87}{\extlink} to be
 \begin{equation*}
-  \|f\|_{L^{p}} \coloneq \big(\int_X\|f(x)\|^p\, d\mu(x)\big) ^ \frac{1}{p}
+  \|f\|_{L^{p}} \coloneq \big(\int_X\|f(x)\|_e^p\, d\mu(x)\big) ^ \frac{1}{p}
 \end{equation*}
 for $0<p<\infty$. For $p=\infty$, the norm $\|f\|_{L^{p}}$ is the essential supremum of $f$, i.e.\ the least value $t$ such that
-$\mu\{x\in X \mid t < |f(x)| \}=0$. Similarly, we define the \emph{weak $L^p$-norm}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L37}{\extlink} as
+$\mu\{x\in X \mid t < \|f(x)\|_e \}=0$. Similarly, we define the \emph{weak $L^p$-norm}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L37}{\extlink} as
 \begin{equation*}
-  \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X \mid t < |f(x)| \}) ^ \frac{1}{p}
+  \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X \mid t < \|f(x)\|_e \}) ^ \frac{1}{p}
 \end{equation*}
 for $0<p<\infty$, and $\|f\|_{L^{\infty,\infty}} \coloneq \|f\|_{L^{\infty}}$.
 The function $f$ is said to be in weak $L^p$\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L285}{\extlink} if $f$ is $\mu$-a.e.\ strongly measurable with respect to a fixed topology on $E$ (see e.g.\ \cite{GouezelChangeOfVariables} for motivation of the different notions of measurability in \mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
-An important consequence is that if $f$ is in weak $L^p$, then $|f|$ is finite almost everywhere.\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L302}{\extlink}
+An important consequence is that if $f$ is in weak $L^p$, then $\|f(x)\|_e$ is finite for almost every $x$.\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L302}{\extlink}
 
 Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T\colon (X \to E) \to (Y \to F)$ is \emph{of weak type $(p,p')$}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L419}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
 \begin{equation}
@@ -386,7 +386,7 @@ The specific version of the bound that we formalized is as follows.
 \begin{theorem}[real Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Classical/CarlesonOnTheRealLineContinuous.lean\#L29}{\extlink}]\label{real-Carleson}
     Let $F,G$ be Borel subsets of $\real$ with finite measure. Let $f$ be a bounded measurable function on $\real$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation*}
-    \left|\int _G Tf(x) \, dx\right| \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12} \, ,
+    \int _G Tf(x) \, dx \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12} \, ,
 \end{equation*}
 % the constant above was C_{4,2}
 where
@@ -406,7 +406,7 @@ and the Hilbert kernel $\kappa\colon\real\to\complex$ is defined as
 
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
 
-In this sections we state the definitions used in the metric space Carleson theorem.
+In this section we state the definitions used in the metric space Carleson theorem.
 Let $a \ge 4$ be a natural number. A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}
 if there is a point $o\in X$ where all the functions are equal to $0$,
 and if there exists for each ball $B \subseteq X$ a metric $d_B$ on $\Mf$,
@@ -475,7 +475,7 @@ Let $f\colon X \to \complex$ be a bounded, measurable function supported on a se
 Define the \emph{maximally truncated non-tangential singular integral} $T_{*}$ associated with $K$ by
 \begin{equation}
     \label{def-tang-unm-op}
-    T_{*}f(x):=\sup_{R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
+    T_{*}f(x):=\sup_{0 < R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
 \end{equation}
 Additionally, define for $r > 0$, $x\in X$:
 \begin{equation}
@@ -497,7 +497,7 @@ For a Borel function $\tQ:X\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
 and define further
 \begin{equation}
     \label{def-lin-star-op}
-    T_{\tQ}^\mfa f(x):=\sup_{R_1<R_2} \ \sup_{\rho(x,x')<R_1}
+    T_{\tQ}^\mfa f(x):=\sup_{0<R_1<R_2} \ \sup_{\rho(x,x')<R_1}
     \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
 \end{equation}
 Define further the \emph{linearized generalized Carleson operator} $T_\tQ$ by
@@ -525,7 +525,7 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
     Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f\colon X\to \complex$ with
     $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
     \begin{equation}
-        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \int_{G} T f \, \mathrm{d}\mu \leq \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
     \end{equation}
 \end{theorem}
 
@@ -549,12 +549,12 @@ It implies the Walsh-case of Carleson's theorem.
     Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f\colon X\to \complex$ with
     $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
     \begin{equation}
-        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \le \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \int_{G} T_\tQ f \, \mathrm{d}\mu \le \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
     \end{equation}
 \end{theorem}
 
 The third version of the main result involves two-sided Calder\'on--Zygmund kernels, whose additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
-In particular, the two-sided case can be applied to derive the classical Carleson's theorem.
+In particular, the two-sided case can be applied to derive the classical Carleson theorem.
 
 \begin{theorem}[two-sided metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TwoSidedCarleson/MainTheorem.lean\#L30}{\extlink}]
     \label{two-sided-metric-space-Carleson}
@@ -568,7 +568,7 @@ In particular, the two-sided case can be applied to derive the classical Carleso
         all Borel functions $f\colon X\to \complex$ with
         $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
       \begin{equation}
-            \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{474a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+            \int_{G} T f \, \mathrm{d}\mu \leq \frac{2^{474a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
         \end{equation}
 \end{theorem}
 
@@ -699,7 +699,7 @@ The full proof can be found in Sections 5, 6 and 7 of the blueprint \cite{Carles
 let us give an idea of the work required.
 
 Firstly, cubes are classified by what fraction of them is covered by the set $G$.
-This means that we partition the set of cubes in collections $\mathcal{C}(k)$
+This means that we partition the set of cubes into collections $\mathcal{C}(k)$
 for which this fraction is in the interval $(2^{-(k+1)},2^{-k}]$.
 This classification lifts via the function $\scI$ to the tiles.
 Secondly, we make a subclassification of tiles $\fp$
@@ -738,7 +738,7 @@ theorem classical_carleson {f : ℝ → ℂ}
 The statement of the hypotheses ($f \colon \real \to \complex$ is a continuous $2\pi$-periodic function) closely resembles natural language, but understanding the conclusion requires some familiarity with Lean and \mathlib. There, $\forall^m x$ means ``for every real number $x$ away from a set of measure zero'', and
 \lean{Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on \mathlib's use of filters to represent limits).
 
-The definition \lean{partialFourierSum} encodes the $N$-th partial Fourier sum of $f\colon\real \to\complex$. Here, \lean{Finset.Icc}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Finset/Defs.lean#L280}{\extlink}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Set/Defs.lean\#L59}{\extlink} denotes the inverval $[a, b)$ and \lean{Set.Iic b}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Set/Defs.lean\#L44}{\extlink} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Finset/Defs.lean\#L108}{\extlink} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Data/Finset/Defs.lean\#L72-L79}{\extlink} versions of these intervals.
+The definition \lean{partialFourierSum} encodes the $N$-th partial Fourier sum of $f\colon\real \to\complex$. Here, \lean{Finset.Icc}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Finset/Defs.lean#L280}{\extlink}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Set/Defs.lean\#L59}{\extlink} denotes the interval $[a, b)$ and \lean{Set.Iic b}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Set/Defs.lean\#L44}{\extlink} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Finset/Defs.lean\#L108}{\extlink} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Data/Finset/Defs.lean\#L72-L79}{\extlink} versions of these intervals.
 } denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n} is the
 $n$-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Analysis/Fourier/AddCircle.lean#L123}{\extlink} denotes $e^{inx}$.
 \begin{lstlisting}[mathescape]
@@ -841,7 +841,7 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
 The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L228}{\extlink} is defined as a special case of the
 \lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L222}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand K (Q x) R_1 R_2 f x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details).
 % JMS the \mlean command does not render correctly (spaces are not rendered)
-In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L216}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L55}{\extlink} denotes the set of real numbers $y$ such that $R_1 < \text{dist}(x, y) < R_2$.
+In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L216}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L55}{\extlink} denotes the set of points $y\in X$ such that $R_1 < \text{dist}(x, y) < R_2$.
 \begin{lstlisting}[mathescape]
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
@@ -874,25 +874,25 @@ theorem linearized_metric_carleson {X : Type*} {a : ℕ} [MetricSpace X]
 
 \subsection{Verifying the definitions and statements}
 
-The Lean kernel checks that all proofs are correct. It cannot ascertain that all definitions and theorems match their definition in the blueprint; this requires manual effort.
+The Lean kernel checks that all proofs are correct. It cannot ascertain that all definitions and theorem statements match their counterparts in the blueprint; this requires manual effort.
 One strategy (going back to at least the Liquid Tensor Experiment \cite{LTEDefinitions}) is to prove interesting theorems about these definitions (such as Carleson's classical theorem, \Cref{classical-carleson}).
 Another aspect is making the relevant definitions easy to audit: to this end, we have collected all definitions and set-up necessary for stating the main theorems, as well as the main theorems' statements, into a single file. Auditing these 170 lines of Lean code (on top of \mathlib) ensures the theorems say what they claim --- two orders of magnitude smaller than the entire project.
 % 137 lines of Lean code (without comments) in BasicDefinitions, 26 in Challenge
-In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon --- which implies getting careful review (and further reduces the need to trust code beyond \mathlib).
+In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon, where they will receive careful review; this further reduces the need to trust code beyond \mathlib.
 
 Lean ensures that the formalized proof matches the given statement.
 For maximum robustness (also suitable against adversarial code), we should double-check the theorem statement's meaning is not changed, e.g. via overriding notation or abuse of Lean's metaprogramming facilities. We achieve this in two ways. Firstly, each theorem is a Lean definition (with the proof constructing a term of that type) --- this way, the theorem statements only require auditing the same 170 lines above.
-Secondly, the \emph{comparator} tool\footnote{\url{https://github.com/leanprover/comparator}} can verify such a correspondence of a given proof to a provided theorem, in a matter that is robust against malicious code or abuse of Lean's metaprogramming facilities. It is the gold standard for verification of formalisations.
+Secondly, the \emph{comparator} tool\footnote{\url{https://github.com/leanprover/comparator}} can verify such a correspondence of a given proof to a provided theorem, in a manner that is robust against malicious code or abuse of Lean's metaprogramming facilities. It is the gold standard for verification of formalisations.
 We have also verified the classical Carleson theorem (Theorem~\ref{classical-carleson}) and its metric space (Theorem~\ref{metric-space-Carleson}) and linearized metric space generalizations (Theorem~\ref{linearized-metric-Carleson}) using comparator. %: this certifies that the statements in the Lean file \texttt{Challenge.lean} match what is actually proven.
 
 \section{Project organization}\label{sec:org}
 
-Planning for the Carleson project started in Fall 2023 by
+Planning for the Carleson project began in Fall 2023 with
 F.v.D.\ and the harmonic analysis group in Bonn,
 consisting of L.B., Christoph Thiele and Rajula Srivastava.
 At that time, L.B., Asgar Jamneshan, Rajula Srivastava and Christoph Thiele had written a 30-page proof of Theorem~\ref{metric-space-Carleson}, which turned into the preprint \cite{ThieleCarlesonPreprint}.
 While the proof was precise and written with a lot of care,
-this paper had as intended audience experts in harmonic analysis.
+this paper was intended for experts in harmonic analysis.
 This meant that the proof omitted many arguments that are routine to experts,
 but which would require quite some work to figure out for outsiders.
 
@@ -934,17 +934,17 @@ whether they were available, claimed or completed.
 Zulip was also used in case someone had questions about a task,
 or found a potential issue in the proof of a lemma.
 In that case, another contributor or a member of Bonn's harmonic analysis group could help clarify the proof.
-In a few cases, an inaccuracy was found that required changes to the statement of one or more lemma statements in the blueprint,
+In a few cases, an inaccuracy was found that required changes to the statements of one or more lemmas in the blueprint,
 as described in \S\ref{subsec:blueprint_mistakes}.
 
 We divided the material to be formalized into two categories:
 general material that would be useful in many other formalization projects,
-and specific material to the current formalization, that would likely see little reuse.
+and material specific to the current formalization, that would likely see little reuse.
 We put the former material in a separate \texttt{ToMathlib} subfolder,
 emphasizing the aim to upstream this material to \mathlib.
 We also ensured as much as we could that these concepts and theorems would be developed in a greater generality than what was needed to formalize the current result, so that it would have an appropriate generality for \mathlib.
 
-The material specific to this formalization was usually stated only in the required level of generality, and we relaxed some of the contribution requirements for this part of the project: for instance, we did not try to optimize all proofs or insist that they adhered to \mathlib's style conventions. This made the barrier of entry to contribute to the Carleson project low.
+The material specific to this formalization was usually stated only at the required level of generality, and we relaxed some of the contribution requirements for this part of the project: for instance, we did not try to optimize all proofs or insist that they adhered to \mathlib's style conventions. This lowered the barrier to contributing to the Carleson project.
 Indeed, some authors of this paper had not contributed to \mathlib or another collaborative formalization project
 prior to contributing to the Carleson project.
 
@@ -962,16 +962,16 @@ by the harmonic analysis group in Bonn. When the formalization project was annou
 which deals with arguably the most complicated case of the proof of \Cref{discrete-Carleson},
 were still being finalized, and
 Section~3, which reduces \Cref{metric-space-Carleson} to \Cref{finitary-Carleson},
-had to still be written in its entirety.
+still had to be written in its entirety.
 However, the rest of the blueprint was finalized
 and contained more than enough material to start the formalization.
 
 The main objective of the blueprint was to provide very detailed proofs for the lemmas and propositions
 needed for the metric Carleson theorem.
 Another objective was to include a detailed proof
-of the reduction of \Cref{metric-space-Carleson} to \Cref{classical-carleson}.
+of the deduction of \Cref{classical-carleson} from \Cref{metric-space-Carleson}.
 Finally, we wanted to streamline the argument to simplify the formalization.
-One part of the formalization that we were worried about is the so-called ``invisible mathematics'' \cite{Bauer-2023} that one has to formalize.
+One part of the formalization that we were worried about was the so-called ``invisible mathematics'' \cite{Bauer-2023} that one has to formalize.
 These are arguments that are not written on paper,
 but have to be done by the formalizer to arrive at a formal proof.%
 \footnote{There is also invisible mathematics that is performed by the proof assistant,
@@ -1027,7 +1027,7 @@ so it lacked the existence of $I_0$ and Equation \eqref{subsetmaxcube}.
 In the construction of the grid structure on $X$
 from Chapter~4 in the blueprint,
 the top level always has a single cube,
-so it was free to add this to the general definition of grid structure.
+so we were free to add this to the general definition of a grid structure.
 This slightly simplified a few proofs in later chapters,
 and there was one computation that already implicitly assumed
 that there was only one top cube.
@@ -1059,12 +1059,12 @@ we have formalized a more general argument that is also conceptually clearer: fo
 \begin{theorem}[real interpolation theorem\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/RealInterpolation/Main.lean\#L1436}{\extlink}]
     Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces, let $E$ be a topological space with the structure of an additive monoid endowed with a compatible continuous extended seminorm, let $F$ be a topological space with a continuous extended norm function.
     Let $p_0, p_1, q_0, q_1, p, q \in \ennreal$ such that $p_0 \in (0,q_0], p_1 \in (0,q_1], q_0 \ne q_1$ and there exists $t \in (0,1)$ such that $\frac{1}{p} = \frac{1-t}{p_0} + \frac{t}{p_1}$ and $\frac{1}{q} = \frac{1-t}{q_0} + \frac{t}{q_1}$.
-    Let $T\colon (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^{p_0}(X; E) \cup L^{p_1}(X; E)$, we have $\|T(f+g)(x)\| \le A \cdot \left(\|Tf(x)\| + \|Tg(x)\|\right)$ for $\mu$-a.e.\ $x\in E$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e.\ strongly measurable.
+    Let $T\colon (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense. There exists a constant $A \ge 1$ such that for $f, g \in L^{p_0}(X; E) \cup L^{p_1}(X; E)$, we have $\|T(f+g)(y)\|_e \le A \cdot \left(\|Tf(y)\|_e + \|Tg(y)\|_e\right)$ for $\nu$-a.e.\ $y\in Y$. Furthermore, we assume that for any $f\in L^p(X;E)$, $T f$ is $\nu$-a.e.\ strongly measurable.
 
     Then, if $T$ has both weak type $(p_0, q_0)$ and weak type $(p_1, q_1)$, $T$ has strong type $(p,q)$.
 \end{theorem}
 %TODO: if this is ready by the time we submit the article, update PortegiesRothgangRealInterpolation in references.bib. Otherwise, replace the following line by `More details will be provided in an upcoming article \cite{PortegiesRothgangRealInterpolation}.'
-For further detail, we refer the reader to a separate article \cite{PortegiesRothgangRealInterpolation}.
+For further details, we refer the reader to a separate article \cite{PortegiesRothgangRealInterpolation}.
 
 \subsubsection{Constant tweaking}\label{subsubsec:const-tweak}
 As explained below in
@@ -1075,9 +1075,9 @@ from $1$ or $2$ in the first lemmas to $443$ in the final result.
 
 When a result depends on several previous lemmas, its constant can typically
 be expressed in terms of the previous lemmas, giving chains of conditions for
-the overall validity of the constants. When a minor mistake is noticed in the
-proof of a lemma, increasing slightly its constant, this mandates corrections
-in all the statements that depend transitively on it. The standard practice
+the overall validity of the constants. When correcting a minor mistake in the
+proof of a lemma requires a slight increase in its constant, all statements
+that depend transitively on it must also be corrected. The standard practice
 in paper mathematics to avoid this kind of intricate dependency is not to
 care about the constants, and formulate the lemmas as ``there exists a
 universal constant $C$ such that ...''. This is not a viable approach in
@@ -1101,15 +1101,15 @@ the proof strategy.
 \subsection{Dealing with inaccuracies}\label{subsec:blueprint_mistakes}
 
 Our formalization of the metric Carleson theorem certified that the main result in \cite{ThieleCarlesonPreprint} was correct, and that its detailed proof provided in \cite{CarlesonBlueprint} did not contain any serious mathematical mistakes. However, the formalization surfaced various small inaccuracies in the blueprint.  This is not surprising, since experience shows that a human-written mathematical document of this scale usually contains at least a few minor technical flaws.
-Most of these flaws were not present in the original paper; instead they were introduced during the blueprint writing process, which required to provide a much higher level of detail than in a standard harmonic analysis paper.
+Most of these flaws were not present in the original paper; instead they were introduced during the blueprint writing process, which required providing a much higher level of detail than in a standard harmonic analysis paper.
 
 Many proofs in the blueprint relied on non-standard finitary arguments, which sometimes led to proofs that were not correct in the edge cases.
-At some places in the blueprint, proofs were slightly inaccurate, and at other places lemmas required stronger assumptions than originally stated. However, when assumptions had to be strengthened, the
+In some places in the blueprint, proofs were slightly inaccurate, and at other places lemmas required stronger assumptions than originally stated. However, when assumptions had to be strengthened, the
 stronger assumptions were always satisfied at the places where the lemmas
 were used. Therefore, all these issues were purely local and did not impact the global proof.
 
 
-In most cases, the mistakes detected in the blueprint were minor and could be resolved by the formalizers themselves, for instance by adding a missing hypothesis or by modifying a certain constant. However, fixing certain proofs required the assistance of harmonic analysis experts with a deep understanding of the overall proof strategy. For instance, the proof of an earlier version of \cite[Lemma~6.2.3]{CarlesonBlueprint} relied on the fact that a certain pair of dyadic cubes were not disjoint, which was not necessarily the case under the lemma assumptions. The non-obvious solution required to add an extra hypothesis that a certain pair of open balls were not disjoint, and to increase a constant appearing in the lemma statement, after which the previous proof could be adapted to conclude the result. Luckily this error did not propagate, since the only application of the lemma was still possible under the new hypotheses.
+In most cases, the mistakes detected in the blueprint were minor and could be resolved by the formalizers themselves, for instance by adding a missing hypothesis or by modifying a certain constant. However, fixing certain proofs required the assistance of harmonic analysis experts with a deep understanding of the overall proof strategy. For instance, the proof of an earlier version of \cite[Lemma~6.2.3]{CarlesonBlueprint} relied on the fact that a certain pair of dyadic cubes were not disjoint, which was not necessarily the case under the lemma assumptions. The non-obvious solution required adding an extra hypothesis that a certain pair of open balls were not disjoint and increasing a constant appearing in the lemma statement, after which the previous proof could be adapted to conclude the result. Luckily this error did not propagate, since the only application of the lemma was still possible under the new hypotheses.
 
 A more involved fix was required for \cite[Lemma~6.3.4]{CarlesonBlueprint}, whose original proof presented several issues. The first needed change was simple, and consisted of further restricting the allowed values for the parameter $\vartheta$, so that a certain covering property could be applied. However, the proof was also incorrect in the case where the value $s(\mathfrak{p})$ associated to a certain tile $\mathfrak{p}$ took the minimum possible value, and it incorrectly assumed that a certain new tile constructed during the proof would always be distinct from $\mathfrak{p}$. To repair these issues, the statements of both Lemma~6.3.3 and Lemma~6.3.4 had to be modified, and significant changes had to be applied to the proof of Lemma~6.3.4.
 
@@ -1134,7 +1134,7 @@ $\tau$--Hölder--continuous in a closed ball $B(z,R)$ and supported
 there is globally $\tau$--Hölder--continuous with the same control.
 This is true in well-behaved spaces, for instance in $\real^n$, but not
 in the generality of the paper. For instance, if the annulus $\{y \mid
-d(x,y) \in [R-\epsilon, R+\epsilon]\}$ is empty, then the
+d(z,y) \in [R-\epsilon, R+\epsilon]\}$ is empty, then the
 characteristic function of $B(z, R)$ is Hölder--continuous on the ball
 with a uniform bound and supported there, but its extension to the
 whole space has a norm which may grow like $\epsilon^{-\tau}$. The fix
@@ -1168,7 +1168,7 @@ and led to small inaccuracies in the blueprint again causing some confusion duri
 Some general results, such as the Marcinkiewicz real interpolation theorem, were proven in the blueprint only in the generality required to apply them in the proof of the main result. However, we ended up formalizing a more general version so that these theorems could be reused in other formalization projects. This would have been easier if their statements and proofs had already been generalized during the writing of the blueprint.
 
 A final point is that the lack of definition environments in the blueprint also
-meant that definitions were absent from the dependency graph. This was specially problematic for those contributors formalizing statements, since sometimes the definitions appearing in them had been declared a few chapters before and there was not a convenient way to find them. This issue was mitigated by maintaining a table for the definitions, as explained in \S\ref{sec:org}. This table was sparse at the beginning of the formalization, but more definitions were added to it as the project advanced.
+meant that definitions were absent from the dependency graph. This was especially problematic for those contributors formalizing statements, since sometimes the definitions appearing in them had been declared a few chapters before and there was not a convenient way to find them. This issue was mitigated by maintaining a table for the definitions, as explained in \S\ref{sec:org}. This table was sparse at the beginning of the formalization, but more definitions were added to it as the project advanced.
 
 \section{Design decisions}\label{sec:design}
 \subsection{Treatment of constants}\label{subsec:constants}
@@ -1180,7 +1180,7 @@ In many cases, one only cares about the existence of the positive constant $C$, 
 The constant is often left implicit, by writing (\ref{eq:const}) as
 \[ \forall x \in X, \| f (x) \| \lesssim \|g(x)\|.\]
 
-This was also the case in the first version of \cite{ThieleCarlesonPreprint}. However, while Lean allows one to work with existential statements such as (\ref{eq:const}), this would have made the formalization harder. From the mathematical point of view, it would require the formalizers to figure out how large these constants needed to be and how the constants required to make each lemma hold were related to each other. From the technical side, it would require to work with witnesses for these existential statements, which can introduce some overhead.
+This was also the case in the first version of \cite{ThieleCarlesonPreprint}. However, while Lean allows one to work with existential statements such as (\ref{eq:const}), this would have made the formalization harder. From the mathematical point of view, it would require the formalizers to figure out how large these constants needed to be and how the constants required to make each lemma hold were related to each other. From the technical side, it would require working with witnesses for these existential statements, which can introduce some overhead.
 Therefore, while they were writing the blueprint, the authors of \cite{ThieleCarlesonPreprint} decided to make all of the constants explicit. At the beginning of the blueprint, they fixed a real number $1 < q \le 2$ and a natural number $a \ge 4$, which is used to define the constants $D = 2^{100a^2}, \kappa := 2 ^{-10a}$ and $Z := 2^{12a}$. The bounding constants that appear in the blueprint theorem statements are expressed as functions of these fundamental constants.
 
 In the formalization, we introduced a constant \lean{c} with a value of 100, coming from the exponent of $D$.
@@ -1245,9 +1245,9 @@ operations on types, and properties of these.
 Type classes can be used to capture standing assumptions as follows.
 Let us declare a new type class, of the form \lean{[KernelProofData X]},
 containing not a distance as in the above example, but a measure on $X$,
-a doubling constant, a family $\Theta$ of functions from $X \times X$ to
+a doubling constant, a family $\Theta$ of functions from $X$ to
 $\real$, and so on, i.e., all our standing assumptions. Then, whenever one
-tries to use an object from the standing assumptions, the systems looks for a
+tries to use an object from the standing assumptions, the system looks for a
 \lean{KernelProofData} instance and fetches the object from the type-class
 instance, just like it fetches the distance in a metric space.
 
@@ -1263,9 +1263,9 @@ interprets a normed space as a metric space.
 The specific implementation of this idea in the Carleson project is slightly
 more involved, as it is written in the form \lean{[ProofData a q K sigma1
 sigma2 F G]}. However, all the additional data $a$, $q$, $K$, $\sigma_1$,
-$\sigma_2$, $F$ and $G$ are associated automatically and uniquely to $X$ (in
-technical terms, they are \emph{outparams}). This means that the user never
-has to give one of them explicitly, as we expect of a suitable system to
+$\sigma_2$, $F$ and $G$ are inferred automatically from the selected type-class instance (in
+technical terms, they are \emph{outparams}). This means that the user typically does not
+have to provide them explicitly, as expected of a system designed to
 handle standing assumptions.
 
 
@@ -1274,8 +1274,8 @@ handle standing assumptions.
 The project differentiated between three different types of (extended) real numbers, $\real$, $\nnreal$ and $\ennreal$,
 which gave necessary benefits but also created difficulties in the formalization
 and tension in design decisions.
-Indeed, in which of the three types to put constants,
-subsets, integrands, and perform computations?
+Indeed, which of the three types should be used for constants,
+suprema, integrands, and computations?
 
 A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type-theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
 The \texttt{norm\_cast} tactic can be useful to normalize such casts.
@@ -1312,7 +1312,7 @@ On the nose, many results about real numbers transfer to $\ennreal$ provided all
 A desirable future step is adding improved interaction with the \lean{positivity}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Tactic/Positivity/Core.lean#L591}{\extlink} tactic (which solves goals of the form \texttt{$0 \leq x$} or \texttt{$0 < x$}). Proving a goal \texttt{$(x + y + 1)^{-1}<\infty$} (for $x,y\in\ennreal$) requires proving that $x + y + 1$ is non-zero; this is already handled by calling \lean{positivity}. Conversely, \lean{positivity} alone cannot prove goals \texttt{$x^{-1}\neq 0$} for $x\in\ennreal$ --- as this is true only if $x$ is finite. Allowing \lean{positivity} to call \lean{finiteness} would improve automation significantly.
 
 An independently useful, more ambitious yet more powerful tactic would allow reducing goals in $\ennreal$ to $\nnreal$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\nnreal$ arithmetic; the infinite case will simplify calculations (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.%
-\footnote{For multiplication, as $0 * \infty = 0$, simplifying $a*\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ being zero presumably implies the the case of $a$ being infinite need not be considered separately, and (2) such splits can be performed only as required.}
+\footnote{For multiplication, as $0 * \infty = 0$, simplifying $a*\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ being zero presumably implies the case of $a$ being infinite need not be considered separately, and (2) such splits can be performed only as required.}
 The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
 % TODO: point to a prototype implementation
 
@@ -1344,14 +1344,14 @@ Gradually, we came to the conclusion that, with some exceptions, it was best to 
 
 This project motivated the creation of a new formalization abstraction: \emph{extended norms} (\lean{enorm}s for short) generalize many results from normed spaces to $\ennreal$.
 Their introduction was motivated by defining the Hardy--Littlewood maximal function with codomain $\ennreal=[0,\infty]$ (see \S\ref{subsec:blueprint_changes}).
-Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. However, speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, the $L^p$-norm of $f\colon X\to\ennreal$ for $p<\infty$ can be defined as $(\int_X \abs{f(x)}^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto \abs{f(x)}^p$.
+Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. However, speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, the $L^p$-norm of $f\colon X\to\ennreal$ for $0<p<\infty$ can be defined as $(\int_X f(x)^p \ud x)^{1/p}$, where the integrand is the function $X\to[0,\infty], x\mapsto f(x)^p$.
 
 Motivated by this observation, we introduced a new notation class \lean{ENorm}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Analysis/Normed/Group/Defs.lean#L70-L74}{\extlink}, describing a type endowed with a function $\texttt{enorm}\colon X\to\ennreal$.
 This captures both normed spaces and $\ennreal$. The enorm of a normed space is the ambient norm, considered as a function into $\ennreal$; the enorm on $\ennreal$ is the identity function.
 Some definitions only require the existence of an enorm; many results require suitable compatibility conditions. %(For instance, on an abelian monoid $\alpha$ endowed with an enorm, we may require the enorm to respect the triangle inequality with respect to addition and be positive definite, or ask for the enorm to be continuous.)
 Most lemmas necessary in this project only require an \lean{ESeminormedAddMonoid}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Analysis/Normed/Group/Defs.lean#L111-L117}{\extlink}, i.e.\ a monoid endowed with a continuous enorm that is positive semi-definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions. % for instance, don't require positive definiteness
 
-Pursuing this approach required generalizing all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
+Pursuing this approach required generalizing all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing us to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
 The final phase involved generalizing lemmas: often, this required small changes (such as, constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no further changes needed to be made.
 
 To illustrate the magnitude of this refactoring, let us give some statistics: phase two (changing the basic definitions) changed about 300 lines of code; phase three (changing lemma statements to enorms) about 1000, and the lemma generalizations so far touched about 2500 lines of code.
@@ -1449,7 +1449,7 @@ since it is better behaved w.r.t.\ multiplication and composition.
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
 
-In this project, we encountered several cases of mathematically equivalent representations, and an initially non-obvious choice of the right formalization representation. One such case was of integrating on a set, i.e.\ with respect to a restricted measure, versus integrating an indicator function.
+In this project, we encountered several cases of mathematically equivalent representations, and an initially non-obvious choice of the right formalization representation. One such case concerned integrating over a set, i.e.\ with respect to a restricted measure, versus integrating an indicator function.
 Both forms are equivalent when the set in question is measurable,\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/MeasureTheory/Integral/Lebesgue/Basic.lean#L495-L502}{\extlink}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Integral/Bochner/Set.lean#L170-L183}{\extlink}
 but the form using a restricted measure is preferred.
 The reason is that \lean{s.indicator f}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Algebra/Notation/Indicator.lean#L51-L51}{\extlink}
@@ -1459,7 +1459,7 @@ while if \lean{f} is measurable with respect to the measure $\mu$, then it is un
 measurable with respect to $\mlean{\mu.restrict\;\; s}$\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/MeasureTheory/Function/StronglyMeasurable/AEStronglyMeasurable.lean#L220-L223}{\extlink}.
 
 Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Algebra/Ring/Periodic.lean#L45}{\extlink} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Topology/Instances/AddCircle/Defs.lean#L193}{\extlink} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
-Again, in different context the existing \mathlib API was more suitable for working with one of the two versions. It is still work in progress to extend \mathlib with API for the other version where no version is naturally favorable, to reduce the overall number of conversions.
+Again, in different contexts the existing \mathlib API was more suitable for working with one of the two versions. It is still work in progress to extend \mathlib with API for the other version where no version is naturally favorable, to reduce the overall number of conversions.
 
 Finally, there were several results in the project that required us to consider sets of elements from a given finite type $\texttt{T}$. Since all such sets are finite, from a mathematical point of view there is no difference between the types $\texttt{Set T}$\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Data/Set/Defs.lean#L43-L50}{\extlink} and $\texttt{Finset T}$.
 However, these are different types in Lean: $\texttt{Set T}$ is the type of all sets consisting of elements of type $\texttt{T}$, while $\texttt{Finset T}$ is the type of finite sets of elements of $\texttt{T}$. Therefore, we needed to make a decision about which of these types to use in the Carleson project. For the most part, we chose to use $\texttt{Set T}$, although sometimes $\texttt{Finset T}$ is used inside proofs, or when required to apply existing \mathlib results. In hindsight, it would likely have been slightly more convenient to use $\texttt{Finset T}$ throughout, to avoid issues like the following.
@@ -1482,7 +1482,7 @@ Formalizing the metric space Carleson theorem required us
 to formalize foundational results from harmonic analysis,
 which we are submitting to \mathlib
 and which will be useful for the formalization of other results from this field.
-Future projects will also benefit from the insights we learned during the project,
+Future projects will also benefit from the insights we gained during the project,
 including the creation of extended norms
 and our reflections about the most convenient ways to work with real number types.
 
@@ -1503,9 +1503,9 @@ We would also modify some aspects of the blueprint for the formalization.
 We would use \LaTeX\ environments for the main definitions in the project,
 to facilitate their discovery,
 and we would try to ensure that the results in the blueprint were already proven at the right degree of generality;
-this would specially apply to results meant for \mathlib, for which we want a general statement and proof,
+this would especially apply to results meant for \mathlib, for which we want a general statement and proof,
 rather than a specialization to the project setting.
-Finally, we would consider more carefully whether to use non-standard proof methods in a hope to simplify the formalization,
+Finally, we would consider more carefully whether to use non-standard proof methods in the hope of simplifying the formalization,
 since this ended up causing most of the mathematical inaccuracies in the first version of the blueprint.
 
 After the Carleson project was finished,
@@ -1527,7 +1527,7 @@ specify the boundedness of an operator with respect to the $L^{p,1}$-norm.
 
 There is a generalization of the Marcinkiewicz interpolation theorem to Lorentz spaces,
 which we have not formalized yet.
-However, we have finished the formalization that this generalized interpolation result
+However, we have completed a formalization showing that this generalized interpolation result
 implies \Cref{classical-carleson} for $L^p$ functions with $p>1$.
 
 %\bibliographystyle{plain}
