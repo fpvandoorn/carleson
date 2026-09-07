@@ -43,6 +43,7 @@
 \newcommand{\LClistingname}{\MakeLowercase{\lstlistingname}}
 \newcommand{\lean}[1]{\lstinline{#1}}
 \newcommand{\mlean}[1]{\mathtt{\ #1\ }}
+\def\mmlean{\lstinline[mathescape]}
 
 \usepackage{xspace}
 
@@ -329,9 +330,12 @@ which may or may not converge for a given $x\in\real$.
 The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$.
 
 \begin{definition}\label{def:doubling}
-A \emph{doubling metric measure space}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L98}{\extlink} $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
-equipped with a non-zero locally finite Borel measure $\mu$ that satisfies the following doubling condition for $a\in\nat$.
-For all $x\in X$ and all $R>0$ we have
+A \emph{doubling metric measure
+space}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L98}{\extlink}
+$(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
+equipped with a non-zero locally finite Borel measure $\mu$ that satisfies
+the following doubling condition for some $a\in\nat$. For all $x\in X$ and
+all $R>0$ we have
 \begin{equation*}
 	\mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
 \end{equation*}
@@ -406,11 +410,12 @@ and the Hilbert kernel $\kappa\colon\real\to\complex$ is defined as
 
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
 
-In this sections we state the definitions used in the metric space Carleson theorem.
-Let $a \ge 4$ be a natural number. A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}
-if there is a point $o\in X$ where all the functions are equal to $0$,
-and if there exists for each ball $B \subseteq X$ a metric $d_B$ on $\Mf$,
-such that the following five properties are satisfied.
+In this section we state the definitions used in the metric space Carleson
+theorem. Let $a \ge 4$ be a natural number. A collection $\Mf$ of real-valued
+continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is
+called \emph{compatible} if there is a point $o\in X$ where all the functions
+are equal to $0$, and if there exists for each ball $B \subseteq X$ a metric
+$d_B$ on $\Mf$, such that the following five properties are satisfied.
 \begin{itemize}
 \item For every ball $B \subseteq X$ and any $\mfa, \mfb \in \Mf$,
 \begin{equation}\label{osccontrol}
@@ -451,7 +456,7 @@ $$
 $$
 
 \begin{definition}\label{def:one-sided-kernel}
-A \emph{one-sided Calder\'on--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L250}{\extlink} $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
+A \emph{one-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L250}{\extlink} $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
 is a measurable function $K:X\times X\to \mathbb{C}$ such that for all $x,y',y\in X$ with $x\neq y$, we have
 \begin{equation}
 	|K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
@@ -465,7 +470,7 @@ where $V(x,y):=\mu(B(x,\rho(x,y)))$.
 
 
 \begin{definition}\label{def:two-sided-kernel}
-A \emph{two-sided Calder\'on--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TwoSidedCarleson/WeakCalderonZygmund.lean#L17}{\extlink} is a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
+A \emph{two-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TwoSidedCarleson/WeakCalderonZygmund.lean#L17}{\extlink} is a one-sided Calderón--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
 \begin{equation}
 	|K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
 \end{equation}
@@ -516,7 +521,7 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
 \label{metric-space-Carleson}
     For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
-    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$.
+    Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$.
     Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{nontanbound}
         \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
@@ -530,7 +535,7 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
 \end{theorem}
 
 In some applications, such as the Walsh-case of Carleson's theorem, the kernel $K$ naturally depends also on the modulation functions $\mfa$.
-The fact that we don't assume H\"older-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
+The fact that we don't assume Hölder-continuity of the kernel $K$ in the first argument allows us to also capture this situation.
 
 The second version of our main result has a slightly weaker replacement of the assumption \eqref{nontanbound}.
 It implies the Walsh-case of Carleson's theorem.
@@ -541,7 +546,7 @@ It implies the Walsh-case of Carleson's theorem.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
     cancellative compatible collection of functions.
     Let $\tQ:X\to \Mf$ be a Borel function with finite range.
-    Let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    Let $K$ be a one-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{linnontanbound}
         \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
@@ -553,14 +558,14 @@ It implies the Walsh-case of Carleson's theorem.
     \end{equation}
 \end{theorem}
 
-The third version of the main result involves two-sided Calder\'on--Zygmund kernels, whose additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
+The third version of the main result involves two-sided Calderón--Zygmund kernels, whose additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
 In particular, the two-sided case can be applied to derive the classical Carleson's theorem.
 
 \begin{theorem}[two-sided metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TwoSidedCarleson/MainTheorem.lean\#L30}{\extlink}]
     \label{two-sided-metric-space-Carleson}
         For all  integers $a \ge  4$ and real numbers $1<q\le 2$ the following holds.
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
-        cancellative compatible collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
+        cancellative compatible collection of functions and let $K$ be a two-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
       \begin{equation}
             \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
         \end{equation}
@@ -601,10 +606,8 @@ Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with fin
 for all Borel functions $f\colon X\to \complex$ with $|f|\le \mathbf{1}_F$ we have
 \begin{equation*}
     \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right| \mathrm{d}\mu(x)
-\end{equation*}
-\begin{equation}
     \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac 1 q},
-\end{equation}
+\end{equation*}
 where for $s \in \mathbb{Z}, K_s(x,y) := K(x,y)\psi(D^{-s}\rho(x,y))$.
 \end{theorem}
 
@@ -654,7 +657,7 @@ We now further subdivide in the frequency domain, intuitively partitioning for e
 \end{equation}
 \item For all tiles $\fp, \fq$ with $\scI(\fp) \le \scI(\fq)$ it holds that
 \begin{equation}
-    \fc(\fq)\subseteq \fc(\fp) .
+    \fc(\fq)\subseteq \fc(\fp) \quad\text{or}\quad \fc(\fq)\cap \fc(\fp) = \emptyset.
 \end{equation}
 \item For every tile $\fp$, the set of functions $\fc(\fp)$ contains a ball with center $\fcc(\fp)$ and is of size approximately $D^{\ps(\fp)}$ in the sense that
 \begin{equation}
@@ -783,7 +786,7 @@ cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
   (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
 \end{lstlisting}
 
-The class \lean{IsOneSidedKernel} captures the notion of one-sided Calder\'on--Zygmund kernel (Definition~\ref{def:one-sided-kernel}).
+The class \lean{IsOneSidedKernel} captures the notion of one-sided Calderón--Zygmund kernel (Definition~\ref{def:one-sided-kernel}).
 
 \begin{lstlisting}[mathescape]
 class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
@@ -793,7 +796,7 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
     (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
 \end{lstlisting}
 
-To avoid constant repetition of hypotheses, we create a class \lean{KernelProofData}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L261}{\extlink} which contains data used in most of chapters 2 through 7 of the blueprint: a doubling measure on $X$, a natural number greater than three, a collection of compatible functions, and a one-sided Calder\'on--Zygmund kernel. See \S\ref{subsec:proof_data} for a more detailed discussion of this design choice.
+To avoid constant repetition of hypotheses, we create a class \lean{KernelProofData}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L261}{\extlink} which contains data used in most of chapters 2 through 7 of the blueprint: a doubling measure on $X$, a natural number greater than three, a collection of compatible functions, and a one-sided Calderón--Zygmund kernel. See \S\ref{subsec:proof_data} for a more detailed discussion of this design choice.
 \begin{lstlisting}[mathescape]
 class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
     [PseudoMetricSpace X] where
@@ -838,10 +841,20 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
 %	‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖$_e$
 %\end{lstlisting}
 
-The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L228}{\extlink} is defined as a special case of the
-\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L222}{\extlink}; these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression $\mlean{\|carlesonOperatorIntegrand K (Q x) R_1 R_2 f x\|_e}$ denotes the extended norm of the integral appearing in Equation \eqref{def-T-r}, taking values in $\ennreal$ (see \ref{subsec:enorm} for more details).
-% JMS the \mlean command does not render correctly (spaces are not rendered)
-In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L216}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L55}{\extlink} denotes the set of real numbers $y$ such that $R_1 < \text{dist}(x, y) < R_2$.
+The
+\lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L228}{\extlink}
+is defined as a special case of the
+\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L222}{\extlink};
+these definitions correspond to those introduced in equations
+\eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression
+\mmlean{‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖$_e$} denotes the extended
+norm of the integral appearing in Equation \eqref{def-T-r}, taking values in
+$\ennreal$ (see \ref{subsec:enorm} for more details). In
+\lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L216}{\extlink}
+below, \lean{Set.Annulus.oo x R₁
+R₂}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L55}{\extlink}
+denotes the set of real numbers $y$ such that $R_1 < \text{dist}(x, y) <
+R_2$.
 \begin{lstlisting}[mathescape]
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
@@ -880,9 +893,17 @@ Another aspect is making the relevant definitions easy to audit: to this end, we
 % 137 lines of Lean code (without comments) in BasicDefinitions, 26 in Challenge
 In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon --- which implies getting careful review (and further reduces the need to trust code beyond \mathlib).
 
-Lean ensures that the formalized proof matches the given statement.
-For maximum robustness (also suitable against adversarial code), we should double-check the theorem statement's meaning is not changed, e.g. via overriding notation or abuse of Lean's metaprogramming facilities. We achieve this in two ways. Firstly, each theorem is a Lean definition (with the proof constructing a term of that type) --- this way, the theorem statements only require auditing the same 170 lines above.
-Secondly, the \emph{comparator} tool\footnote{\url{https://github.com/leanprover/comparator}} can verify such a correspondence of a given proof to a provided theorem, in a matter that is robust against malicious code or abuse of Lean's metaprogramming facilities. It is the gold standard for verification of formalisations.
+Lean ensures that the formalized proof matches the given statement. For
+maximum robustness (also suitable against adversarial code), we should
+double-check the theorem statement's meaning is not changed, e.g.\ via
+overriding notation or abuse of Lean's metaprogramming facilities. We achieve
+this in two ways. Firstly, each theorem is a Lean definition (with the proof
+constructing a term of that type) --- this way, the theorem statements only
+require auditing the same 170 lines above. Secondly, the \emph{comparator}
+tool\footnote{\url{https://github.com/leanprover/comparator}} can verify such
+a correspondence of a given proof to a provided theorem, in a matter that is
+robust against malicious code or abuse of Lean's metaprogramming facilities.
+It is the gold standard for verification of formalisations.
 We have also verified the classical Carleson theorem (Theorem~\ref{classical-carleson}) and its metric space (Theorem~\ref{metric-space-Carleson}) and linearized metric space generalizations (Theorem~\ref{linearized-metric-Carleson}) using comparator. %: this certifies that the statements in the Lean file \texttt{Challenge.lean} match what is actually proven.
 
 \section{Project organization}\label{sec:org}
@@ -1373,8 +1394,7 @@ While the \lean{filter_upwards}\href{https://github.com/leanprover-community/mat
 Incidentally, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}: this underscores this choice.
 % Does this have other reasons, such as transitioning between different function properties?
 
-% TeX note: first display was \mlean{Lp E p \mu}; doesn't print spaces
-This relates well with the use of enorms (\ref{subsec:enorm}): \texttt{Lp E p} $\mathtt{\mu}$ as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
+This relates well with the use of enorms (\ref{subsec:enorm}): \mmlean{Lp E p $\mu$} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
 
 % TeX note: \lean for the first argument would omit the angular brackets; \lean|...| would mis-parse the contents. This way works.
 This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lstinline|{f : X → Y} (hf : Continuous f)| instead of the bundled \lean{f : ContinuousMap X Y}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Topology/ContinuousMap/Defs.lean#L33}{\extlink}.
@@ -1394,8 +1414,8 @@ integrability and measurability considerations are usually mathematically trivia
 
 It is desirable for this simplicity to be reflected in the formalization.
 This motivated packaging the recurring side conditions into test function classes.
-The structures \lean{BoundedCompactSupport}%\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/ToMathlib/BoundedCompactSupport.lean#L81}{\extlink}
-and \lean{BoundedFiniteSupport}%\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L74}{\extlink}
+The auxiliary structures \lean{BoundedCompactSupport} %\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/ToMathlib/BoundedCompactSupport.lean#L81}{\extlink}
+and \lean{BoundedFiniteSupport} %\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L74}{\extlink}
 contain bounded measurable functions with compact support and with support of finite measure, respectively.
 
 Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
@@ -1406,12 +1426,12 @@ or that \lean{s.indicator f} again has bounded compact support when \lean{s} is 
 Lemmas such as \lean{hf.carlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Operators.lean#L164}{\extlink} show that the relevant
 operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
 
-Choosing the right definition of these structures can be subtle.
-With the existing measure theory developments in Mathlib in mind,
-one might be tempted to use the notion of {\em essential boundedness}
-(i.e. boundedness potentially up to a set of measure zero)
-rather than {\em everywhere boundedness} (and similarly, one might want to use {\em essential compactness}
-rather than genuine compactness).
+Choosing the right definition of these structures can be subtle. With the
+existing measure theory developments in Mathlib in mind, one might be tempted
+to use the notion of {\em essential boundedness} (i.e.\ boundedness
+potentially up to a set of measure zero) rather than {\em everywhere
+boundedness} (and similarly, one might want to use {\em essential
+compactness} rather than genuine compactness).
 
 In this context, it seems preferable to impose the stronger requirements. In analysis, test functions
 are typically chosen to have strong properties, making it easier to prove {\em a priori} estimates,
