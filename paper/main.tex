@@ -281,6 +281,7 @@ A common feature is an explicit mathematical blueprint, a detailed natural langu
 Prior to the Carleson project, relatively little harmonic analysis had been formalized in any proof assistant: for example, the Isabelle and HOL Light libraries have an implementation of Fourier series\footnote{\url{https://isa-afp.org/entries/Fourier.html}} (but no more advanced tools such as the real interpolation theorem); the Mizar Mathematical library has a formalization of Minkowski's inequality \footnote{for infinite sums, \url{https://fm.mizar.org/2005-13/pdf13-1/holder_1.pdf}}, but no definition of Fourier series (only discrete Fourier transforms).
 Mathlib knows some Fourier analysis thanks to Doll's work on tempered distributions \cite{DollSobolevFourier}.
 The Hardy--Littlewood maximal estimate has been formalized in Rocq \cites{AffeldtFTCRocq,AffeldtLebesgueDiffRocq}, but only for functions $\real\to\real$.
+% The \href{https://github.com/TauCetiProject/TauCeti}{Tau Ceti library} also contains a definition of the Hardy--Littlewood maximal function and proofs of the maximal inequality. These were completed after this project, and explicitly copied and built on the insights in this project.\footnote{The \href{https://github.com/TauCetiProject/TauCetiRoadmap/blob/main/TauCetiRoadmap/PDE/README.md}{design notes} specifically say ``vendor heavily from the Carleson project''.}
 
 \noindent \textit{Acknowledgement.}
 The authors are grateful to Asgar Jamneshan, Rajula Srivastava and Christoph Thiele for writing the mathematical paper \cite{ThieleCarlesonPreprint} and the blueprint \cite{CarlesonBlueprint} on which this formalization is based.
@@ -1262,7 +1263,7 @@ The specific implementation of this idea in the Carleson project is slightly
 more involved, as it is written in the form \lean{[ProofData a q K sigma1
 sigma2 F G]}. However, all the additional data $a$, $q$, $K$, $\sigma_1$,
 $\sigma_2$, $F$ and $G$ are inferred automatically from the selected type-class instance (in
-technical terms, they are \emph{outparams}). This means that the user typically does not
+technical terms, they are \emph{outparams}). This means that the user does not
 have to provide them explicitly, as expected of a system designed to
 handle standing assumptions.
 
