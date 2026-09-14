@@ -20,7 +20,6 @@ open Set Measure Filter TopologicalSpace ENNReal
 
 namespace NoAtoms'
 
---TODO: should we use `Nonempty α` or rather `Inhabited α` ?
 lemma of_metric {α : Type*} [PseudoMetricSpace α] [ProperSpace α]
   [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [IsFiniteMeasureOnCompacts μ]
   (c : α) (hμ : ∀ r : ℝ, μ (Metric.closedBall c r) = μ (Metric.ball c r)) :
