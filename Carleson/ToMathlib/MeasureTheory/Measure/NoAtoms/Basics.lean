@@ -297,7 +297,7 @@ theorem PFun.Prop_insert {β : Type*} {f : α →. β} {a : α} {b : β} {p : α
 
 /-- The property of a partial function `f` to be *monotone*, i.e. `f a ≤ f b` whenever `a ≤ b` and
 both `a` and `b` are in the domain of `f`. -/
-def PFun.Monotone [Preorder α] {β : Type*} [Preorder β] (f : α →. β) :=
+def PFun.Monotone [Preorder α] {β : Type*} [Preorder β] (f : α →. β) : Prop :=
   ∀ ⦃a b⦄ (ha : a ∈ f.Dom) (hb : b ∈ f.Dom), a ≤ b → f.fn a ha ≤ f.fn b hb
 
 set_option linter.dupNamespace false in

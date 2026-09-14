@@ -20,14 +20,12 @@ open Set Measure Filter TopologicalSpace ENNReal
 
 namespace NoAtoms'
 
---TODO: should we use `Nonempty α` or rather `Inhabited α` ?
-lemma of_metric {α : Type*} [ne : Nonempty α] [PseudoMetricSpace α] [ProperSpace α]
+lemma of_metric {α : Type*} [PseudoMetricSpace α] [ProperSpace α]
   [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [IsFiniteMeasureOnCompacts μ]
-  (hμ : ∀ r, μ (Metric.closedBall ne.some r) = μ (Metric.ball ne.some r)) :
+  (c : α) (hμ : ∀ r : ℝ, μ (Metric.closedBall c r) = μ (Metric.ball c r)) :
     NoAtoms' μ := by
   rw [no_atoms_iff]
   intro s meas_s hs
-  let c := ne.some
   set f := fun r ↦ μ ((Metric.ball c r) ∩ s)
   have hf : Monotone f := by
     intro a b hab
@@ -108,7 +106,7 @@ lemma of_metric {α : Type*} [ne : Nonempty α] [PseudoMetricSpace α] [ProperSp
 
 instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
     [FiniteDimensional ℝ E] (μ : Measure E) [μ.IsAddHaarMeasure] [Nontrivial E] : NoAtoms' μ := by
-  apply of_metric
+  apply of_metric 0
   apply addHaar_closedBall_eq_addHaar_ball
 
 --TODO: Prove more general result, possibly using this :
