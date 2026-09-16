@@ -213,7 +213,7 @@ community.
 The third reason is the highly collaborative nature of this project.
 It was a large-scale collaborative formalization,
 developed in public and open to anyone who wanted to contribute:
-all authors formalized a significant part of the theorem.
+all authors formalized a significant part of the theorems.
 The last reason is that this is one of a handful of examples in mathematics where the formalization
 of a preprint was finished prior to the submission of the preprint to a journal.
 
@@ -312,11 +312,11 @@ J.R.\ was supported in part by NSF grant DMS-2154835 and a HIM fellowship for th
 
 \subsection{Mathematical background}\label{subsec:background}
 The basic object of study in Carleson's theorem is the Fourier series of a periodic function on the real numbers.
-Given a $2\pi$-periodic function $f\colon \real \to \complex$ integrable on $[0, 2\pi]$ and $n \in \mathbb{Z}$, define the \emph{$n$th Fourier coefficient} of $f$ as
+Given a $2\pi$-periodic function $f\colon \real \to \complex$ integrable on $[0, 2\pi]$ and $n \in \mathbb{Z}$, define the \emph{$n$-th Fourier coefficient} of $f$ as
 \begin{equation*}
     c_n \coloneq \widehat{f}_n \coloneq \frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
 \end{equation*}
-The Lean version \lean{fourierCoeffOn}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Analysis/Fourier/AddCircle.lean#L350-L354}{\extlink} uses \mathlib's formalization of the Bochner integral and thus is well-defined if $f\in L^1(0,2\pi)$.
+The Lean version \lean{fourierCoeffOn}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Analysis/Fourier/AddCircle.lean#L350-L354}{\extlink} uses \mathlib's formalization of the Bochner integral.
 
 \begin{definition}\label{def:fourier-series}
 The \emph{$N$-th partial Fourier sum}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L43}{\extlink} of $f$ for $x\in\real$ is defined as
@@ -327,7 +327,7 @@ The \emph{Fourier series} of $f$ is then given by the formal trigonometric serie
 which may or may not converge for a given $x\in\real$.
 \end{definition}
 
-The metric space Carleson theorem in \cite{CarlesonBlueprint} is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$.
+The metric space Carleson theorem, \Cref{metric-space-Carleson}, is a restricted weak type estimate for a generalized Carleson operator. One of the generalizations here is that the domain of the functions operated on can be any \emph{doubling metric measure space} $(X,\rho,\mu, a)$.
 
 \begin{definition}\label{def:doubling}
 A \emph{doubling metric measure
@@ -342,7 +342,7 @@ all $R>0$ we have
 where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball of radius $R$ centered at $x$.
 \end{definition}
 
-The proof of the metric space Carleson theorem relies on several tools from real analysis, including the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Its statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g.\ \cite{vanDoornFormalizedHaarMeasure} for an overview).
+The proof of \Cref{metric-space-Carleson} relies on several tools from real analysis, including the Marcinkiewicz real interpolation theorem (see \ref{subsubsec:real_interpolation}). Its statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g.\ \cite{vanDoornFormalizedHaarMeasure} for an overview).
 For a function $f$ on a measure space $(X,\mu)$ taking values in some space $E$ endowed with an extended norm $\|\cdot\|_e$ (see \ref{subsec:enorm}), we define its \emph{$L^p$-norm}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L83-L87}{\extlink} to be
 \begin{equation*}
   \|f\|_{L^{p}} \coloneq \big(\int_X\|f(x)\|_e^p\, d\mu(x)\big) ^ \frac{1}{p}
