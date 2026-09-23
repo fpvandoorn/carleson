@@ -407,7 +407,7 @@ if there is a point $o\in X$ where all the functions are equal to $0$,
 and if there exists for each open? ball $B \subseteq X$ a metric $d_B$ on $\Mf$,
 such that the following five properties are satisfied.
 \begin{itemize}\label{def:compatible}
-\item For every ball $B \subseteq X$ and any $\mfa, \mfb \in \Mf$,
+\item For every open ball $B \subseteq X$ and any $\mfa, \mfb \in \Mf$,
 \begin{equation}\label{osccontrol}
     \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb).
 \end{equation}
@@ -436,7 +436,7 @@ at most $2^a$ many open $d_B$-balls of radius $R$ covering $\tilde B$, that is,
 
 \begin{definition}
 A compatible collection $\Mf$ is called \emph{cancellative}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L191-L197}{\extlink} if
-for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi\colon X\to \complex$
+for any open ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi\colon X\to \complex$
 supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
 \begin{equation*}
 	\Big|\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)\Big|\le 2^a \mu(B)\|\varphi\|_{\Lip(B)}
@@ -469,12 +469,12 @@ A \emph{two-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/
 \end{definition}
 
 Let $f\colon X \to \complex$ be a bounded, measurable function supported on a set of finite measure.
-Define the \emph{maximally truncated non-tangential singular integral}\href{https://github.com/fpvandoorn/carleson/blob/38587d19c6c4c38a179b68476f717cad2706c51e/Carleson/Defs.lean#L211-L212}{\extlink} $T_{*}$ associated with $K$ by
+Define the \emph{maximally truncated non-tangential singular integral}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L211-L212}{\extlink} $T_{*}$ associated with $K$ by
 \begin{equation}
     \label{def-tang-unm-op}
     T_{*}f(x):=\sup_{0 < R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
 \end{equation}
-Additionally, define for $r > 0$, $x\in X$ the \emph{Calderon--Zygmund operator}\href{https://github.com/fpvandoorn/carleson/blob/38587d19c6c4c38a179b68476f717cad2706c51e/Carleson/TwoSidedCarleson/Basic.lean#L15-L16}{\extlink} $T_r$ as
+Additionally, define for $r > 0$, $x\in X$ the \emph{Calderon--Zygmund operator}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/TwoSidedCarleson/Basic.lean#L15-L16}{\extlink} $T_r$ as
 \begin{equation}
 \label{def-T-r}
 T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
@@ -703,7 +703,7 @@ $$\sum_{\fp\in\mathfrak{A}}T_{\fp}.$$
 The fifth subclass is small, and we can choose $G'$
 so that it contains $\scI(\fp)$ for all tiles $\fp$ in this subclass.
 
-The remaining tiles can be partitioned into a small number of so-called \emph{forests}\href{https://github.com/fpvandoorn/carleson/blob/38587d19c6c4c38a179b68476f717cad2706c51e/Carleson/Forest.lean#L21-L33}{\extlink}
+The remaining tiles can be partitioned into a small number of so-called \emph{forests}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Forest.lean#L21-L33}{\extlink}
 (not in the graph-theoretic sense)
 with trees that each contain one of the aforementioned tree tops.
 The main result of Section~7 of the blueprint estimates the Carleson operator on such a forest.
@@ -722,9 +722,9 @@ theorem classical_carleson {f : ℝ → ℂ}
 The statement of the hypotheses ($f \colon \real \to \complex$ is a continuous $2\pi$-periodic function) closely resembles natural language, but understanding the conclusion requires some familiarity with Lean and \mathlib. There, $\forall^m x$ means ``for every real number $x$ not in a set of measure zero'', and
 \lean{Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on \mathlib's use of filters to represent limits).
 
-The definition \lean{partialFourierSum}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L43-L44}{\extlink} encodes the $N$-th partial Fourier sum of $f\colon\real \to\complex$. Here, \lean{Finset.Icc}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Finset/Defs.lean#L280}{\extlink}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Set/Defs.lean\#L59}{\extlink} denotes the interval $[a, b)$ and \lean{Set.Iic b}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Set/Defs.lean\#L44}{\extlink} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Interval/Finset/Defs.lean\#L108}{\extlink} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Data/Finset/Defs.lean\#L72-L79}{\extlink} versions of these intervals.
-} denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Analysis/Fourier/AddCircle.lean#L350-L354}{\extlink} is the
-$n$-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Analysis/Fourier/AddCircle.lean#L123}{\extlink} denotes $e^{inx}$.
+The definition \lean{partialFourierSum} encodes the $N$-th partial Fourier sum of $f\colon\real \to\complex$. Here, \lean{Finset.Icc}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean#L280}{\extlink}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L59}{\extlink} denotes the interval $[a, b)$ and \lean{Set.Iic b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L44}{\extlink} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean\#L108-L124}{\extlink} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Finset/Defs.lean\#L72-L79}{\extlink} versions of these intervals.}
+denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Analysis/Fourier/AddCircle.lean#L351-L355}{\extlink} is the
+$n$-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Analysis/Fourier/AddCircle.lean#L123-L125}}{\extlink} denotes $e^{inx}$.
 \begin{lstlisting}[mathescape]
 def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ :=
   ∑ n ∈ Finset.Icc (-(N : ℤ)) N,
@@ -995,7 +995,7 @@ and there was one computation that already implicitly assumed
 that there was only one top cube.
 
 \subsubsection{The Hardy--Littlewood maximal function} An important ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
-Recall that, given $f\colon\real^d\to\complex$, the (centered) \emph{Hardy–Littlewood maximal function}\href{https://github.com/fpvandoorn/carleson/blob/38587d19c6c4c38a179b68476f717cad2706c51e/Carleson/ToMathlib/HardyLittlewood.lean#L25-L28}{\extlink} $M f$ of $f$ is defined as
+Recall that, given $f\colon\real^d\to\complex$, the (centered) \emph{Hardy–Littlewood maximal function}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/HardyLittlewood.lean#L31-L32}{\extlink} $M f$ of $f$ is defined as
 \begin{equation*}
 Mf\colon\real^d \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
 \end{equation*}
