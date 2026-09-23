@@ -247,8 +247,7 @@ The Carleson formalization project was publicly announced and opened to contribu
 The formalization was written in Lean~4, making extensive use of Lean's mathematical library \mathlib~\cite{mathlib}.\footnote{\url{https://github.com/leanprover-community/mathlib4}}
 The code was developed in a public GitHub repository,\footnote{\url{https://github.com/fpvandoorn/carleson}} with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat.\footnote{\url{https://leanprover.zulipchat.com}} For more details, see \S\ref{sec:org}.
 
-%TODO: update stats about line numbers
-The project comprises around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 111 merged pull requests and 5 more under review.
+When the project was finished, it comprised around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 111 merged pull requests and 5 more under review.
 
 Throughout the article, we introduce Lean code excerpts from the formalization and use the following clickable symbol\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L298-L300}{\extlink} to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
 
@@ -304,7 +303,7 @@ J.R.\ was supported in part by NSF grant DMS-2154835 and a HIM fellowship for th
 
 \subsection{Mathematical background}\label{subsec:background}
 The Carleson theorem can be stated for Fourier series or Fourier transforms of a function, but in our formalization we targeted Carleson's theorem for the Fourier series of a periodic function on the real numbers.
-Given a $2\pi$-periodic function $f\colon \real \to \complex$, integrable on $[0, 2\pi]$ and $n \in \mathbb{Z}$, define the \emph{$n$-th Fourier coefficient} of $f$ as
+Given a $2\pi$-periodic function $f\colon \real \to \complex$, integrable on $[0, 2\pi]$, and $n \in \mathbb{Z}$, define the \emph{$n$-th Fourier coefficient} of $f$ as
 \begin{equation*}
     c_n \coloneq \widehat{f}_n \coloneq \frac 1{2\pi}\int_0^{2\pi}f(x) e^{- i nx}\, dx.
 \end{equation*}
@@ -334,7 +333,7 @@ all $R>0$ we have
 where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball.
 \end{definition}
 
-The proof of \Cref{metric-space-Carleson} relies on several tools from real analysis, including the Marcinkiewicz real interpolation theorem (see \S\ref{subsubsec:real_interpolation}). Its statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g.\ \cite{vanDoornFormalizedHaarMeasure} for an overview).
+The proof of \Cref{metric-space-Carleson} relies on several tools from real analysis, including the Marcin\-kiewicz real interpolation theorem (see \S\ref{subsubsec:real_interpolation}). Its statement and proof require the following definitions for which we could rely on \mathlib's measure theory (see e.g.\ \cite{vanDoornFormalizedHaarMeasure} for an overview).
 Let $E$ be either a normed space over $\mathbb{R}$ endowed with a norm $\|\cdot\|$,
 or the extended non-negative real numbers $\ennreal=[0,\infty]$, where $\|\cdot\|$ is defined to be the identity function (see \S\ref{subsec:enorm}). For a function $f$ on a measure space $(X,\mu)$ taking values in $E$, we define its \emph{$L^p$-norm}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L83-L87}{\extlink} to be
 \begin{equation*}
@@ -346,7 +345,7 @@ $\mu\{x\in X \mid t < \|f(x)\| \}=0$. Similarly, we define the \emph{weak $L^p$-
   \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X \mid t < \|f(x)\| \}) ^ \frac{1}{p}
 \end{equation*}
 for $0<p<\infty$, and $\|f\|_{L^{\infty,\infty}} \coloneq \|f\|_{L^{\infty}}$.
-The function $f$ is said to be in weak $L^p$\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/WeakType.lean#L285-L286}{\extlink} if $f$ is $\mu$-a.e.\ strongly measurable with respect to a fixed topology on $E$ (see e.g.\ \cite{GouezelChangeOfVariables} for motivation of the different notions of measurability in \mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
+The function $f$ is said to be \emph{in weak $L^p$}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/WeakType.lean#L285-L286}{\extlink} if $f$ is $\mu$-a.e.\ strongly measurable with respect to a fixed topology on $E$ (see e.g.\ \cite{GouezelChangeOfVariables} for motivation of the different notions of measurability in \mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
 An important consequence is that if $f$ is in weak $L^p$, then $\|f(x)\|$ is finite for almost every $x$.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/WeakType.lean#L302}{\extlink}
 
 Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T\colon (X \to E) \to (Y \to F)$ is \emph{of weak type $(p,p')$}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/WeakType.lean#L418-L420}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
@@ -362,10 +361,10 @@ Similarly, the operator $T$ is of \emph{strong type $(p, p')$}\href{https://gith
 
 \subsubsection{Classical Carleson}\label{subsubsec:classical-result}
 
-The namesake of the formalization project is the classical result of Carleson on the pointwise convergence of Fourier series.
+The namesake of the formalization project is Carleson's classical result on the pointwise convergence of Fourier series.
 The specific statement we formalized is as follows. Note that in our formalization we require that the given function is continuous.
 
-\begin{theorem}[classical Carleson\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Classical/ClassicalCarleson.lean\#L131-L132}{\extlink}]
+\begin{theorem}[classical Carleson \cite{carleson}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Classical/ClassicalCarleson.lean\#L131-L132}{\extlink}]
     \label{classical-carleson}
     Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
     Then for almost all $x \in \mathbb{R}$, the limit
@@ -388,7 +387,7 @@ where
     T f(x)\coloneq\sup_{n\in \mathbb{Z}}
     \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|,
 \end{equation*}
-and the Hilbert kernel $\kappa\colon\real\to\complex$ is defined as
+and the \emph{Hilbert kernel} $\kappa\colon\real\to\complex$ is defined as
 \begin{equation*}
     \kappa(x)\coloneq\begin{cases}
         0 & \text{if $x = 0$ or $|x| \ge 1$} \\
@@ -405,29 +404,29 @@ Let $a \ge 4$ be a natural number.
 \begin{definition}
 A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}
 if there is a point $o\in X$ where all the functions are equal to $0$,
-and if there exists for each ball $B \subseteq X$ a metric $d_B$ on $\Mf$,
+and if there exists for each open? ball $B \subseteq X$ a metric $d_B$ on $\Mf$,
 such that the following five properties are satisfied.
 \begin{itemize}\label{def:compatible}
-\item For every ball $B \subseteq X$ and any $\mfa, \mfb \in \Mf$,
+\item For every open? ball $B \subseteq X$ and any $\mfa, \mfb \in \Mf$,
 \begin{equation}\label{osccontrol}
     \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb).
 \end{equation}
-\item For any two balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$ and any $\mfa,\mfb\in \Mf$,
+\item For any two open balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$ and any $\mfa,\mfb\in \Mf$,
 \begin{equation}\label{firstdb}
     d_{B_2}(\mfa,\mfb) \le 2^a d_{B_1}(\mfa,\mfb).
 \end{equation}
-\item For any two balls $B_1, B_2$ in $X$ with $B_1 \subseteq B_2$ and any $\mfa, \mfb \in \Mf$
+\item For any two open balls $B_1, B_2$ in $X$ with $B_1 \subseteq B_2$ and any $\mfa, \mfb \in \Mf$
 \begin{equation}\label{monotonedb}
     d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa, \mfb).
 \end{equation}
-\item For any two balls
+\item For any two open balls
 $B_1=B(x_1,R)$, $B_2= B(x_2,2^aR)$
 with $B_1\subseteq B_2$, and $\mfa,\mfb\in \Mf$,
 \begin{equation}\label{seconddb}
     2d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa,\mfb).
 \end{equation}
-\item For every ball $B$ in $X$ and every $d_B$-ball $\tilde B$ of radius $2R$ in $\Mf$, there is a collection $\mathcal{B}$ of
-at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
+\item For every open ball $B$ in $X$ and every open $d_B$-ball $\tilde B$ of radius $2R$ in $\Mf$, there is a collection $\mathcal{B}$ of
+at most $2^a$ many open $d_B$-balls of radius $R$ covering $\tilde B$, that is,
 \begin{equation}\label{thirddb}
     \tilde B\subseteq \bigcup \mathcal{B}.
 \end{equation}
@@ -437,7 +436,7 @@ at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
 
 \begin{definition}
 A compatible collection $\Mf$ is called \emph{cancellative} if
-for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi\colon X\to \complex$
+for any open ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi\colon X\to \complex$
 supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
 \begin{equation*}
 	\Big|\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)\Big|\le 2^a \mu(B)\|\varphi\|_{\Lip(B)}
@@ -451,7 +450,7 @@ $$
 
 \begin{definition}\label{def:one-sided-kernel}
 A \emph{one-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L250-L254}{\extlink} $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
-is a measurable function $K:X\times X\to \mathbb{C}$ such that for all $x,y',y\in X$ with $x\neq y$, we have
+is a measurable function $K:X\times X\to \mathbb{C}$ such that for all $x,y,y'\in X$ with $x\neq y$, we have
 \begin{equation*}
 	|K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
 \end{equation*}
