@@ -36,7 +36,7 @@
 \definecolor{attributecolor}{cmyk}{0,0.90,0.86,0} % ACMRed
 \renewcommand{\lstlistingname}{Code excerpt}
 \newcommand{\LClistingname}{\MakeLowercase{\lstlistingname}}
-\newcommand{\lean}[1]{\lstinline{#1}}
+\let\lean\lstinline
 \newcommand{\mlean}[1]{\mathtt{\ #1\ }}
 \def\mmlean{\lstinline[mathescape]}
 
@@ -736,7 +736,7 @@ class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMe
 Next, we need to introduce the family $\Mf$ of compatible functions satisfying the properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb}. We do this in two steps, by first creating a class
 \lean{FunctionDistances}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L113-L121}{\extlink} which bundles a family of continuous functions and then endowing these functions with the five properties in the class \lean{CompatibleFunctions}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L167-L185}{\extlink} The assumption that the family is cancellative is added as a \lean{Prop}-valued class \lean{IsCancellative}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L191-L197}{\extlink}
 
-Something to note here is that we created type synonyms to be able to endow $\Mf$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean{dist_\{x, r\}} for the distance corresponding to the ball $B(x, r)$.
+Something to note here is that we created type synonyms to be able to endow $\Mf$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean|dist_{x, r}| for the distance corresponding to the ball $B(x, r)$.
 
 \begin{lstlisting}[mathescape]
 variable {k X : Type*} {A : ℕ} [RCLike k] [PseudoMetricSpace X]
@@ -1291,27 +1291,28 @@ This captures both normed spaces and $\ennreal$. The enorm of a normed space is 
 Some definitions only require the existence of an enorm; many results require suitable compatibility conditions.
 Most lemmas necessary in this project only require an \lean{ESeminormedAddMonoid},\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Analysis/Normed/Group/Defs.lean#L111-L117}{\extlink} i.e.\ a monoid endowed with a continuous enorm that is positive semi-definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions.
 
-Pursuing this approach required generalizing all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing us to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
-The final phase involved generalizing lemmas: often, this required small changes (such as constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no further changes needed to be made.
+Pursuing this approach required generalizing many basic measure-theoretic definitions from \mathlib to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing us to do so incrementally: in a first step, the \lean{ENorm} class was added, together with the enorm instance on normed spaces. Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms. In this step, some lemmas could be generalized without further modifications, but many lemmas required small changes (such as constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no further changes needed to be made.
 
-To illustrate the magnitude of this refactoring, let us give some statistics: phase two (changing the basic definitions) changed about 300 lines of code; phase three (changing lemma statements to \lean{enorm}s) about 1000, and the lemma generalizations so far touched about 2500 lines of code.
+To illustrate the magnitude of this refactoring, let us give some statistics: step two changed about 300 lines of code; step three changed about 3500 so far, with 1000 of these lines consisting of just changing type-classes in lemma statements where the rest of the statement or the proof did not require any further modification.
 
-The last phase (generalizing \mathlib lemmas) is not exhaustive: while substantial parts of \mathlib have been generalized, some areas would require further refactor (and will follow as needed). To give an example, the total variation of a path in $\ennreal$ is a sensible quantity, even though $\ennreal$ is not a metric space. Introducing a weaker notion of extended metric spaces will enable new applications, and also provide the proper abstraction to state many scalar multiplication lemmas nicely. This is an ongoing effort by Felix Pernegger.
+The last step is not exhaustive: while substantial parts of \mathlib have been generalized, some areas would require further refactor (and will follow as needed). An example of a refactor\href{https://github.com/leanprover-community/mathlib4/pull/42662}{\extlink} that happened after the Carleson project was completed, was to generalize the total variation of a function enough to apply to functions with $\ennreal$ as codomain. This required generalizing the concept of metric space, since in \mathlib the type $\ennreal$ is not an (extended) metric space. Extended metric spaces require that the topology is generated from the distance, which is not the case in $\ennreal$.
+Prior to this change, a weaker notion of extended metric spaces was introduced to \mathlib.\href{https://github.com/leanprover-community/mathlib4/pull/38105}{\extlink} Both of these refactors were performed by Felix Pernegger.
 
-The process of generalization revealed that this abstraction is also useful on its own: previously, many proofs in \mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using \lean{enorm}s provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics.
+The process of generalization revealed that this abstraction is also useful on its own: previously, many proofs in \mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using \lean{enorm}s provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics. % TODO(Michael): reformulate
 
 \subsection{Working with \texorpdfstring{$L^p$}{L\^{}p} functions}\label{subsec:Lp}
 
-Working with $L^p$ functions presents a further design choice: should one work with members of $L^p$ space (i.e., equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink}), or work with representatives (\lean{MemLp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}) instead?
+Working with $L^p$ functions presents a further design choice. One option is to work with elements of $L^p$ space, which are equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink}. A second option is to work with explicit functions and the condition that they are (a.e.\ strongly) measurable and that the $p$-th power of their norm is integrable, which is defined by the predicate \lean{MemLp}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}
 The mathematical difference is very small: virtually all operations in the project respect a.e.\ equality.
 Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
-(For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
-While the \lean{filter_upwards}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Filter/Defs.lean#L444}{\extlink} tactic simplifies reducing results from almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
-Incidentally, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}, underscoring this choice.
+For example, $(f+g)(x) = f(x) + g(x)$ holds on the nose for actual functions.
+If we have elements $\tilde{f},\tilde{g}\in L^p$,
+then we can still write down $\tilde{f}(x)$ by picking an arbitrary representative of this class, but then $(\tilde{f}+\tilde{g})(x)=\tilde{f}(x)+\tilde{g}(x)$ only holds for almost every $x$.
+This can make it significantly more cumbersome to manipulate expressions involving elements of the $L^p$ space.
+It is easiest to omit the passage entirely by working with functions with the predicate \lean{MemLp} directly.
+For this reason, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}.
 
-This relates well with the use of \lean{enorm}s (\S\ref{subsec:enorm}): \mmlean{Lp E p $\mu$} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
-
-This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lstinline|{f : X → Y} (hf : Continuous f)| instead of using the bundled \lean{f : ContinuousMap X Y}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Topology/ContinuousMap/Defs.lean#L33-L37}{\extlink}
+This relates well with the use of \lean{enorm}s (\S\ref{subsec:enorm}): \mmlean{Lp E p $\mu$} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
 
 \subsection{Test function classes}\label{subsec:bdd_comp_supp}
 A common task during the formalization was to prove the various integrability and measurability side goals
@@ -1362,10 +1363,9 @@ otherwise $f$ may send a set of positive measure to a set of measure zero where 
 Staying close to mathematical convention and using everywhere boundedness and ordinary compactness
 pays dividends in formalization, allowing us to provide a richer and more robust API leading
 to simpler proofs.
-Further streamlining is possible by using \lean{fun_prop}.
 
-\lean{fun_prop}\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/tactics.html\#Mathlib.Meta.FunProp.funPropTacStx}}
-is a \mathlib tactic developed by Tomáš Skřivan
+Further streamlining is possible by using \lean{fun_prop}.\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/tactics.html\#Mathlib.Meta.FunProp.funPropTacStx}}
+\lean{fun_prop} is a \mathlib tactic developed by Tomáš Skřivan
 that automatically uses tagged lemmas to show that a function has a certain property
 (continuity, differentiability, measurability, etc.).
 This tactic is good at writing complicated functions as a composition of simpler functions,
@@ -1386,13 +1386,13 @@ Both forms are equivalent when the set in question is measurable,\href{https://g
 but the form using a restricted measure is preferred.
 The reason is that \lean{s.indicator f}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Algebra/Notation/Indicator.lean#L51-L51}{\extlink}
 is generally only measurable when the set \lean{s} is measurable,
-while if \lean{f} is measurable with respect to the measure $\mu$, then it is unconditionally
-measurable with respect to $\mlean{\mu.restrict\;\; s}$.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/StronglyMeasurable/AEStronglyMeasurable.lean#L220-L223}{\extlink}
+while if \lean{f} is measurable with respect to the measure \lean{μ}, then it is unconditionally
+measurable with respect to \lean{μ.restrict s}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/StronglyMeasurable/AEStronglyMeasurable.lean#L220-L223}{\extlink}
 
 Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Algebra/Ring/Periodic.lean#L43-L44}{\extlink} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Topology/Instances/AddCircle/Defs.lean#L187-L188}{\extlink} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
 Depending on the context either of these representations could be more suitable.
 
-Finally, there were several results in the project that required us to consider sets of elements from a given finite type $\texttt{T}$. Since all such sets are finite, from a mathematical point of view there is no difference between the types $\texttt{Set T}$\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Set/Defs.lean#L44-L51}{\extlink} and $\texttt{Finset T}$.
+Finally, there were several results in the project that required us to consider sets of elements from a given finite type $\texttt{T}$. Since all such sets are finite, from a mathematical point of view there is no difference between the types $\texttt{Set T}$\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Set/Defs.lean#L44-L51}{\extlink} and $\texttt{Finset T}$.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Finset/Defs.lean#L72-L79}{\extlink}
 However, these are different types in Lean: $\texttt{Set T}$ is the type of all sets consisting of elements of type $\texttt{T}$, while $\texttt{Finset T}$ is the type of finite sets of elements of $\texttt{T}$. Therefore, we needed to make a decision about which of these types to use in the Carleson project. For the most part, we chose to use $\texttt{Set T}$, although sometimes $\texttt{Finset T}$ is used inside proofs, or when required to apply existing \mathlib results. In hindsight, it would likely have been slightly more convenient to use $\texttt{Finset T}$ throughout, to avoid issues like the following.
 
 If \texttt{T} is endowed with a \texttt{Fintype} instance, then \texttt{Finset.sum} can still be applied to a given \texttt{s : Set T}. There are two possible syntaxes to do this, as the following example shows. Note that the displayed equality is true \emph{propositionally} but not \emph{definitionally}: the left hand side is a sum over \texttt{s.toFinset}, whereas the right hand side is a sum over \texttt{\{p : T | p $\in$ s\}}, and these \texttt{Finset}s are not definitionally equal.
