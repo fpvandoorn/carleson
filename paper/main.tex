@@ -207,7 +207,7 @@ The third reason is the highly collaborative nature of this project.
 It was a large-scale collaborative formalization,
 developed in public and open to anyone who wanted to contribute:
 all authors formalized a significant part of the theorems.
-The last reason is that this is one of a handful of examples in mathematics where the formalization
+The last reason is that this is one of a handful of examples in mathematics where the manual formalization
 of a preprint was finished prior to the submission of the preprint to a journal.
 
 \subsection{Brief history and significance of Carleson's theorem}\label{subsec:history}
@@ -251,26 +251,26 @@ The code was developed in a public GitHub repository,\footnote{\url{https://gith
 %TODO: update stats
 The project comprises around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
 
-Throughout the article, we will introduce Lean code excerpts from the formalization and use the following clickable symbol\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L298}{\extlink} to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
+Throughout the article, we introduce Lean code excerpts from the formalization and use the following clickable symbol\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L298}{\extlink} to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
 
 \subsection{Related work}\label{subsec:rel_work}
 
 Large formalization projects in mathematics have been undertaken in different proof assistants and various areas.
 Notable projects formalizing results related to analysis include Immler's verification of the singular hyperbolicity of the Lorenz attractor \cite{ImmlerLorentzSolver} (in Isabelle/HOL),
 Immler and Tan's formalization of the Poincaré--Bendixson theorem \cite{ImmlerTanPoincareBendixon} (in Isabelle/HOL),
-the flyspeck project \cite{FlyspeckComplete} formally verifying Hales' proof of the Kepler conjecture (verified using an interplay of results in the Isabelle/HOL and HOL/Light proof assistants), and the formalization of the prime number theorem in HOL Light \cite{HarrisonPNT} (by Harrison), Isabelle/HOL \cite{AvigadPNT} (by Avigad et al), Metamath \cite{CarneiroPNT} (by Carneiro) and Lean (Kontorovich et al).\footnote{\url{https://alexkontorovich.github.io/PrimeNumberTheoremAnd/}}
+the Flyspeck project \cite{FlyspeckComplete} formally verifying Hales' proof of the Kepler conjecture (verified using an interplay of results in the Isabelle/HOL and HOL/Light proof assistants), and the formalization of the prime number theorem in HOL Light \cite{HarrisonPNT} (by Harrison), Isabelle/HOL \cite{AvigadPNT} (by Avigad et al), Metamath \cite{CarneiroPNT} (by Carneiro) and Lean (Kontorovich et al).\footnote{\url{https://alexkontorovich.github.io/PrimeNumberTheoremAnd/}}
 
 Other projects formalizing a single theorem or cluster of theorems involving large collaborations include the formal proof of the Feit--Thompson theorem about finite groups in the Rocq prover \cite{OddOrderTheorem} with a 15 author team, the Liquid Tensor Experiment formalizing an important technical lemma about condensed mathematics in Lean \cites{LTEDefinitions,LTEFinal} (involving 18 authors), the PNT$+$ project formalizing several versions of the prime number theorem using modern tools (with 75 contributors as of September 2026)
 and the Equational Theories project classifying certain equational laws on magmas \cite{tao2025equationaltheories} (with 34 authors).
 The last project is notable for involving a variety of different tools,
 all being used to generate eventual proofs in Lean.
-The flyspeck project was also a large collaborative project, eventually involving 22 authors.
+The Flyspeck project was also a large collaborative project, eventually involving 22 authors.
 
 The need for a shared mathematical proof arises naturally in large collaborations.
-A common feature is an explicit mathematical blueprint, a detailed natural language proof carefully written to be accessible for non-experts. In the flyspeck project, this proof was written as a book prior to the formalization \cite{HalesFlyspeckBook}. More recent formalization projects (including the Liquid Tensor Experiment and the Sphere Eversion project \cite{SphereEversionCPP}) have used special software (see \S\ref{sec:org}) to maintain such a natural language proof side by side with the formal proof.
+A common feature is an explicit mathematical blueprint, a detailed natural language proof carefully written to be accessible for non-experts. In the Flyspeck project, this proof was written as a book prior to the formalization \cite{HalesFlyspeckBook}. More recent formalization projects (including the Liquid Tensor Experiment and the Sphere Eversion project \cite{SphereEversionCPP}) have used special software (see \S\ref{sec:org}) to maintain such a natural language proof side by side with the formal proof.
 
 Prior to the Carleson project, relatively little harmonic analysis had been formalized in any proof assistant: for example, the Isabelle and HOL Light libraries have an implementation of Fourier series\footnote{\url{https://isa-afp.org/entries/Fourier.html}} (but no more advanced tools such as the real interpolation theorem); the Mizar Mathematical library has a formalization of Minkowski's inequality,\footnote{for infinite sums, \url{https://fm.mizar.org/2005-13/pdf13-1/holder_1.pdf}} but no definition of Fourier series (only discrete Fourier transforms).
-Mathlib knows some Fourier analysis thanks to Doll's work on tempered distributions \cite{DollSobolevFourier}.
+Mathlib contains some Fourier analysis thanks to Doll's work on tempered distributions \cite{DollSobolevFourier}.
 The Hardy--Littlewood maximal estimate has been formalized in Rocq \cites{AffeldtFTCRocq,AffeldtLebesgueDiffRocq}, but only for functions $\real\to\real$.
 
 \subsection*{Acknowledgements}
@@ -329,7 +329,7 @@ equipped with a non-zero locally finite Borel measure $\mu$ that satisfies
 the following doubling condition for the natural number $a$. For all $x\in X$ and
 all $R>0$ we have
 \begin{equation*}
-	\mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
+	\mu(B(x,2R))\le 2^a\mu(B(x,R)),
 \end{equation*}
 where $B(x,R):=\{y\in X: \rho(x,y)<R\}$ denotes the open ball.
 \end{definition}
@@ -381,12 +381,12 @@ The specific version of the bound that we formalized is as follows.
 \begin{theorem}[real Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Classical/CarlesonOnTheRealLineContinuous.lean\#L29}{\extlink}]\label{real-Carleson}
     Let $F,G$ be Borel subsets of $\real$ with finite measure. Let $f$ be a bounded measurable function on $\real$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation*}
-    \int _G Tf(x) \, dx \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12} \, ,
+    \int _G Tf(x) \, dx \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12},
 \end{equation*}
 where
 \begin{equation*}
     T f(x)\coloneq\sup_{n\in \mathbb{Z}}
-    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right| \, ,
+    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|,
 \end{equation*}
 and the Hilbert kernel $\kappa\colon\real\to\complex$ is defined as
 \begin{equation*}
@@ -401,28 +401,30 @@ and the Hilbert kernel $\kappa\colon\real\to\complex$ is defined as
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
 
 In this section we state the definitions used in the metric space Carleson theorem.
-Let $a \ge 4$ be a natural number. A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}
+Let $a \ge 4$ be a natural number. 
+\begin{definition}
+A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}
 if there is a point $o\in X$ where all the functions are equal to $0$,
 and if there exists for each ball $B \subseteq X$ a metric $d_B$ on $\Mf$,
 such that the following five properties are satisfied.
-\begin{itemize}
+\begin{itemize}\label{def:compatible}
 \item For every ball $B \subseteq X$ and any $\mfa, \mfb \in \Mf$,
 \begin{equation}\label{osccontrol}
-    \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb)\,.
+    \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb).
 \end{equation}
 \item For any two balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$ and any $\mfa,\mfb\in \Mf$,
 \begin{equation}\label{firstdb}
-    d_{B_2}(\mfa,\mfb) \le 2^a d_{B_1}(\mfa,\mfb) .
+    d_{B_2}(\mfa,\mfb) \le 2^a d_{B_1}(\mfa,\mfb).
 \end{equation}
 \item For any two balls $B_1, B_2$ in $X$ with $B_1 \subseteq B_2$ and any $\mfa, \mfb \in \Mf$
 \begin{equation}\label{monotonedb}
-    d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa, \mfb)
+    d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa, \mfb).
 \end{equation}
 \item For any two balls
 $B_1=B(x_1,R)$, $B_2= B(x_2,2^aR)$
 with $B_1\subseteq B_2$, and $\mfa,\mfb\in \Mf$,
 \begin{equation}\label{seconddb}
-    2d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa,\mfb) .
+    2d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa,\mfb).
 \end{equation}
 \item For every ball $B$ in $X$ and every $d_B$-ball $\tilde B$ of radius $2R$ in $\Mf$, there is a collection $\mathcal{B}$ of
 at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
@@ -431,18 +433,21 @@ at most $2^a$ many $d_B$-balls of radius $R$ covering $\tilde B$, that is,
 \end{equation}
 
 \end{itemize}
+\end{definition}
 
-Furthermore, a compatible collection $\Mf$ is called \emph{cancellative} if
+\begin{definition}
+A compatible collection $\Mf$ is called \emph{cancellative} if
 for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi\colon X\to \complex$
 supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
 \begin{equation*}
-    \Big|\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)\Big|\le 2^a \mu(B)\|\varphi\|_{\Lip(B)}
-(1+d_B(\mfa,\mfb))^{-\frac{1}{a}},
+	\Big|\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)\Big|\le 2^a \mu(B)\|\varphi\|_{\Lip(B)}
+	(1+d_B(\mfa,\mfb))^{-\frac{1}{a}},
 \end{equation*}
 where $e(r) = e^{ir}$ and $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipschitz norm on $B$:
 $$
-    \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
+\|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}.
 $$
+\end{definition} 
 
 \begin{definition}\label{def:one-sided-kernel}
 A \emph{one-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L250}{\extlink} $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
@@ -468,7 +473,7 @@ Let $f\colon X \to \complex$ be a bounded, measurable function supported on a se
 Define the \emph{maximally truncated non-tangential singular integral} $T_{*}$ associated with $K$ by
 \begin{equation}
     \label{def-tang-unm-op}
-    T_{*}f(x):=\sup_{0 < R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
+    T_{*}f(x):=\sup_{0 < R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
 \end{equation}
 Additionally, define for $r > 0$, $x\in X$:
 \begin{equation}
@@ -478,7 +483,7 @@ T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)
 Finally, define the \emph{generalized Carleson operator} $T$ by
 \begin{equation}
     \label{def-main-op}
-    Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|\, ,
+    Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|,
 \end{equation}
 where $e(r)=e^{ir}$.
 
@@ -493,7 +498,7 @@ and define further
 \end{equation}
 Finally, define the \emph{linearized generalized Carleson operator} $T_\tQ$ by
 \begin{equation}\label{def-lin-main-op}
-    T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|\, ,
+    T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|,
 \end{equation}
 where again $e(r)=e^{ir}$.
 
@@ -509,13 +514,13 @@ which by interpolation techniques recovers $L^q$ estimates for the open range $1
     Let $\Mf$ be a cancellative compatible collection of functions and let $K$ be a one-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$.
     Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{nontanbound}
-        \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
+        \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2,
     \end{equation}
     where $T_{*}$ is defined in \eqref{def-tang-unm-op}.
     Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f\colon X\to \complex$ with
     $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
     \begin{equation*}
-        \int_{G} T f \, \mathrm{d}\mu \leq \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \int_{G} T f \, \mathrm{d}\mu \leq \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
     \end{equation*}
 \end{theorem}
 
@@ -533,13 +538,13 @@ It implies the Walsh-case of Carleson's theorem.
     Let $\tQ:X\to \Mf$ be a Borel function with finite range.
     Let $K$ be a one-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{linnontanbound}
-        \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
+        \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2,
     \end{equation}
     where $T_{\tQ}^\mfa$ is defined in \eqref{def-lin-star-op}.
     Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f\colon X\to \complex$ with
     $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
     \begin{equation*}
-        \int_{G} T_\tQ f \, \mathrm{d}\mu \le \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \int_{G} T_\tQ f \, \mathrm{d}\mu \le \frac{2^{443a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
     \end{equation*}
 \end{theorem}
 
@@ -552,13 +557,13 @@ In particular, the two-sided case can be applied to derive the classical Carleso
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
         cancellative compatible collection of functions and let $K$ be a two-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
       \begin{equation*}
-            \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
+            \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2.
         \end{equation*}
         Then for all Borel sets $F$ and $G$ in $X$ and
         all Borel functions $f\colon X\to \complex$ with
         $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
       \begin{equation*}
-            \int_{G} T f \, \mathrm{d}\mu \leq \frac{2^{474a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+            \int_{G} T f \, \mathrm{d}\mu \leq \frac{2^{474a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
         \end{equation*}
 \end{theorem}
 
@@ -603,7 +608,7 @@ A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5
 \begin{enumerate}[label=\roman*.]
 \item \label{it:coverdyadic} For every dyadic cube $I$ and every $-S \leq k < s(I)$,
 \begin{equation*}
-    I\subseteq \bigcup_{J\in \mathcal {D}: s(J)=k}J\, .
+    I\subseteq \bigcup_{J\in \mathcal {D}: s(J)=k}J.
 \end{equation*}
 \item \label{it:dyadicproperty} For all non-disjoint dyadic cubes $I, J$ with $s(I) \leq s(J)$, we have that
 \begin{equation*}
@@ -611,16 +616,16 @@ A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5
 \end{equation*}
 \item \label{it:subsetmaxcube} There exists a cube $I_0 \in \mathcal{D}$ with scale $s(I_0) = S$ and center $c(I_0) = o$ (the point where all $\mfa \in \Mf$ vanish), and for all dyadic cubes $J$ it holds that
 \begin{equation}\label{subsetmaxcube}
-    J \le I_0\,.
+    J \le I_0.
 \end{equation}
 \item \label{it:eq-vol-sp-cube} Every dyadic cube $I$ fits a ball with center $c(I)$ and is approximately of size $D^{s(I)}$ in the sense that
 \begin{equation}
     \label{eq-vol-sp-cube}
-    B(c(I), \frac{1}{4} D^{s(I)}) \subseteq I \subseteq B(c(I), 4 D^{s(I)})\,.
+    B(c(I), \frac{1}{4} D^{s(I)}) \subseteq I \subseteq B(c(I), 4 D^{s(I)}).
 \end{equation}
 \item \label{it:eq-small-boundary} For every dyadic cube $I$ and every $t$ with $t D^{s(I)} \geq D^{-S}$, the boundary of $I$ is small in the sense that
 \begin{equation*}
-    \mu(\{x \in I \mid \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I)\,.
+    \mu(\{x \in I \mid \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I).
 \end{equation*}
 \end{enumerate}
 
@@ -638,15 +643,15 @@ We now further subdivide in the frequency domain $\Theta$, intuitively partition
 \end{equation*}
 \item For every tile $\fp$, the set of functions $\fc(\fp)$ contains a ball with center $\fcc(\fp)$ and is of size approximately $D^{\ps(\fp)}$ in the sense that
 \begin{equation*}
-    B_{\fp}(\fcc(\fp), 0.2) \subseteq \fc(\fp) \subseteq B_{\fp}(\fcc(\fp),1)\,,
+    B_{\fp}(\fcc(\fp), 0.2) \subseteq \fc(\fp) \subseteq B_{\fp}(\fcc(\fp),1),
 \end{equation*}
 where
 \begin{equation*}
-    B_{\fp} (\mfa, R) := \{\mfb \in \Mf \mid d_{\fp}(\mfa, \mfb) < R\,\} ,
+    B_{\fp} (\mfa, R) := \{\mfb \in \Mf \mid d_{\fp}(\mfa, \mfb) < R\},
 \end{equation*}
 with
 \begin{equation*}
-    d_{\fp} := d_{B(\pc(\fp),\frac 14 D^{\ps(\fp)})}\, .
+    d_{\fp} := d_{B(\pc(\fp),\frac 14 D^{\ps(\fp)})}.
 \end{equation*}
 \end{enumerate}
 
@@ -670,7 +675,7 @@ and
 Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all Borel functions $f\colon X\to \complex$ with $|f|\le \mathbf{1}_F$
 we have
 \begin{equation*}
-    \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+    \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{442a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation*}
 \end{theorem}
 
@@ -691,7 +696,7 @@ The order on tiles is given by $\fp\le \fp'$ iff
 $\scI(\fp)\le \scI(\fp')$ and $\Omega(\fp)\supseteq \Omega(\fp')$.
 
 In each class in the final classification, we mark certain tiles as so-called \emph{tree tops}.
-Then we eliminate 5 separate subclasses of tiles from the class.
+Then we eliminate five separate subclasses of tiles from the class.
 Four of these subclasses are antichains with respect to the aforementioned order on the tiles.
 The main result of Section~6 of the blueprint gives good bounds for the
 Carleson operator on an antichain $\mathfrak{A}\subseteq\fP$, i.e.\ for the operator
@@ -991,7 +996,7 @@ and there was one computation that already implicitly assumed
 that there was only one top cube.
 
 \subsubsection{The Hardy--Littlewood maximal function} An important ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
-Recall that, given $f\colon\real^d\to\complex$, the (centered) Hardy–Littlewood maximal function $M f$ of $f$ is defined as
+Recall that, given $f\colon\real^d\to\complex$, the (centered) \emph{Hardy–Littlewood maximal function} $M f$ of $f$ is defined as
 \begin{equation*}
 Mf\colon\real^d \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
 \end{equation*}
@@ -1009,7 +1014,7 @@ It is also a key prerequisite for the proof of Carleson's theorem: for example, 
 Our formalized version aims to reduce superfluous assumptions commonly found in the mathematical literature. For instance, it applies to any sub-additive operator (not merely sub-linear ones) --- that is, there is no need for a scalar multiplication on the target. Similarly, any positive exponent $p$ is allowed (as opposed to demanding $p\geq 1$).
 
 In light of generalizing the Hardy--Littlewood maximal function, this proof had to be generalized again:
-applying it to the maximal functions requires a version which applies to functions with co-domain $[0, \infty]$ (or, more generally, any monoid with a continuous extended norm function).
+applying it to the maximal functions requires a version which applies to functions with co-domain $\ennreal$ (or, more generally, any monoid with a continuous extended norm function).
 In return for a significant amount of refactoring work,\footnote{The initial formalization was about 5000 lines long; the generalization touched about 2000 of them.}
 we have formalized a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way. We ended up with the following version.
 \begin{theorem}[real interpolation theorem\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/RealInterpolation/Main.lean\#L1436}{\extlink}]
@@ -1110,7 +1115,7 @@ and tile structures.
 
 While these choices were made partly with the intent to simplify, they ultimately
 led to additional technical complications in the blueprint, causing several inaccuracies
-and some friction during formalization.
+and some friction during the formalization.
 
 In the case of the maximal function, the finitary formulation required explicitly specifying
 various finite collections of balls, some of which were initially slightly off. As mentioned
@@ -1147,7 +1152,7 @@ As a side effect of the formalization project, once the main result had been for
 \subsection{Standing assumptions and the \texttt{ProofData} pattern}\label{subsec:proof_data}
 
 Mathematical papers often contain standing assumptions, that are in place for
-all the statements in the paper, or in a specific section. This avoids
+all the statements in the paper or in a specific section. This avoids
 tedious repetition in the statements, sometimes at a slight expense in
 readability as the reader has to locate the places where such standing
 assumptions are made. Such a practice is especially important when the
@@ -1228,11 +1233,11 @@ and tension in design decisions.
 Indeed, which of the three types should be used for constants,
 suprema, integrands, and computations?
 
-A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type-theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
+A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
 The \texttt{norm\_cast} tactic can be useful to normalize such casts.
 
 However, one also needs conversions in the other directions, for instance to convert real numbers to non-negative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal}\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Data/NNReal/Defs.lean#L154-L156}{\extlink} maps negative numbers to zero, we get that
-\[ \mlean{Real.toNNReal (-2) * Real.toNNReal (-3) \ne Real.toNNReal ((-2) * (-3))}. \]
+\[ \mlean{Real.toNNReal (-2) * Real.toNNReal (-3) \ne Real.toNNReal ((-2) * (-3)).} \]
 Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
 in these situations.
 This can make conversions between number types quite painful,
@@ -1263,7 +1268,7 @@ On the nose, many results about real numbers transfer to $\ennreal$ provided all
 A desirable future step is adding improved interaction with the \lean{positivity}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Tactic/Positivity/Core.lean#L591}{\extlink} tactic (which solves goals of the form \texttt{$0 \leq x$} or \texttt{$0 < x$}). Proving a goal \texttt{$(x + y + 1)^{-1}<\infty$} (for $x,y\in\ennreal$) requires proving that $x + y + 1$ is non-zero; this is already handled by calling \lean{positivity}. Conversely, \lean{positivity} alone cannot prove goals \texttt{$x^{-1}\neq 0$} for $x\in\ennreal$ --- as this is true only if $x$ is finite. Allowing \lean{positivity} to call \lean{finiteness} would improve automation significantly.
 
 An independently useful, more ambitious yet more powerful tactic would allow reducing goals in $\ennreal$ to $\nnreal$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\nnreal$ arithmetic; the infinite case will simplify calculations (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.
-\footnote{For multiplication, as $0 * \infty = 0$, simplifying $a*\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ being zero presumably implies the case of $a$ being infinite need not be considered separately, and (2) such splits can be performed only as required.}
+\footnote{For multiplication, as $0 \cdot \infty = 0$, simplifying $a\cdot\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ being zero presumably implies the case of $a$ being infinite need not be considered separately, and (2) such splits can be performed only as required.}
 The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
 % TODO: point to a prototype implementation
 
@@ -1290,7 +1295,7 @@ Gradually, we came to the conclusion that, with some exceptions, it was best to 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
 
 This project motivated the creation of a new formalization abstraction: \emph{extended norms} (\lean{enorm}s for short) generalize many results from normed spaces to $\ennreal$.
-Their introduction was motivated by defining the Hardy--Littlewood maximal function with codomain $\ennreal=[0,\infty]$ (see \S\ref{subsec:blueprint_changes}).
+Their introduction was motivated by defining the Hardy--Littlewood maximal function with codomain $\ennreal$ (see \S\ref{subsec:blueprint_changes}).
 Previously, a statement ``$f\in L^p$'' was only defined for functions $f\colon X\to E$ from a measure space $X$ to a normed space $E$. However, speaking about the maximal function being in weak $L^p$ requires a notion of $L^p$ functions with target $\ennreal$. Fortunately, many basic facts about $L^p$ functions do not require the target to be a normed space and have reasonable analogues for $\ennreal$: for instance, the $L^p$-norm of $f\colon X\to\ennreal$ for $0<p<\infty$ can be defined as $(\int_X f(x)^p \ud x)^{1/p}$, where the integrand is the function $X\to \ennreal$ with $x\mapsto f(x)^p$.
 
 Motivated by this observation, we introduced a new notation class \lean{ENorm},\href{https://github.com/leanprover-community/mathlib4/blob/44ea3a0e13339f31231dde209c4f8196e179065d/Mathlib/Analysis/Normed/Group/Defs.lean#L70-L74}{\extlink} describing a type endowed with a function $\texttt{enorm}\colon X\to\ennreal$.
@@ -1314,11 +1319,11 @@ The mathematical difference is very small: virtually all operations in the proje
 Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
 (For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
 While the \lean{filter_upwards}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Filter/Defs.lean#L444}{\extlink} tactic simplifies reducing results from almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
-Incidentally, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}: this underscores this choice.
+Incidentally, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}, which underscores this choice.
 
 This relates well with the use of \lean{enorm}s (\S\ref{subsec:enorm}): \mmlean{Lp E p $\mu$} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
 
-This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lstinline|{f : X → Y} (hf : Continuous f)| instead of the bundled \lean{f : ContinuousMap X Y}.\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Topology/ContinuousMap/Defs.lean#L33}{\extlink}
+This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lstinline|{f : X → Y} (hf : Continuous f)| instead of using the bundled \lean{f : ContinuousMap X Y}.\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Topology/ContinuousMap/Defs.lean#L33}{\extlink}
 
 \subsection{Test function classes}\label{subsec:bdd_comp_supp}
 A common task during the formalization was to prove the various integrability and measurability side goals
@@ -1383,7 +1388,7 @@ as the other function properties mentioned above,
 since the composition and product of integrable functions need not be integrable.
 The class \lean{BoundedCompactSupport} is a step towards
 making \texttt{fun\_prop} more usable for integrability,
-since it is better behaved w.r.t.\ multiplication and composition.
+since it is better behaved with respect to multiplication and composition.
 % TODO: maybe: mention the ICERM group on the integrability tactic; https://github.com/leanprover-community/mathlib4/pull/39323
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
