@@ -251,7 +251,7 @@ The code was developed in a public GitHub repository,\footnote{\url{https://gith
 %TODO: update stats
 The project comprises around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
 
-Throughout the article, we introduce Lean code excerpts from the formalization and use the following clickable symbol\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L298}{\extlink} to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
+Throughout the article, we introduce Lean code excerpts from the formalization and use the following clickable symbol\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L298-L300}{\extlink} to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
 
 \subsection{Related work}\label{subsec:rel_work}
 
@@ -311,7 +311,7 @@ Given a $2\pi$-periodic function $f\colon \real \to \complex$ integrable on $[0,
 The Lean version \lean{fourierCoeffOn}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Analysis/Fourier/AddCircle.lean#L350-L354}{\extlink} uses \mathlib's formalization of the Bochner integral.
 
 \begin{definition}\label{def:fourier-series}
-The \emph{$N$-th partial Fourier sum}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L43}{\extlink} of $f$ for $x\in\real$ is defined as
+The \emph{$N$-th partial Fourier sum}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L43-L44}{\extlink} of $f$ for $x\in\real$ is defined as
 \begin{equation*}
     S_N f(x) \coloneq \sum_{n=-N}^N c_n e^{inx}. \
 \end{equation*}
@@ -323,7 +323,7 @@ The metric space Carleson theorem, \Cref{metric-space-Carleson}, is a so-called 
 
 \begin{definition}\label{def:doubling}
 A \emph{doubling metric measure
-space}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L98}{\extlink}
+space}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L98-L102}{\extlink}
 $(X,\rho,\mu, a)$ is a complete and locally compact metric space $(X,\rho)$
 equipped with a non-zero locally finite Borel measure $\mu$ that satisfies
 the following doubling condition for the natural number $a$. For all $x\in X$ and
@@ -341,19 +341,19 @@ or the extended non-negative real numbers $\ennreal=[0,\infty]$, where $\|\cdot\
   \|f\|_{L^{p}} \coloneq \big(\int_X\|f(x)\|^p\, d\mu(x)\big) ^ \frac{1}{p}
 \end{equation*}
 for $0<p<\infty$. For $p=\infty$, the norm $\|f\|_{L^{p}}$ is the essential supremum of $f$, i.e.\ the least value $t$ such that
-$\mu\{x\in X \mid t < \|f(x)\| \}=0$. Similarly, we define the \emph{weak $L^p$-norm}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L37}{\extlink} as
+$\mu\{x\in X \mid t < \|f(x)\| \}=0$. Similarly, we define the \emph{weak $L^p$-norm}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/WeakType.lean#L37-L38}{\extlink} as
 \begin{equation*}
   \|f\|_{L^{p,\infty}} \coloneq \sup_{t>0} t \cdot \mu (\{x\in X \mid t < \|f(x)\| \}) ^ \frac{1}{p}
 \end{equation*}
 for $0<p<\infty$, and $\|f\|_{L^{\infty,\infty}} \coloneq \|f\|_{L^{\infty}}$.
-The function $f$ is said to be in weak $L^p$\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L285}{\extlink} if $f$ is $\mu$-a.e.\ strongly measurable with respect to a fixed topology on $E$ (see e.g.\ \cite{GouezelChangeOfVariables} for motivation of the different notions of measurability in \mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
-An important consequence is that if $f$ is in weak $L^p$, then $\|f(x)\|$ is finite for almost every $x$.\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L302}{\extlink}
+The function $f$ is said to be in weak $L^p$\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/WeakType.lean#L285-L286}{\extlink} if $f$ is $\mu$-a.e.\ strongly measurable with respect to a fixed topology on $E$ (see e.g.\ \cite{GouezelChangeOfVariables} for motivation of the different notions of measurability in \mathlib) and $\|f\|_{L^{p,\infty}} < \infty$.
+An important consequence is that if $f$ is in weak $L^p$, then $\|f(x)\|$ is finite for almost every $x$.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/WeakType.lean#L302}{\extlink}
 
-Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T\colon (X \to E) \to (Y \to F)$ is \emph{of weak type $(p,p')$}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L419}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
+Given two measure spaces $(X,\mu)$ and $(Y,\nu)$, and two topological spaces $E$ and $F$ endowed with extended norms, we say that an operator $T\colon (X \to E) \to (Y \to F)$ is \emph{of weak type $(p,p')$}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/WeakType.lean#L418-L420}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
 \begin{equation*}
   \|T f\|_{L^{p',\infty}} \le C \cdot \|f\|_{L^p}.
 \end{equation*}
-Similarly, the operator $T$ is of \emph{strong type $(p, p')$}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/WeakType.lean#L433}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
+Similarly, the operator $T$ is of \emph{strong type $(p, p')$}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/WeakType.lean#L432-L435}{\extlink} if there exists a constant $C$ such that for any $f\in L^p(X; E)$, we have that $T f$ is $\nu$-a.e.\ strongly measurable and
 \begin{equation*}
   \|T f\|_{L^{p'}} \le C \cdot \|f\|_{L^p}.
 \end{equation*}
@@ -365,7 +365,7 @@ Similarly, the operator $T$ is of \emph{strong type $(p, p')$}\href{https://gith
 The namesake of the formalization project is the classical result of Carleson on the pointwise convergence of Fourier series.
 The specific statement we formalized is as follows. Note that in our formalization we require that the given function is continuous.
 
-\begin{theorem}[classical Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Classical/ClassicalCarleson.lean\#L131}{\extlink}]
+\begin{theorem}[classical Carleson\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Classical/ClassicalCarleson.lean\#L131-L132}{\extlink}]
     \label{classical-carleson}
     Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
     Then for almost all $x \in \mathbb{R}$, the limit
@@ -378,7 +378,7 @@ bounding a specific Carleson operator for functions on $\real$.
 Like most proofs of Carleson's theorem, we use this bound to prove \Cref{classical-carleson}.
 The specific version of the bound that we formalized is as follows.
 
-\begin{theorem}[real Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Classical/CarlesonOnTheRealLineContinuous.lean\#L29}{\extlink}]\label{real-Carleson}
+\begin{theorem}[real Carleson\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Classical/CarlesonOnTheRealLineContinuous.lean\#L29-L31}{\extlink}]\label{real-Carleson}
     Let $F,G$ be Borel subsets of $\real$ with finite measure. Let $f$ be a bounded measurable function on $\real$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation*}
     \int _G Tf(x) \, dx \le 2^{474 \cdot 4^3} |F|^{\frac 12} |G|^{\frac 12},
@@ -401,7 +401,7 @@ and the Hilbert kernel $\kappa\colon\real\to\complex$ is defined as
 \subsubsection{Preliminary definitions}\label{subsubsec:definitions}
 
 In this section we state the definitions used in the metric space Carleson theorem.
-Let $a \ge 4$ be a natural number. 
+Let $a \ge 4$ be a natural number.
 \begin{definition}
 A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}
 if there is a point $o\in X$ where all the functions are equal to $0$,
@@ -447,10 +447,10 @@ where $e(r) = e^{ir}$ and $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipsch
 $$
 \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}.
 $$
-\end{definition} 
+\end{definition}
 
 \begin{definition}\label{def:one-sided-kernel}
-A \emph{one-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L250}{\extlink} $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
+A \emph{one-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L250-L254}{\extlink} $K$ on the doubling metric measure space $(X, \rho, \mu, a)$
 is a measurable function $K:X\times X\to \mathbb{C}$ such that for all $x,y',y\in X$ with $x\neq y$, we have
 \begin{equation*}
 	|K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
@@ -463,7 +463,7 @@ where $V(x,y):=\mu(B(x,\rho(x,y)))$.
 \end{definition}
 
 \begin{definition}\label{def:two-sided-kernel}
-A \emph{two-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TwoSidedCarleson/WeakCalderonZygmund.lean#L17}{\extlink} is a one-sided Calderón--Zygmund kernel $K$ such that $(x,y)\mapsto K(y,x)$ is also a one-sided Calderón--Zygmund kernel. Explicitly this means that for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
+A \emph{two-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/TwoSidedCarleson/WeakCalderonZygmund.lean#L17-L20}{\extlink} is a one-sided Calderón--Zygmund kernel $K$ such that $(x,y)\mapsto K(y,x)$ is also a one-sided Calderón--Zygmund kernel. Explicitly this means that for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
 \begin{equation*}
 	|K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
 \end{equation*}
@@ -507,7 +507,7 @@ where again $e(r)=e^{ir}$.
 We prove three versions of the main result.
 The first version is the following restricted weak type estimate for $T$ in the range $1<q\le 2$,
 which by interpolation techniques recovers $L^q$ estimates for the open range $1<q<2$.
-\begin{theorem}[metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/MetricCarleson/Main.lean\#L203}{\extlink}]
+\begin{theorem}[metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/MetricCarleson/Main.lean\#L203-L208}{\extlink}]
 \label{metric-space-Carleson}
     For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space.
@@ -530,7 +530,7 @@ The fact that we don't assume Hölder continuity of the kernel $K$ in the first 
 The second version of our main result has a slightly weaker replacement of the assumption \eqref{nontanbound}.
 It implies the Walsh-case of Carleson's theorem.
 
-\begin{theorem}[linearized metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/MetricCarleson/Linearized.lean\#L109}{\extlink}]
+\begin{theorem}[linearized metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/MetricCarleson/Linearized.lean\#L109-L115}{\extlink}]
 \label{linearized-metric-Carleson}
     For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
@@ -551,7 +551,7 @@ It implies the Walsh-case of Carleson's theorem.
 The third version of the main result involves two-sided Calderón--Zygmund kernels, whose additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
 In particular, the two-sided case can be applied to derive the classical Carleson theorem.
 
-\begin{theorem}[two-sided metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/TwoSidedCarleson/MainTheorem.lean\#L30}{\extlink}]
+\begin{theorem}[two-sided metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/TwoSidedCarleson/MainTheorem.lean\#L30-L35}{\extlink}]
     \label{two-sided-metric-space-Carleson}
         For all  integers $a \ge  4$ and real numbers $1<q\le 2$ the following holds.
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
@@ -587,7 +587,7 @@ $\psi\colon\real \to\real$ be the unique compactly supported, piecewise linear, 
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
 \end{equation*}
 for all $x>0$. Note that the above sum has at most two non-zero terms, and that this function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
-$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. The finitary Carleson theorem\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/FinitaryCarleson.lean#L110}{\extlink} is a variant of \Cref{linearized-metric-Carleson} where the integration domain and the support and range of $f$ are assumed to be finite. \Cref{linearized-metric-Carleson} follows from it by standard limiting arguments.
+$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. The finitary Carleson theorem\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/FinitaryCarleson.lean#L110-L113}{\extlink} is a variant of \Cref{linearized-metric-Carleson} where the integration domain and the support and range of $f$ are assumed to be finite. \Cref{linearized-metric-Carleson} follows from it by standard limiting arguments.
 
 \begin{theorem}[finitary Carleson]
 \label{finitary-Carleson}
@@ -604,7 +604,7 @@ To reduce this finitary version of the Carleson theorem to the discrete version,
 
 A grid structure consists of dyadic cubes. A \emph{dyadic cube} is a pair $(I, k)$ of a Borel set $I$ in $X$ and an integer $k \in [-S, S]$ for some fixed natural number $S$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$. We write $I \le J$ to mean that for two cubes $(I, k)$ and $(J, l)$, we have $I \subseteq J$ and $k \le l$.
 
-A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/GridStructure.lean#L20}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$, $(I, k) \mapsto k$, called the scale function, that together satisfy the conditions \ref{it:coverdyadic}--\ref{it:eq-small-boundary}:
+A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/GridStructure.lean#L20-L44}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$, $(I, k) \mapsto k$, called the scale function, that together satisfy the conditions \ref{it:coverdyadic}--\ref{it:eq-small-boundary}:
 \begin{enumerate}[label=\roman*.]
 \item \label{it:coverdyadic} For every dyadic cube $I$ and every $-S \leq k < s(I)$,
 \begin{equation*}
@@ -629,7 +629,7 @@ A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5
 \end{equation*}
 \end{enumerate}
 
-We now further subdivide in the frequency domain $\Theta$, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a \emph{tile structure}\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc\colon \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc\colon \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc\colon \fP \to X$ and $\ps\colon \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
+We now further subdivide in the frequency domain $\Theta$, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a \emph{tile structure}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/TileStructure.lean#L54-L65}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc\colon \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc\colon \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc\colon \fP \to X$ and $\ps\colon \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
 
 \begin{enumerate}[label=\roman*.]
 \item \label{it:omega-disjoint} For every dyadic cube $I$ and every pair of tiles $\fp \neq \fq$ in $\scI^{-1}(\{I\})$, the sets $\fc(\fp)$ and $\fc(\fq)$ are disjoint.
@@ -657,7 +657,7 @@ with
 
 With the above definitions, it can be shown that the finitary Carleson theorem reduces to the discrete Carleson theorem.
 
-\begin{theorem}[discrete Carleson\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Discrete/MainTheorem.lean\#L44}{\extlink}]
+\begin{theorem}[discrete Carleson\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Discrete/MainTheorem.lean\#L44-L48}{\extlink}]
 \label{discrete-Carleson}
 Let $(\mathcal{D}, c, s)$ be a grid structure and
 \begin{equation*}
@@ -747,7 +747,7 @@ class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMe
 \end{lstlisting}
 
 Next, we need to introduce the family $\Mf$ of compatible functions satisfying the properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb}. We do this in two steps, by first creating a class
-\lean{FunctionDistances}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L113}{\extlink} which bundles a family of continuous functions and then endowing these functions with the five properties in the class \lean{CompatibleFunctions}.\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L167}{\extlink} The assumption that the family is cancellative is added as a \lean{Prop}-valued class \lean{IsCancellative}.\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L191}{\extlink}
+\lean{FunctionDistances}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L113-L121}{\extlink} which bundles a family of continuous functions and then endowing these functions with the five properties in the class \lean{CompatibleFunctions}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L167-L185}{\extlink} The assumption that the family is cancellative is added as a \lean{Prop}-valued class \lean{IsCancellative}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L191-L197}{\extlink}
 
 Something to note here is that we created type synonyms to be able to endow $\Mf$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean{dist_\{x, r\}} for the distance corresponding to the ball $B(x, r)$.
 
@@ -778,7 +778,7 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
     (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
 \end{lstlisting}
 
-To avoid constant repetition of hypotheses, we create a class \lean{KernelProofData}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L261}{\extlink} which contains data used in most of sections 2 through 7 of the blueprint: a doubling measure on $X$, a natural number greater than three, a collection of compatible functions, and a one-sided Calderón--Zygmund kernel. See \S\ref{subsec:proof_data} for a more detailed discussion of this design choice.
+To avoid constant repetition of hypotheses, we create a class \lean{KernelProofData}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L261-L266}{\extlink} which contains data used in most of sections 2 through 7 of the blueprint: a doubling measure on $X$, a natural number greater than three, a collection of compatible functions, and a one-sided Calderón--Zygmund kernel. See \S\ref{subsec:proof_data} for a more detailed discussion of this design choice.
 \begin{lstlisting}[mathescape]
 class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
     [PseudoMetricSpace X] where
@@ -791,8 +791,8 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
 The statement of the metric space Carleson theorem also requires fixing two positive real numbers $q, q'$ satisfying the equality $q^{-1} + q'^{-1} = 1$, encoded by definition \lean{HolderConjugate}\href{https://github.com/leanprover-community/mathlib4/blob/5a0753dc725610d074b177e4677000ee96165b8e/Mathlib/Data/Real/ConjExponents.lean#L59}{\extlink} from \mathlib.
 
 We have now described most of the prerequisites for understanding the Lean statement of Theorem~\ref{metric-space-Carleson}, available as
-\lean{metric_carleson}. The hypothesis \lean{hT} relies on the definition \lean{HasBoundedStrongType}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L80}{\extlink} to express the bound \eqref{nontanbound} for the
-\lean{nontangentialOperator}.\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L211}{\extlink}
+\lean{metric_carleson}. The hypothesis \lean{hT} relies on the definition \lean{HasBoundedStrongType}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L80-L86}{\extlink} to express the bound \eqref{nontanbound} for the
+\lean{nontangentialOperator}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L211-L212}{\extlink}
 
 \begin{lstlisting}[mathescape]
 theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
@@ -805,9 +805,9 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
     C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹
 \end{lstlisting}
 
-The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L228}{\extlink} is defined as a special case of the \lean{linearizedCarlesonOperator};\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L222}{\extlink}
-these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression \mmlean{‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ} denotes the extended norm of the integral appearing in \eqref{def-T-r}, taking values in $\ennreal$ (see \S\ref{subsec:enorm} for more details).
-In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L216}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L55}{\extlink} denotes the set of points $y\in X$ such that $R_1 < \text{dist}(x, y) < R_2$.
+The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L228-L229}{\extlink} is defined as a special case of the \lean{linearizedCarlesonOperator};\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L222-L224}{\extlink}
+these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression \mmlean{‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖$_{\mathrm{e}}$} denotes the extended norm of the integral appearing in \eqref{def-T-r}, taking values in $\ennreal$ (see \S\ref{subsec:enorm} for more details).
+In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L216-L218}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L55}{\extlink} denotes the set of points $y\in X$ such that $R_1 < \text{dist}(x, y) < R_2$.
 \begin{lstlisting}[mathescape]
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
@@ -816,7 +816,7 @@ def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
 def linearizedCarlesonOperator [FunctionDistances ℝ X] (Q : X → Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   $\sqcup$ (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
-    ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ
+    ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖$_{\mathrm{e}}$
 
 def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ)
     (x : X) : ℝ≥0∞ :=
@@ -824,8 +824,8 @@ def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → 
 \end{lstlisting}
 
 Using these definitions, we can also state the theorem \lean{linearized_metric_carleson} (Theorem~\ref{linearized-metric-Carleson}). It requires an extra input in the form of a Borel function $Q\colon X \to \Theta$ with finite range, and its conclusion involves the
-\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L222}{\extlink} $T_Q$. The hypothesis \lean{hT} encodes equation \eqref{linnontanbound}, written in terms of the
-\lean{linearizedNontangentialOperator}.\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L204}{\extlink}
+\lean{linearizedCarlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L222-L224}{\extlink} $T_Q$. The hypothesis \lean{hT} encodes equation \eqref{linnontanbound}, written in terms of the
+\lean{linearizedNontangentialOperator}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L204-L208}{\extlink}
 \begin{lstlisting}[mathescape]
 theorem linearized_metric_carleson {X : Type*} {a : ℕ} [MetricSpace X]
   {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ} [KernelProofData a K]
@@ -1000,10 +1000,10 @@ Recall that, given $f\colon\real^d\to\complex$, the (centered) \emph{Hardy–Lit
 \begin{equation*}
 Mf\colon\real^d \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
 \end{equation*}
-If $f$ is integrable, then $M f$ is (weak) $L^1$, and hence finite almost everywhere.\href{https://github.com/fpvandoorn/carleson/blob/c0ee0ad335fc74d4d507393b443759d1ce929e63/Carleson/ToMathlib/HardyLittlewood.lean#L369}{\extlink} Initially, the blueprint only used a variant taking a supremum over finitely many balls: this ensured the resulting function was \emph{always} finite, hence real-valued. Applying it to a countable collection of balls requires taking a limit and using the monotone convergence theorem.
+If $f$ is integrable, then $M f$ is (weak) $L^1$, and hence finite almost everywhere.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/HardyLittlewood.lean#L365-L369}{\extlink} Initially, the blueprint only used a variant taking a supremum over finitely many balls: this ensured the resulting function was \emph{always} finite, hence real-valued. Applying it to a countable collection of balls requires taking a limit and using the monotone convergence theorem.
 This is somewhat inelegant, since it uses a non-standard definition and requires an extra limiting argument.
 
-For the formal proof, we used the standard definition\href{https://github.com/fpvandoorn/carleson/blob/696c07687a9c26c87c8a1d36b16da3775d9d11e8/Carleson/ToMathlib/HardyLittlewood.lean#L32}{\extlink}
+For the formal proof, we used the standard definition\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/HardyLittlewood.lean#L31-L32}{\extlink}
 using arbitrary suprema: this means the maximal function is $\ennreal$-valued.
 Being able to speak of $L^p$-functions valued in $\ennreal$ prompted the introduction of \emph{extended norms}, see \S\ref{subsec:enorm}.
 We also generalized the allowed input functions to any function from a pseudo-metric space to any space with an extended norm.
@@ -1017,7 +1017,7 @@ In light of generalizing the Hardy--Littlewood maximal function, this proof had 
 applying it to the maximal functions requires a version which applies to functions with co-domain $\ennreal$ (or, more generally, any monoid with a continuous extended norm function).
 In return for a significant amount of refactoring work,\footnote{The initial formalization was about 5000 lines long; the generalization touched about 2000 of them.}
 we have formalized a more general argument that is also conceptually clearer: for instance, it demonstrates that the subtractive structure on the co-domain is not used in a meaningful way. We ended up with the following version.
-\begin{theorem}[real interpolation theorem\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ToMathlib/RealInterpolation/Main.lean\#L1436}{\extlink}]
+\begin{theorem}[real interpolation theorem\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/RealInterpolation/Main.lean\#L1439-L1448}{\extlink}]
     Let $(X,\mu)$ and $(Y,\nu)$ be measure spaces, let $E$ be a topological space with the structure of an additive monoid endowed with a compatible continuous extended seminorm, let $F$ be a topological space with a continuous extended norm function.
     Let $p_0, p_1, q_0, q_1, p, q \in \ennreal$ such that $p_0 \in (0,q_0]$ and $p_1 \in (0,q_1]$ and $q_0 \ne q_1$ and there exists $t \in (0,1)$ such that $\frac{1}{p} = \frac{1-t}{p_0} + \frac{t}{p_1}$ and $\frac{1}{q} = \frac{1-t}{q_0} + \frac{t}{q_1}$.
     Let $T\colon (X \to E) \to (Y \to F)$ be an operator that is subadditive in the following sense: there exists a constant $A \ge 1$ such that for $f, g \in L^{p_0}(X; E) \cup L^{p_1}(X; E)$, we have $\|T(f+g)(y)\| \le A \cdot \left(\|Tf(y)\| + \|Tg(y)\|\right)$ for $\nu$-a.e.\ $y\in Y$. Furthermore, we assume that for any $f\in L^p(X;E)$ the function $T f$ is $\nu$-a.e.\ strongly measurable.
@@ -1210,7 +1210,7 @@ instance, just like it fetches the distance in a metric space.
 Another advantage of this approach is that type classes can extend each other
 (just like a normed space contains more information than a metric space).
 This means we can craft one type class containing the standing assumptions for
-the statements, and another extended type class \lean{ProofData}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/ProofData.lean#L20}{\extlink} with more
+the statements, and another extended type class \lean{ProofData}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ProofData.lean#L20-L36}{\extlink} with more
 objects for the proofs. When a \lean{ProofData} instance is in scope but
 Lean needs a \lean{KernelProofData} instance, type-class inference
 automatically fetches the latter from the former, just as it transparently
@@ -1340,8 +1340,8 @@ integrability and measurability considerations are usually mathematically trivia
 
 It is desirable for this simplicity to be reflected in the formalization.
 This motivated packaging the recurring side conditions into test function classes.
-The auxiliary structures \lean{BoundedCompactSupport}\href{https://github.com/fpvandoorn/carleson/blob/0fc20f17fb1edfd036a22a6cbcad80bac24987b6/Carleson/ToMathlib/BoundedCompactSupport.lean#L84}{\extlink}
-and \lean{BoundedFiniteSupport}\href{https://github.com/fpvandoorn/carleson/blob/0fc20f17fb1edfd036a22a6cbcad80bac24987b6/Carleson/Defs.lean#L74}{\extlink}
+The auxiliary structures \lean{BoundedCompactSupport}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/BoundedCompactSupport.lean#L84-L87}{\extlink}
+and \lean{BoundedFiniteSupport}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L74-L76}{\extlink}
 contain bounded measurable functions with compact support and with support of finite measure, respectively.
 
 Once these hypotheses are bundled, later proofs can invoke short API lemmas instead of repeatedly
@@ -1349,7 +1349,7 @@ reproving the same measure-theoretic facts. For example, from a hypothesis
 \lean{hf : BoundedCompactSupport f} one immediately obtains that \lean{f} is a member of
 any desired $L^p$ space,
 or that \lean{s.indicator f} again has bounded compact support when \lean{s} is measurable.
-Lemmas such as \lean{hf.carlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/f2f614db47f1a30e3fceaa9c2e1f99ff356dd577/Carleson/Operators.lean#L164}{\extlink} show that the relevant
+Lemmas such as \lean{hf.carlesonSum}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Operators.lean#L164-L165}{\extlink} show that the relevant
 operators preserve the test function class, so once compact support has been established at the input, it remains available throughout the argument.
 
 Choosing the right definition of these structures can be subtle. With the
