@@ -401,12 +401,12 @@ and the \emph{Hilbert kernel} $\kappa\colon\real\to\complex$ is defined as
 In this section we state the definitions used in the metric space Carleson theorem.
 Let $a \ge 4$ be a natural number.
 \begin{definition}
-A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}
+A collection $\Mf$ of real-valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called \emph{compatible}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L167-L185}{\extlink}
 if there is a point $o\in X$ where all the functions are equal to $0$,
 and if there exists for each open? ball $B \subseteq X$ a metric $d_B$ on $\Mf$,
 such that the following five properties are satisfied.
 \begin{itemize}\label{def:compatible}
-\item For every open? ball $B \subseteq X$ and any $\mfa, \mfb \in \Mf$,
+\item For every open ball $B \subseteq X$ and any $\mfa, \mfb \in \Mf$,
 \begin{equation}\label{osccontrol}
     \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb).
 \end{equation}
@@ -434,7 +434,7 @@ at most $2^a$ many open $d_B$-balls of radius $R$ covering $\tilde B$, that is,
 \end{definition}
 
 \begin{definition}
-A compatible collection $\Mf$ is called \emph{cancellative} if
+A compatible collection $\Mf$ is called \emph{cancellative}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L191-L197}{\extlink} if
 for any open ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi\colon X\to \complex$
 supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
 \begin{equation*}
@@ -468,17 +468,17 @@ A \emph{two-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/
 \end{definition}
 
 Let $f\colon X \to \complex$ be a bounded, measurable function supported on a set of finite measure.
-Define the \emph{maximally truncated non-tangential singular integral} $T_{*}$ associated with $K$ by
+Define the \emph{maximally truncated non-tangential singular integral}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L211-L212}{\extlink} $T_{*}$ associated with $K$ by
 \begin{equation}
     \label{def-tang-unm-op}
     T_{*}f(x):=\sup_{0 < R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
 \end{equation}
-Additionally, define for $r > 0$, $x\in X$:
+Additionally, define for $r > 0$, $x\in X$ the \emph{Calderon--Zygmund operator}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/TwoSidedCarleson/Basic.lean#L15-L16}{\extlink} $T_r$ as
 \begin{equation}
 \label{def-T-r}
 T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
 \end{equation}
-Finally, define the \emph{generalized Carleson operator} $T$ by
+Finally, define the \emph{generalized Carleson operator}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L228-L229}{\extlink} $T$ by
 \begin{equation}
     \label{def-main-op}
     Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|,
@@ -489,12 +489,12 @@ For a Borel function $\tQ:X\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
 \begin{equation*}
     R_{\tQ}(\mfa,x)=\sup\{r>0:d_{B(x,r)}(\mfa, \tQ(x))<1\}
 \end{equation*}
-and define further
+and define further the \emph{linearized maximally truncated nontangential Calderon–Zygmund operator}\href{https://github.com/fpvandoorn/carleson/blob/38587d19c6c4c38a179b68476f717cad2706c51e/Carleson/Defs.lean#L204-L208}{\extlink} $T_{\tQ}^\mfa$ as
 \begin{equation}\label{def-lin-star-op}
     T_{\tQ}^\mfa f(x):=\sup_{0<R_1<R_2} \ \sup_{\rho(x,x')<R_1}
     \left|\int_{R_1< \rho(x',y) < \min\{R_2, R_{\tQ}(\mfa,x')\}} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
 \end{equation}
-Finally, define the \emph{linearized generalized Carleson operator} $T_\tQ$ by
+Finally, define the \emph{linearized generalized Carleson operator}\href{https://github.com/fpvandoorn/carleson/blob/38587d19c6c4c38a179b68476f717cad2706c51e/Carleson/Defs.lean#L222-L224}{\extlink} $T_\tQ$ by
 \begin{equation}\label{def-lin-main-op}
     T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|,
 \end{equation}
@@ -585,9 +585,9 @@ $\psi\colon\real \to\real$ be the unique compactly supported, piecewise linear, 
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
 \end{equation*}
 for all $x>0$. Note that the above sum has at most two non-zero terms, and that this function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
-$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. The finitary Carleson theorem\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/FinitaryCarleson.lean#L110-L113}{\extlink} is a variant of \Cref{linearized-metric-Carleson} where the integration domain and the support and range of $f$ are assumed to be finite. \Cref{linearized-metric-Carleson} follows from it by standard limiting arguments.
+$[\frac1{2D},\frac 14]$, and is Lipschitz with constant $4D$. The finitary Carleson theorem is a variant of \Cref{linearized-metric-Carleson} where the integration domain and the support and range of $f$ are assumed to be finite. \Cref{linearized-metric-Carleson} follows from it by standard limiting arguments.
 
-\begin{theorem}[finitary Carleson]
+\begin{theorem}[finitary Carleson\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/FinitaryCarleson.lean\#L110-L113}{\extlink}]
 \label{finitary-Carleson}
 Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and ${\sigma_1}\leq \sigma_2$. Let $F,G$ be bounded Borel sets in $X$. Then there is a Borel set $G'$ in $X$ with $2\mu(G')\leq \mu(G)$ such that
 for all Borel functions $f\colon X\to \complex$ with $|f|\le \mathbf{1}_F$ we have
@@ -702,7 +702,7 @@ $$\sum_{\fp\in\mathfrak{A}}T_{\fp}.$$
 The fifth subclass is small, and we can choose $G'$
 so that it contains $\scI(\fp)$ for all tiles $\fp$ in this subclass.
 
-The remaining tiles can be partitioned into a small number of so-called \emph{forests}
+The remaining tiles can be partitioned into a small number of so-called \emph{forests}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Forest.lean#L21-L33}{\extlink}
 (not in the graph-theoretic sense)
 with trees that each contain one of the aforementioned tree tops.
 The main result of Section~7 of the blueprint estimates the Carleson operator on such a forest.
@@ -722,7 +722,7 @@ The statement of the hypotheses ($f \colon \real \to \complex$ is a continuous $
 \lean{Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on \mathlib's use of filters to represent limits).
 
 The definition \lean{partialFourierSum} encodes the $N$-th partial Fourier sum of $f\colon\real \to\complex$. Here, \lean{Finset.Icc}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean#L280}{\extlink}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L59}{\extlink} denotes the interval $[a, b)$ and \lean{Set.Iic b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L44}{\extlink} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean\#L108-L124}{\extlink} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Finset/Defs.lean\#L72-L79}{\extlink} versions of these intervals.
-} denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n} is the
+} denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Analysis/Fourier/AddCircle.lean#L351-L355}{\extlink} is the
 $n$-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Analysis/Fourier/AddCircle.lean#L123-L125}{\extlink} denotes $e^{inx}$.
 \begin{lstlisting}[mathescape]
 def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ :=
@@ -731,7 +731,7 @@ def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ :=
 \end{lstlisting}
 
 In contrast to the classical result, to be able to formalize the statements of the metric and linearized versions of Carleson's theorem, we first needed to formalize a good amount of new concepts.
-The first such concept is a doubling metric measure space (see Definition~\ref{def:doubling}), which we denote by \lean{MeasureTheory.DoublingMeasure}. The constant $A$ appearing in this definition will typically be $2^a$.
+The first such concept is a doubling metric measure space (see Definition~\ref{def:doubling}), which we denote by \lean{MeasureTheory.DoublingMeasure}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L98-L102}{\extlink}. The constant $A$ appearing in this definition will typically be $2^a$.
 \begin{lstlisting}[mathescape]
 class MeasureTheory.Measure.IsDoubling {X : Type*} [MeasurableSpace X]
     [PseudoMetricSpace X] (μ : Measure X) (A : outParam ℝ≥0) : Prop where
@@ -804,7 +804,7 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
 \end{lstlisting}
 
 The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L228-L229}{\extlink} is defined as a special case of the \lean{linearizedCarlesonOperator};\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L222-L224}{\extlink}
-these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-T-r}, respectively. The expression \mmlean{‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖$_{\mathrm{e}}$} denotes the extended norm of the integral appearing in \eqref{def-T-r}, taking values in $\ennreal$ (see \S\ref{subsec:enorm} for more details).
+these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-lin-main-op}, respectively. The expression \mmlean{‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖$_{\mathrm{e}}$} denotes the extended norm of the integral appearing in \eqref{def-T-r}, taking values in $\ennreal$ (see \S\ref{subsec:enorm} for more details).
 In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L216-L218}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L55}{\extlink} denotes the set of points $y\in X$ such that $R_1 < \text{dist}(x, y) < R_2$.
 \begin{lstlisting}[mathescape]
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
@@ -994,7 +994,7 @@ and there was one computation that already implicitly assumed
 that there was only one top cube.
 
 \subsubsection{The Hardy--Littlewood maximal function} An important ingredient in the proof is a Vitali covering argument, using the Hardy--Littlewood maximal function.
-Recall that, given $f\colon\real^d\to\complex$, the (centered) \emph{Hardy–Littlewood maximal function} $M f$ of $f$ is defined as
+Recall that, given $f\colon\real^d\to\complex$, the (centered) \emph{Hardy–Littlewood maximal function}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ToMathlib/HardyLittlewood.lean#L31-L32}{\extlink} $M f$ of $f$ is defined as
 \begin{equation*}
 Mf\colon\real^d \to\ennreal, \quad x\mapsto \sup_{r>0}\frac{1}{|B(x,r)|}\int_{B(x,r)}|f(y)|\,dy.
 \end{equation*}
@@ -1198,6 +1198,7 @@ operations on types, and properties of these.
 
 Type classes can be used to capture standing assumptions as follows.
 We declared a new type class, of the form \lean{[KernelProofData X]},
+\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L261-L266}{\extlink}
 containing not a distance as in the above example, but a measure on $X$,
 a doubling constant, a family $\Theta$ of functions from $X$ to
 $\real$, and so on, i.e., all our standing assumptions. Then, whenever one
@@ -1225,7 +1226,8 @@ handle standing assumptions.
 
 \subsection{Working with real numbers}\label{subsec:real}
 
-The project differentiated between three different types of (extended) real numbers, $\real$, $\nnreal$ and $\ennreal$,
+The project differentiated between three different types of (extended) real numbers, $\real$,\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Real/Basic.lean#L36-L38}{\extlink} $\nnreal$ \href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/NNReal/Defs.lean#L58}{\extlink}
+and $\ennreal$,\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/ENNReal/Basic.lean#L101}{\extlink}
 which gave necessary benefits but also created difficulties in the formalization
 and tension in design decisions.
 Indeed, which of the three types should be used for constants,
@@ -1270,7 +1272,7 @@ An independently useful, more ambitious yet more powerful tactic would allow red
 The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
 % TODO: point to a prototype implementation
 
-The choice of real number type also came up when integrating over a subset of real numbers. Before the Carleson project, there was no definition of integration over \lean{NNReal}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/NNReal/Defs.lean#L58}{\extlink} or \lean{ENNReal}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/ENNReal/Basic.lean#L101}{\extlink} As integrating such functions was useful, we added \lean{volume}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Measure/MeasureSpaceDef.lean#L355-L356}{\extlink} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent.
+The choice of real number type also came up when integrating over a subset of real numbers. Before the Carleson project, there was no definition of integration over \lean{NNReal} or \lean{ENNReal}. As integrating such functions was useful, we added \lean{volume}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Measure/MeasureSpaceDef.lean#L355-L356}{\extlink} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent.
 \begin{lstlisting}[mathescape]
 ∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
 ∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
@@ -1411,6 +1413,30 @@ example {T : Type} [Fintype T] {s : Set T} [DecidablePred fun p $\mapsto$ p $\in
 	{f : T $\to \mathbb{N}$} : $\sum$ p $\in$ s, f p = $\sum$ p with p $\in$ s, f p
 \end{lstlisting}
 
+\section{Future work}\label{sec:future}
+
+After the Carleson project was finished,
+we have continued to prove further results in the Carleson repository.
+Indeed, \Cref{metric-space-Carleson} is strong enough to prove stronger versions of Carleson's theorem (\Cref{classical-carleson}):
+as Hunt \cite{MR238019} showed in 1968,
+the assumption in \Cref{classical-carleson} that $f$ is continuous
+can be weakened to the statement that $f$ is $L^p$ for $p>1$.
+Proving this requires \Cref{real-Carleson} combined with some additional techniques from analysis.
+
+The \emph{Lorentz norm} of a function is
+$$\|f\|_{L^{p,q}(X,\mu)}\vcentcolon=
+p^{\frac1q}\|t\mu\{|f| > t\}^{\frac1p}\|_{L^q(\mathbb{R}_{>0},\frac{dt}{t})}.$$
+It is not hard to see that the $L^{p,p}$-norm corresponds to the $L^p$-norm
+and the $L^{p,\infty}$-norm corresponds to the weak $L^p$-norm
+(which we also denoted $L^{p,\infty}$ before).
+Restricted weak-type estimates such as the one in \Cref{metric-space-Carleson}
+specify the boundedness of an operator with respect to the $L^{p,1}$-norm.
+
+There is a generalization of the Marcinkiewicz interpolation theorem to Lorentz spaces,
+which we have not formalized yet.
+However, we have completed a formalization showing that this generalized interpolation result
+implies \Cref{classical-carleson} for $L^p$ functions with $p>1$.
+
 \section{Conclusion}\label{sec:conclusion}
 
 The Carleson project, with a total of 28 contributors,
@@ -1448,27 +1474,6 @@ rather than a specialization to the project setting.
 Finally, we would consider more carefully whether to use non-standard proof methods in the hope of simplifying the formalization,
 since this ended up causing most of the mathematical inaccuracies in the first version of the blueprint.
 
-After the Carleson project was finished,
-we have continued to prove further results in the Carleson repository.
-Indeed, \Cref{metric-space-Carleson} is strong enough to prove stronger versions of Carleson's theorem (\Cref{classical-carleson}):
-as Hunt \cite{MR238019} showed in 1968,
-the assumption in \Cref{classical-carleson} that $f$ is continuous
-can be weakened to the statement that $f$ is $L^p$ for $p>1$.
-Proving this requires \Cref{real-Carleson} combined with some additional techniques from analysis.
-
-The \emph{Lorentz norm} of a function is
-$$\|f\|_{L^{p,q}(X,\mu)}\vcentcolon=
-p^{\frac1q}\|t\mu\{|f| > t\}^{\frac1p}\|_{L^q(\mathbb{R}_{>0},\frac{dt}{t})}.$$
-It is not hard to see that the $L^{p,p}$-norm corresponds to the $L^p$-norm
-and the $L^{p,\infty}$-norm corresponds to the weak $L^p$-norm
-(which we also denoted $L^{p,\infty}$ before).
-Restricted weak-type estimates such as the one in \Cref{metric-space-Carleson}
-specify the boundedness of an operator with respect to the $L^{p,1}$-norm.
-
-There is a generalization of the Marcinkiewicz interpolation theorem to Lorentz spaces,
-which we have not formalized yet.
-However, we have completed a formalization showing that this generalized interpolation result
-implies \Cref{classical-carleson} for $L^p$ functions with $p>1$.
 
 \printbibliography
 
