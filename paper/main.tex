@@ -1415,6 +1415,30 @@ example {T : Type} [Fintype T] {s : Set T} [DecidablePred fun p $\mapsto$ p $\in
 	{f : T $\to \mathbb{N}$} : $\sum$ p $\in$ s, f p = $\sum$ p with p $\in$ s, f p
 \end{lstlisting}
 
+\section{Future work}\label{sec:future}
+
+After the Carleson project was finished,
+we have continued to prove further results in the Carleson repository.
+Indeed, \Cref{metric-space-Carleson} is strong enough to prove stronger versions of Carleson's theorem (\Cref{classical-carleson}):
+as Hunt \cite{MR238019} showed in 1968,
+the assumption in \Cref{classical-carleson} that $f$ is continuous
+can be weakened to the statement that $f$ is $L^p$ for $p>1$.
+Proving this requires \Cref{real-Carleson} combined with some additional techniques from analysis.
+
+The \emph{Lorentz norm} of a function is
+$$\|f\|_{L^{p,q}(X,\mu)}\vcentcolon=
+p^{\frac1q}\|t\mu\{|f| > t\}^{\frac1p}\|_{L^q(\mathbb{R}_{>0},\frac{dt}{t})}.$$
+It is not hard to see that the $L^{p,p}$-norm corresponds to the $L^p$-norm
+and the $L^{p,\infty}$-norm corresponds to the weak $L^p$-norm
+(which we also denoted $L^{p,\infty}$ before).
+Restricted weak-type estimates such as the one in \Cref{metric-space-Carleson}
+specify the boundedness of an operator with respect to the $L^{p,1}$-norm.
+
+There is a generalization of the Marcinkiewicz interpolation theorem to Lorentz spaces,
+which we have not formalized yet.
+However, we have completed a formalization showing that this generalized interpolation result
+implies \Cref{classical-carleson} for $L^p$ functions with $p>1$.
+
 \section{Conclusion}\label{sec:conclusion}
 
 The Carleson project, with a total of 28 contributors,
@@ -1452,27 +1476,6 @@ rather than a specialization to the project setting.
 Finally, we would consider more carefully whether to use non-standard proof methods in the hope of simplifying the formalization,
 since this ended up causing most of the mathematical inaccuracies in the first version of the blueprint.
 
-After the Carleson project was finished,
-we have continued to prove further results in the Carleson repository.
-Indeed, \Cref{metric-space-Carleson} is strong enough to prove stronger versions of Carleson's theorem (\Cref{classical-carleson}):
-as Hunt \cite{MR238019} showed in 1968,
-the assumption in \Cref{classical-carleson} that $f$ is continuous
-can be weakened to the statement that $f$ is $L^p$ for $p>1$.
-Proving this requires \Cref{real-Carleson} combined with some additional techniques from analysis.
-
-The \emph{Lorentz norm} of a function is
-$$\|f\|_{L^{p,q}(X,\mu)}\vcentcolon=
-p^{\frac1q}\|t\mu\{|f| > t\}^{\frac1p}\|_{L^q(\mathbb{R}_{>0},\frac{dt}{t})}.$$
-It is not hard to see that the $L^{p,p}$-norm corresponds to the $L^p$-norm
-and the $L^{p,\infty}$-norm corresponds to the weak $L^p$-norm
-(which we also denoted $L^{p,\infty}$ before).
-Restricted weak-type estimates such as the one in \Cref{metric-space-Carleson}
-specify the boundedness of an operator with respect to the $L^{p,1}$-norm.
-
-There is a generalization of the Marcinkiewicz interpolation theorem to Lorentz spaces,
-which we have not formalized yet.
-However, we have completed a formalization showing that this generalized interpolation result
-implies \Cref{classical-carleson} for $L^p$ functions with $p>1$.
 
 \printbibliography
 
