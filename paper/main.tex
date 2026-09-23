@@ -1205,7 +1205,7 @@ instance, just like it fetches the distance in a metric space.
 Another advantage of this approach is that type classes can extend each other
 (just like a normed space contains more information than a metric space).
 This means we can craft one type class containing the standing assumptions for
-the statements, and another extended type class \lean{ProofData}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ProofData.lean#L2-L36}{\extlink} with more
+the statements, and another extended type class \lean{ProofData}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/ProofData.lean#L20-L36}{\extlink} with more
 objects for the proofs. When a \lean{ProofData} instance is in scope but
 Lean needs a \lean{KernelProofData} instance, type-class inference
 automatically fetches the latter from the former, just as it transparently
