@@ -248,7 +248,7 @@ The Carleson formalization project was publicly announced and opened to contribu
 The formalization was written in Lean~4, making extensive use of Lean's mathematical library, \mathlib~\cite{mathlib}.\footnote{\url{https://github.com/leanprover-community/mathlib4}}
 The code was developed in a public GitHub repository,\footnote{\url{https://github.com/fpvandoorn/carleson}} with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat.\footnote{\url{https://leanprover.zulipchat.com}} For more details, see \S\ref{sec:org}.
 
-%TODO: update stats before submitting
+%TODO: update stats
 The project comprises around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 90 merged pull requests and 11 more under review.
 
 Throughout the article, we will introduce Lean code excerpts from the formalization and use the following clickable symbol\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/Defs.lean#L298}{\extlink} to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
@@ -260,7 +260,7 @@ Notable projects formalizing results related to analysis include Immler's verifi
 Immler and Tan's formalization of the Poincaré--Bendixson theorem \cite{ImmlerTanPoincareBendixon} (in Isabelle/HOL),
 the flyspeck project \cite{FlyspeckComplete} formally verifying Hales' proof of the Kepler conjecture (verified using an interplay of results in the Isabelle/HOL and HOL/Light proof assistants), and the formalization of the prime number theorem in HOL Light \cite{HarrisonPNT} (by Harrison), Isabelle/HOL \cite{AvigadPNT} (by Avigad et al), Metamath \cite{CarneiroPNT} (by Carneiro) and Lean (Kontorovich et al).\footnote{\url{https://alexkontorovich.github.io/PrimeNumberTheoremAnd/}}
 
-Other projects formalizing a single theorem or cluster of theorems involving large collaborations include the formal proof of the Feit--Thompson theorem about finite groups in the Rocq prover \cite{OddOrderTheorem} with a 15 author team, the Liquid Tensor Experiment formalizing an important technical lemma about condensed mathematics in Lean \cites{LTEDefinitions,LTEFinal} (involving 18 authors), the PNT$+$ project formalizing several versions of the prime number theorem using modern tools (with 59 contributors so far) % TODO: is there a better number of authors?
+Other projects formalizing a single theorem or cluster of theorems involving large collaborations include the formal proof of the Feit--Thompson theorem about finite groups in the Rocq prover \cite{OddOrderTheorem} with a 15 author team, the Liquid Tensor Experiment formalizing an important technical lemma about condensed mathematics in Lean \cites{LTEDefinitions,LTEFinal} (involving 18 authors), the PNT$+$ project formalizing several versions of the prime number theorem using modern tools (with 75 contributors as of September 2026)
 and the Equational Theories project classifying certain equational laws on magmas \cite{tao2025equationaltheories} (with 34 authors).
 The last project is notable for involving a variety of different tools,
 all being used to generate eventual proofs in Lean.
@@ -472,7 +472,6 @@ Additionally, define for $r > 0$, $x\in X$:
 T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
 \end{equation}
 Finally, define the \emph{generalized Carleson operator} $T$ by
-%TODO: explain this is a disjoint union
 \begin{equation}
     \label{def-main-op}
     Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|\, ,
@@ -599,13 +598,13 @@ A grid structure consists of dyadic cubes. A \emph{dyadic cube} is a pair $(I, k
 A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5c71d731952eb0379d222eea4049103ca0/Carleson/GridStructure.lean#L20}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the center function, and a surjective function $s\colon \mathcal{D} \to [-S, S]$, $(I, k) \mapsto k$, called the scale function, that together satisfy the conditions \ref{it:coverdyadic}--\ref{it:eq-small-boundary}:
 \begin{enumerate}[label=\roman*.]
 \item \label{it:coverdyadic} For every dyadic cube $I$ and every $-S \leq k < s(I)$,
-\begin{equation}
+\begin{equation*}
     I\subseteq \bigcup_{J\in \mathcal {D}: s(J)=k}J\, .
-\end{equation}
+\end{equation*}
 \item \label{it:dyadicproperty} For all non-disjoint dyadic cubes $I, J$ with $s(I) \leq s(J)$, we have that
-\begin{equation}
+\begin{equation*}
     I\le J.
-\end{equation}
+\end{equation*}
 \item \label{it:subsetmaxcube} There exists a cube $I_0 \in \mathcal{D}$ with scale $s(I_0) = S$ and center $c(I_0) = o$ (the point where all $\mfa \in \Mf$ vanish), and for all dyadic cubes $J$ it holds that
 \begin{equation}\label{subsetmaxcube}
     J \le I_0\,.
@@ -616,9 +615,9 @@ A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/020d6e5
     B(c(I), \frac{1}{4} D^{s(I)}) \subseteq I \subseteq B(c(I), 4 D^{s(I)})\,.
 \end{equation}
 \item \label{it:eq-small-boundary} For every dyadic cube $I$ and every $t$ with $t D^{s(I)} \geq D^{-S}$, the boundary of $I$ is small in the sense that
-\begin{equation}
+\begin{equation*}
     \mu(\{x \in I \mid \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I)\,.
-\end{equation}
+\end{equation*}
 \end{enumerate}
 
 We now further subdivide in the frequency domain $\Theta$, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a \emph{tile structure}\href{https://github.com/fpvandoorn/carleson/blob/3e96104fa4cd6d5ff37434ac39c49604c86a7658/Carleson/TileStructure.lean#L54}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc\colon \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc\colon \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc\colon \fP \to X$ and $\ps\colon \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
@@ -907,10 +906,7 @@ We also ensured as much as we could that these concepts and theorems would be de
 The material specific to this formalization was usually stated only at the required level of generality, and we relaxed some of the contribution requirements for this part of the project: for instance, we did not try to optimize all proofs or insist that they adhered to \mathlib's style conventions.
 This helped make the Carleson project accessible to a broader range of potential contributors.
 
-% TODO: duplication of earlier information, but maybe that's not a problem
 When the project was finished, it comprised 35.6k lines of code (excluding blank lines and comments), of which 9.6k were in the \texttt{ToMathlib} subfolder (using commit \texttt{\href{https://github.com/fpvandoorn/carleson/tree/32c2adc411c5c274ed8f19aa8041157e394fa38a}{32c2adc4}}).
-
-% TODO: maybe mention in "Lessons Learned": Because F.v.D.\ formalized most lemma statements, but much fewer proofs, there were a few cases that a lemma was stated suboptimally, but this was not immediately caught when the proof was formalized. Example: \lean{MemLp (s.indicator f) p \mu} instead of \lean{MemLp f p (\mu.restrict s)}
 
 \section{Working with a blueprint}\label{sec:blueprint}
 \subsection{The blueprint writing process}\label{subsec:blueprint_writing}
@@ -952,7 +948,7 @@ This approach also had downsides, as discussed in \S\ref{subsec:blueprint_lesson
 
 Throughout the formalization process, most of the blueprint only required minor changes, such as fixing typos or clarifying minor details. Let us highlight four aspects where formalization resulted in more substantial changes or refinements.
 
-\subsubsection{$I \leq J$ vs.\ $I \subset J$}
+\subsubsection{$I \leq J$ vs.\ $I \subseteq J$}
 The axioms for a grid structure are meant to convey that the scale of a cube roughly specifies the size of a cube.
 Indeed, \eqref{eq-vol-sp-cube}, together with the fact that $D\gg 16$,
 states that if we have cubes $I$ and $J$ with different scales, then they are subsets/supersets of balls with drastically different radii.
@@ -1141,8 +1137,7 @@ Therefore, while they were writing the blueprint, the authors of \cite{ThieleCar
 In the formalization, we introduced a constant \lean{c} with a value of 100, coming from the exponent of $D$.
 Every other constant is defined in terms of $a$, $q$ and \lean{c}, and we use the notation convention \lean{Cx_y_z} to denote the constant appearing in result \lean{x.y.z} of the blueprint.
 
-%TODO: I am not sure about linking to the code, since now `c` and `seven_le_c` etc. are defined in different files, and the comments have not been updated accordingly.
-As a side effect of the formalization project, once the main result had been formalized we were able to check that, replacing $D := 2^{100a^2}$ by $2^{7a^2}$, the results still hold without needing to make any adjustments to the proofs\href{https://github.com/fpvandoorn/carleson/blob/32d3284ce04e16118646f222e63e034930434e80/Carleson/DoublingMeasure.lean#L25-L36}{\extlink}. This improves the constant appearing in the main theorem by an order of magnitude.
+As a side effect of the formalization project, once the main result had been formalized we were able to check that, replacing $D := 2^{100a^2}$ by $2^{7a^2}$, the results still hold without needing to make any adjustments to the proofs. This improves the constant appearing in the main theorem by an order of magnitude.
 
 
 \subsection{Standing assumptions and the \texttt{ProofData} pattern}\label{subsec:proof_data}
@@ -1316,7 +1311,6 @@ Formalization ergonomics, however, are greatly different: working with equivalen
 (For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
 While the \lean{filter_upwards}\href{https://github.com/leanprover-community/mathlib4/blob/81a5d257c8e410db227a6665ed08f64fea08e997/Mathlib/Order/Filter/Defs.lean#L444}{\extlink} tactic simplifies reducing results from almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
 Incidentally, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}: this underscores this choice.
-% TODO: Does this have other reasons, such as transitioning between different function properties?
 
 This relates well with the use of \lean{enorm}s (\S\ref{subsec:enorm}): \mmlean{Lp E p $\mu$} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
 
@@ -1411,7 +1405,6 @@ example {T : Type} [Fintype T] {s : Set T} [DecidablePred fun p $\mapsto$ p $\in
 \end{lstlisting}
 
 \section{Conclusion}\label{sec:conclusion}
-%TODO: this will likely need to be revised now that \ref{sec:org}, \ref{subsec:rel_work}, \ref{subsec:blueprint_mistakes}, \ref{subsec:blueprint_lessons} and \ref{subsec:pitfalls} are finished.
 
 The Carleson project, with a total of 28 contributors,
 was one of the largest collaborative formalization efforts of a single mathematical theorem to date,
