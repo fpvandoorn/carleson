@@ -604,10 +604,7 @@ A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/AFM-fro
 \begin{equation*}
     I\le J.
 \end{equation*}
-\item \label{it:subsetmaxcube} There exists a cube $I_0 \in \mathcal{D}$ with scale $s(I_0) = S$ and center $c(I_0) = o$ (the point where all $\mfa \in \Mf$ vanish), and for all dyadic cubes $J$ it holds that
-\begin{equation}\label{subsetmaxcube}
-    J \le I_0.
-\end{equation}
+\item \label{it:subsetmaxcube} There exists a cube $I_0 \in \mathcal{D}$ with scale $s(I_0) = S$ and center $c(I_0) = o$ (the point where all $\mfa \in \Mf$ vanish), and for all dyadic cubes $J$ it holds that $J \le I_0$.
 \item \label{it:eq-vol-sp-cube} Every dyadic cube $I$ fits a ball with center $c(I)$ and is approximately of size $D^{s(I)}$ in the sense that
 \begin{equation}
     \label{eq-vol-sp-cube}
@@ -794,7 +791,7 @@ theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
 
 The \lean{carlesonOperator}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L228-L229}{\extlink} is defined as a special case of the \lean{linearizedCarlesonOperator};\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L222-L224}{\extlink}
 these definitions correspond to those introduced in equations \eqref{def-main-op} and \eqref{def-lin-main-op}, respectively. The expression \mmlean{‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖$_{\mathrm{e}}$} denotes the extended norm of the integral appearing in \eqref{def-T-r}, taking values in $\ennreal$ (see \S\ref{subsec:enorm} for more details).
-In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L216-L218}{\extlink} below, \lean{Set.Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L55}{\extlink} denotes the set of points $y\in X$ such that $R_1 < \text{dist}(x, y) < R_2$.
+In \lean{carlesonOperatorIntegrand}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L216-L218}{\extlink} below, \lean{Annulus.oo x R₁ R₂}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L55}{\extlink} denotes the set of points $y\in X$ such that $R_1 < \text{dist}(x, y) < R_2$.
 \begin{lstlisting}[mathescape]
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
@@ -973,7 +970,7 @@ We thank Georges Gonthier for finding this inaccuracy in the blueprint.
 
 We made a second change to the definition of a grid structure, also suggested by Georges Gonthier.
 The first definition did not include the axiom that there exists a top cube,
-so it lacked the existence of $I_0$ and \eqref{subsetmaxcube}.
+so it not assume the existence of $I_0$ as in item~\ref{def:grid-structure}\ref{it:subsetmaxcube}.
 In the construction of the grid structure on $X$
 from Section~4 in the blueprint,
 the top level always has a single cube,
@@ -1116,7 +1113,7 @@ While this finiteness assumption simplified parts of the argument, some inaccura
 Some general results, such as the Marcinkiewicz real interpolation theorem, were proven in the blueprint only in the generality required to apply them in the proof of the main result. However, we ended up formalizing a more general version so that these theorems could be reused in other formalization projects. This would have been easier if their statements and proofs had already been generalized during the writing of the blueprint.
 
 A final point is that the lack of definition environments in the blueprint also
-meant that definitions were absent from the dependency graph. This was especially problematic for those contributors formalizing statements, since sometimes the definitions appearing in them had been declared a few sections before and there was not a convenient way to find them. This issue was mitigated by maintaining a table for the definitions, as explained in \S\ref{sec:org}. This table was sparse at the beginning of the formalization, but more definitions were added to it as the project advanced.
+meant that definitions were absent from the dependency graph. This was especially problematic for those contributors formalizing statements, since sometimes the definitions appearing in them had been declared a few sections before and there was no convenient way to find them. This issue was mitigated by maintaining a table for the definitions, as explained in \S\ref{sec:org}. This table was sparse at the beginning of the formalization, but more definitions were added to it as the project advanced.
 
 \section{Design decisions}\label{sec:design}
 \subsection{Treatment of constants}\label{subsec:constants}
@@ -1304,11 +1301,14 @@ To illustrate the magnitude of this refactoring, let us give some statistics: st
 The last step is not exhaustive: while substantial parts of \mathlib have been generalized, some areas would require further refactor (and will follow as needed). An example of a refactor\href{https://github.com/leanprover-community/mathlib4/pull/42662}{\extlink} that happened after the Carleson project was completed was to generalize the total variation of a function enough to apply to functions with $\ennreal$ as codomain. This required generalizing the concept of metric space, since in \mathlib the type $\ennreal$ is not an (extended) metric space. Extended metric spaces require that the topology is generated from the distance, which is not the case in $\ennreal$.
 Prior to this change, a weaker notion of extended metric spaces was introduced to \mathlib.\href{https://github.com/leanprover-community/mathlib4/pull/38105}{\extlink} Both of these refactors were performed by Felix Pernegger.
 
-The process of generalization revealed that this abstraction is also useful on its own: previously, many proofs in \mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using \lean{enorm}s provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics. % TODO(Michael): reformulate
+The process of generalization revealed that this abstraction is also useful on its own: previously, many proofs in \mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using \lean{enorm}s provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while clarifying mathematical definitions.
 
 \subsection{Working with \texorpdfstring{$L^p$}{L\^{}p} functions}\label{subsec:Lp}
 
-Working with $L^p$ functions presents a further design choice: one option is to work with elements of $L^p$ space, which are equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink}; a second option is to work with explicit functions and the condition that they are (a.e.\ strongly) measurable and that the $p$-th power of their norm is integrable, which is defined by the predicate \lean{MemLp}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}
+Working with $L^p$ functions presents a further design choice: one option is to work with elements of $L^p$ space
+\lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink},
+which are equivalence classes of functions up to almost everywhere equality;
+a second option is to work with explicit functions and the condition that they are (a.e.\ strongly) measurable and that the $p$-th power of their norm is integrable, which is defined by the predicate \lean{MemLp}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}
 
 The mathematical difference is very small: virtually all operations in the project respect a.e.\ equality.
 Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
