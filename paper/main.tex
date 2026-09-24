@@ -245,11 +245,12 @@ To address this challenge, before the formalization started, the authors of \cit
 The Carleson formalization project was publicly announced and opened to contributors in June 2024, and it was completed in July 2025. The core authors of the formalization are the 14 authors of this paper, and smaller contributions were made by the 14 additional people listed in the acknowledgements section. This makes the Carleson project one of the largest scale formalization efforts in mathematics to date.
 
 The formalization was written in Lean~4, making extensive use of Lean's mathematical library \mathlib~\cite{mathlib}.\footnote{\url{https://github.com/leanprover-community/mathlib4}}
-The code was developed in a public GitHub repository,\footnote{\url{https://github.com/fpvandoorn/carleson}} with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat.\footnote{\url{https://leanprover.zulipchat.com}} For more details, see \S\ref{sec:org}.
+The code was developed in a public GitHub repository with an associated website\footnote{\url{https://florisvandoorn.com/carleson/}} that also linked to HTML and PDF versions of the blueprint. Coordination among project collaborators took place using the Lean community Zulip chat.\footnote{\url{https://leanprover.zulipchat.com}} For more details, see \S\ref{sec:org}.
 
 When the project was finished, it comprised around 35.6k lines of Lean code (not including spaces or comments), of which around 9.6k are intended to be upstreamed to the \mathlib library, a process that is still ongoing. Pull requests into \mathlib coming from this project are marked with the \lean{carleson} tag; at the time of writing this article, this includes 111 merged pull requests and 5 more under review.
 
-Throughout the article, we introduce Lean code excerpts from the formalization and use the following clickable symbol\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L298-L300}{\extlink} to link to the corresponding code in our repository or in \mathlib, as appropriate. Some of the code excerpts have been slightly edited for readability.
+Throughout the article, we introduce Lean code excerpts from the formalization and use the following clickable symbol\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L298-L300}{\extlink} to link to the corresponding code in our repository or in \mathlib, as appropriate. All code excerpts refer to a fixed, frozen version of this repository\href{https://github.com/fpvandoorn/carleson/tree/AFM-frozen}{\extlink} and the corresponding version of \mathlib (on August 22, 2026).
+Some of the code excerpts have been slightly edited for readability.
 
 \subsection{Related work}\label{subsec:rel_work}
 
