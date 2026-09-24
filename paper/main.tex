@@ -1,4 +1,4 @@
-\documentclass[12pt]{amsart}
+\documentclass[12pt, reqno]{amsart}
 
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -36,7 +36,7 @@
 \definecolor{attributecolor}{cmyk}{0,0.90,0.86,0} % ACMRed
 \renewcommand{\lstlistingname}{Code excerpt}
 \newcommand{\LClistingname}{\MakeLowercase{\lstlistingname}}
-\newcommand{\lean}[1]{\lstinline{#1}}
+\let\lean\lstinline
 \newcommand{\mlean}[1]{\mathtt{\ #1\ }}
 \def\mmlean{\lstinline[mathescape]}
 
@@ -564,22 +564,14 @@ In particular, the two-sided case can be applied to derive the classical Carleso
         \end{equation*}
 \end{theorem}
 
-\subsubsection{Proof roadmap}\label{subsubsec:proof-sketch}
+\subsection{Proof roadmap}\label{subsec:proof-sketch}
 
 In order to highlight choices made in the proof and the formalization it is practical to give a brief roadmap
 of the proof of the main results stated above.
 Of these three, the linearized version \Cref{linearized-metric-Carleson} implies the others. It is proved by first reducing it to a finitary version, which is then reduced to a discrete version.
 
-Given the variables and assumptions of \Cref{linearized-metric-Carleson}, define
-\[
-D := 2^{100a^2}
-\]
-and
-\[
-\kappa := 2^{-10a}.
-\]
-Let
-$\psi\colon\real \to\real$ be the unique compactly supported, piecewise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
+Given the variables and assumptions of \Cref{linearized-metric-Carleson}, define $D := 2^{100a^2}$ and $\kappa := 2^{-10a}.$
+Let $\psi\colon\real \to\real$ be the unique compactly supported, piecewise linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
 \begin{equation*}
     \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1
 \end{equation*}
@@ -599,7 +591,8 @@ where for $s \in \mathbb{Z}, K_s(x,y) := K(x,y)\psi(D^{-s}\rho(x,y))$.
 
 To reduce this finitary version of the Carleson theorem to the discrete version, we make divisions in both the spatial and frequency domains. The spatial discretization will be achieved by a \emph{grid structure}, after which a subordinate frequency discretization is encoded by a \emph{tile structure}.
 
-A grid structure consists of dyadic cubes. A \emph{dyadic cube} is a pair $(I, k)$ of a Borel subset $I$ of $X$ and an integer $k \in [-S, S]$ for some fixed natural number $S$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$. We write $I \le J$ to mean that for two cubes $(I, k)$ and $(J, l)$, we have $I \subseteq J$ and $k \le l$.
+\begin{definition}\label{def:grid-structure}
+A \emph{dyadic cube} is a pair $(I, k)$ of a Borel subset $I$ of $X$ and an integer scale $k \in [-S, S]$ for some fixed natural number $S$. Usually we abuse notation and write $I$ for a dyadic cube $(I, k)$. We write $I \le J$ to mean that for two cubes $(I, k)$ and $(J, l)$, we have $I \subseteq J$ and $k \le l$.
 
 A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/GridStructure.lean#L20-L44}{\extlink} on $X$ is a triple $(\mathcal{D}, c, s)$ consisting of a finite set $\mathcal{D}$ of dyadic cubes, a function $c\colon \mathcal{D} \to X$ called the \emph{center function}, and a surjective function $s\colon \mathcal{D} \to [-S, S]$, $(I, k) \mapsto k$, called the \emph{scale function}, that together satisfy the conditions \ref{it:coverdyadic}--\ref{it:eq-small-boundary}:
 \begin{enumerate}[label=(\roman*)]
@@ -625,6 +618,7 @@ A \emph{grid structure}\href{https://github.com/fpvandoorn/carleson/blob/AFM-fro
     \mu(\{x \in I \mid \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I).
 \end{equation*}
 \end{enumerate}
+\end{definition}
 
 We now further subdivide in the frequency domain $\Theta$, intuitively partitioning for every dyadic cube the collection of functions $\Theta$ into pieces called tiles. More precisely, given a grid structure $(\mathcal{D}, c, s)$, a \emph{tile structure}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/TileStructure.lean#L54-L65}{\extlink} for this grid structure is a tuple $(\fP,\scI,\fc,\fcc,\pc,\ps)$ where $\fP$ is a finite set with elements called tiles. The function $\fc\colon \fP \to \mathcal{P}(\Mf)$ maps every tile to a subset of the collection of functions $\Theta$, and the function $\fcc\colon \fP \to \tQ(X)$ plays the role of center function for the selection of functions. The association of dyadic cubes to a collection of tiles is encoded in the reverse direction by a surjective function $\scI: \fP \to \mathcal{D}$ that merely associates to every tile a dyadic cube and the functions $\pc\colon \fP \to X$ and $\ps\colon \fP \to [-S, S]$ that just yield the center and scale of the given cube. The above functions need to satisfy the following conditions.
 
@@ -711,11 +705,11 @@ Starting from the material already available in Lean's mathematical library \mat
 \begin{lstlisting}[mathescape]
 theorem classical_carleson {f : ℝ → ℂ}
   (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
-  ∀$^m$ x, Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))
+  ∀$^m$ x, Tendsto (partialFourierSum · f x) atTop (nhds (f x))
 \end{lstlisting}
 
 The statement of the hypotheses ($f \colon \real \to \complex$ is a continuous $2\pi$-periodic function) closely resembles natural language, but understanding the conclusion requires some familiarity with Lean and \mathlib. There, $\forall^m x$ means ``for every real number $x$ not in a set of measure zero'', and
-\lean{Filter.Tendsto (partialFourierSum · f x) Filter.atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on \mathlib's use of filters to represent limits).
+\lean{Tendsto (partialFourierSum · f x) atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on \mathlib's use of filters to represent limits).
 
 The definition \lean{partialFourierSum} encodes the $N$-th partial Fourier sum of $f\colon\real \to\complex$. Here, \lean{Finset.Icc}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean#L280}{\extlink}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L59}{\extlink} denotes the interval $[a, b)$ and \lean{Set.Iic b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L44}{\extlink} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean\#L108-L124}{\extlink} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Finset/Defs.lean\#L72-L79}{\extlink} versions of these intervals.
 } denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Analysis/Fourier/AddCircle.lean#L351-L355}{\extlink} is the
@@ -732,18 +726,17 @@ The first such concept is a doubling metric measure space (see Definition~\ref{d
 class MeasureTheory.Measure.IsDoubling {X : Type*} [MeasurableSpace X]
     [PseudoMetricSpace X] (μ : Measure X) (A : outParam ℝ≥0) : Prop where
   measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
-  export IsDoubling (measure_ball_two_le_same)
 
 class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
   CompleteSpace X, LocallyCompactSpace X, MeasureSpace X, BorelSpace X,
   IsLocallyFiniteMeasure (volume : Measure X),
-  Measure.IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
+  IsDoubling (volume : Measure X) A, NeZero (volume : Measure X) where
 \end{lstlisting}
 
 Next, we need to introduce the family $\Mf$ of compatible functions satisfying the properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb}. We do this in two steps, by first creating a class
 \lean{FunctionDistances}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L113-L121}{\extlink} which bundles a family of continuous functions and then endowing these functions with the five properties in the class \lean{CompatibleFunctions}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L167-L185}{\extlink} The assumption that the family is cancellative is added as a \lean{Prop}-valued class \lean{IsCancellative}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L191-L197}{\extlink}
 
-Something to note here is that we created type synonyms to be able to endow $\Mf$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean{dist_\{x, r\}} for the distance corresponding to the ball $B(x, r)$.
+Something to note here is that we created type synonyms to be able to endow $\Mf$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean|dist_{x, r}| for the distance corresponding to the ball $B(x, r)$.
 
 \begin{lstlisting}[mathescape]
 variable {k X : Type*} {A : ℕ} [RCLike k] [PseudoMetricSpace X]
@@ -1096,7 +1089,7 @@ was to modify the assumptions of the lemma, assuming from the start
 that the function is $\tau$--Hölder--continuous in the larger ball
 $B(z, 2R)$. This more restrictive assumption is satisfied in all the
 places where the lemma is used, although this forced us to alter
-some constants in lemma statements.
+some constants in other lemma statements.
 
 \subsection{Lessons learned}\label{subsec:blueprint_lessons}
 In hindsight, some slightly different design choices during
@@ -1115,9 +1108,10 @@ In the case of the maximal function, the finitary formulation required explicitl
 various finite collections of balls, some of which were initially slightly off. As mentioned
 above, the finitary variant also led to an unnecessary limiting argument to generalize
 to the standard version.
-The finite grid constructions on the other hand meant that several edge cases had to be handled
-when encountering the smallest or largest scale. This introduced additional formalization effort
-and led to small inaccuracies in the blueprint again causing some confusion during formalization.
+
+The blueprint required that all dyadic cubes in a grid structure (\Cref{def:grid-structure}) have a scale in a fixed interval $[-S, S]$.
+This requirement is not present in the original preprint~\cite{ThieleCarlesonPreprint}.
+While this finiteness assumption simplified parts of the argument, some inaccuracies were introduced in the blueprint related to arguments at the bottom scale.
 
 Some general results, such as the Marcinkiewicz real interpolation theorem, were proven in the blueprint only in the generality required to apply them in the proof of the main result. However, we ended up formalizing a more general version so that these theorems could be reused in other formalization projects. This would have been easier if their statements and proofs had already been generalized during the writing of the blueprint.
 
@@ -1140,7 +1134,9 @@ Therefore, while they were writing the blueprint, the authors of \cite{ThieleCar
 In the formalization, we introduced a constant \lean{c} with a value of 100, coming from the exponent of $D$.
 Every other constant is defined in terms of $a$, $q$ and \lean{c}, and we use the notation convention \lean{Cx_y_z} to denote the constant appearing in result \lean{x.y.z} of the blueprint.
 
-As a side effect of the formalization project, once the main result had been formalized we were able to check that, replacing $D := 2^{100a^2}$ by $2^{7a^2}$, the results still hold without needing to make any adjustments to the proofs. This improves the constant appearing in the main theorem by an order of magnitude.
+Once the main result had been formalized, we were able to check that we could replace the constant $D := 2^{100a^2}$ by $2^{7a^2}$ and the results still hold without needing to make any adjustments to the proofs. This improves the constant $2^{443a^3}$ appearing in \Cref{metric-space-Carleson} to $2^{46a^3}$.
+This constant could be improved further by adding more fine-grained constants,
+instead of having a single constant $a$ that plays multiple roles.
 
 
 \subsection{Standing assumptions and the \texttt{ProofData} pattern}\label{subsec:proof_data}
@@ -1152,27 +1148,28 @@ readability as the reader has to locate the places where such standing
 assumptions are made. Such a practice is especially important when the
 standing assumptions are lengthy and technical.
 
-The standing assumptions for the statement of the generalization of
-Carleson's theorem are quite formidable. We will not repeat them here,
-see~\cite[Theorem~1.1.1]{CarlesonBlueprint} for details. Let us just mention
-that they involve a metric space $X$, a measure $\mu$ on $X$ which is
+The standing assumptions for the statement of the generalized
+Carleson theorem are quite formidable,
+see~\Cref{metric-space-Carleson}.
+They involve a metric space $X$, a measure $\mu$ on $X$ which is
 doubling for a constant $2^a$, a family $\Theta$ of functions from $X$ to
 $\real$, a distance on $\Theta$ satisfying five properties as well as a
 cancellativity condition, and a kernel $K\colon X \times X \to \real$ with
 Calderón--Zygmund like properties. The proofs involve even more additional
-data, notably two bounded measurable sets $F$ and $G$, an integrability
+data, notably two bounded measurable sets $F$ and $G$, an integrability.
+In the proof we introduce additional data,
+notably two bounded measurable sets $F$ and $G$, an integrability
 exponent $q\in (1, 2]$ and two measurable functions $\sigma_1$ and
 $\sigma_2$ with finite range.
 
-One possibility to solve this issue in the formalization would be to say that
-there is no issue, and include as assumptions in each lemma the minimal
-subset of the standing assumptions that is necessary for the statement to
-make sense. This would come at a high readability cost. Moreover, each time
+One possibility in the formalization would be to include
+all of these as arguments to each lemma that uses them.
+This would come at a high readability cost. Moreover, each time
 one applies such a lemma one would need to provide the individual assumptions
 as a long list of parameters to the lemma.
 
-It is a better idea to try to import in the formalization the practice of
-standing assumptions, in some form. One could define a
+It is better to try to also use the practice of
+standing assumptions in the formalization, in some form. One could define a
 structure containing all these standing assumptions, and have it as a
 parameter in every lemma and every definition. The readability cost would be
 minor, but still present. In the Carleson project, we have used another
@@ -1193,9 +1190,8 @@ provided by this instance. The same system is used to provide algebraic
 operations on types, and properties of these.
 
 Type classes can be used to capture standing assumptions as follows.
-We declared a new type class, of the form \lean{[KernelProofData X]},
-\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L261-L266}{\extlink}
-containing not a distance as in the above example, but a measure on $X$,
+We declared a new type class, of the form \lean{[KernelProofData X]},\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L261-L266}{\extlink}
+containing a measure on $X$,
 a doubling constant, a family $\Theta$ of functions from $X$ to
 $\real$, and so on, i.e., all our standing assumptions. Then, whenever one
 tries to use an object from the standing assumptions, the system looks for a
@@ -1212,28 +1208,31 @@ automatically fetches the latter from the former, just as it transparently
 interprets a normed space as a metric space.
 
 The specific implementation of this idea in the Carleson project is slightly
-more involved, as it is written in the form \lean{[ProofData a q K sigma1
-sigma2 F G]}. However, all the additional data $a$, $q$, $K$, $\sigma_1$,
-$\sigma_2$, $F$ and $G$ are inferred automatically from the selected type-class instance (in
-technical terms, they are \emph{outparams}). This means that the user does not
-have to provide them explicitly, as expected of a system designed to
+more involved, as it is written in the form \lean{[ProofData a q K σ₁ σ₂ F G]}. However, all the additional arguments $a$, $q$, $K$, $\sigma_1$,
+$\sigma_2$, $F$ and $G$ are inferred automatically from the selected type-class instance, and the user only has to specify the type $X$. In
+technical terms, all arguments other than $X$ are \emph{output parameters}.
+The user does not have to specify the output parameters explicitly,
+as expected of a system designed to
 handle standing assumptions.
 
 
 \subsection{Working with real numbers}\label{subsec:real}
 
-The project differentiated between three different types of (extended) real numbers, $\real$,\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Real/Basic.lean#L36-L38}{\extlink} $\nnreal$ \href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/NNReal/Defs.lean#L58}{\extlink}
-and $\ennreal$,\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/ENNReal/Basic.lean#L101}{\extlink}
-which gave necessary benefits but also created difficulties in the formalization
+The project differentiated between three different types related to the real numbers, $\real$,\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Real/Basic.lean#L36-L38}{\extlink} $\nnreal$ \href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/NNReal/Defs.lean#L58}{\extlink}
+and $\ennreal=[0,\infty]$,\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/ENNReal/Basic.lean#L101}{\extlink}
+which created difficulties in the formalization
 and tension in design decisions.
 Indeed, which of the three types should be used for constants,
 suprema, integrands, and computations?
 
-A term $x$ of type $\nnreal$ is not also of type $\real$, nor is it of type $\ennreal$, even though in set-based mathematics there are inclusions of the corresponding sets. In type theory however, one needs coercions, or casts, to go from one type to another. These coercions are often inserted and applied automatically.
-The \texttt{norm\_cast} tactic can be useful to normalize such casts.
+Since every term has a unique type, coercions can be registered,
+and afterwards are automatically inserted to go from one type to another. In particular, there are coercions from $\nnreal$ to both $\real$ and $\ennreal$.
+In proofs, working with coercions is somewhat annoying, but the \texttt{norm\_cast} tactic is useful to normalize such casts.
 
-However, one also needs conversions in the other directions, for instance to convert real numbers to non-negative real numbers. The conversions often play together with other operations, in that one for instance would need to know if, and often under which conditions, the product of the conversions is the conversion of the product. Indeed, since \texttt{Real.toNNReal}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/NNReal/Defs.lean#L154-L156}{\extlink} maps negative numbers to zero, we get that
-\[ \mlean{Real.toNNReal (-2) * Real.toNNReal (-3) \ne Real.toNNReal ((-2) * (-3)).} \]
+However, one also needs conversions in the other directions, for instance to convert real numbers to non-negative real numbers. These conversions commute with other operations like addition and multiplication, but only under certain conditions. For example, since \texttt{Real.toNNReal}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/NNReal/Defs.lean#L154-L156}{\extlink} maps negative numbers to zero, we get the following inequality.
+\begin{lstlisting}
+Real.toNNReal (-2) * Real.toNNReal (-3) ≠ Real.toNNReal ((-2) * (-3))
+\end{lstlisting}
 Even with the necessary side conditions, the \texttt{norm\_cast} tactic does not get very far
 in these situations.
 This can make conversions between number types quite painful,
@@ -1243,32 +1242,31 @@ Sometimes one is forced to add a conversion, because certain operations are not 
 Consider, for instance, performing a computation on exponents in $L^p$-function spaces.
 Around the real interpolation theorem, one needs to compute $p$ in terms of other exponents that
 naturally live in $\ennreal$.
-Yet there is no definition for $a^p$ if $p$ is in $\ennreal$, and therefore conversions from
-$\ennreal$ to $\real$ are unavoidable.
+Yet there is currently no definition for $a^p$ if $a$ and $p$ are in $\ennreal$,
+and therefore we used conversions from $\ennreal$ to $\real$.
 
 There are also advantages of differentiating between these number types.
 An advantage of putting for instance a constant in \texttt{NNReal} over \texttt{ENNReal} or
 \texttt{Real}, is that it encodes that the constant cannot be infinity and that it needs to be non-negative.
 
 Another advantage of differentiating comes from the different levels of tactic support.
-For real numbers, computations are much easier to perform, using the \texttt{linarith} and \texttt{field\_simp} tactics.
+There is better tactic support for $\real$ than for $\nnreal$ and $\ennreal$:
+tactics such as \texttt{linarith} and \texttt{field\_simp} can simplify computations in $\real$.
 For terms in $\nnreal$, support in \texttt{linarith} was only added after this project was completed.\footnote{\url{https://github.com/leanprover-community/mathlib4/pull/35155}}
 Neither \texttt{linarith} nor \texttt{field\_simp} support terms in $\ennreal$.
-The tactic \texttt{ring} \emph{does} work for these types, but not as well, and the performance for terms in $\ennreal$ is even worse than for terms in $\nnreal$.
-For both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs properties of subtraction: it even fails to prove that $x - x = 0$. If $x\colon \nnreal$, the \texttt{ring} tactic can prove that $(x^{-1})^2 = (x ^ 2)^{-1}$, or that $3 / x = 3 x^{-1}$, but it fails if $x\colon \ennreal$.
-Similarly \texttt{norm\_num} also works for numbers in $\ennreal$, but again not as well as for real numbers,
-as even with the necessary side conditions it would not simplify a term of the form $a / a$. Both \texttt{ring} and \texttt{norm\_num} fail to solve $(3/5) * (5/3) = 1$ when these numbers are viewed as numbers in $\ennreal$.
+The tactic \texttt{ring} \emph{does} work for these types, solving goals that only contain addition, multiplication and numerals.
+In both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs properties of subtraction: e.g.\ it fails to prove that $x - x = 0$.
+In $\ennreal$, it also fails to prove equalities related to division or multiplicative inverses. If $x\colon \nnreal$, the \texttt{ring} tactic can prove that $(x^{-1})^2 = (x ^ 2)^{-1}$ and $3 / x = 3 x^{-1}$, but this fails if $x\colon \ennreal$.
+Similarly \texttt{norm\_num} also works for numbers in $\ennreal$, but again not as well as for real numbers. Both \texttt{ring} and \texttt{norm\_num} fail to solve $(3/5) * (5/3) = 1$ when these numbers are viewed as numbers in $\ennreal$.
 
-On the nose, many results about real numbers transfer to $\ennreal$ provided all arguments are finite; in many cases, these finiteness hypotheses are actually necessary. Manipulating expressions in $\ennreal$ thus often requires proving such finiteness side goals. The \lean{finiteness}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Tactic/Finiteness.lean#L73}{\extlink} tactic (initially developed for the formalization of the PFR project\footnote{\url{https://teorth.github.io/pfr/}}) solves many such proof obligations automatically. We made this tactic more powerful, completing (for instance) support for all relevant cases in the Carleson project.
+On the nose, many results about real numbers transfer to $\ennreal$ provided all arguments are finite; in many cases, these finiteness hypotheses are actually necessary. Manipulating expressions in $\ennreal$ thus often requires proving such finiteness side goals. The \lean{finiteness}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Tactic/Finiteness.lean#L73}{\extlink} tactic (initially developed for the formalization of the PFR project\footnote{\url{https://teorth.github.io/pfr/}}) solves many such proof obligations automatically. We made this tactic more powerful, so that it supports all relevant cases from the Carleson project.
 
-A desirable future step is adding improved interaction with the \lean{positivity}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Tactic/Positivity/Core.lean#L593}{\extlink} tactic (which solves goals of the form \texttt{$0 \leq x$} or \texttt{$0 < x$}). Proving a goal \texttt{$(x + y + 1)^{-1}<\infty$} (for $x,y\in\ennreal$) requires proving that $x + y + 1$ is non-zero; this is already handled by calling \lean{positivity}. Conversely, \lean{positivity} alone cannot prove goals \texttt{$x^{-1}\neq 0$} for $x\in\ennreal$ --- as this is true only if $x$ is finite. Allowing \lean{positivity} to call \lean{finiteness} would improve automation significantly.
+A desirable future step is adding improved interaction with the \lean{positivity}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Tactic/Positivity/Core.lean#L593}{\extlink} tactic (which solves goals of the form \texttt{$0 \leq x$} or \texttt{$0 < x$}). Proving a goal \texttt{$(x + y + 1)^{-1}<\infty$} (for $x,y\in\ennreal$) requires proving that $x + y + 1$ is non-zero; this is already handled by calling \lean{positivity}. Conversely, \lean{positivity} alone cannot prove goals \texttt{$x^{-1}\neq 0$} for $x\colon\ennreal$: since this is only true when $x$ is finite, this would require that \lean{positivity} calls \lean{finiteness}. This is possible, but is not yet used for division or multiplicative inverses of numbers in $\ennreal$.
 
-An independently useful, more ambitious yet more powerful tactic would allow reducing goals in $\ennreal$ to $\nnreal$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\nnreal$ arithmetic; the infinite case will simplify calculations (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.
-\footnote{For multiplication, as $0 \cdot \infty = 0$, simplifying $a\cdot\infty$ to $\infty$ involves splitting cases by whether $a$ is zero or non-zero. Lest the reader worry about combinatorial explosion, let us remark that (1) splitting on $a$ being zero presumably implies the case of $a$ being infinite need not be considered separately, and (2) such splits can be performed only as required.}
-The precise design of such a tactic has been discussed (including by some of this paper's authors); its implementation is being worked on.
-% TODO: point to a prototype implementation
+A more powerful tactic that would have been useful in the Carleson project is a tactic that can reduce goals in $\ennreal$ to $\real$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\real$ arithmetic; the infinite case will usually be a very simple calculation (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.
+This was implemented in Mathlib in August 2026,\href{https://github.com/leanprover-community/mathlib4/pull/43254}{\extlink} after the completion of the Carleson project.
 
-The choice of real number type also came up when integrating over a subset of real numbers. Before the Carleson project, there was no definition of integration over \lean{NNReal} or \lean{ENNReal}. As integrating such functions was useful, we added \lean{volume}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Measure/MeasureSpaceDef.lean#L355-L356}{\extlink} instances on these types and proved basic properties and relations. For example, when integrating a function $\mlean{f : \ennreal\to \ennreal}$, the following expressions are mathematically equivalent.
+The choice of real number type also came up when integrating over a subset of real numbers. Before the Carleson project, there was no definition of integration over \lean{NNReal} or \lean{ENNReal}. As integrating such functions was useful, we added \lean{MeasureSpace}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Measure/MeasureSpaceDef.lean#L355-L356}{\extlink} instances on these types and proved basic properties and relations. Now, the following three expressions to integrate a function $f : \ennreal\to \ennreal$ are defined and proven to be equal.
 \begin{lstlisting}[mathescape]
 ∫⁻ (x : ℝ) in Ioi 0, f (ENNReal.ofReal x)
 ∫⁻ (x : ℝ≥0), f (ENNReal.ofNNReal x)
@@ -1276,17 +1274,17 @@ The choice of real number type also came up when integrating over a subset of re
 \end{lstlisting}
 This avoids another source of casting between real number types.
 
-As a final example around considerations on which number types to use, consider the supremum of a set.
-As one eventually is anyway interested in situations in which this supremum is finite and the set
-is bounded from above, one could consider a setup in which the sets considered are subsets of
-real numbers and the suprema are real numbers as well.
+As a final example, consider the supremum of a set.
+In the Carleson project, we mostly used suprema where we knew the supremum was finite,
+so we could consider a setup where we take suprema over subsets of real numbers
+and the suprema are real numbers as well.
 This was the choice at the outset of the project.
-However, in this setup, one needs to constantly carry around a proof or assumption that the
-set is indeed bounded.
-This is cumbersome, and therefore it turned out to be much better to
-let suprema just take values in \texttt{ENNReal}.
+However, in this setup, we need to constantly prove that the set is bounded
+or carry around the appropriate assumptions.
+This is cumbersome, and therefore it turned out to be nicer to
+work with suprema in $\ennreal$.
 
-Gradually, we came to the conclusion that, with some exceptions, it was best to use $\ennreal$ as much as possible.
+Gradually, we came to the conclusion that, with some exceptions, it was best to use $\ennreal$ as much as possible, which is also exemplified by the next section.
 
 \subsection{Use of \texttt{ENorm}}\label{subsec:enorm}
 
@@ -1299,27 +1297,40 @@ This captures both normed spaces and $\ennreal$. The enorm of a normed space is 
 Some definitions only require the existence of an enorm; many results require suitable compatibility conditions.
 Most lemmas necessary in this project only require an \lean{ESeminormedAddMonoid},\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Analysis/Normed/Group/Defs.lean#L111-L117}{\extlink} i.e.\ a monoid endowed with a continuous enorm that is positive semi-definite and satisfies the triangle inequality. Many lemmas, in fact, only require slightly weaker assumptions.
 
-Pursuing this approach required generalizing all necessary definitions to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing us to do so incrementally: in a first step, the new definition was added (together with the enorm instance on normed spaces). Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms.
-The final phase involved generalizing lemmas: often, this required small changes (such as constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no further changes needed to be made.
+Pursuing this approach required generalizing many basic measure-theoretic definitions from \mathlib to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing us to do so incrementally: in a first step, the \lean{ENorm} class was added, together with the enorm instance on normed spaces. As the second step, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. The third step modified many lemma statements to use \lean{enorm}s instead of norms, without yet generalizing any type classes. The fourth step consisted of generalizing lemmas, by changing typeclasses such as \lean{NormedAddCommGroup} to \lean{ENormedAddCommMonoid}. Often, this required small changes to the lemma statements and proofs, such as arguments changing from a real to an extended real number, or adding a hypothesis about some argument in $\ennreal$ being finite. Lean helped with the refactor by ensuring correctness of all the changes.
 
-To illustrate the magnitude of this refactoring, let us give some statistics: phase two (changing the basic definitions) changed about 300 lines of code; phase three (changing lemma statements to \lean{enorm}s) about 1000, and the lemma generalizations so far touched about 2500 lines of code.
+To illustrate the magnitude of this refactoring, let us give some statistics: step two (changing the basic definitions) changed about 300 lines of code; step three (changing lemma statements to \lean{enorm}s) about 1000, and step 4 (lemma generalizations) touched about 2500 lines of code.
 
-The last phase (generalizing \mathlib lemmas) is not exhaustive: while substantial parts of \mathlib have been generalized, some areas would require further refactor (and will follow as needed). To give an example, the total variation of a path in $\ennreal$ is a sensible quantity, even though $\ennreal$ is not a metric space. Introducing a weaker notion of extended metric spaces will enable new applications, and also provide the proper abstraction to state many scalar multiplication lemmas nicely. This is an ongoing effort by Felix Pernegger.
+The last step is not exhaustive: while substantial parts of \mathlib have been generalized, some areas would require further refactor (and will follow as needed). An example of a refactor\href{https://github.com/leanprover-community/mathlib4/pull/42662}{\extlink} that happened after the Carleson project was completed was to generalize the total variation of a function enough to apply to functions with $\ennreal$ as codomain. This required generalizing the concept of metric space, since in \mathlib the type $\ennreal$ is not an (extended) metric space. Extended metric spaces require that the topology is generated from the distance, which is not the case in $\ennreal$.
+Prior to this change, a weaker notion of extended metric spaces was introduced to \mathlib.\href{https://github.com/leanprover-community/mathlib4/pull/38105}{\extlink} Both of these refactors were performed by Felix Pernegger.
 
-The process of generalization revealed that this abstraction is also useful on its own: previously, many proofs in \mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using \lean{enorm}s provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics.
+The process of generalization revealed that this abstraction is also useful on its own: previously, many proofs in \mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using \lean{enorm}s provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics. % TODO(Michael): reformulate
 
 \subsection{Working with \texorpdfstring{$L^p$}{L\^{}p} functions}\label{subsec:Lp}
 
-Working with $L^p$ functions presents a further design choice: should one work with members of $L^p$ space (i.e., equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink}), or work with representatives (\lean{MemLp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}) instead?
+Working with $L^p$ functions presents a further design choice: one option is to work with elements of $L^p$ space, which are equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink}; a second option is to work with explicit functions and the condition that they are (a.e.\ strongly) measurable and that the $p$-th power of their norm is integrable, which is defined by the predicate \lean{MemLp}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}
+
 The mathematical difference is very small: virtually all operations in the project respect a.e.\ equality.
 Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
-(For example, $(f+g)x = f x + g x$ holds on the nose for actual functions; for representatives of $\tilde{f},\tilde{g}$ and $\tilde{f}+\tilde{g}\in L^p$, a priori this only holds for almost every $x$.)
-While the \lean{filter_upwards}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Filter/Defs.lean#L444}{\extlink} tactic simplifies reducing results from almost every to every $x$, these details add up: it is easiest to omit the passage entirely by working with functions in $L^p$ (i.e., with \lean{MemLp} directly).
-Incidentally, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}, underscoring this choice.
+For example, $(f+g)(x) = f(x) + g(x)$ holds on the nose for actual functions.
+However, if we have elements $\tilde{f},\tilde{g}\in L^p$,
+then we can still write down $\tilde{f}(x)$ by picking an arbitrary representative of this class, but then $(\tilde{f}+\tilde{g})(x)=\tilde{f}(x)+\tilde{g}(x)$ only holds for almost every $x$.
+This can make it significantly more cumbersome to manipulate expressions involving elements of the $L^p$ space, so it is easier to directly work with functions with the predicate \lean{MemLp}.
+In simple examples, the \lean{filter_upwards}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Filter/Defs.lean#L444}{\extlink} tactic
+allows us to conveniently use a.e.-equalities in proofs.
+However, in more complicated examples, equality proofs using elements of $L^p$ get cumbersome.
+The equation below is true by reflexivity if \lean{f} and \lean{g} are functions \lean{ℝ → ℝ},
+but requires a tedious proof if they are elements of the $L^p$ space.
+\begin{lstlisting}
+∫ x, ∫ y, (f + g) (x * y) = ∫ x, ∫ y, f (x * y) + g (x * y)
+\end{lstlisting}
+For this reason, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}.
 
-This relates well with the use of \lean{enorm}s (\S\ref{subsec:enorm}): \mmlean{Lp E p $\mu$} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$ which does not possess a well-behaved subtraction operation. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
+This is analogous to the trade-off between bundled and unbundled objects.
+In \mathlib various functions properties are defined in an unbundled way, for example a continuous function $f\colon X \to Y$ is usually formalized as \lstinline|{f : X → Y} (hf : Continuous f)| instead of using the bundled \lean{f : ContinuousMap X Y}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Topology/ContinuousMap/Defs.lean#L33-L37}{\extlink}
 
-This is somewhat similar to the trade-off between bundled and unbundled objects: established common wisdom is that unbundled or partially bundled objects are often better to work with than bundled ones. For instance, a continuous function $f\colon X \to Y$ would usually be formalized as \lstinline|{f : X → Y} (hf : Continuous f)| instead of using the bundled \lean{f : ContinuousMap X Y}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Topology/ContinuousMap/Defs.lean#L33-L37}{\extlink}
+This relates well with the use of \lean{enorm}s (\S\ref{subsec:enorm}): \mmlean{Lp E p $\mu$} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$.
+Phrasing lemmas using \lean{MemLp} allows us to generalize normed spaces to spaces with an \lean{enorm}.
 
 \subsection{Test function classes}\label{subsec:bdd_comp_supp}
 A common task during the formalization was to prove the various integrability and measurability side goals
@@ -1370,10 +1381,9 @@ otherwise $f$ may send a set of positive measure to a set of measure zero where 
 Staying close to mathematical convention and using everywhere boundedness and ordinary compactness
 pays dividends in formalization, allowing us to provide a richer and more robust API leading
 to simpler proofs.
-Further streamlining is possible by using \lean{fun_prop}.
 
-\lean{fun_prop}\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/tactics.html\#Mathlib.Meta.FunProp.funPropTacStx}}
-is a \mathlib tactic developed by Tomáš Skřivan
+Further streamlining is possible by using \lean{fun_prop}.\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/tactics.html\#Mathlib.Meta.FunProp.funPropTacStx}}
+This is a \mathlib tactic developed by Tomáš Skřivan
 that automatically uses tagged lemmas to show that a function has a certain property
 (continuity, differentiability, measurability, etc.).
 This tactic is good at writing complicated functions as a composition of simpler functions,
@@ -1385,7 +1395,7 @@ since the composition and product of integrable functions need not be integrable
 The class \lean{BoundedCompactSupport} is a step towards
 making \texttt{fun\_prop} more usable for integrability,
 since it is better behaved with respect to multiplication and composition.
-% TODO: maybe: mention the ICERM group on the integrability tactic; https://github.com/leanprover-community/mathlib4/pull/39323
+After the completion of the Carleson project, some progress was made by Tomáš Skřivan and others to improve \lean{fun_prop} for proving integrability.\href{https://github.com/leanprover-community/mathlib4/pull/39323}{\extlink}
 
 \subsection{Common pitfalls}\label{subsec:pitfalls}
 
@@ -1394,13 +1404,13 @@ Both forms are equivalent when the set in question is measurable,\href{https://g
 but the form using a restricted measure is preferred.
 The reason is that \lean{s.indicator f}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Algebra/Notation/Indicator.lean#L51-L51}{\extlink}
 is generally only measurable when the set \lean{s} is measurable,
-while if \lean{f} is measurable with respect to the measure $\mu$, then it is unconditionally
-measurable with respect to $\mlean{\mu.restrict\;\; s}$.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/StronglyMeasurable/AEStronglyMeasurable.lean#L220-L223}{\extlink}
+while if \lean{f} is measurable with respect to the measure \lean{μ}, then it is unconditionally
+measurable with respect to \lean{μ.restrict s}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/StronglyMeasurable/AEStronglyMeasurable.lean#L220-L223}{\extlink}
 
 Similarly, we can represent a periodic function on the real line as \lean{f : ℝ → ℂ} with the property \lean{f.Periodic T}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Algebra/Ring/Periodic.lean#L43-L44}{\extlink} and integrate it with respect to the measure \lean{volume.restrict (Ioc 0 T) : Measure ℝ}. Alternatively, we can write it as \lean{f : AddCircle T → ℂ}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Topology/Instances/AddCircle/Defs.lean#L187-L188}{\extlink} and integrate it with respect to \lean{volume : Measure (AddCircle T)}.
 Depending on the context either of these representations could be more suitable.
 
-Finally, there were several results in the project that required us to consider sets of elements from a given finite type $\texttt{T}$. Since all such sets are finite, from a mathematical point of view there is no difference between the types $\texttt{Set T}$\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Set/Defs.lean#L44-L51}{\extlink} and $\texttt{Finset T}$.
+Finally, there were several results in the project that required us to consider sets of elements from a given finite type $\texttt{T}$. Since all such sets are finite, from a mathematical point of view there is no difference between the types $\texttt{Set T}$\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Set/Defs.lean#L44-L51}{\extlink} and $\texttt{Finset T}$.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Finset/Defs.lean#L72-L79}{\extlink}
 However, these are different types in Lean: $\texttt{Set T}$ is the type of all sets consisting of elements of type $\texttt{T}$, while $\texttt{Finset T}$ is the type of finite sets of elements of $\texttt{T}$. Therefore, we needed to make a decision about which of these types to use in the Carleson project. For the most part, we chose to use $\texttt{Set T}$, although sometimes $\texttt{Finset T}$ is used inside proofs, or when required to apply existing \mathlib results. In hindsight, it would likely have been slightly more convenient to use $\texttt{Finset T}$ throughout, to avoid issues like the following.
 
 If \texttt{T} is endowed with a \texttt{Fintype} instance, then \texttt{Finset.sum} can still be applied to a given \texttt{s : Set T}. There are two possible syntaxes to do this, as the following example shows. Note that the displayed equality is true \emph{propositionally} but not \emph{definitionally}: the left hand side is a sum over \texttt{s.toFinset}, whereas the right hand side is a sum over \texttt{\{p : T | p $\in$ s\}}, and these \texttt{Finset}s are not definitionally equal.
@@ -1428,10 +1438,13 @@ and the $L^{p,\infty}$-norm corresponds to the weak $L^p$-norm
 Restricted weak-type estimates such as the one in \Cref{metric-space-Carleson}
 specify the boundedness of an operator with respect to the $L^{p,1}$-norm.
 
-There is a generalization of the Marcinkiewicz interpolation theorem to Lorentz spaces,
-which we have not formalized yet.
-However, we have completed a formalization showing that this generalized interpolation result
+There are multiple generalizations of the Marcinkiewicz interpolation theorem that
+could be formalized, including multilinear interpolation, abstract interpolation and interpolation between Lorentz spaces.
+An interpolation theorem between Lorentz spaces would be especially useful for this project, since we have completed the formalization showing that this result
 implies \Cref{classical-carleson} for $L^p$ functions with $p>1$.
+
+Another direction is to formalize further applications of \Cref{linearized-metric-Carleson},
+such as the pointwise almost everywhere convergence of the Walsh--Fourier series for functions in $L^2$.
 
 \section{Conclusion}\label{sec:conclusion}
 
