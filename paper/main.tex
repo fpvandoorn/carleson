@@ -1219,7 +1219,7 @@ and tension in design decisions.
 Indeed, which of the three types should be used for constants,
 suprema, integrands, and computations?
 
-Since every term has a unique type, we use coercions, or casts, that are automatically inserted to go from one type to another. In particular, there is a coercion from $\nnreal$ to both $\real$ and $\ennreal$.
+Since every term has a unique type, coercions  are automatically inserted to go from one type to another. In particular, there are coercions from $\nnreal$ to both $\real$ and $\ennreal$.
 In proofs, working with coercions is somewhat annoying, but the \texttt{norm\_cast} tactic is useful to normalize such casts.
 
 However, one also needs conversions in the other directions, for instance to convert real numbers to non-negative real numbers. These conversions commute with other operations like addition and multiplication, but only under certain conditions. For example, since \texttt{Real.toNNReal}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/NNReal/Defs.lean#L154-L156}{\extlink} maps negative numbers to zero, we get the following inequality.
@@ -1243,19 +1243,18 @@ An advantage of putting for instance a constant in \texttt{NNReal} over \texttt{
 \texttt{Real}, is that it encodes that the constant cannot be infinity and that it needs to be non-negative.
 
 Another advantage of differentiating comes from the different levels of tactic support.
-For real numbers computations are much easier to perform using the \texttt{linarith} and \texttt{field\_simp} tactics.
+For real numbers, computations are much easier to perform using the \texttt{linarith} and \texttt{field\_simp} tactics.
 For terms in $\nnreal$, support in \texttt{linarith} was only added after this project was completed.\footnote{\url{https://github.com/leanprover-community/mathlib4/pull/35155}}
 Neither \texttt{linarith} nor \texttt{field\_simp} support terms in $\ennreal$.
 The tactic \texttt{ring} \emph{does} work for these types, but only for operations in semirings (addition, multiplication and numerals).
 In both $\ennreal$ and $\nnreal$, it will generally fail when a goal needs properties of subtraction: e.g.\ it fails to prove that $x - x = 0$.
-In $\ennreal$ it also fails to prove equalities related to division or multiplicative inverses. If $x\colon \nnreal$, the \texttt{ring} tactic can prove that $(x^{-1})^2 = (x ^ 2)^{-1}$ and $3 / x = 3 x^{-1}$, but this fails if $x\colon \ennreal$.
+In $\ennreal$, it also fails to prove equalities related to division or multiplicative inverses. If $x\colon \nnreal$, the \texttt{ring} tactic can prove that $(x^{-1})^2 = (x ^ 2)^{-1}$ and $3 / x = 3 x^{-1}$, but this fails if $x\colon \ennreal$.
 Similarly \texttt{norm\_num} also works for numbers in $\ennreal$, but again not as well as for real numbers. Both \texttt{ring} and \texttt{norm\_num} fail to solve $(3/5) * (5/3) = 1$ when these numbers are viewed as numbers in $\ennreal$.
 Finally, \texttt{field\_simp} fails to simplify a term of the form $x / x$ for $x\colon\ennreal$, even if the necessary side conditions are provided.
 
 On the nose, many results about real numbers transfer to $\ennreal$ provided all arguments are finite. In many cases, these finiteness hypotheses are actually necessary. Manipulating expressions in $\ennreal$ thus often requires proving such finiteness side goals. The \lean{finiteness}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Tactic/Finiteness.lean#L73}{\extlink} tactic (initially developed for the formalization of the PFR project\footnote{\url{https://teorth.github.io/pfr/}}) solves many such proof obligations automatically. We made this tactic more powerful, so that it supports all relevant cases from the Carleson project.
 
-A desirable future step is adding improved interaction with the \lean{positivity}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Tactic/Positivity/Core.lean#L593}{\extlink} tactic (which solves goals of the form \texttt{$0 \leq x$} or \texttt{$0 < x$}). Proving a goal \texttt{$(x + y + 1)^{-1}<\infty$} (for $x,y\in\ennreal$) requires proving that $x + y + 1$ is non-zero; this is already handled by calling \lean{positivity}. Conversely, \lean{positivity} alone cannot prove goals \texttt{$x^{-1}\neq 0$} for $x\colon\ennreal$.
-Since this is only true when $x$ is finite, this would require that \lean{positivity} calls \lean{finiteness}. This is possible, but is not yet used for division or multiplicative inverses of numbers in $\ennreal$.
+A desirable future step is adding improved interaction with the \lean{positivity}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Tactic/Positivity/Core.lean#L593}{\extlink} tactic (which solves goals of the form \texttt{$0 \leq x$} or \texttt{$0 < x$}). Proving a goal \texttt{$(x + y + 1)^{-1}<\infty$} (for $x,y\in\ennreal$) requires proving that $x + y + 1$ is non-zero; this is already handled by calling \lean{positivity}. Conversely, \lean{positivity} alone cannot prove goals \texttt{$x^{-1}\neq 0$} for $x\colon\ennreal$: since this is only true when $x$ is finite, this would require that \lean{positivity} calls \lean{finiteness}. This is possible, but is not yet used for division or multiplicative inverses of numbers in $\ennreal$.
 
 An independently useful and more powerful tactic would allow reducing goals in $\ennreal$ to $\real$: this could be implemented by case-splitting on each relevant variable being finite or infinite. The finite case allows reduction to $\real$ arithmetic; the infinite case will usually be a very simple calculation (as, for example, $\infty$ added to any number in $\ennreal$ is still $\infty$). Such goals can hopefully be proven automatically, or reduced to much simpler tasks for the user.
 This was implemented in Mathlib in August 2026.\href{https://github.com/leanprover-community/mathlib4/pull/43254}{\extlink}
@@ -1270,10 +1269,10 @@ This avoids another source of casting between real number types.
 
 As a final example, consider the supremum of a set.
 In the Carleson project, we mostly used suprema where we knew the supremum was finite,
-so one could consider a setup where we take suprema over subsets of real numbers
+so we could consider a setup where we take suprema over subsets of real numbers
 and the suprema are real numbers as well.
 This was the choice at the outset of the project.
-However, in this setup, one needs to constantly prove that the set is bounded
+However, in this setup, we need to constantly prove that the set is bounded
 or carry around the appropriate assumptions.
 This is cumbersome, and therefore it turned out to be nicer to
 work with suprema in $\ennreal$.
@@ -1293,23 +1292,22 @@ Most lemmas necessary in this project only require an \lean{ESeminormedAddMonoid
 
 Pursuing this approach required generalizing many basic measure-theoretic definitions from \mathlib to \lean{enorm}s, as well as all basic results that are required in this project. This was a significant effort, but the verified nature of formalization helped a lot by allowing us to do so incrementally: in a first step, the \lean{ENorm} class was added, together with the enorm instance on normed spaces. Then, all basic definitions were changed to allow an \lean{enorm} as codomain, whenever this did not require further changes. A third step modified many lemma statements to use \lean{enorm}s instead of norms. In this step, some lemmas could be generalized without further modifications, but many lemmas required small changes (such as constants changing from a real to an extended real number, or adding a hypothesis about some quantity in $\ennreal$ being finite). At each point, verification ensured correctness: if all proofs still compiled, no further changes needed to be made.
 
-To illustrate the magnitude of this refactoring, let us give some statistics: step two changed about 300 lines of code; step three changed about 3500 so far, with 1000 of these lines consisting of just changing type-classes in lemma statements where the rest of the statement or the proof did not require any further modification.
+To illustrate the magnitude of this refactoring, let us give some statistics: step two changed about 300 lines of code; step three changed about 3500 so far, with 1000 of these lines consisting of just changing type classes in lemma statements where the rest of the statement or the proof did not require any further modification.
 
-The last step is not exhaustive: while substantial parts of \mathlib have been generalized, some areas would require further refactor (and will follow as needed). An example of a refactor\href{https://github.com/leanprover-community/mathlib4/pull/42662}{\extlink} that happened after the Carleson project was completed, was to generalize the total variation of a function enough to apply to functions with $\ennreal$ as codomain. This required generalizing the concept of metric space, since in \mathlib the type $\ennreal$ is not an (extended) metric space. Extended metric spaces require that the topology is generated from the distance, which is not the case in $\ennreal$.
+The last step is not exhaustive: while substantial parts of \mathlib have been generalized, some areas would require further refactor (and will follow as needed). An example of a refactor\href{https://github.com/leanprover-community/mathlib4/pull/42662}{\extlink} that happened after the Carleson project was completed was to generalize the total variation of a function enough to apply to functions with $\ennreal$ as codomain. This required generalizing the concept of metric space, since in \mathlib the type $\ennreal$ is not an (extended) metric space. Extended metric spaces require that the topology is generated from the distance, which is not the case in $\ennreal$.
 Prior to this change, a weaker notion of extended metric spaces was introduced to \mathlib.\href{https://github.com/leanprover-community/mathlib4/pull/38105}{\extlink} Both of these refactors were performed by Felix Pernegger.
 
 The process of generalization revealed that this abstraction is also useful on its own: previously, many proofs in \mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using \lean{enorm}s provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while providing a useful clarification to mathematics. % TODO(Michael): reformulate
 
 \subsection{Working with \texorpdfstring{$L^p$}{L\^{}p} functions}\label{subsec:Lp}
 
-Working with $L^p$ functions presents a further design choice. One option is to work with elements of $L^p$ space, which are equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink}. A second option is to work with explicit functions and the condition that they are (a.e.\ strongly) measurable and that the $p$-th power of their norm is integrable, which is defined by the predicate \lean{MemLp}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}
+Working with $L^p$ functions presents a further design choice: one option is to work with elements of $L^p$ space, which are equivalence classes of functions up to almost everywhere equality, \lean{MeasureTheory.Lp}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSpace/Basic.lean#L88-L96}{\extlink}; a second option is to work with explicit functions and the condition that they are (a.e.\ strongly) measurable and that the $p$-th power of their norm is integrable, which is defined by the predicate \lean{MemLp}.\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/MeasureTheory/Function/LpSeminorm/Defs.lean#L116-L119}{\extlink}
 The mathematical difference is very small: virtually all operations in the project respect a.e.\ equality.
 Formalization ergonomics, however, are greatly different: working with equivalence classes is much more cumbersome, as identities on the level of representatives only hold almost everywhere.
 For example, $(f+g)(x) = f(x) + g(x)$ holds on the nose for actual functions.
-If we have elements $\tilde{f},\tilde{g}\in L^p$,
+However, if we have elements $\tilde{f},\tilde{g}\in L^p$,
 then we can still write down $\tilde{f}(x)$ by picking an arbitrary representative of this class, but then $(\tilde{f}+\tilde{g})(x)=\tilde{f}(x)+\tilde{g}(x)$ only holds for almost every $x$.
-This can make it significantly more cumbersome to manipulate expressions involving elements of the $L^p$ space.
-It is easiest to omit the passage entirely by working with functions with the predicate \lean{MemLp} directly.
+This can make it significantly more cumbersome to manipulate expressions involving elements of the $L^p$ space, so it is easier to directly work with functions with the predicate \lean{MemLp}.
 For this reason, lemmas in \mathlib are mostly stated for \lean{MemLp} instead of \lean{Lp}.
 
 This relates well with the use of \lean{enorm}s (\S\ref{subsec:enorm}): \mmlean{Lp E p $\mu$} as a normed space requires functions with codomain in a Banach space; this excludes e.g.\ $\ennreal$. Phrasing lemmas using \lean{MemLp} first enables the generalization to $\ennreal$ in the first place.
@@ -1365,7 +1363,7 @@ pays dividends in formalization, allowing us to provide a richer and more robust
 to simpler proofs.
 
 Further streamlining is possible by using \lean{fun_prop}.\footnote{\url{https://leanprover-community.github.io/mathlib4_docs/tactics.html\#Mathlib.Meta.FunProp.funPropTacStx}}
-\lean{fun_prop} is a \mathlib tactic developed by Tomáš Skřivan
+This is a \mathlib tactic developed by Tomáš Skřivan
 that automatically uses tagged lemmas to show that a function has a certain property
 (continuity, differentiability, measurability, etc.).
 This tactic is good at writing complicated functions as a composition of simpler functions,
@@ -1421,11 +1419,11 @@ Restricted weak-type estimates such as the one in \Cref{metric-space-Carleson}
 specify the boundedness of an operator with respect to the $L^{p,1}$-norm.
 
 There are multiple generalizations of the Marcinkiewicz interpolation theorem that
-could be formalized. Multilinear interpolation, abstract interpolation and interpolation between Lorentz spaces are some examples of this.
+could be formalized, including multilinear interpolation, abstract interpolation and interpolation between Lorentz spaces.
 An interpolation theorem between Lorentz spaces would be especially useful for this project, since we have completed the formalization showing that this result
 implies \Cref{classical-carleson} for $L^p$ functions with $p>1$.
 
-Another direction is to formalize that \Cref{linearized-metric-Carleson} is strong enough for other applications, such as the almost everywhere convergence of the Walsh--Fourier series for functions in $L^2$.
+Another direction is to formalize further applications of \Cref{linearized-metric-Carleson}, such as the almost everywhere convergence of the Walsh--Fourier series for functions in $L^2$.
 
 \section{Conclusion}\label{sec:conclusion}
 
