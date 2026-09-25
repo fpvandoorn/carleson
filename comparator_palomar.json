@@ -1,0 +1,3 @@
+{"challenge_module": "PalomarChallenge", "solution_module": "PalomarSolution",
+ "theorem_names": ["classical_carleson_theorem", "metric_space_carleson", "linearized_metric_space_carleson"],
+ "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"]}

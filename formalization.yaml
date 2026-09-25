@@ -21,14 +21,14 @@ sources:
   - title: "A blueprint for the formalization of Carleson’s theorem on convergence of Fourier series"
     authors: [Lars Becker, María Inés de Frutos-Fernández, Leo Diedering, Floris van Doorn, Sébastien Gouëzel, Asgar Jamneshan, Evgenia Karunus, Edward van de Meent, Pietro Monticone, Jasper Mulder-Sohn, Jim Portegies, Joris Roos, Michael Rothgang, Rajula Srivastava, James Sundstrom, Jeremy Tan, Christoph Thiele]
     id: "https://florisvandoorn.com/carleson/blueprint/"
-    type: "blueprint"                   # kind of source (textbook, preprint, blueprint, ...)
+    type: "paper"                   # kind of source (textbook, preprint, blueprint, ...)
     relationship: "formalizes"
     license: "Apache-2.0"
     author_endorsement: "participated"
 
 classification:
-  arXiv: ["math.CA"]
-  msc: ["42B20"]
+  arxiv: ["math.CA"]
+  msc2020: ["42B20"]
 
 # project status
 status:
@@ -60,8 +60,17 @@ status:
 automation:                    # [required]
   methods:                     # [required] one entry per distinct phase/run/tool
     - method: "manual"               # [required] manual | copilot | agent | autonomous | other
+    - method: "agent"
+      models: ["claude-opus-5-5"]
+      framework: "Claude Code"
+      tool_setup: "Claude Code in VS Code."
+      cost:
+        wall_time: "about 0.5 hours"
+        hardware: "API-only"
+      prompting_notes: >-
+        Used only to generate the Palomar wrapper files
   spend_usd: "0 (roughly)"
-  notes: "no AI usage, except perhaps the occasional mathematical question"
+  notes: "no AI usage, except perhaps the occasional mathematical question and wrapper files"
 
 # fidelity
 fidelity:

@@ -34,3 +34,11 @@ name = "Challenge"
 # comparator on this repository.
 [[lean_lib]]
 name = "Solution"
+
+# Lean library with just the Palomar comparator challenge file
+[[lean_lib]]
+name = "PalomarChallenge"
+
+# Lean library with just the Palomar comparator solution file
+[[lean_lib]]
+name = "PalomarSolution"
