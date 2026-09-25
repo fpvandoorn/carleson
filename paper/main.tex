@@ -921,7 +921,7 @@ of the deduction of \Cref{classical-carleson} from \Cref{metric-space-Carleson}.
 Finally, we wanted to streamline the argument to simplify the formalization.
 One part of the formalization that we were worried about was the so-called ``invisible mathematics'' \cite{Bauer-2023} that one has to formalize.
 These are arguments that are not written on paper,
-but have to be provided by the formalizer to arrive at a formal proof.
+but have to be provided by the formalizer to arrive at a formal proof.%
 \footnote{There is also invisible mathematics that is performed by the proof assistant,
 such as interpreting the meaning of notation or the scope of variables,
 which we will not discuss here.}
@@ -1302,7 +1302,7 @@ To illustrate the magnitude of this refactoring, let us give some statistics: st
 The last step is not exhaustive: while substantial parts of \mathlib have been generalized, some areas would require further refactor (and will follow as needed). An example of a refactor\href{https://github.com/leanprover-community/mathlib4/pull/42662}{\extlink} that happened after the Carleson project was completed was to generalize the total variation of a function enough to apply to functions with $\ennreal$ as codomain. This required generalizing the concept of metric space, since in \mathlib the type $\ennreal$ is not an (extended) metric space. Extended metric spaces require that the topology is generated from the distance, which is not the case in $\ennreal$.
 Prior to this change, a weaker notion of extended metric spaces was introduced to \mathlib.\href{https://github.com/leanprover-community/mathlib4/pull/38105}{\extlink} Both of these refactors were performed by Felix Pernegger.
 
-The process of generalization revealed that this abstraction is also useful on its own: previously, many proofs in \mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using \lean{enorm}s provides a useful alternative. At the same time, it illustrates how the right abstractions can avoid duplicating work, while clarifying mathematical definitions.
+The process of generalization revealed that this abstraction is also useful on its own: previously, many proofs in \mathlib involved converting between norms taking values in $\real$ or $\nnreal$; using \lean{enorm}s avoids these conversions and is a natural way to phrase these statements.
 
 \subsection{Working with \texorpdfstring{$L^p$}{L\^{}p} functions}\label{subsec:Lp}
 
