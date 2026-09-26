@@ -46,29 +46,8 @@ lemma eLpNormEssSup_nnreal_scale_constant' {f : ℝ≥0 → ℝ≥0∞} {a : ℝ
 lemma eLpNorm_withDensity_scale_constant' {f : ℝ≥0 → ℝ≥0∞} (hf : AEStronglyMeasurable f) {p : ℝ≥0∞}
   {a : ℝ≥0} (h : a ≠ 0) :
   eLpNorm (fun t ↦ f (a * t)) p (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
-    = eLpNorm f p (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))  := by
-  unfold eLpNorm
-  split_ifs with p_zero p_top
-  · rfl
-  · rw [eLpNormEssSup_withDensity (by fun_prop) (by simp),
-        eLpNormEssSup_withDensity (by fun_prop) (by simp),
-        eLpNormEssSup_nnreal_scale_constant' h hf]
-  · symm
-    rw [eLpNorm'_eq_lintegral_enorm, eLpNorm'_eq_lintegral_enorm,
-        lintegral_withDensity_eq_lintegral_mul₀' (by measurability)
-          (aeMeasurable_withDensity_inv ((hf.enorm).pow_const _)),
-        lintegral_withDensity_eq_lintegral_mul₀' (by measurability)]
-    rotate_left
-    · apply aeMeasurable_withDensity_inv
-        (((AEStronglyMeasurable.comp_aemeasurable _ (by fun_prop)).enorm).pow_const _)
-      rw [NNReal.map_volume_mul_left h]
-      apply hf.smul_measure
-    simp only [enorm_eq_self, Pi.mul_apply, one_div]
-    rw [← lintegral_nnreal_scale_constant' h, ← lintegral_const_mul' _ _ (by simp)]
-    have : ∀ {t : ℝ≥0}, (ENNReal.ofNNReal t)⁻¹ = a * (ENNReal.ofNNReal (a * t))⁻¹ := by
-      intro t
-      rw [ENNReal.coe_mul, ENNReal.mul_inv (by simp) (by simp), ← mul_assoc,
-          ENNReal.mul_inv_cancel (by simpa) (by simp), one_mul]
-    simp_rw [← mul_assoc, ← this]
+    = eLpNorm f p (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))  :=
+  eLpNorm_comp_measurePreserving (hf.mono_ac (withDensity_absolutelyContinuous _ _))
+    (NNReal.measurePreserving_mul_left_withDensity_inv h)
 
 end MeasureTheory
