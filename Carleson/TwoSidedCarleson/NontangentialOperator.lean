@@ -260,7 +260,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     calc czOperator K r g x
       _ = (∫ y in bxrc, K x y * g y) := by rfl
       _ = (∫ y in (bxrc ∩ bx2r) ∪ bx2rᶜ , K x y * g y) := by nth_rw 1 [dom_x]
-    apply setIntegral_union_2
+    apply setIntegral_union'
     · rw [disjoint_compl_right_iff_subset]
       exact inter_subset_right
     · exact measurableSet_ball.compl
@@ -271,7 +271,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     calc czOperator K r g x'
       _ = (∫ y in bxprc, K x' y * g y) := by rfl
       _ = (∫ y in (bxprc ∩ bx2r) ∪ bx2rᶜ , K x' y * g y) := by nth_rw 1 [dom_x_prime]
-    refine setIntegral_union_2 ?_ measurableSet_ball.compl ?_
+    refine setIntegral_union' ?_ measurableSet_ball.compl ?_
     · rw [disjoint_compl_right_iff_subset]
       exact inter_subset_right
     · rw [← dom_x_prime]
@@ -965,7 +965,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
         ‖∫ (y : X) in Annulus.oo x' R₁ R', K x' y * f y‖ₑ + sup := by
       have : Annulus.oo x' R₁ R₂ = Annulus.oo x' R₁ R' ∪ Annulus.co x' R' R₂ :=
         Annulus.oo_union_co hR'.1 hR'.2.le |>.symm
-      rw [this, setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2)
+      rw [this, setIntegral_union' (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2)
         (by measurability)]; swap
       · simp_rw [← this]
         apply IntegrableOn.mono_set <| czOperator_welldefined hf hR₁.1 x'
@@ -996,7 +996,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       rw [sdiff_eq_compl_inter, inter_comm, ← Annulus.co_eq, this]
       have : Annulus.oo x' R' R₂ = Annulus.oo x' R' R₁ ∪ Annulus.co x' R₁ R₂ :=
         Annulus.oo_union_co hR'.2 hR₁.2.le |>.symm
-      rw [← setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2) (by measurability), ← this]; swap
+      rw [← setIntegral_union' (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2) (by measurability), ← this]; swap
       · simp_rw [← this]
         apply IntegrableOn.mono_set <| czOperator_welldefined hf hR'pos x'
         rw [← Annulus.ci_eq]
@@ -1065,7 +1065,7 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
         congr
         rw [sdiff_eq_compl_inter, inter_eq_right, compl_subset_compl]
         exact ball_subset_ball hR1R2.le
-      rw [this, setIntegral_union_2 (disjoint_compl_left_iff_subset.mpr sdiff_subset) (by measurability)
+      rw [this, setIntegral_union' (disjoint_compl_left_iff_subset.mpr sdiff_subset) (by measurability)
         (by rw [← this]; exact czOperator_welldefined (K := K) hg hR1 x')]
       simp
     trans ⨆ (R₂ : ℝ) (R₁ ∈ Ioo 0 R₂) (x' ∈ ball x R₁),
