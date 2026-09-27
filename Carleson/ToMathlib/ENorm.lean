@@ -122,19 +122,20 @@ theorem eLpNorm_top_smul
     {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
     {μ : Measure α} {f : α → ℝ≥0∞} (hf : AEStronglyMeasurable f μ) : eLpNorm (∞ • f) p μ = ⊤ * eLpNorm f p μ := by
   by_cases hp : p = 0
-  · simp [hp]
+  · have hf' : AEStronglyMeasurable (∞ • f) μ := (hf.aemeasurable.const_mul ∞).aestronglyMeasurable
+    simp [hp, eLpNorm_exponent_zero hf, eLpNorm_exponent_zero hf']
   by_cases h : f =ᶠ[ae μ] 0
   · rw [eLpNorm_eq_zero_of_ae_zero h, mul_zero]
     apply eLpNorm_eq_zero_of_ae_zero
     filter_upwards [h] with x hx
     simpa
   · have : ¬ eLpNorm f p μ = 0 := by
-      rwa [eLpNorm_eq_zero_iff hf hp]
+      rwa [eLpNorm_eq_zero_iff hp]  
     by_cases h' : eLpNorm f p μ = ⊤
     · simp only [h', ne_eq, top_ne_zero, not_false_eq_true, mul_top]
       rw [eq_top_iff] at *
       apply h'.trans
-      apply eLpNorm_mono_enorm
+      apply eLpNorm_mono_enorm hf
       intro x
       simp only [enorm_eq_self, Pi.smul_apply, smul_eq_mul]
       exact ENNReal.le_mul_top_self
@@ -152,7 +153,7 @@ theorem eLpNorm_top_smul
         congr
         exact Eq.symm (coe_toNNReal h')
       _ ≤ eLpNorm (∞ • f) p μ := by
-        apply eLpNorm_mono_enorm
+        apply eLpNorm_mono_enorm (hf.const_smul _)
         intro x
         simp only [toNNReal_div, toNNReal_coe, Pi.smul_apply, enorm_smul, enorm_eq_self,
           smul_eq_mul, enorm_NNReal]
