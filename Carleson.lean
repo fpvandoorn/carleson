@@ -53,7 +53,6 @@ public import Carleson.ProofData
 public import Carleson.Psi
 public import Carleson.TileExistence
 public import Carleson.TileStructure
-public import Carleson.ToMathlib.Analysis.Convolution
 public import Carleson.ToMathlib.Analysis.Fourier.AddCircle
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
