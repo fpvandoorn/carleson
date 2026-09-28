@@ -96,17 +96,24 @@ end
 
 section ENormedSpace
 
-variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε] [SMul ℝ≥0 ε] [ENormSMulClass ℝ≥0 ε]
+variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
   {ε' : Type*} [TopologicalSpace ε'] [ESeminormedAddCommMonoid ε'] [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
+  [ContinuousConstSMul ℝ≥0 ε']
 
 open MeasureTheory
 
 -- TODO: put next to MeasureTheory.eLpNorm_const_smul_le (which perhaps can stay)
-theorem eLpNorm_const_nnreal_smul_le
-    {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
+theorem eLpNorm_const_nnreal_smul_le [SMulWithZero ℝ≥0 ε] [ENormSMulClass ℝ≥0 ε]
+    [ContinuousConstSMul ℝ≥0 ε] {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
     {μ : Measure α} {c : ℝ≥0} {f : α → ε} : eLpNorm (c • f) p μ ≤ ‖c‖ₑ * eLpNorm f p μ := by
-  apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' (p := p) ?_
-  filter_upwards with x using le_of_eq (by simp [enorm_smul])
+  by_cases hf : AEStronglyMeasurable f μ
+  · apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' (hf.const_smul c) ?_ p
+    filter_upwards with x using le_of_eq (by simp [enorm_smul])
+  rw [eLpNorm_of_not_aestronglyMeasurable hf]
+  rcases eq_or_ne c 0 with rfl | hc
+  · simp
+  · rw [ENNReal.mul_top (by simpa)]
+    exact le_top
 
 -- TODO: put next to eLpNorm_const_smul
 theorem eLpNorm_const_smul' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
@@ -179,8 +186,8 @@ theorem eLpNorm_const_smul''' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥
   exact eLpNorm_const_smul'' hc
 
 -- TODO: put next to the unprimed version; perhaps both should stay
-lemma eLpNormEssSup_const_nnreal_smul_le {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
-    {c : ℝ≥0} {f : α → ε} : eLpNormEssSup (c • f) μ ≤ ‖c‖ₑ * eLpNormEssSup f μ := by
+lemma eLpNormEssSup_const_nnreal_smul_le [SMul ℝ≥0 ε] [ENormSMulClass ℝ≥0 ε] {α : Type*}
+    {m0 : MeasurableSpace α} {μ : Measure α} {c : ℝ≥0} {f : α → ε} : eLpNormEssSup (c • f) μ ≤ ‖c‖ₑ * eLpNormEssSup f μ := by
   have (x : α) : ‖(c • f) x‖ₑ ≤ ↑c * ‖f x‖ₑ := by simp [enorm_smul]
   apply eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul'
   filter_upwards with x using this x
