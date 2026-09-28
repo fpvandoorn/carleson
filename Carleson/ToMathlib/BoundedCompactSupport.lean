@@ -48,13 +48,16 @@ variable {X E : Type*} [TopologicalSpace X] [MeasurableSpace X] {μ ν : Measure
 variable {α : Type*} {m0 : MeasurableSpace α} {μ ν : Measure α}
   {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} in
 theorem eLpNorm_mono_ac (hμν : ν ≪ μ) : eLpNorm f ∞ ν ≤ eLpNorm f ∞ μ := by
-  simp_rw [eLpNorm_exponent_top, MeasureTheory.eLpNormEssSup_mono_measure _ hμν]
+  by_cases hf : AEStronglyMeasurable f μ
+  · simp_rw [eLpNorm_exponent_top (hf.mono_ac hμν), eLpNorm_exponent_top hf,
+      eLpNormEssSup_mono_measure _ hμν]
+  · simp_rw [eLpNorm_of_not_aestronglyMeasurable hf, le_top]
 
 variable {α : Type*} {m0 : MeasurableSpace α} {μ ν : Measure α}
   {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} in
 theorem MemLp.mono_ac (hf : MemLp f ∞ μ) (hμν : ν ≪ μ) :
     MemLp f ∞ ν :=
-⟨hf.1.mono_ac hμν, eLpNorm_mono_ac hμν |>.trans_lt hf.2⟩
+ (eLpNorm_mono_ac hμν).trans_lt hf
 
 variable {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
   {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
@@ -69,8 +72,8 @@ variable {α : Type*} {m0 : MeasurableSpace α} {μ ν : Measure α}
 theorem MemLp.ae_norm_le (hf : MemLp f ∞ μ) : ∀ᵐ x ∂μ, ‖f x‖ ≤ (eLpNorm f ⊤ μ).toReal := by
   filter_upwards [ae_le_eLpNormEssSup (f := f)] with x hx
   simp_rw [← toReal_enorm]
-  apply ENNReal.toReal_mono hf.2.ne
-  simp [hx]
+  apply ENNReal.toReal_mono hf.ne
+  rwa [eLpNorm_exponent_top hf.aestronglyMeasurable]
 
 variable [TopologicalSpace E] [ENorm E] [Zero E] in
 /- currently we assume that the functions are a.e.-bounded, since that plays better with mathlib.
@@ -201,7 +204,7 @@ variable {f g : X → 𝕜}
 @[fun_prop]
 theorem mul_bdd_right (hf : BoundedCompactSupport f μ) (hg : MemLp g ∞ μ) :
     BoundedCompactSupport (f * g) μ where
-  memLp_top := hg.mul hf.memLp_top
+  memLp_top := MemLp.mul hf.memLp_top hg
   hasCompactSupport := hf.hasCompactSupport.mul_right
 
 @[fun_prop]
@@ -219,7 +222,7 @@ theorem mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g μ) 
 theorem integrable_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g μ) :
     Integrable (f * g) μ := by
   rw [← memLp_one_iff_integrable] at hg ⊢
-  exact hg.mul hf.memLp_top
+  exact MemLp.mul hf.memLp_top hg
 
 @[fun_prop]
 theorem integrable_fun_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g μ) :
@@ -245,10 +248,7 @@ lemma eLpNorm_star : eLpNorm (star f) ⊤ μ = eLpNorm f ⊤ μ := by
 
 @[fun_prop]
 theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) μ where
-  memLp_top := by
-    refine ⟨hf.aestronglyMeasurable.star, ?_⟩
-    rw [eLpNorm_star]
-    have := hf.memLp_top; finiteness
+  memLp_top := hf.memLp_top.star
   hasCompactSupport := by simpa using! hf.hasCompactSupport.star
 
 -- This lemma is defeq to `BoundedCompactSupport.conj`, but `starRingEnd` and `conj` are both
