@@ -81,7 +81,6 @@ Since it might be nicer to work with suprema instead of essential suprema, we ne
 everywhere-boundedness in one place.
 TODO: Refactor this back to every boundedness (plus measurability)
 -/
-
 /-- Bounded compactly supported measurable functions -/
 @[fun_prop]
 structure BoundedCompactSupport (f : X → E) (μ : Measure X := by volume_tac) :
@@ -261,7 +260,7 @@ end Mul
 /-- If `‖f‖` is bounded by `g` and `g` is bounded compactly supported, then so is `f`. -/
 theorem mono {g : X → ℝ≥0∞} (hg : BoundedCompactSupport g μ) (hf : AEStronglyMeasurable f μ)
     (hfg : ∀ x, ‖f x‖ₑ ≤ g x) : BoundedCompactSupport f μ where
-  memLp_top := ⟨hf, eLpNorm_mono_enorm hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top⟩
+  memLp_top := eLpNorm_mono_enorm hf hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top
   hasCompactSupport := by
     refine hg.hasCompactSupport.mono ?_
     by_contra h
@@ -273,7 +272,7 @@ theorem mono {g : X → ℝ≥0∞} (hg : BoundedCompactSupport g μ) (hf : AESt
 -- use `mono` preferably
 theorem mono_norm {g : X → ℝ} (hg : BoundedCompactSupport g μ) (hf : AEStronglyMeasurable f μ)
     (hfg : ∀ x, ‖f x‖ ≤ g x) : BoundedCompactSupport f μ where
-  memLp_top := ⟨hf, eLpNorm_mono_real hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top⟩
+  memLp_top := eLpNorm_mono_real hf hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top
   hasCompactSupport := by
     refine hg.hasCompactSupport.mono ?_
     by_contra h
@@ -361,8 +360,7 @@ theorem prod_mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g
       hf.memLp_top.comp_quasiMeasurePreserving Measure.quasiMeasurePreserving_fst
     have h2g : MemLp (fun z : X × Y ↦ g z.2) ∞ (μ.prod ν) :=
       hg.memLp_top.comp_quasiMeasurePreserving Measure.quasiMeasurePreserving_snd
-    -- todo: reorder arguments of `mul`
-    exact h2g.mul (r := ∞) h2f
+    exact h2f.mul (r := ∞) h2g
   hasCompactSupport := by
     -- todo: separate out as lemmas
     apply HasCompactSupport.intro <| hf.hasCompactSupport.prod hg.hasCompactSupport
