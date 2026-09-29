@@ -226,7 +226,7 @@ lemma oscillation_le_cdist [CompatibleFunctions 𝕜 X A] (x : X) (r : ℝ) (f g
 
 export CompatibleFunctions (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
 
-lemma dist_congr [FunctionDistances 𝕜 X] {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ X}
+lemma cdist_congr [FunctionDistances 𝕜 X] {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ X}
     (e₁ : x₁ = x₂) (e₂ : r₁ = r₂) : dist_{x₁, r₁} f g = dist_{x₂, r₂} f g := by congr
 
 variable (X) in
@@ -500,7 +500,7 @@ lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
     · rw [pow_succ', mul_assoc]
       exact (mul_le_mul_iff_right₀ zero_lt_two).mpr ih
     · convert le_cdist (ball_subset_ball _) using 1
-      · exact dist_congr rfl (by rw [← mul_assoc, pow_succ'])
+      · exact cdist_congr rfl (by rw [← mul_assoc, pow_succ'])
       · nth_rw 1 [← one_mul ((defaultA a) ^ k * r)]; gcongr
         rw [← Nat.cast_one, Nat.cast_le]; exact Nat.one_le_two_pow
 
@@ -512,7 +512,7 @@ lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
   | succ k ih =>
     trans defaultA a * dist_{x, 2 ^ k * r} f g
     · convert cdist_le _ using 1
-      · exact dist_congr rfl (by ring)
+      · exact cdist_congr rfl (by ring)
       · rw [dist_self]; positivity
     · replace ih := (mul_le_mul_iff_right₀ (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
       rwa [← mul_assoc, ← pow_succ'] at ih
