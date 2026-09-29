@@ -36,18 +36,25 @@ theorem eLpNormEssSup_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
     eLpNormEssSup g (Measure.map f μ) = eLpNormEssSup (g ∘ f) μ :=
   essSup_map_measure hg.enorm hf
 
+theorem aestronglyMeasurable_map_iff_of_aemeasurable [MeasurableSpace E] [OpensMeasurableSpace E]
+    (hg : AEMeasurable g (Measure.map f μ)) (hf : AEMeasurable f μ) :
+    AEStronglyMeasurable g (Measure.map f μ) ↔ AEStronglyMeasurable (g ∘ f) μ := by
+  refine ⟨fun h ↦ h.comp_aemeasurable hf, fun h ↦ ?_⟩
+  obtain ⟨t, ht, hgt⟩ := h.isSeparable_ae_range
+  apply AEStronglyMeasurable.comp_aemeasurable (g := id) _ hg
+  apply aestronglyMeasurable_id_of_isSeparable ht.closure
+  rw [← mem_ae_iff, AEMeasurable.map_map_of_aemeasurable hg hf,
+    mem_ae_map_iff (hg.comp_aemeasurable hf) isClosed_closure.measurableSet]
+  filter_upwards [hgt] with x hx using subset_closure hx
+
 -- replace the unprimed mathlib version
 theorem eLpNorm_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
     (hg : AEMeasurable g (Measure.map f μ)) (hf : AEMeasurable f μ) :
     eLpNorm g p (Measure.map f μ) = eLpNorm (g ∘ f) p μ := by
-  by_cases hp_zero : p = 0
-  · aesop
-  by_cases hp_top : p = ∞
-  · rw [hp_top, eLpNorm_exponent_top]
-    exact eLpNormEssSup_map_measure' hg hf
-  simp_rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp_zero hp_top]
-  rw [lintegral_map' (hg.enorm.pow_const p.toReal) hf]
-  rfl
+  by_cases hgm : AEStronglyMeasurable g (Measure.map f μ)
+  · exact eLpNorm_map_measure hgm hf
+  rw [eLpNorm_of_not_aestronglyMeasurable hgm, eLpNorm_of_not_aestronglyMeasurable
+    ((aestronglyMeasurable_map_iff_of_aemeasurable hg hf).not.mp hgm)]
 
 -- replace the unprimed version
 theorem eLpNorm_comp_measurePreserving' {ν : Measure β} [MeasurableSpace E]
