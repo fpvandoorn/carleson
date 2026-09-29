@@ -90,17 +90,18 @@ theorem eLpNormEssSup_iSup {α : Type*} {ι : Type*} [Countable ι] [MeasurableS
 theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : ℝ≥0∞}
     {f : ℕ → α → ℝ≥0∞} (hf : ∀ n, AEMeasurable (f n) μ) (h_mono : ∀ᵐ x ∂μ, Monotone fun n => f n x) :
     eLpNorm (fun x => ⨆ n, f n x) p μ = ⨆ n, eLpNorm (f n) p μ := by
-  unfold eLpNorm
-  split_ifs with hp hp'
-  · simp
-  · apply eLpNormEssSup_iSup
-  · unfold eLpNorm'
-    have := ENNReal.toReal_pos hp hp'
-    rw [← iSup_rpow (by positivity), ← lintegral_iSup']
-    · congr 2 with a; rw [← iSup_rpow (by positivity)]; simp
-    · fun_prop
-    · filter_upwards [h_mono] with a ha m n hmn
-      beta_reduce; gcongr; simp only [enorm_eq_self]; apply ha hmn
+  have hf' : ∀ n, AEStronglyMeasurable (f n) μ := fun n ↦ (hf n).aestronglyMeasurable
+  have hsup : AEStronglyMeasurable (fun x => ⨆ n, f n x) μ :=
+    (AEMeasurable.iSup hf).aestronglyMeasurable
+  by_cases hp : p = 0
+  · simp [hp, eLpNorm_exponent_zero hsup, eLpNorm_exponent_zero (hf' _)]
+  by_cases hp' : p = ∞
+  · simp_rw [hp', eLpNorm_exponent_top hsup, eLpNorm_exponent_top (hf' _), eLpNormEssSup_iSup f]
+  · have hp0 := ENNReal.toReal_pos hp hp'
+    simp_rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp hp' hsup,
+      eLpNorm_eq_lintegral_rpow_enorm_toReal hp hp' (hf' _), enorm_eq_self, iSup_rpow hp0,
+      lintegral_iSup' (fun n ↦ (hf n).pow_const _) (h_mono.mono fun x hx m n hmn ↦ ENNReal.rpow_le_rpow (hx hmn) hp0.le),
+      iSup_rpow (one_div_pos.2 hp0)]
 
 end Suprema
 
@@ -136,7 +137,7 @@ theorem eLpNormEssSup_const_smul_le'' : eLpNormEssSup (c • f) μ ≤ ‖c‖�
 
 theorem MemLp.const_smul'' [ContinuousConstSMul NNReal ε] (hf : MemLp f p μ) :
     MemLp (c • f) p μ :=
-  eLpNorm_const_nnreal_smul_le.trans_lt (ENNReal.mul_lt_top ENNReal.coe_lt_top hf.2)
+  hf.of_enorm_le_mul (hf.aestronglyMeasurable.const_smul c) (.of_forall fun _ ↦ (enorm_smul ..).le)
 
 theorem MemLp.const_mul'' [ContinuousConstSMul NNReal ε] (hf : MemLp f p μ) :
     MemLp (fun x => c • f x) p μ :=
@@ -149,9 +150,8 @@ section Lp
 variable {ε : Type*} [TopologicalSpace ε] [ENorm ε]
 
 lemma MemLp.eLpNormEssSup_lt_top {f : α → ε} (hu : MemLp f ⊤ μ) :
-    eLpNormEssSup f μ < ⊤ := by
-  simp_rw [MemLp, eLpNorm_exponent_top] at hu
-  exact hu.2
+    eLpNormEssSup f μ < ⊤ :=
+  eLpNormEssSup_le_eLpNorm_top.trans_lt hu
 
 end Lp
 
