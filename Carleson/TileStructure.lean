@@ -370,7 +370,7 @@ def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
 
 lemma le_dens₂ (𝔓' : Set (𝔓 X)) {p : 𝔓 X} (hp : p ∈ 𝔓') {r : ℝ} (hr : r ≥ 4 * (D ^ 𝔰 p : ℝ)) :
     volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r) ≤ dens₂ 𝔓' :=
-  le_trans (le_iSup₂ (α := ℝ≥0∞) r hr) (le_iSup₂ p hp)
+  le_iSup₂_of_le p hp (le_iSup₂_of_le r hr le_rfl)
 
 set_option backward.isDefEq.respectTransparency false in
 lemma dens₂_eq_biSup_dens₂ (𝔓' : Set (𝔓 X)) :
