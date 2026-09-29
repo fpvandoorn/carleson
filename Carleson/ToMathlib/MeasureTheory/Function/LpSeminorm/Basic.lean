@@ -15,17 +15,6 @@ variable {α ε E F G : Type*} {m m0 : MeasurableSpace α} {p : ℝ≥0∞} {q :
 
 namespace MeasureTheory
 
-section Zero
-
-variable {ε : Type*} [TopologicalSpace ε]
-
-lemma eLpNorm_zero_of_ae_zero [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
-    eLpNorm f p μ = 0 := by
-  apply eLpNorm_zero_of_ae_enorm_zero
-  simpa only [Function.comp_apply, Pi.zero_apply, enorm_eq_zero]
-
-end Zero
-
 section MapMeasure
 
 variable {β : Type*} {mβ : MeasurableSpace β} {f : α → β} {g : β → E}
