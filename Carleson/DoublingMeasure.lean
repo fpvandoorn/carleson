@@ -80,8 +80,7 @@ lemma hundred_lt_D : 100 < defaultD a := by
   have : 16 ≤ a ^ 2 := by nlinarith [four_le_a X]
   simp only [defaultD]
   gcongr
-  · norm_num
-  · nlinarith [seven_le_c]
+  nlinarith [seven_le_c]
 
 -- used in 7.5.6 (`limited_scale_impact`)
 lemma hundred_lt_realD : (100 : ℝ) < defaultD a := mod_cast hundred_lt_D X
