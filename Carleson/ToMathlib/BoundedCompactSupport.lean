@@ -240,12 +240,6 @@ lemma _root_.AEStronglyMeasurable.star (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (star f) μ :=
   RCLike.continuous_conj.comp_aestronglyMeasurable hf
 
-omit [TopologicalSpace X] in
-lemma eLpNorm_star : eLpNorm (star f) ⊤ μ = eLpNorm f ⊤ μ := by
-  simp_rw [Star.star]
-  rw [MeasureTheory.eLpNorm_congr_enorm_ae (g := f)]
-  simp
-
 @[fun_prop]
 theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) μ where
   memLp_top := hf.memLp_top.star
