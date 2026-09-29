@@ -15,18 +15,6 @@ variable {α ε E F G : Type*} {m m0 : MeasurableSpace α} {p : ℝ≥0∞} {q :
 
 namespace MeasureTheory
 
-section Zero
-
-variable {ε : Type*} [TopologicalSpace ε]
-
-lemma eLpNorm_zero_of_ae_zero' [ESeminormedAddMonoid ε] {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
-    eLpNorm f p μ = 0 := by
-  rw [← eLpNorm_zero (ε := ε) (μ := μ) (p := p)]
-  apply eLpNorm_congr_enorm_ae
-  simpa
-
-end Zero
-
 section MapMeasure
 
 variable {β : Type*} {mβ : MeasurableSpace β} {f : α → β} {g : β → E}
@@ -118,13 +106,7 @@ variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
 --complements the mathlib lemma eLpNormEssSup_indicator_const_eq
 lemma eLpNormEssSup_indicator_const_eq' {s : Set α} {c : ε} (hμs : μ s = 0) :
     eLpNormEssSup (s.indicator fun _ : α => c) μ = 0 := by
-  rw [← eLpNorm_exponent_top]
-  apply eLpNorm_zero_of_ae_zero'
-  rw [← compl_compl s, ← mem_ae_iff] at hμs
-  filter_upwards [hμs]
-  intro a ha
-  simp only [Function.comp_apply, Pi.zero_apply]
-  rw [Set.indicator_of_notMem ha, enorm_zero]
+  rw [eLpNormEssSup_congr_ae (indicator_meas_zero hμs), eLpNormEssSup_zero]
 
 end Indicator
 
