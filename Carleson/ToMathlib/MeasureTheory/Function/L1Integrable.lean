@@ -18,9 +18,3 @@ open scoped ComplexConjugate
 lemma _root_.MeasureTheory.Integrable.conj {f : X → ℂ} (hf : Integrable f) :
     Integrable (fun x ↦ conj (f x)) :=
   Integrable.congr' hf (by fun_prop) (by simp)
-
--- TODO: compare with mul and conj in BoundedCompactSupport
-@[fun_prop]
-lemma _root_.MeasureTheory.Integrable.mul_conj [TopologicalSpace X] {f g : X → ℂ}
-    (hf' : BoundedCompactSupport f) (hg : Integrable g) : Integrable (fun x ↦ f x * conj (g x)) :=
-    hf'.integrable_fun_mul hg.conj
