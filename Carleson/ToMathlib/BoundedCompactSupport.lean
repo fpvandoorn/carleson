@@ -352,7 +352,7 @@ variable [R1Space (X × Y)]
 /-- An elementary tensor of bounded compactly supported functions is
 bounded compactly supported. -/
 @[fun_prop]
-theorem prod_mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g ν) :
+theorem prod_mul [SFinite ν] (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g ν) :
     BoundedCompactSupport (uncurry fun x y ↦ f x * g y) (μ.prod ν) where
   memLp_top := by
     -- todo: maybe separate out as lemmas
