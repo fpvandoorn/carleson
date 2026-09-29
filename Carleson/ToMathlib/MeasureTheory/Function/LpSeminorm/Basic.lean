@@ -134,13 +134,9 @@ theorem eLpNormEssSup_const_smul_le'' : eLpNormEssSup (c • f) μ ≤ ‖c‖�
   eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul'
     (Eventually.of_forall fun _ => by simp [enorm_smul])
 
-theorem eLpNorm_const_smul_le'' : eLpNorm (c • f) p μ ≤ ‖c‖ₑ * eLpNorm f p μ :=
-  eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul'
-    (Eventually.of_forall fun _ => le_of_eq (enorm_smul ..)) _
-
 theorem MemLp.const_smul'' [ContinuousConstSMul NNReal ε] (hf : MemLp f p μ) :
     MemLp (c • f) p μ :=
-  ⟨hf.1.const_smul c, eLpNorm_const_smul_le''.trans_lt (ENNReal.mul_lt_top ENNReal.coe_lt_top hf.2)⟩
+  eLpNorm_const_nnreal_smul_le.trans_lt (ENNReal.mul_lt_top ENNReal.coe_lt_top hf.2)
 
 theorem MemLp.const_mul'' [ContinuousConstSMul NNReal ε] (hf : MemLp f p μ) :
     MemLp (fun x => c • f x) p μ :=
