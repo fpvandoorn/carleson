@@ -159,6 +159,7 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
 -/
 namespace ChoiceScale
 
+variable (p p₀ q₀ p₁ q₁ C₀ C₁ μ f) in
 def d :=
     (C₀ ^ (q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) * (eLpNorm f p μ ^ p.toReal) ^
       (p₀⁻¹.toReal * q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) /
@@ -206,17 +207,17 @@ lemma d_ne_top_aux₄ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : 0 < C₀) (hC₁ : 0 
 
 -- If the `p`-norm of `f` is positive and finite, then `d` is positive
 lemma d_pos (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f > 0 :=
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f > 0 :=
   pos_of_ne_zero <| d_ne_zero_aux₃ hC₀ hC₁ hF
 
 @[aesop (rule_sets := [finiteness]) unsafe apply]
 lemma d_ne_top (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f ≠ ⊤ := by
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f ≠ ⊤ := by
   rw [d]
   exact d_ne_top_aux₄ hC₀ hC₁ hF
 
 lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) (hq₀' : q₀ = ⊤) (hq₀q₁ : q₀ ≠ q₁) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f =
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f =
     (↑C₀ ^ p₀.toReal * eLpNorm f p μ ^ p.toReal) ^ p₀.toReal⁻¹ := by
   unfold d
   rw [hq₀']
@@ -231,7 +232,7 @@ lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) 
 
 lemma d_eq_top₁ (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hp₁' : p₁ ≠ ⊤) (hq₁' : q₁ = ⊤)
     (hq₀q₁ : q₀ ≠ q₁) (hC₁ : 0 < C₁) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f =
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f =
     (↑C₁ ^ p₁.toReal * eLpNorm f p μ ^ p.toReal) ^ p₁.toReal⁻¹ := by
   unfold d
   rw [hq₁']
@@ -252,7 +253,7 @@ lemma d_eq_top₁ (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hp₁' : p₁ ≠ ⊤) 
 
 lemma d_eq_top_of_eq (hC₁ : 0 < C₁) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₀' : q₀ ≠ ⊤)
 (hp₀' : p₀ ≠ ⊤) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ = p₁) (hpp₀ : p = p₀) (hq₁' : q₁ = ⊤) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f = C₁ * eLpNorm f p μ := by
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f = C₁ * eLpNorm f p μ := by
   rw [d_eq_top₁, ← hp₀p₁, hpp₀] <;> try assumption
   on_goal 1 => rw [ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_rpow_inv, ENNReal.rpow_rpow_inv]
   · exact (toReal_pos hp₀.ne' hp₀').ne'
@@ -262,7 +263,7 @@ lemma d_eq_top_of_eq (hC₁ : 0 < C₁) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (h
   · exact hq₁' ▸ hq₀'
 
 lemma d_eq_top_top (hq₀ : 0 < q₀) (hq₀q₁ : q₀ ≠ q₁) (hp₁' : p₁ = ⊤) (hq₁' : q₁ = ⊤) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f = C₁ := by
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f = C₁ := by
   unfold d
   rw [hp₁', hq₁']
   simp only [inv_top, toReal_zero, zero_sub, zero_div, ENNReal.rpow_zero, mul_zero, mul_one,
@@ -278,7 +279,7 @@ def spf_ch {t : ℝ} (ht : t ∈ Ioo 0 1) (hq₀q₁ : q₀ ≠ q₁) (hp₀ : 0
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     ScaledPowerFunction where
   σ := ζ p₀ q₀ p₁ q₁ t
-  d := @d _ ε _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f
+  d := d p p₀ q₀ p₁ q₁ C₀ C₁ μ f
   hσ := lt_or_gt_of_ne <| Ne.symm <|
     (toReal_ofReal ht.1.le) ▸ (ζ_ne_zero (ofReal_mem_Ioo_0_1 t ht) hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁)
   hd := d_pos hC₀ hC₁ hF
