@@ -686,15 +686,13 @@ lemma MemLp.truncCompl {p : ℝ≥0∞} (hf : MemLp f p μ) :
   split_ifs with is_fx_le_a <;> simp
 
 lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
-    (q_ne_zero : ¬ q = 0) (q_ne_top : q ≠ ⊤) :
+    (q_ne_zero : ¬ q = 0) (q_ne_top : q ≠ ⊤) (hf : AEStronglyMeasurable f μ) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖f x‖ₑ ^ q.toReal ∂μ := by
-  unfold eLpNorm eLpNorm'
   have q_toReal_pos : 0 < q.toReal := toReal_pos q_ne_zero q_ne_top
-  split_ifs
   calc
   _ = ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖(truncCompl f t) x‖ₑ ^ q.toReal ∂μ := by
-    rw [one_div, ENNReal.rpow_inv_rpow]
+    rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_ne_zero q_ne_top hf.truncCompl, one_div, ENNReal.rpow_inv_rpow]
     · apply (setLIntegral_eq_of_support_subset _).symm
       unfold Function.support
       intro x
@@ -715,7 +713,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   have q_ne_top: q ≠ ⊤ := ne_top_of_le_ne_top p_ne_top hpq.2
   have p_ne_zero : p ≠ 0 := (hpq.1.trans_le hpq.2).ne'
-  apply le_trans (eLpNorm_truncCompl_le hpq.1.ne' (ne_top_of_le_ne_top p_ne_top hpq.2))
+  apply le_trans (eLpNorm_truncCompl_le hpq.1.ne' (ne_top_of_le_ne_top p_ne_top hpq.2) hf)
   calc
     _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α in {x | t < ‖f x‖ₑ},
         ‖f x‖ₑ ^ p.toReal ∂μ := by
