@@ -71,20 +71,20 @@ lemma close_smooth_approx_periodic_Lp {T : ℝ} [hT : Fact (0 < T)] {f : ℝ →
   calc _
     _ ≤ eLpNorm (f - h) p (volume.restrict (Set.Ioc 0 T))
         + eLpNorm (h - f₀) p (volume.restrict (Set.Ioc 0 T)) := by
-      apply (eLpNorm_add_le (hf.1.sub meas_h) (meas_h.sub meas_f₀) hp).trans_eq'
+      apply (eLpNorm_add_le hp).trans_eq'
       simp
     _ ≤ ε / 2 + ε / 2 := by
       gcongr
       · calc _
           _ = eLpNorm (f' - ⇑g) p volume := by
             nth_rw 1 [← zero_add T]
-            rw [eLpNorm_eq_eLpNorm_liftIoc (by rw [zero_add]; exact hf.1.sub meas_h)]
+            rw [eLpNorm_eq_eLpNorm_liftIoc (by rw [zero_add]; exact hf.aestronglyMeasurable.sub meas_h)]
             congr with x
             unfold f' h
             rw [AddCircle.liftIoc, AddCircle.liftIoc]
             simp
         exact hf'g
-      · apply (eLpNorm_le_of_ae_bound (C := ε') _).trans
+      · apply (eLpNorm_le_of_ae_bound (C := ε') (meas_h.sub meas_f₀) _).trans
         · simp only [MeasurableSet.univ, Measure.restrict_apply, Set.univ_inter, volume_Ioc,
           sub_zero]
           unfold ε'
