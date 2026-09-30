@@ -579,17 +579,29 @@ lemma trunc_mono {f : α → ε} {a b : ℝ≥0∞} (hab : a ≤ b) {x : α} : �
   · rw [enorm_zero]; positivity
   · exact le_rfl
 
-/-- The norm of the truncation is monotone in the truncation parameter -/
-lemma eLpNorm_trunc_mono :
-    Monotone fun s ↦ eLpNorm (trunc f s) p μ :=
-  fun _a _b hab ↦ eLpNorm_mono_enorm fun _x ↦ trunc_mono hab
-
 lemma trunc_buildup_enorm {x : α} :
     ‖trunc f t x‖ₑ + ‖truncCompl f t x‖ₑ = ‖f x‖ₑ := by
   simp only [trunc, truncCompl]; split_ifs with h <;> simp
 
 lemma trunc_le_func {x : α} : ‖trunc f t x‖ₑ ≤ ‖f x‖ₑ := by
   unfold trunc; split_ifs <;> simp
+
+lemma eLpNorm_trunc_le_self : eLpNorm (trunc f t) p μ ≤ eLpNorm f p μ := by
+  by_cases hf : AEStronglyMeasurable f μ
+  · exact eLpNorm_mono_enorm hf.trunc fun _ ↦ trunc_le_func
+  · simp_rw [eLpNorm_of_not_aestronglyMeasurable hf, le_top]
+
+lemma trunc_trunc {a b : ℝ≥0∞} : trunc (trunc f b) a = trunc f (min a b) := by
+  ext x
+  simp_rw [trunc]
+  grind
+
+/-- The norm of the truncation is monotone in the truncation parameter -/
+lemma eLpNorm_trunc_mono : Monotone fun s ↦ eLpNorm (trunc f s) p μ := by
+  intro a b hab
+  dsimp only
+  rw [← min_eq_left hab, ← trunc_trunc]
+  exact eLpNorm_trunc_le_self
 
 lemma truncCompl_le_func {x : α} :
     ‖(truncCompl f t) x‖ₑ ≤ ‖f x‖ₑ := by
@@ -654,11 +666,8 @@ lemma trnc_le_func {j : Bool} {a : ℝ≥0∞} {x : α} :
 
 /-! ## Truncations and L-p spaces -/
 
-lemma MemLp.trunc {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t) p μ := by
-  refine lt_of_le_of_lt (eLpNorm_mono_enorm_ae hf.aestronglyMeasurable.trunc (ae_of_all _ ?_)) hf
-  intro x
-  unfold MeasureTheory.trunc
-  split_ifs with is_fx_le_a <;> simp
+lemma MemLp.trunc {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t) p μ :=
+  eLpNorm_trunc_le_self.trans_lt hf
 
 -- lemma eLpNorm_truncCompl_le {p : ℝ≥0∞} :
 --     eLpNorm (truncCompl f t) p μ ≤ eLpNorm f p μ :=
