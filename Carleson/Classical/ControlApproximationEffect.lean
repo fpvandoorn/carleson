@@ -58,9 +58,9 @@ lemma rcarleson'_restrict {p : ℝ≥0} (hp : p ∈ Set.Ioo 1 2) {f : ℝ → �
             eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc]
           congr 1
           · nth_rw 2 [← zero_add (2 * π)]
-            exact f_periodic.eLpNorm (by simp)
+            exact f_periodic.eLpNorm
           · nth_rw 4 [← zero_add (2 * π)]
-            exact f_periodic.eLpNorm (by simp)
+            exact f_periodic.eLpNorm
   calc _
     _ = eLpNorm (T ((Set.Ioo (0 - 1) (2 * π + 1)).indicator f)) p (volume.restrict (Set.Ioc 0 (2 * π))) := by
       apply eLpNorm_congr_ae
@@ -108,7 +108,7 @@ lemma distribution_carlesonOperatorReal_le {δ ε p : ℝ≥0} (δpos : 0 < δ)
     apply IntegrableOn.mono_set _ this
     apply MemLp.integrable (q := p) (by simp [hp.1.le])
     use g_measurable.restrict
-    rw [g_periodic.eLpNorm (s := 0) (by simp), zero_add]
+    rw [g_periodic.eLpNorm (s := 0), zero_add]
     apply hg.trans_lt
     simp
   · apply (rcarleson'_restrict hp g_periodic _).trans
