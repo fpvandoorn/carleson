@@ -144,6 +144,7 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {C₀ C₁ : ℝ≥0} {μ : Measure α}
   {a : ℝ≥0∞} -- truncation parameter
   [ENorm ε] {f : α → ε} {t : ℝ≥0∞}
+  [TopologicalSpace ε]
 
 /-! ## Results about the particular choice of scale
 
