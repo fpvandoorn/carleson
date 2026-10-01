@@ -650,7 +650,9 @@ private lemma globalMaximalFunction_preimage_finite
       refine le_trans (setLIntegral_mono_ae ?_ ?_) (setLIntegral_le_lintegral s _)
       · exact measurable_maximalFunction.aemeasurable.pow_const 2 |>.restrict
       · exact Eventually.of_forall fun x hx ↦ pow_le_pow_left' (le_of_lt <| by simpa [s] using hx) 2
-    _ = eLpNorm (globalMaximalFunction volume 1 f) 2 volume := by simp [eLpNorm, eLpNorm']
+    _ = eLpNorm (globalMaximalFunction volume 1 f) 2 volume := by
+      rw [eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ofNat_ne_top (by exact measurable_maximalFunction.aestronglyMeasurable)];
+      simp
 
 private lemma volume_czPartition_lt_top (hX : GeneralCase f α) (i : ℕ) :
     volume (czPartition hX i) < ∞ :=
