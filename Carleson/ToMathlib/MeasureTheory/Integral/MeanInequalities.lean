@@ -49,7 +49,8 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
       _ = ∫⁻ (a : α), f i₀ a * ∏ i ∈ s.erase i₀, f i a ∂μ :=
         lintegral_congr (fun a ↦ (Finset.mul_prod_erase s (f · a) hi₀).symm)
       _ ≤ eLpNorm (f i₀) (p i₀) μ * ∫⁻ (a : α), ∏ i ∈ s.erase i₀, f i a ∂μ := by
-        rw [← lintegral_const_mul'', pi₀_eq_top]
+        rw [← lintegral_const_mul'', pi₀_eq_top,
+          eLpNorm_exponent_top (hf i₀ hi₀).aestronglyMeasurable]
         · exact lintegral_mono_ae <| (ae_le_essSup (f i₀)).mono (fun a ha ↦ mul_le_mul_left ha _)
         · exact Finset.aemeasurable_fun_prod _ (fun i hi ↦ hf i (Finset.mem_of_mem_erase hi))
       _ ≤ eLpNorm (f i₀) (p i₀) μ * ∏ i ∈ s.erase i₀, eLpNorm (f i) (p i) μ := by
@@ -72,7 +73,7 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
   convert ENNReal.lintegral_prod_norm_pow_le s hf' hp₁ hp₂ with a i₀ hi₀ i hi
   · rw [← ENNReal.rpow_mul, mul_inv_cancel₀, rpow_one]
     exact ENNReal.toReal_ne_zero.mpr ⟨p_ne_0 i₀ hi₀, (exists_top ⟨i₀, hi₀, ·⟩)⟩
-  · simp [eLpNorm, eLpNorm', p_ne_0 i hi, p_ne_top i hi]
+  · simp [eLpNorm, eLpNorm', p_ne_0 i hi, p_ne_top i hi, (hf i hi).aestronglyMeasurable]
 
 /-- **Hölder's inequality** for functions `α → ℝ≥0∞`, using exponents in `ℝ≥0∞` -/
 theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderConjugate q)
@@ -83,11 +84,13 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderC
     · have hq := pq_top.resolve_left hp
       simpa only [mul_comm] using this hpq.symm hg hf (Or.inl hq) hq
     apply le_of_le_of_eq <| lintegral_mono_ae ((ae_le_essSup f).mono (fun a ha ↦ mul_left_mono ha))
-    simp [eLpNorm, eLpNorm', eLpNormEssSup, hp, hpq.conj_eq, lintegral_const_mul'' _ hg]
+    simp [eLpNorm, eLpNorm', eLpNormEssSup, hp, hpq.conj_eq, lintegral_const_mul'' _ hg,
+      hf.aestronglyMeasurable, hg.aestronglyMeasurable]
   have hp : p ≠ 0 := HolderConjugate.ne_zero p q
   have hq : q ≠ 0 := HolderConjugate.ne_zero q p
   convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal_of_ne_top pq_top.1 pq_top.2) hf hg
-  all_goals simp [eLpNorm, eLpNorm', pq_top, hp, hq]
+  all_goals simp [eLpNorm, eLpNorm', pq_top, hp, hq, hf.aestronglyMeasurable,
+    hg.aestronglyMeasurable]
 
 /-- **Cauchy–Schwarz inequality** for functions `α → ℝ≥0∞` (Hölder's inequality squared). -/
 theorem sq_lintegral_mul_le_mul_lintegral_sq {f g : α → ℝ≥0∞}
@@ -131,7 +134,8 @@ private lemma eLpNorm_eq_eLpNorm_rpow (h : G → E) {r e : ℝ} (r0 : 0 < r) (e0
     eLpNorm h (ENNReal.ofReal e) μ ^ ((r - e) / r) := by
   have er_pos : 0 < e * r := _root_.mul_pos e0 r0
   by_cases exp_zero : 0 = r - e
-  · simp [eLpNorm, eLpNorm', ← exp_zero, er_pos.not_ge, eLpNormEssSup_const _ μ0]
+  · simp [eLpNorm, eLpNorm', ← exp_zero, er_pos.not_ge, eLpNormEssSup_const _ μ0,
+      aestronglyMeasurable_const]
   have r_sub_e_pos : 0 < r - e := lt_of_le_of_ne re0 exp_zero
   have lt_top : ENNReal.ofReal (e * r) / ENNReal.ofReal (r - e) < ∞ :=
     div_lt_top ofReal_ne_top <| (not_iff_not.mpr ofReal_eq_zero).mpr r_sub_e_pos.not_ge
