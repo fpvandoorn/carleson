@@ -158,16 +158,22 @@ private theorem convolution_zero_of_c_nonpos [AddGroup G] {f : G → E} {g : G �
   simp only [this, integral_zero]
   rfl
 
+variable [AddGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G] [BorelSpace G]
+  [μ.IsAddHaarMeasure] [LocallyCompactSpace G] [SecondCountableTopology G]
+
 -- Auxiliary inequality used to prove inequalities with simpler conditions on f and g.
-private theorem eLpNorm_top_convolution_le_aux [AddGroup G] {p q : ℝ≥0∞}
-    (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'} (hf : AEMeasurable (‖f ·‖ₑ) μ)
-    (hg : ∀ x : G, AEMeasurable (‖g <| x - ·‖ₑ) μ)
-    (hg' : ∀ x : G, eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ)
+private theorem eLpNorm_top_convolution_le_aux [μ.IsNegInvariant] {p q : ℝ≥0∞}
+    (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'}
+    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
   by_cases! hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
-  rw [eLpNorm_exponent_top, eLpNormEssSup]
+  have hgx (x : G) : AEStronglyMeasurable (g <| x - ·) μ :=
+    hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
+  have hfg : AEStronglyMeasurable (f ⋆[L, μ] g) μ := (L.aestronglyMeasurable_comp₂ hf.comp_snd
+    (hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ))).integral_prod_right'
+  rw [eLpNorm_exponent_top hfg, eLpNormEssSup]
   refine essSup_le_of_ae_le _ (Filter.Eventually.of_forall fun x ↦ ?_)
   apply le_trans <| enorm_integral_le_lintegral_enorm _
   calc ∫⁻ y, ‖(L (f y)) (g (x - y))‖ₑ ∂μ
@@ -178,10 +184,10 @@ private theorem eLpNorm_top_convolution_le_aux [AddGroup G] {p q : ℝ≥0∞}
       exact ENNReal.ofReal_le_ofReal <| hL y (x - y)
     _ ≤ _ := by
       simp_rw [mul_assoc, lintegral_const_mul' _ _ ofReal_ne_top]
-      simpa [hg' x] using mul_right_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf (hg x))
-
-variable [AddGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G] [BorelSpace G]
-  [μ.IsAddHaarMeasure] [LocallyCompactSpace G] [SecondCountableTopology G]
+      have hg' : eLpNorm (g <| x - ·) q μ = eLpNorm g q μ :=
+        eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
+      simpa [eLpNorm_enorm _ hf, eLpNorm_enorm _ (hgx x), hg'] using
+        mul_right_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf.enorm (hgx x).enorm)
 
 /-- Special case of **Young's convolution inequality** when `r = ∞`. -/
 theorem eLpNorm_top_convolution_le [MeasurableSpace E] [OpensMeasurableSpace E]
@@ -197,10 +203,8 @@ theorem eLpNorm_top_convolution_le [MeasurableSpace E] [OpensMeasurableSpace E]
 theorem eLpNorm_top_convolution_le' [μ.IsNegInvariant] {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'}
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (c : ℝ)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  refine eLpNorm_top_convolution_le_aux hpq hf.enorm ?_ ?_ c hL
-  · intro x; exact (hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)).enorm
-  · intro x; apply eLpNorm_comp_measurePreserving hg (Measure.measurePreserving_sub_left μ x)
+    eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ :=
+  eLpNorm_top_convolution_le_aux hpq hf hg c hL
 
 -- Auxiliary inequality used to prove versions with simpler conditions on `f` and `g`
 open ENNReal in
