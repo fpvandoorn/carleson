@@ -204,16 +204,17 @@ theorem eLpNorm_top_convolution_le' [μ.IsNegInvariant] {p q : ℝ≥0∞} (hpq 
 
 -- Auxiliary inequality used to prove versions with simpler conditions on `f` and `g`
 open ENNReal in
-omit [LocallyCompactSpace G] [SecondCountableTopology G] in
 private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
     [μ.IsNegInvariant] {p q r : ℝ}
     (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1) {f : G → E} {g : G → E'}
-    (hf : AEMeasurable (‖f ·‖ₑ) μ) (hg : ∀ x : G, AEMeasurable (‖g <| x - ·‖ₑ) μ)
+    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) (x : G) :
     ‖(f ⋆[L, μ] g) x‖ₑ ≤
       .ofReal c * eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (.ofReal r) μ *
       ((eLpNorm f (.ofReal p) μ) ^ ((r - p) / r) *
       (eLpNorm g (.ofReal q) μ) ^ ((r - q) / r)) := by
+  have hgx : AEStronglyMeasurable (g <| x - ·) μ :=
+    hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
   by_cases! hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
   by_cases! μ0 : μ = 0
@@ -258,8 +259,9 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
       rw [lintegral_const_mul' _ _ ofReal_ne_top, mul_assoc]
       gcongr
       -- Check that the assumptions of `lintegral_prod_norm_pow_le'` apply
-      have ae_meas_g := hg x
-      have := (hf.pow_const p).mul (ae_meas_g.pow_const q)
+      have ae_meas_f := hf.enorm
+      have ae_meas_g := hgx.enorm
+      have := (ae_meas_f.pow_const p).mul (ae_meas_g.pow_const q)
       have ae_meas : ∀ i ∈ Finset.univ, AEMeasurable (F i) μ :=
         fun ⟨v, _⟩ _ ↦ by interval_cases v <;> exact AEMeasurable.pow_const (by assumption) _
       suffices ∑ i, (P i)⁻¹ = 1 by
@@ -286,10 +288,11 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
       all_goals simp [p0, q0, r0]
     _ = _ := by
       congr
-      · exact eLpNorm_eq_eLpNorm_rpow f r0 p0 rp0 μ0
+      · exact eLpNorm_eq_eLpNorm_rpow f hf r0 p0 rp0 μ0
       · simp_rw [P, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons]
-        rw [eLpNorm_eq_eLpNorm_rpow (g <| x - ·) r0 q0 rq0 μ0]
-        simp [eLpNorm, eLpNorm', lintegral_sub_left_eq_self (‖g ·‖ₑ ^ (ENNReal.ofReal q).toReal) x]
+        rw [eLpNorm_eq_eLpNorm_rpow (g <| x - ·) hgx r0 q0 rq0 μ0]
+        simp [eLpNorm, eLpNorm', hg, hgx,
+          lintegral_sub_left_eq_self (‖g ·‖ₑ ^ (ENNReal.ofReal q).toReal) x]
 
 open ENNReal in
 /-- This inequality is used in the proof of Young's convolution inequality
@@ -320,8 +323,7 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm'
       .ofReal c * eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (.ofReal r) μ *
       ((eLpNorm f (.ofReal p) μ) ^ ((r - p) / r) *
       (eLpNorm g (.ofReal q) μ) ^ ((r - q) / r)) :=
-  enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux hp hq hr hpqr hf.enorm
-    (fun x ↦ (hg.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x).enorm) c hL x
+  enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux hp hq hr hpqr hf hg c hL x
 
 -- Auxiliary inequality used to prove versions with simpler conditions on `f` and `g`
 private theorem eLpNorm_convolution_le_ofReal_aux
