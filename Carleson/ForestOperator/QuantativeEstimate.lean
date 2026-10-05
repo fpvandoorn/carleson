@@ -51,7 +51,7 @@ lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
         _ = _ := by norm_num
     _ ≤ 9 ^ a * dens₁ (t u) * volume (L : Set X) := by
       rw [lip]
-      exact volume_E₂_le_dens₁_mul_volume (subset_lowerCubes mp) mp (by norm_num) le_rfl
+      exact volume_E₂_le_dens₁_mul_volume (l := 9) (subset_lowerCubes mp) mp (by norm_num) le_rfl
     _ ≤ _ := by
       gcongr
       rw [C7_3_2]
@@ -60,7 +60,6 @@ lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
         _ ≤ 2 ^ (4 * a) := by rw [pow_mul]; gcongr; norm_num
         _ ≤ _ := by
           gcongr
-          · norm_num
           · linarith [seven_le_c]
           · apply Nat.le_pow (by norm_num)
 
@@ -136,7 +135,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
           _ = _ := by norm_num
       _ ≤ 9 ^ a * dens₁ (t u) * volume (L' : Set X) := by
         rw [← ip']
-        exact volume_E₂_le_dens₁_mul_volume mp' mp'' (by norm_num) sp'
+        exact volume_E₂_le_dens₁_mul_volume (l := 9) mp' mp'' (by norm_num) sp'
       _ ≤ 2 ^ (4 * a) * 2 ^ (𝕔 * a ^ 3 + 5 * a) * dens₁ (t u) * volume (L : Set X) := by
         rw [show 2 ^ (4 * a) * _ * dens₁ (t u) * volume (L : Set X) =
           2 ^ (4 * a) * dens₁ (t u) * (2 ^ (𝕔 * a ^ 3 + 5 * a) * volume (L : Set X)) by ring]
@@ -281,8 +280,11 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
     {f : X → ℂ} (hf : BoundedCompactSupport f) (h2f : ∀ x ∉ s, f x = 0) :
     eLpNorm (approxOnCube C (‖f ·‖)) 2 volume ≤ c ^ (2 : ℝ)⁻¹ * eLpNorm f 2 := by
   classical
+  have h_aoc : AEStronglyMeasurable (approxOnCube C (‖f ·‖)) :=
+    boundedCompactSupport_approxOnCube.aestronglyMeasurable
   simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm',
-    ENNReal.toReal_ofNat, ENNReal.rpow_ofNat, one_div, approxOnCube]
+    ENNReal.toReal_ofNat, ENNReal.rpow_ofNat, one_div, h_aoc, hf.aestronglyMeasurable,
+    approxOnCube]
   rw [← ENNReal.mul_rpow_of_nonneg _ _ (inv_nonneg_of_nonneg two_pos.le)]
   refine ENNReal.rpow_le_rpow ?_ (inv_pos.mpr two_pos).le
   have : ∀ x, ∑ J ∈ Finset.univ.filter (· ∈ C),
@@ -443,7 +445,7 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
         rw [mul_comm _ 2, ← mul_assoc]
         gcongr
         lia
-      · refine eLpNorm_mono (fun x ↦ ?_)
+      · refine eLpNorm_mono hgℰ.aestronglyMeasurable (fun x ↦ ?_)
         rw [indicator]
         split_ifs <;> simp
     _ = C7_2_1 a * 2 ^ (((𝕔 / 2 : ℕ) + (1 : ℝ)) * a ^ 3) * dens₁ ((fun x ↦ t.𝔗 x) u) ^ (2 : ℝ)⁻¹
