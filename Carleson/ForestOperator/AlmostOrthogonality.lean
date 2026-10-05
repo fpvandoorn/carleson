@@ -214,23 +214,20 @@ lemma le_C7_4_3 (ha : 4 ≤ a) : C7_3_1_1 a + CMB (defaultA a) 2 + 1 ≤ C7_4_3 
 lemma adjoint_tree_control
     (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : f.support ⊆ G) :
     eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤ C7_4_3 a * eLpNorm f 2 volume := by
-  have m₁ : AEStronglyMeasurable (‖adjointCarlesonSum (t u) f ·‖ₑ) :=
-    hf.aestronglyMeasurable.adjointCarlesonSum.enorm.aestronglyMeasurable
-  have m₂ : AEStronglyMeasurable (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f) :=
-    measurable_maximalFunction.aestronglyMeasurable
-  have m₃ : AEStronglyMeasurable (‖f ·‖ₑ) := hf.aestronglyMeasurable.enorm.aestronglyMeasurable
   calc
     _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) f x‖ₑ + maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x) 2 volume +
-        eLpNorm (‖f ·‖ₑ) 2 volume := eLpNorm_add_le (m₁.add m₂) m₃ one_le_two
+        eLpNorm (‖f ·‖ₑ) 2 volume := eLpNorm_add_le one_le_two
     _ ≤ eLpNorm (‖adjointCarlesonSum (t u) f ·‖ₑ) 2 volume +
         eLpNorm (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f ·) 2 volume + eLpNorm (‖f ·‖ₑ) 2 volume := by
-      gcongr; apply eLpNorm_add_le m₁ m₂ one_le_two
+      gcongr
+      exact eLpNorm_add_le (g := maximalFunction volume 𝓑 c𝓑 r𝓑 1 f) one_le_two
     _ ≤ C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume +
         CMB (defaultA a) 2 * eLpNorm f 2 volume + eLpNorm f 2 volume := by
       gcongr
-      · exact adjoint_tree_estimate hf h2f hu
+      · rw [eLpNorm_enorm _ hf.aestronglyMeasurable.adjointCarlesonSum]
+        exact adjoint_tree_estimate hf h2f hu
       · exact (hasStrongType_maximalFunction_one one_lt_two) _ (hf.memLp _) |>.2
-      · rfl
+      · exact (eLpNorm_enorm _ hf.aestronglyMeasurable).le
     _ ≤ (C7_3_1_1 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
       simp_rw [add_mul, one_mul]; gcongr; exact dens₁_le_one
     _ ≤ _ := by
