@@ -1115,8 +1115,7 @@ lemma le_C6_1_6 (a4 : 4 ≤ a) :
       · exact_mod_cast calculation_6_1_6 a4
     _ ≤ _ := by
       rw [C6_1_6]; norm_cast; rw [← pow_add]; gcongr
-      · exact one_le_two
-      · lia
+      lia
 
 set_option backward.isDefEq.respectTransparency.types false in
 open Classical in
@@ -1136,12 +1135,8 @@ lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (�
     _ ≤ ∑ n ∈ Finset.range N, eLpNorm (fun x ↦ ∑ p ∈ 𝔄_aux 𝔄 ϑ n,
         (1 + edist_(p) (𝒬 p) ϑ.val) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
         (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume := by
-      refine eLpNorm_sum_le (fun p mp ↦ ?_) ?_
-      · refine Finset.aestronglyMeasurable_fun_sum _ fun p mp ↦ ?_
-        simp_rw [mul_assoc, ← inter_indicator_mul]
-        exact ((AEMeasurable.indicator (by simp)
-          (measurableSet_E.inter measurableSet_G)).const_mul _).aestronglyMeasurable
-      · grw [ENNReal.one_le_ofReal, (one_lt_p₆ (four_le_a X)).le]
+      refine eLpNorm_sum_le ?_
+      grw [ENNReal.one_le_ofReal, (one_lt_p₆ (four_le_a X)).le]
     _ ≤ ∑ n ∈ Finset.range N, eLpNorm (fun x ↦ ∑ p ∈ 𝔄_aux 𝔄 ϑ n,
         (2 : ℝ) ^ (-n * (2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
         (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume := by
