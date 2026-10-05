@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 1
 
       - name: Build and lint project (and comparator files)
-        uses: leanprover/lean-action@96e06131c0e9943c780388fd166f55d1e2fa0433 # 1.6.0, 2026-08-27
+        uses: leanprover/lean-action@a1e4f67744f24ab80ec3c7ab1bd37d7d419207d5 # 1.6.0, 2026-08-27
         with:
           build: true
           build-args: "Carleson Challenge Solution"
