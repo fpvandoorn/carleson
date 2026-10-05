@@ -136,6 +136,7 @@ lemma disjoint_E {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoi
   rw [not_disjoint_iff] at this ⊢; obtain ⟨x, mx, mx'⟩ := this
   use Q x, Q_mem_Ω mx, Q_mem_Ω mx'
 
+@[measurability]
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
   · rw [← measurableSet_setOfPred]; exact coeGrid_measurable

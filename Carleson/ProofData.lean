@@ -38,6 +38,7 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
 export ProofData (q_mem_Ioc isBounded_F isBounded_G measurableSet_F measurableSet_G
   measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q BST_T_Q)
 attribute [instance] ProofData.c
+attribute [measurability] ProofData.measurableSet_G
 
 section ProofData
 
