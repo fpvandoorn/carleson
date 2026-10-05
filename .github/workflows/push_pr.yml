@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build and lint project
-        uses: leanprover/lean-action@96e06131c0e9943c780388fd166f55d1e2fa0433 # 1.6.0, 2026-08-27
+        uses: leanprover/lean-action@a1e4f67744f24ab80ec3c7ab1bd37d7d419207d5 # 1.6.0, 2026-08-27
         env:
           LEAN_ABORT_ON_PANIC: "1"
         with:
