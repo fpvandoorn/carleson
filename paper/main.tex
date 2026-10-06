@@ -468,7 +468,8 @@ A \emph{two-sided Calderón--Zygmund kernel}\href{https://github.com/fpvandoorn/
 \end{equation*}
 \end{definition}
 
-Let $f\colon X \to \complex$ be a bounded, measurable function supported on a set of finite measure.
+For the following definitions, we fix a doubling metric measure space $(X, \rho, \mu, a)$, a family of cancellative compatible collection $\Mf$ and a
+function $f\colon X \to \complex$ that is bounded, measurable and supported on a set of finite measure.
 Define the \emph{maximally truncated non-tangential singular integral}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L211-L212}{\extlink} $T_{*}$ associated with $K$ by
 \begin{equation}
     \label{def-tang-unm-op}
@@ -548,7 +549,7 @@ In fact, it implies the Walsh-case of Carleson's theorem.
 \end{theorem}
 
 The third version of the main result involves two-sided Calderón--Zygmund kernels, whose additional regularity allows us to weaken one of the assumptions to the family of operators $T_r$, which is easier to work with in applications.
-In particular, the two-sided case can be applied to derive the classical Carleson theorem.
+In particular, we use this two-sided verion to more conveniently derive the classical Carleson theorem.
 
 \begin{theorem}[two-sided metric space Carleson\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/TwoSidedCarleson/MainTheorem.lean\#L30-L35}{\extlink}]
     \label{two-sided-metric-space-Carleson}
