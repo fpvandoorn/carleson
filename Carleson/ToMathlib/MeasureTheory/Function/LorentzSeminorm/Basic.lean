@@ -22,7 +22,8 @@ variable {α ε ε' : Type*} {m m0 : MeasurableSpace α} {p q : ℝ≥0∞} {μ 
 
 namespace MeasureTheory
 
-lemma eLorentzNorm'_mono_enorm_ae {f : α → ε'} {g : α → ε} (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
+lemma eLorentzNorm'_mono_enorm_ae {f : α → ε'} {g : α → ε}
+  (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     eLorentzNorm' f p q μ ≤ eLorentzNorm' g p q μ := by
   unfold eLorentzNorm'
   gcongr
@@ -31,31 +32,45 @@ lemma eLorentzNorm'_mono_enorm_ae {f : α → ε'} {g : α → ε} (h : ∀ᵐ (
   simp only [ENNReal.toReal_inv, enorm_eq_self]
   gcongr
 
-lemma eLorentzNorm_mono_enorm_ae {f : α → ε'} {g : α → ε} (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
+lemma eLorentzNorm_mono_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f : α → ε} {g : α → ε'}
+  (hf : AEStronglyMeasurable f μ) (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     eLorentzNorm f p q μ ≤ eLorentzNorm g p q μ := by
   unfold eLorentzNorm
+  simp only [hf, ↓reduceIte]
   split_ifs
   · trivial
   · trivial
+  · trivial
+  · trivial
   · exact essSup_mono_ae h
+  · apply le_top
   · gcongr
     exact essSup_mono_ae h
+  · apply le_top
   · exact eLorentzNorm'_mono_enorm_ae h
+  · apply le_top
 
 --Proof analogous to eLpNorm_congr_enorm_ae
-theorem eLorentzNorm_congr_enorm_ae {f : α → ε'} {g : α → ε} (hfg : ∀ᵐ x ∂μ, ‖f x‖ₑ = ‖g x‖ₑ) :
+theorem eLorentzNorm_congr_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f : α → ε'}
+  {g : α → ε} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
+  (hfg : ∀ᵐ x ∂μ, ‖f x‖ₑ = ‖g x‖ₑ) :
     eLorentzNorm f p q μ = eLorentzNorm g p q μ :=
-  le_antisymm (eLorentzNorm_mono_enorm_ae <| Filter.EventuallyEq.le hfg)
-    (eLorentzNorm_mono_enorm_ae <| (Filter.EventuallyEq.symm hfg).le)
+  le_antisymm (eLorentzNorm_mono_enorm_ae hf <| Filter.EventuallyEq.le hfg)
+    (eLorentzNorm_mono_enorm_ae hg <| (Filter.EventuallyEq.symm hfg).le)
 
 --Proof analogous to eLpNorm_congr_ae
-theorem eLorentzNorm_congr_ae {f g : α → ε'} (hfg : f =ᵐ[μ] g) :
-    eLorentzNorm f p q μ = eLorentzNorm g p q μ :=
-  eLorentzNorm_congr_enorm_ae <| hfg.mono fun _x hx => hx ▸ rfl
+theorem eLorentzNorm_congr_ae [TopologicalSpace ε'] {f g : α → ε'} (hfg : f =ᵐ[μ] g) :
+    eLorentzNorm f p q μ = eLorentzNorm g p q μ := by
+  by_cases hf : AEStronglyMeasurable f μ
+  · exact eLorentzNorm_congr_enorm_ae hf (hf.congr hfg) <| hfg.mono fun _x hx => hx ▸ rfl
+  · rw [eLorentzNorm_of_not_aestronglyMeasurable hf, eLorentzNorm_of_not_aestronglyMeasurable]
+    exact fun hg ↦ hf (hg.congr hfg.symm)
 
+variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] in
 @[simp]
-theorem eLorentzNorm_enorm (f : α → ε) : eLorentzNorm (fun x ↦ ‖f x‖ₑ) p q μ = eLorentzNorm f p q μ :=
-  eLorentzNorm_congr_enorm_ae <| Eventually.of_forall fun _ => enorm_enorm _
+theorem eLorentzNorm_enorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
+    eLorentzNorm (fun x ↦ ‖f x‖ₑ) p q μ = eLorentzNorm f p q μ :=
+  eLorentzNorm_congr_enorm_ae hf.enorm.aestronglyMeasurable hf <| Eventually.of_forall fun _ => enorm_enorm _
 
 lemma eLorentzNorm'_eq_zero_of_ae_enorm_zero {f : α → ε}
   (h : enorm ∘ f =ᵐ[μ] 0) (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤) :
@@ -71,9 +86,10 @@ section
 
 variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
 
-lemma eLorentzNorm_eq_zero_of_ae_enorm_zero {f : α → ε} (h : enorm ∘ f =ᵐ[μ] 0) :
+lemma eLorentzNorm_eq_zero_of_ae_enorm_zero {f : α → ε} (hf : AEStronglyMeasurable f μ)
+  (h : enorm ∘ f =ᵐ[μ] 0) :
     eLorentzNorm f p q μ = 0 := by
-  simp only [eLorentzNorm, ite_eq_left_iff]
+  simp only [eLorentzNorm, hf, ↓reduceIte, ite_eq_left_iff]
   intro p_ne_zero
   rw [← eLpNorm_exponent_top, eLpNorm_zero_of_ae_zero' h]
   simp only [mul_zero, ite_self, ite_eq_left_iff]
@@ -89,13 +105,13 @@ lemma eLorentzNorm'_eq_zero_of_ae_zero {f : α → ε}
 
 lemma eLorentzNorm_eq_zero_of_ae_zero {f : α → ε} (h : f =ᵐ[μ] 0) :
     eLorentzNorm f p q μ = 0 := by
-  apply eLorentzNorm_eq_zero_of_ae_enorm_zero
+  apply eLorentzNorm_eq_zero_of_ae_enorm_zero (aestronglyMeasurable_zero.congr h.symm)
   filter_upwards [h]
   simp +contextual
 
 @[simp]
 lemma eLorentzNorm_zero : eLorentzNorm (0 : α → ε) p q μ = 0 := by
-  apply eLorentzNorm_eq_zero_of_ae_enorm_zero
+  apply eLorentzNorm_eq_zero_of_ae_enorm_zero aestronglyMeasurable_zero
   simp
 
 @[simp]
@@ -142,9 +158,13 @@ theorem eLorentzNorm'_eq_zero_iff {f : α → ε}
 theorem eLorentzNorm_eq_zero_iff {f : α → ε}
     (p_ne_zero : p ≠ 0) (q_ne_zero : q ≠ 0) :
     eLorentzNorm f p q μ = 0 ↔ f =ᵐ[μ] 0 := by
-  unfold eLorentzNorm
-  split_ifs with p_zero p_top q_zero
-  · contradiction
+  by_cases hf : AEStronglyMeasurable f μ
+  swap
+  · rw [eLorentzNorm_of_not_aestronglyMeasurable hf]
+    simp only [ENNReal.top_ne_zero, false_iff]
+    exact fun h ↦ hf (aestronglyMeasurable_zero.congr h.symm)
+  simp only [eLorentzNorm, hf, p_ne_zero, q_ne_zero, ↓reduceIte]
+  split_ifs with p_top
   · exact eLpNormEssSup_eq_zero_iff
   · simp
   · exact eLorentzNorm'_eq_zero_iff p_ne_zero p_top q_ne_zero
@@ -155,11 +175,11 @@ variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] in
 lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
     eLorentzNorm f p p μ = eLpNorm f p μ := by
   by_cases p_zero : p = 0
-  · simp [p_zero]
+  · simp [p_zero, hf]
   by_cases p_eq_top : p = ∞
-  · simp [p_eq_top]
+  · simp [p_eq_top, hf]
   have p_eq : p = .ofReal p.toReal := by simp [p_eq_top]
-  simp only [eLorentzNorm, eLorentzNorm', p_zero, ↓reduceIte, p_eq_top]
+  simp only [eLorentzNorm, eLorentzNorm', hf, p_zero, ↓reduceIte, p_eq_top]
   calc _
     _ = (ENNReal.ofReal p.toReal  * ∫⁻ t in Set.Ioi (0 : ℝ), distribution f (.ofReal t) μ *
       ENNReal.ofReal t ^ (p.toReal - 1) ) ^ p⁻¹.toReal := by
@@ -218,12 +238,13 @@ lemma eLorentzNorm'_eq_wnorm (p_ne_top : p ≠ ∞) {f : α → ε} {μ : Measur
   · right
     simp
 
-lemma eLorentzNorm_eq_wnorm (p_ne_zero : p ≠ 0) {f : α → ε} {μ : Measure α} :
+lemma eLorentzNorm_eq_wnorm [TopologicalSpace ε] (p_ne_zero : p ≠ 0) {f : α → ε} {μ : Measure α}
+  (hf : AEStronglyMeasurable f μ) :
     eLorentzNorm f p ∞ μ = wnorm f p μ := by
   by_cases p_ne_top : p = ⊤
   · rw [p_ne_top]
-    simp
-  rw [eLorentzNorm_eq_eLorentzNorm' p_ne_zero p_ne_top, eLorentzNorm'_eq_wnorm p_ne_top]
+    simp [hf]
+  rw [eLorentzNorm_eq_eLorentzNorm' p_ne_zero p_ne_top hf, eLorentzNorm'_eq_wnorm p_ne_top]
 
 --Theorem 6.6 in https://doi.org/10.1007/978-3-319-30034-4
 lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} {μ : Measure α} :
@@ -384,32 +405,32 @@ lemma eLorentzNorm'_eq' (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α →
   rw [ENNReal.rpow_sub _ _ (by simpa) (by simp), ENNReal.rpow_one, ENNReal.div_eq_inv_mul]
 
 --TODO: remove this?
-lemma eLorentzNorm_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} :
+lemma eLorentzNorm_eq [TopologicalSpace ε] (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) :
   eLorentzNorm f p q μ
     = eLpNorm (fun (t : ℝ≥0) ↦ t ^ p⁻¹.toReal * rearrangement f t μ) q
         (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
-  unfold eLorentzNorm
-  split_ifs with hp0
-  · contradiction
+  rw [eLorentzNorm_eq_eLorentzNorm' p_nonzero p_ne_top hf]
   exact eLorentzNorm'_eq p_nonzero p_ne_top
 
 variable {ε' : Type*} [TopologicalSpace ε'] [ContinuousENorm ε'] in
 lemma MemLorentz_iff_MemLp {f : α → ε'} : MemLorentz f p p μ ↔ MemLp f p μ := by
-  unfold MemLorentz MemLp
   constructor
   · intro h
-    rwa [← eLorentzNorm_eq_eLpNorm h.1]
+    have hf := h.aestronglyMeasurable
+    exact ⟨hf, by rwa [← eLorentzNorm_eq_eLpNorm hf]⟩
   · intro h
-    rwa [eLorentzNorm_eq_eLpNorm h.1]
+    rw [memLorentz_iff, eLorentzNorm_eq_eLpNorm h.1]
+    exact h.2
 
 -- TODO: could maybe be strengthened to ↔
 lemma MemLorentz_of_MemLorentz_ge [TopologicalSpace ε]
     {r₁ r₂ : ℝ≥0∞} (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) {f : α → ε} (hf : MemLorentz f p r₁ μ) :
     MemLorentz f p r₂ μ := by
-  unfold MemLorentz at *
-  rcases hf with ⟨meas_f, norm_f⟩
-  use meas_f
-  unfold eLorentzNorm at *
+  have meas_f := hf.aestronglyMeasurable
+  have norm_f := hf
+  clear hf
+  rw [memLorentz_iff, eLorentzNorm, ite_eq_left meas_f] at norm_f ⊢
   split_ifs at * with h₀ h₁ h₂ h₃ h₄ h₅ h₆ h₇ h₈ h₉
   · exact ENNReal.zero_lt_top
   · exact ENNReal.zero_lt_top
@@ -471,7 +492,8 @@ lemma MemLorentz_of_MemLorentz_ge [TopologicalSpace ε]
           lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (measurable_mul_distribution_rpow.aestronglyMeasurable.enorm.pow_const r₁.toReal),
           lintegral_nnreal_eq_lintegral_toNNReal_Ioi] at norm_lt_top
       simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply, one_div] at norm_lt_top
-      rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, eLorentzNorm_eq_wnorm h₀, wnorm_ne_top h₁, wnorm']
+      rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁ meas_f, eLorentzNorm_eq_wnorm h₀ meas_f,
+        wnorm_ne_top h₁, wnorm']
       rw [iSup_lt_iff]
       have toReal_r₁_pos := ENNReal.toReal_pos r₁_pos.ne' r₁_top
       have : r₁ ^ r₁.toReal⁻¹ < ∞ := ENNReal.rpow_lt_top_of_nonneg (by simp) r₁_top
@@ -631,7 +653,7 @@ lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0)
         ENNReal.ofReal_toReal h]
 
 @[simp]
-lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} :
+lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} (hs : MeasurableSet s) :
   eLorentzNorm (s.indicator (Function.const α a)) p q μ
     = if p = 0 then 0
       else if q = 0 then 0
@@ -641,7 +663,9 @@ lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} :
         μ s ^ p.toReal⁻¹ * ‖a‖ₑ
       else
         (p / q) ^ q.toReal⁻¹ * μ s ^ p.toReal⁻¹ * ‖a‖ₑ := by
-  unfold eLorentzNorm
+  have hf : AEStronglyMeasurable (s.indicator (Function.const α a)) μ :=
+    aestronglyMeasurable_const.indicator hs
+  rw [eLorentzNorm, ite_eq_left hf]
   split_ifs with h₀ h₁ h₂ h₃ h₄ h₅ h₆ h₇
   all_goals try rfl
   · exact eLpNormEssSup_indicator_const_eq' h₄
@@ -653,7 +677,7 @@ lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} :
   · congr
     exact eLpNormEssSup_indicator_const_eq s a h₅
   · simp [h₆]
-  · rw [← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, h₇, eLorentzNorm_eq_wnorm h₀]
+  · rw [← eLorentzNorm_eq_eLorentzNorm' h₀ h₁ hf, h₇, eLorentzNorm_eq_wnorm h₀ hf]
     rw [wnorm_indicator_const h₀ h₁]
   · exact eLorentzNorm'_indicator_const' h₀ h₁ h₆ h₇
 

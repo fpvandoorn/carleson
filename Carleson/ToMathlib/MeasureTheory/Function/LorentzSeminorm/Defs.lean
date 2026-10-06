@@ -64,33 +64,53 @@ lemma eLorentzNorm'_eq_integral_distribution_rpow {_ : MeasurableSpace α} {f : 
   · exact ENNReal.coe_ne_top
 
 /-- The Lorentz seminorm of a function -/
-def eLorentzNorm (f : α → ε) (p q : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
+def eLorentzNorm [TopologicalSpace ε] (f : α → ε) (p q : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
+  open scoped Classical in
+  if AEStronglyMeasurable f μ then
   if p = 0 then 0 else if p = ∞ then
     (if q = 0 then 0 else if q = ∞ then eLpNormEssSup f μ else ∞ * eLpNormEssSup f μ)
   else eLorentzNorm' f p q μ
+  else ∞
 
 variable {μ : Measure α}
 
-lemma eLorentzNorm_eq_eLorentzNorm' (hp_ne_zero : p ≠ 0) (hp_ne_top : p ≠ ∞) {f : α → ε} :
+theorem eLorentzNorm_of_not_aestronglyMeasurable [TopologicalSpace ε]
+    {f : α → ε} {p q : ℝ≥0∞} (h : ¬ AEStronglyMeasurable f μ) :
+    eLorentzNorm f p q μ = ∞ := by
+  simp [eLorentzNorm, h]
+
+theorem aestronglyMeasurable_of_eLorentzNorm_ne_top [TopologicalSpace ε]
+    {f : α → ε} {p q : ℝ≥0∞} (h : eLorentzNorm f p q μ ≠ ∞) : AEStronglyMeasurable f μ := by
+  contrapose h
+  exact eLorentzNorm_of_not_aestronglyMeasurable h
+
+theorem eLorentzNorm_eq_eLorentzNorm' [TopologicalSpace ε]
+    (hp_ne_zero : p ≠ 0) (hp_ne_top : p ≠ ∞) {f : α → ε} (hf : AEStronglyMeasurable f μ) :
     eLorentzNorm f p q μ = eLorentzNorm' f p q μ := by
-  unfold eLorentzNorm
-  simp [hp_ne_zero, hp_ne_top]
+  simp [eLorentzNorm, hp_ne_zero, hp_ne_top, hf]
 
 @[simp]
-lemma eLorentzNorm_exponent_zero {f : α → ε} : eLorentzNorm f 0 q μ = 0 := by simp [eLorentzNorm]
+lemma eLorentzNorm_exponent_zero [TopologicalSpace ε] {f : α → ε} (hf : AEStronglyMeasurable f μ) :
+  eLorentzNorm f 0 q μ = 0 := by simpa [eLorentzNorm]
 
 @[simp]
-lemma eLorentzNorm_exponent_zero' {f : α → ε} : eLorentzNorm f p 0 μ = 0 := by
-  simp [eLorentzNorm, eLorentzNorm']
+lemma eLorentzNorm_exponent_zero' [TopologicalSpace ε] {f : α → ε} (hf : AEStronglyMeasurable f μ) :
+    eLorentzNorm f p 0 μ = 0 := by
+  simpa [eLorentzNorm, eLorentzNorm']
 
 @[simp]
-lemma eLorentzNorm_exponent_top_top {f : α → ε} : eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
-  simp [eLorentzNorm]
+lemma eLorentzNorm_exponent_top_top [TopologicalSpace ε] {f : α → ε}
+  (hf : AEStronglyMeasurable f μ) :
+    eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
+  simp [eLorentzNorm, hf]
 
-lemma eLorentzNorm_exponent_top' {f : α → ε} (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) (hf : eLpNormEssSup f μ ≠ 0) :
+lemma eLorentzNorm_exponent_top' [TopologicalSpace ε] {f : α → ε} (q_ne_zero : q ≠ 0)
+  (q_ne_top : q ≠ ⊤) (hf : eLpNormEssSup f μ ≠ 0) :
     eLorentzNorm f ∞ q μ = ∞ := by
-  simp only [eLorentzNorm, ENNReal.top_ne_zero, ↓reduceIte]
-  rw [ite_eq_right_of_eq_false, ite_eq_right_of_eq_false, ENNReal.top_mul hf] <;> simpa
+  simp only [eLorentzNorm, ENNReal.top_ne_zero, ↓reduceIte, ite_eq_right_iff]
+  rw [ite_eq_right_of_eq_false _ _ (by simpa), ite_eq_right_of_eq_false _ _ (by simpa),
+    ENNReal.top_mul hf]
+  simp
 
 lemma eLorentzNorm_exponent_top {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
   (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) (hf : ¬ f =ᶠ[ae μ] 0) :
@@ -102,12 +122,15 @@ lemma eLorentzNorm_exponent_top {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
 /-- A function is in the Lorentz space `L^{p,q}` if it is (strongly a.e.)-measurable and
   has finite Lorentz seminorm. -/
 def MemLorentz [TopologicalSpace ε] (f : α → ε) (p r : ℝ≥0∞) (μ : Measure α) : Prop :=
-  AEStronglyMeasurable f μ ∧ eLorentzNorm f p r μ < ∞
+  eLorentzNorm f p r μ < ∞
+
+lemma memLorentz_iff [TopologicalSpace ε] {f : α → ε} :
+    MemLorentz f p q μ ↔ eLorentzNorm f p q μ < ∞ := Iff.rfl
 
 theorem MemLorentz.aestronglyMeasurable [TopologicalSpace ε] {f : α → ε} {p : ℝ≥0∞}
   (h : MemLorentz f p q μ) :
     AEStronglyMeasurable f μ :=
-  h.1
+  aestronglyMeasurable_of_eLorentzNorm_ne_top h.ne
 
 lemma MemLorentz.aemeasurable [MeasurableSpace ε] [TopologicalSpace ε]
     [TopologicalSpace.PseudoMetrizableSpace ε] [BorelSpace ε]
