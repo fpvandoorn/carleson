@@ -30,13 +30,13 @@ variable {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α} {s : Set α}
 either have measure `0` or `μ s`. -/
 @[expose]
 def IsAtom (s : Set α) (μ : Measure α) :=
-  0 < μ s ∧ ∀ t ⊆ s, MeasurableSet t → μ t = 0 ∨ μ t = μ s
+  MeasurableSet s ∧ 0 < μ s ∧ ∀ t ⊆ s, MeasurableSet t → μ t = 0 ∨ μ t = μ s
 
 /-- Measure `μ` *has no atoms* if for any measurable set `s` with positive `μ`-measure,
 there exists a measurable `t ⊆ s` such that `0 < μ t < μ s`. While this implies `μ {x} = 0`,
 the converse is not true. -/
 class NoAtoms' (μ : Measure α) : Prop where
-  no_atoms : ∀ s, MeasurableSet s → ¬ IsAtom s μ
+  no_atoms : ∀ s, ¬ IsAtom s μ
 
 export MeasureTheory.NoAtoms' (no_atoms)
 
@@ -53,10 +53,10 @@ theorem no_atoms_iff :
     use t, ts, meas_t, ht, lt_of_le_of_ne (measure_mono ts) ht'
   · intro h
     apply NoAtoms'.mk
-    intro s meas_s
+    intro s --meas_s
     unfold IsAtom
     push Not
-    intro hs
+    intro meas_s hs
     rcases h s meas_s hs with ⟨t, ts, meas_t, ht, ht'⟩
     use t, ts, meas_t, ht.ne', ht'.ne
 
@@ -121,7 +121,7 @@ instance instNullSingletonClass' [SigmaFinite μ] :
     set y := toMeasurable μ {x}
     rw [← measure_toMeasurable] at hx
     have : IsAtom y μ := by
-      use hx
+      use measurableSet_toMeasurable _ _, hx
       intro t hty meas_t
       rw [← inter_eq_right.mpr hty, measure_toMeasurable_inter meas_t measure_singleton_lt_top.ne]
       by_cases hxt : x ∈ t
@@ -129,7 +129,7 @@ instance instNullSingletonClass' [SigmaFinite μ] :
         rw [inter_eq_left.mpr (by simpa), measure_toMeasurable]
       · left
         rw [singleton_inter_eq_empty.mpr hxt, measure_empty]
-    exact no_atoms _ (measurableSet_toMeasurable _ _) this
+    exact no_atoms _ this
 
 /- TODO: add sketch of counterexample(s) showing that we really need
    `MeasurableSingletonClass (NullMeasurableSpace α μ)` resp. `SigmaFinite μ`
