@@ -63,7 +63,7 @@ variable {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
   {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
   {β : Type*} {mβ : MeasurableSpace β} {f : α → β} {g : β → ε} {ν : Measure β} in
 theorem MemLp.comp_quasiMeasurePreserving
-    (hg : MemLp g ∞ ν) (hf : Measure.QuasiMeasurePreserving f μ ν) : MemLp (g ∘ f) ∞ μ :=
+    (hg : MemLp g ∞ ν) (hf : QuasiMeasurePreserving f μ ν) : MemLp (g ∘ f) ∞ μ :=
   .comp_of_map (hg.mono_ac hf.absolutelyContinuous) hf.aemeasurable
 
 -- maybe don't upstream
@@ -375,7 +375,7 @@ variable [R1Space X] in
 theorem indicator_of_isCompact_closure {f : X → E} (hf : MemLp f ∞ μ)
     {s : Set X} (h's : IsCompact (closure s)) (hs : MeasurableSet s) :
     BoundedCompactSupport (s.indicator f) μ where
-  memLp_top := hf.indicator hs
+  memLp_top := hf.indicator hs.nullMeasurableSet
   hasCompactSupport := by
     apply HasCompactSupport.intro h's
     exact fun x hx ↦ by simp [notMem_of_notMem_closure hx]
@@ -383,7 +383,7 @@ theorem indicator_of_isCompact_closure {f : X → E} (hf : MemLp f ∞ μ)
 @[fun_prop]
 protected theorem indicator {f : X → E} (hf : BoundedCompactSupport f μ) {s : Set X}
     (hs : MeasurableSet s) : BoundedCompactSupport (s.indicator f) μ where
-  memLp_top := hf.memLp_top.indicator hs
+  memLp_top := hf.memLp_top.indicator hs.nullMeasurableSet
   hasCompactSupport := hf.hasCompactSupport.mono (by simp)
 
 variable {F : X × Y → E}
@@ -459,7 +459,7 @@ variable [MeasurableSpace W] [TopologicalSpace W] {μ : Measure W}
 variable {f : X → 𝕜} {ν : Measure X} [RCLike 𝕜]
 
 lemma BoundedCompactSupport.mul_bdd_right'' (hf : BoundedCompactSupport f ν) {e : W → X}
-    {g : W → 𝕜} (he : Continuous e) (he1 : Measure.QuasiMeasurePreserving e μ ν)
+    {g : W → 𝕜} (he : Continuous e) (he1 : QuasiMeasurePreserving e μ ν)
     (hg : AEStronglyMeasurable g μ)
     (hg1 : ∀ K : Set X, IsCompact K -> IsCompact (e ⁻¹' K ∩ tsupport g))
     (hg2 : ∀ (A : Set X) (_hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :
@@ -490,7 +490,7 @@ lemma BoundedCompactSupport.mul_bdd_right'' (hf : BoundedCompactSupport f ν) {e
     exact fun _ hx ↦ subset_closure hx
 
 lemma BoundedCompactSupport.mul_bdd_left' (hf : BoundedCompactSupport f ν) {e : W → X} {g : W → 𝕜}
-    (he : Continuous e) (he1 : Measure.QuasiMeasurePreserving e μ ν)
+    (he : Continuous e) (he1 : QuasiMeasurePreserving e μ ν)
     (hg : AEStronglyMeasurable g μ)
     (hg1 : ∀ K : Set X, IsCompact K -> IsCompact (e ⁻¹' K ∩ tsupport g))
     (hg2 : ∀ (A : Set X) (_hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :

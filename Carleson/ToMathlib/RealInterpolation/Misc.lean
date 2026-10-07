@@ -856,7 +856,7 @@ lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
   simp only [bot_eq_false, trnc_false]
   rw [truncCompl_eq_indicator, memLp_iff,
       eLpNorm_indicator_eq_eLpNorm_restrict
-        (by rw [compl_ofPred]; simp only [not_le]; exact measurableSet_lt measurable_const (by fun_prop))]
+        (by rw [compl_ofPred]; simp only [not_le]; exact (measurableSet_lt measurable_const (by fun_prop)).nullMeasurableSet)]
   rw [eLpNorm_eq_eLpNorm' hp0 hp_top wg1.aestronglyMeasurable.restrict]
   apply (eLpNorm'_le_eLpNormEssSup_mul_rpow_measure_univ hp_pos).trans_lt
   apply ENNReal.mul_lt_top
