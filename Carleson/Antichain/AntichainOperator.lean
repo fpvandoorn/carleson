@@ -146,7 +146,7 @@ lemma dens1_antichain_dach (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.ind
 def M14 (𝔄 : Set (𝔓 X)) (p : ℝ) (g : X → ℂ) : X → ℝ≥0∞ :=
   maximalFunction volume 𝔄 𝔠 (14 * D ^ 𝔰 ·) p g
 
-lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄) {x₀ : X} (hx : x₀ ∈ ball (𝔠 p) (14 * D ^ 𝔰 p))
+lemma eLpNorm_le_M14 (hg : AEStronglyMeasurable g) {p : 𝔓 X} (mp : p ∈ 𝔄) {x₀ : X} (hx : x₀ ∈ ball (𝔠 p) (14 * D ^ 𝔰 p))
     {r : ℝ} (hr : 0 < r) :
     eLpNorm ((ball (𝔠 p) (14 * D ^ 𝔰 p)).indicator (‖g ·‖ₑ)) (ENNReal.ofReal r) volume ≤
       volume (ball (𝔠 p) (14 * D ^ 𝔰 p)) ^ r⁻¹ * M14 𝔄 r g x₀ := by
@@ -159,7 +159,8 @@ lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄) {x₀ : X} (hx : x₀ ∈ ba
   · exact Or.inl <| (by finiteness)
   rw [ENNReal.div_eq_inv_mul, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, mul_comm _ (-1),
     ENNReal.rpow_mul, ENNReal.rpow_neg_one,
-    eLpNorm_eq_lintegral_rpow_enorm_toReal (by simpa) (by finiteness)]
+    eLpNorm_eq_lintegral_rpow_enorm_toReal (by simpa) (by finiteness)
+      (hg.enorm.indicator measurableSet_ball).aestronglyMeasurable]
   simp_rw [ENNReal.toReal_ofReal hr.le, one_div]
   rw [← ENNReal.mul_rpow_of_nonneg _ _ (by positivity), M14, maximalFunction]
   conv_lhs =>
@@ -211,7 +212,7 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
     _ ≤ (volume B)⁻¹ * (volume B ^ (q₆ a)⁻¹ * M14 𝔄 (q₆ a) g x₀) *
         (C6_1_6 a * dens₁ A ^ (p₆ a)⁻¹ * volume (⋃ t ∈ A, (𝓘 t : Set X)) ^ (p₆ a)⁻¹) := by
       gcongr
-      · exact eLpNorm_le_M14 mp hx (q₆_pos (four_le_a X))
+      · exact eLpNorm_le_M14 hg.aestronglyMeasurable mp hx (q₆_pos (four_le_a X))
       · convert! tile_count (h𝔄.subset sA) ⟨𝒬 p, range_𝒬 (mem_range_self p)⟩
     _ ≤ (volume B)⁻¹ * (volume B ^ (q₆ a)⁻¹ * M14 𝔄 (q₆ a) g x₀) *
         (C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * volume B ^ (p₆ a)⁻¹) := by
