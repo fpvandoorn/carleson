@@ -312,7 +312,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
   intro f hf
   have hf' : AEStronglyMeasurable (T f) ν := (hT f hf ∅ MeasurableSet.empty).1
   use (hT f hf ∅ MeasurableSet.empty).1
-  rw [eLorentzNorm_eq_wnorm hpq.ne_zero hf', wnorm_ne_top hp, wnorm']
+  rw [eLorentzNorm_eq_eLorentzNorm' hpq.ne_zero hp hf', eLorentzNorm'_exponent_top]
   apply iSup_le
   intro l
   by_cases l_zero : l = 0

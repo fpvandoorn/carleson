@@ -53,10 +53,10 @@ lemma wnorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ, f
     wnorm' (ENNReal.toReal ∘ f) p μ = wnorm' f p μ := by
   simp_rw [wnorm', distribution_toReal_eq hf]
 
-theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α → ε} {μ : Measure α} :
-    wnorm' f p μ = ⨆ t : ℝ≥0, t ^ p⁻¹ * rearrangement f t μ := by
+theorem iSup_mul_distribution_rpow_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p)
+    {f : α → ε} {μ : Measure α} :
+    ⨆ t : ℝ≥0, t * distribution f t μ ^ p⁻¹ = ⨆ t : ℝ≥0, t ^ p⁻¹ * rearrangement f t μ := by
   have hp' : 0 < p⁻¹ := by simpa
-  unfold wnorm'
   calc _
     _ = ⨆ t, t * distribution f t μ ^ p⁻¹ := by
       rw [ENNReal.iSup_ennreal]
@@ -136,6 +136,10 @@ theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α →
     gcongr
     rw [← lt_rearrangement_iff_lt_distribution]
     rwa [ENNReal.div_lt_iff (by right; assumption) (by right; assumption), mul_comm]
+
+theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α → ε} {μ : Measure α} :
+    wnorm' f p μ = ⨆ t : ℝ≥0, t ^ p⁻¹ * rearrangement f t μ :=
+  iSup_mul_distribution_rpow_eq_iSup_rpow_mul_rearrangement hp
 
 /-- The weak L^p norm of a function. -/
 def wnorm (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=

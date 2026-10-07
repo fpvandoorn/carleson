@@ -218,10 +218,9 @@ lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
     _ = eLpNorm f (.ofReal p.toReal) μ := (eLpNorm_eq_distribution hf (ENNReal.toReal_pos p_zero p_eq_top)).symm
     _ = eLpNorm f p μ := by congr; exact p_eq.symm
 
-lemma eLorentzNorm'_eq_wnorm (p_ne_top : p ≠ ∞) {f : α → ε} {μ : Measure α} :
-    eLorentzNorm' f p ∞ μ = wnorm f p μ := by
-  rw [wnorm_ne_top p_ne_top]
-  unfold eLorentzNorm' wnorm'
+lemma eLorentzNorm'_exponent_top {f : α → ε} {μ : Measure α} :
+    eLorentzNorm' f p ∞ μ = ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹ := by
+  unfold eLorentzNorm'
   simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv,
     eLpNorm_exponent_top, one_mul]
   rw [eLpNormEssSup_withDensity (by fun_prop) (by simp)]
@@ -237,6 +236,10 @@ lemma eLorentzNorm'_eq_wnorm (p_ne_top : p ≠ ∞) {f : α → ε} {μ : Measur
     simp at ha
   · right
     simp
+
+lemma eLorentzNorm'_eq_wnorm (p_ne_top : p ≠ ∞) {f : α → ε} {μ : Measure α} :
+    eLorentzNorm' f p ∞ μ = wnorm f p μ := by
+  rw [wnorm_ne_top p_ne_top, eLorentzNorm'_exponent_top, wnorm']
 
 lemma eLorentzNorm_eq_wnorm [TopologicalSpace ε] (p_ne_zero : p ≠ 0) {f : α → ε} {μ : Measure α}
   (hf : AEStronglyMeasurable f μ) :
@@ -255,8 +258,8 @@ lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → 
   · rw [q_zero]
     simp
   by_cases q_top : q = ⊤
-  · rw [q_top, eLorentzNorm'_eq_wnorm p_ne_top,
-      wnorm_eq_iSup_rpow_mul_rearrangement p_nonzero p_ne_top]
+  · rw [q_top, eLorentzNorm'_exponent_top,
+      iSup_mul_distribution_rpow_eq_iSup_rpow_mul_rearrangement (ENNReal.toReal_pos p_nonzero p_ne_top)]
     simp only [ENNReal.toReal_inv, eLpNorm_exponent_top]
     symm
     rw [eLpNormEssSup_withDensity (by fun_prop) (by simp)]
@@ -492,8 +495,7 @@ lemma MemLorentz_of_MemLorentz_ge [TopologicalSpace ε]
           lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (measurable_mul_distribution_rpow.aestronglyMeasurable.enorm.pow_const r₁.toReal),
           lintegral_nnreal_eq_lintegral_toNNReal_Ioi] at norm_lt_top
       simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply, one_div] at norm_lt_top
-      rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁ meas_f, eLorentzNorm_eq_wnorm h₀ meas_f,
-        wnorm_ne_top h₁, wnorm']
+      rw [r₂_top, eLorentzNorm'_exponent_top]
       rw [iSup_lt_iff]
       have toReal_r₁_pos := ENNReal.toReal_pos r₁_pos.ne' r₁_top
       have : r₁ ^ r₁.toReal⁻¹ < ∞ := ENNReal.rpow_lt_top_of_nonneg (by simp) r₁_top
@@ -677,8 +679,17 @@ lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} (hs : MeasurableSet s) 
   · congr
     exact eLpNormEssSup_indicator_const_eq s a h₅
   · simp [h₆]
-  · rw [← eLorentzNorm_eq_eLorentzNorm' h₀ h₁ hf, h₇, eLorentzNorm_eq_wnorm h₀ hf]
-    rw [wnorm_indicator_const h₀ h₁]
+  · have hp : 0 < p.toReal⁻¹ := inv_pos.mpr (ENNReal.toReal_pos h₀ h₁)
+    rw [h₇, eLorentzNorm'_exponent_top, mul_comm]
+    calc _
+      _ = ⨆ (t : ℝ≥0) (_ : (t : ℝ≥0∞) < ‖a‖ₑ), t * μ s ^ p.toReal⁻¹ := by
+        refine iSup_congr fun t ↦ ?_
+        by_cases ht : (t : ℝ≥0∞) < ‖a‖ₑ <;> simp [distribution_indicator_const, ht, hp]
+      _ = ‖a‖ₑ * μ s ^ p.toReal⁻¹ := by
+        simp_rw [← ENNReal.iSup_mul]
+        congr
+        exact le_antisymm (iSup₂_le fun t ht ↦ ht.le)
+          (ENNReal.le_of_forall_nnreal_lt fun r hr ↦ le_iSup₂_of_le r hr le_rfl)
   · exact eLorentzNorm'_indicator_const' h₀ h₁ h₆ h₇
 
 lemma MemLorentz.memLp {f : α → ε} (hf : MemLorentz f p q μ) (h : q ∈ Set.Ioc 0 p) :
