@@ -1,7 +1,7 @@
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
-public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+public import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 public import Carleson.ToMathlib.MeasureTheory.Integral.Misc
 
@@ -49,7 +49,7 @@ theorem eLorentzNorm_add_le'' :
   calc _
     _ ≤ eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * (rearrangement f (t / 2) μ + rearrangement g (t / 2) μ))
           q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
-      apply eLpNorm_mono_enorm
+      apply eLpNorm_mono_enorm (by fun_prop)
       intro t
       simp only [ENNReal.toReal_inv, enorm_eq_self]
       gcongr
@@ -58,7 +58,7 @@ theorem eLorentzNorm_add_le'' :
     _ ≤ LpAddConst q * (eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement f (t / 2) μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
         + eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement g (t / 2) μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))) := by
       simp_rw [mul_add ( _ ^ _)]
-      apply eLpNorm_add_le' (by fun_prop) (by fun_prop)
+      apply eLpNorm_add_le'
     _ = LpAddConst q * 2 ^ p.toReal⁻¹ * (eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement f t μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
         + eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement g t μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))) := by
       rw [mul_assoc]
@@ -104,7 +104,7 @@ lemma eLpNorm_lorentz_helper (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
     rw [q_ne_one]
     simp only [ENNReal.toReal_one, sub_self, ENNReal.rpow_zero, ENNReal.toReal_inv, inv_one,
       one_smul]
-    convert eLpNorm_exponent_top
+    convert eLpNorm_exponent_top aestronglyMeasurable_const
     · exact ENNReal.HolderConjugate.conjExponent_eq
     rw [eLpNormEssSup_const _ (NeZero.ne volume)]
     simp
@@ -115,8 +115,8 @@ lemma eLpNorm_lorentz_helper (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
   have q'_ne_top : q.conjExponent ≠ ⊤ := (ENNReal.HolderConjugate.conjExponent one_le_q).symm.ne_top_iff_ne_one.mpr q_ne_one
   unfold lorentz_helper
   rw [eLpNorm_const_smul''' (by fun_prop)]
-  rw [eLorentzNorm'_eq' p_ne_zero p_ne_top, eLpNorm_eq_lintegral_rpow_enorm_toReal q_ne_zero q_ne_top,
-      eLpNorm_eq_lintegral_rpow_enorm_toReal q'_ne_zero q'_ne_top] at *
+  rw [eLorentzNorm'_eq' p_ne_zero p_ne_top, eLpNorm_eq_lintegral_rpow_enorm_toReal q_ne_zero q_ne_top (by fun_prop),
+      eLpNorm_eq_lintegral_rpow_enorm_toReal q'_ne_zero q'_ne_top (by fun_prop)] at *
   simp only [ENNReal.toReal_inv, enorm_eq_self, one_div] at *
   rw [← ENNReal.rpow_mul]
   simp_rw [← ENNReal.rpow_mul]
@@ -216,7 +216,7 @@ lemma eLorentzNorm'_eq_lintegral_lorentz_helper_mul (p_ne_zero : p ≠ 0) (p_ne_
     intro t
     congr
     rw [← enorm_eq_self (_ * _)]
-  rw [eLpNorm_enorm_rpow _ (ENNReal.toReal_pos (by aesop) q_ne_top)]
+  rw [eLpNorm_enorm_rpow _ (by fun_prop) (ENNReal.toReal_pos (by aesop) q_ne_top)]
   rw [one_mul, ENNReal.ofReal_toReal q_ne_top]
   rw [← eLorentzNorm'_eq' p_ne_zero p_ne_top, ← ENNReal.rpow_add_of_add_pos f_ne_top _ _ (by simp)]
   simp
@@ -252,7 +252,7 @@ theorem eLorentzNorm_add_le [SigmaFinite μ] [ContinuousAdd ε] (one_le_q : 1 �
   rw [eLorentzNorm'_eq_lintegral_lorentz_helper_mul p_zero p_top one_le_q q_top hfg']
   calc _
     _ ≤ eLpNorm (lorentz_helper (f + g) p q μ * fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * (rearrangement f t μ + rearrangement g t μ)) 1 := by
-      rw [eLpNorm_one_eq_lintegral_enorm, eLpNorm_one_eq_lintegral_enorm]
+      rw [eLpNorm_one_eq_lintegral_enorm (by fun_prop), eLpNorm_one_eq_lintegral_enorm (by fun_prop)]
       simp only [toReal_inv, Pi.mul_apply, enorm_eq_self]
       simp_rw [← mul_assoc]
       apply lintegral_antitone_mul_le (by fun_prop) (by fun_prop)
@@ -266,7 +266,7 @@ theorem eLorentzNorm_add_le [SigmaFinite μ] [ContinuousAdd ε] (one_le_q : 1 �
       · apply Antitone.mul' (antitone_lorentz_helper one_le_q q_le_p p_top) (antitone_rpow_inv_sub_inv q_le_p (zero_lt_one.trans_le one_le_q).ne')
     _ ≤ eLpNorm (lorentz_helper (f + g) p q μ * fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement f t μ) 1
         + eLpNorm (lorentz_helper (f + g) p q μ * fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement g t μ) 1 := by
-      apply (eLpNorm_add_le (by fun_prop) (by fun_prop) le_rfl).trans'
+      apply (eLpNorm_add_le le_rfl).trans'
       apply le_of_eq
       congr
       rw [← mul_add]
@@ -276,7 +276,7 @@ theorem eLorentzNorm_add_le [SigmaFinite μ] [ContinuousAdd ε] (one_le_q : 1 �
     _ ≤ eLpNorm (lorentz_helper (f + g) p q μ) q.conjExponent * eLpNorm (fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement f t μ) q
         + eLpNorm (lorentz_helper (f + g) p q μ) q.conjExponent * eLpNorm (fun (t : ℝ≥0) ↦ t ^ (p⁻¹.toReal - q⁻¹.toReal) * rearrangement g t μ) q := by
       gcongr <;>
-      · apply eLpNorm_le_eLpNorm_mul_eLpNorm_of_enorm' (by fun_prop) (by fun_prop) (HolderConjugate.conjExponent one_le_q).symm
+      · apply eLpNorm_le_eLpNorm_mul_eLpNorm_ennreal (by fun_prop) (by fun_prop) (hpqr := (HolderConjugate.conjExponent one_le_q).symm)
     _ = eLorentzNorm' f p q μ + eLorentzNorm' g p q μ := by
       rw [eLpNorm_lorentz_helper p_zero p_top one_le_q q_top hfg hfg', one_mul, one_mul,
         ← eLorentzNorm'_eq' p_zero p_top, ← eLorentzNorm'_eq' p_zero p_top]
@@ -355,8 +355,8 @@ theorem eLorentzNorm_add_le_of_disjoint_support (h : Disjoint f.support g.suppor
     rw [mul_comm (LpAddConst _), mul_assoc, mul_add,
         ← eLpNorm_const_smul'' (LpAddConst_lt_top _).ne,
         ← eLpNorm_const_smul'' (LpAddConst_lt_top _).ne]
-    apply (eLpNorm_add_le' (by fun_prop) (by fun_prop) _).trans'
-    apply eLpNorm_mono_enorm
+    apply (eLpNorm_add_le' _).trans'
+    apply eLpNorm_mono_enorm (by fun_prop)
     intro t
     simp only [toReal_inv, enorm_eq_self, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
     rw [← mul_add, ← mul_add, ← mul_assoc, mul_comm (LpAddConst _), mul_assoc]
