@@ -74,7 +74,7 @@ theorem integrable (hf : BoundedFiniteSupport f μ) : Integrable f μ :=
 theorem indicator (bfs : BoundedFiniteSupport f μ) {s : Set X} (hs : MeasurableSet s) :
     BoundedFiniteSupport (s.indicator f) μ := by
   constructor
-  · exact MemLp.indicator hs bfs.memLp_top
+  · exact MemLp.indicator hs.nullMeasurableSet bfs.memLp_top
   · rw[Set.support_indicator]
     apply measure_inter_lt_top_of_right_ne_top
     rw [← lt_top_iff_ne_top]
