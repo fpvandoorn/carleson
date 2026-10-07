@@ -97,6 +97,24 @@ theorem exists_measurable_subset_lt₀ {s : Set α} (meas_s : NullMeasurableSet 
   rcases exists_measurable_subset_lt hr hs with ⟨t, hts, ht⟩
   use t, hts.trans hrs
 
+/- The assumptions `MeasurableSingletonClass (NullMeasurableSpace α μ)` resp. `SigmaFinite μ` in
+the following two instances cannot both be dropped. By the proof of `instNullSingletonClass'`,
+a counterexample needs a point `x` such that `{x}` is not null-measurable and `μ {x} = ∞`.
+Sketch of such a counterexample: let `Ω` be uncountable, `ω₀ ∈ Ω`, `X := Ω × [0, 1]`, and call
+`B ⊆ X` measurable if all sections `B_ω` are Borel, `B_ω₀ = ∅` or `B_ω₀ = [0, 1]`, and
+`B_ω = B_ω₀` for all but countably many `ω`. This is a σ-algebra; put `μ B := ∑ ω, volume B_ω`.
+* `μ` has no atoms: let `B` be measurable with `μ B > 0`. If `B_ω₀ = ∅`, then `B` is the countable
+  union of the `{ω} × B_ω` with `ω ≠ ω₀`, so `volume B_ω > 0` for some `ω ≠ ω₀`. As `volume` has no
+  atoms, there is a Borel `A ⊆ B_ω` with `0 < volume A < volume B_ω`, and `t := {ω} × A ⊆ B` is
+  measurable with `0 < μ t < volume B_ω ≤ μ B` (whether or not `μ B` is finite). If
+  `B_ω₀ = [0, 1]`, then `μ B = ∞` and `B` contains some `{ω} × [0, 1]` of measure `1`.
+* For `x := (ω₀, 0)`, every measurable `B ∋ x` contains `{ω} × [0, 1]` for all but countably
+  many `ω`, so `μ {x} = ∞`.
+* `μ` is not σ-finite, since all measurable sets of finite measure satisfy `B_ω₀ = ∅`.
+* `{x}` is not null-measurable: otherwise there is a measurable `M` with `μ ({x} ∆ M) = 0`, so
+  `N := toMeasurable μ ({x} ∆ M)` is measurable with `μ N = 0` and `{x} ∆ M ⊆ N`. Then `N_ω₀ = ∅`,
+  i.e. `M` and `{x}` agree on `{ω₀} × [0, 1]`, contradicting measurability of `M`.
+-/
 instance instNullSingletonClass [MeasurableSingletonClass (NullMeasurableSpace α μ)] :
     NullSingletonClass μ where
   measure_singleton := by
@@ -130,10 +148,6 @@ instance instNullSingletonClass' [SigmaFinite μ] :
       · left
         rw [singleton_inter_eq_empty.mpr hxt, measure_empty]
     exact no_atoms _ this
-
-/- TODO: add sketch of counterexample(s) showing that we really need
-   `MeasurableSingletonClass (NullMeasurableSpace α μ)` resp. `SigmaFinite μ`
--/
 
 /-
 instance instNullSingletonClass'' :
