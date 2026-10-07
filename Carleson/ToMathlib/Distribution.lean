@@ -1,6 +1,7 @@
 module
 
 public import Carleson.ToMathlib.Misc
+public import Mathlib.MeasureTheory.Function.LpSeminorm.ChebyshevMarkov
 
 -- Upstreaming status: all of this should go into mathlib, eventually.
 -- Most lemmas have the right form, but proofs can often be golfed.
@@ -509,5 +510,24 @@ lemma distribution_le_of_eLpNorm_le {ε' : Type*} [TopologicalSpace ε'] [Contin
 end distribution
 
 end ENorm
+
+section ContinuousENorm
+
+variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
+
+/-- A function in `L^p` for `0 < p < ∞` has finite distribution function at every `t > 0`,
+by the Chebyshev–Markov inequality. -/
+lemma distribution_lt_top (hf : MemLp f p μ) (p_pos : 0 < p) (p_ne_top : p ≠ ∞)
+    {t : ℝ≥0} (ht : 0 < t) :
+    distribution f t μ < ∞ := calc
+  _ ≤ μ {x | (t : ℝ≥0∞) ≤ ‖f x‖ₑ} := by
+    unfold distribution
+    exact measure_mono fun x (hx : (t : ℝ≥0∞) < ‖f x‖ₑ) ↦ (hx.le : (t : ℝ≥0∞) ≤ ‖f x‖ₑ)
+  _ ≤ (t : ℝ≥0∞)⁻¹ ^ p.toReal * eLpNorm f p μ ^ p.toReal :=
+    meas_ge_le_mul_pow_eLpNorm_enorm μ p_pos.ne' p_ne_top hf.1 (by simpa using ht.ne') (by simp)
+  _ < ∞ := mul_lt_top (rpow_lt_top_of_nonneg toReal_nonneg (by simpa using ht.ne'))
+    (rpow_lt_top_of_nonneg toReal_nonneg hf.2.ne)
+
+end ContinuousENorm
 
 end MeasureTheory

@@ -206,7 +206,8 @@ theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [Se
   intro f _
   use measurable_maximalFunction.aestronglyMeasurable
   let Bₗ (ℓ : ℝ≥0∞) := { (c, r) | ∫⁻ y in (ball c r), ‖f y‖ₑ ∂μ ≥ ℓ * μ (ball c r) }
-  simp only [wnorm, one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte, eLpNorm,
+  rw [wnorm_ne_top measurable_maximalFunction.aestronglyMeasurable one_ne_zero one_ne_top]
+  simp only [one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte, eLpNorm,
     one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self, iSup_le_iff]
   intro t
   refine le_trans ?_ (measure_biUnion_le_lintegral (𝓑 := Bₗ t) (c := (·.1)) (r := (·.2)) (l := t)
@@ -332,9 +333,13 @@ theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpa
     apply (hasWeakType_maximalFunction_one (fun x : X ↦ ‖v x‖ₑ ^ (p : ℝ)) _).2
     convert! MemLp.enorm_rpow_div mlpv p
     exact (ENNReal.div_self (coe_ne_zero.mpr p₁n) coe_ne_top).symm
-  unfold wnorm wnorm' distribution at hmb_one ⊢
-  simp only [one_ne_top, ↓reduceIte, enorm_eq_self, toReal_one, inv_one, rpow_one, iSup_le_iff,
-    coe_ne_top, coe_toReal] at hmb_one ⊢
+  rw [wnorm_ne_top measurable_maximalFunction.aestronglyMeasurable one_ne_zero one_ne_top]
+    at hmb_one
+  rw [wnorm_ne_top (measurable_maximalFunction.pow_const _).aestronglyMeasurable
+    (by simpa using p₁n) coe_ne_top]
+  unfold wnorm' distribution at hmb_one ⊢
+  simp only [enorm_eq_self, toReal_one, inv_one, rpow_one, iSup_le_iff, coe_toReal]
+    at hmb_one ⊢
   intro t
   by_cases ht : t = 0
   · rw [ht]; simp
@@ -381,7 +386,8 @@ theorem maximalFunction_ae_lt_top [BorelSpace X] [ProperSpace X] [IsFiniteMeasur
     {u : X → ε'} (hu : MemLp u p₂ μ) :
     ∀ᵐ x ∂μ, maximalFunction μ 𝓑 c r p₁ u x < ∞ := by
   simpa only [lt_top_iff_ne_top, enorm_eq_self] using
-    hasWeakType_maximalFunction hp₁ hp₁₂ |>.memWLp hu C_weakType_maximalFunction_lt_top |>.ae_ne_top
+    (hasWeakType_maximalFunction hp₁ hp₁₂ |>.memWLp hu C_weakType_maximalFunction_lt_top).ae_ne_top
+      (by simpa using (hp₁.trans_le hp₁₂).ne')
 
 public lemma C2_0_6_defaultA_one_two_eq {a : ℕ} :
     C2_0_6 (defaultA a) 1 2 = 2 ^ (a + 3 / (2 : ℝ)) := by

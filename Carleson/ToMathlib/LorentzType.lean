@@ -3,6 +3,7 @@ module
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
+public import Carleson.ToMathlib.WeakType
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
 
 @[expose] public section
@@ -38,6 +39,18 @@ lemma hasStrongType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormed
   · intro h f hf
     have := h f (MemLorentz_iff_MemLp.mpr hf)
     rwa [← eLorentzNorm_eq_eLpNorm this.1, ← eLorentzNorm_eq_eLpNorm hf.1]
+
+lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂]
+  {T : (α → ε₁) → (α' → ε₂)} {c : ℝ≥0∞} :
+    HasWeakType T p q μ ν c ↔ HasLorentzType T p p q ∞ μ ν c := by
+  constructor
+  · intro h f hf
+    have hf' := MemLorentz_iff_MemLp.mp hf
+    rw [eLorentzNorm_eq_eLpNorm hf'.1]
+    exact h f hf'
+  · intro h f hf
+    rw [← eLorentzNorm_eq_eLpNorm hf.1]
+    exact h f (MemLorentz_iff_MemLp.mpr hf)
 
 
 variable {β : Type*} [Zero β] [One β]

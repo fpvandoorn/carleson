@@ -36,7 +36,8 @@ I(F) think the constant needs to be fixed in the blueprint. -/
 irreducible_def C10_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a)
 
 /-- Lemma 10.2.1, formulated differently.
-The blueprint version is basically this after unfolding `HasBoundedWeakType`, `wnorm` and `wnorm'`.
+The blueprint version is basically this after unfolding `HasBoundedWeakType` and rewriting with
+`wnorm_ne_top` and `wnorm'`.
 -/
 theorem maximal_theorem :
     HasBoundedWeakType (globalMaximalFunction volume 1 : (X → ℂ) → X → ℝ≥0∞) 1 1 volume volume
@@ -57,7 +58,8 @@ private theorem maximal_theorem' (hf : BoundedFiniteSupport f) :
   by_cases hα : α = ∞
   · simp [hα]
   have h := (maximal_theorem f hf).2
-  simp only [wnorm, one_ne_top, reduceIte, wnorm', toReal_one, inv_one, rpow_one, iSup_le_iff] at h
+  rw [wnorm_ne_top (maximal_theorem f hf).1 one_ne_zero one_ne_top] at h
+  simp only [wnorm', toReal_one, inv_one, rpow_one, iSup_le_iff] at h
   exact coe_toNNReal hα ▸ h α.toNNReal
 
 -- Alternate version of `maximal_theorem'`
@@ -1769,12 +1771,14 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
         _ ≤ _ := by rw [C10_0_3, add_assoc]; gcongr; exacts [one_le_two, by lia]
 
 /-- Lemma 10.0.3, formulated differently. The blueprint version is basically this after
-unfolding `HasBoundedWeakType`, `wnorm` and `wnorm'`. -/
+unfolding `HasBoundedWeakType` and rewriting with `wnorm_ne_top` and `wnorm'`. -/
 theorem czOperator_weak_1_1 (ha : 4 ≤ a) (hr : 0 < r)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasBoundedWeakType (czOperator K r) 1 1 volume volume (C10_0_3 a) := fun f hf ↦ by
   refine ⟨czOperator_aestronglyMeasurable hf.aestronglyMeasurable, ?_⟩
-  simp_rw [wnorm, one_ne_top, ite_false, wnorm', toReal_one, inv_one, rpow_one, iSup_le_iff]
+  rw [wnorm_ne_top (czOperator_aestronglyMeasurable hf.aestronglyMeasurable) one_ne_zero
+    one_ne_top]
+  simp_rw [wnorm', toReal_one, inv_one, rpow_one, iSup_le_iff]
   intro α; apply mul_le_of_le_div'; rw [ENNReal.mul_div_right_comm]
   exact estimate_czOperator ha hr hf hT
 

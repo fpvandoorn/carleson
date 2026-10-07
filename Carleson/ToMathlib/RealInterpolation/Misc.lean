@@ -1,7 +1,11 @@
 module
 
 public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
-public import Carleson.ToMathlib.WeakType
+public import Carleson.ToMathlib.Distribution
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 /-!
 This file contains some miscellaneous prerequisites for proving the Marcinkiewisz real interpolation
@@ -18,8 +22,7 @@ Upstreaming status:
 - truncations and their properties definitely belong into mathlib
 - the details about cutoff functions and a particular scale function
   will depend on the particular proof chosen: design on the overall proof approach first
-- except for using `distribution_lt_top`, this file does not use WeakType;
-  it does use helper lemmas in `InterpolatedExponents`, though.
+- this file does not use WeakType; it does use helper lemmas in `InterpolatedExponents`, though.
 -/
 
 @[expose] public section

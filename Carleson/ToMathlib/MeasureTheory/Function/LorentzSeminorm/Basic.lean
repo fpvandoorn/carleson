@@ -22,34 +22,6 @@ variable {α ε ε' : Type*} {m m0 : MeasurableSpace α} {p q : ℝ≥0∞} {μ 
 
 namespace MeasureTheory
 
-lemma eLorentzNorm'_mono_enorm_ae {f : α → ε'} {g : α → ε}
-  (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
-    eLorentzNorm' f p q μ ≤ eLorentzNorm' g p q μ := by
-  unfold eLorentzNorm'
-  gcongr
-  apply eLpNorm_mono_enorm
-  intro x
-  simp only [ENNReal.toReal_inv, enorm_eq_self]
-  gcongr
-
-lemma eLorentzNorm_mono_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f : α → ε} {g : α → ε'}
-  (hf : AEStronglyMeasurable f μ) (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
-    eLorentzNorm f p q μ ≤ eLorentzNorm g p q μ := by
-  unfold eLorentzNorm
-  simp only [hf, ↓reduceIte]
-  split_ifs
-  · trivial
-  · trivial
-  · trivial
-  · trivial
-  · exact essSup_mono_ae h
-  · apply le_top
-  · gcongr
-    exact essSup_mono_ae h
-  · apply le_top
-  · exact eLorentzNorm'_mono_enorm_ae h
-  · apply le_top
-
 --Proof analogous to eLpNorm_congr_enorm_ae
 theorem eLorentzNorm_congr_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f : α → ε'}
   {g : α → ε} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
@@ -217,37 +189,6 @@ lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
         simp [ENNReal.ofReal_rpow_of_pos ht]
     _ = eLpNorm f (.ofReal p.toReal) μ := (eLpNorm_eq_distribution hf (ENNReal.toReal_pos p_zero p_eq_top)).symm
     _ = eLpNorm f p μ := by congr; exact p_eq.symm
-
-lemma eLorentzNorm'_exponent_top {f : α → ε} {μ : Measure α} :
-    eLorentzNorm' f p ∞ μ = ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹ := by
-  unfold eLorentzNorm'
-  simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv,
-    eLpNorm_exponent_top, one_mul]
-  rw [eLpNormEssSup_withDensity (by fun_prop) (by simp)]
-  apply eLpNormEssSup_nnreal_eq_iSup_nnreal (f := fun t ↦ t * distribution f t μ ^ p.toReal⁻¹)
-  intro a x ha
-  apply ContinuousWithinAt.ennreal_mul continuous_id'.continuousWithinAt
-    ((continuousWithinAt_distribution _).ennrpow_const _)
-  · rw [or_iff_not_imp_left]
-    push Not
-    intro h
-    exfalso
-    rw [h] at ha
-    simp at ha
-  · right
-    simp
-
-lemma eLorentzNorm'_eq_wnorm (p_ne_top : p ≠ ∞) {f : α → ε} {μ : Measure α} :
-    eLorentzNorm' f p ∞ μ = wnorm f p μ := by
-  rw [wnorm_ne_top p_ne_top, eLorentzNorm'_exponent_top, wnorm']
-
-lemma eLorentzNorm_eq_wnorm [TopologicalSpace ε] (p_ne_zero : p ≠ 0) {f : α → ε} {μ : Measure α}
-  (hf : AEStronglyMeasurable f μ) :
-    eLorentzNorm f p ∞ μ = wnorm f p μ := by
-  by_cases p_ne_top : p = ⊤
-  · rw [p_ne_top]
-    simp [hf]
-  rw [eLorentzNorm_eq_eLorentzNorm' p_ne_zero p_ne_top hf, eLorentzNorm'_eq_wnorm p_ne_top]
 
 --Theorem 6.6 in https://doi.org/10.1007/978-3-319-30034-4
 lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → ε} {μ : Measure α} :
