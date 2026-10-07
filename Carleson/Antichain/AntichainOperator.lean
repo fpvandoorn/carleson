@@ -288,7 +288,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
         ∫⁻ y, M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by gcongr; exact Measure.restrict_le_self
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (eLpNorm (M14 𝔄 (q₆ a) g) 2 * eLpNorm g 2) := by
-      conv_rhs => enter [2, 2]; rw [← eLpNorm_enorm]
+      rw [← eLpNorm_enorm _ hg.aestronglyMeasurable]
       gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
         measurable_maximalFunction.aemeasurable hg.enorm.aemeasurable
@@ -318,7 +318,8 @@ lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (hf : Measurable f)
       conv_rhs => enter [2, x]; rw [← RCLike.enorm_conj, ← enorm_mul]
       exact enorm_integral_le_lintegral_enorm _
     _ ≤ eLpNorm (adjointCarlesonSum 𝔄 g) 2 * eLpNorm f 2 := by
-      conv_rhs => rw [← eLpNorm_enorm, ← eLpNorm_enorm]
+      rw [← eLpNorm_enorm _ bg.adjointCarlesonSum.aestronglyMeasurable,
+        ← eLpNorm_enorm _ bf.aestronglyMeasurable]
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
         bg.adjointCarlesonSum.enorm.aestronglyMeasurable.aemeasurable
         bf.enorm.aestronglyMeasurable.aemeasurable
@@ -446,16 +447,15 @@ theorem antichain_operator' {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
   rw [← integral_indicator measurableSet_G]
   simp_rw [indicator_mul_left, ← Function.comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
-  apply (antichain_operator h𝔄 hf hfF
-    (((measurable_carlesonSum hf).div (measurable_ofReal.comp (measurable_carlesonSum hf).norm)
-      ).indicator measurableSet_G)
-    (fun _ ↦ by simp [indicator]; split_ifs <;> simp [I])).trans
+  have hm := ((measurable_carlesonSum (ℭ := 𝔄) hf).div
+    (measurable_ofReal.comp (measurable_carlesonSum (ℭ := 𝔄) hf).norm)).indicator measurableSet_G
+  apply (antichain_operator h𝔄 hf hfF hm (fun _ ↦ by simp [indicator]; split_ifs <;> simp [I])).trans
   gcongr
   calc
   _ ≤ eLpNorm (G.indicator (fun x ↦ 1) : X → ℝ) 2 volume :=
-    eLpNorm_mono (fun x ↦ by simp only [indicator]; split_ifs <;> simp [I])
+    eLpNorm_mono hm.aestronglyMeasurable (fun x ↦ by simp only [indicator]; split_ifs <;> simp [I])
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const measurableSet_G (by norm_num) (by norm_num)]
+    rw [eLpNorm_indicator_const measurableSet_G.nullMeasurableSet (by norm_num) (by norm_num)]
     simp
 
 /-- Version of the antichain operator theorem, but controlling the integral of the norm instead of
@@ -470,7 +470,7 @@ theorem antichain_operator_le_volume {A : Set X} (h𝔄 : IsAntichain (· ≤ ·
   gcongr
   calc
   _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume :=
-    eLpNorm_mono (fun x ↦ (hfF x).trans (le_abs_self _))
+    eLpNorm_mono hf.aestronglyMeasurable (fun x ↦ (hfF x).trans (le_abs_self _))
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const measurableSet_F (by norm_num) (by norm_num)]
+    rw [eLpNorm_indicator_const measurableSet_F.nullMeasurableSet (by norm_num) (by norm_num)]
     simp
