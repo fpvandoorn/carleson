@@ -6,11 +6,18 @@ Authors: Leo Diedering
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Basics
-public import Mathlib.MeasureTheory.Constructions.UnitInterval
-public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Regular
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
+public import Mathlib.Topology.Order.LeftRightLim
 
--- Upstreaming status: Needs significant clean-up (refactoring, code style, extracting lemmas,
--- moving to proper location etc.)
+/-!
+# Measures without atoms on metric spaces
+
+Criteria for measures on (pseudo)metric spaces to have no atoms, in terms of the measures of
+balls around a fixed center.
+-/
+
+-- Upstreaming status: to be determined
 
 public section
 
@@ -104,17 +111,19 @@ lemma of_metric {α : Type*} [PseudoMetricSpace α] [ProperSpace α]
   rw [← hr] at hμt hμts
   use Metric.ball c r ∩ s, inter_subset_right, measurableSet_ball.inter meas_s
 
-instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
-    [FiniteDimensional ℝ E] (μ : Measure E) [μ.IsAddHaarMeasure] [Nontrivial E] : NoAtoms' μ := by
-  apply of_metric 0
-  apply addHaar_closedBall_eq_addHaar_ball
-
---TODO: Prove more general result, possibly using this :
---https://math.stackexchange.com/questions/3881683/does-mu-x-0-imply-non-atomic-for-radon-measure
---#check MeasureTheory.Measure.IsAddHaarMeasure.noAtoms
---#check MeasureTheory.Measure.prod.instNoAtoms_snd
-
-instance : NoAtoms' (volume : Measure unitInterval) := subtype measurableSet_Icc
+/-- Version of `of_metric` for metric spaces with the Borel σ-algebra, derived from
+`of_innerRegularCompactLTTop`: the assumption implies that all spheres around `c`, and hence all
+singletons, are null sets. -/
+theorem of_metric_of_borelSpace {α : Type*} [MetricSpace α] [ProperSpace α]
+    [MeasurableSpace α] [BorelSpace α] {μ : Measure α} [IsFiniteMeasureOnCompacts μ]
+    (c : α) (hμ : ∀ r : ℝ, μ (Metric.closedBall c r) = μ (Metric.ball c r)) :
+    NoAtoms' μ := by
+  have : NullSingletonClass μ := ⟨fun x ↦ by
+    apply measure_mono_null (t := Metric.closedBall c (dist x c) \ Metric.ball c (dist x c))
+    · simp
+    · rw [measure_sdiff Metric.ball_subset_closedBall measurableSet_ball.nullMeasurableSet
+        measure_ball_lt_top.ne, hμ, tsub_self]⟩
+  exact of_innerRegularCompactLTTop
 
 end NoAtoms'
 
