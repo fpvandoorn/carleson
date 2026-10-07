@@ -2,6 +2,7 @@ module
 
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Mathlib.MeasureTheory.Function.AEEqOfLIntegral
+public import Mathlib.MeasureTheory.Function.StronglyMeasurable.AEStronglyMeasurable
 
 public section
 
