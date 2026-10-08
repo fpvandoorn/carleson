@@ -78,7 +78,7 @@ theorem exceptional_set_carleson' {f : ℝ → ℂ} (cont_f : Continuous f)
         + distribution (fun x ↦ ⨆ N, ‖S_ N (f₀ - f) x‖ₑ) (δ / 2) (volume.restrict (Set.Ioc 0 (2 * π))) := by
       apply distribution_add_le.trans
       gcongr
-      exact distribution_add_le
+      exact distribution_add_le (f := fun x ↦ ‖f x - f₀ x‖ₑ)
     _ ≤ ε / 2 + 0 + ε / 2 := by
       gcongr
       · norm_cast
