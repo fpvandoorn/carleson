@@ -554,13 +554,13 @@ lemma lintegral_globalMaximalFunction_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderCo
     _ ≤ volume G ^ (q' : ℝ)⁻¹ *
         (C2_0_6 (defaultA a) 1 q * eLpNorm (F.indicator (1 : X → ℝ)) q) := by
       gcongr
-      · rw [Pi.one_def]; convert! eLpNorm_indicator_const_le (1 : ℝ≥0∞) q'
+      · convert eLpNorm_indicator_const_le (c := (1 : ℝ≥0∞)) q' mG.nullMeasurableSet
         rw [enorm_eq_self, coe_toReal, one_div, one_mul]
       · refine (hasStrongType_maximalFunction zero_lt_one hq.1 _ ?_).2
-        rw [Pi.one_def]; exact memLp_indicator_const _ mF _ (.inr bF.measure_lt_top.ne)
+        rw [Pi.one_def]; exact memLp_indicator_const _ mF.nullMeasurableSet _ (.inr bF.measure_lt_top.ne)
     _ ≤ _ := by
       rw [← mul_assoc, mul_comm (_ ^ _)]; gcongr
-      rw [Pi.one_def]; convert! eLpNorm_indicator_const_le (1 : ℝ) q
+      convert eLpNorm_indicator_const_le (c := (1 : ℝ)) q mF.nullMeasurableSet
       rw [enorm_one, coe_toReal, one_div, one_mul]
 
 /-- The operator T_{R₁, R₂, R} introduced in Lemma 3.0.2. -/
@@ -639,8 +639,8 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
         · trans ⨆ s₂ ∈ Finset.Icc (L302 a R₁) B, ‖T_S Q (L302 a R₁) s₂ f x‖ₑ
           · have : U302 a R₂ ∈ Finset.Icc (L302 a R₁) B :=
               Finset.mem_Icc.mpr ⟨hul, (Finset.mem_Icc.mp hB.2).2⟩
-            exact le_biSup (α := ℝ≥0∞) _ this
-          · exact le_biSup (α := ℝ≥0∞) _ hB.1
+            exact le_iSup₂_of_le _ this le_rfl
+          · exact le_iSup₂_of_le _ hB.1 le_rfl
       · rfl
     _ = (∫⁻ x in G, ⨆ s₁ ∈ Finset.Icc (-B : ℤ) B, ⨆ s₂ ∈ Finset.Icc s₁ B, ‖T_S Q s₁ s₂ f x‖ₑ) +
         4 * C2_1_3 a * ∫⁻ x in G, globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
