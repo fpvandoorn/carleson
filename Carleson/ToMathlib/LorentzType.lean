@@ -3,7 +3,7 @@ module
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
-public import Carleson.ToMathlib.WeakType
+public import Carleson.ToMathlib.HasType
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.RCLike
 
 @[expose] public section
@@ -18,40 +18,6 @@ namespace MeasureTheory
 
 variable {α α' ε₁ ε₂ : Type*} {m0 : MeasurableSpace α} {m : MeasurableSpace α'}
   {μ : Measure α} {ν : Measure α'} [TopologicalSpace ε₁] [TopologicalSpace ε₂] {p q : ℝ≥0∞}
-
-/-- An operator has Lorentz type `(p, r, q, s)` if it is bounded as a map
-from `L^{q, s}` to `L^{p, r}`. `HasLorentzType T p r q s μ ν c` means that
-`T` has Lorentz type `(p, r, q, s)` w.r.t. measures `μ`, `ν` and constant `c`. -/
-def HasLorentzType [ENorm ε₁] [ENorm ε₂] (T : (α → ε₁) → (α' → ε₂))
-    (p r q s : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
-  ∀ f : α → ε₁, MemLorentz f p r μ → AEStronglyMeasurable (T f) ν ∧
-    eLorentzNorm (T f) q s ν ≤ c * eLorentzNorm f p r μ
-
-lemma hasStrongType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂]
-  {T : (α → ε₁) → (α' → ε₂)} {c : ℝ≥0∞} :
-    HasStrongType T p q μ ν c ↔ HasLorentzType T p p q q μ ν c := by
-  unfold HasStrongType HasLorentzType
-  constructor
-  · intro h f hf
-    have hf' := MemLorentz_iff_MemLp.mp hf
-    have := h f hf'
-    rwa [eLorentzNorm_eq_eLpNorm this.1, eLorentzNorm_eq_eLpNorm hf'.1]
-  · intro h f hf
-    have := h f (MemLorentz_iff_MemLp.mpr hf)
-    rwa [← eLorentzNorm_eq_eLpNorm this.1, ← eLorentzNorm_eq_eLpNorm hf.1]
-
-lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂]
-  {T : (α → ε₁) → (α' → ε₂)} {c : ℝ≥0∞} :
-    HasWeakType T p q μ ν c ↔ HasLorentzType T p p q ∞ μ ν c := by
-  constructor
-  · intro h f hf
-    have hf' := MemLorentz_iff_MemLp.mp hf
-    rw [eLorentzNorm_eq_eLpNorm hf'.1]
-    exact h f hf'
-  · intro h f hf
-    rw [← eLorentzNorm_eq_eLpNorm hf.1]
-    exact h f (MemLorentz_iff_MemLp.mpr hf)
-
 
 variable {β : Type*} [Zero β] [One β]
 

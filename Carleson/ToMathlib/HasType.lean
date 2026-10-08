@@ -6,10 +6,10 @@ public import Carleson.ToMathlib.WNorm
 @[expose] public section
 
 /-!
-# Weak and strong type of operators
+# Weak, strong and Lorentz type of operators
 
-The predicates `HasWeakType`, `HasBoundedWeakType`, `HasStrongType` and `HasBoundedStrongType`
-for operators between function spaces, and their basic properties.
+The predicates `HasWeakType`, `HasBoundedWeakType`, `HasStrongType`, `HasBoundedStrongType` and
+`HasLorentzType` for operators between function spaces, and their basic properties.
 -/
 
 -- Upstreaming status: all of this should go into mathlib, eventually.
@@ -57,6 +57,14 @@ def HasStrongType {α α' : Type*}
   ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 -- `HasBoundedStrongType` has moved to `Defs.lean`
+
+/-- An operator has Lorentz type `(p, r, q, s)` if it is bounded as a map
+from `L^{q, s}` to `L^{p, r}`. `HasLorentzType T p r q s μ ν c` means that
+`T` has Lorentz type `(p, r, q, s)` w.r.t. measures `μ`, `ν` and constant `c`. -/
+def HasLorentzType (T : (α → ε₁) → (α' → ε₂))
+    (p r q s : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
+  ∀ f : α → ε₁, MemLorentz f p r μ → AEStronglyMeasurable (T f) ν ∧
+    eLorentzNorm (T f) q s ν ≤ c * eLorentzNorm f p r μ
 
 end Defs
 
@@ -203,6 +211,39 @@ lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞
   exact ⟨(h f hf).1.const_smul _, le_of_le_of_eq (mul_le_mul_right (h f hf).2 ‖r‖ₑ) (by simp; rfl)⟩
 
 end HasBoundedStrongType
+
+/-! ### Comparison with `HasLorentzType` -/
+
+section HasLorentzType
+
+variable [TopologicalSpace ε₁] [TopologicalSpace ε₂]
+
+lemma hasStrongType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂]
+  {T : (α → ε₁) → (α' → ε₂)} {c : ℝ≥0∞} :
+    HasStrongType T p q μ ν c ↔ HasLorentzType T p p q q μ ν c := by
+  unfold HasStrongType HasLorentzType
+  constructor
+  · intro h f hf
+    have hf' := MemLorentz_iff_MemLp.mp hf
+    have := h f hf'
+    rwa [eLorentzNorm_eq_eLpNorm this.1, eLorentzNorm_eq_eLpNorm hf'.1]
+  · intro h f hf
+    have := h f (MemLorentz_iff_MemLp.mpr hf)
+    rwa [← eLorentzNorm_eq_eLpNorm this.1, ← eLorentzNorm_eq_eLpNorm hf.1]
+
+lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂]
+  {T : (α → ε₁) → (α' → ε₂)} {c : ℝ≥0∞} :
+    HasWeakType T p q μ ν c ↔ HasLorentzType T p p q ∞ μ ν c := by
+  constructor
+  · intro h f hf
+    have hf' := MemLorentz_iff_MemLp.mp hf
+    rw [eLorentzNorm_eq_eLpNorm hf'.1]
+    exact h f hf'
+  · intro h f hf
+    rw [← eLorentzNorm_eq_eLpNorm hf.1]
+    exact h f (MemLorentz_iff_MemLp.mpr hf)
+
+end HasLorentzType
 
 variable {f g : α → ε}
 

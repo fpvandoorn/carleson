@@ -22,7 +22,8 @@ Upstreaming status:
 - truncations and their properties definitely belong into mathlib
 - the details about cutoff functions and a particular scale function
   will depend on the particular proof chosen: design on the overall proof approach first
-- this file does not use WeakType; it does use helper lemmas in `InterpolatedExponents`, though.
+- this file does not use `wnorm` (`WNorm.lean`) or `HasType.lean`;
+  it does use helper lemmas in `InterpolatedExponents`, though.
 -/
 
 @[expose] public section
