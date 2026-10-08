@@ -30,13 +30,14 @@ theorem two_sided_metric_carleson_hasRestrictedWeakType [Countable (Θ X)] (ha :
       HasRestrictedWeakType (carlesonOperator K) q q' volume volume (C10_0_1 a q) := by
   unfold HasRestrictedWeakType
   intro F G hF F_finite hG G_finite
-  constructor
-  · rename_i m kernel cf cancel count
+  have aesm_T : AEStronglyMeasurable (carlesonOperator K (F.indicator fun _ ↦ 1)) := by
+    rename_i m kernel cf cancel count
     have : IsOneSidedKernel a K := by infer_instance
     set kpd : KernelProofData a K := KernelProofData.mk d ha cf this
     apply (carlesonOperator_measurable _).aestronglyMeasurable
     apply (locallyIntegrable_const _).indicator hF
-  rw [eLpNorm_one_eq_lintegral_enorm, mul_assoc, mul_comm (volume _ ^ _), ← mul_assoc]
+  refine ⟨aesm_T, ?_⟩
+  rw [eLpNorm_one_eq_lintegral_enorm aesm_T.restrict, mul_assoc, mul_comm (volume _ ^ _), ← mul_assoc]
   simp_rw [enorm_eq_self]
   simp only [toReal_inv, coe_toReal]
   apply two_sided_metric_carleson ha hq hqq' hF hG hT
@@ -73,19 +74,21 @@ theorem two_sided_metric_carleson_hasLorentzType [Countable (Θ X)] (ha : 4 ≤ 
       apply (hf.memLp _).locallyIntegrable <;> simp [hq.1.le]
     have bound {n : ℕ} : ∀ᵐ (a : X), ‖fs n a‖ ≤ ‖f a‖ := by
       filter_upwards with x using (h_norm_monotone x).ge_of_tendsto (h_lim x).norm _
+    have meas_fs (n : ℕ) : Measurable (carlesonOperator K (fs n)) :=
+      carlesonOperator_measurable (hf.mono (h_meas n) bound)
     calc _
       _ ≤ eLpNorm (fun x ↦ Filter.liminf (fun n ↦ carlesonOperator K (fs n) x) Filter.atTop) 1 (volume.restrict G) := by
-        apply eLpNorm_mono_enorm
+        apply eLpNorm_mono_enorm (carlesonOperator_measurable hf).aestronglyMeasurable.restrict
         intro x
         apply carlesonOperator_le_liminf_carlesonOperator_of_tendsto (norm ∘ f)
           (Filter.Eventually.of_forall h_meas) _ hf.norm (Filter.Eventually.of_forall h_lim)
         filter_upwards; simpa
       _ ≤ Filter.liminf (fun n ↦ eLpNorm (carlesonOperator K (fs n)) 1 (volume.restrict G)) Filter.atTop := by
-        rw [eLpNorm_one_eq_lintegral_enorm]
-        simp_rw [eLpNorm_one_eq_lintegral_enorm, enorm_eq_self]
-        apply lintegral_liminf_le
-        intro n
-        exact carlesonOperator_measurable (hf.mono (h_meas _) bound)
+        rw [eLpNorm_one_eq_lintegral_enorm (Measurable.liminf meas_fs).aestronglyMeasurable.restrict]
+        simp_rw [fun n ↦ eLpNorm_one_eq_lintegral_enorm (μ := volume.restrict G)
+            (meas_fs n).aestronglyMeasurable.restrict,
+          enorm_eq_self]
+        exact lintegral_liminf_le meas_fs
     exact Filter.liminf_le_limsup
   · simp
   · intro f g hfg
