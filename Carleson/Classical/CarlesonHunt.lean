@@ -49,7 +49,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
     rw [p_def, coe_toNNReal this]
     exact min_le_right _ _
   have meas_f : AEStronglyMeasurable f :=
-    periodic_f.aestronglyMeasurable (t := 0) (by simp [hf.1])
+    periodic_f.aestronglyMeasurable (t := 0) (by simp [hf.aestronglyMeasurable])
   have one_lt_p : (1 : ENNReal) < p := by simp [hp.1]
   have δ2pos : 0 < δ / 2 := by positivity
   have δ4pos : 0 < δ / 4 := by positivity
@@ -100,13 +100,13 @@ theorem exceptional_set_carleson {f : ℝ → ℂ} (periodic_f : f.Periodic (2 *
         + distribution (fun x ↦ ⨆ N, ‖S_ N (f₀ - f) x‖ₑ) (δ / 2) (volume.restrict (Set.Ioc 0 (2 * π))) := by
       apply distribution_add_le.trans
       gcongr
-      exact distribution_add_le
+      exact distribution_add_le (f := fun x ↦ ‖f x - f₀ x‖ₑ)
     _ ≤ ε / 2 + 0 + ε / 2 := by
       gcongr
       · norm_cast
         apply distribution_le_of_eLpNorm_le (p := p) (by positivity) (by positivity [hp.1])
-          (meas_f.sub contDiff_f₀.continuous.aestronglyMeasurable).enorm.aestronglyMeasurable.restrict
-        simp only [eLpNorm_enorm]
+        rw [eLpNorm_enorm (fun x ↦ f x - f₀ x)
+          (meas_f.sub contDiff_f₀.continuous.aestronglyMeasurable).restrict]
         apply hf₀.trans
         simp
       · simp only [gt_iff_lt, nonpos_iff_eq_zero]
@@ -181,7 +181,7 @@ local instance : Fact (0 < 2 * π) where
 theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ℝ≥0∞} (hp : 1 < p) (hf : MemLp f p) :
     ∀ᵐ x, Tendsto (partialFourierSum' · f x) atTop (𝓝 (f x)) := by
   wlog meas_f : Measurable f generalizing f
-  · rcases hf.1 with ⟨g, meas_g, hfg⟩
+  · rcases hf.aestronglyMeasurable with ⟨g, meas_g, hfg⟩
     have hg : MemLp g p volume := by
       rwa [memLp_congr_ae hfg.symm]
     have := this hg meas_g.measurable
@@ -206,10 +206,8 @@ theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ℝ≥0∞} (
   have hg : MemLp g p (volume.restrict (Set.Ioc 0 (2 * π))) := by
     unfold g
     nth_rw 2 [← zero_add (2 * π)]
-    constructor
-    · apply (hf.1.comp_measurePreserving (AddCircle.measurePreserving_mk _ _))
-    · rw [eLpNorm_eq_eLpNorm_liftIoc' hf.1]
-      exact hf.2
+    rw [MemLp, eLpNorm_eq_eLpNorm_liftIoc' hf.aestronglyMeasurable]
+    exact hf
   apply ae_tendsto_zero_of_distribution_le
   intro δ δpos ε εpos
   rcases exceptional_set_carleson periodic_g hp hg δpos εpos with ⟨N₀, hN₀⟩
