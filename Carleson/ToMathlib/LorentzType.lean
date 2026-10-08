@@ -121,8 +121,8 @@ def HasRestrictedWeakType' [TopologicalSpace β] [ENorm β] [ENorm ε₂] (T : (
 variable {ε ε' : Type*}
 
 /-- The weak continuity assumption needed for `HasRestrictedWeakType.hasLorentzType_helper`. -/
-def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε]
-  [Preorder ε] [ENorm ε'] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
+def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε] [Preorder ε] [TopologicalSpace ε']
+  [ENorm ε'] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
   ∀ {fs : ℕ → SimpleFunc α ε} (_ : Monotone fs) (_ : BddAbove (range (fun n ↦ ⇑(fs n)))),
   let f := fun x ↦ ⨆ n, (fs n) x;
   ∀ (_ : MemLorentz f p 1 μ) (G : Set α'),
