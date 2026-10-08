@@ -111,6 +111,7 @@ public import Carleson.ToMathlib.RealInterpolation.Misc
 public import Carleson.ToMathlib.Rearrangement
 public import Carleson.ToMathlib.Topology.ContinuousOn
 public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
+public import Carleson.ToMathlib.WNorm
 public import Carleson.ToMathlib.WeakType
 public import Carleson.TwoSidedCarleson.Basic
 public import Carleson.TwoSidedCarleson.MainTheorem
