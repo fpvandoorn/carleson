@@ -96,8 +96,13 @@ public import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Basics
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Defs
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Gaussian
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Haar
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Metric
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Pi
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Prod
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Regular
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.WithDensity
 public import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 public import Carleson.ToMathlib.MinLayer
 public import Carleson.ToMathlib.Misc

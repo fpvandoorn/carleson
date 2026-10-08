@@ -30,13 +30,13 @@ variable {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α} {s : Set α}
 either have measure `0` or `μ s`. -/
 @[expose]
 def IsAtom (s : Set α) (μ : Measure α) :=
-  0 < μ s ∧ ∀ t ⊆ s, MeasurableSet t → μ t = 0 ∨ μ t = μ s
+  MeasurableSet s ∧ 0 < μ s ∧ ∀ t ⊆ s, MeasurableSet t → μ t = 0 ∨ μ t = μ s
 
 /-- Measure `μ` *has no atoms* if for any measurable set `s` with positive `μ`-measure,
 there exists a measurable `t ⊆ s` such that `0 < μ t < μ s`. While this implies `μ {x} = 0`,
 the converse is not true. -/
 class NoAtoms' (μ : Measure α) : Prop where
-  no_atoms : ∀ s, MeasurableSet s → ¬ IsAtom s μ
+  no_atoms : ∀ s, ¬ IsAtom s μ
 
 export MeasureTheory.NoAtoms' (no_atoms)
 
@@ -53,10 +53,10 @@ theorem no_atoms_iff :
     use t, ts, meas_t, ht, lt_of_le_of_ne (measure_mono ts) ht'
   · intro h
     apply NoAtoms'.mk
-    intro s meas_s
+    intro s --meas_s
     unfold IsAtom
     push Not
-    intro hs
+    intro meas_s hs
     rcases h s meas_s hs with ⟨t, ts, meas_t, ht, ht'⟩
     use t, ts, meas_t, ht.ne', ht'.ne
 
@@ -97,6 +97,24 @@ theorem exists_measurable_subset_lt₀ {s : Set α} (meas_s : NullMeasurableSet 
   rcases exists_measurable_subset_lt hr hs with ⟨t, hts, ht⟩
   use t, hts.trans hrs
 
+/- The assumptions `MeasurableSingletonClass (NullMeasurableSpace α μ)` resp. `SigmaFinite μ` in
+the following two instances cannot both be dropped. By the proof of `instNullSingletonClass'`,
+a counterexample needs a point `x` such that `{x}` is not null-measurable and `μ {x} = ∞`.
+Sketch of such a counterexample: let `Ω` be uncountable, `ω₀ ∈ Ω`, `X := Ω × [0, 1]`, and call
+`B ⊆ X` measurable if all sections `B_ω` are Borel, `B_ω₀ = ∅` or `B_ω₀ = [0, 1]`, and
+`B_ω = B_ω₀` for all but countably many `ω`. This is a σ-algebra; put `μ B := ∑ ω, volume B_ω`.
+* `μ` has no atoms: let `B` be measurable with `μ B > 0`. If `B_ω₀ = ∅`, then `B` is the countable
+  union of the `{ω} × B_ω` with `ω ≠ ω₀`, so `volume B_ω > 0` for some `ω ≠ ω₀`. As `volume` has no
+  atoms, there is a Borel `A ⊆ B_ω` with `0 < volume A < volume B_ω`, and `t := {ω} × A ⊆ B` is
+  measurable with `0 < μ t < volume B_ω ≤ μ B` (whether or not `μ B` is finite). If
+  `B_ω₀ = [0, 1]`, then `μ B = ∞` and `B` contains some `{ω} × [0, 1]` of measure `1`.
+* For `x := (ω₀, 0)`, every measurable `B ∋ x` contains `{ω} × [0, 1]` for all but countably
+  many `ω`, so `μ {x} = ∞`.
+* `μ` is not σ-finite, since all measurable sets of finite measure satisfy `B_ω₀ = ∅`.
+* `{x}` is not null-measurable: otherwise there is a measurable `M` with `μ ({x} ∆ M) = 0`, so
+  `N := toMeasurable μ ({x} ∆ M)` is measurable with `μ N = 0` and `{x} ∆ M ⊆ N`. Then `N_ω₀ = ∅`,
+  i.e. `M` and `{x}` agree on `{ω₀} × [0, 1]`, contradicting measurability of `M`.
+-/
 instance instNullSingletonClass [MeasurableSingletonClass (NullMeasurableSpace α μ)] :
     NullSingletonClass μ where
   measure_singleton := by
@@ -121,7 +139,7 @@ instance instNullSingletonClass' [SigmaFinite μ] :
     set y := toMeasurable μ {x}
     rw [← measure_toMeasurable] at hx
     have : IsAtom y μ := by
-      use hx
+      use measurableSet_toMeasurable _ _, hx
       intro t hty meas_t
       rw [← inter_eq_right.mpr hty, measure_toMeasurable_inter meas_t measure_singleton_lt_top.ne]
       by_cases hxt : x ∈ t
@@ -129,11 +147,7 @@ instance instNullSingletonClass' [SigmaFinite μ] :
         rw [inter_eq_left.mpr (by simpa), measure_toMeasurable]
       · left
         rw [singleton_inter_eq_empty.mpr hxt, measure_empty]
-    exact no_atoms _ (measurableSet_toMeasurable _ _) this
-
-/- TODO: add sketch of counterexample(s) showing that we really need
-   `MeasurableSingletonClass (NullMeasurableSpace α μ)` resp. `SigmaFinite μ`
--/
+    exact no_atoms _ this
 
 /-
 instance instNullSingletonClass'' :
