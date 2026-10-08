@@ -604,9 +604,9 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   have czw11 := czOperator_weak_1_1 ha hr (hT r hr)
   unfold HasBoundedWeakType at czw11
   have := (czw11 (f := g1) bfs_g1).2
-  unfold wnorm wnorm' distribution at this
-  simp_rw [one_ne_top, reduceIte, toReal_one, inv_one, rpow_one,
-    iSup_le_iff] at this
+  rw [wnorm_ne_top (czw11 (f := g1) bfs_g1).1 one_ne_zero one_ne_top] at this
+  unfold wnorm' distribution at this
+  simp_rw [toReal_one, inv_one, rpow_one, iSup_le_iff] at this
   have := this (C10_1_4 a * (globalMaximalFunction volume 1 g x).toNNReal)
   have constants : C10_1_4 a = C10_0_3 a * (2 ^ (a + 2)) := by rw [C10_1_4_def, C10_0_3_def]; ring
   nth_rw 1 [constants] at this

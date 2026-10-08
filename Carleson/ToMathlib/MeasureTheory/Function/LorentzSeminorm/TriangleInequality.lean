@@ -29,9 +29,19 @@ variable {α ε : Type*} {m : MeasurableSpace α}
   {p q : ℝ≥0∞} {μ : Measure α} {f g : α → ε}
 
 open ENNReal in
-theorem eLorentzNorm_add_le'' :
+theorem eLorentzNorm_add_le'' [ContinuousAdd ε] :
     eLorentzNorm (f + g) p q μ ≤ 2 ^ p.toReal⁻¹ * LpAddConst q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
-  unfold eLorentzNorm
+  have hC : 2 ^ p.toReal⁻¹ * LpAddConst q ≠ 0 :=
+    mul_ne_zero (by simp) (zero_lt_one.trans_le one_le_LpAddConst).ne'
+  by_cases hf : AEStronglyMeasurable f μ
+  swap
+  · rw [eLorentzNorm_of_not_aestronglyMeasurable hf, top_add, mul_top hC]
+    exact le_top
+  by_cases hg : AEStronglyMeasurable g μ
+  swap
+  · rw [eLorentzNorm_of_not_aestronglyMeasurable hg, add_top, mul_top hC]
+    exact le_top
+  simp only [eLorentzNorm, hf, hg, hf.add hg, ↓reduceIte]
   split_ifs with p_zero p_top q_zero q_top
   · simp
   · simp
@@ -225,7 +235,7 @@ open ENNReal in
 theorem eLorentzNorm_add_le [SigmaFinite μ] [ContinuousAdd ε] (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
      (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
       eLorentzNorm (f + g) p q μ ≤ eLorentzNorm f p q μ + eLorentzNorm g p q μ := by
-  unfold eLorentzNorm
+  simp only [eLorentzNorm, hf, hg, hf.add hg, ↓reduceIte]
   split_ifs with p_zero p_top q_zero q_top
   · simp
   · simp
@@ -239,9 +249,9 @@ theorem eLorentzNorm_add_le [SigmaFinite μ] [ContinuousAdd ε] (one_le_q : 1 �
     simp
   by_cases hfg' : eLorentzNorm' (f + g) p q μ = ⊤
   · have := eLorentzNorm_add_le'' (p := p) (q := q) (f := f) (g := g) (μ := μ)
-    rw [eLorentzNorm_eq_eLorentzNorm' p_zero p_top,
-        eLorentzNorm_eq_eLorentzNorm' p_zero p_top,
-        eLorentzNorm_eq_eLorentzNorm' p_zero p_top, hfg'] at this
+    rw [eLorentzNorm_eq_eLorentzNorm' p_zero p_top (hf.add hg),
+        eLorentzNorm_eq_eLorentzNorm' p_zero p_top hf,
+        eLorentzNorm_eq_eLorentzNorm' p_zero p_top hg, hfg'] at this
     simp only [top_le_iff] at this
     rw [mul_eq_top] at this
     rcases this with ⟨_, h⟩ | ⟨h, _⟩
@@ -311,7 +321,7 @@ lemma eLorentzNorm_add_le' [SigmaFinite μ] [ContinuousAdd ε] (hf : AEStronglyM
   unfold LorentzAddConst
   split_ifs with h
   · rcases h with p_zero | hr
-    · simp [p_zero]
+    · simp [p_zero, hf.add hg]
     rw [one_mul]
     exact eLorentzNorm_add_le hr.1 hr.2 hf hg
   · apply eLorentzNorm_add_le''
@@ -321,22 +331,23 @@ lemma eLorentzNorm_add_lt_top [SigmaFinite μ] [ContinuousAdd ε] (hf : MemLoren
     eLorentzNorm (f + g) p q μ < ⊤ := by
   calc
     eLorentzNorm (f + g) p q μ ≤ LorentzAddConst p q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) :=
-      eLorentzNorm_add_le' hf.1 hg.1
+      eLorentzNorm_add_le' hf.aestronglyMeasurable hg.aestronglyMeasurable
     _ < ∞ := by
       apply ENNReal.mul_lt_top LorentzAddConst_lt_top
-      exact ENNReal.add_lt_top.2 ⟨hf.2, hg.2⟩
+      exact ENNReal.add_lt_top.2 ⟨hf, hg⟩
 
 lemma MemLorentz.add [SigmaFinite μ] [ContinuousAdd ε] (hf : MemLorentz f p q μ)
     (hg : MemLorentz g p q μ) : MemLorentz (f + g) p q μ :=
-  ⟨AEStronglyMeasurable.add hf.1 hg.1, eLorentzNorm_add_lt_top hf hg⟩
+  eLorentzNorm_add_lt_top hf hg
 
 --currently unused
 open ENNReal in
-theorem eLorentzNorm_add_le_of_disjoint_support (h : Disjoint f.support g.support)
+theorem eLorentzNorm_add_le_of_disjoint_support [ContinuousAdd ε]
+  (h : Disjoint f.support g.support) (hf : AEStronglyMeasurable f μ)
   (hg : AEStronglyMeasurable g μ) :
     eLorentzNorm (f + g) p q μ
       ≤ (LpAddConst p) * (LpAddConst q) * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
-  unfold eLorentzNorm
+  simp only [eLorentzNorm, hf, hg, hf.add hg, ↓reduceIte]
   have : eLpNormEssSup (f + g) μ ≤ LpAddConst p * LpAddConst q * (eLpNormEssSup f μ + eLpNormEssSup g μ) := by
     apply eLpNormEssSup_add_le.trans
     nth_rw 1 [← one_mul (_ + _)]

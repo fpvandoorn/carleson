@@ -1,6 +1,7 @@
 module
 
 public import Carleson.ToMathlib.Misc
+public import Mathlib.MeasureTheory.Function.LpSeminorm.ChebyshevMarkov
 
 -- Upstreaming status: all of this should go into mathlib, eventually.
 -- Most lemmas have the right form, but proofs can often be golfed.
@@ -509,5 +510,100 @@ lemma distribution_le_of_eLpNorm_le {ε' : Type*} [TopologicalSpace ε'] [Contin
 end distribution
 
 end ENorm
+
+section ContinuousENorm
+
+variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
+
+/-- A function in `L^p` for `0 < p < ∞` has finite distribution function at every `t > 0`,
+by the Chebyshev–Markov inequality. -/
+lemma distribution_lt_top (hf : MemLp f p μ) (p_pos : 0 < p) (p_ne_top : p ≠ ∞)
+    {t : ℝ≥0} (ht : 0 < t) :
+    distribution f t μ < ∞ := calc
+  _ ≤ μ {x | (t : ℝ≥0∞) ≤ ‖f x‖ₑ} := by
+    unfold distribution
+    exact measure_mono fun x (hx : (t : ℝ≥0∞) < ‖f x‖ₑ) ↦ (hx.le : (t : ℝ≥0∞) ≤ ‖f x‖ₑ)
+  _ ≤ (t : ℝ≥0∞)⁻¹ ^ p.toReal * eLpNorm f p μ ^ p.toReal :=
+    meas_ge_le_mul_pow_eLpNorm_enorm μ p_pos.ne' p_ne_top hf.1 (by simpa using ht.ne') (by simp)
+  _ < ∞ := mul_lt_top (rpow_lt_top_of_nonneg toReal_nonneg (by simpa using ht.ne'))
+    (rpow_lt_top_of_nonneg toReal_nonneg hf.2.ne)
+
+end ContinuousENorm
+
+section ContinuousENormExtra
+
+variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
+
+lemma distribution_le [MeasurableSpace ε] [OpensMeasurableSpace ε]
+    {c : ℝ≥0∞} (hc : c ≠ 0) {μ : Measure α} (hf : AEMeasurable f μ) :
+    distribution f c μ ≤ c⁻¹ * (∫⁻ y, ‖f y‖ₑ ∂μ) := by
+  by_cases hc_top : c = ⊤
+  · simp [hc_top]
+  apply (mul_le_iff_le_inv hc hc_top).mp
+  simp_rw [distribution, ← setLIntegral_one, ← lintegral_const_mul' _ _ hc_top, mul_one]
+  refine le_trans (lintegral_mono_ae ?_) (setLIntegral_le_lintegral _ _)
+  apply ae_restrict_mem₀ _ |>.mono
+  · grind
+  · exact hf.enorm.nullMeasurableSet_preimage measurableSet_Ioi
+
+end ContinuousENormExtra
+
+section SMul
+
+variable {ε' : Type*} [TopologicalSpace ε'] [ESeminormedAddCommMonoid ε'] [SMul ℝ≥0 ε']
+  [ENormSMulClass ℝ≥0 ε']
+
+-- TODO: this lemma and its primed version could be unified using a `NormedSemifield` typeclass
+-- (which includes NNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
+-- Investigate if this is worthwhile when upstreaming this to mathlib.
+lemma distribution_smul_left {f : α → ε'} {c : ℝ≥0} (hc : c ≠ 0) :
+    distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
+  have h₀ : ‖c‖ₑ ≠ 0 := by
+    have : ‖c‖ₑ = ‖(c : ℝ≥0∞)‖ₑ := rfl
+    rw [this, enorm_ne_zero]
+    exact ENNReal.coe_ne_zero.mpr hc
+  unfold distribution
+  congr with x
+  simp only [Pi.smul_apply]
+  rw [← @ENNReal.mul_lt_mul_iff_left (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
+    enorm_smul _, ENNReal.div_mul_cancel h₀ coe_ne_top, mul_comm]
+
+variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [NormSMulClass 𝕜 E]
+  {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [NormSMulClass 𝕜 E']
+
+lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
+    distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
+  have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
+  unfold distribution
+  congr with x
+  simp only [Pi.smul_apply]
+  rw [← @ENNReal.mul_lt_mul_iff_left (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
+    enorm_smul _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+
+end SMul
+
+section NormedGroup
+
+variable [NormedAddCommGroup E₁] [NormedSpace 𝕜 E₁] [NormedAddCommGroup E₂] [NormedSpace 𝕜 E₂]
+  [NormedAddCommGroup E₃] [NormedSpace 𝕜 E₃]
+
+lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃) :
+    distribution (fun x ↦ L (f x) (g x)) (‖L‖ₑ * t * s) μ ≤
+    distribution f t μ + distribution g s μ := by
+  have h₀ : {x | ‖L‖ₑ * t * s < ‖(fun x ↦ (L (f x)) (g x)) x‖ₑ} ⊆
+      {x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ} := fun z hz ↦ by
+    simp only [mem_union, mem_ofPred_eq] at hz ⊢
+    contrapose! hz
+    calc
+      ‖(L (f z)) (g z)‖ₑ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ := by calc
+          _ ≤ ‖L (f z)‖ₑ * ‖g z‖ₑ := ContinuousLinearMap.le_opENorm (L (f z)) (g z)
+          _ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ :=
+            mul_le_mul' (ContinuousLinearMap.le_opENorm L (f z)) (by rfl)
+      _ ≤ _ := mul_le_mul' (mul_le_mul_right hz.1 ‖L‖ₑ) hz.2
+  calc
+    _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := measure_mono h₀
+    _ ≤ _ := measure_union_le _ _
+
+end NormedGroup
 
 end MeasureTheory

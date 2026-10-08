@@ -22,6 +22,6 @@ def Lorentz {α ε : Type*} (p q : ℝ≥0∞) {m0 : MeasurableSpace α} (μ : M
   zero_mem' := by simp [eLorentzNorm_congr_ae AEEqFun.coeFn_zero, eLorentzNorm_zero]
   add_mem' {f g} hf hg := by
     simp [eLorentzNorm_congr_ae (AEEqFun.coeFn_add f g),
-      eLorentzNorm_add_lt_top ⟨f.aestronglyMeasurable, hf⟩ ⟨g.aestronglyMeasurable, hg⟩]
+      eLorentzNorm_add_lt_top (p := p) (q := q) hf hg]
 
 end MeasureTheory
