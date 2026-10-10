@@ -461,7 +461,7 @@ lemma top_tiles_aux : ∑ m with m ∈ 𝔐 (X := X) k n, volume (𝓘 m : Set X
     _ = ∫⁻ t in Ioi 0, layervol k n t := by
       apply lintegral_eq_lintegral_meas_le
       · exact ae_of_all volume fun _ ↦
-          Finset.sum_nonneg' fun _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
+          Finset.sum_nonneg fun _ _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
       · exact Measurable.aemeasurable <|
           Finset.measurable_sum _ (fun _ _ ↦ measurable_one.indicator coeGrid_measurable)
     _ = _ := by

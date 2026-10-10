@@ -249,8 +249,7 @@ lemma aemeasurability_prod₂ {α : Type u_1} {β : Type u_3}
     ∀ᵐ y : β ∂ν, AEMeasurable (f ∘ (fun x ↦ Prod.mk x y)) μ := by
   have : AEMeasurable (f ∘ Prod.swap) (ν.prod μ) := by
     refine AEMeasurable.comp_measurable ?_ measurable_swap
-    rw [Measure.prod_swap]
-    assumption
+    rwa [Measure.prod_swap]
   convert! aemeasurability_prod₁ this -- perf: convert is faster than exact
 
 -- TODO: better name!
