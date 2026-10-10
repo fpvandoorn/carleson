@@ -34,13 +34,12 @@ lemma hasStrongType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormed
   · intro h f hf
     unfold MemLp MemLorentz at *
     rw [eLorentzNorm_eq_eLpNorm hf.1] at *
-    have := h f hf
+    have := h f hf.2
     rwa [eLorentzNorm_eq_eLpNorm this.1]
   · intro h f hf
-    unfold MemLp MemLorentz at *
-    rw [← eLorentzNorm_eq_eLpNorm hf.1] at *
-    have := h f hf
-    rwa [← eLorentzNorm_eq_eLpNorm this.1]
+    have hfm := hf.aestronglyMeasurable
+    have := h f ⟨hfm, by rwa [eLorentzNorm_eq_eLpNorm hfm]⟩
+    rwa [← eLorentzNorm_eq_eLpNorm this.1, ← eLorentzNorm_eq_eLpNorm hfm]
 
 
 variable {β : Type*} [Zero β] [One β]
@@ -94,7 +93,8 @@ lemma HasRestrictedWeakType.without_finiteness [ESeminormedAddMonoid ε₂] {T :
         rw [← nonpos_iff_eq_zero]
         apply (eLpNorm_restrict_le _ _ _ _).trans
         simp only [nonpos_iff_eq_zero]
-        apply eLpNorm_zero_of_ae_zero' (T_zero_of_ae_zero (indicator_meas_zero F_zero))
+        apply eLpNorm_zero_of_ae_enorm_zero' (hfC := T_zero_of_ae_zero (indicator_meas_zero F_zero))
+        exact (hT F ∅ hF (by simp [F_zero]) MeasurableSet.empty (by simp)).1
       simp only [not_lt, top_le_iff] at hG
       rw [hG]
       convert le_top
@@ -121,8 +121,8 @@ def HasRestrictedWeakType' [TopologicalSpace β] [ENorm β] [ENorm ε₂] (T : (
 variable {ε ε' : Type*}
 
 /-- The weak continuity assumption needed for `HasRestrictedWeakType.hasLorentzType_helper`. -/
-def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε]
-  [Preorder ε] [ENorm ε'] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
+def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε] [Preorder ε] [TopologicalSpace ε']
+  [ENorm ε'] (T : (α → ε) → (α' → ε')) (p : ℝ≥0∞) (μ : Measure α) (ν : Measure α') : Prop :=
   ∀ {fs : ℕ → SimpleFunc α ε} (_ : Monotone fs) (_ : BddAbove (range (fun n ↦ ⇑(fs n)))),
   let f := fun x ↦ ⨆ n, (fs n) x;
   ∀ (_ : MemLorentz f p 1 μ) (G : Set α'),
@@ -189,11 +189,9 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
           ext x
           congr
         _ ≤ ‖a‖ₑ * eLpNorm (T ((s.indicator (fun _ ↦ 1)))) 1 (ν.restrict G) := by
-          rw [← eLpNorm_const_smul']
-          apply eLpNorm_mono_enorm_ae
-          apply ae_restrict_le
-          simp only [Pi.smul_apply, enorm_smul]
-          apply T_submul
+          simpa [ENNReal.smul_def] using
+            eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' (T_meas (this ▸ hf')).restrict
+              (ae_restrict_le (T_submul a _)) 1
         _ ≤ ‖a‖ₑ * (c * (μ s) ^ p⁻¹.toReal * (ν G) ^ q⁻¹.toReal) := by
           gcongr
           apply hT.without_finiteness p_ne_zero p_ne_top hpq.symm.ne_zero q_ne_top c_pos T_zero_of_ae_zero s G hs hG
@@ -210,14 +208,11 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
       have hg' : MemLorentz g p 1 μ := ⟨by fun_prop, hfg'.2.trans_le' <| eLorentzNorm_mono_enorm_ae (by simp)⟩
       calc _
         _ ≤ eLpNorm (T f) 1 (ν.restrict G) + eLpNorm (T g) 1 (ν.restrict G) := by
-          nth_rw 2 [← eLpNorm_enorm]
-          nth_rw 3 [← eLpNorm_enorm]
-          apply (eLpNorm_add_le _ _ (by rfl)).trans'
-          · apply eLpNorm_mono_enorm_ae
-            simp only [Pi.add_apply, enorm_eq_self]
-            exact ae_restrict_le (T_subadd hf' hg')
-          · exact (T_meas hf').enorm.aestronglyMeasurable.restrict
-          · exact (T_meas hg').enorm.aestronglyMeasurable.restrict
+          rw [← eLpNorm_enorm _ (T_meas hf').restrict, ← eLpNorm_enorm _ (T_meas hg').restrict]
+          apply (eLpNorm_add_le (by rfl)).trans'
+          apply eLpNorm_mono_enorm_ae (T_meas hfg').restrict
+          simp only [Pi.add_apply, enorm_eq_self]
+          exact ae_restrict_le (T_subadd hf' hg')
         _ ≤ c / p * eLorentzNorm' f p 1 μ * ν G ^ q⁻¹.toReal + c / p *  eLorentzNorm' g p 1 μ * ν G ^ q⁻¹.toReal := by
           gcongr
           · exact hf hf'
@@ -260,7 +255,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
     by_cases f_zero : f =ᶠ[ae μ] 0
     · have := T_zero_of_ae_zero f_zero
       rw [← eLorentzNorm_eq_eLorentzNorm' hpq.ne_zero p_ne_top, eLorentzNorm_congr_ae f_zero,
-          eLpNorm_zero_of_ae_zero' (T_zero_of_ae_zero f_zero).restrict]
+          eLpNorm_zero_of_ae_enorm_zero' (T_meas hf').restrict (T_zero_of_ae_zero f_zero).restrict]
       simp only [eLorentzNorm_zero, mul_zero, toReal_inv, zero_mul, nonpos_iff_eq_zero]
     by_cases hG' : ν G = ∞
     · rw [hG', ENNReal.top_rpow_of_pos, ENNReal.mul_top]
@@ -364,14 +359,10 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
         rw [setLIntegral_const]
       _ ≤ ∫⁻ (x : α') in H, ‖T f x‖ₑ ∂ν := by
         apply setLIntegral_mono_ae' hH
-        filter_upwards [G'G]
-        intro x h hx
-        have : G x := by
-          rw [← h]
-          exact H_subset_G' hx
-        exact this.le
+        filter_upwards [G'G] with x h hx
+        exact (h.mp (H_subset_G' hx)).le
       _ = eLpNorm (T f) 1 (ν.restrict H) := by
-        rw [eLpNorm_one_eq_lintegral_enorm]
+        rw [eLpNorm_one_eq_lintegral_enorm hf'.restrict]
   rw [← Ne, ← lt_top_iff_ne_top] at G_finite
   by_cases G_zero : ν G = 0
   · rw [G_zero, zero_rpow_of_pos]
@@ -413,7 +404,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
     _ ≤ (c * _ * ν G ^ q⁻¹.toReal) / ν G ^ q⁻¹.toReal := by
       gcongr
       convert (hT f hf G' hG').2 using 2
-      · rw [eLpNorm_one_eq_lintegral_enorm]
+      · rw [eLpNorm_one_eq_lintegral_enorm hf'.restrict]
         apply setLIntegral_congr G'G.symm
       · congr 1
         exact measure_congr G'G.symm
@@ -459,6 +450,11 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
     HasRestrictedWeakType' T p q μ ν (4 * c) := by
   intro f hf G hG
   use T_meas hf
+  have mul_unit {f : α → 𝕂} {c : 𝕂} (hc : c ∈ RCLike.Components) (hf : MemLorentz f p 1 μ) :
+      MemLorentz (c • f) p 1 μ := by
+    refine ⟨hf.1.const_smul c, hf.2.trans_le' <| eLorentzNorm_mono_enorm_ae <| .of_forall fun x ↦ ?_⟩
+    rw [Pi.smul_apply, enorm_smul, ← ofReal_norm c]
+    exact mul_le_of_le_one_left zero_le (ofReal_le_one.mpr (RCLike.Components.norm_le_one hc))
   have : (4 : ℝ≥0∞) = 1 * 2 * 2 := by norm_num
   rw [this]
   revert f
@@ -481,20 +477,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
       simp only [comp_apply, norm_algebraMap', Real.norm_eq_abs, NNReal.abs_eq,
         ofReal_coe_nnreal, ofReal_norm, coe_le_enorm, ge_iff_le]
       exact RCLike.component_le_nnnorm hc
-  · intro f c hc hf
-    constructor
-    · apply AEStronglyMeasurable.const_smul hf.1
-    · apply hf.2.trans_le'
-      apply eLorentzNorm_mono_enorm_ae
-      apply Eventually.of_forall
-      intro x
-      simp only [Pi.smul_apply, smul_eq_mul, enorm_mul]
-      nth_rw 2 [← one_mul ‖f x‖ₑ]
-      gcongr
-      rw [← ofReal_norm]
-      apply ENNReal.ofReal_le_of_le_toReal
-      simp only [toReal_one]
-      exact RCLike.Components.norm_le_one hc
+  · exact mul_unit
   · rw [one_mul]
     intro f hf
     rw [memLorentz_iff_memLorentz_embedRCLike] at hf
@@ -503,15 +486,13 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
   · intro n f g hf_add hg_add hf hg hf' hg'
     calc _
       _ ≤ eLpNorm ((fun x ↦ ‖T f x‖ₑ) + (fun x ↦ ‖T g x‖ₑ)) 1 (ν.restrict G) := by
-        apply eLpNorm_mono_enorm_ae
+        apply eLpNorm_mono_enorm_ae (T_meas (hf.add hg)).restrict
         simp only [enorm_eq_self]
         apply ae_restrict_le
         exact T_subadd hf hg
-    apply (eLpNorm_add_le (T_meas hf).enorm.aestronglyMeasurable.restrict
-                          (T_meas hg).enorm.aestronglyMeasurable.restrict
-                          (by simp)).trans
+    apply (eLpNorm_add_le (by simp)).trans
     rw [mul_comm n, mul_assoc 2, mul_assoc 2, mul_assoc 2, two_mul]
-    rw [eLpNorm_enorm, eLpNorm_enorm]
+    rw [eLpNorm_enorm _ (T_meas hf).restrict, eLpNorm_enorm _ (T_meas hg).restrict]
     apply (add_le_add hf' hg').trans
     gcongr
     · apply eLorentzNorm_mono_enorm_ae
@@ -529,10 +510,10 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
     · intro _
       rw [h]
       simp only [zero_smul, eLorentzNorm_zero, mul_zero, toReal_inv, zero_mul, nonpos_iff_eq_zero]
-      apply eLpNorm_zero_of_ae_zero
+      apply eLpNorm_eq_zero_of_ae_zero
       exact ae_restrict_le T_zero
     gcongr
-    · apply eLpNorm_mono_enorm_ae
+    · apply eLpNorm_mono_enorm_ae (T_meas (mul_unit hb hf)).restrict
       apply ae_restrict_le
       filter_upwards [T_submul b f]
       intro x hx

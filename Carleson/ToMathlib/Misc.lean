@@ -296,23 +296,20 @@ lemma eLpNorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ,
 
 lemma eLpNorm_toReal_le {f : α → ℝ≥0∞} :
     eLpNorm (ENNReal.toReal ∘ f) p μ ≤ eLpNorm f p μ := by
-  simp_rw [eLpNorm]
-  split_ifs
-  · rfl
-  · exact eLpNormEssSup_toReal_le
-  · exact eLpNorm'_toReal_le toReal_nonneg
+  by_cases hfm : AEStronglyMeasurable f μ
+  · apply eLpNorm_mono_enorm hfm.aemeasurable.ennreal_toReal.aestronglyMeasurable
+    simp
+  · rw [eLpNorm_of_not_aestronglyMeasurable hfm]
+    exact le_top
 
 lemma eLpNorm_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
     eLpNorm (ENNReal.toReal ∘ f) p μ = eLpNorm f p μ := by
-  simp_rw [eLpNorm]
-  split_ifs
-  · rfl
-  · exact eLpNormEssSup_toReal_eq hf
-  · exact eLpNorm'_toReal_eq hf
+  rw [← eLpNorm_ofReal (ENNReal.toReal ∘ f) (by simp)]
+  refine eLpNorm_congr_ae (hf.mono fun x hx => ofReal_toReal_eq_iff.mpr hx)
 
-lemma sq_eLpNorm_two {ε : Type*} [ENorm ε] {f : α → ε} :
+lemma sq_eLpNorm_two {ε : Type*} [ENorm ε] [TopologicalSpace ε] {f : α → ε} (hf : AEStronglyMeasurable f μ) :
     eLpNorm f 2 μ ^ 2 = ∫⁻ x, ‖f x‖ₑ ^ 2 ∂μ := by
-  simpa using eLpNorm_nnreal_pow_eq_lintegral (f := f) two_ne_zero
+  simpa using eLpNorm_nnreal_pow_eq_lintegral (f := f) two_ne_zero hf
 
 open ComplexConjugate in
 /-- One of the very few cases where a norm can be moved _out of_ an integral. -/
@@ -323,7 +320,7 @@ lemma eLpNorm_two_eq_enorm_integral_mul_conj {f : α → ℂ} (lpf : MemLp f 2 �
   rw [integral_eq_lintegral_of_nonneg_ae (.of_forall fun _ ↦ by simp)]; swap
   · exact lpf.aestronglyMeasurable.norm.pow 2
   conv_rhs => enter [1, 1, 1, 2, x]; rw [ENNReal.ofReal_pow (norm_nonneg _), ofReal_norm]
-  rw [← sq_eLpNorm_two, ← enorm_norm]
+  rw [← sq_eLpNorm_two lpf.aestronglyMeasurable, ← enorm_norm]
   simp_rw [Complex.coe_algebraMap, Complex.norm_real, enorm_norm]
   rw [toReal_pow, enorm_pow, Real.enorm_toReal lpf.eLpNorm_ne_top]
 
@@ -333,8 +330,7 @@ namespace MemLp
 
 variable {p : ℝ≥0∞}
 theorem toReal {f : α → ℝ≥0∞} (hf : MemLp f p μ) : MemLp (f · |>.toReal) p μ :=
-  ⟨hf.aestronglyMeasurable.aemeasurable.ennreal_toReal.aestronglyMeasurable,
-    eLpNorm_toReal_le.trans_lt hf.eLpNorm_lt_top⟩
+  eLpNorm_toReal_le.trans_lt hf.eLpNorm_lt_top
 
 end MemLp
 
@@ -768,7 +764,9 @@ lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint
     {s : Finset ι} {f : α → F} {t : ι → Set α} (meast : ∀ i, MeasurableSet (t i))
     (hpd : PairwiseDisjoint s t) :
     ∑ i ∈ s, eLpNorm ((t i).indicator f) 2 μ ^ 2 ≤ eLpNorm f 2 μ ^ 2 := by
-  simp_rw [sq_eLpNorm_two]
+  by_cases! hf : ¬ AEStronglyMeasurable f μ
+  · simp [eLpNorm_of_not_aestronglyMeasurable hf]
+  rw [Finset.sum_congr rfl fun i _ ↦ sq_eLpNorm_two (hf.indicator (meast i)), sq_eLpNorm_two hf]
   conv_lhs =>
     enter [2, i, 2, x]
     rw [enorm_indicator_eq_indicator_enorm, sq, ← inter_indicator_mul, inter_self]

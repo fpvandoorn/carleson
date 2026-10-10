@@ -123,7 +123,7 @@ lemma integrable_approxOnCube (C : Set (Grid X)) {f : X → E'} : Integrable (ap
 
 lemma approxOnCube_nonneg {C : Set (Grid X)} {f : X → ℝ} (hf : ∀ (y : X), f y ≥ 0) {x : X} :
     approxOnCube C f x ≥ 0 :=
-  Finset.sum_nonneg' (fun _ ↦ Set.indicator_nonneg (fun _ _ ↦ integral_nonneg hf) _)
+  Finset.sum_nonneg (fun _ _ ↦ Set.indicator_nonneg (fun _ _ ↦ integral_nonneg hf) _)
 
 open scoped Classical in
 lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ (I : Set X)))
@@ -704,12 +704,12 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
           _ ≤ _ := by gcongr; norm_num
       _ ≤ defaultA a * dist_{𝔠 p', 4 * D ^ 𝔰 p'} (𝒬 u) (Q x) := by
         convert cdist_le (x₂ := 𝔠 p) _ using 1
-        · exact dist_congr rfl (by ring)
+        · exact cdist_congr rfl (by ring)
         · apply i2.trans_le; nth_rw 1 [← one_mul (4 * _)]; gcongr; exact one_le_two
       _ ≤ defaultA a ^ 5 * dist_(p') (𝒬 u) (Q x) := by
         rw [pow_succ', mul_assoc]; gcongr
         convert! cdist_le_iterate _ (𝒬 u) (Q x) 4 using 1
-        · exact dist_congr rfl (by ring)
+        · exact cdist_congr rfl (by ring)
         · unfold defaultD; positivity
       _ < _ := by rw [mul_comm]; gcongr
   have d1 : dist_{x, D ^ (s₂ - 1)} (𝒬 u) (Q x) < 1 := by
@@ -717,7 +717,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
       _ ≤ dist_{x, D ^ s₂} (𝒬 u) (Q x) * 2 ^ (-𝕔 * a : ℤ) := by
         rw [neg_mul, zpow_neg, le_mul_inv_iff₀ (by positivity), mul_comm]
         convert! le_cdist_iterate _ (𝒬 u) (Q x) (𝕔 * a) using 1
-        · apply dist_congr rfl
+        · apply cdist_congr rfl
           rw [Nat.cast_pow, ← pow_mul, show a * (𝕔 * a) = 𝕔 * a ^ 2 by ring, ← Nat.cast_pow]
           change _ = (D : ℝ) * _
           rw [← zpow_one_add₀ (realD_pos _).ne', add_sub_cancel]

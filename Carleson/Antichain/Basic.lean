@@ -331,8 +331,9 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
       ring
     _ ≤ _ := by
       gcongr
-      · rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by assumption) (by assumption), toReal_ofReal <|
-          le_of_lt p'_pos, one_div, ← div_rpow_of_nonneg _ _ (le_of_lt inv_p'_pos), dens₂]
+      · rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by assumption) (by assumption)
+          hmeas.aestronglyMeasurable, toReal_ofReal <| le_of_lt p'_pos, one_div,
+          ← div_rpow_of_nonneg _ _ (le_of_lt inv_p'_pos), dens₂]
         gcongr
         refine le_trans ?_ <| le_iSup₂ 𝔭 h𝔭
         refine le_trans ?_ <| le_iSup _ (8 * (D : ℝ) ^ 𝔰 𝔭)
@@ -347,9 +348,9 @@ lemma eLpNorm_𝓜_le_eLpNorm_𝓜p_mul (hf : Measurable f) (hfF : ∀ x, ‖f x
           rw [Pi.one_apply, mul_one, enorm_indicator_eq_indicator_enorm, indicator, indicator]
           split_ifs <;> simp [p'_pos]
         · exact Measure.restrict_apply_univ B
-      · rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by assumption) (by assumption),
-          toReal_ofReal <| le_of_lt p_pos, 𝓜p, maximalFunction, one_div,
-          ← div_rpow_of_nonneg _ _ (le_of_lt inv_p_pos), ← laverage_eq, hp_coe]
+      · rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by assumption) (by assumption)
+          hf.enorm.aestronglyMeasurable, toReal_ofReal <| le_of_lt p_pos, 𝓜p, maximalFunction,
+          one_div, ← div_rpow_of_nonneg _ _ (le_of_lt inv_p_pos), ← laverage_eq, hp_coe]
         refine le_trans (le_of_eq ?_) <| le_iSup₂ 𝔭 h𝔭
         simp_rw [enorm_enorm]
         rw [indicator_of_mem hx]
@@ -388,7 +389,7 @@ lemma const_check : C6_1_2 a * C2_0_6 (defaultA a) (p X).toNNReal 2 ≤ C6_1_3 a
     · linarith [hiq1]
     · exact one_le_pow₀ (by norm_num)
   have hc_le : C2_0_6 (2 ^ a) (p X).toNNReal 2 ≤ 2 ^ (2 * a + 4) * (q - 1)⁻¹ := by
-    rw [C2_0_6, CMB_eq_of_one_lt_q (by rw [div_eq_mul_inv]; assumption)]
+    rw [C2_0_6, CMB_eq_of_one_lt_q (by rwa [div_eq_mul_inv])]
     push_cast
     rw [hp_coe, hpdiv', ← pow_mul, mul_comm a 2]
     refine le_trans (rpow_le_self_of_one_le ?_ ?_) ?_
@@ -442,12 +443,14 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) �
   have := eLpNorm_𝓜p_le 𝔄 <| bf.memLp 2
   calc
     _ ≤ eLpNorm g 2 * eLpNorm (carlesonSum 𝔄 f) 2 := by
-      simpa [RCLike.enorm_conj, ← eLpNorm_enorm] using lintegral_mul_le_eLpNorm_mul_eLqNorm
-        inferInstance bg.enorm.aestronglyMeasurable.aemeasurable
+      simpa [RCLike.enorm_conj, eLpNorm_enorm _ bg.aestronglyMeasurable,
+        eLpNorm_enorm _ bf.carlesonSum.aestronglyMeasurable] using
+        lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
+          bg.enorm.aestronglyMeasurable.aemeasurable
           bf.carlesonSum.enorm.aestronglyMeasurable.aemeasurable
     _ ≤ eLpNorm g 2 * (C6_1_2 a * eLpNorm (𝓜 𝔄 f) 2) := by
       gcongr
-      exact eLpNorm_le_mul_eLpNorm_of_ae_le_mul'
+      exact eLpNorm_le_mul_eLpNorm_of_ae_le_mul' bf.carlesonSum.aestronglyMeasurable
         (ae_of_all _ <| fun x ↦ maximal_bound_antichain h𝔄 hf x) 2
     _ ≤ eLpNorm g 2 * (C6_1_2 a * ((dens₂ 𝔄) ^ (p'⁻¹) * eLpNorm (𝓜p 𝔄 (p X) f) 2)) := by gcongr
     _ ≤ eLpNorm g 2 * (C6_1_2 a * ((dens₂ 𝔄) ^ (p'⁻¹) * (C2_0_6' * eLpNorm f 2))) := by gcongr

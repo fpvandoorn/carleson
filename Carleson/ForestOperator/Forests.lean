@@ -4,7 +4,7 @@ public import Carleson.ForestOperator.LargeSeparation
 public import Carleson.ForestOperator.RemainingTiles
 public import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 public import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-public import Mathlib.Data.Set.Pairwise.Chain
+public import Mathlib.Order.Preorder.PairwiseChain
 
 @[expose] public section
 
@@ -36,7 +36,7 @@ lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
       _ ≤ 8 * a * a * (a + a) := by gcongr; lia
       _ = 2 ^ 4 * a * a * a := by ring
       _ ≤ 2 ^ a * 2 ^ a * 2 ^ a * 2 ^ a := by
-        gcongr; · exact one_le_two
+        gcongr
         all_goals exact Nat.lt_two_pow_self.le
       _ ≤ _ := by simp_rw [← pow_add]; exact pow_le_pow_right' one_le_two (by linarith)
 
@@ -69,7 +69,7 @@ lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
           _ ≤ 4 * (4 * 𝕔 + 𝕔) := by gcongr; linarith [seven_le_c]
           _ = 20 * 𝕔 := by ring
           _ ≤ (2 ^ (2 * 4) * 3) * 𝕔 := by gcongr; norm_num
-          _ ≤ _ := by gcongr; norm_num
+          _ ≤ _ := by gcongr
       · convert! ih using 1
         ring
 
@@ -101,11 +101,7 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
           conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x)) +
         ∫ x, adjointCarlesonSum (t u₁) g₁ x *
           conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖ₑ := by
-      congr 1; apply integral_add
-      · exact (integrable_adjointCarlesonSum (t u₁) hg₁).mul_conj
-          hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
-      · exact (integrable_adjointCarlesonSum (t u₁) hg₁).mul_conj
-          hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
+      congr 1; apply integral_add (by fun_prop) (by fun_prop)
     _ ≤ ‖∫ x, adjointCarlesonSum (t u₁) g₁ x *
           conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x)‖ₑ +
         ‖∫ x, adjointCarlesonSum (t u₁) g₁ x *
@@ -408,7 +404,7 @@ lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : Measurab
       simp_rw [AT, indicator_indicator, conj_indicator, ← inter_indicator_mul]
       rw [inter_inter_inter_comm, this, empty_inter, indicator_empty, Pi.zero_apply]
     _ ≤ ∑ u with u ∈ t.rowDecomp j, eLpNorm (A.indicator (T u)) 2 ^ 2 := by
-      gcongr with u mu; exact eLpNorm_indicator_le _
+      gcongr with u mu; exact eLpNorm_indicator_le _ coeGrid_measurable.nullMeasurableSet
     _ ≤ ∑ u with u ∈ t.rowDecomp j, (C * eLpNorm ((𝓘 u : Set X).indicator g) 2) ^ 2 := by
       gcongr with u mu; rw [Finset.mem_filter_univ] at mu; exact hC u mu
     _ ≤ _ := by
@@ -514,11 +510,17 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
     C7_4_3 a * eLpNorm f 2 volume := by
   set U : Finset (𝔓 X) := {u | u ∈ t.rowDecomp j}
   set U' : Finset (𝔓 X) := {u' | u' ∈ t.rowDecomp j'}
+  have hm (u : 𝔓 X) :
+      AEStronglyMeasurable (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f)) := by
+    have hf' := hf.indicator (coeGrid_measurable (i := 𝓘 u))
+    exact ((hf'.aestronglyMeasurable.adjointCarlesonSum.enorm.add
+      measurable_maximalFunction.aemeasurable).add hf'.aestronglyMeasurable.enorm).aestronglyMeasurable
   calc
     _ = (∑ u ∈ U, ∑ u' ∈ U', ∫⁻ x in 𝓘 u', (𝓘 u : Set X).indicator
         (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f) · ^ 2) x) ^ (2 : ℝ)⁻¹ := by
       congr! with u mu u' mu'
-      rw [show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast, sq_eLpNorm_two]
+      rw [show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast,
+        sq_eLpNorm_two ((hm u).indicator (coeGrid_measurable.inter coeGrid_measurable))]
       simp_rw [enorm_eq_self]
       rw [← lintegral_indicator coeGrid_measurable]; congr with x
       simp_rw [sq, ← inter_indicator_mul, inter_self, indicator_indicator, inter_comm]
@@ -533,7 +535,7 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
       gcongr with u mu; exact Measure.restrict_le_self
     _ ≤ (∑ u ∈ U, eLpNorm (adjointBoundaryOperator t u
         ((𝓘 u : Set X).indicator f)) 2 volume ^ 2) ^ (2 : ℝ)⁻¹ := by
-      gcongr with u mu; rw [sq_eLpNorm_two]; simp_rw [enorm_eq_self]
+      gcongr with u mu; rw [sq_eLpNorm_two (hm u)]; simp_rw [enorm_eq_self]
       exact setLIntegral_le_lintegral _ _
     _ ≤ (∑ u ∈ U, (C7_4_3 a * eLpNorm ((𝓘 u : Set X).indicator f) 2 volume) ^ 2) ^ (2 : ℝ)⁻¹ := by
       gcongr with u mu
@@ -704,8 +706,7 @@ lemma forest_operator_g_prelude
     _ ≤ ∫⁻ x, ‖f x‖ₑ * ‖∑ u with u ∈ t, conj (adjointCarlesonSum (t u) g x)‖ₑ := by
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
     _ ≤ _ := by
-      simp_rw [← map_sum, RCLike.enorm_conj]
-      conv_rhs => rw [← eLpNorm_enorm]; enter [2]; rw [← eLpNorm_enorm]
+      simp_rw [← map_sum, RCLike.enorm_conj, ← eLpNorm_enorm _ bf.aestronglyMeasurable, ← eLpNorm_enorm _ (BoundedCompactSupport.finset_sum fun _ _ ↦ bg.adjointCarlesonSum).aestronglyMeasurable]
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance (by fun_prop) (by fun_prop)
 
 lemma adjointCarlesonRowSum_rowSupport :
@@ -864,10 +865,12 @@ lemma forest_operator_f_prelude
       · specialize h2g x
         rw [indicator_of_notMem hx, norm_le_zero_iff] at h2g
         rw [h2g, zero_mul]
-    _ ≤ _ :=
-      ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance (by fun_prop)
-        ((BoundedCompactSupport.finset_sum fun _ _ ↦
-          bf.carlesonSum).indicator measurableSet_G).enorm.aestronglyMeasurable.aemeasurable
+    _ ≤ _ := by
+      have hm : BoundedCompactSupport (G.indicator (∑ u with u ∈ t, carlesonSum (t u) f ·)) :=
+        (BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator measurableSet_G
+      rw [← eLpNorm_enorm _ hg.aestronglyMeasurable, ← eLpNorm_enorm _ hm.aestronglyMeasurable]
+      exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance (by fun_prop)
+        hm.aestronglyMeasurable.enorm
 
 /-- https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Problems.20in.20the.20forest.20operator.20proposition/near/522771057 -/
 lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
@@ -904,10 +907,12 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
       conv_rhs => enter [2, x]; rw [← RCLike.enorm_conj, ← enorm_mul]
       exact enorm_integral_le_lintegral_enorm _
     _ ≤ eLpNorm (F.indicator (adjointCarlesonRowSum t j IGTf)) 2 * eLpNorm f 2 := by
-      apply ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
-      · exact ((BoundedCompactSupport.finset_sum fun _ _ ↦ bIGTf.adjointCarlesonSum).indicator
-          measurableSet_F).enorm.aestronglyMeasurable.aemeasurable
-      · fun_prop
+      have hm : BoundedCompactSupport (F.indicator (adjointCarlesonRowSum t j IGTf)) :=
+        (BoundedCompactSupport.finset_sum fun _ _ ↦ bIGTf.adjointCarlesonSum).indicator
+          measurableSet_F
+      rw [← eLpNorm_enorm _ hm.aestronglyMeasurable, ← eLpNorm_enorm _ bf.aestronglyMeasurable]
+      exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
+        hm.aestronglyMeasurable.enorm (by fun_prop)
     _ ≤ _ := by gcongr; exact indicator_row_bound bIGTf support_indicator_subset
 
 /-- The constant in the `f` side of Proposition 2.0.4.
@@ -959,7 +964,7 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
       simp_rw [TR, indicator_indicator, conj_indicator, ← inter_indicator_mul]
       rw [inter_inter_inter_comm, this, inter_empty, indicator_empty, Pi.zero_apply]
     _ ≤ ∑ j ∈ Finset.range (2 ^ n), eLpNorm (G.indicator (carlesonRowSum t j f) ·) 2 ^ 2 := by
-      gcongr with j mj; refine eLpNorm_mono_enorm fun x ↦ ?_
+      gcongr with j mj; refine eLpNorm_mono_enorm (bcsTR j).aestronglyMeasurable fun x ↦ ?_
       unfold TR
       rw [indicator_eq_indicator_one_mul, indicator_eq_indicator_one_mul (rowSupport t j),
         ← mul_assoc, mul_comm (G.indicator 1 x), mul_assoc, ← indicator_eq_indicator_one_mul]
@@ -1092,13 +1097,13 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
   · exact le_rfl
   calc
   _ ≤ eLpNorm (A.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
-    apply eLpNorm_mono (fun x ↦ ?_)
+    apply eLpNorm_mono (Measurable.indicator (by fun_prop) hA).aestronglyMeasurable (fun x ↦ ?_)
     simp only [indicator, coe_algebraMap, Real.norm_eq_abs]
     split_ifs
     · simpa using div_self_le_one _
     · simp
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const hA (by norm_num) (by norm_num)]
+    rw [eLpNorm_indicator_const hA.nullMeasurableSet (by norm_num) (by norm_num)]
     simp
 
 open scoped Classical in
@@ -1114,7 +1119,7 @@ theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} 
   gcongr
   calc
   _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume :=
-    eLpNorm_mono (fun x ↦ (h2f x).trans (le_abs_self _))
+    eLpNorm_mono hf.aestronglyMeasurable (fun x ↦ (h2f x).trans (le_abs_self _))
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const measurableSet_F (by norm_num) (by norm_num)]
+    rw [eLpNorm_indicator_const measurableSet_F.nullMeasurableSet (by norm_num) (by norm_num)]
     simp

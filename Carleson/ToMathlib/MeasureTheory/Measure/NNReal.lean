@@ -1,6 +1,7 @@
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
+public import Mathlib.MeasureTheory.Measure.WithDensity
 
 public section
 
@@ -673,5 +674,16 @@ lemma lintegral_nnreal_scale_constant' {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0
   congr
   rw [Real.toNNReal_mul (by simp)]
   simp
+
+lemma NNReal.measurePreserving_mul_left_withDensity_inv {a : ℝ≥0} (h : a ≠ 0) :
+    MeasurePreserving (a * ·) (volume.withDensity fun t : ℝ≥0 ↦ (t : ℝ≥0∞)⁻¹)
+      (volume.withDensity fun t : ℝ≥0 ↦ (t : ℝ≥0∞)⁻¹) := by
+  refine ⟨measurable_const_mul a, Measure.ext_of_lintegral _ fun f hf ↦ ?_⟩
+  rw [lintegral_map hf (measurable_const_mul a),
+    lintegral_withDensity_eq_lintegral_mul _ (by fun_prop) hf,
+    lintegral_withDensity_eq_lintegral_mul _ (by fun_prop) (g := fun t ↦ f (a * t)) (by fun_prop)]
+  simp [← lintegral_nnreal_scale_constant' h (f := fun t ↦ (t : ℝ≥0∞)⁻¹ * f t),
+    ← lintegral_const_mul' _ _ coe_ne_top, ENNReal.mul_inv, ← mul_assoc,
+    ENNReal.mul_inv_cancel (by simpa : (a : ℝ≥0∞) ≠ 0) coe_ne_top]
 
 -- TODO: lemmas about interaction with the Bochner integral

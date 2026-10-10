@@ -48,19 +48,22 @@ variable {X E : Type*} [TopologicalSpace X] [MeasurableSpace X] {μ ν : Measure
 variable {α : Type*} {m0 : MeasurableSpace α} {μ ν : Measure α}
   {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} in
 theorem eLpNorm_mono_ac (hμν : ν ≪ μ) : eLpNorm f ∞ ν ≤ eLpNorm f ∞ μ := by
-  simp_rw [eLpNorm_exponent_top, MeasureTheory.eLpNormEssSup_mono_measure _ hμν]
+  by_cases hf : AEStronglyMeasurable f μ
+  · simp_rw [eLpNorm_exponent_top (hf.mono_ac hμν), eLpNorm_exponent_top hf,
+      eLpNormEssSup_mono_measure _ hμν]
+  · simp_rw [eLpNorm_of_not_aestronglyMeasurable hf, le_top]
 
 variable {α : Type*} {m0 : MeasurableSpace α} {μ ν : Measure α}
   {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} in
 theorem MemLp.mono_ac (hf : MemLp f ∞ μ) (hμν : ν ≪ μ) :
     MemLp f ∞ ν :=
-⟨hf.1.mono_ac hμν, eLpNorm_mono_ac hμν |>.trans_lt hf.2⟩
+ (eLpNorm_mono_ac hμν).trans_lt hf
 
 variable {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
   {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
   {β : Type*} {mβ : MeasurableSpace β} {f : α → β} {g : β → ε} {ν : Measure β} in
 theorem MemLp.comp_quasiMeasurePreserving
-    (hg : MemLp g ∞ ν) (hf : Measure.QuasiMeasurePreserving f μ ν) : MemLp (g ∘ f) ∞ μ :=
+    (hg : MemLp g ∞ ν) (hf : QuasiMeasurePreserving f μ ν) : MemLp (g ∘ f) ∞ μ :=
   .comp_of_map (hg.mono_ac hf.absolutelyContinuous) hf.aemeasurable
 
 -- maybe don't upstream
@@ -69,8 +72,8 @@ variable {α : Type*} {m0 : MeasurableSpace α} {μ ν : Measure α}
 theorem MemLp.ae_norm_le (hf : MemLp f ∞ μ) : ∀ᵐ x ∂μ, ‖f x‖ ≤ (eLpNorm f ⊤ μ).toReal := by
   filter_upwards [ae_le_eLpNormEssSup (f := f)] with x hx
   simp_rw [← toReal_enorm]
-  apply ENNReal.toReal_mono hf.2.ne
-  simp [hx]
+  apply ENNReal.toReal_mono hf.ne
+  rwa [eLpNorm_exponent_top hf.aestronglyMeasurable]
 
 variable [TopologicalSpace E] [ENorm E] [Zero E] in
 /- currently we assume that the functions are a.e.-bounded, since that plays better with mathlib.
@@ -78,7 +81,6 @@ Since it might be nicer to work with suprema instead of essential suprema, we ne
 everywhere-boundedness in one place.
 TODO: Refactor this back to every boundedness (plus measurability)
 -/
-
 /-- Bounded compactly supported measurable functions -/
 @[fun_prop]
 structure BoundedCompactSupport (f : X → E) (μ : Measure X := by volume_tac) :
@@ -201,7 +203,7 @@ variable {f g : X → 𝕜}
 @[fun_prop]
 theorem mul_bdd_right (hf : BoundedCompactSupport f μ) (hg : MemLp g ∞ μ) :
     BoundedCompactSupport (f * g) μ where
-  memLp_top := hg.mul hf.memLp_top
+  memLp_top := MemLp.mul hf.memLp_top hg
   hasCompactSupport := hf.hasCompactSupport.mul_right
 
 @[fun_prop]
@@ -219,7 +221,7 @@ theorem mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g μ) 
 theorem integrable_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g μ) :
     Integrable (f * g) μ := by
   rw [← memLp_one_iff_integrable] at hg ⊢
-  exact hg.mul hf.memLp_top
+  exact MemLp.mul hf.memLp_top hg
 
 @[fun_prop]
 theorem integrable_fun_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g μ) :
@@ -232,23 +234,9 @@ lemma _root_.HasCompactSupport.star (hf : HasCompactSupport f) :
     HasCompactSupport fun i ↦ star (f i) :=
   (hasCompactSupport_comp_left (by simp)).2 hf
 
-omit [TopologicalSpace X] in
-lemma _root_.AEStronglyMeasurable.star (hf : AEStronglyMeasurable f μ) :
-    AEStronglyMeasurable (star f) μ :=
-  RCLike.continuous_conj.comp_aestronglyMeasurable hf
-
-omit [TopologicalSpace X] in
-lemma eLpNorm_star : eLpNorm (star f) ⊤ μ = eLpNorm f ⊤ μ := by
-  simp_rw [Star.star]
-  rw [MeasureTheory.eLpNorm_congr_enorm_ae (g := f)]
-  simp
-
 @[fun_prop]
 theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) μ where
-  memLp_top := by
-    refine ⟨hf.aestronglyMeasurable.star, ?_⟩
-    rw [eLpNorm_star]
-    have := hf.memLp_top; finiteness
+  memLp_top := hf.memLp_top.star
   hasCompactSupport := by simpa using! hf.hasCompactSupport.star
 
 -- This lemma is defeq to `BoundedCompactSupport.conj`, but `starRingEnd` and `conj` are both
@@ -272,7 +260,7 @@ end Mul
 /-- If `‖f‖` is bounded by `g` and `g` is bounded compactly supported, then so is `f`. -/
 theorem mono {g : X → ℝ≥0∞} (hg : BoundedCompactSupport g μ) (hf : AEStronglyMeasurable f μ)
     (hfg : ∀ x, ‖f x‖ₑ ≤ g x) : BoundedCompactSupport f μ where
-  memLp_top := ⟨hf, eLpNorm_mono_enorm hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top⟩
+  memLp_top := eLpNorm_mono_enorm hf hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top
   hasCompactSupport := by
     refine hg.hasCompactSupport.mono ?_
     by_contra h
@@ -284,7 +272,7 @@ theorem mono {g : X → ℝ≥0∞} (hg : BoundedCompactSupport g μ) (hf : AESt
 -- use `mono` preferably
 theorem mono_norm {g : X → ℝ} (hg : BoundedCompactSupport g μ) (hf : AEStronglyMeasurable f μ)
     (hfg : ∀ x, ‖f x‖ ≤ g x) : BoundedCompactSupport f μ where
-  memLp_top := ⟨hf, eLpNorm_mono_real hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top⟩
+  memLp_top := eLpNorm_mono_real hf hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top
   hasCompactSupport := by
     refine hg.hasCompactSupport.mono ?_
     by_contra h
@@ -364,7 +352,7 @@ variable [R1Space (X × Y)]
 /-- An elementary tensor of bounded compactly supported functions is
 bounded compactly supported. -/
 @[fun_prop]
-theorem prod_mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g ν) :
+theorem prod_mul [SFinite ν] (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g ν) :
     BoundedCompactSupport (uncurry fun x y ↦ f x * g y) (μ.prod ν) where
   memLp_top := by
     -- todo: maybe separate out as lemmas
@@ -372,8 +360,7 @@ theorem prod_mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g
       hf.memLp_top.comp_quasiMeasurePreserving Measure.quasiMeasurePreserving_fst
     have h2g : MemLp (fun z : X × Y ↦ g z.2) ∞ (μ.prod ν) :=
       hg.memLp_top.comp_quasiMeasurePreserving Measure.quasiMeasurePreserving_snd
-    -- todo: reorder arguments of `mul`
-    exact h2g.mul (r := ∞) h2f
+    exact h2f.mul (r := ∞) h2g
   hasCompactSupport := by
     -- todo: separate out as lemmas
     apply HasCompactSupport.intro <| hf.hasCompactSupport.prod hg.hasCompactSupport
@@ -388,7 +375,7 @@ variable [R1Space X] in
 theorem indicator_of_isCompact_closure {f : X → E} (hf : MemLp f ∞ μ)
     {s : Set X} (h's : IsCompact (closure s)) (hs : MeasurableSet s) :
     BoundedCompactSupport (s.indicator f) μ where
-  memLp_top := hf.indicator hs
+  memLp_top := hf.indicator hs.nullMeasurableSet
   hasCompactSupport := by
     apply HasCompactSupport.intro h's
     exact fun x hx ↦ by simp [notMem_of_notMem_closure hx]
@@ -396,7 +383,7 @@ theorem indicator_of_isCompact_closure {f : X → E} (hf : MemLp f ∞ μ)
 @[fun_prop]
 protected theorem indicator {f : X → E} (hf : BoundedCompactSupport f μ) {s : Set X}
     (hs : MeasurableSet s) : BoundedCompactSupport (s.indicator f) μ where
-  memLp_top := hf.memLp_top.indicator hs
+  memLp_top := hf.memLp_top.indicator hs.nullMeasurableSet
   hasCompactSupport := hf.hasCompactSupport.mono (by simp)
 
 variable {F : X × Y → E}
@@ -472,7 +459,7 @@ variable [MeasurableSpace W] [TopologicalSpace W] {μ : Measure W}
 variable {f : X → 𝕜} {ν : Measure X} [RCLike 𝕜]
 
 lemma BoundedCompactSupport.mul_bdd_right'' (hf : BoundedCompactSupport f ν) {e : W → X}
-    {g : W → 𝕜} (he : Continuous e) (he1 : Measure.QuasiMeasurePreserving e μ ν)
+    {g : W → 𝕜} (he : Continuous e) (he1 : QuasiMeasurePreserving e μ ν)
     (hg : AEStronglyMeasurable g μ)
     (hg1 : ∀ K : Set X, IsCompact K -> IsCompact (e ⁻¹' K ∩ tsupport g))
     (hg2 : ∀ (A : Set X) (_hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :
@@ -503,7 +490,7 @@ lemma BoundedCompactSupport.mul_bdd_right'' (hf : BoundedCompactSupport f ν) {e
     exact fun _ hx ↦ subset_closure hx
 
 lemma BoundedCompactSupport.mul_bdd_left' (hf : BoundedCompactSupport f ν) {e : W → X} {g : W → 𝕜}
-    (he : Continuous e) (he1 : Measure.QuasiMeasurePreserving e μ ν)
+    (he : Continuous e) (he1 : QuasiMeasurePreserving e μ ν)
     (hg : AEStronglyMeasurable g μ)
     (hg1 : ∀ K : Set X, IsCompact K -> IsCompact (e ⁻¹' K ∩ tsupport g))
     (hg2 : ∀ (A : Set X) (_hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :

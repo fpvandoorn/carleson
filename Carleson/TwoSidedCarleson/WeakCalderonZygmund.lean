@@ -650,7 +650,9 @@ private lemma globalMaximalFunction_preimage_finite
       refine le_trans (setLIntegral_mono_ae ?_ ?_) (setLIntegral_le_lintegral s _)
       · exact measurable_maximalFunction.aemeasurable.pow_const 2 |>.restrict
       · exact Eventually.of_forall fun x hx ↦ pow_le_pow_left' (le_of_lt <| by simpa [s] using hx) 2
-    _ = eLpNorm (globalMaximalFunction volume 1 f) 2 volume := by simp [eLpNorm, eLpNorm']
+    _ = eLpNorm (globalMaximalFunction volume 1 f) 2 volume := by
+      rw [eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ofNat_ne_top (by exact measurable_maximalFunction.aestronglyMeasurable)];
+      simp
 
 private lemma volume_czPartition_lt_top (hX : GeneralCase f α) (i : ℕ) :
     volume (czPartition hX i) < ∞ :=
@@ -785,8 +787,9 @@ protected lemma BoundedFiniteSupport.czApproximation {α : ℝ≥0∞} (hα : 0 
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; constructor <;> simp
   constructor
-  · use (aemeasurable_czApproximation (hf := aemeasurable hf)).aestronglyMeasurable
-    refine lt_of_le_of_lt ?_ hf.eLpNorm_lt_top
+  · rw [memLp_iff, eLpNorm_exponent_top
+      (aemeasurable_czApproximation (hf := aemeasurable hf)).aestronglyMeasurable]
+    refine lt_of_le_of_lt ?_ (eLpNormEssSup_le_eLpNorm_top.trans_lt hf.eLpNorm_lt_top)
     apply essSup_le_of_ae_le _ <| (ENNReal.ae_le_essSup (‖f ·‖ₑ)).mono (fun x h ↦ ?_)
     by_cases hX : GeneralCase f α
     · by_cases hx : ∃ j, x ∈ czPartition hX j
@@ -886,14 +889,16 @@ private lemma eLpNorm_czApproximation_le_finite
     _ ≤ (⨍⁻ x, ‖f x‖ₑ ∂volume) * volume (univ : Set X) :=
       mul_le_mul_left (enorm_integral_le_lintegral_enorm f) _
     _ = eLpNorm f 1 volume := by
-      simp [mul_comm _ (volume univ), eLpNorm, eLpNorm', laverage, ← mul_assoc,
+      simp [mul_comm _ (volume univ), eLpNorm_one_eq_lintegral_enorm hf.aestronglyMeasurable,
+        laverage, ← mul_assoc,
         ENNReal.mul_inv_cancel (NeZero.ne (volume univ)) (volume_lt_of_not_GeneralCase hf hX hα).ne]
 
 -- Equation (10.2.18), infinite case
 private lemma eLpNorm_czApproximation_le_infinite (hX : GeneralCase f α) :
     eLpNorm (czApproximation f α) 1 volume ≤ eLpNorm f 1 volume := by
-  simp only [eLpNorm, one_ne_zero, reduceIte, one_ne_top, eLpNorm', toReal_one, rpow_one,
-    ne_eq, not_false_eq_true, div_self]
+  by_cases! hf : ¬AEStronglyMeasurable f
+  · rw [eLpNorm_of_not_aestronglyMeasurable hf]; exact le_top
+  rw [eLpNorm_one_eq_lintegral_enorm (aemeasurable_czApproximation (hf := hf.aemeasurable)).aestronglyMeasurable, eLpNorm_one_eq_lintegral_enorm hf]
   have hmeas : MeasurableSet (univ \ ⋃ i, czPartition hX i) := by measurability
   have := union_univ _ ▸ @union_sdiff_self X (⋃ i, czPartition hX i) univ
   repeat rw [← setLIntegral_univ (μ := volume), ← this, lintegral_union hmeas disjoint_sdiff_right,
@@ -941,7 +946,9 @@ private lemma ineq_10_2_32 (hf : BoundedFiniteSupport f) {hX : GeneralCase f α}
     {i : ℕ} :
     eLpNorm (czRemainder' hX i) 1 volume ≤ 2 * (∫⁻ x in czPartition hX i, ‖f x‖ₑ) := calc
   _ = ∫⁻ x in czPartition hX i, ‖f x - czApproximation f α x‖ₑ := by
-    simp [czRemainder', eLpNorm, eLpNorm', enorm_indicator_eq_indicator_enorm,
+    simp [czRemainder',
+      eLpNorm_one_eq_lintegral_enorm (hf.aemeasurable.czRemainder' hX i).aestronglyMeasurable,
+      enorm_indicator_eq_indicator_enorm,
       lintegral_indicator <| MeasurableSet.czPartition hX i]
   _ ≤ ∫⁻ x in czPartition hX i, ‖f x‖ₑ + ‖czApproximation f α x‖ₑ :=
     lintegral_mono (fun x ↦ enorm_sub_le)
@@ -974,7 +981,7 @@ private lemma eLpNorm_restrict_czRemainder'_le {hf : BoundedFiniteSupport f} {hX
     {i : ℕ} :
     ∫⁻ y in czBall3 hX i, ‖czRemainder' hX i y‖ₑ ≤ 2 ^ (2 * a + 1) * α * volume (czBall3 hX i) := by
   apply le_trans (setLIntegral_le_lintegral _ _)
-  rw [← eLpNorm_one_eq_lintegral_enorm]
+  rw [← eLpNorm_one_eq_lintegral_enorm (hf.aemeasurable.czRemainder' hX i).aestronglyMeasurable]
   exact eLpNorm_czRemainder'_le (hf := hf)
 
 -- Used to prove `eLpNorm_czRemainder_le` and `tsum_eLpNorm_czRemainder_le`
@@ -983,7 +990,10 @@ private lemma eLpNorm_czRemainder_le'
     eLpNorm (czRemainder f α) 1 volume ≤ 2 * ∫⁻ x, ‖f x‖ₑ :=
   have := isFiniteMeasure_of_not_generalCase hf hX (lt_of_le_of_lt zero_le hα)
   calc
-    _ = ∫⁻ x, ‖f x - ⨍ y, f y‖ₑ := by simp [czRemainder, eLpNorm, eLpNorm', czApproximation, hX]
+    _ = ∫⁻ x, ‖f x - ⨍ y, f y‖ₑ := by
+      rw [eLpNorm_one_eq_lintegral_enorm
+        (AEMeasurable.czRemainder (lt_of_le_of_lt zero_le hα) (hf := hf)).aestronglyMeasurable]
+      simp [czRemainder, czApproximation, hX]
     _ ≤ ∫⁻ x, (‖f x‖ₑ + ‖⨍ y, f y‖ₑ) := lintegral_mono (fun x ↦ enorm_sub_le)
     _ = (∫⁻ x, ‖f x‖ₑ) + ∫⁻ (x : X), ‖⨍ y, f y‖ₑ := lintegral_add_right' _ aemeasurable_const
     _ ≤ (∫⁻ x, ‖f x‖ₑ) + ∫⁻ (x : X), ⨍⁻ y, ‖f y‖ₑ := by
@@ -1037,13 +1047,15 @@ lemma tsum_eLpNorm_czRemainder'_le {hf : BoundedFiniteSupport f} (hX : GeneralCa
   simp_rw [← smul_eq_mul, ENNReal.tsum_const_smul]
   gcongr
   rw [← lintegral_iUnion (MeasurableSet.czPartition hX) czPartition_pairwise_disjoint_on]
-  simpa [eLpNorm, eLpNorm'] using (lintegral_mono_set (subset_univ _))
+  simpa [eLpNorm_one_eq_lintegral_enorm hf.aestronglyMeasurable] using
+    (lintegral_mono_set (subset_univ _))
 
 /-- Part of Lemma 10.2.5, equation (10.2.23) (finite case). -/
 lemma tsum_eLpNorm_czRemainder_le
     {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α) (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
     eLpNorm (czRemainder f α) 1 volume ≤ 2 * eLpNorm f 1 volume := by
-  simpa [eLpNorm, eLpNorm'] using (eLpNorm_czRemainder_le' hf hX hα)
+  rw [eLpNorm_one_eq_lintegral_enorm hf.aestronglyMeasurable]
+  exact eLpNorm_czRemainder_le' hf hX hα
 
 /- ### Lemmas 10.2.6 - 10.2.9 -/
 
@@ -1117,8 +1129,10 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
       have half_pos : 0 < (2 : ℝ)⁻¹ := by norm_num
       refine mul_le_mul_right (ENNReal.le_of_rpow_le half_pos ?_) (2 ^ 2 / α ^ 2)
       rw [ENNReal.mul_rpow_of_nonneg _ _ half_pos.le, ← ENNReal.rpow_natCast_mul]
+      have hA : AEStronglyMeasurable (czApproximation f (c10_0_3 a * α)) :=
+        (hf.czApproximation hα').aestronglyMeasurable
       convert hT _ (hf.czApproximation hα') |>.2
-      all_goals simp [eLpNorm, eLpNorm', α']
+      all_goals simp [eLpNorm, eLpNorm', α', hA, czOperator_aestronglyMeasurable hA]
     _ ≤ 2^2/α^2 * ((C_Ts a) ^ 2 * ∫⁻ y, 2^(3*a) * c10_0_3 a * α * ‖czApproximation f _ y‖ₑ) := by
       gcongr _ * (_ * ?_)
       suffices ∀ᵐ x, ‖czApproximation f (α' a α) x‖ₑ ≤ 2 ^ (3 * a) * c10_0_3 a * α by
@@ -1130,7 +1144,9 @@ lemma estimate_good (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ 
     _ = 2^2/α^2 * ((C_Ts a)^2 * (2^(3*a) * c10_0_3 a * α * ∫⁻ y, ‖czApproximation f _ y‖ₑ)) := by
       rw [lintegral_const_mul' _ _ (by finiteness)]
     _ ≤ 2 ^ 2 / α ^ 2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α * eLpNorm f 1 volume)) := by
-      gcongr; simpa [eLpNorm, eLpNorm'] using eLpNorm_czApproximation_le (hf := hf) hα'
+      gcongr
+      rw [← eLpNorm_one_eq_lintegral_enorm (hf.czApproximation hα').aestronglyMeasurable]
+      exact eLpNorm_czApproximation_le (hf := hf) hα'
     _ = 2 ^ 2 / α^2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α)) * eLpNorm f 1 volume := by ring
     _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * c10_0_3 a * α) / α ^ 2 * eLpNorm f 1 volume := by
       rw [ENNReal.mul_comm_div, mul_div]; ring_nf
@@ -1707,7 +1723,7 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
   rcases le_or_gt α (⨍⁻ x, ‖f x‖ₑ / c10_0_3 a) with hα | hα
   · rw [laverage_eq] at hα
     rcases eq_zero_or_pos (eLpNorm f 1) with hf₂ | hf₂
-    · rw [eLpNorm_eq_zero_iff hf.aestronglyMeasurable one_ne_zero] at hf₂
+    · rw [eLpNorm_eq_zero_iff one_ne_zero] at hf₂
       have op0 : czOperator K r f = 0 := by
         ext x; rw [czOperator, integral_eq_zero_of_ae]; swap
         · have := (EventuallyEq.rfl (f := (K x ·))).mul hf₂
@@ -1716,7 +1732,8 @@ lemma estimate_czOperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
       simp [op0]
     conv_rhs at hα =>
       enter [1, 2, x]; rw [div_eq_mul_inv, c10_0_3, coe_inv (by positivity), inv_inv]
-    rw [lintegral_mul_const' _ _ (by finiteness), ← eLpNorm_one_eq_lintegral_enorm] at hα
+    rw [lintegral_mul_const' _ _ (by finiteness),
+      ← eLpNorm_one_eq_lintegral_enorm hf.aestronglyMeasurable] at hα
     replace hα := mul_le_of_le_div' hα
     rw [← ENNReal.le_div_iff_mul_le] at hα; rotate_left
     · right; positivity

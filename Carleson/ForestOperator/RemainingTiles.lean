@@ -224,7 +224,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
     _ = (𝕔 + 10) * a ^ 3 := by ring
     _ ≤ 2 ^ (7 + 3 * a) := by
       rw [pow_add, pow_mul']; gcongr; exacts [by linarith [c_le_100], Nat.lt_two_pow_self.le]
-    _ ≤ _ := by gcongr <;> lia
+    _ ≤ _ := by gcongr ; lia
 
 /-- Lemma 7.6.3 with a floor on the constant to avoid casting. -/
 lemma thin_scale_impact' (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -393,9 +393,9 @@ lemma btp_expansion (hf : BoundedCompactSupport f) :
   calc
     _ = (∫⁻ x, ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (fun _ ↦
         ‖⨍ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖‖ₑ ^ 2) x) ^ (2 : ℝ)⁻¹ := by
-      unfold approxOnCube
-      simp_rw [eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ENNReal.ofNat_ne_top,
-        ENNReal.toReal_ofNat, one_div]
+      simp_rw [eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ENNReal.ofNat_ne_top
+        boundedCompactSupport_approxOnCube.aestronglyMeasurable, approxOnCube, ENNReal.toReal_ofNat,
+        one_div]
       congr! with x; rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
       · refine fun J mJ ↦ indicator_nonneg (fun y my ↦ ?_) _
         rw [average_eq, smul_eq_mul]
@@ -416,8 +416,9 @@ lemma btp_expansion (hf : BoundedCompactSupport f) :
         ENNReal.ofReal_toReal Vlt.ne]; congr
       rw [integral_norm_eq_lintegral_enorm hf.aestronglyMeasurable.adjointCarlesonSum.restrict]
       apply Real.enorm_toReal
-      rw [← lt_top_iff_ne_top, ← eLpNorm_one_eq_lintegral_enorm]
-      exact (hf.adjointCarlesonSum.restrict.memLp 1).2
+      rw [← lt_top_iff_ne_top,
+        ← eLpNorm_one_eq_lintegral_enorm hf.aestronglyMeasurable.adjointCarlesonSum.restrict]
+      exact hf.adjointCarlesonSum.restrict.memLp 1
     _ = _ := by
       congr! with J mJ
       rw [setLIntegral_const, setLAverage_eq, ENNReal.div_eq_inv_mul, mul_pow, ← mul_rotate, sq,
@@ -690,7 +691,8 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       congr; rw [← lintegral_biUnion_finset _ fun _ _ ↦ coeGrid_measurable]; swap
       · rw [coe_toFinset]; exact pairwiseDisjoint_𝓙₆
       simp_rw [mem_toFinset, union_𝓙₆ hu₁, ← lintegral_indicator coeGrid_measurable,
-        eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ENNReal.ofNat_ne_top,
+        eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ENNReal.ofNat_ne_top
+          (measurable_maximalFunction.indicator coeGrid_measurable).aestronglyMeasurable,
         ENNReal.toReal_ofNat, one_div, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast,
         enorm_eq_self]
       congr! with x
@@ -856,11 +858,14 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
     _ ≤ _ := by
       conv_rhs => rw [mul_comm (C7_4_6 a n : ℝ≥0∞), mul_rotate]
       rw [C7_4_6, ENNReal.coe_mul, ← mul_assoc]; gcongr
-      all_goals
-        refine eLpNorm_mono_enorm fun x ↦ ?_
+      · refine eLpNorm_mono_enorm
+          (measurable_maximalFunction.indicator coeGrid_measurable).aestronglyMeasurable fun x ↦ ?_
         simp only [enorm_eq_self, enorm_indicator_eq_indicator_enorm, adjointBoundaryOperator]
         apply indicator_le_indicator
-      · rw [← add_rotate]; exact le_add_self
-      · exact le_add_self
+        rw [← add_rotate]; exact le_add_self
+      · refine eLpNorm_mono_enorm (hf₁.indicator coeGrid_measurable).aestronglyMeasurable fun x ↦ ?_
+        simp only [enorm_eq_self, enorm_indicator_eq_indicator_enorm, adjointBoundaryOperator]
+        apply indicator_le_indicator
+        exact le_add_self
 
 end TileStructure.Forest

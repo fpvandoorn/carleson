@@ -357,30 +357,30 @@ lemma le_C7_2_2 (a4 : 4 ≤ a) :
 /-- Lemma 7.2.2. -/
 lemma nontangential_operator_bound (hf : BoundedCompactSupport f) (θ : Θ X) :
     eLpNorm (nontangentialMaximalFunction θ f) 2 volume ≤ C7_2_2 a * eLpNorm f 2 volume := by
-  have aemeas_MB : AEMeasurable (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f ·) :=
-    measurable_maximalFunction.aemeasurable
   have ⟨hT₁, hT₂⟩ := BST_T_Q θ f hf.boundedFiniteSupport
   dsimp only at hT₁ hT₂
   calc
     _ ≤ eLpNorm (fun x ↦ 2 * linearizedNontangentialOperator Q θ K f x +
         2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * maximalFunction volume 𝓑 c𝓑 r𝓑 1 f x) 2 volume := by
-      simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm']
-      gcongr; simp_rw [enorm_eq_self]; exact nontangential_pointwise_bound hf θ _
+      refine eLpNorm_mono_enorm
+        (MeasureTheory.Measurable.nontangentialMaximalFunction).aestronglyMeasurable fun x ↦ ?_
+      simp_rw [enorm_eq_self]
+      exact nontangential_pointwise_bound hf θ x
     _ ≤ eLpNorm (fun x ↦ 2 * linearizedNontangentialOperator Q θ K f x) 2 volume +
         eLpNorm (2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) *
-          maximalFunction volume 𝓑 c𝓑 r𝓑 1 f ·) 2 volume := by
-      simpa [eLpNorm, eLpNorm'] using
-        ENNReal.lintegral_Lp_add_le (hT₁.aemeasurable.const_mul _)
-          (aemeas_MB.const_mul _) one_le_two
+          maximalFunction volume 𝓑 c𝓑 r𝓑 1 f ·) 2 volume :=
+      eLpNorm_add_le one_le_two
     _ = eLpNorm (fun x ↦ 2 * linearizedNontangentialOperator Q θ K f x) 2 volume +
         2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * eLpNorm (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f) 2 volume := by
       congr
-      simp only [eLpNorm, eLpNorm', OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top]
-      exact ENNReal.lintegral_Lp_smul aemeas_MB two_pos ((2 : ℝ≥0) ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1))
+      convert eLpNorm_const_smul' (ε' := ℝ≥0∞) (p := 2) (μ := volume)
+        (c := (2 : ℝ≥0) ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1)) (f := maximalFunction volume 𝓑 c𝓑 r𝓑 1 f)
+        using 2 <;> simp [funext_iff, ENNReal.smul_def]
     _ ≤ 2 * eLpNorm (linearizedNontangentialOperator Q θ K f) 2 volume +
         2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * eLpNorm (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f) 2 volume := by
       gcongr
-      refine eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' 2 hT₁ (.of_forall fun x ↦ ?_)
+      refine eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' 2
+        (hT₁.aemeasurable.const_mul 2).aestronglyMeasurable (.of_forall fun x ↦ ?_)
       rw [enorm_eq_self, enorm_eq_self]
     _ ≤ (2 * C_Ts a + 2 ^ (7 * a + (𝕔 + 1) * a ^ 3 + 1) * CMB (defaultA a) 2)
         * eLpNorm f 2 volume := by
@@ -710,9 +710,9 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
     _ ≤ 2 ^ (9 * a + 1) * ∫⁻ y, ‖f y‖ₑ * maximalFunction volume 𝓑 c𝓑 r𝓑 1 g y := by
       gcongr; exact Measure.restrict_le_self
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * eLpNorm (maximalFunction volume 𝓑 c𝓑 r𝓑 1 g) 2 volume := by
-      rw [mul_assoc]; gcongr
+      rw [mul_assoc, ← eLpNorm_enorm f hf.aestronglyMeasurable]; gcongr
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm ⟨by simpa using ENNReal.inv_two_add_inv_two⟩
-        hf.aestronglyMeasurable.aemeasurable.enorm measurable_maximalFunction.aemeasurable
+        hf.aestronglyMeasurable.enorm measurable_maximalFunction.aemeasurable
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * (2 ^ (a + (3 / 2 : ℝ)) * eLpNorm g 2 volume) := by
       have ST : HasStrongType (α := X) (α' := X) (ε₁ := ℂ) (maximalFunction volume 𝓑 c𝓑 r𝓑 1) 2 2 volume volume
           (CMB (defaultA a) 2) := hasStrongType_maximalFunction_one (by norm_num)
@@ -742,10 +742,11 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
       eLpNorm (t.boundaryOperator u f) 2 volume :=
     eLpNorm_toReal_eq (Eventually.of_forall fun _ ↦ (boundaryOperator_lt_top hf).ne)
   by_cases hv : eLpNorm (t.boundaryOperator u f) 2 volume = 0; · simp [hv]
-  have hv' : eLpNorm (t.boundaryOperator u f) 2 volume < ⊤ := elpn_eq ▸ (bcs.memLp 2).2
+  have hv' : eLpNorm (t.boundaryOperator u f) 2 volume < ⊤ :=
+    elpn_eq ▸ (bcs.memLp 2).eLpNorm_lt_top
   rw [← ENNReal.mul_le_mul_iff_left hv hv'.ne, ← sq, ← ENNReal.rpow_natCast]
   nth_rw 1 [show ((2 : ℕ) : ℝ) = (2 : ℝ≥0) by rfl, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
-    eLpNorm_nnreal_pow_eq_lintegral two_ne_zero]
+    eLpNorm_nnreal_pow_eq_lintegral two_ne_zero measurable_boundaryOperator.aestronglyMeasurable]
   convert boundary_operator_bound_aux (t := t) (u := u) hf bcs.toComplex using 2
   · simp_rw [RCLike.conj_mul]; norm_cast
     simp_rw [← norm_pow, integral_norm_eq_lintegral_enorm
@@ -756,12 +757,13 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     refine (Real.enorm_toReal ?_).symm
     replace hv' := ENNReal.pow_lt_top (n := 2) hv'
     rw [← ENNReal.rpow_natCast, show ((2 : ℕ) : ℝ) = (2 : ℝ≥0) by rfl,
-      show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, eLpNorm_nnreal_pow_eq_lintegral two_ne_zero,
+      show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
+      eLpNorm_nnreal_pow_eq_lintegral two_ne_zero measurable_boundaryOperator.aestronglyMeasurable,
       show ((2 : ℝ≥0) : ℝ) = (2 : ℕ) by rfl] at hv'
     simp_rw [enorm_eq_self] at hv'; exact hv'.ne
-  · rw [← elpn_eq, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl]
-    simp_rw [eLpNorm_nnreal_eq_lintegral two_ne_zero]; congr!
-    simp [enorm_eq_nnnorm, nnnorm_real]
+  · rw [← elpn_eq]
+    exact eLpNorm_congr_norm_ae bcs.aestronglyMeasurable bcs.toComplex.aestronglyMeasurable
+      (.of_forall fun x ↦ by simp)
 
 /-- The constant used in `tree_projection_estimate`.
 Has value `2 ^ (130 * a ^ 3)` in the blueprint. -/
@@ -808,7 +810,6 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
     · rw [C7_2_2_def]
       norm_cast
       gcongr
-      · norm_num
       simp [add_mul]
       lia
   _ = 3 * 2 ^ (12 * a) * 2 ^ ((𝕔 + 4 + 𝕔 / 4) * a ^ 3) := by rw [add_comm, pow_add]; ring
@@ -832,33 +833,30 @@ private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤
   let g₁ := maximalFunction μ 𝓑 c𝓑 r𝓑 1 aOC
   let g₂ := t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖))
   let g₃ := nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) (eI𝒬u_mul u f))
-  have m₁ : AEMeasurable g₁ :=
-    measurable_maximalFunction.aemeasurable
-  have m₂ : AEMeasurable g₂ := measurable_boundaryOperator.aemeasurable
   calc eLpNorm (cS_bound t u f) 2 μ
     _ = eLpNorm (C7_1_3 a • (g₁ + g₂) + g₃) 2 μ := rfl
-    _ ≤ eLpNorm (C7_1_3 a • (g₁ + g₂)) 2 μ + eLpNorm g₃ 2 μ := by
-      simpa [eLpNorm, eLpNorm'] using
-        ENNReal.lintegral_Lp_add_le ((m₁.add m₂).const_smul (C7_1_3 a)) (hp1 := one_le_two)
-          MeasureTheory.Measurable.nontangentialMaximalFunction.aemeasurable
+    _ ≤ eLpNorm (C7_1_3 a • (g₁ + g₂)) 2 μ + eLpNorm g₃ 2 μ := eLpNorm_add_le one_le_two
     _ = C7_1_3 a • eLpNorm (g₁ + g₂) 2 μ + eLpNorm g₃ 2 μ := by
       congr
-      simpa [eLpNorm, eLpNorm'] using ENNReal.lintegral_Lp_smul (m₁.add m₂) two_pos (C7_1_3 a)
+      rw [eLpNorm_const_smul']
+      simp [ENNReal.smul_def]
     _ ≤ C7_1_3 a • (eLpNorm g₁ 2 μ + eLpNorm g₂ 2 μ) + eLpNorm g₃ 2 μ := by
       gcongr
-      exact eLpNorm_add_le m₁.aestronglyMeasurable m₂.aestronglyMeasurable one_le_two
+      exact eLpNorm_add_le one_le_two
     _ ≤ C7_1_3 a • ((CMB (defaultA a) 2) * eLpNorm aOC 2 μ + (C7_2_3 a) * eLpNorm aOC 2 μ) +
           (C7_2_2 a) * eLpNorm aOC 2 μ := by
       gcongr
       · exact eLpNorm_MB_le boundedCompactSupport_approxOnCube
       · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube
         congr 1
-        apply eLpNorm_congr_norm_ae
+        apply eLpNorm_congr_norm_ae boundedCompactSupport_approxOnCube.aestronglyMeasurable
+          boundedCompactSupport_approxOnCube.aestronglyMeasurable
         filter_upwards with x
         convert! Complex.norm_real (aOC x) using 2
         exact approxOnCube_ofReal _ _ _
       · apply le_trans <| nontangential_operator_bound boundedCompactSupport_approxOnCube (𝒬 u)
-        refine mul_le_mul_right (eLpNorm_mono (fun x ↦ ?_)) _
+        refine mul_le_mul_right
+          (eLpNorm_mono boundedCompactSupport_approxOnCube.aestronglyMeasurable fun x ↦ ?_) _
         apply le_of_le_of_eq norm_approxOnCube_le_approxOnCube_norm
         rw [Real.norm_of_nonneg <| approxOnCube_nonneg (fun _ ↦ norm_nonneg _)]
         simp_rw [norm_eI𝒬u_mul_eq]
@@ -933,9 +931,10 @@ lemma tree_projection_estimate
       have isConj : Real.HolderConjugate 2 2 := by constructor <;> norm_num
       have : AEMeasurable eaOC := (stronglyMeasurable_approxOnCube _ _).aemeasurable.ennreal_ofReal
       convert! ENNReal.lintegral_mul_le_Lp_mul_Lq volume isConj this aeMeasurable_cS_bound <;>
-        simp [eLpNorm, eLpNorm']
+        simp [eLpNorm, eLpNorm', this.aestronglyMeasurable,
+          aeMeasurable_cS_bound.aestronglyMeasurable]
     _ = eLpNorm (cS_bound t u f) 2 volume * eLpNorm aOC 2 volume := by
-      rw [mul_comm]; congr; ext; exact (Real.enorm_eq_ofReal aOC_nonneg).symm
+      rw [mul_comm]; congr 1; exact eLpNorm_ofReal aOC (.of_forall fun _ ↦ aOC_nonneg)
     _ ≤ _ := mul_left_mono eLpNorm_two_cS_bound_le
 
 end TileStructure.Forest

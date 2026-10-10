@@ -274,7 +274,6 @@ lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] 
     trans 2 ^ 12
     · norm_num
     gcongr
-    · norm_num
     lia
   exact Nat.mul_le_mul this (Nat.le_add_left 1 n)
 

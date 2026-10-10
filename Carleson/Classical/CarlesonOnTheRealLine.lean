@@ -36,7 +36,9 @@ local notation "T" => carlesonOperatorReal K
 lemma rcarleson' {q : ℝ≥0} (hq : q ∈ Set.Ioo 1 2) {f : ℝ → ℂ} (hf : MemLp f q) :
     eLpNorm (T f) q ≤ (C_carleson_hasStrongType 4 q) * eLpNorm f q := by
   apply le_trans _ (general_carlesonOperator_on_the_reals_hasStrongType hq f hf).2
-  apply eLpNorm_mono_enorm
+  have mT : Measurable (T f) := carlesonOperatorReal_measurable hf.aestronglyMeasurable
+    fun x ↦ (hf.restrict _).integrable (by simpa using hq.1.le)
+  apply eLpNorm_mono_enorm mT.aestronglyMeasurable
   apply carlesonOperatorReal_le_carlesonOperator
 
 end
