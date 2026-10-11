@@ -290,19 +290,19 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm
   enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux hp hq hr hpqr hf.enorm
     (fun x ↦ (hg.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x).enorm) c hL x
 
--- Auxiliary inequality used to prove versions with simpler conditions on `f` and `g`
-private theorem eLpNorm_convolution_le_ofReal_aux
+theorem eLpNorm_convolution_le_ofReal
     [μ.IsAddRightInvariant] {p q r : ℝ}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1) {f : G → E} {g : G → E'}
-    (hf : AEMeasurable (‖f ·‖ₑ) μ) (hg : ∀ x : G, AEMeasurable (‖g <| x - ·‖ₑ) μ)
-    (hg' : AEMeasurable (fun (x : G × G) ↦ ‖(g ∘ fun p ↦ p.1 - p.2) x‖ₑ ^ q) (μ.prod μ))
+    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
+    {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) (.ofReal r) μ ≤
     .ofReal c * eLpNorm f (.ofReal p) μ * eLpNorm g (.ofReal q) μ := by
   have p0 : 0 < p := lt_of_lt_of_le one_pos hp
   have q0 : 0 < q := lt_of_lt_of_le one_pos hq
   have r0 : 0 < r := lt_of_lt_of_le one_pos hr
-  have hf' := hf.pow_const p
+  have hg' : AEMeasurable (fun (x : G × G) ↦ ‖(g ∘ fun p ↦ p.1 - p.2) x‖ₑ ^ q) (μ.prod μ) :=
+    hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const q
+  have hf' := hf.enorm.pow_const p
   have hfg := hf'.comp_snd.mul hg'
   replace hg' := hg'.pow_const q
   rw [← ENNReal.rpow_le_rpow_iff r0]
@@ -311,7 +311,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux
     _ = ∫⁻ (x : G), ‖(f ⋆[L, μ] g) x‖ₑ ^ r ∂μ := by simp [eLpNorm, eLpNorm', r0, r0.le, r0.ne.symm]
     _ ≤ _ :=
       lintegral_mono <| fun x ↦ ENNReal.rpow_le_rpow (h₂ := r0.le) <|
-        enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux hp hq hr hpqr hf hg c hL x
+        enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm hp hq hr hpqr hf hg c hL x
     _ = (ENNReal.ofReal c) ^ r *
         (∫⁻ x, (eLpNorm (fun y ↦ (‖f y‖ₑ^p * ‖g (x-y)‖ₑ^q) ^ (1/r)) (ENNReal.ofReal r) μ) ^ r ∂μ) *
         (eLpNorm f (ENNReal.ofReal p) μ ^ (r - p) * eLpNorm g (ENNReal.ofReal q) μ ^ (r - q)) := by
@@ -345,17 +345,6 @@ private theorem eLpNorm_convolution_le_ofReal_aux
         _ = eLpNorm f (ENNReal.ofReal p) μ ^ p * eLpNorm g (ENNReal.ofReal q) μ ^ q := by
           simp [eLpNorm, eLpNorm', ← ENNReal.rpow_mul, p0.not_ge, q0.not_ge, p0.le, q0.le,
             p0.ne.symm, q0.ne.symm]
-
-theorem eLpNorm_convolution_le_ofReal
-    [μ.IsAddRightInvariant] {p q r : ℝ}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) (.ofReal r) μ ≤
-    .ofReal c * eLpNorm f (.ofReal p) μ * eLpNorm g (.ofReal q) μ := by
-  refine eLpNorm_convolution_le_ofReal_aux hp hq hr hpqr hf.enorm ?_ ?_ c hL
-  · intro x; exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x) |>.enorm
-  · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const q
 
 variable (L)
 
