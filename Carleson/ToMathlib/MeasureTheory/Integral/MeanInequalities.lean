@@ -363,38 +363,6 @@ theorem eLpNorm_convolution_le_ofReal
   · intro x; exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x) |>.enorm
   · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const q
 
--- Auxiliary result to prove the following versions with simpler assumptions on `f` and `g`
-private theorem eLpNorm_convolution_le_of_norm_le_mul_aux
-    [μ.IsAddRightInvariant] {p q r : ℝ≥0∞}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEMeasurable (‖f ·‖ₑ) μ)
-    (hg : ∀ (x : G), AEMeasurable (‖g <| x - ·‖ₑ) μ)
-    (hg' : ∀ (x : G), eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ)
-    (hg'' : AEMeasurable (fun x ↦ ‖(g ∘ fun p ↦ p.1 - p.2) x‖ₑ ^ q.toReal) (μ.prod μ))
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) r μ ≤ .ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  -- First use `eLpNorm_top_convolution_le` to handle the cases where any exponent is `∞`
-  by_cases r_top : r = ∞
-  · rw [r_top, ENNReal.inv_top, zero_add] at hpqr
-    have hpq : p.HolderConjugate q := holderConjugate_iff.mpr hpqr
-    rw [r_top]
-    refine eLpNorm_top_convolution_le_aux hpq hf hg hg' c hL
-  have hpq : 1 < p⁻¹ + q⁻¹ := by
-    rw [hpqr]
-    nth_rewrite 1 [← zero_add 1]
-    apply ENNReal.add_lt_add_right ENNReal.one_ne_top
-    exact zero_le.lt_or_eq.resolve_right (ENNReal.inv_ne_zero.mpr r_top).symm
-  have p_ne_top : p ≠ ∞ := by contrapose! hq; simpa [hq] using hpq
-  have q_ne_top : q ≠ ∞ := by contrapose! hp; simpa [hp] using hpq
-  -- When all exponents are finite, apply `eLpNorm_convolution_le_ofReal`
-  rw [← ENNReal.ofReal_toReal_eq_iff.mpr p_ne_top, ← ENNReal.ofReal_toReal_eq_iff.mpr q_ne_top,
-    ← ENNReal.ofReal_toReal_eq_iff.mpr r_top]
-  refine eLpNorm_convolution_le_ofReal_aux ?_ ?_ ?_ ?_ hf hg hg'' c hL; rotate_right
-  · simp_rw [← ENNReal.toReal_one, ← ENNReal.toReal_inv]
-    rw [← ENNReal.toReal_add _ ENNReal.one_ne_top, ← ENNReal.toReal_add, hpqr]
-    all_goals exact ENNReal.inv_ne_top.mpr (fun h ↦ (h ▸ one_pos).not_ge (by assumption))
-  all_goals rwa [← ENNReal.toReal_one, ENNReal.toReal_le_toReal ENNReal.one_ne_top (by assumption)]
-
 variable (L)
 
 /-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
@@ -407,10 +375,27 @@ theorem eLpNorm_convolution_le_of_norm_le_mul
     {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) r μ ≤ .ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  refine eLpNorm_convolution_le_of_norm_le_mul_aux hp hq hr hpqr hf.enorm ?_ ?_ ?_ c hL
-  · intro x; exact hg.enorm.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
-  · intro x; apply eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
-  · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
+  -- First use `eLpNorm_top_convolution_le` to handle the cases where any exponent is `∞`
+  by_cases r_top : r = ∞
+  · rw [r_top, ENNReal.inv_top, zero_add] at hpqr
+    have hpq : p.HolderConjugate q := holderConjugate_iff.mpr hpqr
+    rw [r_top]
+    refine eLpNorm_top_convolution_le hpq hf hg c hL
+  have hpq : 1 < p⁻¹ + q⁻¹ := by
+    rw [hpqr]
+    nth_rewrite 1 [← zero_add 1]
+    apply ENNReal.add_lt_add_right ENNReal.one_ne_top
+    exact zero_le.lt_or_eq.resolve_right (ENNReal.inv_ne_zero.mpr r_top).symm
+  have p_ne_top : p ≠ ∞ := by contrapose! hq; simpa [hq] using hpq
+  have q_ne_top : q ≠ ∞ := by contrapose! hp; simpa [hp] using hpq
+  -- When all exponents are finite, apply `eLpNorm_convolution_le_ofReal`
+  rw [← ENNReal.ofReal_toReal_eq_iff.mpr p_ne_top, ← ENNReal.ofReal_toReal_eq_iff.mpr q_ne_top,
+    ← ENNReal.ofReal_toReal_eq_iff.mpr r_top]
+  refine eLpNorm_convolution_le_ofReal ?_ ?_ ?_ ?_ hf hg c hL; rotate_right
+  · simp_rw [← ENNReal.toReal_one, ← ENNReal.toReal_inv]
+    rw [← ENNReal.toReal_add _ ENNReal.one_ne_top, ← ENNReal.toReal_add, hpqr]
+    all_goals exact ENNReal.inv_ne_top.mpr (fun h ↦ (h ▸ one_pos).not_ge (by assumption))
+  all_goals rwa [← ENNReal.toReal_one, ENNReal.toReal_le_toReal ENNReal.one_ne_top (by assumption)]
 
 /-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
 bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
