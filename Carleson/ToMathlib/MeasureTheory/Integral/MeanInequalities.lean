@@ -158,15 +158,18 @@ private theorem convolution_zero_of_c_nonpos [AddGroup G] {f : G → E} {g : G �
   simp only [this, integral_zero]
   rfl
 
--- Auxiliary inequality used to prove inequalities with simpler conditions on f and g.
-private theorem eLpNorm_top_convolution_le_aux [AddGroup G] {p q : ℝ≥0∞}
-    (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'} (hf : AEMeasurable (‖f ·‖ₑ) μ)
-    (hg : ∀ x : G, AEMeasurable (‖g <| x - ·‖ₑ) μ)
-    (hg' : ∀ x : G, eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ)
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
+variable [AddGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G] [BorelSpace G]
+  [μ.IsAddHaarMeasure] [LocallyCompactSpace G] [SecondCountableTopology G]
+
+/-- Special case of **Young's convolution inequality** when `r = ∞`. -/
+theorem eLpNorm_top_convolution_le [μ.IsNegInvariant] {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'}
+    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (c : ℝ)
+    (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
   by_cases! hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
+  have hgx (x : G) : AEStronglyMeasurable (g <| x - ·) μ :=
+    hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
   rw [eLpNorm_exponent_top, eLpNormEssSup]
   refine essSup_le_of_ae_le _ (Filter.Eventually.of_forall fun x ↦ ?_)
   apply le_trans <| enorm_integral_le_lintegral_enorm _
@@ -178,19 +181,10 @@ private theorem eLpNorm_top_convolution_le_aux [AddGroup G] {p q : ℝ≥0∞}
       exact ENNReal.ofReal_le_ofReal <| hL y (x - y)
     _ ≤ _ := by
       simp_rw [mul_assoc, lintegral_const_mul' _ _ ofReal_ne_top]
-      simpa [hg' x] using mul_right_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf (hg x))
-
-variable [AddGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G] [BorelSpace G]
-  [μ.IsAddHaarMeasure] [LocallyCompactSpace G] [SecondCountableTopology G]
-
-/-- Special case of **Young's convolution inequality** when `r = ∞`. -/
-theorem eLpNorm_top_convolution_le [μ.IsNegInvariant] {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'}
-    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (c : ℝ)
-    (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  refine eLpNorm_top_convolution_le_aux hpq hf.enorm ?_ ?_ c hL
-  · intro x; exact (hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)).enorm
-  · intro x; apply eLpNorm_comp_measurePreserving hg (Measure.measurePreserving_sub_left μ x)
+      have hg' : eLpNorm (g <| x - ·) q μ = eLpNorm g q μ :=
+        eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
+      simpa [hg'] using
+        mul_right_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf.enorm (hgx x).enorm)
 
 -- Auxiliary inequality used to prove versions with simpler conditions on `f` and `g`
 open ENNReal in
