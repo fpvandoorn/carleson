@@ -593,17 +593,10 @@ lemma truncCompl_le_func {x : α} :
     ‖(truncCompl f t) x‖ₑ ≤ ‖f x‖ₑ := by
   rw [truncCompl_eq]; dsimp only; split_ifs <;> simp
 
-lemma foo {A B C D : ℝ≥0∞} (hA : A ≠ ∞) (h : A ≤ C) (h' : A + B = C + D) : D ≤ B := by
-  obtain (done | contra) := le_or_gt D B
-  · assumption
-  · have : A + B < C + D := ENNReal.add_lt_add_of_le_of_lt hA h contra
-    exact False.elim (by order)
-
-lemma truncCompl_anti {x : α} (hab : t ≤ s) (hf : ‖trunc f t x‖ₑ ≠ ⊤) :
+lemma truncCompl_anti {x : α} (hab : t ≤ s) :
     ‖truncCompl f s x‖ₑ ≤ ‖truncCompl f t x‖ₑ := by
-  have obs : ‖trunc f t x‖ₑ + ‖(truncCompl f t) x‖ₑ = ‖trunc f s x‖ₑ + ‖(truncCompl f s) x‖ₑ := by
-    simp_rw [trunc_buildup_enorm]
-  exact foo hf (trunc_mono hab) obs
+  unfold truncCompl
+  split_ifs <;> [rfl; simp; order; simp]
 
 lemma eLpNorm_truncCompl_le_self : eLpNorm (truncCompl f t) p μ ≤ eLpNorm f p μ :=
   eLpNorm_mono_enorm fun _ ↦ truncCompl_le_func
