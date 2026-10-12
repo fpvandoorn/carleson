@@ -33,30 +33,6 @@ variable [ENorm ε] {f g g₁ g₂ : α → ε}
 /- Proofs for this file can be found in
 Folland, Real Analysis. Modern Techniques and Their Applications, section 6.3. -/
 
-/-- The weak L^p norm of a function, for `p < ∞` -/
-def wnorm' (f : α → ε) (p : ℝ) (μ : Measure α) : ℝ≥0∞ :=
-  ⨆ t : ℝ≥0, t * distribution f t μ ^ (p : ℝ)⁻¹
-
-lemma wnorm'_zero (f : α → ε) (μ : Measure α) : wnorm' f 0 μ = ∞ := by
-  simp only [wnorm', GroupWithZero.inv_zero, ENNReal.rpow_zero, mul_one, iSup_eq_top]
-  refine fun b hb ↦ ⟨b.toNNReal + 1, ?_⟩
-  rw [coe_add, ENNReal.coe_one, coe_toNNReal hb.ne_top]
-  exact lt_add_right hb.ne_top one_ne_zero
-
-lemma wnorm'_toReal_le {f : α → ℝ≥0∞} {p : ℝ} (hp : 0 ≤ p) :
-    wnorm' (ENNReal.toReal ∘ f) p μ ≤ wnorm' f p μ := by
-  refine iSup_mono fun x ↦ ?_
-  gcongr
-  simp
-
-lemma wnorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
-    wnorm' (ENNReal.toReal ∘ f) p μ = wnorm' f p μ := by
-  simp_rw [wnorm', distribution_toReal_eq hf]
-
-theorem wnorm'_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p) {f : α → ε} {μ : Measure α} :
-    wnorm' f p μ = ⨆ t : ℝ≥0, t ^ p⁻¹ * rearrangement f t μ :=
-  iSup_mul_distribution_rpow_eq_iSup_rpow_mul_rearrangement hp
-
 -- unused, probably delete
 open Classical in
 lemma toReal_ofReal_preimage' {s : Set ℝ≥0∞} : ENNReal.toReal ⁻¹' (ENNReal.ofReal ⁻¹' s) =
@@ -102,17 +78,10 @@ lemma wnorm_zero (hf : AEStronglyMeasurable f μ) : wnorm f 0 μ = 0 :=
 lemma wnorm_top (hf : AEStronglyMeasurable f μ) : wnorm f ⊤ μ = eLpNormEssSup f μ :=
   eLorentzNorm_exponent_top_top hf
 
-lemma wnorm_ne_top (hf : AEStronglyMeasurable f μ) (h₀ : p ≠ 0) (h : p ≠ ⊤) :
-    wnorm f p μ = wnorm' f p.toReal μ := by
-  rw [wnorm, eLorentzNorm_eq_eLorentzNorm' h₀ h hf, eLorentzNorm'_exponent_top, wnorm']
-
-lemma wnorm_coe {p : ℝ≥0} (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
-    wnorm f p μ = wnorm' f p μ := by
-  rw [wnorm_ne_top hf (by simpa) coe_ne_top, coe_toReal]
-
-lemma wnorm_ofReal {p : ℝ} (hf : AEStronglyMeasurable f μ) (hp : 0 < p) :
-    wnorm f (.ofReal p) μ = wnorm' f p μ := by
-  rw [wnorm_ne_top hf (by simpa) ofReal_ne_top, toReal_ofReal hp.le]
+lemma wnorm_eq_iSup_mul_distribution_rpow (hf : AEStronglyMeasurable f μ) (h₀ : p ≠ 0)
+    (h : p ≠ ⊤) :
+    wnorm f p μ = ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹ := by
+  rw [wnorm, eLorentzNorm_eq_eLorentzNorm' h₀ h hf, eLorentzNorm'_exponent_top]
 
 lemma wnorm_toReal_le {f : α → ℝ≥0∞} {p : ℝ≥0∞} :
     wnorm (ENNReal.toReal ∘ f) p μ ≤ wnorm f p μ := by
@@ -137,23 +106,14 @@ lemma wnorm_toReal_eq {f : α → ℝ≥0∞} {p : ℝ≥0∞} (hf : ∀ᵐ x �
 theorem wnorm_eq_iSup_rpow_mul_rearrangement {p : ℝ≥0∞} (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤)
   {f : α → ε} {μ : Measure α} (hf : AEStronglyMeasurable f μ) :
     wnorm f p μ = ⨆ t : ℝ≥0, t ^ p.toReal⁻¹ * rearrangement f t μ := by
-  rw [wnorm_ne_top hf p_nonzero p_ne_top]
-  apply wnorm'_eq_iSup_rpow_mul_rearrangement (ENNReal.toReal_pos p_nonzero p_ne_top)
+  rw [wnorm_eq_iSup_mul_distribution_rpow hf p_nonzero p_ne_top]
+  exact iSup_mul_distribution_rpow_eq_iSup_rpow_mul_rearrangement
+    (ENNReal.toReal_pos p_nonzero p_ne_top)
 
 lemma eLorentzNorm_eq_wnorm {f : α → ε} {μ : Measure α} :
     eLorentzNorm f p ∞ μ = wnorm f p μ := rfl
 
 end TopologicalSpace
-
-lemma wnorm'_mono_enorm_ae {ε' : Type*} [ENorm ε'] {f : α → ε} {g : α → ε'} {p : ℝ} (hp : 0 ≤ p)
-  (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
-    wnorm' f p μ ≤ wnorm' g p μ := by
-  unfold wnorm'
-  apply iSup_le
-  intro t
-  calc _
-    _ ≤ ↑t * distribution g (↑t) μ ^ p⁻¹ := by gcongr
-  apply le_iSup _ t
 
 lemma wnorm_mono_enorm_ae [TopologicalSpace ε] {ε' : Type*} [TopologicalSpace ε'] [ENorm ε']
   {f : α → ε} {g : α → ε'} (hf : AEStronglyMeasurable f μ) (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
@@ -173,8 +133,9 @@ lemma wnorm_iSup_of_monotone {α : Type*} [MeasurableSpace α] {p : ℝ≥0∞} 
   by_cases hp' : p = ⊤
   · simp_rw [hp', wnorm_top hm', wnorm_top (hm _)]
     apply eLpNormEssSup_iSup
-  · simp_rw [wnorm_ne_top hm' hp hp', wnorm_ne_top (hm _) hp hp']
-    unfold wnorm' distribution
+  · simp_rw [wnorm_eq_iSup_mul_distribution_rpow hm' hp hp',
+      wnorm_eq_iSup_mul_distribution_rpow (hm _) hp hp']
+    unfold distribution
     rw [iSup_comm]; congr with t
     rw [←ENNReal.mul_iSup]; congr
     rw [←(iSup_rpow (toReal_pos hp hp' |> inv_pos_of_pos))]; congr
@@ -211,8 +172,7 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) (hp_zero : p
     simp_rw [← lt_top_iff_ne_top]
     exact ae_lt_of_essSup_lt hf.2
   set A := {x | ‖f x‖ₑ = ∞} with hA
-  replace hf : wnorm' f p.toReal μ < ∞ := wnorm_ne_top hf.1 hp_zero hp_inf ▸ hf.2
-  unfold wnorm' at hf
+  replace hf := wnorm_eq_iSup_mul_distribution_rpow hf.1 hp_zero hp_inf ▸ hf.2
   rw [Filter.eventually_iff, mem_ae_iff]
   simp only [ne_eq, compl_def, mem_ofPred_eq, Decidable.not_not, ← hA]
   have hp_toReal_zero := toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩
@@ -267,8 +227,8 @@ lemma distribution_le [MeasurableSpace ε] [OpensMeasurableSpace ε]
   · grind
   · exact hf.enorm.nullMeasurableSet_preimage measurableSet_Ioi
 
-lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (p0 : 0 < p) :
-    wnorm' f p μ ≤ eLpNorm' f p μ := by
+lemma iSup_mul_distribution_rpow_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (p0 : 0 < p) :
+    ⨆ t : ℝ≥0, t * distribution f t μ ^ p⁻¹ ≤ eLpNorm' f p μ := by
   refine iSup_le (fun t ↦ ?_)
   simp_rw [distribution, eLpNorm']
   have p0' : 0 ≤ 1 / p := (div_pos one_pos p0).le
@@ -285,8 +245,8 @@ lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0
     wnorm f p μ ≤ eLpNorm f p μ := by
   by_cases h : p = ⊤
   · simp [h, wnorm_top hf]
-  · rw [wnorm_ne_top hf hp.ne' h, eLpNorm_eq_eLpNorm' hp.ne' h]
-    exact wnorm'_le_eLpNorm' hf (toReal_pos hp.ne' h)
+  · rw [wnorm_eq_iSup_mul_distribution_rpow hf hp.ne' h, eLpNorm_eq_eLpNorm' hp.ne' h]
+    exact iSup_mul_distribution_rpow_le_eLpNorm' hf (toReal_pos hp.ne' h)
 
 lemma MemLp.memWLp (hp : 0 < p) (hf : MemLp f p μ) : MemWLp f p μ :=
   memWLp_iff_memLorentz.mpr (MemLorentz_of_MemLorentz_ge hp le_top (MemLorentz_iff_MemLp.mpr hf))
@@ -547,8 +507,9 @@ lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (hf : AEStronglyMeasur
   by_cases ptop : p = ⊤
   · simp only [ptop, wnorm_top hf, wnorm_top (hf.const_smul k)]
     apply eLpNormEssSup_const_nnreal_smul_le
-  rw [wnorm_ne_top (hf.const_smul k) hp ptop, wnorm_ne_top hf hp ptop]
-  simp only [wnorm', iSup_le_iff]
+  rw [wnorm_eq_iSup_mul_distribution_rpow (hf.const_smul k) hp ptop,
+    wnorm_eq_iSup_mul_distribution_rpow hf hp ptop]
+  simp only [iSup_le_iff]
   by_cases k_zero : k = 0
   · simp [distribution, k_zero, toReal_pos hp ptop]
   simp only [distribution_smul_left k_zero]
@@ -572,8 +533,9 @@ lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E}
   by_cases ptop : p = ⊤
   · simp only [ptop, wnorm_top hf, wnorm_top hkf]
     apply eLpNormEssSup_const_smul_le
-  rw [wnorm_ne_top hkf hp ptop, wnorm_ne_top hf hp ptop]
-  simp only [wnorm', iSup_le_iff]
+  rw [wnorm_eq_iSup_mul_distribution_rpow hkf hp ptop,
+    wnorm_eq_iSup_mul_distribution_rpow hf hp ptop]
+  simp only [iSup_le_iff]
   by_cases k_zero : k = 0
   · simp [distribution, k_zero, toReal_pos hp ptop]
   simp only [distribution_smul_left' k_zero]

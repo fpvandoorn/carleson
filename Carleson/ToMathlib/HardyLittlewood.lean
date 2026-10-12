@@ -206,8 +206,9 @@ theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [Se
   intro f _
   use measurable_maximalFunction.aestronglyMeasurable
   let Bₗ (ℓ : ℝ≥0∞) := { (c, r) | ∫⁻ y in (ball c r), ‖f y‖ₑ ∂μ ≥ ℓ * μ (ball c r) }
-  rw [wnorm_ne_top measurable_maximalFunction.aestronglyMeasurable one_ne_zero one_ne_top]
-  simp only [one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte, eLpNorm,
+  rw [wnorm_eq_iSup_mul_distribution_rpow measurable_maximalFunction.aestronglyMeasurable
+    one_ne_zero one_ne_top]
+  simp only [one_ne_top, toReal_one, inv_one, ENNReal.rpow_one, reduceIte, eLpNorm,
     one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self, iSup_le_iff]
   intro t
   refine le_trans ?_ (measure_biUnion_le_lintegral (𝓑 := Bₗ t) (c := (·.1)) (r := (·.2)) (l := t)
@@ -333,11 +334,12 @@ theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpa
     apply (hasWeakType_maximalFunction_one (fun x : X ↦ ‖v x‖ₑ ^ (p : ℝ)) _).2
     convert! MemLp.enorm_rpow_div mlpv p
     exact (ENNReal.div_self (coe_ne_zero.mpr p₁n) coe_ne_top).symm
-  rw [wnorm_ne_top measurable_maximalFunction.aestronglyMeasurable one_ne_zero one_ne_top]
+  rw [wnorm_eq_iSup_mul_distribution_rpow measurable_maximalFunction.aestronglyMeasurable
+    one_ne_zero one_ne_top]
     at hmb_one
-  rw [wnorm_ne_top (measurable_maximalFunction.pow_const _).aestronglyMeasurable
-    (by simpa using p₁n) coe_ne_top]
-  unfold wnorm' distribution at hmb_one ⊢
+  rw [wnorm_eq_iSup_mul_distribution_rpow
+    (measurable_maximalFunction.pow_const _).aestronglyMeasurable (by simpa using p₁n) coe_ne_top]
+  unfold distribution at hmb_one ⊢
   simp only [enorm_eq_self, toReal_one, inv_one, rpow_one, iSup_le_iff, coe_toReal]
     at hmb_one ⊢
   intro t
