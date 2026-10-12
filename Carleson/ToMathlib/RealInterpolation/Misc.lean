@@ -690,11 +690,18 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
 
 -- TODO: better name!
 lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
-    (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (hf : AEStronglyMeasurable f μ) (ht : 0 < t) :
+    (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (ht : 0 < t) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   have q_ne_top: q ≠ ⊤ := ne_top_of_le_ne_top p_ne_top hpq.2
   have p_ne_zero : p ≠ 0 := (hpq.1.trans_le hpq.2).ne'
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · have hf'' : eLpNorm f p μ = ∞ := sorry
+    by_cases! ht' : t = ∞
+    · simp [ht', zero_rpow_of_pos (exp_toReal_pos hpq.1 q_ne_top)]
+    rw [hf'', top_rpow_of_pos sorry /- via p_ne_zero -/, mul_top]
+    · simp
+    simp; grind
   apply le_trans (eLpNorm_truncCompl_le hpq.1.ne' (ne_top_of_le_ne_top p_ne_top hpq.2))
   calc
     _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α in {x | t < ‖f x‖ₑ},
@@ -717,13 +724,23 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
 
 -- TODO: better name!
 lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
-    (hq : q ≠ ⊤) (hpq : p ∈ Ioc 0 q) {f : α → ε} (hf : AEStronglyMeasurable f μ) :
+    (hq : q ≠ ⊤) (hpq : p ∈ Ioc 0 q) {f : α → ε} :
     eLpNorm (trunc f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   have hq' : 0 < q := hpq.1.trans_le hpq.2
   have p_ne_top : p ≠ ∞ := (hpq.2.trans_lt (lt_top_iff_ne_top.mpr hq)).ne
   by_cases ht : t = ⊤
-  · by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
+  · by_cases hf : AEStronglyMeasurable f μ; swap
+    · have hf'' : eLpNorm f p μ = ∞ := sorry
+      by_cases! hpq : p = q
+      · simp [ht, hpq]
+      have : 0 < q.toReal - p.toReal := by
+        rw [sub_pos]
+        gcongr
+        -- use hpq.2 and hpq
+        sorry
+      simp [ht, hf'', top_rpow_of_pos this]
+    by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
     · have : (fun x ↦ ‖f x‖ₑ) =ᵐ[μ] 0 := by
         rw [← eLpNorm_enorm] at hf'
         rwa [← eLpNorm_eq_zero_iff (by fun_prop) hpq.1.ne',
@@ -743,6 +760,9 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
       · apply le_top
       rw [sub_pos, toReal_lt_toReal p_ne_top hq]
       exact lt_of_le_of_ne hpq.2 p_eq_q
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · have hf'' : eLpNorm f p μ = ∞ := sorry
+    sorry
   unfold eLpNorm eLpNorm'
   have : p ≠ 0 := hpq.1.ne'
   split_ifs with h
