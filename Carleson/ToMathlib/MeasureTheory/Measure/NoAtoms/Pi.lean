@@ -29,7 +29,7 @@ theorem pi {ι : Type*} [Fintype ι] [Nonempty ι] {X : ι → Type*} [∀ i, Me
     [∀ i, ProperSpace (X i)] [∀ i, MeasurableSpace (X i)] [∀ i, BorelSpace (X i)]
     (μ : ∀ i, Measure (X i)) [∀ i, IsLocallyFiniteMeasure (μ i)] [∀ i, SigmaFinite (μ i)]
     [∀ i, NullSingletonClass (μ i)] : NoAtoms' (Measure.pi μ) :=
-  of_isLocallyFiniteMeasure
+  of_innerRegularCompactLTTop
 
 end NoAtoms'
 

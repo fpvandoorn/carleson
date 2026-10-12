@@ -39,7 +39,7 @@ theorem withDensity {α : Type*} [TopologicalSpace α] [T2Space α]
     rw [withDensity_apply _ isOpen_interior.measurableSet]
     refine (lintegral_mono_set interior_subset).trans_lt ?_
     simpa [HasFiniteIntegral] using hfU.2
-  exact of_isLocallyFiniteMeasure
+  exact of_innerRegularCompactLTTop
 
 end NoAtoms'
 

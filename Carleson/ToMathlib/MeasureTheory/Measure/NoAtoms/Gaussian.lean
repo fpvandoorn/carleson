@@ -29,7 +29,7 @@ namespace NoAtoms'
 theorem gaussianReal {μ : ℝ} {v : ℝ≥0} (h : v ≠ 0) :
     NoAtoms' (ProbabilityTheory.gaussianReal μ v) :=
   have := ProbabilityTheory.nullSingletonClass_gaussianReal (μ := μ) h
-  of_isLocallyFiniteMeasure
+  of_innerRegularCompactLTTop
 
 end NoAtoms'
 

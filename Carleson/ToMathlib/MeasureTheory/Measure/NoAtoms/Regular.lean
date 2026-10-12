@@ -78,14 +78,6 @@ theorem of_innerRegularCompactLTTop {α : Type*} [TopologicalSpace α] [T2Space 
     _ = μ s + 0 := (add_zero _).symm
   exact hs.ne' (nonpos_iff_eq_zero.mp (ENNReal.le_of_add_le_add_left hfin this))
 
-/-- A locally finite measure on a σ-compact metrizable space which vanishes on singletons has no
-atoms. This is not an instance, as it would make instance search for `NoAtoms'` loop through
-`instNullSingletonClass'`. -/
-theorem of_isLocallyFiniteMeasure {α : Type*} [TopologicalSpace α] [T2Space α]
-    [PseudoMetrizableSpace α] [SigmaCompactSpace α] [MeasurableSpace α] [BorelSpace α]
-    {μ : Measure α} [IsLocallyFiniteMeasure μ] [NullSingletonClass μ] : NoAtoms' μ :=
-  of_innerRegularCompactLTTop
-
 end NoAtoms'
 
 end MeasureTheory
