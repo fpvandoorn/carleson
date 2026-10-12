@@ -594,31 +594,26 @@ lemma truncCompl_le_func {x : α} :
     ‖(truncCompl f t) x‖ₑ ≤ ‖f x‖ₑ := by
   rw [truncCompl_eq]; dsimp only; split_ifs <;> simp
 
-lemma foo {A B C D : ℝ≥0∞} (hA : A ≠ ∞) (h : A ≤ C) (h' : A + B = C + D) : D ≤ B := by
-  obtain (done | contra) := le_or_gt D B
-  · assumption
-  · have : A + B < C + D := ENNReal.add_lt_add_of_le_of_lt hA h contra
-    exact False.elim (by order)
-
-lemma truncCompl_anti {x : α} (hab : t ≤ s) (hf : ‖trunc f t x‖ₑ ≠ ⊤) :
+lemma truncCompl_anti {x : α} (hab : t ≤ s) :
     ‖truncCompl f s x‖ₑ ≤ ‖truncCompl f t x‖ₑ := by
-  have obs : ‖trunc f t x‖ₑ + ‖(truncCompl f t) x‖ₑ = ‖trunc f s x‖ₑ + ‖(truncCompl f s) x‖ₑ := by
-    simp_rw [trunc_buildup_enorm]
-  exact foo hf (trunc_mono hab) obs
+  unfold truncCompl
+  split_ifs <;> [rfl; simp; order; simp]
+
+lemma eLpNorm_truncCompl_le_self : eLpNorm (truncCompl f t) p μ ≤ eLpNorm f p μ :=
+  eLpNorm_mono_enorm fun _ ↦ truncCompl_le_func
+
+@[simp]
+lemma truncCompl_truncCompl {a b : ℝ≥0∞} :
+    truncCompl (truncCompl f a) b = truncCompl f (max a b) := by
+  grind [truncCompl]
 
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
--- XXX: the conditions `hf` and `mf` may need to be tweaked
-lemma eLpNorm_truncCompl_anti (hf : eLpNorm f 1 μ ≠ ⊤) (mf : AEStronglyMeasurable f μ) :
+lemma eLpNorm_truncCompl_anti :
     Antitone (fun s ↦ eLpNorm (truncCompl f s) p μ) := by
-  intro a _b hab
-  have : ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ⊤ := by
-    rw [eLpNorm_one_eq_lintegral_enorm] at hf
-    simp_rw [ae_iff, not_ne_iff]; exact measure_eq_top_of_lintegral_ne_top mf.enorm hf
-  have : ∀ᵐ x ∂μ, ‖trunc f a x‖ₑ ≠ ⊤ := by
-    refine this.mono fun x hx ↦ ?_
-    rw [trunc]
-    split_ifs; exacts [hx, by simp]
-  exact eLpNorm_mono_enorm_ae <| this.mono fun x hx ↦ truncCompl_anti hab hx
+  intro a b hab
+  dsimp only
+  rw [← max_eq_right hab, ← truncCompl_truncCompl]
+  exact eLpNorm_truncCompl_le_self
 
 /-- The norm of the truncation is meaurable in the truncation parameter -/
 @[fun_prop]
@@ -628,9 +623,9 @@ lemma eLpNorm_trunc_measurable :
 
 /-- The norm of the complement of the truncation is measurable in the truncation parameter -/
 @[fun_prop]
-lemma eLpNorm_truncCompl_measurable (hf : eLpNorm f 1 μ ≠ ⊤) (mf : AEStronglyMeasurable f μ) :
+lemma eLpNorm_truncCompl_measurable :
     Measurable (fun s ↦ eLpNorm (truncCompl f s) p μ) :=
-  eLpNorm_truncCompl_anti hf mf |>.measurable
+  eLpNorm_truncCompl_anti.measurable
 
 lemma trnc_le_func {j : Bool} {a : ℝ≥0∞} {x : α} :
     ‖trnc j f a x‖ₑ ≤ ‖f x‖ₑ := by
