@@ -158,15 +158,18 @@ private theorem convolution_zero_of_c_nonpos [AddGroup G] {f : G → E} {g : G �
   simp only [this, integral_zero]
   rfl
 
--- Auxiliary inequality used to prove inequalities with simpler conditions on f and g.
-private theorem eLpNorm_top_convolution_le_aux [AddGroup G] {p q : ℝ≥0∞}
-    (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'} (hf : AEMeasurable (‖f ·‖ₑ) μ)
-    (hg : ∀ x : G, AEMeasurable (‖g <| x - ·‖ₑ) μ)
-    (hg' : ∀ x : G, eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ)
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
+variable [AddGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G] [BorelSpace G]
+  [μ.IsAddHaarMeasure] [LocallyCompactSpace G] [SecondCountableTopology G]
+
+/-- Special case of **Young's convolution inequality** when `r = ∞`. -/
+theorem eLpNorm_top_convolution_le [μ.IsNegInvariant] {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'}
+    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (c : ℝ)
+    (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
   by_cases! hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
+  have hgx (x : G) : AEStronglyMeasurable (g <| x - ·) μ :=
+    hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
   rw [eLpNorm_exponent_top, eLpNormEssSup]
   refine essSup_le_of_ae_le _ (Filter.Eventually.of_forall fun x ↦ ?_)
   apply le_trans <| enorm_integral_le_lintegral_enorm _
@@ -178,42 +181,25 @@ private theorem eLpNorm_top_convolution_le_aux [AddGroup G] {p q : ℝ≥0∞}
       exact ENNReal.ofReal_le_ofReal <| hL y (x - y)
     _ ≤ _ := by
       simp_rw [mul_assoc, lintegral_const_mul' _ _ ofReal_ne_top]
-      simpa [hg' x] using mul_right_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf (hg x))
+      have hg' : eLpNorm (g <| x - ·) q μ = eLpNorm g q μ :=
+        eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
+      simpa [hg'] using
+        mul_right_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf.enorm (hgx x).enorm)
 
-variable [AddGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G] [BorelSpace G]
-  [μ.IsAddHaarMeasure] [LocallyCompactSpace G] [SecondCountableTopology G]
-
-/-- Special case of **Young's convolution inequality** when `r = ∞`. -/
-theorem eLpNorm_top_convolution_le [MeasurableSpace E] [OpensMeasurableSpace E]
-    [MeasurableSpace E'] [OpensMeasurableSpace E'] [μ.IsNegInvariant] {p q : ℝ≥0∞}
-    (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'} (hf : AEMeasurable f μ)
-    (hg : AEMeasurable g μ) (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  refine eLpNorm_top_convolution_le_aux hpq hf.enorm ?_ ?_ c hL
-  · intro x; exact (hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)).enorm
-  · intro x; exact eLpNorm_comp_measurePreserving' hg (μ.measurePreserving_sub_left x)
-
-/-- Special case of **Young's convolution inequality** when `r = ∞`. -/
-theorem eLpNorm_top_convolution_le' [μ.IsNegInvariant] {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'}
-    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (c : ℝ)
-    (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  refine eLpNorm_top_convolution_le_aux hpq hf.enorm ?_ ?_ c hL
-  · intro x; exact (hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)).enorm
-  · intro x; apply eLpNorm_comp_measurePreserving hg (Measure.measurePreserving_sub_left μ x)
-
--- Auxiliary inequality used to prove versions with simpler conditions on `f` and `g`
 open ENNReal in
-omit [LocallyCompactSpace G] [SecondCountableTopology G] in
-private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
+/-- This inequality is used in the proof of Young's convolution inequality
+`eLpNorm_convolution_le_ofReal`. -/
+theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm
     [μ.IsNegInvariant] {p q r : ℝ}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1) {f : G → E} {g : G → E'}
-    (hf : AEMeasurable (‖f ·‖ₑ) μ) (hg : ∀ x : G, AEMeasurable (‖g <| x - ·‖ₑ) μ)
+    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
+    {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) (x : G) :
     ‖(f ⋆[L, μ] g) x‖ₑ ≤
       .ofReal c * eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (.ofReal r) μ *
       ((eLpNorm f (.ofReal p) μ) ^ ((r - p) / r) *
       (eLpNorm g (.ofReal q) μ) ^ ((r - q) / r)) := by
+  have hgx : AEStronglyMeasurable (g <| x - ·) μ :=
+    hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
   by_cases! hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
   by_cases! μ0 : μ = 0
@@ -258,8 +244,9 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
       rw [lintegral_const_mul' _ _ ofReal_ne_top, mul_assoc]
       gcongr
       -- Check that the assumptions of `lintegral_prod_norm_pow_le'` apply
-      have ae_meas_g := hg x
-      have := (hf.pow_const p).mul (ae_meas_g.pow_const q)
+      have ae_meas_f := hf.enorm
+      have ae_meas_g := hgx.enorm
+      have := (ae_meas_f.pow_const p).mul (ae_meas_g.pow_const q)
       have ae_meas : ∀ i ∈ Finset.univ, AEMeasurable (F i) μ :=
         fun ⟨v, _⟩ _ ↦ by interval_cases v <;> exact AEMeasurable.pow_const (by assumption) _
       suffices ∑ i, (P i)⁻¹ = 1 by
@@ -291,51 +278,19 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux
         rw [eLpNorm_eq_eLpNorm_rpow (g <| x - ·) r0 q0 rq0 μ0]
         simp [eLpNorm, eLpNorm', lintegral_sub_left_eq_self (‖g ·‖ₑ ^ (ENNReal.ofReal q).toReal) x]
 
-open ENNReal in
-/-- This inequality is used in the proof of Young's convolution inequality
-`eLpNorm_convolution_le_ofReal`. See `enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm'` for
-a version assuming a.e. strong measurability instead. -/
-theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm [MeasurableSpace E]
-    [OpensMeasurableSpace E] [MeasurableSpace E'] [OpensMeasurableSpace E']
-    [μ.IsNegInvariant] {p q r : ℝ}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ)
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) (x : G) :
-    ‖(f ⋆[L, μ] g) x‖ₑ ≤
-      .ofReal c * eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (.ofReal r) μ *
-      ((eLpNorm f (.ofReal p) μ) ^ ((r - p) / r) *
-      (eLpNorm g (.ofReal q) μ) ^ ((r - q) / r)) :=
-  enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux hp hq hr hpqr hf.enorm
-    (fun x ↦ (hg.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x).enorm) c hL x
-
-open ENNReal in
-/-- This inequality is used in the proof of Young's convolution inequality
-`eLpNorm_convolution_le_ofReal'`. -/
-theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm'
-    [μ.IsNegInvariant] {p q r : ℝ}
+theorem eLpNorm_convolution_le_ofReal
+    [μ.IsAddRightInvariant] {p q r : ℝ}
     (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
     {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) (x : G) :
-    ‖(f ⋆[L, μ] g) x‖ₑ ≤
-      .ofReal c * eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (.ofReal r) μ *
-      ((eLpNorm f (.ofReal p) μ) ^ ((r - p) / r) *
-      (eLpNorm g (.ofReal q) μ) ^ ((r - q) / r)) :=
-  enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux hp hq hr hpqr hf.enorm
-    (fun x ↦ (hg.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x).enorm) c hL x
-
--- Auxiliary inequality used to prove versions with simpler conditions on `f` and `g`
-private theorem eLpNorm_convolution_le_ofReal_aux
-    [μ.IsAddRightInvariant] {p q r : ℝ}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1) {f : G → E} {g : G → E'}
-    (hf : AEMeasurable (‖f ·‖ₑ) μ) (hg : ∀ x : G, AEMeasurable (‖g <| x - ·‖ₑ) μ)
-    (hg' : AEMeasurable (fun (x : G × G) ↦ ‖(g ∘ fun p ↦ p.1 - p.2) x‖ₑ ^ q) (μ.prod μ))
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) (.ofReal r) μ ≤
     .ofReal c * eLpNorm f (.ofReal p) μ * eLpNorm g (.ofReal q) μ := by
   have p0 : 0 < p := lt_of_lt_of_le one_pos hp
   have q0 : 0 < q := lt_of_lt_of_le one_pos hq
   have r0 : 0 < r := lt_of_lt_of_le one_pos hr
-  have hf' := hf.pow_const p
+  have hg' : AEMeasurable (fun (x : G × G) ↦ ‖(g ∘ fun p ↦ p.1 - p.2) x‖ₑ ^ q) (μ.prod μ) :=
+    hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const q
+  have hf' := hf.enorm.pow_const p
   have hfg := hf'.comp_snd.mul hg'
   replace hg' := hg'.pow_const q
   rw [← ENNReal.rpow_le_rpow_iff r0]
@@ -344,7 +299,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux
     _ = ∫⁻ (x : G), ‖(f ⋆[L, μ] g) x‖ₑ ^ r ∂μ := by simp [eLpNorm, eLpNorm', r0, r0.le, r0.ne.symm]
     _ ≤ _ :=
       lintegral_mono <| fun x ↦ ENNReal.rpow_le_rpow (h₂ := r0.le) <|
-        enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux hp hq hr hpqr hf hg c hL x
+        enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm hp hq hr hpqr hf hg c hL x
     _ = (ENNReal.ofReal c) ^ r *
         (∫⁻ x, (eLpNorm (fun y ↦ (‖f y‖ₑ^p * ‖g (x-y)‖ₑ^q) ^ (1/r)) (ENNReal.ofReal r) μ) ^ r ∂μ) *
         (eLpNorm f (ENNReal.ofReal p) μ ^ (r - p) * eLpNorm g (ENNReal.ofReal q) μ ^ (r - q)) := by
@@ -379,37 +334,16 @@ private theorem eLpNorm_convolution_le_ofReal_aux
           simp [eLpNorm, eLpNorm', ← ENNReal.rpow_mul, p0.not_ge, q0.not_ge, p0.le, q0.le,
             p0.ne.symm, q0.ne.symm]
 
-theorem eLpNorm_convolution_le_ofReal [MeasurableSpace E] [OpensMeasurableSpace E]
-    [MeasurableSpace E'] [OpensMeasurableSpace E']
-    [μ.IsAddRightInvariant] {p q r : ℝ}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ)
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) (.ofReal r) μ ≤
-    .ofReal c * eLpNorm f (.ofReal p) μ * eLpNorm g (.ofReal q) μ := by
-  refine eLpNorm_convolution_le_ofReal_aux hp hq hr hpqr hf.enorm ?_ ?_ c hL
-  · intro x; exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x) |>.enorm
-  · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const q
+variable (L)
 
-theorem eLpNorm_convolution_le_ofReal'
-    [μ.IsAddRightInvariant] {p q r : ℝ}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) (.ofReal r) μ ≤
-    .ofReal c * eLpNorm f (.ofReal p) μ * eLpNorm g (.ofReal q) μ := by
-  refine eLpNorm_convolution_le_ofReal_aux hp hq hr hpqr hf.enorm ?_ ?_ c hL
-  · intro x; exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x) |>.enorm
-  · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const q
-
--- Auxiliary result to prove the following versions with simpler assumptions on `f` and `g`
-private theorem eLpNorm_convolution_le_of_norm_le_mul_aux
+/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
+bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
+`1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ` is replaced with a bound for `L` restricted to the ranges
+of `f` and `g`; see `eLpNorm_convolution_le_enorm_mul` for a version using `‖L‖ₑ` explicitly. -/
+theorem eLpNorm_convolution_le_of_norm_le_mul
     [μ.IsAddRightInvariant] {p q r : ℝ≥0∞}
     (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEMeasurable (‖f ·‖ₑ) μ)
-    (hg : ∀ (x : G), AEMeasurable (‖g <| x - ·‖ₑ) μ)
-    (hg' : ∀ (x : G), eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ)
-    (hg'' : AEMeasurable (fun x ↦ ‖(g ∘ fun p ↦ p.1 - p.2) x‖ₑ ^ q.toReal) (μ.prod μ))
+    {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) r μ ≤ .ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
   -- First use `eLpNorm_top_convolution_le` to handle the cases where any exponent is `∞`
@@ -417,7 +351,7 @@ private theorem eLpNorm_convolution_le_of_norm_le_mul_aux
   · rw [r_top, ENNReal.inv_top, zero_add] at hpqr
     have hpq : p.HolderConjugate q := holderConjugate_iff.mpr hpqr
     rw [r_top]
-    refine eLpNorm_top_convolution_le_aux hpq hf hg hg' c hL
+    refine eLpNorm_top_convolution_le hpq hf hg c hL
   have hpq : 1 < p⁻¹ + q⁻¹ := by
     rw [hpqr]
     nth_rewrite 1 [← zero_add 1]
@@ -428,67 +362,21 @@ private theorem eLpNorm_convolution_le_of_norm_le_mul_aux
   -- When all exponents are finite, apply `eLpNorm_convolution_le_ofReal`
   rw [← ENNReal.ofReal_toReal_eq_iff.mpr p_ne_top, ← ENNReal.ofReal_toReal_eq_iff.mpr q_ne_top,
     ← ENNReal.ofReal_toReal_eq_iff.mpr r_top]
-  refine eLpNorm_convolution_le_ofReal_aux ?_ ?_ ?_ ?_ hf hg hg'' c hL; rotate_right
+  refine eLpNorm_convolution_le_ofReal ?_ ?_ ?_ ?_ hf hg c hL; rotate_right
   · simp_rw [← ENNReal.toReal_one, ← ENNReal.toReal_inv]
     rw [← ENNReal.toReal_add _ ENNReal.one_ne_top, ← ENNReal.toReal_add, hpqr]
     all_goals exact ENNReal.inv_ne_top.mpr (fun h ↦ (h ▸ one_pos).not_ge (by assumption))
   all_goals rwa [← ENNReal.toReal_one, ENNReal.toReal_le_toReal ENNReal.one_ne_top (by assumption)]
 
-variable (L)
-
-/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
-`1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ` is replaced with a bound for `L` restricted to the ranges
-of `f` and `g`; see `eLpNorm_convolution_le_enorm_mul` for a version using `‖L‖ₑ` explicitly. -/
-theorem eLpNorm_convolution_le_of_norm_le_mul [MeasurableSpace E] [OpensMeasurableSpace E]
-    [MeasurableSpace E'] [OpensMeasurableSpace E']
-    [μ.IsAddRightInvariant] {p q r : ℝ≥0∞}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ)
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) r μ ≤ .ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  refine eLpNorm_convolution_le_of_norm_le_mul_aux hp hq hr hpqr hf.enorm ?_ ?_ ?_ c hL
-  · intro x; exact hg.enorm.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
-  · intro x; exact eLpNorm_comp_measurePreserving' hg (μ.measurePreserving_sub_left x)
-  · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
-
-/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
-`1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ` is replaced with a bound for `L` restricted to the ranges
-of `f` and `g`; see `eLpNorm_convolution_le_enorm_mul` for a version using `‖L‖ₑ` explicitly. -/
-theorem eLpNorm_convolution_le_of_norm_le_mul'
-    [μ.IsAddRightInvariant] {p q r : ℝ≥0∞}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
-    (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
-    eLpNorm (f ⋆[L, μ] g) r μ ≤ .ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  refine eLpNorm_convolution_le_of_norm_le_mul_aux hp hq hr hpqr hf.enorm ?_ ?_ ?_ c hL
-  · intro x; exact hg.enorm.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
-  · intro x; apply eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
-  · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
-
 /-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
 bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
 `1 / p + 1 / q = 1 / r + 1`. -/
-theorem eLpNorm_convolution_le_enorm_mul [MeasurableSpace E] [OpensMeasurableSpace E]
-    [MeasurableSpace E'] [OpensMeasurableSpace E']
-    [μ.IsAddRightInvariant] {p q r : ℝ≥0∞}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
-    eLpNorm (f ⋆[L, μ] g) r μ ≤ ‖L‖ₑ * eLpNorm f p μ * eLpNorm g q μ := by
-  rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg L)]
-  exact eLpNorm_convolution_le_of_norm_le_mul L hp hq hr hpqr hf hg ‖L‖ <| fun x y ↦
-    ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
-
-/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
-`1 / p + 1 / q = 1 / r + 1`. -/
-theorem eLpNorm_convolution_le_enorm_mul' [μ.IsAddRightInvariant] {p q r : ℝ≥0∞}
+theorem eLpNorm_convolution_le_enorm_mul [μ.IsAddRightInvariant] {p q r : ℝ≥0∞}
     (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
     {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
     eLpNorm (f ⋆[L, μ] g) r μ ≤ ‖L‖ₑ * eLpNorm f p μ * eLpNorm g q μ := by
   rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg L)]
-  exact eLpNorm_convolution_le_of_norm_le_mul' L hp hq hr hpqr hf hg ‖L‖ <| fun x y ↦
+  exact eLpNorm_convolution_le_of_norm_le_mul L hp hq hr hpqr hf hg ‖L‖ <| fun x y ↦
     ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
 open Set AddCircle in
@@ -512,7 +400,7 @@ lemma eLpNorm_Ioc_convolution_le_of_norm_le_mul_aux (a : ℝ) {T : ℝ} [hT : Fa
     _ = eLpNorm (liftIoc T a f ⋆[L] liftIoc T a g) r := by
       rw [← liftIoc_convolution_liftIoc L a hfT hgT]
     _ ≤ .ofReal c * eLpNorm (liftIoc T a f) p * eLpNorm (liftIoc T a g) q := by
-      exact eLpNorm_convolution_le_of_norm_le_mul' L hp hq hr hpqr (hf.liftIoc T a) (hg.liftIoc T a)
+      exact eLpNorm_convolution_le_of_norm_le_mul L hp hq hr hpqr (hf.liftIoc T a) (hg.liftIoc T a)
         c (by intros; apply hL)
     _ = _ := by
       rw [← eLpNorm_liftIoc' T a hf, ← eLpNorm_liftIoc' T a hg]
