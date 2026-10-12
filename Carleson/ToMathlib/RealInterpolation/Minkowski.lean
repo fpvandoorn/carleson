@@ -825,8 +825,8 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
   have wt_est := (h₀T f hf).2 -- the weaktype estimate
   have q_pos : 0 < q.toReal := toReal_pos hq.ne' hq'.ne_top
   have tq_pos : 0 < t ^ q.toReal := ENNReal.rpow_pos_of_nonneg ht q_pos.le
-  rw [wnorm_ne_top (h₀T f hf).1 hq.ne' hq'.ne_top] at wt_est
-  simp only [wnorm', iSup_le_iff] at wt_est
+  rw [wnorm_eq_iSup_mul_distribution_rpow (h₀T f hf).1 hq.ne' hq'.ne_top] at wt_est
+  simp only [iSup_le_iff] at wt_est
   have wt_est_t := wt_est t.toNNReal -- this is the weaktype estimate applied to t
   have : ofNNReal t.toNNReal = t := coe_toNNReal ht'
   rw [this, mul_le_iff_le_inv ht.ne' ht', mul_comm, ENNReal.rpow_inv_le_iff q_pos,
