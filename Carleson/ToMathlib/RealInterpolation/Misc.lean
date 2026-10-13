@@ -612,8 +612,10 @@ lemma truncCompl_anti {x : α} (hab : t ≤ s) :
   unfold truncCompl
   split_ifs <;> [rfl; simp; order; simp]
 
-lemma eLpNorm_truncCompl_le_self : eLpNorm (truncCompl f t) p μ ≤ eLpNorm f p μ :=
-  eLpNorm_mono_enorm fun _ ↦ truncCompl_le_func
+lemma eLpNorm_truncCompl_le_self : eLpNorm (truncCompl f t) p μ ≤ eLpNorm f p μ := by
+  by_cases hf : AEStronglyMeasurable f μ
+  · exact eLpNorm_mono_enorm hf.truncCompl fun _ ↦ truncCompl_le_func
+  · simp_rw [eLpNorm_of_not_aestronglyMeasurable hf, le_top]
 
 @[simp]
 lemma truncCompl_truncCompl {a b : ℝ≥0∞} :
