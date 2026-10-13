@@ -25,12 +25,6 @@ lemma eLpNorm_zero_of_ae_zero' [ESeminormedAddMonoid ε] {f : α → ε} (h : en
   apply eLpNorm_congr_enorm_ae
   simpa
 
-lemma eLpNorm_zero_of_ae_zero [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
-    eLpNorm f p μ = 0 := by
-  apply eLpNorm_zero_of_ae_zero'
-  unfold Filter.EventuallyEq
-  simpa only [Function.comp_apply, Pi.zero_apply, enorm_eq_zero]
-
 end Zero
 
 section MapMeasure

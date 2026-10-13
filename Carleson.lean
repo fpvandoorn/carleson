@@ -57,7 +57,6 @@ public import Carleson.ToMathlib.Analysis.Convolution
 public import Carleson.ToMathlib.Analysis.Fourier.AddCircle
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
-public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 public import Carleson.ToMathlib.Annulus
 public import Carleson.ToMathlib.BoundedCompactSupport
@@ -98,7 +97,6 @@ public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Basics
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Defs
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Metric
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Prod
-public import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 public import Carleson.ToMathlib.MinLayer
 public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.Order.CompleteLattice.Basic
