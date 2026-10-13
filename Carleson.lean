@@ -57,7 +57,6 @@ public import Carleson.ToMathlib.Analysis.Convolution
 public import Carleson.ToMathlib.Analysis.Fourier.AddCircle
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
-public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 public import Carleson.ToMathlib.Annulus
 public import Carleson.ToMathlib.BoundedCompactSupport
