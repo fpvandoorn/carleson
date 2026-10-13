@@ -529,7 +529,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
     · intro _
       rw [h]
       simp only [zero_smul, eLorentzNorm_zero, mul_zero, toReal_inv, zero_mul, nonpos_iff_eq_zero]
-      apply eLpNorm_zero_of_ae_zero
+      apply eLpNorm_eq_zero_of_ae_zero
       exact ae_restrict_le T_zero
     gcongr
     · apply eLpNorm_mono_enorm_ae
