@@ -25,7 +25,8 @@ instance (priority := 100) IsHaarMeasure.isInvInvariant_of_isMulRightInvariant (
   let c : ℝ≥0∞ := haarScalarFactor μ.inv μ
   have hc : μ.inv = c • μ := isMulLeftInvariant_eq_smul_of_regular μ.inv μ
   have : map Inv.inv (map Inv.inv μ) = c ^ 2 • μ := by
-    rw [← inv_def μ, hc, Measure.map_smul, ← inv_def μ, hc, smul_smul, pow_two]
+    rw [← inv_def μ, hc, Measure.map_smul _ measurable_inv.aemeasurable, ← inv_def μ, hc, smul_smul,
+      pow_two]
   have μeq : μ = c ^ 2 • μ := by
     simpa [map_map continuous_inv.measurable continuous_inv.measurable] using this
   have K : TopologicalSpace.PositiveCompacts G := Classical.arbitrary _

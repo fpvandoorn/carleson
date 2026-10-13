@@ -372,8 +372,7 @@ lemma I12_le' {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (x1 : E
     rw [pow_add, mul_comm]
     norm_cast
     gcongr
-    · exact one_le_two
-    · lia
+    lia
 
 private lemma exp_ineq (ha : 4 ≤ a) : 0 < (8 * a : ℕ) * -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹ + 1 := by
   have hpos : 0 < (a : ℝ) ^ 2 * 2 + a ^ 3 := by positivity
@@ -529,39 +528,23 @@ lemma boundedCompactSupport_aux_6_2_26 {p p' : 𝔓 X} {g : X → ℂ}
         fun (x, z1, z2) ↦ conj (Ks (𝔰 p') z1 x) * g z1 *
           (Ks (𝔰 p) z2 x * conj (g z2)) * (exp (I * (Q z1 z1 - Q z1 x)) *
             exp (I * (-Q z2 z2 + Q z2 x))) := by ext; ring
-    exact heq ▸ BoundedCompactSupport.mul_bdd_right this
-      ⟨(Measurable.stronglyMeasurable (by fun_prop)).aestronglyMeasurable, lt_of_le_of_lt
-        (eLpNorm_le_of_ae_bound (C := 1) (Filter.Eventually.of_forall
-          (fun x ↦ by simp [← ofReal_sub, mul_comm I, ← ofReal_neg, ← ofReal_add]))) (by simp)⟩
+    rw [heq]
+    apply this.mul_bdd_right <| memLp_top_of_bound_enorm
+      (Measurable.stronglyMeasurable (by fun_prop)).aestronglyMeasurable 1
+      (.of_forall fun x ↦ by simp [← ofReal_sub, mul_comm I, ← ofReal_neg, ← ofReal_add])
   constructor
   · -- MemLp
-    constructor
-    · -- AEStronglyMeasurable
-      exact (Measurable.stronglyMeasurable (by fun_prop)).aestronglyMeasurable
-    · -- eLpNorm < ⊤
-      simp only [eLpNorm_exponent_top, eLpNormEssSup_lt_top_iff_isBoundedUnder]
-      have h1 : Filter.IsBoundedUnder (· ≤ ·) (ae volume) fun x : X × X ↦
-          ‖conj (Ks (𝔰 p') x.1 x.2) * g x.1‖₊ := by
-        rw [← eLpNormEssSup_lt_top_iff_isBoundedUnder, ← eLpNorm_exponent_top]
-        exact (boundedCompactSupport_star_Ks_mul_g hg hg1).memLp_top.eLpNorm_lt_top
-      have h2 : Filter.IsBoundedUnder (· ≤ ·) (ae volume) fun x : X × X ↦
-          ‖Ks (𝔰 p) x.1 x.2 * conj (g x.1)‖₊ := by
-        rw [← eLpNormEssSup_lt_top_iff_isBoundedUnder, ← eLpNorm_exponent_top]
-        exact (boundedCompactSupport_Ks_mul_star_g hg hg1).memLp_top.eLpNorm_lt_top
-      obtain ⟨B, hB⟩ := h1
-      obtain ⟨C, hC⟩ := h2
-      use B * C
-      simp only [nnnorm_mul, RCLike.nnnorm_conj, Filter.eventually_map] at hB hC ⊢
-      have hp1 : QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.1, z.1)) volume volume := by
-        suffices QuasiMeasurePreserving (Prod.map (id (α := X)) (Prod.fst (α := X) (β := X)))
-            volume volume from measurePreserving_swap.quasiMeasurePreserving.comp this
-        fun_prop
-      have hp2 : QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.2, z.1)) volume volume := by
-        suffices QuasiMeasurePreserving (Prod.map (id (α := X)) (Prod.snd (α := X) (β := X)))
-            volume volume from measurePreserving_swap.quasiMeasurePreserving.comp this
-        fun_prop
-      filter_upwards [hp1.ae hB, hp2.ae hC] with x h1x h2x
-      exact mul_le_mul' h1x h2x
+    have hp1 : QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.1, z.1)) volume volume := by
+      suffices QuasiMeasurePreserving (Prod.map (id (α := X)) (Prod.fst (α := X) (β := X)))
+          volume volume from measurePreserving_swap.quasiMeasurePreserving.comp this
+      fun_prop
+    have hp2 : QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.2, z.1)) volume volume := by
+      suffices QuasiMeasurePreserving (Prod.map (id (α := X)) (Prod.snd (α := X) (β := X)))
+          volume volume from measurePreserving_swap.quasiMeasurePreserving.comp this
+      fun_prop
+    exact ((boundedCompactSupport_star_Ks_mul_g hg hg1).memLp_top.comp_quasiMeasurePreserving
+      hp1).mul ((boundedCompactSupport_Ks_mul_star_g hg hg1).memLp_top.comp_quasiMeasurePreserving
+        hp2)
   · -- HasCompactSupport
     rw [← exists_compact_iff_hasCompactSupport]
     use closedBall o (D ^ S) ×ˢ closedBall o (D ^ S / 4) ×ˢ closedBall o (D ^ S / 4)

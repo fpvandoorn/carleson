@@ -5,6 +5,8 @@ public import Carleson.Defs
 public import Carleson.ToMathlib.Analysis.Fourier.AddCircle
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 public import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
+import Mathlib.Analysis.Convex.Deriv
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
 
 @[expose] public section
 

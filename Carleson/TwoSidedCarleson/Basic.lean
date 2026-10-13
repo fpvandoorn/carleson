@@ -35,7 +35,7 @@ lemma czOperator_bound {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r
       norm_cast
       rw [← toNNReal_mul]
     rw [← Measure.restrict_apply₀']
-    · apply measure_mono_null_ae this.eventuallyLE
+    · apply measure_mono_null this
       rw [ofPred_or]
       apply measure_union_null
       · rw [← ae_iff]
@@ -46,7 +46,8 @@ lemma czOperator_bound {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r
         · apply enorm_K_le_ball_complement hy
         · exact (div_lt_top coe_ne_top ((measure_ball_pos volume x hr).ne.symm)).ne
       · simp_rw [← ae_iff, M2, ← ENNReal.toReal.eq_1, ← toReal_enorm,
-          (ENNReal.toReal_le_toReal enorm_lt_top.ne (hg.eLpNorm_lt_top).ne), eLpNorm_exponent_top]
+          (ENNReal.toReal_le_toReal enorm_lt_top.ne (hg.eLpNorm_lt_top).ne),
+          eLpNorm_exponent_top hg.aestronglyMeasurable]
         apply ae_restrict_of_ae ae_le_eLpNormEssSup
     · exact measurableSet_ball.compl.nullMeasurableSet
   · exact measurableSet_ball.compl.nullMeasurableSet

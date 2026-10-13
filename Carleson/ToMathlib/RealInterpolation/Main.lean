@@ -242,7 +242,7 @@ lemma const (T : (α → ε₁) → ε) (P : (α → ε₁) → Prop)
     (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ₑ ≤ ‖T f‖ₑ + ‖T g‖ₑ)
     (h_smul : ∀ f {c : ℝ≥0}, P f → T (c • f) = c • T f) :
     SublinearOn (fun u (_ : α') ↦ T u) P 1 := by
-  refine ⟨SubadditiveOn.const h_add, fun f c hf ↦ ?_⟩
+  refine ⟨SubadditiveOn.const (T := fun u ↦ ‖T u‖ₑ) h_add, fun f c hf ↦ ?_⟩
   ext x
   simp [h_smul f hf]
 
@@ -695,13 +695,9 @@ lemma support_sigma_finite_from_MemLp
       contradiction
   rw [← this]
   apply support_sigma_finite_of_lintegrable
-  · exact hf.1.enorm.pow_const _
-  · unfold g
-    have obs := hf.2
-    unfold eLpNorm eLpNorm' at obs
-    split_ifs at obs
-    · contradiction
-    · exact lintegral_rpow_enorm_lt_top_of_eLpNorm'_lt_top (toReal_pos hp' hp) obs
+  · exact hf.aestronglyMeasurable.enorm.pow_const _
+  · exact lintegral_rpow_enorm_lt_top_of_eLpNorm'_lt_top (toReal_pos hp' hp)
+      ((eLpNorm_eq_eLpNorm' hp' hp hf.aestronglyMeasurable).symm.trans_lt hf)
 
 -- lemma support_sfinite_from_MemLp
 --     [MeasurableSpace E₁] [NormedAddCommGroup E₁] (hf : MemLp f p μ)
@@ -811,7 +807,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           · exact hp₁.2
           · exact ne_top_of_Ioc hp₁ is_q₁top
           · exact is_q₁top.ne_top
-          · exact hf.1
+          · exact hf.aestronglyMeasurable
           · rw [hspf]; rfl
         · simp
       · split_ifs with is_q₀top
@@ -821,7 +817,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           · exact hp₀.2
           · exact ne_top_of_Ioc hp₀ is_q₀top
           · exact is_q₀top.ne_top
-          · exact hf.1
+          · exact hf.aestronglyMeasurable
           · rw [hspf]; rfl
         · simp
   _ = (if q₁ < ⊤ then 1 else 0) *
@@ -885,8 +881,8 @@ lemma combine_estimates₁ {A : ℝ≥0} (hA : 0 < A)
   refine le_of_rpow_le q'pos ?_
   calc
   _ = ∫⁻ x , ‖T f x‖ₑ ^ q.toReal ∂ν := by
-    unfold eLpNorm eLpNorm'
-    split_ifs <;> [contradiction; rw [one_div, ENNReal.rpow_inv_rpow q'pos.ne']]
+    rw [eLpNorm_eq_eLpNorm' q_ne_zero q_ne_top (h₂T hf), eLpNorm', one_div,
+      ENNReal.rpow_inv_rpow q'pos.ne']
   _ ≤ _ := by
     apply combine_estimates₀ (hT := hT) (p := p) <;> try assumption
   _ = _ := by
@@ -983,14 +979,13 @@ lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : 
   have q₀pos : 0 < q₀ := pos_of_rb_Ioc hp₀
   have q₁pos : 0 < q₁ := pos_of_rb_Ioc hp₁
   have q_pos : 0 < q := interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq
-  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hf.1 p_pos.ne' hF
-  have hf₁ : MemLp f p₀ μ := ⟨hf.1, by rw [hf₂]; exact zero_lt_top⟩
+  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hf.aestronglyMeasurable p_pos.ne' hF
+  have hf₁ : MemLp f p₀ μ := by rw [memLp_iff, hf₂]; exact zero_lt_top
   have := (h₀T f hf₁).2
   rw [hf₂, mul_zero] at this
   have wnorm_0 : wnorm (T f) q₀ ν = 0 := nonpos_iff_eq_zero.mp this
   have : (fun y ↦ ‖(T f) y‖ₑ) =ᵐ[ν] 0 := (wnorm_eq_zero_iff q₀pos.ne').mp wnorm_0
-  rwa [← eLpNorm_enorm, eLpNorm_eq_zero_iff _ q_pos.ne']
-  have := h₂T hf; fun_prop
+  rwa [← eLpNorm_enorm _ (h₂T hf), eLpNorm_eq_zero_iff q_pos.ne']
 
 /-- The estimate for the real interpolation theorem in case `p₀ < p₁`. -/
 lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0}
@@ -1013,7 +1008,7 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | hF
   · refine le_of_eq_of_le ?_ zero_le
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
-  · let spf := spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf.2⟩
+  · let spf := spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf⟩
     apply combine_estimates₁ <;> try assumption
     on_goal 1 => unfold spf
     rfl
@@ -1123,7 +1118,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | snorm_pos
   · refine le_of_eq_of_le ?_ zero_le
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
-  · have hF : eLpNorm f p μ ∈ Ioo 0 ⊤ := ⟨snorm_pos, hf.2⟩
+  · have hF : eLpNorm f p μ ∈ Ioo 0 ⊤ := ⟨snorm_pos, hf⟩
     have M_pos : 0 < M := toReal_pos (d_pos hC₀ hC₁ hF).ne' (d_ne_top hC₀ hC₁ hF)
     have coe_q : ENNReal.ofReal q.toReal = q :=
     ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)

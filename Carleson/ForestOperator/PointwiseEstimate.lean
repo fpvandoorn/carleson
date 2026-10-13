@@ -123,7 +123,7 @@ lemma integrable_approxOnCube (C : Set (Grid X)) {f : X → E'} : Integrable (ap
 
 lemma approxOnCube_nonneg {C : Set (Grid X)} {f : X → ℝ} (hf : ∀ (y : X), f y ≥ 0) {x : X} :
     approxOnCube C f x ≥ 0 :=
-  Finset.sum_nonneg' (fun _ ↦ Set.indicator_nonneg (fun _ _ ↦ integral_nonneg hf) _)
+  Finset.sum_nonneg (fun _ _ ↦ Set.indicator_nonneg (fun _ _ ↦ integral_nonneg hf) _)
 
 open scoped Classical in
 lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ (I : Set X)))

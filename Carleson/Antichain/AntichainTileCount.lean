@@ -1027,7 +1027,7 @@ lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄
   have p₆p := p₆_pos a4
   have p₆c : ENNReal.ofReal (p₆ a) = ↑(p₆ a).toNNReal := by norm_cast
   rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (p₆ a).toNNReal by simpa), p₆c,
-    eLpNorm_nnreal_pow_eq_lintegral (by simpa), Real.coe_toNNReal _ p₆p.le,
+    eLpNorm_nnreal_pow_eq_lintegral (by simpa) (by measurability), Real.coe_toNNReal _ p₆p.le,
     ENNReal.mul_rpow_of_nonneg _ _ p₆p.le, ENNReal.mul_rpow_of_nonneg _ _ p₆p.le]
   iterate 3 rw [← ENNReal.rpow_mul, inv_mul_cancel₀ p₆p.ne', ENNReal.rpow_one]
   calc
@@ -1115,8 +1115,7 @@ lemma le_C6_1_6 (a4 : 4 ≤ a) :
       · exact_mod_cast calculation_6_1_6 a4
     _ ≤ _ := by
       rw [C6_1_6]; norm_cast; rw [← pow_add]; gcongr
-      · exact one_le_two
-      · lia
+      lia
 
 set_option backward.isDefEq.respectTransparency.types false in
 open Classical in
@@ -1136,16 +1135,12 @@ lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (�
     _ ≤ ∑ n ∈ Finset.range N, eLpNorm (fun x ↦ ∑ p ∈ 𝔄_aux 𝔄 ϑ n,
         (1 + edist_(p) (𝒬 p) ϑ.val) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
         (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume := by
-      refine eLpNorm_sum_le (fun p mp ↦ ?_) ?_
-      · refine Finset.aestronglyMeasurable_fun_sum _ fun p mp ↦ ?_
-        simp_rw [mul_assoc, ← inter_indicator_mul]
-        exact ((AEMeasurable.indicator (by simp)
-          (measurableSet_E.inter measurableSet_G)).const_mul _).aestronglyMeasurable
-      · grw [ENNReal.one_le_ofReal, (one_lt_p₆ (four_le_a X)).le]
+      refine eLpNorm_sum_le ?_
+      grw [ENNReal.one_le_ofReal, (one_lt_p₆ (four_le_a X)).le]
     _ ≤ ∑ n ∈ Finset.range N, eLpNorm (fun x ↦ ∑ p ∈ 𝔄_aux 𝔄 ϑ n,
         (2 : ℝ) ^ (-n * (2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
         (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume := by
-      refine Finset.sum_le_sum fun n mn ↦ eLpNorm_mono_enorm fun x ↦ ?_
+      refine Finset.sum_le_sum fun n mn ↦ eLpNorm_mono_enorm (by measurability) fun x ↦ ?_
       rw [enorm_eq_self, ENNReal.enorm_sum_eq_sum_enorm]; swap
       · refine fun p mp ↦ mul_nonneg ?_ (indicator_nonneg (by simp) _)
         exact mul_nonneg (Real.rpow_nonneg zero_le_two _) (indicator_nonneg (by simp) _)
