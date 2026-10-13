@@ -129,7 +129,7 @@ def WeaklyContinuous [TopologicalSpace ε] [ENorm ε] [SupSet ε] [Preorder ε] 
     eLpNorm (T f) 1 (ν.restrict G) ≤ Filter.limsup (fun n ↦ eLpNorm (T ⇑(fs n)) 1 (ν.restrict G)) Filter.atTop
 
 theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
-    [TopologicalSpace ε'] [ENormedAddCommMonoid ε'] [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
+    [TopologicalSpace ε'] [ENormedAddCommMonoid ε']
     {c : ℝ≥0} (c_pos : 0 < c) {T : (α → ℝ≥0) → α' → ε'} (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
     (hpq : p.HolderConjugate q)
     (T_meas : ∀ {f : α → ℝ≥0}, (MemLorentz f p 1 μ) → AEStronglyMeasurable (T f) ν)
@@ -531,7 +531,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
       simp
 
 lemma HasRestrictedWeakType.hasLorentzType [SigmaFinite μ] {𝕂 : Type*}
-  [RCLike 𝕂] [TopologicalSpace ε'] [ENormedAddCommMonoid ε'] [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε']
+  [RCLike 𝕂] [TopologicalSpace ε'] [ENormedAddCommMonoid ε']
   {T : (α → 𝕂) → (α' → ε')} {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) (p_ne_top : p ≠ ⊤) (q_ne_top : q ≠ ⊤)
   [SigmaFinite ν] {c : ℝ≥0} (c_pos : 0 < c)
   (hT : HasRestrictedWeakType T p q μ ν c)
