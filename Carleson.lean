@@ -98,7 +98,6 @@ public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Basics
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Defs
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Metric
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Prod
-public import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 public import Carleson.ToMathlib.MinLayer
 public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.Order.CompleteLattice.Basic
