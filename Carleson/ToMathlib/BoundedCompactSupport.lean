@@ -78,7 +78,6 @@ Since it might be nicer to work with suprema instead of essential suprema, we ne
 everywhere-boundedness in one place.
 TODO: Refactor this back to every boundedness (plus measurability)
 -/
-
 /-- Bounded compactly supported measurable functions -/
 @[fun_prop]
 structure BoundedCompactSupport (f : X → E) (μ : Measure X := by volume_tac) :
