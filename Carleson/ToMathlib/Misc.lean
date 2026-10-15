@@ -248,6 +248,32 @@ theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStro
   refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
   exact ENNReal.measurable_toReal.comp_aemeasurable hu.aemeasurable
 
+-- unused, probably delete
+open Classical in
+lemma toReal_ofReal_preimage' {s : Set ℝ≥0∞} : ENNReal.toReal ⁻¹' (ENNReal.ofReal ⁻¹' s) =
+    if ∞ ∈ s ↔ 0 ∈ s then s else if 0 ∈ s then s ∪ {∞} else s \ {∞} := by
+  split_ifs <;> ext (_|_) <;> simp_all
+
+open Classical in
+lemma toReal_ofReal_preimage {s : Set ℝ≥0∞} : letI t := ENNReal.toReal ⁻¹' (ENNReal.ofReal ⁻¹' s)
+  s = if ∞ ∈ s ↔ 0 ∈ s then t else if 0 ∈ s then t \ {∞} else t ∪ {∞} := by
+  split_ifs <;> ext (_|_) <;> simp_all
+
+lemma aestronglyMeasurable_ennreal_toReal_iff {f : α → ℝ≥0∞}
+    (hf : NullMeasurableSet (f ⁻¹' {∞}) μ) :
+    AEStronglyMeasurable (ENNReal.toReal ∘ f) μ ↔ AEStronglyMeasurable f μ := by
+  refine ⟨fun h ↦ AEMeasurable.aestronglyMeasurable (NullMeasurable.aemeasurable fun s hs ↦ ?_),
+    fun h ↦ h.ennreal_toReal⟩
+  have := h.aemeasurable.nullMeasurable (hs.preimage ENNReal.measurable_ofReal)
+  simp_rw [preimage_comp] at this
+  rw [toReal_ofReal_preimage (s := s)]
+  split_ifs
+  · exact this
+  · simp_rw [preimage_sdiff]
+    exact this.diff hf
+  · simp_rw [preimage_union]
+    exact this.union hf
+
 lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := by
   simp_rw [setLAverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
     univ_inter, div_eq_mul_inv, mul_assoc]
