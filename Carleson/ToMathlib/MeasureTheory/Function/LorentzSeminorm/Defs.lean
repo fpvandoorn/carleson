@@ -1,6 +1,6 @@
 module
 
-public import Carleson.ToMathlib.WeakType
+public import Carleson.ToMathlib.WNorm
 
 -- Upstreaming status: mostly ready but things should be more closely aligned with mathlib Lp spaces
 
