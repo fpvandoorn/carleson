@@ -1,6 +1,7 @@
 module
 
 public import Carleson.ToMathlib.RealInterpolation.Misc
+public import Carleson.ToMathlib.WeakType
 
 /-!
 # Minkowski's integral inequality
