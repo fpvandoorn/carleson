@@ -522,11 +522,11 @@ lemma distribution_lt_top (hf : MemLp f p μ) (p_pos : 0 < p) (p_ne_top : p ≠ 
     distribution f t μ < ∞ := calc
   _ ≤ μ {x | (t : ℝ≥0∞) ≤ ‖f x‖ₑ} := by
     unfold distribution
-    exact measure_mono fun x (hx : (t : ℝ≥0∞) < ‖f x‖ₑ) ↦ (hx.le : (t : ℝ≥0∞) ≤ ‖f x‖ₑ)
+    gcongr
+    exact le_of_lt
   _ ≤ (t : ℝ≥0∞)⁻¹ ^ p.toReal * eLpNorm f p μ ^ p.toReal :=
     meas_ge_le_mul_pow_eLpNorm_enorm μ p_pos.ne' p_ne_top hf.1 (by simpa using ht.ne') (by simp)
-  _ < ∞ := mul_lt_top (rpow_lt_top_of_nonneg toReal_nonneg (by simpa using ht.ne'))
-    (rpow_lt_top_of_nonneg toReal_nonneg hf.2.ne)
+  _ < ∞ := by finiteness
 
 end ContinuousENorm
 
