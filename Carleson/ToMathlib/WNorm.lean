@@ -127,32 +127,37 @@ lemma wnorm_iSup_of_monotone {α : Type*} [MeasurableSpace α] {p : ℝ≥0∞} 
       intro x
       exact monotone_lt.comp (hf.apply₂ x)
 
-/-- A function is in weak-L^p if it is (strongly a.e.)-measurable and has finite weak L^p norm. -/
+/-- A function is in weak-L^p if it has finite weak L^p norm.
+  This implies that it is (strongly a.e.)-measurable, see `MemWLp.aeStronglyMeasurable`. -/
+@[fun_prop]
 def MemWLp [TopologicalSpace ε] (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
-  AEStronglyMeasurable f μ ∧ wnorm f p μ < ∞
+  wnorm f p μ < ∞
 
-lemma memWLp_iff_memLorentz [TopologicalSpace ε] : MemWLp f p μ ↔ MemLorentz f p ∞ μ :=
-  ⟨fun h ↦ h.2, fun h ↦ ⟨h.aestronglyMeasurable, h⟩⟩
+lemma memWLp_iff_memLorentz [TopologicalSpace ε] : MemWLp f p μ ↔ MemLorentz f p ∞ μ := Iff.rfl
 
-lemma MemWLp.aeStronglyMeasurable [TopologicalSpace ε] (hf : MemWLp f p μ) : AEStronglyMeasurable f μ := hf.1
+@[fun_prop]
+lemma MemWLp.aeStronglyMeasurable [TopologicalSpace ε] (hf : MemWLp f p μ) :
+    AEStronglyMeasurable f μ :=
+  MemLorentz.aestronglyMeasurable hf
 
-lemma MemWLp.wnorm_lt_top [TopologicalSpace ε] (hf : MemWLp f p μ) : wnorm f p μ < ⊤ := hf.2
+lemma MemWLp.wnorm_lt_top [TopologicalSpace ε] (hf : MemWLp f p μ) : wnorm f p μ < ⊤ := hf
 
 lemma MemWLp.ennreal_toReal {f : α → ℝ≥0∞} (hf : MemWLp f p μ) :
     MemWLp (ENNReal.toReal ∘ f) p μ :=
-  ⟨hf.aeStronglyMeasurable.ennreal_toReal, wnorm_toReal_le.trans_lt hf.2⟩
+  wnorm_toReal_le.trans_lt hf
 
 /-- If a function `f` is `MemWLp` for `p ≠ 0`, then its norm is almost everywhere finite. -/
 -- XXX: is this a good finiteness rule, given that `p` might be hard to infer?
 @[aesop (rule_sets := [finiteness]) unsafe apply]
 theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) (hp_zero : p ≠ 0) :
     ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
+  have hm := hf.aeStronglyMeasurable
   by_cases hp_inf : p = ∞
-  · rw [hp_inf, MemWLp, wnorm_top hf.1] at hf
+  · rw [hp_inf, MemWLp, wnorm_top hm] at hf
     simp_rw [← lt_top_iff_ne_top]
-    exact ae_lt_of_essSup_lt hf.2
+    exact ae_lt_of_essSup_lt hf
   set A := {x | ‖f x‖ₑ = ∞} with hA
-  replace hf := wnorm_eq_iSup_mul_distribution_rpow hf.1 hp_zero hp_inf ▸ hf.2
+  replace hf := wnorm_eq_iSup_mul_distribution_rpow hm hp_zero hp_inf ▸ hf.wnorm_lt_top
   rw [Filter.eventually_iff, mem_ae_iff]
   simp only [ne_eq, compl_def, mem_ofPred_eq, Decidable.not_not, ← hA]
   have hp_toReal_zero := toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩

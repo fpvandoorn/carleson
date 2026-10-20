@@ -77,7 +77,7 @@ variable [TopologicalSpace ε₁] [ContinuousENorm ε₁] [TopologicalSpace ε�
 
 lemma HasWeakType.memWLp (h : HasWeakType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
     (hc : c < ⊤ := by finiteness) : MemWLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
+  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2
 
 lemma HasWeakType.toReal {T : (α → ε₁) → (α' → ℝ≥0∞)} (h : HasWeakType T p p' μ ν c) :
     HasWeakType (T · · |>.toReal) p p' μ ν c :=
@@ -124,7 +124,7 @@ variable [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace
 lemma HasBoundedWeakType.memWLp (h : HasBoundedWeakType T p p' μ ν c)
     (hf₁ : BoundedFiniteSupport f₁ μ) (hc : c < ⊤ := by finiteness) :
     MemWLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp p).2⟩
+  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp p).2
 
 lemma HasWeakType.hasBoundedWeakType (h : HasWeakType T p p' μ ν c) :
     HasBoundedWeakType T p p' μ ν c :=
