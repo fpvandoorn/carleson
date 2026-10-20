@@ -242,7 +242,7 @@ lemma eLorentzNorm_mono_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f
 
 /-- A function is in the Lorentz space `L^{p,q}` if it is (strongly a.e.)-measurable and
   has finite Lorentz seminorm. -/
-@[fun_prop]
+@[fun_prop] --TODO: check whether also `MemLp` in mathlib should be tagged
 def MemLorentz [TopologicalSpace ε] (f : α → ε) (p r : ℝ≥0∞) (μ : Measure α) : Prop :=
   eLorentzNorm f p r μ < ∞
 
