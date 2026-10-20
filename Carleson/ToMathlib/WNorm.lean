@@ -172,27 +172,25 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) (hp_zero : p
       false_or] at hC_zero
     exact measure_mono_null (ofPred_subset_ofPred.mpr fun x hx => hx ▸ one_lt_top) hC_zero.1
   by_contra h
-  have h2 : C < ∞ := hf
-  have h3 (t : ℝ≥0) : distribution f t μ ≤ (C / t) ^ p.toReal := by
+  have h2 (t : ℝ≥0) : distribution f t μ ≤ (C / t) ^ p.toReal := by
     rw [← rpow_inv_rpow hp_toReal_zero (distribution ..)]
     refine rpow_le_rpow ?_ toReal_nonneg
     rw [ENNReal.le_div_iff_mul_le (Or.inr hC_zero) (Or.inl coe_ne_top), mul_comm]
     exact le_iSup_iff.mpr fun _ a ↦ a t
-  have h4 (t : ℝ≥0) : μ A ≤ (C / t) ^ p.toReal := (h1 t).trans (h3 t)
-  have h5 : μ A ≤ μ A / 2 := by
-    convert h4 (C * (2 / μ A) ^ p.toReal⁻¹).toNNReal
-    rw [coe_toNNReal (mul_ne_top h2.ne (rpow_ne_top_of_nonneg (by simp)
-      (ENNReal.div_ne_top ofNat_ne_top h)))]
+  have h3 (t : ℝ≥0) : μ A ≤ (C / t) ^ p.toReal := (h1 t).trans (h2 t)
+  have h4 : μ A ≤ μ A / 2 := by
+    convert h3 (C * (2 / μ A) ^ p.toReal⁻¹).toNNReal
+    rw [coe_toNNReal (by finiteness)]
     nth_rw 1 [← mul_one C]
-    rw [ENNReal.mul_div_mul_left _ _ hC_zero h2.ne_top, div_rpow_of_nonneg _ _ toReal_nonneg,
+    rw [ENNReal.mul_div_mul_left _ _ hC_zero hf.ne_top, div_rpow_of_nonneg _ _ toReal_nonneg,
       ENNReal.rpow_inv_rpow hp_toReal_zero, ENNReal.one_rpow, one_div,
         ENNReal.inv_div (Or.inr ofNat_ne_top) (Or.inr (NeZero.ne' 2).symm)]
-  have h6 : μ A = 0 := by
+  have h5 : μ A = 0 := by
     convert (fun hh ↦ ENNReal.half_lt_self hh (ne_top_of_le_ne_top
-      (rpow_ne_top_of_nonneg toReal_nonneg ((div_one C).symm ▸ h2.ne_top))
-      (h4 1))).mt h5.not_gt
+      (rpow_ne_top_of_nonneg toReal_nonneg ((div_one C).symm ▸ hf.ne_top))
+      (h3 1))).mt h4.not_gt
     tauto
-  exact h h6
+  exact h h5
 
 end ENorm
 
