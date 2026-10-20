@@ -146,7 +146,8 @@ lemma MemWLp.ennreal_toReal {f : α → ℝ≥0∞} (hf : MemWLp f p μ) :
     MemWLp (ENNReal.toReal ∘ f) p μ :=
   wnorm_toReal_le.trans_lt hf
 
-/-- If a function `f` is `MemWLp` for `p ≠ 0`, then its norm is almost everywhere finite. -/
+/-- If a function `f` is `MemWLp` for `p ≠ 0`, then its norm is almost everywhere finite.
+For `p = 0`, the weak norm is always zero, so `hf` is vacuous. -/
 -- XXX: is this a good finiteness rule, given that `p` might be hard to infer?
 @[aesop (rule_sets := [finiteness]) unsafe apply]
 theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) (hp_zero : p ≠ 0 := by positivity) :
