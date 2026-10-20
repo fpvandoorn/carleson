@@ -242,12 +242,14 @@ lemma eLorentzNorm_mono_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f
 
 /-- A function is in the Lorentz space `L^{p,q}` if it is (strongly a.e.)-measurable and
   has finite Lorentz seminorm. -/
+@[fun_prop]
 def MemLorentz [TopologicalSpace ε] (f : α → ε) (p r : ℝ≥0∞) (μ : Measure α) : Prop :=
   eLorentzNorm f p r μ < ∞
 
 lemma memLorentz_iff [TopologicalSpace ε] {f : α → ε} :
     MemLorentz f p q μ ↔ eLorentzNorm f p q μ < ∞ := Iff.rfl
 
+@[fun_prop]
 theorem MemLorentz.aestronglyMeasurable [TopologicalSpace ε] {f : α → ε} {p : ℝ≥0∞}
   (h : MemLorentz f p q μ) :
     AEStronglyMeasurable f μ :=

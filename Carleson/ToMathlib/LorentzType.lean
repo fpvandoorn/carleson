@@ -432,11 +432,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
   · exact MemLorentz.add
   · intro f c hc hf
     refine hf.trans_le' (eLorentzNorm_mono_enorm_ae ?_ ?_)
-    · rw [aestronglyMeasurable_iff_aemeasurable]
-      apply AEMeasurable.comp_aemeasurable (by fun_prop)
-      apply AEMeasurable.comp_aemeasurable (by fun_prop)
-      unfold RCLike.component
-      apply AEMeasurable.comp_aemeasurable (by fun_prop) hf.aestronglyMeasurable.aemeasurable
+    · fun_prop (maxTransitionDepth := 2) [RCLike.component]
     · apply Eventually.of_forall
       intro x
       have : NNNorm 𝕂 := by infer_instance
@@ -445,7 +441,7 @@ lemma HasRestrictedWeakType'.of_hasRestrictedWeakType'_nnreal
         ofReal_coe_nnreal, ofReal_norm, coe_le_enorm, ge_iff_le]
       exact RCLike.component_le_nnnorm hc
   · intro f c hc hf
-    refine hf.trans_le' <| eLorentzNorm_mono_enorm_ae (hf.aestronglyMeasurable.const_smul c) <|
+    refine hf.trans_le' <| eLorentzNorm_mono_enorm_ae (by fun_prop) <|
       .of_forall fun x ↦ ?_
     simp only [Pi.smul_apply, smul_eq_mul, enorm_mul]
     nth_rw 2 [← one_mul ‖f x‖ₑ]
@@ -577,9 +573,7 @@ lemma HasRestrictedWeakType.hasLorentzType [SigmaFinite μ] {𝕂 : Type*}
     apply weakly_cont_T
     · rwa [memLorentz_iff_memLorentz_embedRCLike]
     · intro n
-      apply Measurable.aestronglyMeasurable
-      apply RCLike.measurable_ofReal.comp
-      apply measurable_coe_nnreal_real.comp (SimpleFunc.measurable (fs n))
+      fun_prop
     · intro x
       simp only [Function.comp_apply, norm_algebraMap', Real.norm_eq_abs, NNReal.abs_eq]
       exact fun ⦃a b⦄ a_1 ↦ hfs a_1 x
