@@ -78,7 +78,6 @@ Since it might be nicer to work with suprema instead of essential suprema, we ne
 everywhere-boundedness in one place.
 TODO: Refactor this back to every boundedness (plus measurability)
 -/
-
 /-- Bounded compactly supported measurable functions -/
 @[fun_prop]
 structure BoundedCompactSupport (f : X → E) (μ : Measure X := by volume_tac) :
@@ -226,22 +225,11 @@ theorem integrable_fun_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g 
     Integrable (fun x ↦ f x * g x) μ :=
   hf.integrable_mul hg
 
--- TODO: move the next three lemmas to their proper homes!
+-- TODO: move the next lemma to its proper home!
 omit [MeasurableSpace X] in
 lemma _root_.HasCompactSupport.star (hf : HasCompactSupport f) :
     HasCompactSupport fun i ↦ star (f i) :=
   (hasCompactSupport_comp_left (by simp)).2 hf
-
-omit [TopologicalSpace X] in
-lemma _root_.AEStronglyMeasurable.star (hf : AEStronglyMeasurable f μ) :
-    AEStronglyMeasurable (star f) μ :=
-  RCLike.continuous_conj.comp_aestronglyMeasurable hf
-
-omit [TopologicalSpace X] in
-lemma eLpNorm_star : eLpNorm (star f) ⊤ μ = eLpNorm f ⊤ μ := by
-  simp_rw [Star.star]
-  rw [MeasureTheory.eLpNorm_congr_enorm_ae (g := f)]
-  simp
 
 @[fun_prop]
 theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) μ where

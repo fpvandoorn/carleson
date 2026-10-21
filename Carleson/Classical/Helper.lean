@@ -38,11 +38,6 @@ lemma IntervalIntegrable.mul_bdd {F : Type*} [NormedField F] {f g : ℝ → F} {
   conv => pattern (fun x ↦ f x * g x); ext x; rw [mul_comm]
   exact hf.bdd_mul hm hgbdd
 
-lemma IntegrableOn.sub {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α}
-    [NormedAddCommGroup β] {s : Set α} {f g : α → β}
-    (hf : IntegrableOn f s μ) (hg : IntegrableOn g s μ) : IntegrableOn (f - g) s μ := by
-  apply Integrable.sub <;> rwa [← IntegrableOn]
-
 lemma ConditionallyCompleteLattice.le_biSup {α : Type*} [ConditionallyCompleteLinearOrder α]
     {ι : Type*} {f : ι → α} {s : Set ι} {a : α} (hfs : BddAbove (f '' s)) (ha : ∃ i ∈ s, f i = a) :
     a ≤ ⨆ i ∈ s, f i := by

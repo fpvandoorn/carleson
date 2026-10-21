@@ -57,7 +57,6 @@ public import Carleson.ToMathlib.Analysis.Convolution
 public import Carleson.ToMathlib.Analysis.Fourier.AddCircle
 public import Carleson.ToMathlib.Analysis.RCLike.Components
 public import Carleson.ToMathlib.Analysis.RCLike.Misc
-public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 public import Carleson.ToMathlib.Annulus
 public import Carleson.ToMathlib.BoundedCompactSupport
@@ -68,6 +67,7 @@ public import Carleson.ToMathlib.Data.NNReal
 public import Carleson.ToMathlib.Distribution
 public import Carleson.ToMathlib.ENorm
 public import Carleson.ToMathlib.HardyLittlewood
+public import Carleson.ToMathlib.HasType
 public import Carleson.ToMathlib.IntegralBallContinuity
 public import Carleson.ToMathlib.LorentzType
 public import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
@@ -103,7 +103,6 @@ public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Pi
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Prod
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Regular
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.WithDensity
-public import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 public import Carleson.ToMathlib.MinLayer
 public import Carleson.ToMathlib.Misc
 public import Carleson.ToMathlib.Order.CompleteLattice.Basic
@@ -116,7 +115,7 @@ public import Carleson.ToMathlib.RealInterpolation.Misc
 public import Carleson.ToMathlib.Rearrangement
 public import Carleson.ToMathlib.Topology.ContinuousOn
 public import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
-public import Carleson.ToMathlib.WeakType
+public import Carleson.ToMathlib.WNorm
 public import Carleson.TwoSidedCarleson.Basic
 public import Carleson.TwoSidedCarleson.MainTheorem
 public import Carleson.TwoSidedCarleson.NontangentialOperator

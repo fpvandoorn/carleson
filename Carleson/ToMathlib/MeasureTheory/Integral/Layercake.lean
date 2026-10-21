@@ -9,6 +9,8 @@ public import Carleson.ToMathlib.Distribution
 public import Carleson.ToMathlib.MeasureTheory.Function.SimpleFunc
 public import Carleson.ToMathlib.MeasureTheory.Measure.AEMeasurable
 public import Mathlib.MeasureTheory.Integral.Layercake
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 /-
 Upstreaming status: This ports the corresponding mathlib file to use `ℝ≥0` and integrals over `ℝ≥0`
@@ -557,5 +559,116 @@ theorem lintegral_eq_lintegral_meas_le' (μ : Measure α)
   rw [ht]
 
 end LayercakeLE
+
+section DistributionLayercake
+
+open NNReal ENNReal Function
+
+variable {α ε : Type*} {m : MeasurableSpace α} {μ : Measure α}
+  [TopologicalSpace ε] [ContinuousENorm ε]
+
+/-- The layer-cake theorem, or Cavalieri's principle for functions into a space with a continuous
+enorm. -/
+lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+    ∫⁻ x, ‖f x‖ₑ ^ p ∂μ =
+    ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
+  have := lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ENNReal.toReal ‖f x‖ₑ)
+    (Eventually.of_forall fun x ↦ ENNReal.toReal_nonneg) hf.enorm.ennreal_toReal hp
+  simp only [mul_comm (μ _), ne_eq, ofReal_ne_top, not_false_eq_true, ← lintegral_const_mul',
+    ← mul_assoc, ofReal_mul, distribution, hp.le] at this ⊢
+  -- TODO: clean up this whole proof
+  by_cases! ae_finite : μ {x | ‖f x‖ₑ = ∞} = 0
+  · -- main case
+    convert this using 1
+    · apply lintegral_congr_ae
+      rw [Filter.eventuallyEq_iff_exists_mem]
+      use {x | ‖f x‖ₑ ≠ ∞}
+      rw [mem_ae_iff, compl_ofPred]
+      simp only [ne_eq, Decidable.not_not]
+      use ae_finite
+      intro x hx
+      dsimp only
+      rw [toReal_rpow, ofReal_toReal (by finiteness)]
+    apply setLIntegral_congr_fun measurableSet_Ioi
+    intro t ht
+    dsimp only
+    congr 1
+    symm
+    apply measure_eq_measure_of_null_sdiff
+    · intro x hx
+      simp only [mem_ofPred_eq] at *
+      rwa [ofReal_lt_iff_lt_toReal ht.le]
+      by_contra hfx
+      rw [hfx] at hx
+      simp only [toReal_top] at hx
+      linarith [hx, mem_Ioi.mp ht]
+    dsimp [sdiff, Set.diff]
+    apply measure_mono_null _ ae_finite
+    intro x hx
+    dsimp only [mem_ofPred_eq] at *
+    by_contra hf_top
+    rw [ofReal_lt_iff_lt_toReal ht.le hf_top] at hx
+    exact hx.2 hx.1
+  · rw [lintegral_eq_top_of_measure_eq_top_ne_zero]
+    · symm
+      rw [← enorm_pos] at ae_finite
+      rw [eq_top_iff]
+      calc
+      _ = ENNReal.ofReal p *
+          (∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal (t ^ (p - 1))) * μ {x | ‖f x‖ₑ = ∞} := by
+        convert! (top_mul ae_finite.ne').symm
+        convert mul_top (ENNReal.ofReal_pos.mpr hp).ne'
+        rw [← not_ne_iff, lintegral_ofReal_ne_top_iff_integrable]; rotate_left
+        · exact (measurable_id.pow_const (p - 1)).aestronglyMeasurable.restrict
+        · refine ae_restrict_of_forall_mem measurableSet_Ioi fun x mx ↦ ?_
+          simp_rw [Pi.zero_apply]; rw [mem_Ioi] at mx; positivity
+        exact not_integrableOn_Ioi_rpow (p - 1)
+      _ = ∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal p * ENNReal.ofReal (t ^ (p - 1))
+            * μ {x | ‖f x‖ₑ = ∞} := by
+        rw [lintegral_mul_const, lintegral_const_mul] <;> fun_prop
+      _ ≤ ∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal p * ENNReal.ofReal (t ^ (p - 1))
+            * μ {x | ENNReal.ofReal t < ‖f x‖ₑ} := by
+        gcongr with t x
+        intro hfx
+        simp [hfx]
+    · fun_prop
+    · simp_rw [rpow_eq_top_iff_of_pos hp]
+      exact ae_finite
+
+/-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`. -/
+lemma eLpNorm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
+    eLpNorm f p μ ^ (p : ℝ) =
+    ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
+  have h2p : 0 < (p : ℝ) := hp
+  simp_rw [eLpNorm_nnreal_eq_eLpNorm' hp.ne', eLpNorm', one_div, ← ENNReal.rpow_mul,
+    inv_mul_cancel₀ h2p.ne', ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
+    ENNReal.ofReal_mul zero_le_coe, ofReal_coe_nnreal]
+
+/-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`, without
+    taking powers. -/
+lemma eLpNorm_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+    eLpNorm f (.ofReal p) μ =
+    (ENNReal.ofReal p  * ∫⁻ t in Ioi (0 : ℝ), distribution f (.ofReal t) μ *
+        ENNReal.ofReal (t ^ (p - 1)) ) ^ p⁻¹ := by
+  unfold eLpNorm
+  split_ifs with sgn_p sz_p
+  · exact False.elim (not_le_of_gt hp (ofReal_eq_zero.mp sgn_p))
+  · exact False.elim (coe_ne_top sz_p)
+  · unfold eLpNorm'
+    rw [toReal_ofReal hp.le, one_div]
+    congr 1
+    rw [← lintegral_const_mul' _ _ (by finiteness), lintegral_norm_pow_eq_distribution hf hp]
+    congr 1 with x; rw [ofReal_mul] <;> [ring; positivity]
+
+lemma lintegral_pow_mul_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : -1 < p) :
+    ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
+    ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖ₑ ^ (p + 1) ∂μ := by
+  have h2p : 0 < p + 1 := by linarith
+  have h3p : 0 ≤ p + 1 := by linarith
+  have h4p : p + 1 ≠ 0 := by linarith
+  simp [*, -ofReal_inv_of_pos, lintegral_norm_pow_eq_distribution, ← lintegral_const_mul',
+    ← ofReal_mul, ← mul_assoc]
+
+end DistributionLayercake
 
 end MeasureTheory

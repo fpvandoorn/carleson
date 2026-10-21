@@ -1,7 +1,11 @@
 module
 
 public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
-public import Carleson.ToMathlib.WeakType
+public import Carleson.ToMathlib.Distribution
+public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 /-!
 This file contains some miscellaneous prerequisites for proving the Marcinkiewisz real interpolation
@@ -18,7 +22,7 @@ Upstreaming status:
 - truncations and their properties definitely belong into mathlib
 - the details about cutoff functions and a particular scale function
   will depend on the particular proof chosen: design on the overall proof approach first
-- except for using `distribution_lt_top`, this file does not use WeakType;
+- this file does not use `wnorm` (`WNorm.lean`) or `HasType.lean`;
   it does use helper lemmas in `InterpolatedExponents`, though.
 -/
 
@@ -158,6 +162,7 @@ variable {α α' ε : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
 -/
 namespace ChoiceScale
 
+variable (p p₀ q₀ p₁ q₁ C₀ C₁ μ f) in
 def d :=
     (C₀ ^ (q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) * (eLpNorm f p μ ^ p.toReal) ^
       (p₀⁻¹.toReal * q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) /
@@ -205,17 +210,17 @@ lemma d_ne_top_aux₄ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : 0 < C₀) (hC₁ : 0 
 
 -- If the `p`-norm of `f` is positive and finite, then `d` is positive
 lemma d_pos (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f > 0 :=
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f > 0 :=
   pos_of_ne_zero <| d_ne_zero_aux₃ hC₀ hC₁ hF
 
 @[aesop (rule_sets := [finiteness]) unsafe apply]
 lemma d_ne_top (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f ≠ ⊤ := by
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f ≠ ⊤ := by
   rw [d]
   exact d_ne_top_aux₄ hC₀ hC₁ hF
 
 lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) (hq₀' : q₀ = ⊤) (hq₀q₁ : q₀ ≠ q₁) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f =
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f =
     (↑C₀ ^ p₀.toReal * eLpNorm f p μ ^ p.toReal) ^ p₀.toReal⁻¹ := by
   unfold d
   rw [hq₀']
@@ -230,7 +235,7 @@ lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) 
 
 lemma d_eq_top₁ (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hp₁' : p₁ ≠ ⊤) (hq₁' : q₁ = ⊤)
     (hq₀q₁ : q₀ ≠ q₁) (hC₁ : 0 < C₁) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f =
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f =
     (↑C₁ ^ p₁.toReal * eLpNorm f p μ ^ p.toReal) ^ p₁.toReal⁻¹ := by
   unfold d
   rw [hq₁']
@@ -251,7 +256,7 @@ lemma d_eq_top₁ (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hp₁' : p₁ ≠ ⊤) 
 
 lemma d_eq_top_of_eq (hC₁ : 0 < C₁) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₀' : q₀ ≠ ⊤)
 (hp₀' : p₀ ≠ ⊤) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ = p₁) (hpp₀ : p = p₀) (hq₁' : q₁ = ⊤) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f = C₁ * eLpNorm f p μ := by
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f = C₁ * eLpNorm f p μ := by
   rw [d_eq_top₁, ← hp₀p₁, hpp₀] <;> try assumption
   on_goal 1 => rw [ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_rpow_inv, ENNReal.rpow_rpow_inv]
   · exact (toReal_pos hp₀.ne' hp₀').ne'
@@ -261,7 +266,7 @@ lemma d_eq_top_of_eq (hC₁ : 0 < C₁) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (h
   · exact hq₁' ▸ hq₀'
 
 lemma d_eq_top_top (hq₀ : 0 < q₀) (hq₀q₁ : q₀ ≠ q₁) (hp₁' : p₁ = ⊤) (hq₁' : q₁ = ⊤) :
-    @d α ε m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f = C₁ := by
+    d p p₀ q₀ p₁ q₁ C₀ C₁ μ f = C₁ := by
   unfold d
   rw [hp₁', hq₁']
   simp only [inv_top, toReal_zero, zero_sub, zero_div, ENNReal.rpow_zero, mul_zero, mul_one,
@@ -277,7 +282,7 @@ def spf_ch {t : ℝ} (ht : t ∈ Ioo 0 1) (hq₀q₁ : q₀ ≠ q₁) (hp₀ : 0
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     ScaledPowerFunction where
   σ := ζ p₀ q₀ p₁ q₁ t
-  d := @d _ ε _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f
+  d := d p p₀ q₀ p₁ q₁ C₀ C₁ μ f
   hσ := lt_or_gt_of_ne <| Ne.symm <|
     (toReal_ofReal ht.1.le) ▸ (ζ_ne_zero (ofReal_mem_Ioo_0_1 t ht) hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁)
   hd := d_pos hC₀ hC₁ hF
@@ -593,31 +598,26 @@ lemma truncCompl_le_func {x : α} :
     ‖(truncCompl f t) x‖ₑ ≤ ‖f x‖ₑ := by
   rw [truncCompl_eq]; dsimp only; split_ifs <;> simp
 
-lemma foo {A B C D : ℝ≥0∞} (hA : A ≠ ∞) (h : A ≤ C) (h' : A + B = C + D) : D ≤ B := by
-  obtain (done | contra) := le_or_gt D B
-  · assumption
-  · have : A + B < C + D := ENNReal.add_lt_add_of_le_of_lt hA h contra
-    exact False.elim (by order)
-
-lemma truncCompl_anti {x : α} (hab : t ≤ s) (hf : ‖trunc f t x‖ₑ ≠ ⊤) :
+lemma truncCompl_anti {x : α} (hab : t ≤ s) :
     ‖truncCompl f s x‖ₑ ≤ ‖truncCompl f t x‖ₑ := by
-  have obs : ‖trunc f t x‖ₑ + ‖(truncCompl f t) x‖ₑ = ‖trunc f s x‖ₑ + ‖(truncCompl f s) x‖ₑ := by
-    simp_rw [trunc_buildup_enorm]
-  exact foo hf (trunc_mono hab) obs
+  unfold truncCompl
+  split_ifs <;> [rfl; simp; order; simp]
+
+lemma eLpNorm_truncCompl_le_self : eLpNorm (truncCompl f t) p μ ≤ eLpNorm f p μ :=
+  eLpNorm_mono_enorm fun _ ↦ truncCompl_le_func
+
+@[simp]
+lemma truncCompl_truncCompl {a b : ℝ≥0∞} :
+    truncCompl (truncCompl f a) b = truncCompl f (max a b) := by
+  grind [truncCompl]
 
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
--- XXX: the conditions `hf` and `mf` may need to be tweaked
-lemma eLpNorm_truncCompl_anti (hf : eLpNorm f 1 μ ≠ ⊤) (mf : AEStronglyMeasurable f μ) :
+lemma eLpNorm_truncCompl_anti :
     Antitone (fun s ↦ eLpNorm (truncCompl f s) p μ) := by
-  intro a _b hab
-  have : ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ⊤ := by
-    rw [eLpNorm_one_eq_lintegral_enorm] at hf
-    simp_rw [ae_iff, not_ne_iff]; exact measure_eq_top_of_lintegral_ne_top mf.enorm hf
-  have : ∀ᵐ x ∂μ, ‖trunc f a x‖ₑ ≠ ⊤ := by
-    refine this.mono fun x hx ↦ ?_
-    rw [trunc]
-    split_ifs; exacts [hx, by simp]
-  exact eLpNorm_mono_enorm_ae <| this.mono fun x hx ↦ truncCompl_anti hab hx
+  intro a b hab
+  dsimp only
+  rw [← max_eq_right hab, ← truncCompl_truncCompl]
+  exact eLpNorm_truncCompl_le_self
 
 /-- The norm of the truncation is meaurable in the truncation parameter -/
 @[fun_prop]
@@ -627,9 +627,9 @@ lemma eLpNorm_trunc_measurable :
 
 /-- The norm of the complement of the truncation is measurable in the truncation parameter -/
 @[fun_prop]
-lemma eLpNorm_truncCompl_measurable (hf : eLpNorm f 1 μ ≠ ⊤) (mf : AEStronglyMeasurable f μ) :
+lemma eLpNorm_truncCompl_measurable :
     Measurable (fun s ↦ eLpNorm (truncCompl f s) p μ) :=
-  eLpNorm_truncCompl_anti hf mf |>.measurable
+  eLpNorm_truncCompl_anti.measurable
 
 lemma trnc_le_func {j : Bool} {a : ℝ≥0∞} {x : α} :
     ‖trnc j f a x‖ₑ ≤ ‖f x‖ₑ := by

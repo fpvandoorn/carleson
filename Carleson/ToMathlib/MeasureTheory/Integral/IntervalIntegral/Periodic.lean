@@ -40,15 +40,16 @@ theorem setLIntegral_Ioc_add_eq {f : ℝ → ℝ≥0∞} (hf : Periodic f T) (t 
   exacts [isAddFundamentalDomain_Ioc hT t, isAddFundamentalDomain_Ioc hT s,
     (hf.comp enorm).map_vadd_zmultiples]
 
---TODO: the assumption `p ≠ ⊤` is not necessary; this case should be proved as well
-theorem eLpNorm {T : ℝ} {s t : ℝ} {f : ℝ → ℂ}
-  (periodic_f : f.Periodic T)
-  {p : ℝ≥0∞} (hp : p ≠ ⊤) :
+theorem eLpNorm {T : ℝ} {s t : ℝ} {f : ℝ → ℂ} (periodic_f : f.Periodic T) {p : ℝ≥0∞} :
     eLpNorm f p (volume.restrict (Ioc t (t + T))) = eLpNorm f p (volume.restrict (Ioc s (s + T))) := by
   unfold MeasureTheory.eLpNorm
-  split_ifs with p_zero --p_top
+  split_ifs with p_zero p_top
   · rfl
-  --· sorry
+  · wlog! hT : 0 < T
+    · rw [Ioc_eq_empty (by simpa), Ioc_eq_empty (by simpa)]
+    have hf := (periodic_f.comp enorm).map_vadd_zmultiples
+    simp only [eLpNormEssSup,
+      (isAddFundamentalDomain_Ioc hT _ volume).essSup_measure_restrict (f := (‖f ·‖ₑ)) hf]
   · rw [eLpNorm'_eq_lintegral_enorm, eLpNorm'_eq_lintegral_enorm, ]
     congr 1
     apply setLIntegral_Ioc_add_eq
