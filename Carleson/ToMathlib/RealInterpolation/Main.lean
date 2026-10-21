@@ -696,8 +696,7 @@ lemma support_sigma_finite_from_MemLp
   rw [← this]
   apply support_sigma_finite_of_lintegrable
   · exact hf.aestronglyMeasurable.enorm.pow_const _
-  · exact lintegral_rpow_enorm_lt_top_of_eLpNorm'_lt_top (toReal_pos hp' hp)
-      ((eLpNorm_eq_eLpNorm' hp' hp hf.aestronglyMeasurable).symm.trans_lt hf)
+  · exact lintegral_rpow_enorm_lt_top_of_eLpNorm_lt_top hp' hp hf
 
 -- lemma support_sfinite_from_MemLp
 --     [MeasurableSpace E₁] [NormedAddCommGroup E₁] (hf : MemLp f p μ)
