@@ -639,7 +639,8 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
 lemma eLpNorm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
     eLpNorm f p μ ^ (p : ℝ) =
     ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
-  simp [eLpNorm_nnreal_pow_eq_lintegral hp.ne' hf, lintegral_norm_pow_eq_distribution hf (NNReal.coe_pos.2 hp)]
+  simp [eLpNorm_nnreal_pow_eq_lintegral hp.ne' hf,
+    lintegral_norm_pow_eq_distribution hf (NNReal.coe_pos.2 hp)]
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`, without
     taking powers. -/

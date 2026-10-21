@@ -211,12 +211,7 @@ lemma eLorentzNorm_exponent_zero [TopologicalSpace ε] {f : α → ε} (hf : AES
 @[simp]
 lemma eLorentzNorm_exponent_zero' [TopologicalSpace ε] {f : α → ε} (hf : AEStronglyMeasurable f μ) :
     eLorentzNorm f p 0 μ = 0 := by
-  simp only [eLorentzNorm, eLorentzNorm', hf, ↓reduceIte]
-  split_ifs
-  · rfl
-  · rfl
-  · rw [eLpNorm_exponent_zero, mul_zero]
-    fun_prop
+  simp [eLorentzNorm, hf]
 
 @[simp]
 lemma eLorentzNorm_exponent_top_top [TopologicalSpace ε] {f : α → ε}
