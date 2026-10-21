@@ -72,8 +72,11 @@ theorem of_innerRegularCompactLTTop {α : Type*} [TopologicalSpace α] [T2Space 
     full _ inter_subset_left (meas_s.inter hV.measurableSet) (hx V hV hxV)
   have : μ s + μ s ≤ μ s + 0 := calc
     _ = μ (s ∩ U) + μ (s ∩ V) := by rw [hsU, hsV]
-    _ = μ ((s ∩ U) ∪ (s ∩ V)) := (measure_union
-      (hUV.mono inter_subset_right inter_subset_right) (meas_s.inter hV.measurableSet)).symm
+    _ = μ ((s ∩ U) ∪ (s ∩ V)) := by
+      symm
+      apply measure_union
+      · exact hUV.mono inter_subset_right inter_subset_right
+      · exact meas_s.inter hV.measurableSet
     _ ≤ μ s := measure_mono (union_subset inter_subset_left inter_subset_left)
     _ = μ s + 0 := (add_zero _).symm
   exact hs.ne' (nonpos_iff_eq_zero.mp (ENNReal.le_of_add_le_add_left hfin this))
