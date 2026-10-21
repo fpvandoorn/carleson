@@ -233,7 +233,7 @@ lemma eLorentzNorm_exponent_top {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   exact eLpNormEssSup_eq_zero_iff.mp hf
 
 lemma eLorentzNorm_mono_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f : α → ε} {g : α → ε'}
-  (hf : AEStronglyMeasurable f μ) (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
+    (hf : AEStronglyMeasurable f μ) (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     eLorentzNorm f p q μ ≤ eLorentzNorm g p q μ := by
   simp only [eLorentzNorm, hf, ↓reduceIte]
   split_ifs <;> first
