@@ -73,6 +73,7 @@ lemma eLorentzNorm'_exponent_top {f : α → ε} {μ : Measure α} :
   rw [eLpNormEssSup_withDensity (by fun_prop) (by simp)]
   apply eLpNormEssSup_nnreal_eq_iSup_nnreal (f := fun t ↦ t * distribution f t μ ^ p.toReal⁻¹)
   intro a x ha
+  --TODO: use fun_prop here after making the last goals a have
   apply ContinuousWithinAt.ennreal_mul continuous_id'.continuousWithinAt
     ((continuousWithinAt_distribution _).ennrpow_const _)
   · rw [or_iff_not_imp_left]
