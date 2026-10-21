@@ -21,18 +21,36 @@ public section
 
 namespace MeasureTheory
 
-open Set Measure Filter TopologicalSpace ENNReal
+open Set Measure Filter TopologicalSpace Topology ENNReal
 
 namespace NoAtoms'
+
+/-- Given a measure `μ` that is inner regular with respect to compact sets, every measurable set `s`
+of finite positive measure contains a point `x ∈ s` such that `s ∩ U` has positive measure for
+all neighborhoods `U` of `x`. -/
+--TODO: move to mathlib `Measure/Regular.lean`?
+theorem exists_forall_nhds_measure_pos {α : Type*} [TopologicalSpace α] [MeasurableSpace α]
+    {μ : Measure α} [μ.InnerRegularCompactLTTop] {s : Set α} (meas_s : MeasurableSet s)
+    (hs : 0 < μ s) (hfin : μ s ≠ ∞) :
+    ∃ x ∈ s, ∀ U ∈ 𝓝 x, 0 < μ (s ∩ U) := by
+  obtain ⟨K, hKs, hK, hK_pos⟩ := meas_s.exists_lt_isCompact_of_ne_top hfin hs
+  by_contra! h
+  apply hK_pos.ne'
+  apply hK.measure_zero_of_nhdsWithin
+  intro a ha
+  obtain ⟨U, haU, hμU⟩ := h a (hKs ha)
+  rw [nonpos_iff_eq_zero] at hμU
+  use K ∩ U, inter_mem_nhdsWithin K haU, measure_mono_null (inter_subset_inter_left U hKs) hμU
 
 /-- A σ-finite measure on a Hausdorff space which is inner regular with respect to compact sets
 and vanishes on singletons has no atoms.
 See https://math.stackexchange.com/questions/3881683/does-mu-x-0-imply-non-atomic-for-radon-measure
 
-Proof sketch: an atom `s` has finite measure by σ-finiteness and contains a compact `K` of positive
-measure. By compactness, there is `x ∈ K` such that `s ∩ U` has positive (hence full) measure for
-all open `U ∋ x`. Now `s \ {x}` contains a compact `L` of positive measure, and separating `x` from
-`L` by disjoint open sets yields two disjoint subsets of `s` of full measure, a contradiction. -/
+Proof sketch: an atom `s` has finite measure by σ-finiteness and thus by
+`exists_forall_nhds_measure_pos` contains some `x ∈ s` such that `s ∩ U` has positive (hence full)
+measure for every neighborhood `U` of `x`. Now `s \ {x}` contains a compact `L` of positive measure,
+and separating `x` from `L` by disjoint open sets yields two disjoint subsets of `s` of full
+measure, a contradiction. -/
 theorem of_innerRegularCompactLTTop {α : Type*} [TopologicalSpace α] [T2Space α]
     [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [NullSingletonClass μ]
     [μ.InnerRegularCompactLTTop] [SigmaFinite μ] : NoAtoms' μ := by
@@ -50,17 +68,8 @@ theorem of_innerRegularCompactLTTop {α : Type*} [TopologicalSpace α] [T2Space 
       exact measure_iUnion_null h
     rw [← full _ inter_subset_left (meas_s.inter (measurableSet_spanningSets μ n)) hn]
     exact (measure_mono inter_subset_right).trans_lt (measure_spanningSets_lt_top μ n) |>.ne
-  -- a compact subset of positive measure
-  obtain ⟨K, hKs, hK, hK_pos⟩ := meas_s.exists_lt_isCompact_of_ne_top hfin hs
-  -- a point all of whose neighborhoods meet `s` in positive measure
-  obtain ⟨x, -, hx⟩ : ∃ x ∈ K, ∀ U, IsOpen U → x ∈ U → μ (s ∩ U) ≠ 0 := by
-    by_contra! h
-    apply hK_pos.ne'
-    apply hK.measure_zero_of_nhdsWithin
-    intro a ha
-    obtain ⟨U, hU, haU, hμU⟩ := h a ha
-    exact ⟨K ∩ U, inter_mem_nhdsWithin K (hU.mem_nhds haU),
-      measure_mono_null (inter_subset_inter_left U hKs) hμU⟩
+  obtain ⟨x, -, hx⟩ : ∃ x ∈ s, ∀ U ∈ 𝓝 x, 0 < μ (s ∩ U) :=
+    exists_forall_nhds_measure_pos meas_s hs hfin
   -- a compact subset of `s \ {x}` of positive measure
   have hsx : μ (s \ {x}) = μ s := measure_sdiff_null (measure_singleton x)
   obtain ⟨L, hLs, hL, hL_pos⟩ :=
@@ -69,7 +78,7 @@ theorem of_innerRegularCompactLTTop {α : Type*} [TopologicalSpace α] [T2Space 
   have hsU : μ (s ∩ U) = μ s := full _ inter_subset_left (meas_s.inter hU.measurableSet)
     (hL_pos.trans_le (measure_mono (subset_inter (hLs.trans sdiff_subset) hLU))).ne'
   have hsV : μ (s ∩ V) = μ s :=
-    full _ inter_subset_left (meas_s.inter hV.measurableSet) (hx V hV hxV)
+    full _ inter_subset_left (meas_s.inter hV.measurableSet) (hx V (hV.mem_nhds_iff.mpr hxV)).ne'
   have : μ s + μ s ≤ μ s + 0 := calc
     _ = μ (s ∩ U) + μ (s ∩ V) := by rw [hsU, hsV]
     _ = μ ((s ∩ U) ∪ (s ∩ V)) := by
