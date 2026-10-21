@@ -197,7 +197,7 @@ theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u
 theorem hasStrongType_maximalFunction_top [TopologicalSpace ε] [BorelSpace X] :
     HasStrongType (maximalFunction (ε := ε) μ 𝓑 c r 1) ⊤ ⊤ μ μ 1 := by
   intro f _
-  use by fun_prop
+  refine ⟨by fun_prop, ?_⟩
   simp only [one_mul, eLpNorm_exponent_top]
   exact essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ maximalFunction_one_le_eLpNormEssSup)
 
@@ -205,7 +205,7 @@ theorem hasStrongType_maximalFunction_top [TopologicalSpace ε] [BorelSpace X] :
 theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [SeparableSpace X] :
     HasWeakType (maximalFunction (ε := ε) μ 𝓑 c r 1) 1 1 μ μ (A ^ 2) := by
   intro f _
-  use by fun_prop
+  refine ⟨by fun_prop, ?_⟩
   let Bₗ (ℓ : ℝ≥0∞) := { (c, r) | ∫⁻ y in (ball c r), ‖f y‖ₑ ∂μ ≥ ℓ * μ (ball c r) }
   simp only [wnorm_one measurable_maximalFunction.aestronglyMeasurable, one_ne_top, toReal_one,
     ENNReal.rpow_one, reduceIte, eLpNorm, one_ne_zero, eLpNorm', ne_eq, not_false_eq_true,
