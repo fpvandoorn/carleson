@@ -287,12 +287,15 @@ instance prod.instNoAtoms_fst [NoAtoms' μ] [SFinite μ] [SigmaFinite ν] :
       gcongr
 
 --TODO: move?
-theorem isAtom_swap_iff [SFinite μ] [SFinite ν] {s : Set (α × β)} (hs : MeasurableSet s) :
+theorem isAtom_swap_iff [SFinite μ] [SFinite ν] {s : Set (α × β)} :
     IsAtom (Prod.swap ⁻¹' s) (ν.prod μ) ↔ IsAtom s (μ.prod ν) := by
   unfold IsAtom
+  rw [measurableSet_swap_iff]
+  simp only [and_congr_right_iff]
+  intro hs
   rw [← map_apply measurable_swap hs, prod_swap]
   simp only [and_congr_right_iff]
-  intro h
+  intro h_νμ
   constructor
   · intro h' t hts meas_t
     have := h' (Prod.swap ⁻¹' t)
@@ -309,9 +312,8 @@ theorem isAtom_swap_iff [SFinite μ] [SFinite ν] {s : Set (α × β)} (hs : Mea
 instance prod.instNoAtoms_snd [SigmaFinite μ] [NoAtoms' ν] [SFinite ν] :
     NoAtoms' (μ.prod ν) where
   no_atoms := by
-    intro s hs
-    rw [← isAtom_swap_iff hs]
+    intro s
+    rw [← isAtom_swap_iff]
     apply no_atoms
-    rwa [measurableSet_swap_iff]
 
 end MeasureTheory
