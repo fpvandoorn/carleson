@@ -243,10 +243,10 @@ lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
   change μ {x | ¬ B x ≤ A x} = 0
   simpa only [le_Prop_eq, Classical.not_imp]
 
+@[fun_prop]
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
-    AEStronglyMeasurable (fun x ↦ (u x).toReal) μ := by
-  refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
-  exact ENNReal.measurable_toReal.comp_aemeasurable hu.aemeasurable
+    AEStronglyMeasurable (fun x ↦ (u x).toReal) μ :=
+  hu.aemeasurable.ennreal_toReal.aestronglyMeasurable
 
 lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := by
   simp_rw [setLAverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
@@ -297,10 +297,8 @@ lemma eLpNorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ,
 lemma eLpNorm_toReal_le {f : α → ℝ≥0∞} :
     eLpNorm (ENNReal.toReal ∘ f) p μ ≤ eLpNorm f p μ := by
   by_cases hfm : AEStronglyMeasurable f μ
-  · apply eLpNorm_mono_enorm hfm.aemeasurable.ennreal_toReal.aestronglyMeasurable
-    simp
-  · rw [eLpNorm_of_not_aestronglyMeasurable hfm]
-    exact le_top
+  · exact eLpNorm_mono_enorm (by fun_prop) (by simp)
+  · simp [eLpNorm_of_not_aestronglyMeasurable hfm]
 
 lemma eLpNorm_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
     eLpNorm (ENNReal.toReal ∘ f) p μ = eLpNorm f p μ := by
