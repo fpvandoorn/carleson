@@ -224,7 +224,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
     _ = (𝕔 + 10) * a ^ 3 := by ring
     _ ≤ 2 ^ (7 + 3 * a) := by
       rw [pow_add, pow_mul']; gcongr; exacts [by linarith [c_le_100], Nat.lt_two_pow_self.le]
-    _ ≤ _ := by gcongr ; lia
+    _ ≤ _ := by gcongr; lia
 
 /-- Lemma 7.6.3 with a floor on the constant to avoid casting. -/
 lemma thin_scale_impact' (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
