@@ -358,7 +358,7 @@ lemma eLorentzNorm_eq [TopologicalSpace ε] (p_nonzero : p ≠ 0) (p_ne_top : p 
 
 variable {ε' : Type*} [TopologicalSpace ε'] [ContinuousENorm ε'] in
 lemma MemLorentz_iff_MemLp {f : α → ε'} : MemLorentz f p p μ ↔ MemLp f p μ :=
-  ⟨fun h ↦ ⟨h.aestronglyMeasurable,
+    ⟨fun h ↦ ⟨h.aestronglyMeasurable,
       (eLorentzNorm_eq_eLpNorm h.aestronglyMeasurable).symm.trans_lt h⟩,
     fun h ↦ (eLorentzNorm_eq_eLpNorm h.1).trans_lt h.2⟩
 
