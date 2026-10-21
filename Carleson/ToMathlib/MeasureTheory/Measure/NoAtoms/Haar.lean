@@ -18,7 +18,8 @@ gives `NoAtoms'` instances for additive Haar measures on finite-dimensional real
 and for the Lebesgue measure on the unit interval.
 -/
 
--- Upstreaming status: to be determined
+-- Upstreaming status: ready but need `NoAtoms` basics in mathlib first;
+-- remember to tag AI use when upstreaming
 
 public section
 

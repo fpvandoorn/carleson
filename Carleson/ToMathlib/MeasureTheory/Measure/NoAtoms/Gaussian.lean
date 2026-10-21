@@ -14,7 +14,8 @@ public import Mathlib.Probability.Distributions.Gaussian.Real
 This is kept in a separate file to avoid importing probability theory elsewhere.
 -/
 
--- Upstreaming status: to be determined
+-- Upstreaming status: ready but need `NoAtoms` basics in mathlib first;
+-- remember to tag AI use when upstreaming
 
 public section
 

@@ -15,7 +15,8 @@ TODO: prove a version without topological assumptions, e.g. for σ-finite `μ` w
 and `f < ∞` almost everywhere.
 -/
 
--- Upstreaming status: to be determined
+-- Upstreaming status: mostly ready but need `NoAtoms` basics in mathlib first;
+-- remember to tag AI use when upstreaming
 
 public section
 

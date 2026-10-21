@@ -14,7 +14,8 @@ public import Mathlib.MeasureTheory.Constructions.Pi
 TODO: prove a version without topological assumptions.
 -/
 
--- Upstreaming status: to be determined
+-- Upstreaming status: mostly ready but need `NoAtoms` basics in mathlib first;
+-- remember to tag AI use when upstreaming
 
 public section
 

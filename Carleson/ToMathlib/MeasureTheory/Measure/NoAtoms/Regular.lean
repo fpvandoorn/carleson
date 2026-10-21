@@ -15,7 +15,8 @@ A σ-finite, inner regular measure on a Hausdorff space which vanishes on single
 atoms. In particular, this applies to locally finite measures on σ-compact metrizable spaces.
 -/
 
--- Upstreaming status: to be determined
+-- Upstreaming status: mostly ready but need `NoAtoms` basics in mathlib first;
+-- remember to tag AI use when upstreaming
 
 public section
 

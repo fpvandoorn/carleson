@@ -17,7 +17,8 @@ Criteria for measures on (pseudo)metric spaces to have no atoms, in terms of the
 balls around a fixed center.
 -/
 
--- Upstreaming status: to be determined
+-- Upstreaming status: mostly ready but need `NoAtoms` basics in mathlib first;
+-- remember to tag AI use when upstreaming
 
 public section
 
