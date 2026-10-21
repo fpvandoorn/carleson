@@ -60,7 +60,7 @@ section
 variable {ε : Type*} [TopologicalSpace ε] [ESeminormedAddMonoid ε]
 
 lemma eLorentzNorm_eq_zero_of_ae_enorm_zero {f : α → ε} (hf : AEStronglyMeasurable f μ)
-  (h : enorm ∘ f =ᵐ[μ] 0) :
+    (h : enorm ∘ f =ᵐ[μ] 0) :
     eLorentzNorm f p q μ = 0 := by
   simp only [eLorentzNorm, hf, ↓reduceIte, ite_eq_left_iff]
   intro p_ne_zero
