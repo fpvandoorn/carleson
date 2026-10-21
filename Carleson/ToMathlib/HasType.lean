@@ -2,7 +2,6 @@ module
 
 public import Carleson.ToMathlib.BoundedFiniteSupport
 public import Carleson.ToMathlib.WNorm
-public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
 
 @[expose] public section
 
@@ -78,7 +77,7 @@ variable [TopologicalSpace ε₁] [ContinuousENorm ε₁] [TopologicalSpace ε�
 
 lemma HasWeakType.memWLp (h : HasWeakType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
     (hc : c < ⊤ := by finiteness) : MemWLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
+  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2
 
 lemma HasWeakType.toReal {T : (α → ε₁) → (α' → ℝ≥0∞)} (h : HasWeakType T p p' μ ν c) :
     HasWeakType (T · · |>.toReal) p p' μ ν c :=
@@ -104,9 +103,8 @@ lemma hasWeakType_iSup_of_monotone {f : ℕ → (α → ε₁) → (α' → ℝ�
     -- should StronglyMeasurable.iSup exist?
     apply AEMeasurable.iSup
     exact (hwtf · v mlpv |>.left.aemeasurable)
-  · rw [wnorm_iSup_of_monotone hp']
-    · exact iSup_le fun n => hwtf n v mlpv |>.right
-    · exact hf.apply₂ v
+  · rw [wnorm_iSup_of_monotone hp' _ (hf.apply₂ v) _ (hwtf · v mlpv |>.left.aemeasurable)]
+    exact iSup_le fun n => hwtf n v mlpv |>.right
 
 -- lemma comp_left [MeasurableSpace ε₂] {ν' : Measure ε₂} {f : ε₂ → ε₃} (h : HasWeakType T p p' μ ν c)
 --     (hf : MemLp f p' ν') :
@@ -126,7 +124,7 @@ variable [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace
 lemma HasBoundedWeakType.memWLp (h : HasBoundedWeakType T p p' μ ν c)
     (hf₁ : BoundedFiniteSupport f₁ μ) (hc : c < ⊤ := by finiteness) :
     MemWLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp p).2⟩
+  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp p).2
 
 lemma HasWeakType.hasBoundedWeakType (h : HasWeakType T p p' μ ν c) :
     HasBoundedWeakType T p p' μ ν c :=
@@ -226,15 +224,24 @@ lemma hasStrongType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormed
   unfold HasStrongType HasLorentzType
   constructor
   · intro h f hf
-    unfold MemLp MemLorentz at *
-    rw [eLorentzNorm_eq_eLpNorm hf.1] at *
-    have := h f hf
-    rwa [eLorentzNorm_eq_eLpNorm this.1]
+    have hf' := MemLorentz_iff_MemLp.mp hf
+    have := h f hf'
+    rwa [eLorentzNorm_eq_eLpNorm this.1, eLorentzNorm_eq_eLpNorm hf'.1]
   · intro h f hf
-    unfold MemLp MemLorentz at *
-    rw [← eLorentzNorm_eq_eLpNorm hf.1] at *
-    have := h f hf
-    rwa [← eLorentzNorm_eq_eLpNorm this.1]
+    have := h f (MemLorentz_iff_MemLp.mpr hf)
+    rwa [← eLorentzNorm_eq_eLpNorm this.1, ← eLorentzNorm_eq_eLpNorm hf.1]
+
+lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂]
+  {T : (α → ε₁) → (α' → ε₂)} {c : ℝ≥0∞} :
+    HasWeakType T p q μ ν c ↔ HasLorentzType T p p q ∞ μ ν c := by
+  constructor
+  · intro h f hf
+    have hf' := MemLorentz_iff_MemLp.mp hf
+    rw [eLorentzNorm_eq_eLpNorm hf'.1]
+    exact h f hf'
+  · intro h f hf
+    rw [← eLorentzNorm_eq_eLpNorm hf.1]
+    exact h f (MemLorentz_iff_MemLp.mpr hf)
 
 end HasLorentzType
 
@@ -290,7 +297,7 @@ lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
   intro f hf
   refine ⟨(h f hf).1.const_smul k, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' _ (ε' := ε')
+    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' (h f hf).1 _ (ε' := ε')
     _ ≤ k * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2
@@ -304,7 +311,7 @@ lemma HasWeakType.const_smul' [IsBoundedSMul 𝕜 E'] {T : (α → ε) → (α' 
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le' hp']
+    _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le' hp' (h f hf).1]
     _ ≤ ‖k‖ₑ * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2
