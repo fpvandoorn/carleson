@@ -53,7 +53,7 @@ theorem no_atoms_iff :
     use t, ts, meas_t, ht, lt_of_le_of_ne (measure_mono ts) ht'
   · intro h
     apply NoAtoms'.mk
-    intro s --meas_s
+    intro s
     unfold IsAtom
     push Not
     intro meas_s hs
