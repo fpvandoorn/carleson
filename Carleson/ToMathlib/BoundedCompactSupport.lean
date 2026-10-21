@@ -203,7 +203,7 @@ variable {f g : X → 𝕜}
 @[fun_prop]
 theorem mul_bdd_right (hf : BoundedCompactSupport f μ) (hg : MemLp g ∞ μ) :
     BoundedCompactSupport (f * g) μ where
-  memLp_top := MemLp.mul hf.memLp_top hg
+  memLp_top := hf.memLp_top.mul hg
   hasCompactSupport := hf.hasCompactSupport.mul_right
 
 @[fun_prop]
@@ -221,7 +221,7 @@ theorem mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g μ) 
 theorem integrable_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g μ) :
     Integrable (f * g) μ := by
   rw [← memLp_one_iff_integrable] at hg ⊢
-  exact MemLp.mul hf.memLp_top hg
+  exact hf.memLp_top.mul hg
 
 @[fun_prop]
 theorem integrable_fun_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g μ) :
