@@ -1,6 +1,7 @@
 module
 
 public import Carleson.ToMathlib.RealInterpolation.Misc
+public import Carleson.ToMathlib.HasType
 
 /-!
 # Minkowski's integral inequality
@@ -809,47 +810,6 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     · exact (interpolated_pos' hp₀ hp₁ (ne_top_of_Ioo ht) hp).ne'
     · exact interp_exp_ne_top hp₀p₁.ne ht hp
 
--- TODO: move this to WeakType.lean?
-omit [TopologicalSpace ε] in
-lemma wnorm_eq_zero_iff [ENorm ε] {f : α → ε} {p : ℝ≥0∞} (hp : p ≠ 0) :
-    wnorm f p μ = 0 ↔ (fun x ↦ ‖f x‖ₑ) =ᵐ[μ] 0 := by
-  unfold wnorm
-  split_ifs with h₀
-  · simp [eLpNormEssSup_eq_essSup_enorm]
-  · refine Iff.trans ⟨?_, ?_⟩ eLpNormEssSup_eq_zero_iff <;> intro h
-    · have iSup_wnorm := iSup_eq_zero.mp h
-      by_contra h₁
-      have : 0 < eLpNormEssSup f μ := pos_iff_ne_zero.mpr h₁
-      unfold eLpNormEssSup at this
-      rw [essSup_eq_sInf] at this
-      let b := (min (sInf {a : ℝ≥0∞ | μ {x | a < ‖f x‖ₑ} = 0}) 1) / 2
-      have b_lt_inf : b < min (sInf {a : ℝ≥0∞ | μ {x | a < ‖f x‖ₑ} = 0}) 1 :=
-        ENNReal.half_lt_self (lt_min this zero_lt_one).ne'
-          (lt_of_le_of_lt (min_le_right _ 1) one_lt_top).ne
-      have meas_ne_zero : μ {x | b < ‖f x‖ₑ} ≠ 0 := by
-        intro h
-        have obs : sInf {a | μ {x | a < ‖f x‖ₑ} = 0} ≤ b := csInf_le' h
-        contrapose! obs
-        calc
-        _ < _ := b_lt_inf
-        _ ≤ _ := min_le_left ..
-      have b_ne_0 : b ≠ 0 := (ENNReal.half_pos (lt_min this zero_lt_one).ne').ne'
-      have p_toReal_inv_pos : 0 < p.toReal⁻¹ := inv_pos_of_pos (toReal_pos hp h₀)
-      have coe_b : ENNReal.ofNNReal b.toNNReal = b := coe_toNNReal b_lt_inf.ne_top
-      have : distribution f b μ = 0 := by
-        refine (rpow_eq_zero_iff_of_pos p_toReal_inv_pos).mp ?_
-        refine eq_zero_of_ne_zero_of_mul_left_eq_zero b_ne_0 ?_
-        rw [← coe_b]
-        exact iSup_wnorm b.toNNReal
-      exact meas_ne_zero this
-    · refine iSup_eq_zero.mpr fun t ↦ mul_eq_zero.mpr
-        (Or.inr ((rpow_eq_zero_iff_of_pos (inv_pos_of_pos (toReal_pos hp h₀))).mpr (nonpos_iff_eq_zero.mp ?_)))
-      calc
-        _ ≤ distribution f 0 μ := by gcongr; exact zero_le
-        _ = distribution f (eLpNormEssSup f μ) μ := by congr; exact h.symm
-        _ = 0 := distribution_eLpNormEssSup
-
-
 /-! ## Weaktype estimates applied to truncations -/
 
 section
@@ -866,7 +826,8 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
   have wt_est := (h₀T f hf).2 -- the weaktype estimate
   have q_pos : 0 < q.toReal := toReal_pos hq.ne' hq'.ne_top
   have tq_pos : 0 < t ^ q.toReal := ENNReal.rpow_pos_of_nonneg ht q_pos.le
-  simp only [wnorm, wnorm', hq'.ne_top, ↓reduceIte, iSup_le_iff] at wt_est
+  simp only [wnorm_eq_iSup_mul_distribution_rpow (h₀T f hf).1 hq.ne' hq'.ne_top, iSup_le_iff]
+    at wt_est
   have wt_est_t := wt_est t.toNNReal -- this is the weaktype estimate applied to t
   have : ofNNReal t.toNNReal = t := coe_toNNReal ht'
   rw [this, mul_le_iff_le_inv ht.ne' ht', mul_comm, ENNReal.rpow_inv_le_iff q_pos,
@@ -878,8 +839,7 @@ lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
     (hT : HasWeakType T p q μ ν C) (ht : C * eLpNorm f p μ ≤ t) :
     distribution (T f) t ν = 0 := by
   have wt_est := (hT f hf).2
-  unfold wnorm at wt_est
-  split_ifs at wt_est
+  rw [hq', wnorm_top (hT f hf).1] at wt_est
   apply nonpos_iff_eq_zero.mp
   calc
   _ ≤ distribution (T f) (eLpNormEssSup (T f) ν) ν := distribution_mono_right (le_trans wt_est ht)
@@ -915,7 +875,7 @@ lemma eLpNorm_trnc_est {f : α → E₁} {j : Bool} :
     eLpNorm (trnc j f t) p μ ≤ eLpNorm f p μ :=
   j.rec eLpNorm_truncCompl_le_self eLpNorm_trunc_le_self
 
-variable [ESeminormedAddMonoid ε₁] [ENorm ε₂] in
+variable [ESeminormedAddMonoid ε₁] [ContinuousENorm ε₂] in
 /-- If `T` has weaktype `p₀`-`p₁`, `f` is `AEStronglyMeasurable` and the `p`-norm of `f`
 vanishes, then the `q`-norm of `T f` vanishes. -/
 lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)}
@@ -927,13 +887,13 @@ lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)
   obtain ⟨hTf, this⟩ := h₀T f hf₁
   rw [hf₂, mul_zero] at this
   have wnorm_0 : wnorm (T f) q₀ ν = 0 := nonpos_iff_eq_zero.mp this
-  have : (fun y ↦ ‖(T f) y‖ₑ) =ᵐ[ν] 0 := (wnorm_eq_zero_iff hq₀.ne').mp wnorm_0
-  rw [eLpNorm_congr_enorm_ae (g := fun _ ↦ (0 : ℝ≥0∞)) hTf aestronglyMeasurable_const
-    (this.mono fun _ hx ↦ by simpa using hx), eLpNorm_fun_zero]
+  have : (fun y ↦ ‖(T f) y‖ₑ) =ᵐ[ν] 0 := (wnorm_eq_zero_iff hTf hq₀.ne').mp wnorm_0
+  rw [← eLpNorm_enorm _ hTf]
+  exact eLpNorm_eq_zero_of_ae_zero this
 
 variable {E₁' E₂' : Type*} [TopologicalSpace E₁'] [ESeminormedAddMonoid E₁']
   {T : (α → E₁) → (α' → E₂)} {T' : (α → E₁') → (α' → E₂')}
-  [TopologicalSpace E₂] [ENorm E₂] [TopologicalSpace E₂'] [ENorm E₂']
+  [TopologicalSpace E₂] [ENorm E₂] [TopologicalSpace E₂'] [ContinuousENorm E₂']
 
 lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀ : ℝ≥0∞} {f : α → E₁}
     (hp₀ : 0 < p₀) {q₀ : ℝ≥0∞} (hp : p ≠ ⊤) (hq₀ : 0 < q₀) (hq₀' : q₀ < ⊤)
@@ -962,7 +922,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
   rw [ha]
   have obs : MemLp (trunc f (t / C₁)) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf (by finiteness)
   have wt_est := (h₁T (trunc f (t / C₁)) obs).2
-  simp only [hq₁, hp₁, eLpNorm_exponent_top obs.aestronglyMeasurable] at wt_est
+  rw [hq₁, wnorm_top (h₁T _ obs).1, hp₁, eLpNorm_exponent_top obs.aestronglyMeasurable] at wt_est
   apply nonpos_iff_eq_zero.mp
   have ineq : eLpNormEssSup (T' (trunc f (t / C₁))) ν ≤ t := calc
     _ ≤ C₁ * eLpNormEssSup (trunc f (t / C₁)) μ := wt_est
@@ -1008,8 +968,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
     have a_pos : 0 < a := ha ▸ ENNReal.rpow_pos (ENNReal.div_pos ht.ne' d_ne_top) (by finiteness)
     have obs : MemLp (truncCompl f a) p₀ μ := truncCompl_Lp_Lq_lower hp ⟨hp₀, hp₀p.le⟩ a_pos hf
     have wt_est := (h₀T (truncCompl f a) obs).2
-    unfold wnorm at wt_est
-    split_ifs at wt_est
+    rw [hq₀, wnorm_top (h₀T _ obs).1] at wt_est
     have snorm_est : eLpNormEssSup (T' (truncCompl f a)) ν ≤ t := by
       apply le_of_rpow_le (exp_toReal_pos hp₀ hp₀p.ne_top)
       calc
@@ -1054,8 +1013,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
     finiteness
   have obs : MemLp (trunc f a) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p.le⟩ hf ha'
   have wt_est := (h₁T (trunc f a) obs).2
-  unfold wnorm at wt_est
-  split_ifs at wt_est
+  rw [hq₁, wnorm_top (h₁T _ obs).1] at wt_est
   have hp₁' : p₁.toReal ≠ 0 := (toReal_pos (hp.trans hp₁p).ne' hp₁.ne_top).ne'
   have : eLpNormEssSup (T' (trunc f a)) ν ^ p₁.toReal ≤
       (C₁ * eLpNorm (trunc f a) p₁ μ) ^ p₁.toReal := by gcongr
