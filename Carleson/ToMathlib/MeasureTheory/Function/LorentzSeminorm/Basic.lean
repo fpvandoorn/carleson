@@ -24,8 +24,8 @@ namespace MeasureTheory
 
 --Proof analogous to eLpNorm_congr_enorm_ae
 theorem eLorentzNorm_congr_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f : α → ε'}
-  {g : α → ε} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
-  (hfg : ∀ᵐ x ∂μ, ‖f x‖ₑ = ‖g x‖ₑ) :
+    {g : α → ε} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
+    (hfg : ∀ᵐ x ∂μ, ‖f x‖ₑ = ‖g x‖ₑ) :
     eLorentzNorm f p q μ = eLorentzNorm g p q μ :=
   le_antisymm (eLorentzNorm_mono_enorm_ae hf <| Filter.EventuallyEq.le hfg)
     (eLorentzNorm_mono_enorm_ae hg <| (Filter.EventuallyEq.symm hfg).le)
