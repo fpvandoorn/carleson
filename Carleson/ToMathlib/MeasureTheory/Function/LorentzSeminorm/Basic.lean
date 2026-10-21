@@ -588,7 +588,6 @@ lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0)
         mul_comm, ← ENNReal.ofReal_rpow_of_nonneg ENNReal.toReal_nonneg (by positivity),
         ENNReal.ofReal_toReal h]
 
-@[simp]
 lemma eLorentzNorm_indicator_const₀ {a : ε} {s : Set α} (hs : NullMeasurableSet s μ) :
   eLorentzNorm (s.indicator (Function.const α a)) p q μ
     = if p = 0 then 0
@@ -626,7 +625,6 @@ lemma eLorentzNorm_indicator_const₀ {a : ε} {s : Set α} (hs : NullMeasurable
           (ENNReal.le_of_forall_nnreal_lt fun r hr ↦ le_iSup₂_of_le r hr le_rfl)
   · exact eLorentzNorm'_indicator_const' h₀ h₁ h₆ h₇
 
-@[simp]
 lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} (hs : MeasurableSet s) :
   eLorentzNorm (s.indicator (Function.const α a)) p q μ
     = if p = 0 then 0
