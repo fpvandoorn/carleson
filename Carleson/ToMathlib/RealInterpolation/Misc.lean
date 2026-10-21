@@ -713,7 +713,8 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
       · apply setLIntegral_mono_ae (AEMeasurable.restrict (by fun_prop))
         filter_upwards with x hx
         rw [mul_comm]
-        exact rpow_le_rpow_of_exponent_le_base_ge_enorm ht hx.ne_top hx.le (toReal_mono p_ne_top hpq.2)
+        exact rpow_le_rpow_of_exponent_le_base_ge_enorm ht hx.ne_top hx.le
+          (toReal_mono p_ne_top hpq.2)
       · by_cases ht' : t = ⊤
         · simp_all
         · finiteness
@@ -722,7 +723,8 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
       exact Measure.restrict_le_self
     _ = _ := by
       congr
-      rw [eLpNorm_eq_lintegral_rpow_enorm_toReal p_ne_zero p_ne_top (hf.mono_ac (fun ⦃s⦄ a ↦ a)), one_div, ENNReal.rpow_inv_rpow (toReal_pos p_ne_zero p_ne_top).ne']
+      rw [eLpNorm_eq_lintegral_rpow_enorm_toReal p_ne_zero p_ne_top hf, one_div,
+        ENNReal.rpow_inv_rpow (toReal_pos p_ne_zero p_ne_top).ne']
 
 -- TODO: better name!
 lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
