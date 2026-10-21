@@ -589,7 +589,7 @@ lemma eLorentzNorm'_indicator_const' {a : ε} {s : Set α} (p_ne_zero : p ≠ 0)
         ENNReal.ofReal_toReal h]
 
 @[simp]
-lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} (hs : MeasurableSet s) :
+lemma eLorentzNorm_indicator_const₀ {a : ε} {s : Set α} (hs : NullMeasurableSet s μ) :
   eLorentzNorm (s.indicator (Function.const α a)) p q μ
     = if p = 0 then 0
       else if q = 0 then 0
@@ -600,7 +600,7 @@ lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} (hs : MeasurableSet s) 
       else
         (p / q) ^ q.toReal⁻¹ * μ s ^ p.toReal⁻¹ * ‖a‖ₑ := by
   have hf : AEStronglyMeasurable (s.indicator (Function.const α a)) μ :=
-    aestronglyMeasurable_const.indicator hs
+    aestronglyMeasurable_const.indicator₀ hs
   rw [eLorentzNorm, ite_eq_left hf]
   split_ifs with h₀ h₁ h₂ h₃ h₄ h₅ h₆ h₇
   all_goals try rfl
@@ -625,6 +625,19 @@ lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} (hs : MeasurableSet s) 
         exact le_antisymm (iSup₂_le fun t ht ↦ ht.le)
           (ENNReal.le_of_forall_nnreal_lt fun r hr ↦ le_iSup₂_of_le r hr le_rfl)
   · exact eLorentzNorm'_indicator_const' h₀ h₁ h₆ h₇
+
+@[simp]
+lemma eLorentzNorm_indicator_const {a : ε} {s : Set α} (hs : MeasurableSet s) :
+  eLorentzNorm (s.indicator (Function.const α a)) p q μ
+    = if p = 0 then 0
+      else if q = 0 then 0
+      else if p = ∞ then
+        (if μ s = 0 then 0 else if q = ∞ then ‖a‖ₑ else ∞ * ‖a‖ₑ)
+      else if q = ∞ then
+        μ s ^ p.toReal⁻¹ * ‖a‖ₑ
+      else
+        (p / q) ^ q.toReal⁻¹ * μ s ^ p.toReal⁻¹ * ‖a‖ₑ :=
+    eLorentzNorm_indicator_const₀ hs.nullMeasurableSet
 
 lemma MemLorentz.memLp {f : α → ε} (hf : MemLorentz f p q μ) (h : q ∈ Set.Ioc 0 p) :
     MemLp f p μ := by
