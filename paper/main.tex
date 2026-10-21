@@ -711,7 +711,7 @@ theorem classical_carleson {f : ℝ → ℂ}
 The statement of the hypotheses ($f \colon \real \to \complex$ is a continuous $2\pi$-periodic function) closely resembles natural language, but understanding the conclusion requires some familiarity with Lean and \mathlib. There, $\forall^m x$ means ``for every real number $x$ not in a set of measure zero'', and
 \lean{Tendsto (partialFourierSum · f x) atTop (nhds (f x))} is Lean's idiomatic way to express that the sequence $S_N f(x)$ of $N$-th partial Fourier sums converges to $f(x)$ when $N$ tends to infinity (see \cite[\S11.1]{mathematics_in_lean} for more information on \mathlib's use of filters to represent limits).
 
-The definition \lean{partialFourierSum} encodes the $N$-th partial Fourier sum of $f\colon\real \to\complex$. Here, \lean{Finset.Icc}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean#L280}{\extlink}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L59}{\extlink} denotes the interval $[a, b)$ and \lean{Set.Iic b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L44}{\extlink} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean\#L108-L124}{\extlink} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Finset/Defs.lean\#L72-L79}{\extlink} versions of these intervals.
+The definition \lean{partialFourierSum} encodes the $N$-th partial Fourier sum of $f\colon\real \to\complex$. Here, $\mlean{Finset.Icc\;(-(N : \mathbb{Z}))\;N}$\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean#L280}{\extlink}\footnote{In any preorder $\alpha$, one can define intervals which on each side can be either open (o), closed (c) or infinite (i). For instance, \lean{Set.Ico a b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L59}{\extlink} denotes the interval $[a, b)$ and \lean{Set.Iic b}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Set/Defs.lean\#L44}{\extlink} denotes $(-\infty, b]$. If moreover $\alpha$ is a \lean{LocallyFiniteOrder}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Order/Interval/Finset/Defs.lean\#L108-L124}{\extlink} (i.e., all bounded intervals in $\alpha$ are finite), \lean{Finset.Icc, Finset.Ico, Finset.Ioc} and \lean{Finset.Ioo} provide \lean{Finset}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Data/Finset/Defs.lean\#L72-L79}{\extlink} versions of these intervals.
 } denotes the finite set of integers $\{-N, -N + 1, \cdots, N\}$, \lean{fourierCoeffOn Real.two_pi_pos f n}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Analysis/Fourier/AddCircle.lean#L351-L355}{\extlink} is the
 $n$-th Fourier coefficient of $f$ on $[0, 2\pi]$, and \lean{fourier n (x : AddCircle (2 * π))}\href{https://github.com/leanprover-community/mathlib4/blob/b63493a4746b4651fceb3bcf3a4651cc36a4b8de/Mathlib/Analysis/Fourier/AddCircle.lean#L123-L125}{\extlink} denotes $e^{inx}$.
 \begin{lstlisting}[mathescape]
@@ -734,7 +734,7 @@ class MeasureTheory.DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMe
 \end{lstlisting}
 
 Next, we need to introduce the family $\Mf$ of compatible functions satisfying the properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb}. We do this in two steps, by first creating a class
-\lean{FunctionDistances}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L113-L121}{\extlink} which bundles a family of continuous functions and then endowing these functions with the five properties in the class \lean{CompatibleFunctions}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L167-L185}{\extlink} The assumption that the family is cancellative is added as a \lean{Prop}-valued class \lean{IsCancellative}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L191-L197}{\extlink}
+\lean{FunctionDistances}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L113-L121}{\extlink} which bundles a family of continuous functions and then endowing these functions with the five properties in the class \lean{CompatibleFunctions}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L167-L185}{\extlink} We denote this family by $\Theta$ \lean{X} in the Lean code. The assumption that the family is cancellative is added as a \lean{Prop}-valued class \lean{IsCancellative}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L191-L197}{\extlink}
 
 Something to note here is that we created type synonyms to be able to endow $\Mf$ with different metric space structures, each coming from a ball in $X$, and we provided the custom notation \lean|dist_{x, r}| for the distance corresponding to the ball $B(x, r)$.
 
@@ -755,7 +755,7 @@ lemma cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ X}
   (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
 \end{lstlisting}
 
-The class \lean{IsOneSidedKernel} captures the notion of one-sided Calderón--Zygmund kernel (Definition~\ref{def:one-sided-kernel}).
+The class \lean{IsOneSidedKernel} captures the notion of one-sided Calderón--Zygmund kernel (Definition~\ref{def:one-sided-kernel}). Here \lean{C_K a} denotes the nonnegative real number $2 ^ {a ^ 3}$.
 
 \begin{lstlisting}[mathescape]
 class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
@@ -779,7 +779,8 @@ The statement of the metric space Carleson theorem also requires fixing two posi
 
 We have now described most of the prerequisites for understanding the Lean statement of Theorem~\ref{metric-space-Carleson}, available as
 \lean{metric_carleson}. The hypothesis \lean{hT} relies on the definition \lean{HasBoundedStrongType}\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L80-L86}{\extlink} to express the bound \eqref{nontanbound} for the
-\lean{nontangentialOperator}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L211-L212}{\extlink}
+\lean{nontangentialOperator}.\href{https://github.com/fpvandoorn/carleson/blob/AFM-frozen/Carleson/Defs.lean#L211-L212}{\extlink} This definition takes as input an operator $T \colon (X \to E) \to (Y \to F)$ where $X$ and $Y$ are measure spaces and $E$ and $F$ are topological spaces.
+In the statement of \lean{metric_carleson}, \lean{HasBoundedStrongType} is applied to the nontangential operator, so $Y = X$ and both times $X$ is endowed with the same measure \lean{volume}.
 
 \begin{lstlisting}[mathescape]
 theorem metric_carleson {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0}
@@ -827,7 +828,7 @@ theorem linearized_metric_carleson {X : Type*} {a : ℕ} [MetricSpace X]
 
 \subsection{Verifying the definitions and statements}
 
-The Lean kernel checks that all proofs are correct. It cannot ascertain that all definitions and theorem statements match their counterparts in the blueprint; this requires manual effort.
+The Lean kernel checks that all proofs are correct. It cannot ascertain that all definitions and theorem statements match their counterparts in the blueprint; this requires human intervention.
 One strategy (going back to at least the Liquid Tensor Experiment \cite{LTEDefinitions})
 is to prove basic results about these definitions.
 In the best case, one can prove theorems that uniquely characterize a definition.
@@ -836,7 +837,7 @@ it uses besides \lean{partialFourierSum} only definitions in \mathlib.
 This gives some evidence that the metric Carleson theorem is also correctly stated,
 since it proved the classical theorem as a corollary.
 
-Another aspect is making the relevant definitions easy to audit: to this end, we have collected all definitions and set-up necessary for stating the main theorems, as well as the main theorems' statements, into a single file. Auditing these 170 lines of Lean code (on top of \mathlib) ensures the theorems say what they claim --- over two orders of magnitude smaller than the entire project.
+Another strategy is making the relevant definitions easy to audit: to this end, we have collected all definitions and set-up necessary for stating the main theorems, as well as the main theorems' statements, into a single file. Auditing these 170 lines of Lean code (on top of \mathlib) ensures the theorems say what they claim --- over two orders of magnitude smaller than the entire project.
 In addition, about a quarter of these lines are basic definitions that will be added to \mathlib soon, where they will receive careful review; this further reduces the need to trust code beyond \mathlib.
 
 Lean ensures that the formalized proof is a valid proof of the given statement.
@@ -897,7 +898,7 @@ general material that would be useful in many other formalization projects,
 and material specific to the current formalization, that would likely see little reuse.
 We put the former material in a separate \texttt{ToMathlib} subfolder,
 emphasizing the aim to upstream this material to \mathlib.
-We also ensured as much as we could that these concepts and theorems would be developed in a greater generality than what was needed to formalize the current result, so that it would have an appropriate generality for \mathlib.
+We also ensured as much as we could that these concepts and theorems would be developed in a greater generality than what was needed to formalize the current result, so that they would have an appropriate generality for \mathlib.
 
 The material specific to this formalization was usually stated only at the required level of generality, and we relaxed some of the contribution requirements for this part of the project: for instance, we did not try to optimize all proofs or insist that they adhered to \mathlib's style conventions.
 This helped make the Carleson project accessible to a broader range of potential contributors.
@@ -1021,10 +1022,10 @@ are always explicit and most often in the form $2^{n a^3}$ where $a$ is a
 given parameter of the system and $n$ is a concrete natural number, ranging
 from $1$ or $2$ in the first lemmas to $443$ in the final result.
 
-When a result depends on several previous lemmas, its constant can typically
+When a result depends on several previous lemmas, its constants can typically
 be expressed in terms of the previous lemmas, giving chains of conditions for
 the overall validity of the constants. When correcting a minor mistake in the
-proof of a lemma requires a slight increase in its constant, all statements
+proof of a lemma requires a slight increase in a constant appearing in its statement, all results
 that depend transitively on it must also be corrected. The standard practice
 in paper mathematics to avoid this kind of intricate dependency is not to
 care about the constants, and formulate the lemmas as ``there exists a
