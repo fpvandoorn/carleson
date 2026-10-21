@@ -613,7 +613,7 @@ lemma eLorentzNorm_indicator_const₀ {a : ε} {s : Set α} (hs : NullMeasurable
   · congr
     exact eLpNormEssSup_indicator_const_eq s a h₅
   · simp [h₆]
-  · have hp : 0 < p.toReal⁻¹ := inv_pos.mpr (ENNReal.toReal_pos h₀ h₁)
+  · have hp : 0 < p.toReal⁻¹ := by positivity [ENNReal.toReal_pos h₀ h₁]
     rw [h₇, eLorentzNorm'_exponent_top, mul_comm]
     calc _
       _ = ⨆ (t : ℝ≥0) (_ : (t : ℝ≥0∞) < ‖a‖ₑ), t * μ s ^ p.toReal⁻¹ := by
