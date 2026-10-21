@@ -26,15 +26,15 @@ open Set Measure Filter TopologicalSpace
 
 variable {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α} {s : Set α}
 
-/-- An *atom* of a measure `μ` is a set `s` of positive measure for which all measurable subsets
-either have measure `0` or `μ s`. -/
+/-- An *atom* of a measure `μ` is a measurable set `s` of positive measure for which all measurable
+subsets either have measure `0` or `μ s`. -/
 @[expose]
 def IsAtom (s : Set α) (μ : Measure α) :=
   MeasurableSet s ∧ 0 < μ s ∧ ∀ t ⊆ s, MeasurableSet t → μ t = 0 ∨ μ t = μ s
 
 /-- Measure `μ` *has no atoms* if for any measurable set `s` with positive `μ`-measure,
-there exists a measurable `t ⊆ s` such that `0 < μ t < μ s`. While this implies `μ {x} = 0`,
-the converse is not true. -/
+there exists a measurable `t ⊆ s` such that `0 < μ t < μ s`. While this implies `μ {x} = 0` under
+mild assumptions, the converse is not true. -/
 class NoAtoms' (μ : Measure α) : Prop where
   no_atoms : ∀ s, ¬ IsAtom s μ
 
