@@ -702,6 +702,7 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
     gcongr with x
     exact trnc_le_func (j := ⊥)
 
+#click_suggestions
 -- TODO: better name!
 lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
     (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (ht : 0 < t) :
@@ -710,10 +711,10 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
   have q_ne_top: q ≠ ⊤ := ne_top_of_le_ne_top p_ne_top hpq.2
   have p_ne_zero : p ≠ 0 := (hpq.1.trans_le hpq.2).ne'
   by_cases hf : AEStronglyMeasurable f μ; swap
-  · have hf'' : eLpNorm f p μ = ∞ := sorry
-    by_cases! ht' : t = ∞
+  · by_cases! ht' : t = ∞
     · simp [ht', zero_rpow_of_pos (exp_toReal_pos hpq.1 q_ne_top)]
-    rw [hf'', top_rpow_of_pos sorry /- via p_ne_zero -/, mul_top]
+    rw [eLpNorm_of_not_aestronglyMeasurable hf, top_rpow_of_pos (toReal_pos p_ne_zero p_ne_top),
+        mul_top]
     · simp
     simp; grind
   apply le_trans (eLpNorm_truncCompl_le hpq.1.ne' (ne_top_of_le_ne_top p_ne_top hpq.2) hf)
@@ -746,15 +747,13 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
   have p_ne_top : p ≠ ∞ := (hpq.2.trans_lt (lt_top_iff_ne_top.mpr hq)).ne
   by_cases ht : t = ⊤
   · by_cases hf : AEStronglyMeasurable f μ; swap
-    · have hf'' : eLpNorm f p μ = ∞ := sorry
-      by_cases! hpq : p = q
-      · simp [ht, hpq]
+    · by_cases! hpq' : p = q
+      · simp [ht, hpq']
       have : 0 < q.toReal - p.toReal := by
         rw [sub_pos]
         gcongr
-        -- use hpq.2 and hpq
-        sorry
-      simp [ht, hf'', top_rpow_of_pos this]
+        order [hpq.2]
+      simp [ht, eLpNorm_of_not_aestronglyMeasurable hf, top_rpow_of_pos this]
     by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
     · have : (fun x ↦ ‖f x‖ₑ) =ᵐ[μ] 0 := by
         rw [← eLpNorm_enorm _ hf] at hf'
@@ -768,7 +767,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
       · rw [toReal_pos_iff]
         exact ⟨hq', hq.lt_top⟩
     · -- The right hand side is `∞`, hence the statement is always true.
-      simp only [ht, trunc_top, ge_iff_le]
+      simp only [ht, trunc_top]
       by_cases p_eq_q : p = q
       · simp [p_eq_q]
       rw [top_rpow_of_pos, top_mul hf']
@@ -776,8 +775,27 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
       rw [sub_pos, toReal_lt_toReal p_ne_top hq]
       exact lt_of_le_of_ne hpq.2 p_eq_q
   by_cases hf : AEStronglyMeasurable f μ; swap
-  · have hf'' : eLpNorm f p μ = ∞ := sorry
-    sorry
+  · by_cases ht' : t = 0
+    · rw [ht']
+      simp
+      sorry
+    have hf'' : eLpNorm f p μ = ∞ := eLpNorm_of_not_aestronglyMeasurable hf
+    rw [eLpNorm_of_not_aestronglyMeasurable hf]
+    by_cases! hpq' : p = q
+    · simp only [hpq', sub_self, ENNReal.rpow_zero, one_mul]
+      gcongr
+      simp
+    have : 0 < q.toReal - p.toReal := by
+      rw [sub_pos]
+      gcongr
+      order [hpq.2, hpq']
+    trans ∞
+    · simp
+    rw [top_le_iff, mul_eq_top]
+    left
+    constructor
+    · positivity
+    simpa using exp_toReal_pos hpq.1 p_ne_top
   rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hq'.ne' hq hf.trunc,
     eLpNorm_eq_lintegral_rpow_enorm_toReal  hpq.1.ne' p_ne_top hf]
   calc
@@ -825,7 +843,7 @@ lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioc 0 q) {f : α → ε} (hf : MemLp f p �
       _ < ∞ := by finiteness
   · have p_ne_top := ne_top_of_le_ne_top q_ne_top hpq.2
     rw [← rpow_lt_top_iff_of_pos (toReal_pos (hpq.1.trans_le hpq.2).ne' q_ne_top)]
-    apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.aestronglyMeasurable)
+    apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq)
     apply mul_lt_top ?_ ?_
     · by_cases ht'' : t = 0
       · rw [ht'']
@@ -899,7 +917,7 @@ lemma truncCompl_Lp_Lq_lower
   · simp [trnc, ht']
   have : 0 < q.toReal := toReal_pos hpq.left.ne' q_ne_top
   refine (rpow_lt_top_iff_of_pos this).mp ?_
-  refine lt_of_le_of_lt (estimate_eLpNorm_truncCompl hp hpq hf.aestronglyMeasurable ht) ?_
+  refine lt_of_le_of_lt (estimate_eLpNorm_truncCompl hp hpq ht) ?_
   apply mul_lt_top
   · push Not at ht'
     finiteness
