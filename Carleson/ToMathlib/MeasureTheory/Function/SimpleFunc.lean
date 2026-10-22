@@ -255,7 +255,7 @@ lemma Antitone.support_eq [ConditionallyCompleteLinearOrderBot α] [AddMonoid β
         rw [← bot_eq_zero', ← le_bot_iff]
         convert (hf hy.le).trans_eq h''
         exact bot_eq_zero'
-      · contrapose! h'
+      · contrapose h'
         rwa [h']
     · intro h''
       contrapose! h''
@@ -265,7 +265,7 @@ lemma Antitone.support_eq [ConditionallyCompleteLinearOrderBot α] [AddMonoid β
       apply hy
       simpa
   · simp only [mem_univ, iff_true]
-    contrapose! h
+    contrapose h
     use x
     intro y hy
     rw [Function.mem_support, ← bot_eq_zero', ← bot_lt_iff_ne_bot, bot_eq_zero'] at hy
@@ -353,7 +353,7 @@ protected theorem antitone_induction [MeasurableSpace α] [ConditionallyComplete
     unfold f'
     simp only [coe_sub, Function.mem_support, Pi.sub_apply, ne_eq]
     intro h
-    contrapose! h
+    contrapose h
     rw [h]
     simp
 
@@ -409,7 +409,7 @@ protected theorem induction'' [MeasurableSpace α] [LinearOrder β] [AddCommMono
     unfold f'
     simp only [coe_sub, Function.mem_support, Pi.sub_apply, ne_eq]
     intro h
-    contrapose! h
+    contrapose h
     rw [h]
     simp
 

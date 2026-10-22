@@ -91,7 +91,7 @@ lemma czOperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     fun_prop
   have tmp_Kxg {M : ℝ≥0} : ∀ y, ¬‖Kxg y‖ ≤ M → y ∈ support Kxg := by
     intro y
-    contrapose!
+    contrapose
     rw [notMem_support]
     intro hy
     rw [hy, norm_zero]

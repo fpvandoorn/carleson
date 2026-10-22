@@ -166,7 +166,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
 /-- Lemma 5.2.3 -/
 lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p mp p' mp' h ↦ by
   change Disjoint _ _
-  contrapose! h
+  contrapose h
   have h𝓘 := (Disjoint.mono (E₁_subset p) (E₁_subset p')).mt h
   wlog hs : s (𝓘 p') ≤ s (𝓘 p) generalizing p p'
   · rw [disjoint_comm] at h h𝓘; rw [not_le] at hs; rw [this p' mp' p mp h h𝓘 hs.le]
@@ -239,7 +239,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
       simp [stackSize, this]
     have Lslq : ∀ q ∈ Q₂, L.succ ≤ 𝓘 q := fun q mq ↦ Grid.succ_le_of_lt mq.2
     have Lout : ¬(L.succ : Set X) ⊆ setA (X := X) l k n := by
-      by_contra! hs
+      by_contra hs
       rw [Grid.maxCubes, Finset.mem_filter] at mL
       apply absurd _ h
       exact Grid.max_of_le_succ

@@ -24,7 +24,7 @@ lemma integrableOn_K_mul_f {x' : X} (hf : BoundedCompactSupport f volume) {r : �
   have ⟨C, hC⟩ := Metric.isBounded_iff.mp hf.isBoundedSupport
   have : support (fun y ↦ f y * K x' y) ⊆ closedBall x' (dist x' x'' + C) := by
     intro y hy
-    have : y ∈ support f := by contrapose! hy; simp [hy]
+    have : y ∈ support f := by contrapose hy; simp [hy]
     exact mem_closedBall'.mp <| (dist_triangle x' x'' y).trans <| add_le_add_right (hC hx'' this) _
   simp_rw [mul_comm (K x' _), IntegrableOn, ← integrableOn_iff_integrable_of_support_subset this]
   apply hf.restrict.restrict.integrable_mul

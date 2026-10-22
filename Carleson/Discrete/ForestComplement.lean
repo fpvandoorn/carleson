@@ -225,17 +225,17 @@ lemma notMem_ℭ₅_iff_mem_𝔏₃ (hkn : k ≤ n) (hj : j ≤ 2 * n + 3)
     have mc4' := mc4
     simp_rw [ℭ₄, layersBelow, mem_sdiff, not_and, mc3, true_implies, not_notMem] at mc4'
   · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
-    simp_rw [mc4', iff_true]; contrapose! mc4
+    simp_rw [mc4', iff_true]; contrapose mc4
     exact ℭ₅_subset_ℭ₄ mc4
   change p ∉ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
   simp_rw [mc4', iff_false, ℭ₅]; rw [not_notMem] at mc4 ⊢; simp_rw [mem_sdiff, mc4, true_and]
   have nG₃ : ¬(𝓘 p : Set X) ⊆ G₃ := by
-    suffices ¬(𝓘 p : Set X) ⊆ G' by contrapose! this; exact subset_union_of_subset_right this _
+    suffices ¬(𝓘 p : Set X) ⊆ G' by contrapose this; exact subset_union_of_subset_right this _
     by_contra hv
     rw [𝔓pos, mem_ofPred, inter_comm _ G'ᶜ, ← inter_assoc, ← sdiff_eq_compl_inter,
       sdiff_eq_empty.mpr hv] at h
     simp at h
-  contrapose! nG₃
+  contrapose nG₃
   exact le_iSup₂_of_le n k <| le_iSup₂_of_le hkn j <|
     le_iSup₂_of_le hj p <| le_iSup_of_le nG₃ Subset.rfl
 
@@ -277,7 +277,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
     have mc2' := mc2
     simp_rw [ℭ₂, layersAbove, mem_sdiff, not_and, mc1, true_implies, not_notMem] at mc2'
   · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l at mc2'
-    simp_rw [mc2', true_or, iff_true]; contrapose! mc2
+    simp_rw [mc2', true_or, iff_true]; contrapose mc2
     exact ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ mc2
   change p ∉ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l at mc2'; simp_rw [mc2', false_or]
   rw [not_notMem] at mc2; by_cases ml2 : p ∈ 𝔏₂ k n j
@@ -877,7 +877,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
     intro p hp
     have : ¬ (𝓘 p : Set X) ⊆ G₁ := by
       have W := hp.1.1
-      contrapose! W
+      contrapose W
       have : ↑(𝓘 p) ∩ G ∩ G'ᶜ = ∅ := by
         simp only [G', compl_union]
         apply eq_empty_of_subset_empty

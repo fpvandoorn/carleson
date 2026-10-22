@@ -228,7 +228,7 @@ lemma eLorentzNorm_exponent_top {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) (hf : ¬ f =ᶠ[ae μ] 0) :
     eLorentzNorm f ∞ q μ = ∞ := by
   apply eLorentzNorm_exponent_top' q_ne_zero q_ne_top
-  contrapose! hf
+  contrapose hf
   exact eLpNormEssSup_eq_zero_iff.mp hf
 
 lemma eLorentzNorm_mono_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f : α → ε} {g : α → ε'}

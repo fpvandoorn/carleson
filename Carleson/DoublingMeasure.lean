@@ -275,7 +275,7 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
     rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
     have : φ y = 0 := by
       apply notMem_support.1
-      contrapose! hy
+      contrapose hy
       exact h2 hy
     simp [this]
   · rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_mul (by positivity),

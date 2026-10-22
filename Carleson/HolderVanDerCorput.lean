@@ -60,7 +60,7 @@ lemma hasCompactSupport_cutoff [ProperSpace X] (hR : 0 < R) (ht : 0 < t) {x : X}
   apply HasCompactSupport.intro (isCompact_closedBall x (t * R))
   intro y hy
   apply cutoff_eq_zero hR ht
-  contrapose! hy
+  contrapose hy
   exact ball_subset_closedBall hy
 
 lemma integrable_cutoff (hR : 0 < R) (ht : 0 < t) {x : X} :
@@ -91,7 +91,7 @@ lemma leq_of_max_neq_right {a b : ℝ} (h : max a b ≠ b) : b < a := by
 
 /-- Equation 8.0.4 from the blueprint -/
 lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := by
-  contrapose! h
+  contrapose h
   exact cutoff_eq_zero hR ht h
 
 lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2⁻¹ * t * R)) :
@@ -606,11 +606,11 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {φ : X → ℂ}
       intro x hx
       have A : φ x = 0 := by
         apply notMem_support.1
-        contrapose! hx
+        contrapose hx
         apply (φ_supp.trans (ball_subset_ball (by linarith))) hx
       have A' : φ' x = 0 := by
         apply notMem_support.1
-        contrapose! hx
+        contrapose hx
         apply φ'_supp hx
       simp [A, A']
     _ ≤ ∫⁻ x in ball z (2 * R), ‖exp (I * (f x - g x)) * (φ x - φ' x)‖ₑ :=

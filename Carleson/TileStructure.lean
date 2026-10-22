@@ -132,7 +132,7 @@ lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_
 lemma Q_mem_Ω {p : 𝔓 X} {x : X} (hp : x ∈ E p) : Q x ∈ Ω p := hp.right.left
 
 lemma disjoint_E {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (E p) (E p') := by
-  have := disjoint_Ω h hp; contrapose! this
+  have := disjoint_Ω h hp; contrapose this
   rw [not_disjoint_iff] at this ⊢; obtain ⟨x, mx, mx'⟩ := this
   use Q x, Q_mem_Ω mx, Q_mem_Ω mx'
 

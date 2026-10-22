@@ -273,7 +273,7 @@ lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
     · refine memLp_top_of_bound (by fun_prop (discharger := measurability)) 1 (.of_forall fun x ↦ ?_)
       unfold indicator; split_ifs <;> simp
     · refine HasCompactSupport.intro (isCompact_closedBall (c J) (8 * D ^ s J)) fun x mx ↦ ?_
-      apply indicator_of_notMem; contrapose! mx; exact ball_subset_closedBall mx
+      apply indicator_of_notMem; contrapose mx; exact ball_subset_closedBall mx
   · exact stronglyMeasurable_χ.measurable.coe_nnreal_real.aestronglyMeasurable
   · simp_rw [show (1 : X → ℝ) = (↑) ∘ (1 : X → ℝ≥0) by rfl]
     rw [indicator_comp_of_zero (by simp), Function.comp_apply, Real.norm_eq_abs, NNReal.abs_eq,
@@ -446,7 +446,7 @@ lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
         8 * ∑ J' ∈ 𝓙₅ t u₁ u₂ with
           ¬Disjoint (ball (c J) (8 * D ^ s J)) (ball (c J') (8 * D ^ s J')),
             dist (χtilde J' u₁ x) (χtilde J' u₁ x')) / 4 := by
-      congr 3; refine (Finset.sum_filter_of_ne fun J' mJ' hd ↦ ?_).symm; contrapose! hd
+      congr 3; refine (Finset.sum_filter_of_ne fun J' mJ' hd ↦ ?_).symm; contrapose hd
       have h₁ : χtilde J' u₁ x = 0 := by
         have := disjoint_left.mp hd hx
         rw [← not_ne_iff, ← zero_lt_iff, χtilde_pos_iff]; tauto
@@ -1207,7 +1207,7 @@ lemma gtc_integral_bound {k : ℤ} {ℭ : Set (𝔓 X)}
     _ = ∫⁻ x in ⋃ p ∈ V, E p, ‖f x‖ₑ := by
       refine (lintegral_biUnion_finset (fun p₁ mp₁ p₂ mp₂ hn ↦ ?_)
         (fun _ _ ↦ measurableSet_E) _).symm
-      contrapose! hn; obtain ⟨x, mx₁ : x ∈ E p₁, mx₂ : x ∈ E p₂⟩ := not_disjoint_iff.mp hn
+      contrapose hn; obtain ⟨x, mx₁ : x ∈ E p₁, mx₂ : x ∈ E p₂⟩ := not_disjoint_iff.mp hn
       rw [E, mem_ofPred] at mx₁ mx₂
       simp_rw [Finset.mem_coe, V, Finset.mem_filter, mem_toFinset] at mp₁ mp₂
       have i_eq := mp₂.2.2 ▸ mp₁.2.2
@@ -1247,7 +1247,7 @@ lemma global_tree_control1_edist_part1
     _ = ∑ p ∈ ℭ with ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (16 * D ^ s J)),
         edist (exp (.I * 𝒬 u x) * adjointCarleson p f x)
           (exp (.I * 𝒬 u x') * adjointCarleson p f x') := by
-      refine (Finset.sum_filter_of_ne fun p mp hp ↦ ?_).symm; contrapose! hp
+      refine (Finset.sum_filter_of_ne fun p mp hp ↦ ?_).symm; contrapose hp
       replace hp : Disjoint (ball (𝔠 p) (5 * D ^ 𝔰 p)) (ball (c J) (16 * D ^ s J)) :=
         hp.mono_left (ball_subset_ball (by gcongr; norm_num))
       rw [adjoint_tile_support1, indicator_of_notMem (disjoint_right.mp hp hx), mul_zero,
@@ -1874,7 +1874,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
     obtain ⟨⟨Jin𝓙₀, _⟩, ⟨jIsSubset : (J : Set X) ⊆ 𝓘 u₁, smaller : s J ≤ s (𝓘 u₁)⟩⟩ := hJ
     obtain ⟨p, belongs⟩ := t.nonempty' hu₁
     apply lt_of_le_of_ne smaller
-    by_contra! h
+    by_contra h
     have u₁In𝓙₀ : 𝓘 u₁ ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := by
       apply mem_of_eq_of_mem (h := Jin𝓙₀)
       rw [eq_comm]

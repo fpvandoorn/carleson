@@ -1051,7 +1051,7 @@ lemma Antitone.lintegral_withDensity_le {f d : ℝ≥0∞ → ℝ≥0∞} (hf : 
             filter_upwards [this] with t t_ne_zero ht
             rw [ENNReal.sub_mul, one_mul]
             intros
-            contrapose! f_int
+            contrapose f_int
             rw [eq_top_iff]
             calc ⊤
               _ = ∫⁻ (s : ℝ≥0∞) in Set.Iio t, ⊤ := by
