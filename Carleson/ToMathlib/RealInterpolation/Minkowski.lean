@@ -334,7 +334,7 @@ theorem aemeasurable_ton (tc : ToneCouple) : AEMeasurable tc.ton (volume.restric
 -- TODO: better name!
 @[measurability]
 lemma indicator_ton_measurable {g : α → E₁}
-    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] [SFinite μ]
+    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
     (hg : AEStronglyMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ≥0∞ × α | ‖g x‖ₑ ≤ tc.ton s } ((volume.restrict (Ioi 0)).prod μ) := by
   apply nullMeasurableSet_le hg.comp_snd.enorm
@@ -345,7 +345,7 @@ lemma indicator_ton_measurable {g : α → E₁}
 -- TODO: better name!
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁}
-    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] [SFinite μ]
+    [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
     (hg : AEStronglyMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ≥0∞ × α | tc.ton s < ‖g x‖ₑ }
       ((volume.restrict (Ioi 0)).prod μ) := by
@@ -357,7 +357,6 @@ lemma indicator_ton_measurable_lt {g : α → E₁}
 @[fun_prop]
 lemma AEStronglyMeasurable.trunc_ton_norm {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [SFinite (μ.restrict (fun x ↦ ‖f x‖ₑ).support)]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
     AEStronglyMeasurable (fun a : ℝ≥0∞ × α ↦ (MeasureTheory.trunc f (tc.ton a.1)) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict (fun x ↦ ‖f x‖ₑ).support)) := by
@@ -373,7 +372,6 @@ lemma AEStronglyMeasurable.trunc_ton_norm {f : α → E₁}
 @[fun_prop]
 lemma AEStronglyMeasurable.trunc_ton {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [SFinite (μ.restrict f.support)]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
     AEStronglyMeasurable (fun a : ℝ≥0∞ × α ↦ (MeasureTheory.trunc f (tc.ton a.1)) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
@@ -388,7 +386,6 @@ lemma AEStronglyMeasurable.trunc_ton {f : α → E₁}
 @[fun_prop]
 lemma AEStronglyMeasurable.truncCompl_ton {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [SFinite (μ.restrict f.support)]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
     AEStronglyMeasurable (fun a : ℝ≥0∞ × α ↦ ((MeasureTheory.truncCompl f (tc.ton a.1))) a.2)
     ((volume.restrict (Ioi 0)).prod (μ.restrict f.support )) := by
@@ -403,7 +400,6 @@ lemma AEStronglyMeasurable.truncCompl_ton {f : α → E₁}
 @[fun_prop]
 lemma AEStronglyMeasurable.truncCompl_ton_norm {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁]
-    [SFinite (μ.restrict (fun x ↦ ‖f x‖ₑ).support)]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
     AEStronglyMeasurable (fun a : ℝ≥0∞ × α ↦ ((MeasureTheory.truncCompl f (tc.ton a.1))) a.2)
     ((volume.restrict (Ioi 0)).prod (μ.restrict (fun x ↦ ‖f x‖ₑ).support )) := by
@@ -459,7 +455,6 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁]
 @[fun_prop]
 theorem AEStronglyMeasurable.trnc_restrict
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] {j : Bool}
-    [SFinite (μ.restrict f.support)]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
     AEStronglyMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
@@ -472,7 +467,6 @@ theorem AEStronglyMeasurable.trnc_restrict
 @[fun_prop]
 theorem AEStronglyMeasurable.trnc_restrict_norm
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] {j : Bool}
-    [SFinite (μ.restrict (fun x ↦ ‖f x‖ₑ).support)]
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
     AEStronglyMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict (fun x ↦ ‖f x‖ₑ).support)) := by
