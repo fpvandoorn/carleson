@@ -168,7 +168,7 @@ lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStro
       (𝓝[univ ×ˢ Ioi 0] x) < M := lt_add_right htop hδ.ne'
   have : ∃ᶠ (z : X × ℝ) in 𝓝[univ ×ˢ Ioi 0] x, ∫⁻ (y : X) in ball z.1 z.2, ‖f y‖ₑ ∂μ < M := by
     refine frequently_lt_of_liminf_lt ?_ hM
-    simp only [IsCoboundedUnder, Filter.IsCobounded, ge_iff_le, eventually_map]
+    simp only [IsCoboundedUnder, Filter.IsCobounded, eventually_map]
     use ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ
     intro a ha; apply Eventually.self_of_nhdsWithin ha hx
   obtain ⟨ns, hns₀, hns₁⟩ :=

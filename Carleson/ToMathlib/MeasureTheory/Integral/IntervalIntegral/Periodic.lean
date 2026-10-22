@@ -40,23 +40,6 @@ theorem setLIntegral_Ioc_add_eq {f : ℝ → ℝ≥0∞} (hf : Periodic f T) (t 
   exacts [isAddFundamentalDomain_Ioc hT t, isAddFundamentalDomain_Ioc hT s,
     (hf.comp enorm).map_vadd_zmultiples]
 
---TODO: the assumption `p ≠ ⊤` is not necessary; this case should be proved as well
-theorem eLpNorm {T : ℝ} {s t : ℝ} {f : ℝ → ℂ}
-  (periodic_f : f.Periodic T)
-  {p : ℝ≥0∞} (hp : p ≠ ⊤) :
-    eLpNorm f p (volume.restrict (Ioc t (t + T))) = eLpNorm f p (volume.restrict (Ioc s (s + T))) := by
-  unfold MeasureTheory.eLpNorm
-  split_ifs with p_zero --p_top
-  · rfl
-  --· sorry
-  · rw [eLpNorm'_eq_lintegral_enorm, eLpNorm'_eq_lintegral_enorm, ]
-    congr 1
-    apply setLIntegral_Ioc_add_eq
-    intro x
-    simp only
-    congr 2
-    apply periodic_f
-
 theorem aestronglyMeasurable {t T : ℝ} [hT : Fact (0 < T)] {f : ℝ → ℂ}
   (periodic_f : f.Periodic T) (hf : AEStronglyMeasurable f (volume.restrict (Ioc t (t + T)))) :
     AEStronglyMeasurable f := by
@@ -80,6 +63,15 @@ theorem aestronglyMeasurable_iff {t T : ℝ} [hT : Fact (0 < T)] {f : ℝ → �
   (periodic_f : f.Periodic T) :
     AEStronglyMeasurable f ↔ AEStronglyMeasurable f (volume.restrict (Ioc t (t + T))) :=
   ⟨fun hf ↦ hf.restrict, aestronglyMeasurable periodic_f⟩
+
+theorem eLpNorm {T : ℝ} {s t : ℝ} {f : ℝ → ℂ} (periodic_f : f.Periodic T) {p : ℝ≥0∞} :
+    eLpNorm f p (volume.restrict (Ioc t (t + T))) = eLpNorm f p (volume.restrict (Ioc s (s + T))) := by
+  wlog! hT : 0 < T
+  · rw [Ioc_eq_empty (by simpa), Ioc_eq_empty (by simpa)]
+  have : Fact (0 < T) := ⟨hT⟩
+  by_cases hf : AEStronglyMeasurable f
+  · rw [← AddCircle.eLpNorm_liftIoc' T t hf, AddCircle.eLpNorm_liftIoc_of_periodic' T t s hf periodic_f]
+  · simp [eLpNorm_of_not_aestronglyMeasurable, ← aestronglyMeasurable_iff periodic_f, hf]
 
 /-
 theorem locallyIntegrable_of {T : ℝ} [hT : Fact (0 < T)] {f : ℝ → ℂ}

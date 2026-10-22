@@ -403,7 +403,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       rw [← div_le_iff₀' (by positivity), neg_mul, Real.rpow_neg zero_le_two, div_inv_eq_mul, mul_comm]
       convert! le_cdist_iterate (x := c I) (r := 4 * D ^ s I) (by positivity) f g (𝕔 * a) using 1
       · norm_cast
-      · apply dist_congr rfl
+      · apply cdist_congr rfl
         have : (defaultA a : ℝ) ^ (𝕔 * a) = D := by
           simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat]
           rw [← pow_mul]; congr 1; ring
@@ -426,7 +426,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       gcongr
       rw [show (2 : ℝ) ^ (5 * (a : ℝ)) = (defaultA a) ^ 5 by norm_cast; ring]
       convert! cdist_le_iterate _ f g 5 using 1
-      · exact dist_congr rfl (by ring)
+      · exact cdist_congr rfl (by ring)
       · have := one_le_realD a; positivity
     _ = _ := by congr 1; rw [C2_1_2, ← add_mul]
 

@@ -204,26 +204,28 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
     exact OrderTop.le_top _
   rw [← lt_top_iff_ne_top] at hf_L2
   have lift_MemLp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
-    unfold MemLp
-    constructor
-    · rw [haarAddCircle_eq_smul_volume]
-      apply AEStronglyMeasurable.smul_measure
-      exact hmf.aestronglyMeasurable.liftIoc (2 * π) 0
-    · rw [haarAddCircle_eq_smul_volume, eLpNorm_smul_measure_of_ne_top (by trivial),
-        eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
-      apply ENNReal.mul_lt_top _ hf_L2
-      rw [← ENNReal.ofReal_inv_of_pos Real.two_pi_pos]
-      apply ENNReal.rpow_lt_top_of_nonneg ENNReal.toReal_nonneg ENNReal.ofReal_ne_top
+    rw [memLp_iff, haarAddCircle_eq_smul_volume,
+      eLpNorm_smul_measure_of_ne_top (by trivial) _ _ (hmf.aestronglyMeasurable.liftIoc _ _),
+      eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
+    apply ENNReal.mul_lt_top _ hf_L2
+    rw [← ENNReal.ofReal_inv_of_pos Real.two_pi_pos]
+    apply ENNReal.rpow_lt_top_of_nonneg ENNReal.toReal_nonneg ENNReal.ofReal_ne_top
   let F : Lp ℂ 2 haarAddCircle :=
     MemLp.toLp (AddCircle.liftIoc (2 * π) 0 f) lift_MemLp
   have lp_version := spectral_projection_bound_lp (N := n) F
   rw [Lp.norm_def, Lp.norm_def,
     ENNReal.toReal_le_toReal (Lp.eLpNorm_ne_top (partialFourierSumLp 2 n F)) (Lp.eLpNorm_ne_top F)]
     at lp_version
+  have haar_aesm {g : ℝ → ℂ} (hg : AEStronglyMeasurable g) :
+      AEStronglyMeasurable (liftIoc (2 * π) 0 g) haarAddCircle := by
+    rw [haarAddCircle_eq_smul_volume]
+    exact (hg.liftIoc _ _).smul_measure _
   rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable,
     ← eLpNorm_liftIoc _ _ partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable,
     volume_eq_smul_haarAddCircle,
-    eLpNorm_smul_measure_of_ne_top (by trivial), eLpNorm_smul_measure_of_ne_top (by trivial),
+    eLpNorm_smul_measure_of_ne_top (by trivial) _ _ (haar_aesm hmf.aestronglyMeasurable),
+    eLpNorm_smul_measure_of_ne_top (by trivial) _ _
+      (haar_aesm partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable),
     smul_eq_mul, smul_eq_mul, ENNReal.mul_le_mul_iff_right (by simp [Real.pi_pos]) (by finiteness)]
   have ae_eq_right : F =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 f := MemLp.coeFn_toLp _
   have ae_eq_left : partialFourierSumLp 2 n F =ᶠ[ae haarAddCircle]
@@ -244,8 +246,15 @@ private lemma indicator_modulationOperator (g : ℝ → ℂ) (n : ℤ) (s : Set 
   ext x; simp [modulationOperator, indicator]
 
 private lemma eLpNorm_modulationOperator (g : ℝ → ℂ) (n : ℤ) (p : ℝ≥0∞) :
-    eLpNorm (modulationOperator n g) p = eLpNorm g p :=
-  eLpNorm_congr_norm_ae (Filter.Eventually.of_forall <| (norm_modulationOperator _ n ·))
+    eLpNorm (modulationOperator n g) p = eLpNorm g p := by
+  have h : AEStronglyMeasurable (modulationOperator n g) ↔ AEStronglyMeasurable g := by
+    convert aestronglyMeasurable_fun_smul_iff₀ (f := g) (c := fun x : ℝ ↦ exp (I * n * x))
+      (μ := volume) (by fun_prop) (.of_forall fun _ ↦ exp_ne_zero _) using 2
+    ext x; exact mul_comm _ _
+  by_cases hg : AEStronglyMeasurable g
+  · exact eLpNorm_congr_norm_ae (h.mpr hg) hg
+      (Filter.Eventually.of_forall (norm_modulationOperator _ n ·))
+  rw [eLpNorm_of_not_aestronglyMeasurable hg, eLpNorm_of_not_aestronglyMeasurable (h.not.mpr hg)]
 
 private lemma eLpNorm_indicator_modulationOperator (g : ℝ → ℂ) (n : ℤ) (p : ℝ≥0∞) (s : Set ℝ) :
     eLpNorm (s.indicator (modulationOperator n g)) p = eLpNorm (s.indicator g) p :=
@@ -264,9 +273,7 @@ lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} (hmg : AEMeasura
   rw [eLpNorm_const_smul _ _ _ _, ← Finset.sum_fn, Finset.indicator_sum,
     enorm_inv (Nat.cast_ne_zero.mpr hn), ← one_mul (eLpNorm (indicator _ _) _ _),
     ← ENNReal.inv_mul_cancel (by simp [hn]) (enorm_ne_top (x := (n : ℂ))), mul_assoc]
-  refine mul_le_mul_right (le_trans (eLpNorm_sum_le ?_ one_le_two) ?_) _
-  · refine fun i _ ↦ Measurable.indicator ?_ measurableSet_Ioc |>.aestronglyMeasurable
-    exact partialFourierSum_uniformContinuous.continuous.measurable.modulationOperator _
+  refine mul_le_mul_right (le_trans (eLpNorm_sum_le one_le_two) ?_) _
   trans ∑ i ∈ Finset.Ico n (2 * n), eLpNorm ((Ioc 0 (2 * π)).indicator g) 2 volume; swap
   · simp [← ofReal_norm, Nat.sub_eq_of_eq_add (two_mul n)]
   refine Finset.sum_le_sum (fun i _ ↦ ?_)
@@ -277,7 +284,7 @@ lemma modulated_averaged_projection' {g : ℝ → ℂ} {n : ℕ} (hmg : AEMeasur
     eLpNorm (approxHilbertTransform n g) 2 (volume.restrict (Ioc 0 (2 * π))) ≤
     eLpNorm g 2 (volume.restrict (Ioc 0 (2 * π))) := by
   convert modulated_averaged_projection (n := n) hmg using 1 <;>
-  exact (eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc).symm
+  exact (eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ioc).symm
 
 /- Lemma 11.3.2 `periodic-domain-shift` is in Mathlib. -/
 
@@ -312,24 +319,26 @@ lemma integrable_bump_convolution {f g : ℝ → ℝ}
   have hg_integrable : Integrable g (volume.restrict (Ioc 0 (2 * π))) := by
     apply IntegrableOn.integrable
     rw [← intervalIntegrable_iff_integrableOn_Ioc_of_le (by linarith)]
-    apply h_integrable.mono_fun hg.1.restrict (Filter.Eventually.of_forall ?_)
+    apply h_integrable.mono_fun hg.aestronglyMeasurable.restrict (Filter.Eventually.of_forall ?_)
     simpa [abs_of_pos (niceKernel_pos hr0)] using hle
   have hbound_integrable : IntervalIntegrable (fun x ↦ 4 * r / x ^ 2) volume r π := by
     apply ContinuousOn.intervalIntegrable_of_Icc hrπ.le
     have (x) (hx : x ∈ Icc r π) : x ^ 2 ≠ 0 := pow_ne_zero 2 (by linarith [mem_Icc.mp hx])
     fun_prop (disch := assumption)
-  grw [young_convolution hf.1.aemeasurable hg.1.aemeasurable periodic_g, mul_comm]
+  grw [young_convolution hf.aestronglyMeasurable.aemeasurable hg.aestronglyMeasurable.aemeasurable
+    periodic_g, mul_comm]
   gcongr
   have: eLpNorm g 1 (volume.restrict (Ioc 0 (2 * π))) ≠ ⊤ := by
     grw [← lt_top_iff_ne_top,
-      eLpNorm_le_eLpNorm_mul_rpow_measure_univ (OrderTop.le_top 1) (hg.restrict _).1]
+      eLpNorm_le_eLpNorm_mul_rpow_measure_univ (OrderTop.le_top 1)
+        (hg.restrict _).aestronglyMeasurable]
     exact ENNReal.mul_lt_top (hg.restrict _).eLpNorm_lt_top
       (by norm_num; simp [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_mul])
   rw [← ENNReal.toReal_le_toReal this (by norm_num)]
   calc
     _ ≤ ∫ x in (0)..2 * π, niceKernel r x := by
-      simp_rw [eLpNorm_one_eq_lintegral_enorm]
-      rw [← ofReal_integral_norm_eq_lintegral_enorm hg_integrable,
+      rw [eLpNorm_one_eq_lintegral_enorm hg.aestronglyMeasurable.restrict,
+        ← ofReal_integral_norm_eq_lintegral_enorm hg_integrable,
         ENNReal.toReal_ofReal (by positivity), intervalIntegral.integral_of_le (by positivity)]
       apply setIntegral_mono_on hg_integrable.norm ?_ measurableSet_Ioc (fun x _ ↦ hle x)
       exact intervalIntegrable_iff_integrableOn_Ioc_of_le (by linarith) |>.mp h_integrable
@@ -721,7 +730,7 @@ lemma norm_czOperator_le_add
   simp only [A, B, Pi.add_apply, mul_add]
   have I0 : IntegrableOn (fun y ↦ ‖g y‖ * niceKernel r (x - y)) (Ioc 0 (2 * π)) := by
     apply (MemLp.restrict _ _).integrable le_top
-    apply MemLp.mul (q := ⊤) (p := ⊤) _ hg.norm
+    apply MemLp.mul (p := ⊤) (q := ⊤) hg.norm
     · suffices A : MemLp (niceKernel r) ⊤ volume from
         A.comp_measurePreserving (Measure.measurePreserving_sub_left volume x)
       apply memLp_top_of_bound (by fun_prop) (r⁻¹) (Eventually.of_forall (fun y ↦ ?_))
@@ -777,6 +786,7 @@ lemma eLpNorm_czOperator_restrict_two_three_of_support_subset {g : ℝ → ℂ} 
   _ ≤ eLpNorm (fun x ↦ ‖∫ y in (0)..(2 * π), g y * dirichletApprox n (x - y)‖
       + 12 * ∫ y in Ioc 0 (2 * π), ‖g y‖ * niceKernel r (x - y)) 2 (volume.restrict (Ioc 2 3)) := by
     apply eLpNorm_mono_ae_real
+      (czOperator_aestronglyMeasurable' Hilbert_kernel_measurable hg.aestronglyMeasurable).restrict
     filter_upwards [self_mem_ae_restrict measurableSet_Ioc] with x hx
     apply norm_czOperator_le_add hr  hn hg hx.1.le hx.2 h'g
   _ ≤ eLpNorm (fun x ↦ ‖∫ y in (0)..(2 * π), g y * dirichletApprox n (x - y)‖
@@ -790,8 +800,12 @@ lemma eLpNorm_czOperator_restrict_two_three_of_support_subset {g : ℝ → ℂ} 
       (volume.restrict (Ioc 0 (2 * π)))
      + eLpNorm (fun x ↦ 12 * ∫ y in Ioc 0 (2 * π), ‖g y‖ * niceKernel r (x - y)) 2
       (volume.restrict (Ioc 0 (2 * π))) := by
-    apply eLpNorm_add_le _ _ one_le_two
-    · apply AEStronglyMeasurable.norm
+    apply eLpNorm_add_le one_le_two
+  _ ≤ 7 * eLpNorm g 2 (volume.restrict (Ioc 0 (2 * π))) +
+      12 * (17 * eLpNorm g 2 (volume.restrict (Ioc 0 (2 * π)))) := by
+    gcongr
+    · rw [eLpNorm_norm]
+      · exact eLpNorm_convolution_dirichletApprox hg
       simp_rw [intervalIntegral.integral_of_le I]
       let L := ContinuousLinearMap.mul ℂ ℂ
       let w : ℝ × ℝ → ℂ := fun p ↦ L (g p.2) (dirichletApprox n (p.1 - p.2))
@@ -800,19 +814,6 @@ lemma eLpNorm_czOperator_restrict_two_three_of_support_subset {g : ℝ → ℂ} 
       apply AEStronglyMeasurable.integral_prod_right'
       apply (hg.restrict _).aestronglyMeasurable.convolution_integrand'
       fun_prop
-    · apply AEStronglyMeasurable.const_mul
-      let L := ContinuousLinearMap.mul ℝ ℝ
-      let w : ℝ × ℝ → ℝ := fun p ↦ L (‖g p.2‖) (niceKernel r (p.1 - p.2))
-      change AEStronglyMeasurable (fun x ↦ ∫ (y : ℝ) in Ioc 0 (2 * π), w (x, y) ∂volume)
-        (volume.restrict (Ioc 0 (2 * π)))
-      apply AEStronglyMeasurable.integral_prod_right'
-      apply (hg.norm.restrict _).aestronglyMeasurable.convolution_integrand'
-      fun_prop
-  _ ≤ 7 * eLpNorm g 2 (volume.restrict (Ioc 0 (2 * π))) +
-      12 * (17 * eLpNorm g 2 (volume.restrict (Ioc 0 (2 * π)))) := by
-    gcongr
-    · rw [eLpNorm_norm]
-      exact eLpNorm_convolution_dirichletApprox hg
     change eLpNorm ((12 : ℝ) • fun x ↦  ∫ (y : ℝ) in Ioc 0 (2 * π), ‖g y‖ * niceKernel r (x - y)) 2
       (volume.restrict (Ioc 0 (2 * π))) ≤ _
     rw [eLpNorm_const_smul]
@@ -820,7 +821,8 @@ lemma eLpNorm_czOperator_restrict_two_three_of_support_subset {g : ℝ → ℂ} 
     · simp [enorm]
     have W := integrable_bump_convolution (f := fun x ↦ ‖g x‖) (g := fun x ↦ niceKernel r x)
       hg.norm ?_ ?_ ?_ (r := r) ?_
-    · simpa [intervalIntegral.integral_of_le I] using W
+    · simpa [intervalIntegral.integral_of_le I,
+        eLpNorm_norm _ hg.aestronglyMeasurable.restrict] using W
     · apply memLp_top_of_bound (by fun_prop) (r⁻¹) (Eventually.of_forall (fun y ↦ ?_))
       simp [abs_of_nonneg (niceKernel_pos hr.1).le, niceKernel_le_inv]
     · apply niceKernel_periodic
@@ -837,7 +839,7 @@ lemma eLpNorm_czOperator_restrict_two_three_of_support_subset {g : ℝ → ℂ} 
       rw [Measure.restrict_restrict_of_subset]
       apply Icc_subset_Icc (by norm_num) (by linarith [Real.pi_gt_three])
     rw [this]
-    apply (eLpNorm_restrict_eq_of_support_subset h'g).symm
+    apply (eLpNorm_restrict_eq_of_support_subset hg.aestronglyMeasurable.restrict h'g).symm
 
 /-- The operator `czOperator K r` is bounded from `L^2 [1, 4]` to `L^2 [2, 3]`,
 uniformly in `r`. This follows from the fact, proved in `norm_czOperator_le_add`, that it is
@@ -870,7 +872,7 @@ lemma eLpNorm_czOperator_restrict_two_three {g : ℝ → ℂ} {r : ℝ} (hr : r 
       · linarith [le_abs_self (y - z), hy.1]
       · linarith [neg_le_abs (y - z), hy.2, hz h'z]
   rw [A, B]
-  exact eLpNorm_czOperator_restrict_two_three_of_support_subset hr (hg.indicator measurableSet_Icc)
+  exact eLpNorm_czOperator_restrict_two_three_of_support_subset hr (hg.indicator nullMeasurableSet_Icc)
     support_indicator_subset
 
 /-- The operator `czOperator K r` is bounded from `L^2 [a - 1, a + 2]` to `L^2 [a, a + 1]`,
@@ -910,20 +912,23 @@ lemma eLpNorm_czOperator_sq {g : ℝ → ℂ} {r : ℝ} (hr : r ∈ Ioo 0 1) (hg
       Measure.sum (fun (n : ℤ) ↦ volume.restrict (Ioc (n : ℝ) (n + 1))) := by
     rw [← restrict_iUnion (Set.pairwise_disjoint_Ioc_intCast _) (fun n ↦ measurableSet_Ioc),
       iUnion_Ioc_intCast, restrict_univ]
+  have hm := czOperator_aestronglyMeasurable' Hilbert_kernel_measurable hg.aestronglyMeasurable
+    (K := K) (r := r)
   /- There is a weird calc bug here: if one omits the implicit argument `volume` from the first
   or the last line, `calc` loops forever... -/
   calc
   (eLpNorm (czOperator K r g) 2 volume) ^ 2
-  _ = ∫⁻ x, ‖czOperator K r g x‖ₑ ^ 2 := by rw [sq_eLpNorm_two]
+  _ = ∫⁻ x, ‖czOperator K r g x‖ₑ ^ 2 := by rw [sq_eLpNorm_two hm]
   _ = ∑' n : ℤ, ∫⁻ x in Ioc (n : ℝ) (n + 1), ‖czOperator K r g x‖ₑ ^ 2 := by
     conv_lhs => rw [A, lintegral_sum_measure]
   _ = ∑' n : ℤ, (eLpNorm (czOperator K r g) 2 (volume.restrict (Ioc n (n + 1)))) ^ 2 := by
-    simp [sq_eLpNorm_two]
+    simp [sq_eLpNorm_two hm.restrict]
   _ ≤ ∑' n : ℤ, (2 ^ 8 * eLpNorm g 2 (volume.restrict (Ioc (n - 1) (n + 2)))) ^ 2 := by
     gcongr with n
     apply eLpNorm_czOperator_restrict hr hg
   _ = 2 ^ 16 * ∑' n : ℤ, ∫⁻ x in Ioc (n - 1 : ℝ) (n + 2), ‖g x‖ₑ ^ 2 := by
-    simp only [mul_pow, ← pow_mul, Nat.reduceMul, ENNReal.tsum_mul_left, sq_eLpNorm_two]
+    simp only [mul_pow, ← pow_mul, Nat.reduceMul, ENNReal.tsum_mul_left,
+      sq_eLpNorm_two hg.aestronglyMeasurable.restrict]
   _ = 2 ^ 16 * ∑' n : ℤ, ((∫⁻ x in Ioc (n - 1 : ℝ) n, ‖g x‖ₑ ^ 2) +
       (∫⁻ x in Ioc (n : ℝ) (n + 1), ‖g x‖ₑ ^ 2) + ∫⁻ x in Ioc (n + 1 : ℝ) (n + 2), ‖g x‖ₑ ^ 2) := by
     congr with n
@@ -944,7 +949,7 @@ lemma eLpNorm_czOperator_sq {g : ℝ → ℂ} {r : ℝ} (hr : r ∈ Ioo 0 1) (hg
       simp only [Equiv.subRight_apply, Int.cast_sub, Int.cast_one, sub_add_cancel]
       ring_nf
   _ = 2 ^ 16 * (3 * (eLpNorm g 2) ^ 2) := by
-    simp only [sq_eLpNorm_two]
+    simp only [sq_eLpNorm_two hg.aestronglyMeasurable]
     conv_rhs => rw [A, lintegral_sum_measure]
     ring
   _ ≤ 2 ^ 18 * (eLpNorm g 2 volume) ^ 2 := by

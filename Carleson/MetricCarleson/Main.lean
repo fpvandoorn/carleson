@@ -171,9 +171,11 @@ lemma BST_LNT_of_BST_NT {Q : SimpleFunc X (Θ X)}
     (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)) :
     ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
       2 2 volume volume (C_Ts a) := fun θ f bf ↦ by
+  have hm : AEStronglyMeasurable (linearizedNontangentialOperator Q θ K f) :=
+    lowerSemicontinuous_LNT.measurable.aestronglyMeasurable
   constructor
-  · exact lowerSemicontinuous_LNT.measurable.aestronglyMeasurable
-  · refine (eLpNorm_mono_enorm fun x ↦ ?_).trans (hT f bf).2
+  · exact hm
+  · refine (eLpNorm_mono_enorm hm fun x ↦ ?_).trans (hT f bf).2
     simp_rw [enorm_eq_self]
     refine iSup_le fun R₂ ↦ iSup₂_le fun R₁ mR₁ ↦ iSup₂_le fun x' mx' ↦ ?_
     rw [min_def]; split_ifs with h

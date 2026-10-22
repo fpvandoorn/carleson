@@ -1,6 +1,6 @@
 module
 
-public import Carleson.ToMathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 
 public section
@@ -38,7 +38,7 @@ theorem setLIntegral_Ioo_rpow {p : ℝ} {a b : ℝ≥0∞} (hp : -1 < p) :
         apply setLIntegral_congr_fun measurableSet_Ioi
         intro x hx
         apply ENNReal.ofReal_rpow_of_pos (ENNReal.toReal_nonneg.trans_lt hx)
-    have := not_integrableOn_Ioi_rpow' (@ENNReal.toReal_nonneg a) hp.le
+    have := not_integrableOn_Ioi_rpow_of_neg_one_le (a := a.toReal) hp.le
     contrapose! this
     constructor
     · fun_prop

@@ -2,7 +2,7 @@ module
 
 public import Carleson.ToMathlib.MeasureTheory.Integral.Layercake
 public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Prod
-public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Metric
+public import Carleson.ToMathlib.MeasureTheory.Measure.NoAtoms.Haar
 
 @[expose] public section
 

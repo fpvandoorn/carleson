@@ -12,7 +12,7 @@ noncomputable section
 /-! This should roughly contain the contents of chapter 9. -/
 
 -- Upstreaming status: aside from getting the real interpolation theorem merged,
--- this file needs a bunch of clean-up before it can be upstreamed:
+-- this file still has rough edges in some places, although it has been partially cleaned up:
 -- moving preliminary lemmas to their appropriate homes (some of these lemmas do not belong in
 -- mathlib) and improving the code quality. Follow mathlib style (line length!), can use dot
 -- notation more, and the code can sometimes also be golfed.
@@ -70,7 +70,7 @@ variable [TopologicalSpace ε'] [ESeminormedAddMonoid ε'] [MeasurableSpace ε']
 private lemma T.add_le {i} {f g : X → ε'} (hf : AEMeasurable f μ) :
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
   simp only [T, Pi.add_apply, enorm_eq_self]
-  rw [← laverage_add_left hf.restrict.enorm]
+  rw [← laverage_add_left (by fun_prop)]
   exact laverage_mono (fun x ↦ enorm_add_le (f x) (g x))
 
 -- move to `ENNReal.Basic` or similar
@@ -164,6 +164,7 @@ public lemma lowerSemiContinuous_maximalFunction :
     apply LT.lt.trans_le _ (le_iSup₂ i hi)
     rwa [indicator_of_mem hy]
 
+@[fun_prop]
 public theorem measurable_maximalFunction [BorelSpace X] :
     Measurable (maximalFunction μ 𝓑 c r p u) :=
   lowerSemiContinuous_maximalFunction.measurable
@@ -195,19 +196,20 @@ theorem MeasureTheory.MemLp.maximalFunction_lt_top (hp₁ : 0 < p) (hu : MemLp u
 
 theorem hasStrongType_maximalFunction_top [TopologicalSpace ε] [BorelSpace X] :
     HasStrongType (maximalFunction (ε := ε) μ 𝓑 c r 1) ⊤ ⊤ μ μ 1 := by
-  intro f _
-  use measurable_maximalFunction.aestronglyMeasurable
-  simp only [one_mul, eLpNorm_exponent_top]
+  intro f hf
+  refine ⟨by fun_prop, ?_⟩
+  rw [one_mul, eLpNorm_exponent_top measurable_maximalFunction.aestronglyMeasurable,
+    eLpNorm_exponent_top hf.aestronglyMeasurable]
   exact essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ maximalFunction_one_le_eLpNormEssSup)
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
 theorem hasWeakType_maximalFunction_one [TopologicalSpace ε] [BorelSpace X] [SeparableSpace X] :
     HasWeakType (maximalFunction (ε := ε) μ 𝓑 c r 1) 1 1 μ μ (A ^ 2) := by
-  intro f _
-  use measurable_maximalFunction.aestronglyMeasurable
+  intro f hf
+  refine ⟨by fun_prop, ?_⟩
   let Bₗ (ℓ : ℝ≥0∞) := { (c, r) | ∫⁻ y in (ball c r), ‖f y‖ₑ ∂μ ≥ ℓ * μ (ball c r) }
-  simp only [wnorm, one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte, eLpNorm,
-    one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self, iSup_le_iff]
+  simp only [wnorm_one measurable_maximalFunction.aestronglyMeasurable,
+    eLpNorm_one_eq_lintegral_enorm hf.aestronglyMeasurable, iSup_le_iff]
   intro t
   refine le_trans ?_ (measure_biUnion_le_lintegral (𝓑 := Bₗ t) (c := (·.1)) (r := (·.2)) (l := t)
     (u := fun x ↦ ‖f x‖ₑ) ?_)
@@ -276,7 +278,7 @@ public lemma hasStrongType_maximalFunction_one [BorelSpace X]
     ⟨ENNReal.zero_lt_top, le_rfl⟩ ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp) (by simp)
-    (fun f _ ↦ measurable_maximalFunction.aestronglyMeasurable)
+    (fun f _ ↦ by fun_prop)
     ?_ (hasStrongType_maximalFunction_top |>.hasWeakType zero_lt_top)
     hasWeakType_maximalFunction_one
   · exact ⟨ENNReal.inv_pos.mpr coe_ne_top, ENNReal.inv_lt_one.mpr <| one_lt_coe_iff.mpr hp⟩
@@ -295,23 +297,25 @@ public theorem hasStrongType_maximalFunction
   by_cases h : Nonempty X; swap
   · have := not_nonempty_iff.mp h; intro _ _; simp
   intro v mlpv
-  refine ⟨measurable_maximalFunction.aestronglyMeasurable, ?_⟩
+  refine ⟨by fun_prop, ?_⟩
   have cp₁p : 0 < (p₁ : ℝ) := by positivity
   have p₁n : p₁ ≠ 0 := by exact_mod_cast cp₁p.ne'
   conv_lhs =>
     enter [1, x]
     rw [maximalFunction_eq_maximalFunction_one_rpow cp₁p, ← enorm_eq_self (maximalFunction ..)]
-  rw [eLpNorm_enorm_rpow _ (by positivity), ENNReal.ofReal_inv_of_pos cp₁p,
+  rw [eLpNorm_enorm_rpow _ measurable_maximalFunction.aestronglyMeasurable (by positivity),
+    ENNReal.ofReal_inv_of_pos cp₁p,
     ENNReal.ofReal_coe_nnreal, ← div_eq_mul_inv, ← ENNReal.coe_div p₁n]
   calc
     _ ≤ (CMB A (p₂ / p₁) * eLpNorm (fun y ↦ ‖v y‖ₑ ^ (p₁ : ℝ)) (p₂ / p₁) μ) ^ p₁.toReal⁻¹ := by
       apply ENNReal.rpow_le_rpow _ (by positivity)
       convert! (hasStrongType_maximalFunction_one (μ := μ) _ (fun x ↦ ‖v x‖ₑ ^ (p₁ : ℝ)) _).2
       · rw [ENNReal.coe_div p₁n]
-      · rwa [lt_div_iff₀, one_mul]; exact cp₁p
+      · rwa [lt_div_iff₀ hp₁, one_mul]
       · rw [ENNReal.coe_div p₁n]; exact mlpv.enorm_rpow_div p₁
     _ = _ := by
-      rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity), eLpNorm_enorm_rpow _ cp₁p,
+      rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity),
+        eLpNorm_enorm_rpow _ mlpv.aestronglyMeasurable cp₁p,
         ENNReal.ofReal_coe_nnreal, ENNReal.div_mul_cancel (by positivity) (by simp),
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
@@ -321,7 +325,7 @@ theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpa
     {p : ℝ≥0} (hp : 0 < p) :
     HasWeakType (maximalFunction (ε := ε') μ 𝓑 c r p) p p μ μ (A ^ ((2 / p : ℝ))) := by
   intro v mlpv
-  constructor; · exact measurable_maximalFunction.aestronglyMeasurable
+  constructor; · fun_prop
   have cp : 0 < (p : ℝ) := by positivity
   have p₁n : p ≠ 0 := by exact_mod_cast cp.ne'
   conv_lhs =>
@@ -332,9 +336,10 @@ theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpa
     apply (hasWeakType_maximalFunction_one (fun x : X ↦ ‖v x‖ₑ ^ (p : ℝ)) _).2
     convert! MemLp.enorm_rpow_div mlpv p
     exact (ENNReal.div_self (coe_ne_zero.mpr p₁n) coe_ne_top).symm
-  unfold wnorm wnorm' distribution at hmb_one ⊢
-  simp only [one_ne_top, ↓reduceIte, enorm_eq_self, toReal_one, inv_one, rpow_one, iSup_le_iff,
-    coe_ne_top, coe_toReal] at hmb_one ⊢
+  rw [wnorm_one (by fun_prop)] at hmb_one
+  rw [wnorm_eq_iSup_mul_distribution_rpow (by fun_prop) (by simpa using p₁n) coe_ne_top]
+  unfold distribution at hmb_one ⊢
+  simp only [enorm_eq_self, iSup_le_iff, coe_toReal] at hmb_one ⊢
   intro t
   by_cases ht : t = 0
   · rw [ht]; simp
@@ -344,8 +349,10 @@ theorem hasWeakType_maximalFunction_equal_exponents [BorelSpace X] [SeparableSpa
     · exact (coe_rpow_of_ne_zero ht p).symm
     · rw [rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n)]
       congr; ext x; rw [coe_rpow_of_ne_zero ht ↑p]; exact (lt_rpow_inv_iff cp)
-    · rw [eLpNorm_enorm_rpow v cp, ENNReal.mul_rpow_of_nonneg _ _ NNReal.zero_le_coe,
-        div_eq_mul_inv, rpow_mul, rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n), rpow_two]; simp
+    · rw [eLpNorm_enorm_rpow v mlpv.aestronglyMeasurable cp,
+        ENNReal.mul_rpow_of_nonneg _ _ NNReal.zero_le_coe,
+        div_eq_mul_inv, rpow_mul, rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n), rpow_two,
+        ofReal_coe_nnreal, one_mul]
 
 @[expose]
 public def C_weakType_maximalFunction (A p₁ p₂ : ℝ≥0) :=
@@ -381,7 +388,8 @@ theorem maximalFunction_ae_lt_top [BorelSpace X] [ProperSpace X] [IsFiniteMeasur
     {u : X → ε'} (hu : MemLp u p₂ μ) :
     ∀ᵐ x ∂μ, maximalFunction μ 𝓑 c r p₁ u x < ∞ := by
   simpa only [lt_top_iff_ne_top, enorm_eq_self] using
-    hasWeakType_maximalFunction hp₁ hp₁₂ |>.memWLp hu C_weakType_maximalFunction_lt_top |>.ae_ne_top
+    (hasWeakType_maximalFunction hp₁ hp₁₂ |>.memWLp hu C_weakType_maximalFunction_lt_top).ae_ne_top
+      (by simpa using (hp₁.trans_le hp₁₂).ne')
 
 public lemma C2_0_6_defaultA_one_two_eq {a : ℕ} :
     C2_0_6 (defaultA a) 1 2 = 2 ^ (a + 3 / (2 : ℝ)) := by
