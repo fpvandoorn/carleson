@@ -75,7 +75,7 @@ lemma maxLayer_zero : A.maxLayer 0 = {a | Maximal (· ∈ A) a} := by rw [maxLay
 lemma disjoint_minLayer_of_ne (h : m ≠ n) : Disjoint (A.minLayer m) (A.minLayer n) := by
   wlog hl : m < n generalizing m n; · exact (this h.symm (by lia)).symm
   rw [disjoint_right]; intro p hp
-  rw [minLayer] at hp; replace hp := hp.1.2; contrapose! hp
+  rw [minLayer] at hp; replace hp := hp.1.2; contrapose hp
   exact mem_iUnion₂_of_mem hl hp
 
 lemma disjoint_maxLayer_of_ne (h : m ≠ n) : Disjoint (A.maxLayer m) (A.maxLayer n) :=
@@ -124,8 +124,8 @@ lemma subtype_mk_minimal_iff (α : Type*) [Preorder α]
     (s : Set α) (t : Set s) (x : α) (hx : x ∈ s) :
     Minimal (· ∈ t) (⟨x, hx⟩ : s) ↔ Minimal (fun y ↦ ∃ h, y ∈ s ∧ ⟨y, h⟩ ∈ t) x := by
   wlog hxt : (⟨x, hx⟩ : s) ∈ t
-  · have : ¬Minimal (· ∈ t) (⟨x, hx⟩ : s) := by contrapose! hxt; exact hxt.prop
-    simp_rw [this, false_iff, exists_and_left]; clear this; contrapose! hxt
+  · have : ¬Minimal (· ∈ t) (⟨x, hx⟩ : s) := by contrapose hxt; exact hxt.prop
+    simp_rw [this, false_iff, exists_and_left]; clear this; contrapose hxt
     have : x ∈ {y | y ∈ s ∧ ∃ (x : y ∈ s), ⟨y, x⟩ ∈ t} := hxt.prop
     simp_all
   simp +contextual [← OrderEmbedding.minimal_mem_image_iff
@@ -139,7 +139,7 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
     simp only [mem_ofPred_eq]
     wlog hxs : x ∈ A
     · simp only [hxs, IsEmpty.exists_iff, iff_false]
-      contrapose! hxs; exact minLayer_subset hxs
+      contrapose hxs; exact minLayer_subset hxs
     simp only [hxs, exists_true_left]
     rw [minLayer]
     simp_rw [height_eq_coe_iff_minimal_le_height]

@@ -270,7 +270,7 @@ lemma le_succ : i ≤ i.succ := by
   · exact (succ_spec h).1.le
 
 lemma max_of_le_succ : i.succ ≤ i → IsMax i := fun h ↦ by
-  contrapose! h; by_contra! k; have l := (succ_spec h).1.trans_le k
+  contrapose h; by_contra k; have l := (succ_spec h).1.trans_le k
   rwa [lt_self_iff_false] at l
 
 lemma not_isMax_of_scale_lt {j W : Grid X} (h : s j < s W) : ¬IsMax j := by

@@ -16,7 +16,6 @@ def dirichletKernel (N : ℕ) : ℝ → ℂ :=
 def dirichletKernel' (N : ℕ) : ℝ → ℂ :=
   fun x ↦ (exp (I * N * x) / (1 - exp (-I * x)) + exp (-I * N * x) / (1 - exp (I * x)))
 
-
 variable {N : ℕ}
 
 @[fun_prop]
@@ -103,7 +102,7 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
             norm_cast
         all_goals simp
   have h' : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) ≠ 0 := by
-    contrapose! h
+    contrapose h
     rw [sub_eq_zero] at h
     calc cexp (I * ↑x)
       _ = cexp (1 / 2 * I * ↑x) * cexp (1 / 2 * I * ↑x) := by
@@ -120,7 +119,7 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
   congr
   · rw [mul_div]
     apply eq_div_of_mul_eq
-    · contrapose! h
+    · contrapose h
       rwa [sub_eq_zero, neg_mul, exp_neg, eq_comm, inv_eq_one] at h
     ring_nf
     rw [← exp_add, ← exp_add, ← exp_add]
@@ -139,7 +138,7 @@ lemma dirichletKernel_eq_ae : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletK
   have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ Set.range (fun (n : ℤ) ↦ n * (2 * π)) := by
     intro x hx
     simp only [Set.mem_ofPred_eq] at hx ⊢
-    contrapose! hx
+    contrapose hx
     apply dirichletKernel_eq ?_
     simpa [← ofReal_injective.ne_iff, Complex.exp_eq_one_iff, mul_comm I, ← mul_assoc, eq_comm] using hx
   rw [ae_iff]

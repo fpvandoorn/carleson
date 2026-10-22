@@ -111,7 +111,7 @@ lemma ae_tendsto_zero_of_distribution_le {α : Type*} {m : MeasurableSpace α} {
   apply measure_mono
   intro x hx
   simp only [Set.mem_compl_iff, Set.mem_ofPred_eq] at hx
-  contrapose! hx
+  contrapose hx
   exact hE x hx
 
 section

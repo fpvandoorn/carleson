@@ -30,7 +30,7 @@ lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
     (hp₂ : ∃ p ∈ t u, ¬Disjoint ↑L (E p) ∧ 𝔰 p ≤ s L) :
     volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
   obtain ⟨p, mp, dp, sp⟩ := hp₂; rw [disjoint_comm] at dp
-  replace dp : ¬Disjoint (𝓘 p : Set X) L := by contrapose! dp; exact dp.mono_left E_subset_𝓘
+  replace dp : ¬Disjoint (𝓘 p : Set X) L := by contrapose dp; exact dp.mono_left E_subset_𝓘
   have lip := le_antisymm (le_of_mem_𝓛 hL mp dp) ((le_or_disjoint sp).resolve_right dp)
   calc
     _ ≤ volume (E₂ 9 p) := by
@@ -97,7 +97,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
   obtain ⟨p, mp, hp⟩ := hq; have sLp := hp₂ p mp hp
   have lip : L < 𝓘 p := by
     refine Grid.lt_def.mpr ⟨(le_of_mem_𝓛 hL mp ?_).1, sLp⟩
-    contrapose! hp; exact (hp.mono_left E_subset_𝓘).symm
+    contrapose hp; exact (hp.mono_left E_subset_𝓘).symm
   obtain ⟨L', lL', sL'⟩ := Grid.exists_scale_succ sLp
   replace lL' : L < L' := Grid.lt_def.mpr ⟨lL'.1, by lia⟩
   obtain ⟨p'', mp'', lp''⟩ : ∃ p'' ∈ t u, 𝓘 p'' ≤ L' := by

@@ -75,7 +75,7 @@ lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
   by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
   rw [minLayer, mem_ofPred, minimal_iff] at p'm
   have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
-    replace mp := mp.2; contrapose! mp
+    replace mp := mp.2; contrapose mp
     exact mem_of_mem_of_subset mp
       (iUnion_mono'' fun i ↦ iUnion_subset_iUnion_const fun hi ↦ (hi.trans_le bl').le)
   exact absurd (p'm.2 ⟨mp.1, pnm⟩ mp'.1).symm e
@@ -103,7 +103,7 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
   rw [maxLayer_def, mem_ofPred, maximal_iff] at p'm
   simp_rw [mem_sdiff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
-    replace mp'' := mp''.2; contrapose! mp''
+    replace mp'' := mp''.2; contrapose mp''
     refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩
   exact absurd (p'm.2 ⟨mp''₁, p''nm⟩ mp'.2) e
 
@@ -115,7 +115,7 @@ lemma ordConnected_C5 : OrdConnected (ℭ₅ k n j : Set (𝔓 X)) := by
     (ordConnected_C4.out mp₁ (mem_of_mem_of_subset mp'' ℭ₅_subset_ℭ₄))
   simp_rw [ℭ₅, mem_sdiff, mp₁, mp'₁, true_and, 𝔏₄, mem_ofPred,
     mp₁, mp'₁, true_and] at mp ⊢
-  contrapose! mp; obtain ⟨u, mu, s𝓘u⟩ := mp; use u, mu, mp'.1.1.1.trans s𝓘u
+  contrapose mp; obtain ⟨u, mu, s𝓘u⟩ := mp; use u, mu, mp'.1.1.1.trans s𝓘u
 
 /-! ## Section 5.4 and Lemma 5.1.2 -/
 
@@ -364,7 +364,7 @@ lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
       ((𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅) mp'')) mp'
   have mp'₆ : p' ∈ ℭ₆ k n j := by
     have hp := 𝔗₂_subset_ℭ₆ mp; rw [ℭ₆, mem_ofPred] at hp ⊢
-    refine ⟨mp'₅, ?_⟩; have hpG := hp.2; contrapose! hpG
+    refine ⟨mp'₅, ?_⟩; have hpG := hp.2; contrapose hpG
     exact mp'.1.1.1.trans hpG
   simp_rw [𝔗₂, mem_inter_iff, mp'₆, true_and, mem_iUnion₂, mem_iUnion] at mp'' ⊢
   obtain ⟨u', mu', ru, _, np'', sl⟩ := mp''.2
@@ -513,9 +513,9 @@ lemma mf_injOn : InjOn (mf k n j) {u | x ∈ 𝓘 u.1} := fun u mu u' mu' e ↦ 
     rw [not_disjoint_iff]
     use 𝒬 m.1, su (mem_ball_self zero_lt_one), su' (mem_ball_self zero_lt_one)
   by_contra! h; rw [← Subtype.coe_ne_coe] at h; apply absurd _ nd
-  have nr : ¬URel k n j u.1 u'.1 := by contrapose! h; exact EquivalenceOn.reprs_inj u.2 u'.2 h
+  have nr : ¬URel k n j u.1 u'.1 := by contrapose h; exact EquivalenceOn.reprs_inj u.2 u'.2 h
   have n𝓘 : 𝓘 u.1 ≠ 𝓘 u'.1 := by
-    contrapose! nr; rw [disjoint_comm] at nd
+    contrapose nr; rw [disjoint_comm] at nd
     exact urel_of_not_disjoint (𝔘₃_subset_𝔘₂ u.2) nr.symm nd
   rcases le_or_gt (s (𝓘 u.1)) (s (𝓘 u'.1)) with hs | hs
   · have hu := lt_of_le_of_ne ((le_or_disjoint hs).resolve_right
@@ -790,7 +790,7 @@ lemma lintegral_carlesonSum_forest
     replace hp : p ∈ ℭ₆ k n j := 𝔗₂_subset_ℭ₆ hp
     have : ¬ (𝓘 p : Set X) ⊆ G₁ := by
       have W := hp.2
-      contrapose! W
+      contrapose W
       exact W.trans (subset_union_left.trans subset_union_left)
     contrapose! this
     change p ∈ highDensityTiles at this

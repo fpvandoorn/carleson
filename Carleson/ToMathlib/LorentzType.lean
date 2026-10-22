@@ -237,7 +237,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
     · rw [hG', ENNReal.top_rpow_of_pos, ENNReal.mul_top]
       · exact le_top
       · apply mul_ne_zero hcp.ne'
-        contrapose! f_zero
+        contrapose f_zero
         rwa [eLorentzNorm'_eq_zero_iff p_ne_zero p_ne_top (by simp)] at f_zero
       · simp only [toReal_inv, inv_pos]
         exact ENNReal.toReal_pos hpq.symm.ne_zero q_ne_top
@@ -385,7 +385,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
         exact measure_congr G'G.symm
     _ = c * _  := by
       apply ENNReal.mul_div_cancel_right
-      · contrapose! G_zero
+      · contrapose G_zero
         rwa [ENNReal.rpow_eq_zero_iff_of_pos] at G_zero
         simp only [toReal_inv, inv_pos]
         apply toReal_pos hpq.symm.ne_zero hq

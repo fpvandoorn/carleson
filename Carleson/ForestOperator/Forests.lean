@@ -746,7 +746,7 @@ omit [MetricSpace X] in
 lemma support_subset_of_norm_le_indicator {g : X → ℝ} {A : Set X}
     (h2f : ∀ x, ‖f x‖ ≤ A.indicator g x) : f.support ⊆ A := by
   intro x hx
-  contrapose! hx
+  contrapose hx
   simp only [mem_support, ne_eq, Decidable.not_not]
   specialize h2f x
   simp only [indicator_of_notMem hx,norm_le_zero_iff] at h2f

@@ -40,7 +40,7 @@ theorem essProjFst_subset {s : Set (α × β)} :
     essProjFst s ν ⊆ Prod.fst '' s := by
   unfold essProjFst
   intro x
-  contrapose!
+  contrapose
   simp only [mem_image, Prod.exists, exists_and_right, exists_eq_right, not_exists, mem_ofPred_eq,
     not_lt, nonpos_iff_eq_zero]
   intro h

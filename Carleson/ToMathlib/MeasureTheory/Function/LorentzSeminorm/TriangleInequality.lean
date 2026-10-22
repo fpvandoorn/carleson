@@ -116,7 +116,7 @@ lemma eLpNorm_lorentz_helper (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
     simp
   have q_sub_one : ¬q - 1 = 0 := by
     rw [tsub_eq_zero_iff_le]
-    contrapose! q_ne_one
+    contrapose q_ne_one
     exact le_antisymm q_ne_one one_le_q
   have q'_ne_top : q.conjExponent ≠ ⊤ := (ENNReal.HolderConjugate.conjExponent one_le_q).symm.ne_top_iff_ne_one.mpr q_ne_one
   unfold lorentz_helper
@@ -132,7 +132,7 @@ lemma eLpNorm_lorentz_helper (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
         ENNReal.toReal_inv, ENNReal.toReal_sub_of_le one_le_q q_ne_top]
     simp only [ENNReal.toReal_one]
     rw [mul_add, mul_one, mul_inv_cancel₀, sub_add_cancel]
-    contrapose! q_ne_one
+    contrapose q_ne_one
     rw [sub_eq_zero] at q_ne_one
     rw [← ENNReal.ofReal_toReal q_ne_top, q_ne_one, ENNReal.ofReal_one]
   rw [this]
@@ -143,10 +143,10 @@ lemma eLpNorm_lorentz_helper (p_ne_zero : p ≠ 0) (p_ne_top : p ≠ ⊤)
         ENNReal.toReal_inv, ENNReal.toReal_sub_of_le one_le_q q_ne_top]
     simp only [ENNReal.toReal_one]
     grind
-  · contrapose! hf
+  · contrapose hf
     rw [hf, ENNReal.zero_rpow_of_pos]
     exact inv_pos.mpr (ENNReal.toReal_pos q_ne_zero q_ne_top)
-  · contrapose! hf'
+  · contrapose hf'
     rw [hf', ENNReal.top_rpow_of_pos]
     exact inv_pos.mpr (ENNReal.toReal_pos q_ne_zero q_ne_top)
 

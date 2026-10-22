@@ -378,14 +378,14 @@ lemma distribution_add {ε} [TopologicalSpace ε] [ESeminormedAddMonoid ε] {f g
       intro h'
       have := LT.lt.ne_bot h'
       rw [ENNReal.bot_eq_zero] at this
-      contrapose! this
+      contrapose this
       rw [this, enorm_zero]
     · intro x
       simp only [mem_ofPred_eq, mem_support, ne_eq]
       intro h'
       have := LT.lt.ne_bot h'
       rw [ENNReal.bot_eq_zero] at this
-      contrapose! this
+      contrapose this
       rw [this, enorm_zero]
 
 lemma distribution_const_smul {f : α → ℝ≥0∞}

@@ -455,7 +455,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
       refine (Finset.sum_fiberwise_of_maps_to (fun p mp ↦ ?_) _).symm
       rw [Finset.mem_filter] at mp; rw [mem_toFinset] at mp mJ; obtain ⟨mp, dp⟩ := mp
       have dpJ : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)) := by
-        contrapose! dp; refine dp.symm.mono_left (Grid_subset_ball.trans (ball_subset_ball ?_))
+        contrapose dp; refine dp.symm.mono_left (Grid_subset_ball.trans (ball_subset_ball ?_))
         change (4 : ℝ) * D ^ s J ≤ _; gcongr; norm_num
       rw [Finset.mem_Icc]
       constructor
@@ -598,7 +598,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
       simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and] at hr ⊢
       obtain ⟨mp, h₁, h₂, h₃⟩ := hr; dsimp only [𝔠, 𝔰] at h₁ h₂ h₃ ⊢; rw [h₃] at h₁ h₂ ⊢
       refine ⟨mp, ⟨h₂, ?_, h₁⟩, ⟨h₁, rfl⟩⟩
-      rw [mem_toFinset, Set.mem_sdiff] at mp; obtain ⟨mp₁, mp₂⟩ := mp; contrapose! mp₂
+      rw [mem_toFinset, Set.mem_sdiff] at mp; obtain ⟨mp₁, mp₂⟩ := mp; contrapose mp₂
       exact overlap_implies_distance hu₁ hu₂ hu h2u (.inr mp₁) (h₃.symm ▸ mp₂)
     _ = ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
@@ -800,7 +800,7 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
         -- Obviously `I ≠ p`
         have nIp : I ≠ p := ne_of_mem_of_not_mem mI np
         -- If `U` intersected `p`, `U ≤ p` since `p ∉ 𝓙₆`
-        by_contra! h
+        by_contra h
         rw [𝓙₆, mem_inter_iff, not_and, mem_Iic] at np; specialize np mp
         have Ulp := le_or_ge_or_disjoint.resolve_left np |>.resolve_right h
         -- `I`, being in `𝓙₆`, should be a maximal cube in `𝓙₀ 𝔖`,

@@ -82,7 +82,7 @@ lemma support_carlesonSum_subset {ℭ : Set (𝔓 X)} {f : X → ℂ} :
     support (carlesonSum ℭ f) ⊆ (⋃ p ∈ ℭ, 𝓘 p) := by
   intro x hx
   rw [mem_support] at hx
-  contrapose! hx
+  contrapose hx
   refine Finset.sum_eq_zero <| fun p hp ↦ notMem_support.mp (fun hxp ↦ hx ?_)
   simp only [Finset.mem_filter] at hp
   exact Set.mem_biUnion hp.2 <| E_subset_𝓘 <| support_carlesonOn_subset_E hxp
