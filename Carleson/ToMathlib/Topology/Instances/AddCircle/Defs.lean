@@ -58,32 +58,10 @@ theorem liftIco_eq_liftIoc : liftIco p a f = liftIoc p a' f :=
 
 end Periodic
 
-section
-
-variable {𝕜 : Type*} [Field 𝕜] {p q : 𝕜}
-
-variable [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
-
-lemma equivAddCircle_eq [Archimedean 𝕜] [hp : Fact (0 < p)] [hq : Fact (0 < q)] :
-    (equivAddCircle p q hp.out.ne' hq.out.ne' : AddCircle p → AddCircle q)
-      = fun x ↦ ((equivIco p 0 x).val * (p⁻¹ * q) : AddCircle q) := by
-  ext x
-  have : ↑↑((equivIco p 0) x) = x := coe_equivIco
-  nth_rw 1 [← this, equivAddCircle_apply_mk]
-
-variable [TopologicalSpace 𝕜] [OrderTopology 𝕜]
-
-lemma continuous_equivAddCircle [hp : Fact (0 < p)]
-  [hq : Fact (0 < q)] :
-    Continuous (⇑(AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne')) :=
-  (homeomorphAddCircle _ _ _ _).2
-
 lemma measurePreserving_equivAddCircle {p q : ℝ} [hp : Fact (0 < p)] [hq : Fact (0 < q)] :
     MeasureTheory.MeasurePreserving (⇑(AddCircle.equivAddCircle p q hp.out.ne' hq.out.ne'))
       AddCircle.haarAddCircle AddCircle.haarAddCircle :=
-  AddMonoidHom.measurePreserving continuous_equivAddCircle
+  AddMonoidHom.measurePreserving (continuous_equivAddCircle p q hp.out.ne' hq.out.ne')
     (equivAddCircle p q (hp.out.ne') (hq.out.ne')).surjective (by simp)
-
-end
 
 end AddCircle

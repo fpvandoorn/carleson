@@ -622,8 +622,8 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   case ne_z => left; exact mul_ne_zero (by simp) hMzero --defaultA behaviour
   case ne_t => left; exact mul_ne_top coe_ne_top hMinfty
   unfold g1
-  simp_rw [eLpNorm_one_eq_lintegral_enorm, enorm_indicator_eq_indicator_enorm,
-    lintegral_indicator measurableSet_ball]
+  simp_rw [eLpNorm_one_eq_lintegral_enorm (hg.indicator measurableSet_ball).aestronglyMeasurable,
+    enorm_indicator_eq_indicator_enorm, lintegral_indicator measurableSet_ball]
   apply (lintegral_ball_le_volume_mul_globalMaximalFunction (z := x) (x := x)
     (by simp [lt_of_lt_of_le hr hR])).trans
   rw [← mul_assoc]
@@ -733,7 +733,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     4 * globalMaximalFunction volume 1 (czOperator K r g) + C10_1_5 a • globalMaximalFunction volume 1 g +
     C10_1_2 a • globalMaximalFunction volume 1 g
   trans eLpNorm pointwise 2 volume
-  · apply eLpNorm_mono_enorm
+  · apply eLpNorm_mono_enorm aestronglyMeasurable_simpleNontangentialOperator
     simp_rw [enorm_eq_self, simpleNontangentialOperator, iSup_le_iff]
     intro x R hR x' hx'
     rw [mem_ball, dist_comm] at hx'
@@ -751,13 +751,11 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     hasStrongType_maximalFunction (p₁ := 1) zero_lt_one one_lt_two
   norm_cast at hst_gmf
   have hst_gmf_g := hst_gmf g (hg.memLp 2)
-  have aesm_gmf_g := hst_gmf_g.1 -- for fun_prop
   have hst_gmf_czg := hst_gmf (czOperator K r g) ((hT r hr).memLp hg)
-  have aesm_gmf_czg := hst_gmf_czg.1 -- for fun_prop
   rw [show 4 * globalMaximalFunction volume 1 (czOperator K r g) =
       (4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g) by rfl]
-  apply le_trans <| eLpNorm_add_le (by fun_prop) (by fun_prop) one_le_two
-  apply le_trans <| add_le_add (eLpNorm_add_le (by fun_prop) (by fun_prop) one_le_two) (by rfl)
+  apply le_trans <| eLpNorm_add_le one_le_two
+  apply le_trans <| add_le_add (eLpNorm_add_le one_le_two) (by rfl)
   rw [
     show eLpNorm ((4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g)) 2 volume = ‖(4 : ℝ≥0)‖ₑ * eLpNorm (globalMaximalFunction volume 1 (czOperator K r g)) 2 volume from eLpNorm_const_smul' (ε' := ℝ≥0∞),
     show eLpNorm (C10_1_5 a • globalMaximalFunction volume 1 g) 2 volume = ‖C10_1_5 a‖ₑ * eLpNorm (globalMaximalFunction volume 1 g) 2 volume from eLpNorm_const_smul' (ε' := ℝ≥0∞),
@@ -789,8 +787,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   · ring_nf; gcongr <;> simp [Nat.one_le_pow]
   nth_rw 5 [pow_succ]; rw [mul_two]
   gcongr _ + 2 ^ ?_
-  · exact one_le_two
-  · lia
+  lia
 
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/
@@ -1047,7 +1044,7 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
   · push_cast; rw [two_mul, add_mul]
     apply le_trans _ <| add_le_add eLpNorm_sno_le eLpNorm_sno_le
     rw [← two_mul]
-    apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul'
+    apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' aestronglyMeasurable_nontangentialOperator
     simp_rw [nontangential_operator_boundary hg, enorm_eq_self]
     filter_upwards with x
     have {R₁ R₂ : ℝ} (hR1 : 0 < R₁) (hR1R2 : R₁ < R₂) {x' : X} : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * g y‖ₑ ≤

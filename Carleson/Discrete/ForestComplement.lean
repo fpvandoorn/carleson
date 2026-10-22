@@ -53,7 +53,7 @@ lemma exists_k_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ k, p ∈ TilesA
     obtain ⟨k, hk⟩ := exists_mem_aux𝓒 vpos; exact ⟨_, hk⟩
   let s : ℕ := WellFounded.min wellFounded_lt _ Cn
   have s_mem : s ∈ C := WellFounded.min_mem ..
-  have s_min : ∀ t ∈ C, s ≤ t := fun t mt ↦ WellFounded.min_le _ mt
+  have s_min : ∀ t ∈ C, s ≤ t := fun t mt ↦ WellFoundedLT.min_le mt
   have s_pos : 0 < s := by
     by_contra! h; rw [nonpos_iff_eq_zero] at h
     simp_rw [h, C, aux𝓒, mem_ofPred] at s_mem; apply absurd s_mem; push Not; intro _ _

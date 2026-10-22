@@ -264,13 +264,12 @@ def Encodable.linearOrder {α : Type*} (i : Encodable α) : LinearOrder α :=
   LinearOrder.lift' (i.encode) (i.encode_injective)
 
 instance {k : ℤ} : LinearOrder (Yk X k) := (Yk_encodable X k).linearOrder
-instance {k : ℤ} : WellFoundedLT (Yk X k) where
-  wf := by
-    apply (@OrderEmbedding.wellFounded (Yk X k) ℕ)
-    · use ⟨(Yk_encodable X k).encode,(Yk_encodable X k).encode_injective⟩
-      simp only [Embedding.coeFn_mk, Subtype.forall]
-      exact fun i hi j hj ↦ by rfl
-    exact wellFounded_lt
+instance {k : ℤ} : WellFoundedLT (Yk X k) := by
+  apply (@OrderEmbedding.wellFounded (Yk X k) ℕ)
+  · use ⟨(Yk_encodable X k).encode,(Yk_encodable X k).encode_injective⟩
+    simp only [Embedding.coeFn_mk, Subtype.forall]
+    exact fun i hi j hj ↦ by rfl
+  exact wellFounded_lt
 
 local instance {k : ℤ} : SizeOf (Yk X k) where
   sizeOf := (Yk_encodable X k).encode

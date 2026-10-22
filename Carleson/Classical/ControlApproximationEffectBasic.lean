@@ -432,7 +432,7 @@ lemma partialFourierSum_bound {g : ℝ → ℂ} (periodic_g : Function.Periodic 
             congr
             have : x + π = x - π + 2 * π := by linarith
             rw [this, Function.Periodic.setLIntegral_Ioc_add_eq _ _ 0, zero_add,
-              eLpNorm_one_eq_lintegral_enorm]
+              eLpNorm_one_eq_lintegral_enorm hg.1.aestronglyMeasurable]
             apply periodic_g.comp
     _ = (T g x + T (conj ∘ g) x) / ENNReal.ofReal (2 * π)
       + eLpNorm g 1 (volume.restrict (Set.Ioc 0 (2 * π))) / 2 := by

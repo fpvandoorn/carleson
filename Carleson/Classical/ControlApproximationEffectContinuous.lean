@@ -234,7 +234,7 @@ lemma control_approximation_effect' {δ ε : ℝ≥0} (δpos : 0 < δ) (εpos : 
         simp only [nonpos_iff_eq_zero]
         rw [Function.const_def, distribution_const, Set.indicator_of_notMem]
         simp only [enorm_eq_self, Set.mem_Iio, not_lt]
-        rw [eLpNorm_one_eq_lintegral_enorm]
+        rw [eLpNorm_one_eq_lintegral_enorm g_measurable.aestronglyMeasurable]
         calc _
           _ ≤ ∫⁻ (x : ℝ) in Set.Ioc 0 (2 * π), ↑(C_control_approximation_effect' δ ε) := by
             apply setLIntegral_mono measurable_const

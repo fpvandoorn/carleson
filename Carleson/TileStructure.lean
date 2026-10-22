@@ -136,6 +136,7 @@ lemma disjoint_E {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoi
   rw [not_disjoint_iff] at this ⊢; obtain ⟨x, mx, mx'⟩ := this
   use Q x, Q_mem_Ω mx, Q_mem_Ω mx'
 
+@[measurability]
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
   · rw [← measurableSet_setOfPred]; exact coeGrid_measurable
@@ -370,7 +371,7 @@ def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
 
 lemma le_dens₂ (𝔓' : Set (𝔓 X)) {p : 𝔓 X} (hp : p ∈ 𝔓') {r : ℝ} (hr : r ≥ 4 * (D ^ 𝔰 p : ℝ)) :
     volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r) ≤ dens₂ 𝔓' :=
-  le_trans (le_iSup₂ (α := ℝ≥0∞) r hr) (le_iSup₂ p hp)
+  le_iSup₂_of_le p hp (le_iSup₂_of_le r hr le_rfl)
 
 set_option backward.isDefEq.respectTransparency false in
 lemma dens₂_eq_biSup_dens₂ (𝔓' : Set (𝔓 X)) :

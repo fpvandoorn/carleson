@@ -216,8 +216,8 @@ lemma iSup_mul_distribution_rpow_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p
 lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0 < p) :
     wnorm f p μ ≤ eLpNorm f p μ := by
   by_cases h : p = ⊤
-  · simp [h, wnorm_top hf]
-  · rw [wnorm_eq_iSup_mul_distribution_rpow hf hp.ne' h, eLpNorm_eq_eLpNorm' hp.ne' h]
+  · simp [h, wnorm_top hf, eLpNorm_exponent_top hf]
+  · rw [wnorm_eq_iSup_mul_distribution_rpow hf hp.ne' h, eLpNorm_eq_eLpNorm' hp.ne' h hf]
     exact iSup_mul_distribution_rpow_le_eLpNorm' hf (toReal_pos hp.ne' h)
 
 lemma MemLp.memWLp (hp : 0 < p) (hf : MemLp f p μ) : MemWLp f p μ :=

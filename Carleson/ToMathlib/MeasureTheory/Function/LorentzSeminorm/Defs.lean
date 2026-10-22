@@ -39,7 +39,8 @@ def eLorentzNorm' (f : α → ε) (p : ℝ≥0∞) (q : ℝ≥0∞) (μ : Measur
 
 @[simp]
 lemma eLorentzNorm'_exponent_zero' {f : α → ε} {μ : Measure α} : eLorentzNorm' f p 0 μ = 0 := by
-  simp [eLorentzNorm']
+  rw [eLorentzNorm', eLpNorm_exponent_zero, mul_zero]
+  fun_prop
 
 lemma eLorentzNorm'_eq_integral_distribution_rpow {_ : MeasurableSpace α} {f : α → ε}
   {μ : Measure α} :
@@ -47,10 +48,8 @@ lemma eLorentzNorm'_eq_integral_distribution_rpow {_ : MeasurableSpace α} {f : 
   unfold eLorentzNorm'
   simp only [inv_one, ENNReal.toReal_one, ENNReal.rpow_one, ENNReal.toReal_inv]
   congr
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
-  rw [lintegral_withDensity_eq_lintegral_mul₀' (by measurability)
-    (by apply aeMeasurable_withDensity_inv; apply AEMeasurable.pow_const; apply AEStronglyMeasurable.enorm; apply
-      aestronglyMeasurable_iff_aemeasurable.mpr; apply Measurable.aemeasurable; measurability)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) (by fun_prop)]
+  rw [lintegral_withDensity_eq_lintegral_mul₀' (by fun_prop) (by fun_prop)]
   simp only [enorm_eq_self, ENNReal.toReal_one, ENNReal.rpow_one, Pi.mul_apply, ne_eq, one_ne_zero,
     not_false_eq_true, div_self]
   rw [lintegral_nnreal_eq_lintegral_toNNReal_Ioi, lintegral_nnreal_eq_lintegral_toNNReal_Ioi]
@@ -68,9 +67,8 @@ lemma eLorentzNorm'_eq_integral_distribution_rpow {_ : MeasurableSpace α} {f : 
 lemma eLorentzNorm'_exponent_top {f : α → ε} {μ : Measure α} :
     eLorentzNorm' f p ∞ μ = ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹ := by
   unfold eLorentzNorm'
-  simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv,
-    eLpNorm_exponent_top, one_mul]
-  rw [eLpNormEssSup_withDensity (by fun_prop) (by simp)]
+  simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv, one_mul]
+  rw [eLpNorm_exponent_top (by fun_prop), eLpNormEssSup_withDensity (by fun_prop) (by simp)]
   apply eLpNormEssSup_nnreal_eq_iSup_nnreal (f := fun t ↦ t * distribution f t μ ^ p.toReal⁻¹)
   intro a x ha
   --TODO: use fun_prop here after making the last goals a have
@@ -175,7 +173,7 @@ lemma eLorentzNorm'_mono_enorm_ae {f : α → ε'} {g : α → ε} {μ : Measure
     eLorentzNorm' f p q μ ≤ eLorentzNorm' g p q μ := by
   unfold eLorentzNorm'
   gcongr
-  apply eLpNorm_mono_enorm
+  apply eLpNorm_mono_enorm (by fun_prop)
   intro x
   simp only [ENNReal.toReal_inv, enorm_eq_self]
   gcongr
@@ -213,7 +211,7 @@ lemma eLorentzNorm_exponent_zero [TopologicalSpace ε] {f : α → ε} (hf : AES
 @[simp]
 lemma eLorentzNorm_exponent_zero' [TopologicalSpace ε] {f : α → ε} (hf : AEStronglyMeasurable f μ) :
     eLorentzNorm f p 0 μ = 0 := by
-  simpa [eLorentzNorm, eLorentzNorm']
+  simp [eLorentzNorm, hf]
 
 @[simp]
 lemma eLorentzNorm_exponent_top_top [TopologicalSpace ε] {f : α → ε}

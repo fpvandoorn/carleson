@@ -1,6 +1,7 @@
 module
 
 public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+import Mathlib.MeasureTheory.Group.LIntegral
 
 public section
 

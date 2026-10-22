@@ -77,7 +77,7 @@ variable [TopologicalSpace ε₁] [ContinuousENorm ε₁] [TopologicalSpace ε�
 
 lemma HasWeakType.memWLp (h : HasWeakType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
     (hc : c < ⊤ := by finiteness) : MemWLp (T f₁) p' ν :=
-  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2
+  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁
 
 lemma HasWeakType.toReal {T : (α → ε₁) → (α' → ℝ≥0∞)} (h : HasWeakType T p p' μ ν c) :
     HasWeakType (T · · |>.toReal) p p' μ ν c :=
@@ -124,7 +124,7 @@ variable [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace
 lemma HasBoundedWeakType.memWLp (h : HasBoundedWeakType T p p' μ ν c)
     (hf₁ : BoundedFiniteSupport f₁ μ) (hc : c < ⊤ := by finiteness) :
     MemWLp (T f₁) p' ν :=
-  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp p).2
+  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp p)
 
 lemma HasWeakType.hasBoundedWeakType (h : HasWeakType T p p' μ ν c) :
     HasBoundedWeakType T p p' μ ν c :=
@@ -141,7 +141,7 @@ variable [TopologicalSpace ε₁] [ContinuousENorm ε₁] [TopologicalSpace ε�
 
 lemma HasStrongType.memLp (h : HasStrongType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
     (hc : c < ⊤ := by finiteness) : MemLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
+  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁
 
 lemma HasStrongType.hasWeakType (hp' : 0 < p')
     (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
@@ -190,7 +190,7 @@ variable [TopologicalSpace ε₁] [ESeminormedAddMonoid ε₁] [TopologicalSpace
 lemma HasBoundedStrongType.memLp (h : HasBoundedStrongType T p p' μ ν c)
     (hf₁ : BoundedFiniteSupport f₁ μ) (hc : c < ⊤ := by finiteness) :
     MemLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp _).2⟩
+  h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp _)
 
 lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
@@ -226,10 +226,10 @@ lemma hasStrongType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormed
   · intro h f hf
     have hf' := MemLorentz_iff_MemLp.mp hf
     have := h f hf'
-    rwa [eLorentzNorm_eq_eLpNorm this.1, eLorentzNorm_eq_eLpNorm hf'.1]
+    rwa [eLorentzNorm_eq_eLpNorm this.1, eLorentzNorm_eq_eLpNorm hf'.aestronglyMeasurable]
   · intro h f hf
     have := h f (MemLorentz_iff_MemLp.mpr hf)
-    rwa [← eLorentzNorm_eq_eLpNorm this.1, ← eLorentzNorm_eq_eLpNorm hf.1]
+    rwa [← eLorentzNorm_eq_eLpNorm this.1, ← eLorentzNorm_eq_eLpNorm hf.aestronglyMeasurable]
 
 lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂]
   {T : (α → ε₁) → (α' → ε₂)} {c : ℝ≥0∞} :
@@ -237,10 +237,10 @@ lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAd
   constructor
   · intro h f hf
     have hf' := MemLorentz_iff_MemLp.mp hf
-    rw [eLorentzNorm_eq_eLpNorm hf'.1]
+    rw [eLorentzNorm_eq_eLpNorm hf'.aestronglyMeasurable]
     exact h f hf'
   · intro h f hf
-    rw [← eLorentzNorm_eq_eLpNorm hf.1]
+    rw [← eLorentzNorm_eq_eLpNorm hf.aestronglyMeasurable]
     exact h f (MemLorentz_iff_MemLp.mpr hf)
 
 end HasLorentzType
@@ -259,11 +259,10 @@ variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [NormSMulClass 𝕜 E
 lemma HasStrongType.const_smul [ContinuousConstSMul ℝ≥0 ε']
     {T : (α → ε) → (α' → ε')} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (k : ℝ≥0) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
-  refine fun f hf ↦
-    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_nnreal_smul_le.trans ?_⟩
-  rw [mul_assoc]
-  gcongr
-  exact (h f hf).2
+  intro f hf
+  refine ⟨(h f hf).1.const_smul k, ?_⟩
+  apply (eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' ((h f hf).1.const_smul k) (.of_forall fun _ ↦ (enorm_smul ..).le) p').trans
+  grw [(h f hf).2, mul_assoc]; rfl
 
 -- TODO: do we want to unify this lemma with its unprimed version, perhaps using an
 -- `ENormedSemiring` class?
