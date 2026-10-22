@@ -246,6 +246,7 @@ lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
 @[fun_prop]
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
     AEStronglyMeasurable (fun x ↦ (u x).toReal) μ :=
+  -- XXX: all these lemmas are fun_prop lemmas; investigate why `fun_prop` cannot prove this
   hu.aemeasurable.ennreal_toReal.aestronglyMeasurable
 
 -- unused, probably delete

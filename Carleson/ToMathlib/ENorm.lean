@@ -136,8 +136,7 @@ theorem eLpNorm_top_smul
     apply eLpNorm_eq_zero_of_ae_zero
     filter_upwards [h] with x hx
     simpa
-  · have : ¬ eLpNorm f p μ = 0 := by
-      rwa [eLpNorm_eq_zero_iff hp]  
+  · have : ¬ eLpNorm f p μ = 0 := by rwa [eLpNorm_eq_zero_iff hp]
     by_cases h' : eLpNorm f p μ = ⊤
     · simp only [h', ne_eq, top_ne_zero, not_false_eq_true, mul_top]
       rw [eq_top_iff] at *

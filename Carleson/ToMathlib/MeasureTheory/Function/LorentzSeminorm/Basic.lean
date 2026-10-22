@@ -329,8 +329,12 @@ lemma eLorentzNorm'_eq' (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α →
   · rw [q_zero, eLorentzNorm'_exponent_zero', eLpNorm_exponent_zero (by fun_prop)]
   rw [eLorentzNorm'_eq p_nonzero p_ne_top]
   by_cases q_top : q = ⊤
-  · rw [q_top, ENNReal.toReal_inv, ENNReal.inv_top, ENNReal.toReal_zero, sub_zero, eLpNorm_exponent_top (by fun_prop), eLpNorm_exponent_top (by fun_prop), eLpNormEssSup_withDensity (by fun_prop) (by simp)]
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top (by fun_prop), eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top (by fun_prop), lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop)]
+  · rw [q_top, ENNReal.toReal_inv, ENNReal.inv_top, ENNReal.toReal_zero, sub_zero,
+      eLpNorm_exponent_top (by fun_prop), eLpNorm_exponent_top (by fun_prop),
+      eLpNormEssSup_withDensity (by fun_prop) (by simp)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top (by fun_prop),
+    eLpNorm_eq_lintegral_rpow_enorm_toReal q_zero q_top (by fun_prop),
+    lintegral_withDensity_eq_lintegral_mul₀ (by fun_prop) (by fun_prop)]
   congr 1
   apply lintegral_congr_ae
   filter_upwards [Measure.ae_ne volume 0]
