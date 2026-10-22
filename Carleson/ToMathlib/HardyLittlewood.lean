@@ -12,7 +12,7 @@ noncomputable section
 /-! This should roughly contain the contents of chapter 9. -/
 
 -- Upstreaming status: aside from getting the real interpolation theorem merged,
--- this file needs a bunch of clean-up before it can be upstreamed:
+-- this file still has rough edges in some places, although it has been partially cleaned up:
 -- moving preliminary lemmas to their appropriate homes (some of these lemmas do not belong in
 -- mathlib) and improving the code quality. Follow mathlib style (line length!), can use dot
 -- notation more, and the code can sometimes also be golfed.
