@@ -415,11 +415,10 @@ lemma MemLorentz_of_MemLorentz_ge [TopologicalSpace ε]
         rw [ENNReal.mul_lt_top_iff]
         left
         use ENNReal.rpow_lt_top_of_nonneg (by simp) h₁
-        exact MeasureTheory.memLp_of_memLp_le_of_memLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ norm_lt_top memLp_top
+        exact memLp_of_memLp_le_of_memLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ norm_lt_top memLp_top
       /- Hardest part -/
-      rw [eLpNorm_eq_lintegral_rpow_enorm_toReal r₁_pos.ne' r₁_top
-            measurable_mul_distribution_rpow.aestronglyMeasurable,
-          lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (measurable_mul_distribution_rpow.aestronglyMeasurable.enorm.pow_const r₁.toReal),
+      rw [eLpNorm_eq_lintegral_rpow_enorm_toReal r₁_pos.ne' r₁_top (by fun_prop),
+          lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (by fun_prop),
           lintegral_nnreal_eq_lintegral_toNNReal_Ioi] at norm_lt_top
       simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply, one_div] at norm_lt_top
       rw [r₂_top, eLorentzNorm'_exponent_top]
@@ -429,7 +428,7 @@ lemma MemLorentz_of_MemLorentz_ge [TopologicalSpace ε]
       have norm_lt_top' := ENNReal.mul_lt_top norm_lt_top this
       exists _, norm_lt_top'
       intro s
-      rw [← ENNReal.div_le_iff_le_mul (by left; apply (ENNReal.rpow_pos r₁_pos r₁_top).ne') (by left; exact this.ne)] --TODO: improve this
+      rw [← ENNReal.div_le_iff_le_mul (by left; positivity) (by left; exact this.ne)] --TODO: improve this
       calc _
         _ = distribution f (↑s) μ ^ p.toReal⁻¹ * (↑s / r₁ ^ r₁.toReal⁻¹) := by
           rw [mul_comm, mul_div_assoc]
@@ -440,8 +439,8 @@ lemma MemLorentz_of_MemLorentz_ge [TopologicalSpace ε]
         _ = (distribution f (↑s) μ ^ (p.toReal⁻¹ * r₁.toReal)) ^ r₁.toReal⁻¹ * (s ^ r₁.toReal / r₁) ^ r₁.toReal⁻¹ := by
           congr 1
           · rw [ENNReal.rpow_mul, ENNReal.rpow_rpow_inv (ENNReal.toReal_ne_zero.mpr ⟨r₁_pos.ne', r₁_top⟩)]
-          --·
-        _ = (distribution f (↑s) μ ^ (p.toReal⁻¹ * r₁.toReal)) ^ r₁.toReal⁻¹ * (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, ENNReal.ofReal (x ^ (r₁.toReal - 1))) ^ r₁.toReal⁻¹:= by
+        _ = (distribution f (↑s) μ ^ (p.toReal⁻¹ * r₁.toReal)) ^ r₁.toReal⁻¹ *
+              (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, ENNReal.ofReal (x ^ (r₁.toReal - 1))) ^ r₁.toReal⁻¹:= by
           congr
           rw [lintegral_rpow_of_gt NNReal.zero_le_coe (by linarith), ENNReal.ofReal_div_of_pos (by simpa),
               ← ENNReal.ofReal_rpow_of_nonneg NNReal.zero_le_coe (by linarith)]
@@ -456,7 +455,8 @@ lemma MemLorentz_of_MemLorentz_ge [TopologicalSpace ε]
             simp only
             rw [mul_comm, ← mul_assoc]
             congr 1
-            rw [← ENNReal.ofReal_rpow_of_pos hx.1, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_add _ _ (by simp [hx.1]) (by simp), neg_add_eq_sub]
+            rw [← ENNReal.ofReal_rpow_of_pos hx.1, ← ENNReal.rpow_neg_one,
+              ← ENNReal.rpow_add _ _ (by simp [hx.1]) (by simp), neg_add_eq_sub]
             congr
           · measurability
           · simp only [inv_nonneg, ENNReal.toReal_nonneg]

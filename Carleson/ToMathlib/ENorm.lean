@@ -128,9 +128,10 @@ set_option backward.isDefEq.respectTransparency false in
 theorem eLpNorm_top_smul
     {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
     {μ : Measure α} {f : α → ℝ≥0∞} (hf : AEStronglyMeasurable f μ) : eLpNorm (∞ • f) p μ = ⊤ * eLpNorm f p μ := by
+  -- TODO: `fun_prop` works with this have, but not without (even though this is a fun_prop theorem)
+  have := hf.aemeasurable
   by_cases hp : p = 0
-  · have hf' : AEStronglyMeasurable (∞ • f) μ := (hf.aemeasurable.const_mul ∞).aestronglyMeasurable
-    simp [hp, eLpNorm_exponent_zero hf, eLpNorm_exponent_zero hf']
+  · simp [hp, eLpNorm_exponent_zero hf, eLpNorm_exponent_zero (f := ∞ • f) (by fun_prop)]
   by_cases h : f =ᶠ[ae μ] 0
   · rw [eLpNorm_eq_zero_of_ae_zero h, mul_zero]
     apply eLpNorm_eq_zero_of_ae_zero
@@ -153,13 +154,10 @@ theorem eLpNorm_top_smul
         rw [mul_comm, ENNReal.mul_div_cancel this h']
       _ = eLpNorm ((r / eLpNorm f p μ).toNNReal • f) p μ := by
         rw [eLpNorm_const_smul' (ε' := ℝ≥0∞)]
-        congr
-        simp only [toNNReal_div, toNNReal_coe, enorm_NNReal]
-        rw [ENNReal.coe_div (by apply toNNReal_ne_zero.mpr; use this, h')]
-        congr
-        exact Eq.symm (coe_toNNReal h')
+        simp only [toNNReal_div, toNNReal_coe, enorm_NNReal,
+          ENNReal.coe_div (toNNReal_ne_zero.mpr ⟨this, h'⟩), coe_toNNReal h']
       _ ≤ eLpNorm (∞ • f) p μ := by
-        apply eLpNorm_mono_enorm (hf.const_smul _)
+        apply eLpNorm_mono_enorm (by fun_prop)
         intro x
         simp only [toNNReal_div, toNNReal_coe, Pi.smul_apply, enorm_smul, enorm_eq_self,
           smul_eq_mul, enorm_NNReal]
