@@ -604,7 +604,7 @@ lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
   all_goals try assumption
   -- TODO: why can below goals not be discharged?
   repeat rw [ENNReal.inv_mul_cancel] <;> try positivity
-  all_goals simp <;> try assumption
+  all_goals simp; try assumption
   · apply interp_exp_ne_top hq₀q₁ ht hq
   · apply interp_exp_ne_top hp₀p₁ ht hp
 
