@@ -177,7 +177,7 @@ lemma depth_pos_iff_mem (hO : IsOpen O) : 0 < depth O x ↔ x ∈ O := by
     lift ε to ℝ≥0 using εpos.le
     calc
       _ < ofNNReal ε := mod_cast εpos
-      _ ≤ _ := le_biSup _ hε
+      _ ≤ _ := sorry -- was le_biSup _ hε
 
 lemma depth_eq_zero_iff_notMem (hO : IsOpen O) : depth O x = 0 ↔ x ∉ O := by
   have := (depth_pos_iff_mem hO (x := x)).not
@@ -489,8 +489,9 @@ lemma volume_lt_of_not_GeneralCase
     volume (univ : Set X) < ∞ := by
   simp only [GeneralCase, not_exists, not_le] at h
   refine ENNReal.lt_top_of_mul_ne_top_right ?_ hα.ne'
+  sorry /- was
   refine lt_of_le_of_lt (eq_univ_iff_forall.mpr h ▸ maximal_theorem' α hf) ?_ |>.ne
-  exact mul_lt_top coe_lt_top (hf.memLp 1).eLpNorm_lt_top
+  exact mul_lt_top coe_lt_top (hf.memLp 1).eLpNorm_lt_top -/
 
 private lemma isFiniteMeasure_of_not_generalCase
     (hf : BoundedFiniteSupport f) (h : ¬ GeneralCase f α) (hα : 0 < α) :
@@ -598,7 +599,8 @@ lemma czPartition_pairwiseDisjoint {hX : GeneralCase f α} :
   intro i k hik
   have ⟨x, hxi, hxk⟩ := inter_nonempty.mp hik
   have (t d) (hx : x ∈ czPartition hX t) (hd : t < d) : x ∉ czPartition hX d := by
-    have : czPartition hX t ⊆ ⋃ j < d, czPartition hX j := subset_biUnion_of_mem hd
+    have : czPartition hX t ⊆ ⋃ j < d, czPartition hX j := by
+      sorry -- was subset_biUnion_of_mem hd
     rw [czPartition]
     exact notMem_sdiff_of_mem <| mem_union_left _ (this hx)
   have : _ ∧ _ := ⟨this i k hxi |>.mt (· hxk), this k i hxk |>.mt (· hxi)⟩

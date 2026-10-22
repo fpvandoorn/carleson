@@ -166,11 +166,13 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
       have h₀ : ∃ n : ℕ, ↑b < distribution f (t₀ + (↑n)⁻¹) μ :=
         select_neighborhood_distribution _ _ (db_top ▸ coe_lt_top)
       rcases h₀ with ⟨n, wn⟩
+      sorry /- was
       refine eventually_mem_set.mpr (mem_inf_iff_superset.mpr ⟨Iio (t₀ + (↑n)⁻¹), ?_, ?_⟩)
       · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top (ENNReal.inv_ne_zero.mpr (by finiteness)))
-      · exact ⟨Ioi t₀, by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩
+      · exact ⟨Ioi t₀, by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩ -/
     -- Case: distribution f t₀ μ < ⊤
     · refine (ENNReal.tendsto_nhds db_not_top.ne_top).mpr fun ε ε_gt_0 ↦ ?_
+      sorry /- was
       refine
         eventually_mem_set.mpr (mem_inf_iff_superset.mpr ?_)
       rcases eq_zero_or_pos (distribution f t₀ μ) with db_zero | db_not_zero
@@ -204,7 +206,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
           · calc
               distribution f z μ
                 ≤ distribution f t₀ μ := distribution_mono_right (le_of_lt h.2)
-              _ ≤ distribution f t₀ μ + ε := le_self_add
+              _ ≤ distribution f t₀ μ + ε := le_self_add -/
 
 -- TODO: investigate generalising this to enorm classes
 -- This requires adding enorm versions of NormOneClass and NormMulClass

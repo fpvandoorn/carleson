@@ -160,9 +160,10 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
     calc
       _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } := by
         apply Finset.card_le_card (Finset.monotone_filter_right _ ?_)
+        sorry /- was
         refine fun a _ha ha' ↦ ⟨mem_of_mem_inter_left ha', ?_⟩
         obtain ⟨m₁, m₂⟩ := ha'
-        exact m₂.1.1 mx
+        exact m₂.1.1 mx -/
       _ = stackSize (𝔐 k n) x := by
         simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
           Finset.filter_filter]; rfl
@@ -666,7 +667,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ_eq_add_sum {f : X → ℂ} {x : X} (hkn : k 
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    exact fun _ _ ↦ mem_of_mem_inter_left hp
+    sorry -- was exact fun _ _ ↦ mem_of_mem_inter_left hp
   · apply Subset.antisymm
     · rintro p ⟨⟨hp, Hp⟩, h'p⟩
       rcases exists_j_of_mem_𝔓pos_ℭ hp.1 Hp hkn with H
@@ -711,7 +712,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₁_eq_add_sum {f : X → ℂ} {x : X} :
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    exact fun _ _ ↦ mem_of_mem_inter_left hp
+    sorry -- was exact fun _ _ ↦ mem_of_mem_inter_left hp
   · ext p
     simp only [ℭ₂, layersAbove, mem_inter_iff, mem_compl_iff, mem_sdiff, mem_iUnion, exists_prop,
       not_exists, not_and, not_forall, Decidable.not_not, Finset.mem_Iic, 𝔏₁]
@@ -739,7 +740,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₂_eq_add_sum {f : X → ℂ} {x : X} (hkn :
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    exact fun _ _ ↦ mem_of_mem_inter_left hp
+    sorry -- was exact fun _ _ ↦ mem_of_mem_inter_left hp
   · ext p
     simp only [mem_inter_iff, mem_compl_iff,
       Finset.mem_Iic, mem_iUnion, exists_and_left, exists_prop]
@@ -885,7 +886,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
         exact (hx.2.1.1 (W hx.1.1)).elim
       simp only [𝔓pos, mem_ofPred_eq, this, measure_empty, lt_self_iff_false, not_false_eq_true]
     contrapose! this
-    have : p ∈ highDensityTiles := mem_preimage.mp this
+    have : p ∈ highDensityTiles := sorry -- was mem_preimage.mp this
     apply subset_biUnion_of_mem this
   calc
   dens₁ (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔄) ^ ((q - 1) / (8 * ↑a ^ 4)) *

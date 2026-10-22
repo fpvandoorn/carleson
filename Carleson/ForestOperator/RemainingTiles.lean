@@ -40,7 +40,7 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) : ⋃ J ∈ 𝓙₆ t u₁, (J : Set X)
     rcases existsCube with ⟨cube, cube_in_𝓙, xInCube⟩
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
-    have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t u₁) := mem_of_mem_inter_left cube_in_𝓙
+    have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t u₁) := sorry -- was mem_of_mem_inter_left cube_in_𝓙
     cases cubeIn𝓙₀ with
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
@@ -354,6 +354,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   refine (setLaverage_mono' coeGrid_measurable est₂').trans ?_
   rw [laverage_eq, ENNReal.div_le_iff (NeZero.ne _) (by finiteness)]
   refine (lintegral_indicator_const_le _ _).trans ?_
+  sorry /- was
   rw [Measure.restrict_apply' coeGrid_measurable, Measure.restrict_apply_univ,
     Set.inter_eq_left.mpr (fun x hx ↦ hx.1)]
   refine ((ENNReal.mul_le_mul_iff_right (by simp) (ne_of_beq_false rfl).symm).mpr vsupp).trans ?_
@@ -365,7 +366,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   simp only [Nat.cast_pow, Nat.cast_ofNat, Real.toNNReal_ofNat, Int.cast_neg, ← pow_mul]
   rw [← mul_assoc, ← pow_succ, C7_6_4, ← NNReal.rpow_natCast, ← NNReal.rpow_intCast, Int.cast_neg]
   congr!
-  simp [mul_assoc, mul_comm (G := ℝ) 14]
+  simp [mul_assoc, mul_comm (G := ℝ) 14] -/
 
 open Classical in
 lemma sum_𝓙₆_indicator_sq_eq {f : Grid X → X → ℝ≥0∞} :

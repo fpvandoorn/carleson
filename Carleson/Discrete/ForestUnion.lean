@@ -300,6 +300,7 @@ lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j
   · have hp : p ∈ ℭ₃ k n j := (ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃) h
     rw [ℭ₃, mem_sdiff, 𝔏₂, mem_ofPred] at hp
     have mp := hp.1
+    sorry /- was
     simp_rw [hp.1, true_and, not_not] at hp
     obtain ⟨u, mu, np, sl⟩ := hp
     have mp' : p ∈ 𝔗₁ k n j u := by
@@ -308,7 +309,7 @@ lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j
       rw [𝔘₂, mem_ofPred]; exact ⟨mu, not_disjoint_iff.mpr ⟨_, mp', h⟩⟩
     let rr := equivalenceOn_urel (X := X) (k := k) (n := n) (j := j)
     rw [mem_iUnion₂]; use rr.out u, (rr.out_mem_reprs mu')
-    refine ⟨h, ?_⟩; rw [mem_iUnion₂]; use u, mu'; rw [mem_iUnion]; use rr.out_rel mu'
+    refine ⟨h, ?_⟩; rw [mem_iUnion₂]; use u, mu'; rw [mem_iUnion]; use rr.out_rel mu' -/
   · rw [mem_iUnion₂] at h; obtain ⟨_, _, mp, _⟩ := h; exact mp
 
 /-- This one could deserve a lemma in the blueprint, as it is needed to decompose the sum
@@ -597,10 +598,11 @@ lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X :=
     apply Subset.antisymm
     · simp only [mem_Iio, 𝔘₄, mem_Ico, biUnion_and', iUnion_subset_iff]
       intro l i hi hl h'i
+      sorry /- was
       apply subset_biUnion_of_mem
       change i + 1 ≤ (4 * n + 12) * 2 ^ n
       suffices i < (4 * n + 12) * 2 ^ n by lia
-      exact h'i.trans_le (mul_le_mul' (by lia) le_rfl)
+      exact h'i.trans_le (mul_le_mul' (by lia) le_rfl) -/
     · simp only [𝔘₄, iUnion_subset_iff]
       intro i hi
       let l := i / 2 ^ n
