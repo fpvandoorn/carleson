@@ -195,7 +195,7 @@ def ℭ₃ (k n j : ℕ) : Set (𝔓 X) :=
 
 lemma ℭ₃_def {k n j : ℕ} {p : 𝔓 X} :
     p ∈ ℭ₃ k n j ↔ p ∈ ℭ₂ k n j ∧ ∃ u ∈ 𝔘₁ k n j, 𝓘 p ≠ 𝓘 u ∧ smul 2 p ≤ smul 1 u := by
-  rw [ℭ₃, mem_sdiff, 𝔏₂, mem_ofPred, not_and, and_congr_right_iff]; intro h
+  rw [ℭ₃, mem_sdiff, 𝔏₂, mem_sep_iff, not_and, and_congr_right_iff]; intro h
   simp_rw [h, true_implies, not_not]
 
 lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n j := fun t mt ↦ by
@@ -231,7 +231,7 @@ def ℭ₅ (k n j : ℕ) : Set (𝔓 X) :=
 
 lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
     p ∈ ℭ₅ k n j ↔ p ∈ ℭ₄ k n j ∧ ∀ u ∈ 𝔘₁ k n j, ¬(𝓘 p : Set X) ⊆ ⋃ (i ∈ 𝓛 (X := X) n u), i := by
-  rw [ℭ₅, mem_sdiff, 𝔏₄, mem_ofPred, not_and, and_congr_right_iff]; intro h
+  rw [ℭ₅, mem_sdiff, 𝔏₄, mem_sep_iff, not_and, and_congr_right_iff]; intro h
   simp_rw [h, true_implies]; push Not; rfl
 
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by

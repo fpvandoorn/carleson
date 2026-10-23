@@ -964,7 +964,8 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
       have hint : IntegrableOn (fun y ↦ K x' y * f y) (Annulus.ci x' R₁) :=
         (czOperator_welldefined hf hR₁.1 x').mono_set Annulus.ci_eq.subset
       rw [← Annulus.oo_union_co hR'.1 hR'.2.le,
-        setIntegral_union (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2)
+        setIntegral_union (disjoint_left.mpr <| fun x (hx : x ∈ Annulus.oo x' R₁ R')
+          (hx2 : x ∈ Annulus.co x' R' R₂) ↦ not_lt.mpr hx2.1 hx.2)
           Annulus.measurableSet_co (hint.mono_set (Annulus.oo_subset_ci le_rfl))
           (hint.mono_set (Annulus.co_subset_ci hR'.1.le))]
       apply le_trans <| enorm_add_le _ _

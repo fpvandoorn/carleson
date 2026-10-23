@@ -113,7 +113,8 @@ private lemma annulus_integral_bound {x : X} {g : X → ℂ} {r₁ r₂ r₃ r�
     _ = ‖(∫ y in Annulus.cc x r₁ r₄ ∩ Annulus.oc x r₂ r₃, g y) +
         ∫ y in Annulus.cc x r₁ r₄ ∩ (Annulus.oc x r₂ r₃)ᶜ, g y‖ₑ := by
       congr 1
-      rw [← setIntegral_union (disjoint_left.mpr (fun _ h₁ h₂ ↦ h₂.2 h₁.2)) (by measurability),
+      rw [← setIntegral_union (disjoint_compl_right.mono inter_subset_right inter_subset_right)
+        (by measurability),
         inter_union_compl] <;> exact hg.mono_set inter_subset_left
   _ ≤ ‖∫ y in Annulus.cc x r₁ r₄ ∩ Annulus.oc x r₂ r₃, g y‖ₑ +
       ‖∫ y in Annulus.cc x r₁ r₄ ∩ (Annulus.oc x r₂ r₃)ᶜ, g y‖ₑ := enorm_add_le _ _

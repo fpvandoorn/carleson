@@ -166,13 +166,12 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
       have h₀ : ∃ n : ℕ, ↑b < distribution f (t₀ + (↑n)⁻¹) μ :=
         select_neighborhood_distribution _ _ (db_top ▸ coe_lt_top)
       rcases h₀ with ⟨n, wn⟩
-      refine eventually_mem_set.mpr (mem_inf_iff_superset.mpr ⟨Iio (t₀ + (↑n)⁻¹), ?_, ?_⟩)
+      refine mem_inf_iff_superset.mpr ⟨Iio (t₀ + (↑n)⁻¹), ?_, ?_⟩
       · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top (ENNReal.inv_ne_zero.mpr (by finiteness)))
       · exact ⟨Ioi t₀, by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩
     -- Case: distribution f t₀ μ < ⊤
     · refine (ENNReal.tendsto_nhds db_not_top.ne_top).mpr fun ε ε_gt_0 ↦ ?_
-      refine
-        eventually_mem_set.mpr (mem_inf_iff_superset.mpr ?_)
+      refine mem_inf_iff_superset.mpr ?_
       rcases eq_zero_or_pos (distribution f t₀ μ) with db_zero | db_not_zero
       -- Case: distribution f t₀ μ = 0
       · use Ico 0 (t₀ + 1)
@@ -186,7 +185,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
           have h₂ : distribution f z μ ≤ distribution f t₀ μ :=
             distribution_mono_right (le_of_lt hz.2)
           rw [db_zero] at h₂
-          change Icc 0 ε (distribution f z μ)
+          change distribution f z μ ∈ Icc 0 ε
           rw [nonpos_iff_eq_zero.mp h₂]
           exact ⟨zero_le, zero_le⟩
       -- Case: 0 < distribution f t₀ μ

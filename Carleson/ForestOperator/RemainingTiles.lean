@@ -40,8 +40,7 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) : ⋃ J ∈ 𝓙₆ t u₁, (J : Set X)
     rcases existsCube with ⟨cube, cube_in_𝓙, xInCube⟩
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
-    have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t u₁) := mem_of_mem_inter_left cube_in_𝓙
-    cases cubeIn𝓙₀ with
+    cases cube_in_𝓙.1 with
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
       unfold 𝓙₆
@@ -355,7 +354,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   rw [laverage_eq, ENNReal.div_le_iff (NeZero.ne _) (by finiteness)]
   refine (lintegral_indicator_const_le _ _).trans ?_
   rw [Measure.restrict_apply' coeGrid_measurable, Measure.restrict_apply_univ,
-    Set.inter_eq_left.mpr (fun x hx ↦ hx.1)]
+    inter_eq_left.mpr hsupp]
   refine ((ENNReal.mul_le_mul_iff_right (by simp) (ne_of_beq_false rfl).symm).mpr vsupp).trans ?_
   rw [← mul_assoc, ENNReal.ofReal, ← ENNReal.coe_natCast, ← ENNReal.coe_pow, ← ENNReal.coe_mul]
   gcongr

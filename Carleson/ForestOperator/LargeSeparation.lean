@@ -139,8 +139,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     rcases existsCube with ⟨cube, cube_in_𝓙, xInCube⟩
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
-    have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
-    cases cubeIn𝓙₀ with
+    cases cube_in_𝓙.1 with
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
       unfold 𝓙₅

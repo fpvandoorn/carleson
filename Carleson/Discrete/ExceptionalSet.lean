@@ -777,7 +777,7 @@ lemma boundary_exception {u : 𝔓 X} :
               rwa [this]
             · apply LT.lt.ne
               rw [h_X_u]
-              apply lt_of_le_of_lt <| volume.mono inter_subset_left
+              apply lt_of_le_of_lt <| volume.mono (sep_subset _ _)
               simp [volume_coeGrid_lt_top]
             · apply LT.lt.ne
               have t_k_lt_top : 2 * (t : ℝ≥0∞) ^ κ < ⊤ := by

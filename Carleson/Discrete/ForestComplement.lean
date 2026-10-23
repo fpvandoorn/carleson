@@ -160,7 +160,7 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
     calc
       _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } := by
         apply Finset.card_le_card (Finset.monotone_filter_right _ ?_)
-        refine fun a _ha ha' ↦ ⟨mem_of_mem_inter_left ha', ?_⟩
+        refine fun a _ha ha' ↦ ⟨ha'.1, ?_⟩
         obtain ⟨m₁, m₂⟩ := ha'
         exact m₂.1.1 mx
       _ = stackSize (𝔐 k n) x := by
@@ -666,7 +666,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ_eq_add_sum {f : X → ℂ} {x : X} (hkn : k 
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    exact fun _ _ ↦ mem_of_mem_inter_left hp
+    exact fun _ _ ↦ hp.1
   · apply Subset.antisymm
     · rintro p ⟨⟨hp, Hp⟩, h'p⟩
       rcases exists_j_of_mem_𝔓pos_ℭ hp.1 Hp hkn with H
@@ -711,7 +711,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₁_eq_add_sum {f : X → ℂ} {x : X} :
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    exact fun _ _ ↦ mem_of_mem_inter_left hp
+    exact fun _ _ ↦ hp.1
   · ext p
     simp only [ℭ₂, layersAbove, mem_inter_iff, mem_compl_iff, mem_sdiff, mem_iUnion, exists_prop,
       not_exists, not_and, not_forall, Decidable.not_not, Finset.mem_Iic, 𝔏₁]
@@ -739,7 +739,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₂_eq_add_sum {f : X → ℂ} {x : X} (hkn :
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    exact fun _ _ ↦ mem_of_mem_inter_left hp
+    exact fun _ _ ↦ hp.1
   · ext p
     simp only [mem_inter_iff, mem_compl_iff,
       Finset.mem_Iic, mem_iUnion, exists_and_left, exists_prop]
@@ -885,8 +885,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
         exact (hx.2.1.1 (W hx.1.1)).elim
       simp only [𝔓pos, mem_ofPred_eq, this, measure_empty, lt_self_iff_false, not_false_eq_true]
     contrapose! this
-    have : p ∈ highDensityTiles := mem_preimage.mp this
-    apply subset_biUnion_of_mem this
+    apply subset_biUnion_of_mem (s := highDensityTiles) this
   calc
   dens₁ (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔄) ^ ((q - 1) / (8 * ↑a ^ 4)) *
     (dens₂ (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔄) ^ (q⁻¹ - 2⁻¹) * (volume F ^ (1 / 2 : ℝ) * volume G ^ (1 / 2 : ℝ)))

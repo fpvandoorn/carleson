@@ -298,7 +298,7 @@ lemma 𝔗₂_subset_ℭ₆ : 𝔗₂ k n j u ⊆ ℭ₆ k n j := inter_subset_l
 lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j u := by
   ext p; constructor <;> intro h
   · have hp : p ∈ ℭ₃ k n j := (ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃) h
-    rw [ℭ₃, mem_sdiff, 𝔏₂, mem_ofPred] at hp
+    rw [ℭ₃, mem_sdiff, 𝔏₂, mem_sep_iff] at hp
     have mp := hp.1
     simp_rw [hp.1, true_and, not_not] at hp
     obtain ⟨u, mu, np, sl⟩ := hp
@@ -597,7 +597,7 @@ lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X :=
     apply Subset.antisymm
     · simp only [mem_Iio, 𝔘₄, mem_Ico, biUnion_and', iUnion_subset_iff]
       intro l i hi hl h'i
-      apply subset_biUnion_of_mem
+      apply subset_iUnion₂ (s := fun i _ ↦ iteratedMaximalSubfamily (𝔘₃ k n j) i) i
       change i + 1 ≤ (4 * n + 12) * 2 ^ n
       suffices i < (4 * n + 12) * 2 ^ n by lia
       exact h'i.trans_le (mul_le_mul' (by lia) le_rfl)
