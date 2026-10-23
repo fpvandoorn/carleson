@@ -672,7 +672,8 @@ lemma tree_count :
   have : ∑ u ∈ univ.filter (· ∈ 𝔘₁ (X := X) k n j), (𝓘 u : Set X).indicator (1 : X → ℝ) x =
       ∑ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·), (𝓘 u : Set X).indicator (1 : X → ℝ) x := by
     rw [filter_mem_univ_eq_toFinset (𝔘₁ k n j), sum_filter]
-    apply sum_congr rfl fun u _ ↦ by simpa using! fun h ↦ h
+    exact sum_congr rfl <|
+      fun u _ ↦ by simp [Membership.mem]
   rw [stackSize_real, this]
   -- Use inequality (5.2.20) to bound the LHS by a double sum, then interchange the sums.
   apply le_trans (sum_le_sum indicator_le)
@@ -777,9 +778,8 @@ lemma boundary_exception {u : 𝔓 X} :
               rwa [this]
             · apply LT.lt.ne
               rw [h_X_u]
-              sorry /- was
               apply lt_of_le_of_lt <| volume.mono inter_subset_left
-              simp [volume_coeGrid_lt_top] -/
+              simp [volume_coeGrid_lt_top]
             · apply LT.lt.ne
               have t_k_lt_top : 2 * (t : ℝ≥0∞) ^ κ < ⊤ := by
                 rw [ht]

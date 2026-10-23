@@ -68,7 +68,7 @@ protected theorem induction₀ [MeasurableSpace α] [AddZeroClass γ]
       · rwa [Finset.mem_coe]
     convert add _ mx _ Pg (const x mx)
     · ext1 y
-      simp only [FunLike.coe_add, Pi.add_apply]
+      simp only [coe_add, Pi.add_apply]
       rw [SimpleFunc.restrict_apply _ mx]
       by_cases hy : y ∈ f ⁻¹' {x}
       · simpa [g, hy]
@@ -92,8 +92,8 @@ private lemma helper [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β] [C
     rw [← Finset.coe_inj]
     push_cast
     ext x
-    simp only [coe_range, Set.mem_sdiff, Set.mem_range, mem_singleton_iff, FunLike.coe_sub,
-      add_singleton, mem_insert_iff, mem_image, Pi.sub_apply]
+    simp only [coe_range, Set.mem_sdiff, Set.mem_range, mem_singleton_iff, coe_sub, add_singleton,
+      mem_insert_iff, mem_image, Pi.sub_apply]
     constructor
     · rintro ⟨⟨y, hfyx⟩, x_ne_zero⟩
       rw [or_iff_not_imp_left]
@@ -153,11 +153,11 @@ private lemma helper [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β] [C
           exact y'_ne_zero
   rw [this, Finset.card_insert_of_notMem, Finset.add_def, Finset.card_image_of_injOn]
   · simp
-  · simp only [Finset.product_singleton, Finset.coe_map, Finset.coe_sdiff, coe_range,
-      FunLike.coe_sub, Finset.coe_singleton]
+  · simp only [Finset.product_singleton, Finset.coe_map, Finset.coe_sdiff, coe_range, coe_sub,
+    Finset.coe_singleton]
     intro p hp q hq
-    simp only [mem_image, Set.mem_sdiff, Set.mem_range, Pi.sub_apply, mem_singleton_iff,
-      ↓existsAndEq, Function.Embedding.sectL_apply] at *
+    simp only [mem_image, Set.mem_sdiff, Set.mem_range, Pi.sub_apply, mem_singleton_iff, ↓existsAndEq,
+      Function.Embedding.sectL_apply] at *
     rcases hp with ⟨y, hy, hp⟩
     rcases hq with ⟨z, hz, hq⟩
     have hy : y ∈ support ⇑f := by
@@ -192,7 +192,7 @@ private lemma helper [MeasurableSpace α] [LinearOrder β] [AddCommMonoid β] [C
       simpa
   · rw [Finset.add_def]
     simp only [Finset.product_singleton, Finset.mem_image, Finset.mem_map, Finset.mem_sdiff,
-      mem_range, FunLike.coe_sub, Set.mem_range, Pi.sub_apply, Finset.mem_singleton, ↓existsAndEq,
+      mem_range, coe_sub, Set.mem_range, Pi.sub_apply, Finset.mem_singleton, ↓existsAndEq,
       Function.Embedding.sectL_apply, true_and, exists_exists_and_eq_and, not_exists,
       not_and]
     intro x
@@ -312,7 +312,7 @@ protected theorem antitone_induction [MeasurableSpace α] [ConditionallyComplete
     have f_eq : f = f' + g := by
       unfold f'
       ext x
-      simp only [FunLike.coe_add, FunLike.coe_sub, Pi.add_apply, Pi.sub_apply]
+      simp only [coe_add, coe_sub, Pi.add_apply, Pi.sub_apply]
       rw [tsub_add_cancel_of_le]
       unfold g
       rw [restrict_apply _ my]
@@ -326,7 +326,7 @@ protected theorem antitone_induction [MeasurableSpace α] [ConditionallyComplete
       apply ih _
       · unfold f'
         intro x y hxy
-        simp only [FunLike.coe_sub, Pi.sub_apply]
+        simp only [coe_sub, Pi.sub_apply]
         · rw [SimpleFunc.restrict_apply _ (measurableSet_support f),
               SimpleFunc.restrict_apply _ (measurableSet_support f), Set.indicator, Set.indicator]
           split_ifs with hy hx hx
@@ -351,7 +351,7 @@ protected theorem antitone_induction [MeasurableSpace α] [ConditionallyComplete
     apply add _ my _ Pf' Pg
     intro x
     unfold f'
-    simp only [FunLike.coe_sub, Function.mem_support, Pi.sub_apply, ne_eq]
+    simp only [coe_sub, Function.mem_support, Pi.sub_apply, ne_eq]
     intro h
     contrapose h
     rw [h]
@@ -394,7 +394,7 @@ protected theorem induction'' [MeasurableSpace α] [LinearOrder β] [AddCommMono
     have f_eq : f = f' + g := by
       unfold f'
       ext x
-      simp only [FunLike.coe_add, FunLike.coe_sub, Pi.add_apply, Pi.sub_apply]
+      simp only [coe_add, coe_sub, Pi.add_apply, Pi.sub_apply]
       rw [tsub_add_cancel_of_le]
       unfold g
       rw [restrict_apply _ my]
@@ -407,7 +407,7 @@ protected theorem induction'' [MeasurableSpace α] [LinearOrder β] [AddCommMono
     apply add _ my _ Pf' Pg
     intro x
     unfold f'
-    simp only [FunLike.coe_sub, Function.mem_support, Pi.sub_apply, ne_eq]
+    simp only [coe_sub, Function.mem_support, Pi.sub_apply, ne_eq]
     intro h
     contrapose h
     rw [h]

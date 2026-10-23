@@ -211,7 +211,7 @@ lemma cubeOf_spec {i : ℤ} (hi : i ∈ Icc (-S : ℤ) S) (I : Grid X) {x : X} (
   · use topCube, subset_topCube hx, hiS ▸ s_topCube
   have ⟨y, hy, hys⟩ := Set.mem_iUnion₂.mp <| Grid_subset_biUnion i
     ⟨hi.1, s_topCube (X := X) ▸ lt_of_le_of_ne hi.2 hiS⟩ (subset_topCube hx)
-  sorry -- was exact frequently_principal.mp fun a ↦ a hys hy
+  exact frequently_principal.mp fun a ↦ a hys hy
 
 /-- The definition `T_𝓝^θ f(x)`, given in (7.1.3).
 For convenience, the suprema are written a bit differently than in the blueprint

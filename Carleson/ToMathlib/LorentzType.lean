@@ -174,7 +174,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
           rw [eLorentzNorm'_indicator_const (by simp) p_ne_zero p_ne_top]
           rw [← mul_assoc (c / p), ENNReal.div_mul_cancel p_ne_zero p_ne_top]
     · rename_i f a s hs hfs hf hg
-      rw [FunLike.coe_add]
+      rw [SimpleFunc.coe_add]
       set g := (SimpleFunc.const α a).restrict s with g_def
       intro hfg'
       have hf' : MemLorentz f p 1 μ :=
@@ -199,7 +199,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
             eLorentzNorm'_eq_integral_distribution_rpow, eLorentzNorm'_eq_integral_distribution_rpow]
           rw [← mul_add]
           congr 1
-          rw [FunLike.coe_add, g_def, SimpleFunc.coe_restrict _ hs, SimpleFunc.coe_const]
+          rw [SimpleFunc.coe_add, g_def, SimpleFunc.coe_restrict _ hs, SimpleFunc.coe_const]
           symm
           calc _
             _ = ∫⁻ (t : ℝ≥0), (if t < a then μ s else distribution f (t - a) μ) ^ p.toReal⁻¹ := by
