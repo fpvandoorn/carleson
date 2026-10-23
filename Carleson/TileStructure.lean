@@ -127,7 +127,7 @@ lemma volume_xDsp_bound_4 {x : X} (hx : x ∈ 𝓘 p) :
 def E (p : 𝔓 X) : Set X :=
   { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
 
-lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_left
+lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _x hx ↦ hx.1
 
 lemma Q_mem_Ω {p : 𝔓 X} {x : X} (hp : x ∈ E p) : Q x ∈ Ω p := hp.right.left
 

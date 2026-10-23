@@ -561,7 +561,7 @@ lemma ENNReal.volume_map_add_left_le_self {g : ℝ≥0∞} (hg : g ≠ ⊤) {s :
       simp only [mem_image, mem_preimage, forall_exists_index, and_imp]
       intro x hx hxy
       use g + x, hx
-      rw [← hxy, toReal_add hg (by contrapose! hs'; rwa [hs', add_top] at hx)]
+      rw [← hxy, toReal_add hg (by contrapose hs'; rwa [hs', add_top] at hx)]
     _ ≤ (Measure.map (fun x ↦ g.toReal + x) volume) (ENNReal.toReal '' s) := by
       apply Measure.le_map_apply (by measurability)
     _ = volume s := by

@@ -445,7 +445,7 @@ lemma out_inj' (hx : x ∈ s) (hy : y ∈ s) (h : r (hr.out x) (hr.out y)) : hr.
 
 variable (hr) in
 /-- The set of representatives of an equivalence relation on a set. -/
-def reprs : Set α := hr.out '' s
+noncomputable def reprs : Set α := hr.out '' s
 
 lemma out_mem_reprs (hx : x ∈ s) : hr.out x ∈ hr.reprs := ⟨x, hx, rfl⟩
 

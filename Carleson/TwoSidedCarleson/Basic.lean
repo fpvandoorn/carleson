@@ -59,7 +59,7 @@ lemma czOperator_aestronglyMeasurable' (hK : Measurable (uncurry K))
     AEStronglyMeasurable (fun x ↦ czOperator K r g x) := by
   unfold czOperator
   conv => arg 1; intro x; rw [← integral_indicator (by measurability)]
-  let f := fun (x,z) ↦ (ball x r)ᶜ.indicator (fun y ↦ K x y * g y) z
+  let f := fun (x, z) ↦ (ball x r)ᶜ.indicator (fun y ↦ K x y * g y) z
   apply AEStronglyMeasurable.integral_prod_right' (f := f)
   unfold f
   apply AEStronglyMeasurable.indicator

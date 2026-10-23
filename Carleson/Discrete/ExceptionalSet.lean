@@ -672,8 +672,7 @@ lemma tree_count :
   have : ∑ u ∈ univ.filter (· ∈ 𝔘₁ (X := X) k n j), (𝓘 u : Set X).indicator (1 : X → ℝ) x =
       ∑ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·), (𝓘 u : Set X).indicator (1 : X → ℝ) x := by
     rw [filter_mem_univ_eq_toFinset (𝔘₁ k n j), sum_filter]
-    exact sum_congr rfl <|
-      fun u _ ↦ by simp [Membership.mem]
+    apply sum_congr rfl fun u _ ↦ by simpa using! fun h ↦ h
   rw [stackSize_real, this]
   -- Use inequality (5.2.20) to bound the LHS by a double sum, then interchange the sums.
   apply le_trans (sum_le_sum indicator_le)
