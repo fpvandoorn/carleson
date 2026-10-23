@@ -47,7 +47,6 @@ lemma exists_mem_aux𝓒 {i : Grid X} (hi : 0 < volume (G ∩ i)) : ∃ k, i ∈
 lemma exists_k_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ k, p ∈ TilesAt k := by
   let C : Set ℕ := {k | 𝓘 p ∈ aux𝓒 k}
   have Cn : C.Nonempty := by
-    rw [𝔓pos, mem_ofPred] at h
     have vpos : 0 < volume (G ∩ 𝓘 p) := by
       rw [inter_comm]; exact h.trans_le (measure_mono inter_subset_left)
     obtain ⟨k, hk⟩ := exists_mem_aux𝓒 vpos; exact ⟨_, hk⟩
@@ -87,7 +86,7 @@ lemma exists_E₂_volume_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ r
   rw [← inter_iUnion]
   suffices ⋃ i : ℕ, Q ⁻¹' ball_(p) (𝒬 p) i = univ by
     rw [this, inter_univ, ← pos_iff_ne_zero]
-    rw [𝔓pos, mem_ofPred] at h; exact h.trans_le (measure_mono inter_subset_left)
+    exact h.trans_le (measure_mono inter_subset_left)
   simp_rw [iUnion_eq_univ_iff, mem_preimage]
   exact fun x ↦ exists_nat_gt (dist_(p) (Q x) (𝒬 p))
 

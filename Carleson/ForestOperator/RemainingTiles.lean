@@ -804,8 +804,6 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
         have Ulp := le_or_ge_or_disjoint.resolve_left np |>.resolve_right h
         -- `I`, being in `𝓙₆`, should be a maximal cube in `𝓙₀ 𝔖`,
         -- but `p` is above it and also in `𝓙₀ 𝔖`; contradiction
-        rw [𝓙₆, mem_inter_iff, mem_Iic] at mI
-        rw [𝓙, mem_ofPred] at mp mI
         exact nIp <| le_antisymm (mI.2.trans Ulp) (mI.1.2 mp.1 (mI.2.trans Ulp))
     _ = _ := by
       congr! 3 with p mp
