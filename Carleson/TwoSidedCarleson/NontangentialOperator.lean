@@ -586,7 +586,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
       case hf_ae =>
         have : AEMeasurable (K x') volume := (measurable_K_right x').aemeasurable
         apply (AEMeasurable.enorm _).restrict
-        fun_prop (discharger := measurability)
+        exact this.mul (hg.aestronglyMeasurable.aemeasurable.indicator measurableSet_ball)
       simp_rw [← indicator_mul_right, enorm_indicator_eq_indicator_enorm]
       rw [indicator_ae_eq_zero, inter_comm, ← Measure.restrict_apply' measurableSet_ball,
         Measure.restrict_restrict measurableSet_ball, ← ENNReal.bot_eq_zero, ← le_bot_iff]
