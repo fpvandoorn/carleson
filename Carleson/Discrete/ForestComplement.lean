@@ -47,7 +47,6 @@ lemma exists_mem_aux𝓒 {i : Grid X} (hi : 0 < volume (G ∩ i)) : ∃ k, i ∈
 lemma exists_k_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ k, p ∈ TilesAt k := by
   let C : Set ℕ := {k | 𝓘 p ∈ aux𝓒 k}
   have Cn : C.Nonempty := by
-    rw [𝔓pos, mem_ofPred] at h
     have vpos : 0 < volume (G ∩ 𝓘 p) := by
       rw [inter_comm]; exact h.trans_le (measure_mono inter_subset_left)
     obtain ⟨k, hk⟩ := exists_mem_aux𝓒 vpos; exact ⟨_, hk⟩
@@ -87,7 +86,7 @@ lemma exists_E₂_volume_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ r
   rw [← inter_iUnion]
   suffices ⋃ i : ℕ, Q ⁻¹' ball_(p) (𝒬 p) i = univ by
     rw [this, inter_univ, ← pos_iff_ne_zero]
-    rw [𝔓pos, mem_ofPred] at h; exact h.trans_le (measure_mono inter_subset_left)
+    exact h.trans_le (measure_mono inter_subset_left)
   simp_rw [iUnion_eq_univ_iff, mem_preimage]
   exact fun x ↦ exists_nat_gt (dist_(p) (Q x) (𝒬 p))
 
@@ -160,10 +159,9 @@ lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k
     calc
       _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } := by
         apply Finset.card_le_card (Finset.monotone_filter_right _ ?_)
-        sorry /- was
-        refine fun a _ha ha' ↦ ⟨mem_of_mem_inter_left ha', ?_⟩
+        refine fun a _ha ha' ↦ ⟨ha'.1, ?_⟩
         obtain ⟨m₁, m₂⟩ := ha'
-        exact m₂.1.1 mx -/
+        exact m₂.1.1 mx
       _ = stackSize (𝔐 k n) x := by
         simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
           Finset.filter_filter]; rfl
@@ -667,7 +665,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ_eq_add_sum {f : X → ℂ} {x : X} (hkn : k 
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    sorry -- was exact fun _ _ ↦ mem_of_mem_inter_left hp
+    exact fun _ _ ↦ hp.1
   · apply Subset.antisymm
     · rintro p ⟨⟨hp, Hp⟩, h'p⟩
       rcases exists_j_of_mem_𝔓pos_ℭ hp.1 Hp hkn with H
@@ -712,7 +710,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₁_eq_add_sum {f : X → ℂ} {x : X} :
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    sorry -- was exact fun _ _ ↦ mem_of_mem_inter_left hp
+    exact fun _ _ ↦ hp.1
   · ext p
     simp only [ℭ₂, layersAbove, mem_inter_iff, mem_compl_iff, mem_sdiff, mem_iUnion, exists_prop,
       not_exists, not_and, not_forall, Decidable.not_not, Finset.mem_Iic, 𝔏₁]
@@ -740,7 +738,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₂_eq_add_sum {f : X → ℂ} {x : X} (hkn :
   · ext p
     simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
     intro hp
-    sorry -- was exact fun _ _ ↦ mem_of_mem_inter_left hp
+    exact fun _ _ ↦ hp.1
   · ext p
     simp only [mem_inter_iff, mem_compl_iff,
       Finset.mem_Iic, mem_iUnion, exists_and_left, exists_prop]
@@ -886,8 +884,7 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
         exact (hx.2.1.1 (W hx.1.1)).elim
       simp only [𝔓pos, mem_ofPred_eq, this, measure_empty, lt_self_iff_false, not_false_eq_true]
     contrapose! this
-    have : p ∈ highDensityTiles := sorry -- was mem_preimage.mp this
-    apply subset_biUnion_of_mem this
+    apply subset_biUnion_of_mem (s := highDensityTiles) this
   calc
   dens₁ (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔄) ^ ((q - 1) / (8 * ↑a ^ 4)) *
     (dens₂ (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔄) ^ (q⁻¹ - 2⁻¹) * (volume F ^ (1 / 2 : ℝ) * volume G ^ (1 / 2 : ℝ)))

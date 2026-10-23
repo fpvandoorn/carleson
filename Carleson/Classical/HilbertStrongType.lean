@@ -95,9 +95,8 @@ lemma niceKernel_periodic (r : ℝ) : Function.Periodic (niceKernel r) (2 * π) 
 
 @[fun_prop] lemma measurable_niceKernel {r : ℝ} : Measurable (niceKernel r) := by
   classical
-  sorry /- was
-  refine Measurable.piecewise ?_ (by fun_prop) (by fun_prop)
-  exact isClosed_eq (by fun_prop) continuous_const |>.measurableSet -/
+  refine Measurable.ite ?_ measurable_const (by fun_prop)
+  exact isClosed_eq (by fun_prop) continuous_const |>.measurableSet
 
 lemma niceKernel_intervalIntegrable {r : ℝ} (a b : ℝ) (hr : r > 0) :
     IntervalIntegrable (niceKernel r) volume a b := by

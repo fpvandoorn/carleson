@@ -312,10 +312,7 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem_of_support_finite' {ε} [Top
     calc _
       _ = μ {x | ‖f x‖ₑ ≠ 0} - μ {x | ‖f x‖ₑ ∈ s \ {0}} := by
         rw [← measure_sdiff]
-        · nth_rw 2 [Set.sdiff_eq]
-          rw [Set.compl_ofPred, ← Set.ofPred_and]
-          congr with x
-          sorry -- was: grind
+        · congr with x; grind
         · simp
         · exact AEMeasurable.nullMeasurableSet_preimage hf.enorm (by simp_all)
         · rw [← lt_top_iff_ne_top]
@@ -836,10 +833,7 @@ lemma setLIntegral_enorm_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f :
   congr with x
   unfold Set.indicator
   simp only [enorm_eq_self]
-  sorry /- was
-  have : (X ∩ {x | t < ‖f x‖ₑ}) x = (x ∈ X ∧ t < ‖f x‖ₑ) := rfl
-  rw [this]
-  split_ifs with hx <;> simp [hx] -/
+  split_ifs with hx <;> simp [hx]
 
 lemma setLIntegral_eq {f : α → ℝ≥0∞}
   (hf : AEMeasurable f μ) {X : Set α} (hX : NullMeasurableSet X μ) :
@@ -1176,7 +1170,7 @@ lemma lintegral_rearrangement_add_rearrangement_le_add_lintegral [SigmaFinite μ
       fun_prop
     _ ≤ (⨆ E, ⨆ (_ : NullMeasurableSet E μ ∧ μ E ≤ t), ∫⁻ (x : α) in E, ‖f x‖ₑ ∂μ)
         + (⨆ E, ⨆ (_ : NullMeasurableSet E μ ∧ μ E ≤ t), ∫⁻ (x : α) in E, ‖g x‖ₑ ∂μ) := by
-      sorry -- was: apply ENNReal.biSup_add_le_add_biSup
+      exact ENNReal.biSup_add_le_add_biSup (s := {E | NullMeasurableSet E μ ∧ μ E ≤ t})
 
 end lintegral
 

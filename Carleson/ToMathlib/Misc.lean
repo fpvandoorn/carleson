@@ -238,10 +238,8 @@ attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided
 attribute [fun_prop] AEStronglyMeasurable.comp_measurable
 attribute [fun_prop] StronglyMeasurable.measurable
 
-lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
-  apply measure_mono_ae
-  sorry /- was: change μ {x | ¬ B x ≤ A x} = 0
-  simpa only [le_Prop_eq, Classical.not_imp] -/
+lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A :=
+  measure_mono_ae (ae_le_set.mpr h)
 
 @[fun_prop]
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :

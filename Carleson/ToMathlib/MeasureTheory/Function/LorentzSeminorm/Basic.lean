@@ -275,14 +275,9 @@ lemma eLorentzNorm'_eq (p_nonzero : p ≠ 0) (p_ne_top : p ≠ ⊤) {f : α → 
       rw [lintegral_lintegral_swap]
       apply Measurable.aemeasurable
       apply Measurable.mul (by fun_prop)
-      sorry /- was
-      apply Measurable.indicator (by fun_prop)
-      change MeasurableSet {(a : ℝ≥0∞ × ℝ≥0∞) | a.2 ∈ Set.Iio (rearrangement f a.1 μ)}
-      have : {(a : ℝ≥0∞ × ℝ≥0∞) | a.2 ∈ Set.Iio (rearrangement f a.1 μ)} = ((fun a ↦ (⟨rearrangement f a.1 μ, a.2⟩ : ℝ≥0∞ × ℝ≥0∞)) ⁻¹' ({t | t.2 < t.1})) := by
-        ext a
-        simp
-      rw [this]
-      measurability -/
+      apply Measurable.indicator (f := fun a : ℝ≥0∞ × ℝ≥0∞ ↦ q * a.2 ^ (q.toReal - 1))
+        (s := {a | a.2 < rearrangement f a.1 μ}) (by fun_prop)
+      exact measurableSet_lt (by fun_prop) (by fun_prop)
     _ = ∫⁻ l, (∫⁻ t, t ^ ((q / p).toReal - 1)
           * (Set.Iio (distribution f l μ)).indicator 1 t * (q * l ^ (q.toReal - 1))) := by
       congr with l

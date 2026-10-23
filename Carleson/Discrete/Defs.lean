@@ -56,8 +56,7 @@ def auxℭ (k n : ℕ) : Set (𝔓 X) :=
 def ℭ (k n : ℕ) : Set (𝔓 X) :=
   { p ∈ TilesAt k | dens' k {p} ∈ Ioc (2 ^ (4 * a - n : ℤ)) (2 ^ (4 * a - n + 1 : ℤ)) }
 
-lemma ℭ_subset_TilesAt {k n : ℕ} : ℭ k n ⊆ TilesAt (X := X) k := fun t mt ↦ by
-  rw [ℭ, mem_ofPred] at mt; exact mt.1
+lemma ℭ_subset_TilesAt {k n : ℕ} : ℭ k n ⊆ TilesAt (X := X) k := fun _ mt ↦ mt.1
 
 lemma disjoint_ℭ_of_ne {k m n : ℕ} (h : m ≠ n) : Disjoint (ℭ (X := X) k m) (ℭ k n) := by
   wlog hl : m < n generalizing m n; · exact (this h.symm (by lia)).symm
@@ -115,7 +114,7 @@ lemma dens1_le {k n : ℕ} {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A �
     _ ≤ dens' k (ℭ (X := X) k n) := iSup_le_iSup_of_subset hA
     _ ≤ _ := by
       rw [dens'_iSup, iSup₂_le_iff]; intro p mp
-      rw [ℭ, mem_ofPred] at mp; exact_mod_cast mp.2.2
+      exact_mod_cast mp.2.2
 
 /-- The subset `𝔅(p)` of `𝔐(k, n)`, given in (5.1.8). -/
 def 𝔅 (k n : ℕ) (p : 𝔓 X) : Set (𝔓 X) :=
@@ -130,8 +129,7 @@ Together with `𝔏₀(k, n)` this forms a partition. -/
 def ℭ₁ (k n j : ℕ) : Set (𝔓 X) :=
   preℭ₁ k n j \ preℭ₁ k n (j + 1)
 
-lemma ℭ₁_subset_ℭ {k n j : ℕ} : ℭ₁ k n j ⊆ ℭ (X := X) k n := fun t mt ↦ by
-  rw [ℭ₁, preℭ₁, mem_sdiff, mem_ofPred] at mt; exact mt.1.1
+lemma ℭ₁_subset_ℭ {k n j : ℕ} : ℭ₁ k n j ⊆ ℭ (X := X) k n := fun _ mt ↦  mt.1.1
 
 lemma disjoint_ℭ₁_of_ne {k n j l : ℕ} (h : j ≠ l) : Disjoint (ℭ₁ (X := X) k n j) (ℭ₁ k n l) := by
   wlog hl : j < l generalizing j l; · exact (this h.symm (by lia)).symm
@@ -195,9 +193,8 @@ def ℭ₃ (k n j : ℕ) : Set (𝔓 X) :=
 
 lemma ℭ₃_def {k n j : ℕ} {p : 𝔓 X} :
     p ∈ ℭ₃ k n j ↔ p ∈ ℭ₂ k n j ∧ ∃ u ∈ 𝔘₁ k n j, 𝓘 p ≠ 𝓘 u ∧ smul 2 p ≤ smul 1 u := by
-  sorry /- was
-  rw [ℭ₃, mem_sdiff, 𝔏₂, mem_ofPred, not_and, and_congr_right_iff]; intro h
-  simp_rw [h, true_implies, not_not] -/
+  rw [ℭ₃, mem_sdiff, 𝔏₂, mem_sep_iff, not_and, and_congr_right_iff]; intro h
+  simp_rw [h, true_implies, not_not]
 
 lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₃, mem_sdiff] at mt; exact mt.1
@@ -232,9 +229,8 @@ def ℭ₅ (k n j : ℕ) : Set (𝔓 X) :=
 
 lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
     p ∈ ℭ₅ k n j ↔ p ∈ ℭ₄ k n j ∧ ∀ u ∈ 𝔘₁ k n j, ¬(𝓘 p : Set X) ⊆ ⋃ (i ∈ 𝓛 (X := X) n u), i := by
-  sorry /- was
-  rw [ℭ₅, mem_sdiff, 𝔏₄, mem_ofPred, not_and, and_congr_right_iff]; intro h
-  simp_rw [h, true_implies]; push Not; rfl -/
+  rw [ℭ₅, mem_sdiff, 𝔏₄, mem_sep_iff, not_and, and_congr_right_iff]; intro h
+  simp_rw [h, true_implies]; push Not; rfl
 
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₅, mem_sdiff] at mt; exact mt.1

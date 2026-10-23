@@ -170,7 +170,7 @@ lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson 
   simp only [adjointCarleson] at hpy
   obtain ⟨x, hxE, hx0⟩ := exists_ne_zero_of_setIntegral_ne_zero hpy
   have hxp : dist x (𝔠 p) < 4 * D ^ 𝔰 p := -- 6.2.13
-    sorry -- was: Grid_subset_ball (mem_of_subset_of_mem (fun _ ha ↦ ha.1) hxE)
+    Grid_subset_ball (E_subset_𝓘 hxE)
   have hyx : dist y x ≤ 1 / 2 * D ^ 𝔰 p := by -- 6.2.14
     have hK : Ks (𝔰 p) x y ≠ 0 := by
       by_contra h0
@@ -416,7 +416,7 @@ lemma volume_coeGrid_le {p : 𝔓 X} (x2 : E p) :
     volume (𝓘 p : Set X) ≤ 2 ^ (3 * a) * volume (ball x2.1 (D ^ 𝔰 p)) := by
   -- Inequality 6.2.30
   have hdist : dist (𝔠 p) x2 < 4 * D ^ 𝔰 p :=
-    sorry -- was: dist_comm (𝔠 p) x2 ▸ Grid_subset_ball (mem_of_subset_of_mem (fun _ ha ↦ ha.1) x2.prop)
+    dist_comm (𝔠 p) x2 ▸ Grid_subset_ball (E_subset_𝓘 x2.prop)
   -- Inclusion 6.2.31
   have hsub : (𝓘 p : Set X) ⊆ ball x2 (8 * D ^ 𝔰 p) := by
     refine Grid_subset_ball.trans fun x hx ↦ ?_
