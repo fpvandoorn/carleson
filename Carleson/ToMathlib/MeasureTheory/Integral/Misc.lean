@@ -79,7 +79,7 @@ theorem lintegral_antitone_mul_le {f g k : ℝ≥0 → ℝ≥0∞} (hf : AEMeasu
         simp only
         gcongr
     · intro k c t measurable_t hks hk ht
-      simp only [SimpleFunc.coe_add, Pi.add_apply]
+      simp only [FunLike.coe_add, Pi.add_apply]
       simp_rw [add_mul]
       rw [lintegral_add_left' (f := fun s => k s * f s) ((SimpleFunc.aemeasurable _).mul hf),
           lintegral_add_left' (f := fun s => k s * g s) ((SimpleFunc.aemeasurable _).mul hg)]

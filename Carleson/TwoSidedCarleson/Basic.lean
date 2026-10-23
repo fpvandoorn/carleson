@@ -59,15 +59,10 @@ lemma czOperator_aestronglyMeasurable' (hK : Measurable (uncurry K))
     AEStronglyMeasurable (fun x ↦ czOperator K r g x) := by
   unfold czOperator
   conv => arg 1; intro x; rw [← integral_indicator (by measurability)]
-  let f := fun (x,z) ↦ (ball x r)ᶜ.indicator (fun y ↦ K x y * g y) z
-  apply AEStronglyMeasurable.integral_prod_right' (f := f)
-  unfold f
-  apply AEStronglyMeasurable.indicator
-  · apply Continuous.comp_aestronglyMeasurable₂ (by fun_prop) hK.aestronglyMeasurable
-    exact hg.comp_snd
-  · conv => arg 1; change {x : (X × X) | x.2 ∈ (ball x.1 r)ᶜ}
-    simp_rw [mem_compl_iff, mem_ball, not_lt]
-    apply measurableSet_le <;> fun_prop
+  refine .integral_prod_right'
+    (f := {p : X × X | p.2 ∈ ball p.1 r}ᶜ.indicator fun p ↦ K p.1 p.2 * g p.2)
+    (.indicator ?_ (by measurability))
+  exact Continuous.comp_aestronglyMeasurable₂ (by fun_prop) hK.aestronglyMeasurable hg.comp_snd
 
 @[fun_prop]
 lemma czOperator_aestronglyMeasurable

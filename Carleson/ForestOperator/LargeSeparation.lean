@@ -139,8 +139,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     rcases existsCube with ⟨cube, cube_in_𝓙, xInCube⟩
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
-    have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
-    cases cubeIn𝓙₀ with
+    cases cube_in_𝓙.1 with
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
       unfold 𝓙₅
@@ -1208,7 +1207,6 @@ lemma gtc_integral_bound {k : ℤ} {ℭ : Set (𝔓 X)}
       refine (lintegral_biUnion_finset (fun p₁ mp₁ p₂ mp₂ hn ↦ ?_)
         (fun _ _ ↦ measurableSet_E) _).symm
       contrapose hn; obtain ⟨x, mx₁ : x ∈ E p₁, mx₂ : x ∈ E p₂⟩ := not_disjoint_iff.mp hn
-      rw [E, mem_ofPred] at mx₁ mx₂
       simp_rw [Finset.mem_coe, V, Finset.mem_filter, mem_toFinset] at mp₁ mp₂
       have i_eq := mp₂.2.2 ▸ mp₁.2.2
       replace i_eq : 𝓘 p₁ = 𝓘 p₂ :=

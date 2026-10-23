@@ -140,7 +140,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     { j | 2 ^ (-(k + 1 : ℕ) : ℤ) * volume (j : Set X) < volume (G ∩ j) }
   have s₁ : ⋃ i ∈ 𝓒 (X := X) k, (i : Set X) ⊆ ⋃ i ∈ M, ↑i := by
     simp_rw [𝓒]; intro q mq; rw [mem_iUnion₂] at mq ⊢; obtain ⟨i, hi, mi⟩ := mq
-    rw [aux𝓒, mem_sdiff, mem_ofPred] at hi; obtain ⟨j, hj, mj⟩ := hi.1
+    obtain ⟨j, hj, mj⟩ := hi.1
     use j, ?_, mem_of_mem_of_subset mi hj.1
     simp only [M, Finset.mem_filter_univ]; exact mj
   let M' := Grid.maxCubes M
@@ -174,7 +174,6 @@ lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p m
   rw [mem_preimage] at mxp mxp'
   have l𝓘 := Grid.le_def.mpr ⟨(fundamental_dyadic hs).resolve_right (disjoint_comm.not.mpr h𝓘), hs⟩
   have sΩ := (relative_fundamental_dyadic l𝓘).resolve_left <| not_disjoint_iff.mpr ⟨_, mxp', mxp⟩
-  rw [𝔐, mem_ofPred] at mp mp'
   exact mp'.eq_of_ge mp.prop ⟨l𝓘, sΩ⟩
 
 open scoped Classical in
@@ -185,7 +184,7 @@ lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Se
     Finset.filter_filter] at hx ⊢
   obtain ⟨b, memb, minb⟩ := M.exists_min_image 𝔰 (Finset.card_pos.mp (zero_le.trans_lt hx))
   simp_rw [M, Finset.mem_filter_univ] at memb minb
-  use 𝓘 b, memb.2; intro c mc; rw [mem_ofPred]
+  use 𝓘 b, memb.2; intro c mc
   refine hx.trans_le (Finset.card_le_card fun y hy ↦ ?_)
   rw [Finset.mem_filter_univ] at hy ⊢
   exact ⟨hy.1, mem_of_mem_of_subset mc (le_of_mem_of_mem (minb y hy) memb.2 hy.2).1⟩
@@ -672,8 +671,7 @@ lemma tree_count :
   have : ∑ u ∈ univ.filter (· ∈ 𝔘₁ (X := X) k n j), (𝓘 u : Set X).indicator (1 : X → ℝ) x =
       ∑ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·), (𝓘 u : Set X).indicator (1 : X → ℝ) x := by
     rw [filter_mem_univ_eq_toFinset (𝔘₁ k n j), sum_filter]
-    exact sum_congr rfl <|
-      fun u _ ↦ by simp [Membership.mem]
+    apply sum_congr rfl fun u _ ↦ by simpa using! fun h ↦ h
   rw [stackSize_real, this]
   -- Use inequality (5.2.20) to bound the LHS by a double sum, then interchange the sums.
   apply le_trans (sum_le_sum indicator_le)
@@ -778,7 +776,7 @@ lemma boundary_exception {u : 𝔓 X} :
               rwa [this]
             · apply LT.lt.ne
               rw [h_X_u]
-              apply lt_of_le_of_lt <| volume.mono inter_subset_left
+              apply lt_of_le_of_lt <| volume.mono (sep_subset _ _)
               simp [volume_coeGrid_lt_top]
             · apply LT.lt.ne
               have t_k_lt_top : 2 * (t : ℝ≥0∞) ^ κ < ⊤ := by

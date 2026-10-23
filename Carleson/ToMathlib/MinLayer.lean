@@ -58,7 +58,7 @@ lemma maxLayer_def : A.maxLayer n = {a | Maximal (· ∈ A \ ⋃ (k < n), A.maxL
 lemma minLayer_subset : A.minLayer n ⊆ A :=
   calc
     _ ⊆ A \ ⋃ (k < n), A.minLayer k := by
-      rw [minLayer]; refine fun _ h ↦ ?_; rw [mem_ofPred] at h; exact h.prop
+      rw [minLayer]; exact fun _ h ↦ h.prop
     _ ⊆ A := sdiff_subset
 
 lemma maxLayer_subset : A.maxLayer n ⊆ A := minLayer_subset

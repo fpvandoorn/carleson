@@ -177,7 +177,7 @@ lemma depth_pos_iff_mem (hO : IsOpen O) : 0 < depth O x ↔ x ∈ O := by
     lift ε to ℝ≥0 using εpos.le
     calc
       _ < ofNNReal ε := mod_cast εpos
-      _ ≤ _ := le_biSup _ hε
+      _ ≤ _ := le_iSup₂_of_le ε hε le_rfl
 
 lemma depth_eq_zero_iff_notMem (hO : IsOpen O) : depth O x = 0 ↔ x ∉ O := by
   have := (depth_pos_iff_mem hO (x := x)).not
@@ -379,7 +379,7 @@ lemma ball_covering_finite (hO : IsOpen O ∧ O ≠ univ) {U : Set X} {r' : X �
     · simp_rw [r, hj, dite_false, ball_zero, disjoint_empty]
     have hjc : c j ∈ U := by simp [c, hj]
     simp_rw [r, hi, hj, dite_true]; apply pdU hic hjc
-    simp_rw [c, hi, hj, dite_true]; contrapose! hn
+    simp_rw [c, hi, hj, dite_true]; contrapose hn
     rwa [SetCoe.ext_iff, e.symm.apply_eq_iff_eq, Fin.mk.injEq] at hn
   · rw [← U₃]; apply subset_antisymm
     · refine iUnion_subset fun i ↦ ?_
@@ -439,7 +439,7 @@ theorem ball_covering (hO : IsOpen O ∧ O ≠ univ) :
     refine ⟨c, r, fun i mi j mj hn ↦ ?_, ?_, fun i hi ↦ ?_, fun x mx ↦ ?_⟩
     · have hic : c i ∈ U := by simp [c]
       have hjc : c j ∈ U := by simp [c]
-      apply pdU hic hjc; simp_rw [c]; contrapose! hn
+      apply pdU hic hjc; simp_rw [c]; contrapose hn
       rwa [SetCoe.ext_iff, e.symm.apply_eq_iff_eq] at hn
     · rw [← U₃]; apply subset_antisymm
       · refine iUnion_subset fun i ↦ ?_
@@ -489,8 +489,10 @@ lemma volume_lt_of_not_GeneralCase
     volume (univ : Set X) < ∞ := by
   simp only [GeneralCase, not_exists, not_le] at h
   refine ENNReal.lt_top_of_mul_ne_top_right ?_ hα.ne'
-  refine lt_of_le_of_lt (eq_univ_iff_forall.mpr h ▸ maximal_theorem' α hf) ?_ |>.ne
-  exact mul_lt_top coe_lt_top (hf.memLp 1).eLpNorm_lt_top
+  refine (le_trans ?_ (maximal_theorem' α hf)).trans_lt
+    (mul_lt_top coe_lt_top (hf.memLp 1).eLpNorm_lt_top) |>.ne
+  gcongr
+  exact fun x _ ↦ h x
 
 private lemma isFiniteMeasure_of_not_generalCase
     (hf : BoundedFiniteSupport f) (h : ¬ GeneralCase f α) (hα : 0 < α) :
@@ -598,7 +600,8 @@ lemma czPartition_pairwiseDisjoint {hX : GeneralCase f α} :
   intro i k hik
   have ⟨x, hxi, hxk⟩ := inter_nonempty.mp hik
   have (t d) (hx : x ∈ czPartition hX t) (hd : t < d) : x ∉ czPartition hX d := by
-    have : czPartition hX t ⊆ ⋃ j < d, czPartition hX j := subset_biUnion_of_mem hd
+    have : czPartition hX t ⊆ ⋃ j < d, czPartition hX j :=
+      subset_iUnion₂ (s := fun j _ ↦ czPartition hX j) t hd
     rw [czPartition]
     exact notMem_sdiff_of_mem <| mem_union_left _ (this hx)
   have : _ ∧ _ := ⟨this i k hxi |>.mt (· hxk), this k i hxk |>.mt (· hxi)⟩

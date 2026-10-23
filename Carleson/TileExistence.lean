@@ -1518,7 +1518,7 @@ lemma boundary_measure' {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht
         rw [ENNReal.toReal_le_toReal]
         · exact boundary_measure hk y ht htD
         · apply ne_of_lt
-          apply volume.mono inter_subset_left |>.trans_lt
+          apply volume.mono (sep_subset _ _) |>.trans_lt
           apply volume.mono (I3_prop_3_2 hk y) |>.trans_lt
           simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
           finiteness
@@ -1642,7 +1642,7 @@ def grid_existence : GridStructure X D κ S o where
       apply LT.lt.ne'
       exact realD_pos a
     · trans volume.real i.coe
-      · apply measureReal_mono (fun x hx => hx.left) <|
+      · apply measureReal_mono (sep_subset _ _) <|
           volume.mono (I3_prop_3_2 i.hk i.y) |>.trans_lt _ |>.ne
         simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
         exact measure_ball_lt_top
@@ -1736,7 +1736,7 @@ def Ω₁_aux (I : Grid X) (k : ℕ) : Set (Θ X) :=
 lemma Ω₁_aux_disjoint (I : Grid X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
   wlog h : k < l generalizing k l
   · exact (this hn.symm (hn.symm.lt_of_le (Nat.le_of_not_lt h))).symm
-  have : Ω₁_aux I k ⊆ ⋃ i < l, Ω₁_aux I i := subset_biUnion_of_mem h
+  have : Ω₁_aux I k ⊆ ⋃ i < l, Ω₁_aux I i := subset_iUnion₂ (s := fun i _ ↦ Ω₁_aux I i) k h
   apply disjoint_of_subset_left this
   rw [Ω₁_aux]
   split_ifs

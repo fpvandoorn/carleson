@@ -127,7 +127,7 @@ lemma volume_xDsp_bound_4 {x : X} (hx : x ∈ 𝓘 p) :
 def E (p : 𝔓 X) : Set X :=
   { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
 
-lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_left
+lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _x hx ↦ hx.1
 
 lemma Q_mem_Ω {p : 𝔓 X} {x : X} (hp : x ∈ E p) : Q x ∈ Ω p := hp.right.left
 
@@ -337,10 +337,10 @@ def lowerCubes (𝔓' : Set (𝔓 X)) : Set (𝔓 X) :=
 lemma mem_lowerCubes {𝔓' : Set (𝔓 X)} : p ∈ lowerCubes 𝔓' ↔ ∃ p' ∈ 𝔓', 𝓘 p ≤ 𝓘 p' := by rfl
 
 lemma lowerCubes_mono : Monotone (lowerCubes (X := X)) := fun 𝔓₁ 𝔓₂ hs p mp ↦ by
-  rw [lowerCubes, mem_ofPred] at mp ⊢; obtain ⟨p', mp', hp'⟩ := mp; use p', hs mp'
+  obtain ⟨p', mp', hp'⟩ := mp; use p', hs mp'
 
 lemma subset_lowerCubes {𝔓' : Set (𝔓 X)} : 𝔓' ⊆ lowerCubes 𝔓' := fun p mp ↦ by
-  rw [lowerCubes, mem_ofPred]; use p
+  use p
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=

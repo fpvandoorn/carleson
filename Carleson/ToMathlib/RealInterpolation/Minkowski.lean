@@ -555,7 +555,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h : α → ENNReal}
   rw [Measure.restrict_apply₀']
   · refine measure_mono_null (fun x h₀ ↦ ?_) measure_empty
     have : g x = h x := hgh _ (mem_of_mem_inter_right h₀)
-    have : x ∈ {a | ¬g a = h a} := mem_of_mem_sdiff h₀
+    have : x ∈ {a | ¬g a = h a} := mem_of_mem_inter_left h₀
     change ¬ (g x = h x) at this
     contradiction
   · exact (aestronglyMeasurable_iff_aemeasurable.mpr hf.enorm).nullMeasurableSet_support
