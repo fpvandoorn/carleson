@@ -688,7 +688,8 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
   have q_toReal_pos : 0 < q.toReal := toReal_pos q_ne_zero q_ne_top
   calc
   _ = ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖(truncCompl f t) x‖ₑ ^ q.toReal ∂μ := by
-    rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_ne_zero q_ne_top hf.truncCompl, one_div, ENNReal.rpow_inv_rpow]
+    rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_ne_zero q_ne_top hf.truncCompl,
+      one_div, ENNReal.rpow_inv_rpow]
     · apply (setLIntegral_eq_of_support_subset _).symm
       unfold Function.support
       intro x
@@ -702,13 +703,19 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
     gcongr with x
     exact trnc_le_func (j := ⊥)
 
--- TODO: better name!
-lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
-    (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (hf : AEStronglyMeasurable f μ) (ht : 0 < t) :
+lemma rpow_eLpNorm_truncCompl_le {p q : ℝ≥0∞}
+    (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (ht : 0 < t) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   have q_ne_top: q ≠ ⊤ := ne_top_of_le_ne_top p_ne_top hpq.2
   have p_ne_zero : p ≠ 0 := (hpq.1.trans_le hpq.2).ne'
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · by_cases! ht' : t = ∞
+    · simp [ht', zero_rpow_of_pos (exp_toReal_pos hpq.1 q_ne_top)]
+    rw [eLpNorm_of_not_aestronglyMeasurable hf,
+      top_rpow_of_pos (toReal_pos p_ne_zero p_ne_top), mul_top]
+    · simp
+    simp; grind
   apply le_trans (eLpNorm_truncCompl_le hpq.1.ne' (ne_top_of_le_ne_top p_ne_top hpq.2) hf)
   calc
     _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α in {x | t < ‖f x‖ₑ},
@@ -879,7 +886,7 @@ lemma truncCompl_Lp_Lq_lower
   · simp [trnc, ht']
   have : 0 < q.toReal := toReal_pos hpq.left.ne' q_ne_top
   refine (rpow_lt_top_iff_of_pos this).mp ?_
-  refine lt_of_le_of_lt (estimate_eLpNorm_truncCompl hp hpq hf.aestronglyMeasurable ht) ?_
+  refine lt_of_le_of_lt (rpow_eLpNorm_truncCompl_le hp hpq ht) ?_
   apply mul_lt_top
   · push Not at ht'
     finiteness
