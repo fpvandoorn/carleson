@@ -176,17 +176,14 @@ theorem exists_subset_measure_fst_image_lt_top [SigmaFinite μ] {s : Set (α × 
   refine ⟨_, inter_subset_left, hs.inter ((measurableSet_spanningSets μ n).prod .univ), hn, ?_⟩
   exact measure_lt_top_of_subset (by grind) (measure_spanningSets_lt_top μ n).ne
 
-theorem exists_subset_measure_snd_image_lt_top [SFinite μ] [SigmaFinite ν] {s : Set (α × β)}
+theorem exists_subset_measure_snd_image_lt_top [SigmaFinite ν] {s : Set (α × β)}
   (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
     ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ.prod ν t ∧ ν (Prod.snd '' t) < ⊤ := by
-  rw [← prod_swap, map_apply measurable_swap hs] at h
-  rcases exists_subset_measure_fst_image_lt_top (measurableSet_swap_iff.mpr hs) h with
-    ⟨t', ht's, meas_t', ht', ht'_top⟩
-  rw [← image_subset_iff, image_swap_eq_preimage_swap] at ht's
-  rw [← prod_swap, map_apply measurable_swap meas_t'] at ht'
-  use Prod.swap ⁻¹' t', ht's, (measurableSet_swap_iff.mpr meas_t'), ht'
-  convert ht'_top
-  aesop
+  obtain ⟨n, hn⟩ : ∃ n, 0 < μ.prod ν (s ∩ univ ×ˢ spanningSets ν n) := by
+    apply exists_measure_pos_of_not_measure_iUnion_null
+    simpa [← inter_iUnion, ← prod_iUnion] using h.ne'
+  refine ⟨_, inter_subset_left, hs.inter (.prod .univ (measurableSet_spanningSets ν n)), hn, ?_⟩
+  exact measure_lt_top_of_subset (by grind) (measure_spanningSets_lt_top ν n).ne
 
 theorem exists_subset_measure_essProjFst_lt [NoAtoms' μ] [SFinite ν] {s : Set (α × β)}
   (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
@@ -236,8 +233,7 @@ theorem setLIntegral_strict_mono_set {α : Type*} {mα : MeasurableSpace α} {μ
     _ = ∫⁻ (x : α) in t, f x ∂μ := by
       rw [← lintegral_union (htm.diff hsm) disjoint_sdiff_right, union_sdiff_cancel hst]
 
-instance prod.instNoAtoms_fst [NoAtoms' μ] [SFinite μ] [SigmaFinite ν] :
-    NoAtoms' (μ.prod ν) := by
+instance prod.instNoAtoms_fst [NoAtoms' μ] [SigmaFinite ν] : NoAtoms' (μ.prod ν) := by
   rw [no_atoms_iff]
   intro s meas_s hs
   rcases exists_subset_measure_snd_image_lt_top meas_s hs with ⟨s', hs's, meas_s', hs', hs'_top⟩
