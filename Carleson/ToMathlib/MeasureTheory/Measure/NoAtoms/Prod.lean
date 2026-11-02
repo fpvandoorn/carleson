@@ -167,30 +167,14 @@ theorem measure_essProjSnd_pos_iff [SFinite μ] [SFinite ν] {s : Set (α × β)
   rw [Measure.prod_apply_symm hs, lintegral_pos_iff_support (measurable_measure_prodMk_right hs),
       ← essProjSnd_eq']
 
-theorem exists_subset_measure_fst_image_lt_top [SigmaFinite μ] [SFinite ν] {s : Set (α × β)}
+theorem exists_subset_measure_fst_image_lt_top [SigmaFinite μ] {s : Set (α × β)}
   (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
     ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ.prod ν t ∧ μ (Prod.fst '' t) < ⊤ := by
-  set r := essProjFst s ν
-  have hμr : 0 < μ r := by
-    rwa [measure_essProjFst_pos_iff hs]
-  rcases exists_subset_measure_lt_top (measurableSet_essProjFst hs) hμr with
-    ⟨q, meas_q, hqr, hμq, hμq_top⟩
-  have meas := hs.inter (meas_q.prod MeasurableSet.univ)
-  use s ∩ q ×ˢ univ, inter_subset_left, meas
-  have hq : essProjFst (s ∩ q ×ˢ univ) ν = q := by
-    rw [essProjFst_inter_times_univ, inter_eq_right]
-    exact hqr
-  have : Prod.fst '' (s ∩ q ×ˢ univ) = q := by
-    apply subset_antisymm
-    · exact (image_mono inter_subset_right).trans (fst_image_prod_subset _ _)
-    · nth_rw 1 [← hq]
-      apply essProjFst_subset
-  rw [this]
-  constructor
-  · rw [Measure.prod_apply meas, lintegral_pos_iff_support (measurable_measure_prodMk_left meas)]
-    convert hμq
-    rw [← essProjFst_eq', hq]
-  · exact hμq_top
+  obtain ⟨n, hn⟩ : ∃ n, 0 < μ.prod ν (s ∩ spanningSets μ n ×ˢ univ) := by
+    apply exists_measure_pos_of_not_measure_iUnion_null
+    simpa [← inter_iUnion, ← iUnion_prod_const] using h.ne'
+  refine ⟨_, inter_subset_left, hs.inter ((measurableSet_spanningSets μ n).prod .univ), hn, ?_⟩
+  exact measure_lt_top_of_subset (by grind) (measure_spanningSets_lt_top μ n).ne
 
 theorem exists_subset_measure_snd_image_lt_top [SFinite μ] [SigmaFinite ν] {s : Set (α × β)}
   (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
