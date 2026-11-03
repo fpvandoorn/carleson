@@ -168,7 +168,7 @@ theorem measure_essProjSnd_pos_iff [SFinite μ] [SFinite ν] {s : Set (α × β)
       ← essProjSnd_eq']
 
 theorem exists_subset_measure_fst_image_lt_top [SigmaFinite μ] {s : Set (α × β)}
-  (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
+    (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
     ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ.prod ν t ∧ μ (Prod.fst '' t) < ⊤ := by
   obtain ⟨n, hn⟩ : ∃ n, 0 < μ.prod ν (s ∩ spanningSets μ n ×ˢ univ) := by
     apply exists_measure_pos_of_not_measure_iUnion_null
