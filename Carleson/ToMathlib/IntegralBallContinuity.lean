@@ -1,6 +1,7 @@
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.Misc
 public import Mathlib.MeasureTheory.Covering.Vitali
 
 @[expose] public noncomputable section
@@ -154,52 +155,9 @@ lemma continuous_average_ball [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts �
     exact this hx
   · exact Or.inr (inv_ne_top.mpr (measure_ball_pos μ x.1 hx_pos).ne')
 
-open scoped Topology in
 -- unused in Carleson
 -- move to separate file (not sure where)
-lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStronglyMeasurable f μ) :
-    LowerSemicontinuousOn (fun x : X × ℝ ↦ ∫⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) (univ ×ˢ Ioi 0) := by
-  refine lowerSemicontinuousOn_iff_le_liminf.mpr fun x hx ↦ _root_.le_of_forall_pos_le_add ?_
-  intro δ hδ
-  let M := liminf (fun x ↦ ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ) (𝓝[univ ×ˢ Ioi 0] x) + δ
-  by_cases htop : liminf (fun x ↦ ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ) (𝓝[univ ×ˢ Ioi 0] x) = ∞
-  · rw [htop]; simp
-  have hM : liminf (fun x ↦ ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ)
-      (𝓝[univ ×ˢ Ioi 0] x) < M := lt_add_right htop hδ.ne'
-  have : ∃ᶠ (z : X × ℝ) in 𝓝[univ ×ˢ Ioi 0] x, ∫⁻ (y : X) in ball z.1 z.2, ‖f y‖ₑ ∂μ < M := by
-    refine frequently_lt_of_liminf_lt ?_ hM
-    simp only [IsCoboundedUnder, Filter.IsCobounded, eventually_map]
-    use ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ
-    intro a ha; apply Eventually.self_of_nhdsWithin ha hx
-  obtain ⟨ns, hns₀, hns₁⟩ :=
-    exists_seq_forall_of_frequently (l := 𝓝[univ ×ˢ Ioi 0] x)
-        (p := fun z ↦ ∫⁻ (y : X) in ball z.1 z.2, ‖f y‖ₑ ∂μ < M) this
-  let g (n : ℕ) := (ball (ns n).1 (ns n).2).indicator (fun y ↦ ‖f y‖ₑ)
-  have (z : X) : (ball x.1 x.2).indicator (fun y ↦ ‖f y‖ₑ) z ≤
-      liminf (fun n ↦ g n z) atTop := by
-    apply le_liminf_of_le (f := atTop)
-    unfold g indicator
-    split_ifs with hz
-    · have hz2 : ∀ᶠ n : ℕ in atTop, z ∈ ball (ns n).1 (ns n).2 := by
-        let dist_sub (y : X × ℝ) := dist z y.1 - y.2
-        have : ContinuousOn dist_sub (univ ×ˢ Ioi 0) := by fun_prop
-        have : Tendsto (dist_sub ∘ ns) atTop (𝓝 (dist_sub x)) := Tendsto.comp (this x hx) hns₀
-        have : ∀ᶠ (n : ℕ) in atTop, dist z (ns n).1 - (ns n).2 < 0 := by
-          rw [mem_ball, ← sub_lt_zero] at hz; exact Tendsto.eventually_lt_const hz this
-        filter_upwards [this]; simp
-      filter_upwards [hz2]; intro a ha; split_ifs; rfl
-    · simp
-  calc
-  ∫⁻ (y : X) in ball x.1 x.2, ‖f y‖ₑ ∂μ
-    ≤ ∫⁻ y, (ball x.1 x.2).indicator (fun z ↦ ‖f z‖ₑ) y ∂μ := by
-    rw [lintegral_indicator]; exact measurableSet_ball
-  _ ≤ ∫⁻ y, liminf (fun n ↦ g n y) atTop ∂μ := by gcongr with y; exact this y
-  _ ≤ liminf (fun n ↦ ∫⁻ y, g n y ∂μ) atTop := by
-    apply lintegral_liminf_le' fun n ↦ by fun_prop (discharger := measurability)
-  _ ≤ M := by
-    apply liminf_le_of_le (f := atTop)
-    intro b hb
-    simp only [eventually_atTop] at hb
-    obtain ⟨a, ha⟩ := hb
-    exact le_of_lt <| lt_of_le_of_lt (ha a le_rfl) <|
-      by rw [lintegral_indicator measurableSet_ball]; exact hns₁ a
+lemma lowerSemicontinuous_integral_ball [OpensMeasurableSpace X] :
+    LowerSemicontinuous (fun x : X × ℝ ↦ ∫⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) := by
+  simpa [withDensity_apply _ measurableSet_ball] using
+    lowerSemicontinuous_measure_ball (μ.withDensity fun y ↦ ‖f y‖ₑ)
