@@ -811,7 +811,7 @@ theorem lowerSemicontinuous_measure_ball {α : Type*} [PseudoMetricSpace α] [Me
   exact hn.trans_le (measure_mono (Metric.ball_subset_ball' hp.le))
 
 theorem measurable_measure_ball {α : Type*} [PseudoMetricSpace α] [MeasurableSpace α]
-    [OpensMeasurableSpace α] {μ : Measure α} : Measurable fun (a, r) ↦ μ (Metric.ball a r) :=
+    [OpensMeasurableSpace α] {μ : Measure α} : Measurable fun p : α × ℝ ↦ μ (Metric.ball p.1 p.2) :=
   (lowerSemicontinuous_measure_ball μ).measurable
 
 end MeasureTheory
