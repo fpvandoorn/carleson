@@ -279,11 +279,10 @@ theorem isAtom_swap_iff [SFinite μ] [SFinite ν] {s : Set (α × β)} :
       ← map_apply measurable_swap meas_t, prod_swap] at this
     exact this hts meas_t
 
-instance prod.instNoAtoms_snd [SigmaFinite μ] [NoAtoms' ν] [SFinite ν] :
-    NoAtoms' (μ.prod ν) where
-  no_atoms := by
-    intro s
-    rw [← isAtom_swap_iff]
-    apply no_atoms
+instance prod.instNoAtoms_snd [SigmaFinite μ] [NoAtoms' ν] : NoAtoms' (μ.prod ν) where
+  no_atoms s := by
+    by_cases hν : SFinite ν
+    · exact fun h ↦ no_atoms _ (isAtom_swap_iff.mpr h)
+    simp [Measure.prod_def, hν, IsAtom]
 
 end MeasureTheory
