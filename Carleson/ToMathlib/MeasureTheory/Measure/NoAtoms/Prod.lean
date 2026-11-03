@@ -185,25 +185,16 @@ theorem exists_subset_measure_snd_image_lt_top [SigmaFinite ν] {s : Set (α × 
   refine ⟨_, inter_subset_left, hs.inter (.prod .univ (measurableSet_spanningSets ν n)), hn, ?_⟩
   exact measure_lt_top_of_subset (by grind) (measure_spanningSets_lt_top ν n).ne
 
-theorem exists_subset_measure_essProjFst_lt [NoAtoms' μ] [SFinite ν] {s : Set (α × β)}
+theorem exists_subset_measure_essProjFst_lt [NoAtoms' μ] {s : Set (α × β)}
   (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
     ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ.prod ν t ∧ μ (essProjFst t ν) < μ (essProjFst s ν) := by
-  set r := essProjFst s ν
-  have hμr : 0 < μ r := by
-    rwa [measure_essProjFst_pos_iff hs]
-  rcases NoAtoms'.exists_measurable_subset_lt (measurableSet_essProjFst hs) hμr with
-    ⟨q, hqr, meas_q, hμq, hμqr⟩
-  have meas := hs.inter (meas_q.prod MeasurableSet.univ)
-  use s ∩ q ×ˢ univ, inter_subset_left, meas
-  have : essProjFst (s ∩ q ×ˢ univ) ν = q := by
-    rw [essProjFst_inter_times_univ, inter_eq_right]
-    exact hqr
-  rw [this]
-  constructor
-  · rw [Measure.prod_apply meas, lintegral_pos_iff_support (measurable_measure_prodMk_left meas)]
-    convert hμq
-    rw [← essProjFst_eq', this]
-  · exact hμqr
+  by_cases hν : SFinite ν; swap
+  · simp [Measure.prod_def, hν] at h
+  obtain ⟨q, _, meas_q, _, _⟩ := NoAtoms'.exists_measurable_subset_lt
+    (measurableSet_essProjFst hs) ((measure_essProjFst_pos_iff hs).mpr h)
+  have meas := hs.inter (meas_q.prod .univ)
+  have hq : essProjFst (s ∩ q ×ˢ univ) ν = q := by grind [essProjFst_inter_times_univ]
+  exact ⟨_, inter_subset_left, meas, by grind [measure_essProjFst_pos_iff], by grind⟩
 
 theorem exists_subset_measure_essProjSnd_lt [SFinite μ] [SFinite ν] [NoAtoms' ν]
   {s : Set (α × β)} (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
