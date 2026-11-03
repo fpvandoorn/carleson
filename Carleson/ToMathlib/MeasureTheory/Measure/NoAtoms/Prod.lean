@@ -197,7 +197,7 @@ theorem exists_subset_measure_essProjFst_lt [NoAtoms' μ] {s : Set (α × β)}
   exact ⟨_, inter_subset_left, meas, by grind [measure_essProjFst_pos_iff], by grind⟩
 
 theorem exists_subset_measure_essProjSnd_lt [SFinite μ] [NoAtoms' ν] {s : Set (α × β)}
-  (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
+    (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
     ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ.prod ν t ∧ ν (essProjSnd t μ) < ν (essProjSnd s μ) := by
   by_cases hν : SFinite ν; swap;
   · simp [Measure.prod_def, hν] at h
