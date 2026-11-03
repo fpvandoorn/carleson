@@ -296,7 +296,7 @@ def vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ≥0�
 
 @[fun_prop]
 lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
-    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] :
+    [MeasureSpace X] [OpensMeasurableSpace X] :
     Measurable (uncurry vol : X × X → ℝ≥0∞) := by
   let f : X × X → X × ℝ := fun (x, y) ↦ (x, dist x y)
   let g : X × ℝ → ℝ≥0∞ := fun (x, a) ↦ volume (ball x a)
@@ -306,7 +306,7 @@ lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology 
 
 @[fun_prop]
 lemma measurable_vol₁ {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
-    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] {y : X} :
+    [MeasureSpace X] [OpensMeasurableSpace X] {y : X} :
     Measurable (vol · y) := by
   change Measurable (uncurry vol ∘ fun x : X ↦ (x, y))
   apply Measurable.comp <;> fun_prop
