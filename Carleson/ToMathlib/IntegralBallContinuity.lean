@@ -1,7 +1,7 @@
 module
 
+public import Carleson.ToMathlib.MeasureTheory.Constructions.BorelSpace.Metric
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-public import Carleson.ToMathlib.Misc
 public import Mathlib.MeasureTheory.Covering.Vitali
 
 @[expose] public noncomputable section

@@ -2,6 +2,7 @@ module
 
 public import Carleson.LipschitzNorm
 public import Carleson.ToMathlib.Annulus
+public import Carleson.ToMathlib.MeasureTheory.Constructions.BorelSpace.Metric
 public import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 
 @[expose] public section

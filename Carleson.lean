@@ -69,6 +69,7 @@ public import Carleson.ToMathlib.HardyLittlewood
 public import Carleson.ToMathlib.HasType
 public import Carleson.ToMathlib.IntegralBallContinuity
 public import Carleson.ToMathlib.LorentzType
+public import Carleson.ToMathlib.MeasureTheory.Constructions.BorelSpace.Metric
 public import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
 public import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
