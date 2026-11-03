@@ -186,7 +186,7 @@ theorem exists_subset_measure_snd_image_lt_top [SigmaFinite ν] {s : Set (α × 
   exact measure_lt_top_of_subset (by grind) (measure_spanningSets_lt_top ν n).ne
 
 theorem exists_subset_measure_essProjFst_lt [NoAtoms' μ] {s : Set (α × β)}
-  (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
+    (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
     ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ.prod ν t ∧ μ (essProjFst t ν) < μ (essProjFst s ν) := by
   by_cases hν : SFinite ν; swap
   · simp [Measure.prod_def, hν] at h
