@@ -196,17 +196,16 @@ theorem exists_subset_measure_essProjFst_lt [NoAtoms' μ] {s : Set (α × β)}
   have hq : essProjFst (s ∩ q ×ˢ univ) ν = q := by grind [essProjFst_inter_times_univ]
   exact ⟨_, inter_subset_left, meas, by grind [measure_essProjFst_pos_iff], by grind⟩
 
-theorem exists_subset_measure_essProjSnd_lt [SFinite μ] [SFinite ν] [NoAtoms' ν]
-  {s : Set (α × β)} (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
+theorem exists_subset_measure_essProjSnd_lt [SFinite μ] [NoAtoms' ν] {s : Set (α × β)}
+  (hs : MeasurableSet s) (h : 0 < μ.prod ν s) :
     ∃ t ⊆ s, MeasurableSet t ∧ 0 < μ.prod ν t ∧ ν (essProjSnd t μ) < ν (essProjSnd s μ) := by
-  rw [← prod_swap, map_apply measurable_swap hs] at h
-  rcases exists_subset_measure_essProjFst_lt (measurableSet_swap_iff.mpr hs) h with
-    ⟨t', ht's, meas_t', ht', ht'_top⟩
-  rw [← image_subset_iff, image_swap_eq_preimage_swap] at ht's
-  rw [← prod_swap, map_apply measurable_swap meas_t'] at ht'
-  use Prod.swap ⁻¹' t', ht's, (measurableSet_swap_iff.mpr meas_t'), ht'
-  rwa [essProjSnd_eq_essProjFst_swap, ← image_swap_eq_preimage_swap,
-    image_preimage_eq _ Prod.swap_surjective]
+  by_cases hν : SFinite ν; swap;
+  · simp [Measure.prod_def, hν] at h
+  obtain ⟨q, _, meas_q, _, _⟩ := NoAtoms'.exists_measurable_subset_lt
+    (measurableSet_essProjSnd hs) ((measure_essProjSnd_pos_iff hs).mpr h)
+  have meas := hs.inter (.prod .univ meas_q)
+  have hq : essProjSnd (s ∩ univ ×ˢ q) μ = q := by grind [essProjSnd_inter_univ_times]
+  exact ⟨_, inter_subset_left, meas, by grind [measure_essProjSnd_pos_iff], by grind⟩
 
 open ENNReal
 
