@@ -37,7 +37,7 @@ and the Lean proof [here](https://florisvandoorn.com/carleson/docs/find/?pattern
 
 ### Metric space Carleson theorem
 
-In this project, we deduce the continuous case of Carleson's theorem from the boundedness of a certain linear operator, the so-called *Carleson operator*.
+In this project, we deduce the continuous case of Carleson's theorem from the boundedness of a certain sublinear operator, the so-called *Carleson operator*.
 This boundedness holds in much greater generality: we formalise a new generalisation (due to the harmonic analysis group in Bonn: L. Becker, F. van Doorn, A. Jamneshan, R. Srivastava and C. Thiele, [*Carleson operators on doubling metric measure spaces*](https://arxiv.org/abs/2508.05563)) to [doubling metric measure spaces](Carleson/Defs.lean#L40).
 The precise technical result we prove is the **metric spaces Carleson theorem** ([Theorem 1.1.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#metric-space-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/find/?pattern=MetricSpaceCarleson#doc), [Lean proof](https://florisvandoorn.com/carleson/docs/find/?pattern=metric_carleson#doc)).
 
