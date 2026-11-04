@@ -33,6 +33,13 @@ sources:
     relationship: "formalizes"
     note: "The source of the metric space Carleson theorem and its linearised version (Theorems 1.1.1 and 1.1.2 of the blueprint). The blueprint contains a more detailed version of the proof in this paper, and the formalization follows the blueprint."
     author_endorsement: "participated"
+  - title: "On convergence and growth of partial sums of Fourier series"
+    authors: [Lennart Carleson]
+    id: "https://doi.org/10.1007/BF02392815"
+    type: "paper"
+    relationship: "other"
+    note: "Acta Mathematica 116 (1966). The original source of Carleson's theorem, proved there for L² functions. The formalization proves the special case of continuous functions, with the proof from the blueprint, which differs from Carleson's proof."
+    author_endorsement: "n/a"
 
 classification:
   arxiv: ["math.CA"]
