@@ -82,7 +82,7 @@ automation:                    # [required]
 
 # fidelity
 fidelity:
-  divergences: "The classical Carleson theorem is only proven for continuous functions. Compared to the blueprint proof, we proved a general version of the Marcinkiewicz interpolation theorem, and there were minor divergences related to the Hardy--Littlewood's maximal function"              # places the formalization deviates from sources: generalizations, weakened hypotheses, renamed lemmas, etc.
+  divergences: "The classical Carleson theorem is only proven for continuous functions. Compared to the blueprint proof, we proved a general version of the Marcinkiewicz interpolation theorem, and there were minor divergences related to the Hardy--Littlewood's maximal function. In the statements of the metric space Carleson theorems, the cancellativity hypothesis (IsCancellative, condition (1.1.9) of the blueprint) is at least as strong as in the blueprint: its test functions are the functions supported in the ball B with finite Lipschitz norm on B, and such a function need not be continuous on the whole space (for example the indicator function of B), whereas the blueprint only requires the condition for Lipschitz functions on the whole space supported in B. The formal hypothesis holds in the classical case of the real line, as the project proves. The other differences between the formal statements and the blueprint are formal details; PalomarChallenge.lean lists them and explains why each one is harmless."              # places the formalization deviates from sources: generalizations, weakened hypotheses, renamed lemmas, etc.
 
 # review status
 review:
