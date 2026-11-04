@@ -25,6 +25,14 @@ sources:
     relationship: "formalizes"
     license: "Apache-2.0"
     author_endorsement: "participated"
+  - title: "Carleson operators on doubling metric measure spaces"
+    authors: [Lars Becker, Floris van Doorn, Asgar Jamneshan, Rajula Srivastava, Christoph Thiele]
+    id: "arXiv:2508.05563"
+    type: "paper"
+    location: "Theorem 1.1 (metric space Carleson) and Theorem 1.2 (linearised metric Carleson)"
+    relationship: "formalizes"
+    note: "The source of the metric space Carleson theorem and its linearised version (Theorems 1.1.1 and 1.1.2 of the blueprint). The blueprint contains a more detailed version of the proof in this paper, and the formalization follows the blueprint."
+    author_endorsement: "participated"
 
 classification:
   arxiv: ["math.CA"]
