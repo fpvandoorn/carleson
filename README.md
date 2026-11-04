@@ -13,8 +13,8 @@ A formalized proof of a generalized Carleson's theorem in the [Lean interactive 
 
 ## What is Carleson's theorem?
 
-Carleson's theorem is a statement about Fourier analysis: given a continuous periodic function $f\colon ℝ\to ℝ$, its Fourier converges to $f$ point-wise at almost every point.
-More precisely, let $f\colon\mathbb{R}\to \mathbb{C}$ be a $2\pi$-periodic bounded Borel measurable function.
+Carleson's theorem is a statement about Fourier analysis: given a continuous periodic function $f\colon ℝ\to ℂ$, its Fourier series converges to $f$ point-wise at almost every point.
+More precisely, let $f\colon\mathbb{R}\to \mathbb{C}$ be a $2\pi$-periodic continuous function.
 For each integer $n\in\mathbb{Z}$, define the $n$-th Fourier coefficient as
 ```math
 \widehat{f}_n := \frac{1}{2\pi} \int_0^{2\pi} f(x) e^{- i nx} dx.
@@ -26,13 +26,18 @@ s_Nf(x):=\sum_{n=-N}^N \widehat{f}_n e^{i nx}.
 Then Carleson's theorem states $\lim_{N\to\infty} s_N f(x) = f(x)$ for almost all $x\in\mathbb{R}$.
 
 Despite being simple to state, its proof is very hard. (It is also quite subtle: for instance, asking for point-wise convergence *everywhere* makes this false.)
-The precise English statement statement can be found [as Theorem 1.0.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#classical-carleson),
+
+Carleson proved this theorem more generally, for $2\pi$-periodic functions that are square-integrable on $[0, 2\pi]$, and Hunt extended it to functions in $L^p$ for $p > 1$.
+The theorem `classical_carleson` proved in this project is the case of continuous functions stated above.
+The project also contains a statement of the $L^p$ version (`carleson_hunt`), but its proof still depends on `sorry`, so this general version is not yet formally verified in this project.
+
+The precise English statement can be found [as Theorem 1.0.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#classical-carleson),
 the corresponding Lean statement is [here](https://florisvandoorn.com/carleson/docs/find/?pattern=ClassicalCarleson#doc),
 and the Lean proof [here](https://florisvandoorn.com/carleson/docs/find/?pattern=classical_carleson#doc).
 
 ### Metric space Carleson theorem
 
-In this project, we deduce this statement from the boundedness of a certain linear operator, the so-called *Carleson operator*.
+In this project, we deduce the continuous case of Carleson's theorem from the boundedness of a certain linear operator, the so-called *Carleson operator*.
 This boundedness holds in much greater generality: we formalise a new generalisation (due to the harmonic analysis group in Bonn) to [doubling metric measure spaces](Carleson/Defs.lean#L40).
 The precise technical result we prove is the **metric spaces Carleson theorem** ([Theorem 1.1.1](https://florisvandoorn.com/carleson/blueprint/sect0001.html#metric-space-Carleson), [Lean statement](https://florisvandoorn.com/carleson/docs/find/?pattern=MetricSpaceCarleson#doc), [Lean proof](https://florisvandoorn.com/carleson/docs/find/?pattern=metric_carleson#doc)).
 
