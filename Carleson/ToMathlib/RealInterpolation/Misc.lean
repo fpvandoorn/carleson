@@ -1,6 +1,7 @@
 module
 
 public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
+public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 public import Carleson.ToMathlib.Distribution
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
@@ -364,19 +365,6 @@ lemma ofReal_rpow_rpow_aux {p : ℝ} :
     (fun s ↦ ENNReal.ofReal (s ^ p)) := by
   filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     with s (hs : 0 < s) using ofReal_rpow_of_pos hs
-
-lemma lintegral_rpow_of_gt {β γ : ℝ} (hβ : 0 ≤ β) (hγ : -1 < γ) :
-    ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
-    ENNReal.ofReal (β ^ (γ + 1) / (γ + 1)) := by
-  have hγ2 : 0 < γ + 1 := by linarith
-  rw [setLIntegral_congr Ioo_ae_eq_Ioc, ← ofReal_integral_eq_lintegral_ofReal]
-  · rw [← intervalIntegral.integral_of_le hβ, integral_rpow]
-    · rw [Real.zero_rpow hγ2.ne', sub_zero]
-    · exact Or.inl hγ
-  · apply (@intervalIntegral.intervalIntegrable_rpow' 0 β γ ?_).1
-    linarith
-  · filter_upwards [self_mem_ae_restrict measurableSet_Ioc]
-      with s hs using Real.rpow_nonneg hs.1.le γ
 
 end MeasureTheory
 
@@ -1141,18 +1129,6 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : 0 < β) (hσ : σ < -1) 
   · apply integrableOn_Ioi_rpow_of_lt hσ hβ
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     exact fun s hs ↦ Real.rpow_nonneg (lt_trans hβ hs).le σ
-
-lemma lintegral_rpow_Ioi_top {γ : ℝ} :
-    ∫⁻ s : ℝ in Ioi 0, .ofReal (s ^ γ) = ∞ := by
-  by_contra h
-  apply (not_integrableOn_Ioi_rpow γ)
-  refine ⟨by fun_prop, ?_⟩
-  calc
-  _ = ∫⁻ (a : ℝ) in Ioi 0, .ofReal (a ^ γ) ∂volume := by
-    apply lintegral_congr_ae
-    filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
-    exact fun _ ha ↦ enorm_of_nonneg (rpow_nonneg ha.le γ)
-  _ < ⊤ := Ne.lt_top' fun a ↦ h (Eq.symm a)
 
 lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j then γ > -1 else γ < -1) :
   ∫⁻ s : ℝ in res j β, ENNReal.ofReal (s ^ γ) = β ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by
