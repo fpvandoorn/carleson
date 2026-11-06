@@ -2,7 +2,8 @@ module
 
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.Order.ConditionallyCompleteLattice.Basic
-public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Monotonicity
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Rearrangement
 
 @[expose] public section
 

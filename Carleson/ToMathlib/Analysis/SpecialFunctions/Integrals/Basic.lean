@@ -83,4 +83,29 @@ theorem setLIntegral_Iio_rpow {p : ℝ} {b : ℝ≥0∞} (hp : -1 < p) :
   rw [← Set.Ico_bot]
   exact Ioo_ae_eq_Ico.symm
 
+lemma lintegral_rpow_of_gt {β γ : ℝ} (hβ : 0 ≤ β) (hγ : -1 < γ) :
+    ∫⁻ s : ℝ in Set.Ioo 0 β, ENNReal.ofReal (s ^ γ) =
+    ENNReal.ofReal (β ^ (γ + 1) / (γ + 1)) := by
+  have hγ2 : 0 < γ + 1 := by linarith
+  rw [setLIntegral_congr Ioo_ae_eq_Ioc, ← ofReal_integral_eq_lintegral_ofReal]
+  · rw [← intervalIntegral.integral_of_le hβ, integral_rpow]
+    · rw [Real.zero_rpow hγ2.ne', sub_zero]
+    · exact Or.inl hγ
+  · apply (@intervalIntegral.intervalIntegrable_rpow' 0 β γ ?_).1
+    linarith
+  · filter_upwards [self_mem_ae_restrict measurableSet_Ioc]
+      with s hs using Real.rpow_nonneg hs.1.le γ
+
+lemma lintegral_rpow_Ioi_top {γ : ℝ} :
+    ∫⁻ s : ℝ in Set.Ioi 0, .ofReal (s ^ γ) = ∞ := by
+  by_contra h
+  apply (not_integrableOn_Ioi_rpow γ)
+  refine ⟨by fun_prop, ?_⟩
+  calc
+  _ = ∫⁻ (a : ℝ) in Set.Ioi 0, .ofReal (a ^ γ) ∂volume := by
+    apply lintegral_congr_ae
+    filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
+    exact fun _ ha ↦ Real.enorm_of_nonneg (Real.rpow_nonneg ha.le γ)
+  _ < ⊤ := Ne.lt_top' fun a ↦ h (Eq.symm a)
+
 end MeasureTheory

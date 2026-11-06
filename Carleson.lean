@@ -75,6 +75,8 @@ public import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 public import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Defs
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Monotonicity
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Rearrangement
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.TriangleInequality
 public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSpace.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
