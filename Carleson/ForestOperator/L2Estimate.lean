@@ -737,7 +737,8 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     simp_rw [e728_push_toReal hf]
     refine BoundedCompactSupport.finset_sum fun I _ ↦ ?_
     refine BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
-      (Metric.isBounded_ball.subset Grid_subset_ball).isCompact_closure coeGrid_measurable
+      (Metric.isBounded_ball.subset Grid_subset_ball).isCompact_closure
+      coeGrid_measurable.nullMeasurableSet
   have elpn_eq : eLpNorm (fun x ↦ (t.boundaryOperator u f x).toReal) 2 volume =
       eLpNorm (t.boundaryOperator u f) 2 volume :=
     eLpNorm_toReal_eq (Eventually.of_forall fun _ ↦ (boundaryOperator_lt_top hf).ne)

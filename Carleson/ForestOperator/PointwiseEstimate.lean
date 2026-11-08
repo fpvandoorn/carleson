@@ -152,7 +152,7 @@ lemma boundedCompactSupport_approxOnCube {𝕜 : Type*} [RCLike 𝕜] {C : Set (
   BoundedCompactSupport.finset_sum fun J _ ↦
     BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
     ((isBounded_iff_subset_ball (c J)).mpr ⟨4 * D ^ s J, Grid_subset_ball⟩).isCompact_closure
-    coeGrid_measurable
+    coeGrid_measurable.nullMeasurableSet
 
 -- Used in the proof of Lemma 7.1.6
 lemma lintegral_eq_lintegral_approxOnCube {C : Set (Grid X)}
