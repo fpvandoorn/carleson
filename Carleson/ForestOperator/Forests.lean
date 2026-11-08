@@ -367,7 +367,8 @@ lemma adjointCarlesonRowSum_adjoint
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
 
 /-- Common proof structure for the two parts of Lemma 7.7.2. -/
-lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : MeasurableSet A) {C : ℝ≥0∞}
+lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : NullMeasurableSet A)
+    {C : ℝ≥0∞}
     (hC : ∀ u ∈ t.rowDecomp j,
       eLpNorm (A.indicator (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator g))) 2 ≤
       C * eLpNorm ((𝓘 u : Set X).indicator g) 2) :
@@ -379,7 +380,7 @@ lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : Measurab
     (hg.indicator coeGrid_measurable.nullMeasurableSet).adjointCarlesonSum
   let AT (u : 𝔓 X) := (𝓘 u : Set X).indicator (A.indicator (T u))
   have bcsAT (u : 𝔓 X) : BoundedCompactSupport (AT u) :=
-    ((bcsT u).indicator mA.nullMeasurableSet).indicator coeGrid_measurable.nullMeasurableSet
+    ((bcsT u).indicator mA).indicator coeGrid_measurable.nullMeasurableSet
   classical
   calc
     _ = eLpNorm (A.indicator (fun x ↦ ∑ u with u ∈ t.rowDecomp j,
@@ -465,7 +466,7 @@ lemma le_C7_7_2_2 (a4 : 4 ≤ a) :
 lemma row_bound (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) :
     eLpNorm (adjointCarlesonRowSum t j g) 2 volume ≤ C7_7_2_1 a n * eLpNorm g 2 volume := by
   rw [← indicator_univ (t.adjointCarlesonRowSum j g)]
-  refine row_bound_common hg MeasurableSet.univ fun u mu ↦ ?_
+  refine row_bound_common hg nullMeasurableSet_univ fun u mu ↦ ?_
   rw [indicator_univ]
   calc
     _ ≤ C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm ((𝓘 u : Set X).indicator g) 2 := by
@@ -484,7 +485,7 @@ lemma row_bound (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) :
 lemma indicator_row_bound (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) :
     eLpNorm (F.indicator (adjointCarlesonRowSum t j g)) 2 volume ≤
     C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
-  refine row_bound_common hg measurableSet_F fun u mu ↦ ?_
+  refine row_bound_common hg measurableSet_F.nullMeasurableSet fun u mu ↦ ?_
   calc
     _ ≤ C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
         eLpNorm ((𝓘 u : Set X).indicator g) 2 := by
