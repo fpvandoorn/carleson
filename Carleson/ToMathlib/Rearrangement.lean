@@ -783,18 +783,17 @@ lemma lintegral_withDensity_le_lintegral_rearrangement_withDensity {ε} [Topolog
 
 -- Lemma 1.1.24 of [Ian Tice]
 lemma setLIntegral_enorm_le_lintegral_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
-  (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) :
+  {X : Set α} (hX : MeasurableSet X) :
     ∫⁻ x in X, ‖f x‖ₑ ∂μ ≤
       ∫⁻ t in (Set.Iio (μ X)), rearrangement f t μ := by
-  rw [← lintegral_indicator hX, ← lintegral_indicator measurableSet_Iio]
-  have : (fun x ↦ ‖f x‖ₑ) = enorm ∘ f := by
-    ext x
-    simp only [Function.comp_apply]
-  rw [this, Set.indicator_comp_of_zero enorm_zero]
-  simp only [Function.comp_apply]
-  rw [← lintegral_rearrangement (by measurability)]
+  obtain ⟨g, hg, g_le, hfg⟩ := exists_measurable_le_lintegral_eq (μ := μ.restrict X) (‖f ·‖ₑ)
+  rw [hfg, ← lintegral_indicator hX, ← lintegral_indicator measurableSet_Iio]
+  have := lintegral_rearrangement (μ := μ) (hg.indicator hX).aestronglyMeasurable
+  simp only [enorm_eq_self] at this
+  rw [← this]
   gcongr with t
-  exact rearrangement_indicator_le
+  refine rearrangement_indicator_le.trans (Set.indicator_le_indicator ?_)
+  exact rearrangement_mono_fun (.of_forall fun x ↦ by simpa using g_le x)
 
 lemma setLIntegral_enorm_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : NullMeasurableSet X μ) :
