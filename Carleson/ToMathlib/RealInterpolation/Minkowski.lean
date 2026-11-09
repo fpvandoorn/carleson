@@ -695,8 +695,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hpq : sel j p₀ p₁ ≤ sel j q₀ q₁)
     (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤) (hp₀p₁ : p₀ < p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
-    (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
-    (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (fun x ↦ ‖f x‖ₑ).support))
+    (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hf₂ : SigmaFinite (μ.restrict (fun x ↦ ‖f x‖ₑ).support))
     (hspf : spf.σ = ζ p₀ q₀ p₁ q₁ t.toReal) :
     ∫⁻ s : ℝ in Ioi 0,
     eLpNorm (trnc j f ((spf_to_tc spf).ton (ENNReal.ofReal s))) (sel j p₀ p₁) μ ^ (sel j q₀ q₁).toReal *
@@ -726,6 +725,26 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     rcases j
     · exact hp₀.ne'
     · exact hp₁.ne'
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · have hq_ne : q ≠ sel j q₀ q₁ := by
+      rcases lt_or_gt_of_ne hq₀q₁ with hq₀q₁' | hq₁q₀
+      · have hq_mem := interp_exp_between hq₀ hq₁ hq₀q₁' ht hq
+        cases j
+        · exact hq_mem.1.ne'
+        · exact hq_mem.2.ne
+      · have hq_mem := interp_exp_between hq₁ hq₀ hq₁q₀ (mem_sub_Ioo one_ne_top ht)
+          (switch_exponents ht hq)
+        cases j
+        · exact hq_mem.2.ne
+        · exact hq_mem.1.ne'
+    have hq_toReal_ne : q.toReal - (sel j q₀ q₁).toReal ≠ 0 := by
+      rw [sub_ne_zero, ne_eq, toReal_eq_toReal_iff' (interp_exp_ne_top hq₀q₁ ht hq) hq']
+      exact hq_ne
+    rw [eLpNorm_of_not_aestronglyMeasurable hf, top_rpow_of_pos p_toReal_pos,
+      top_rpow_of_pos (by positivity), mul_top]
+    · exact le_top
+    exact mul_ne_zero (ENNReal.rpow_pos spf.hd spf.hd').ne'
+      (ofReal_pos.mpr (inv_pos.mpr (abs_pos.mpr hq_toReal_ne))).ne'
   calc
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *

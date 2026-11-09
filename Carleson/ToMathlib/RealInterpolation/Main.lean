@@ -806,7 +806,6 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           · exact hp₁.2
           · exact ne_top_of_Ioc hp₁ is_q₁top
           · exact is_q₁top.ne_top
-          · exact hf.aestronglyMeasurable
           · rw [hspf]; rfl
         · simp
       · split_ifs with is_q₀top
@@ -816,7 +815,6 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           · exact hp₀.2
           · exact ne_top_of_Ioc hp₀ is_q₀top
           · exact is_q₀top.ne_top
-          · exact hf.aestronglyMeasurable
           · rw [hspf]; rfl
         · simp
   _ = (if q₁ < ⊤ then 1 else 0) *
