@@ -424,15 +424,35 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E} [TopologicalSpace E] [Continuo
     filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with a ha
     rw [ENNReal.ofReal_rpow_of_pos ha, ENNReal.ofReal_mul (by positivity)]
 
+lemma rewrite_norm_func_le {q : ℝ} {g : α' → E} [TopologicalSpace E] [ContinuousENorm E]
+    (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A) :
+    ∫⁻ x, ‖g x‖ₑ ^ q ∂ν ≤
+    ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s,
+    distribution g (ENNReal.ofReal (2 * A) * s) ν * s ^ (q - 1) := by
+  obtain ⟨h, hh, hhg, hh_eq⟩ :=
+    exists_measurable_le_lintegral_eq (μ := ν) fun x ↦ ‖g x‖ₑ ^ q
+  have h_eq (x : α') : ‖h x ^ q⁻¹‖ₑ ^ q = h x := by
+    rw [enorm_eq_self, ← ENNReal.rpow_mul, inv_mul_cancel₀ hq.ne', ENNReal.rpow_one]
+  have h_le (x : α') : ‖h x ^ q⁻¹‖ₑ ≤ ‖g x‖ₑ := by
+    calc
+    _ = h x ^ q⁻¹ := enorm_eq_self _
+    _ ≤ (‖g x‖ₑ ^ q) ^ q⁻¹ := by gcongr; exact hhg x
+    _ = ‖g x‖ₑ := by rw [← ENNReal.rpow_mul, mul_inv_cancel₀ hq.ne', ENNReal.rpow_one]
+  calc
+  _ = ∫⁻ x, ‖h x ^ q⁻¹‖ₑ ^ q ∂ν := by simp_rw [hh_eq, h_eq]
+  _ = _ := rewrite_norm_func hq hA (hh.pow_const _).aestronglyMeasurable
+  _ ≤ _ := by
+    gcongr
+    exact ae_of_all _ h_le
+
 lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hq : 0 < q) (tc : StrictRangeToneCouple) {A : ℝ≥0} (hA : 0 < A)
-    (ht : SubadditiveTrunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
+    (ht : SubadditiveTrunc T A f ν) :
   ∫⁻ x : α', ‖T f x‖ₑ ^ q ∂ν ≤
   ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s, distribution (T (trunc f (tc.ton s))) s ν * s^(q - 1) +
   distribution (T (truncCompl f (tc.ton s))) s ν * s ^ (q - 1) := by
-  rw [rewrite_norm_func hq hA hTf]
-  refine mul_le_mul' (le_refl _) (lintegral_mono_ae ?_)
+  refine (rewrite_norm_func_le hq hA).trans (mul_le_mul' (le_refl _) (lintegral_mono_ae ?_))
   filter_upwards [ae_in_Ioo_zero_top] with a ha
   rw [ENNReal.ofReal_mul (by simp), ← add_mul]
   gcongr ?_ * _
@@ -719,8 +739,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   (hspf : spf = spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
       (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF)
   (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
-  (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
-  (h₂T : PreservesAEStrongMeasurability T p (ν := ν) (μ := μ)) :
+  (h₀T : HasWeakType T p₀ q₀ μ ν C₀) :
     ∫⁻ x , ‖T f x‖ₑ ^ q.toReal ∂ν ≤
     ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) *
     ((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
@@ -744,7 +763,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
       distribution (T (truncCompl f (tc.ton s))) s ν *
       s^(q.toReal - 1) :=
     estimate_norm_rpow_range_operator
-      (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁ hq) _ hA hT (h₂T hf)
+      (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁ hq) _ hA hT
   _ ≤ ENNReal.ofReal ((2 * A)^q.toReal * q.toReal) *
       ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s,
         eLpNorm (trunc f (tc.ton s)) p₁ μ ^ q₁.toReal *
