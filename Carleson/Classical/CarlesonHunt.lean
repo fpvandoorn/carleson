@@ -206,7 +206,7 @@ theorem carleson_hunt_two_pi {f : AddCircle (2 * π) → ℂ} {p : ℝ≥0∞} (
   have hg : MemLp g p (volume.restrict (Set.Ioc 0 (2 * π))) := by
     unfold g
     nth_rw 2 [← zero_add (2 * π)]
-    rw [MemLp, eLpNorm_eq_eLpNorm_liftIoc' hf.aestronglyMeasurable]
+    rw [MemLp, eLpNorm_eq_eLpNorm_liftIoc']
     exact hf
   apply ae_tendsto_zero_of_distribution_le
   intro δ δpos ε εpos

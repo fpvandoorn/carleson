@@ -155,58 +155,55 @@ section eLpNorm
 
 variable {𝕜 B : Type*} [NormedAddCommGroup B]
 
-variable (T : ℝ) [hT : Fact (0 < T)] (a a' : ℝ) {f : ℝ → B} (hf : AEStronglyMeasurable f)
-include hf
-
-/-- The norm of the lift of a function `f` is equal to the norm of `f` on that period. -/
-theorem eLpNorm_liftIoc (p : ℝ≥0∞) :
-    eLpNorm (AddCircle.liftIoc T a f) p = eLpNorm ((Set.Ioc a (a + T)).indicator f) p := by
-  set I := Ioc a (a + T)
-  have : I.indicator f = I.indicator (liftIoc T a f ∘ QuotientAddGroup.mk) := by
-    ext x
-    by_cases hx : x ∈ I
-    · simpa [hx] using (liftIoc_coe_apply hx).symm
-    · simp [hx]
-  rw [this, eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ioc]
-  exact (eLpNorm_comp_measurePreserving (hf.liftIoc T a) (AddCircle.measurePreserving_mk T a)).symm
+variable (T : ℝ) [hT : Fact (0 < T)] (a a' : ℝ) {f : ℝ → B}
 
 /-- The norm of the lift of a function `f` is equal to the norm of `f` on that period. -/
 theorem eLpNorm_liftIoc' (p : ℝ≥0∞) :
     eLpNorm (AddCircle.liftIoc T a f) p = eLpNorm f p (volume.restrict ((Set.Ioc a (a + T)))) := by
-  rw [eLpNorm_liftIoc _ _ hf, eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ioc]
+  rw [← map_subtypeVal_map_equivIoc_volume T a,
+    Measure.map_map measurable_subtype_coe (measurable_equivIoc T a),
+    MeasurableEmbedding.eLpNorm_map_measure]
+  · rfl
+  exact (MeasurableEmbedding.subtype_coe measurableSet_Ioc).comp
+    (measurableEquivIoc' T a).measurableEmbedding
+
+/-- The norm of the lift of a function `f` is equal to the norm of `f` on that period. -/
+theorem eLpNorm_liftIoc (p : ℝ≥0∞) :
+    eLpNorm (AddCircle.liftIoc T a f) p = eLpNorm ((Set.Ioc a (a + T)).indicator f) p := by
+  rw [eLpNorm_liftIoc', eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ioc]
 
 /-- The norm of the lift of a function `f` is equal to the norm of `f` on that period. -/
 theorem eLpNorm_liftIco (p : ℝ≥0∞) :
     eLpNorm (AddCircle.liftIco T a f) p = eLpNorm ((Set.Ico a (a + T)).indicator f) p := by
-  rw [eLpNorm_congr_ae (liftIoc_ae_eq_liftIco f).symm, eLpNorm_liftIoc T a hf,
+  rw [eLpNorm_congr_ae (liftIoc_ae_eq_liftIco f).symm, eLpNorm_liftIoc T a,
     eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ico,
     eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ioc, restrict_Ico_eq_restrict_Ioc]
 
 /-- The norm of the lift of a function `f` is equal to the norm of `f` on that period. -/
 theorem eLpNorm_liftIco' (p : ℝ≥0∞) :
     eLpNorm (AddCircle.liftIco T a f) p = eLpNorm f p (volume.restrict (Set.Ico a (a + T))) := by
-  rw [eLpNorm_liftIco _ _ hf, eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ico]
+  rw [eLpNorm_liftIco, eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ico]
 
 /-- The norm of the lift of a periodic function `f` is equal to the norm of `f` on any period. -/
 theorem eLpNorm_liftIoc_of_periodic (hfT : Periodic f T) (p : ℝ≥0∞) :
     eLpNorm (AddCircle.liftIoc T a f) p = eLpNorm ((Set.Ioc a' (a' + T)).indicator f) p := by
-  rw [liftIoc_eq_liftIoc a a' hfT, eLpNorm_liftIoc T a' hf p]
+  rw [liftIoc_eq_liftIoc a a' hfT, eLpNorm_liftIoc T a' p]
 
 /-- The norm of the lift of a periodic function `f` is equal to the norm of `f` on any period. -/
 theorem eLpNorm_liftIoc_of_periodic' (hfT : Periodic f T) (p : ℝ≥0∞) :
     eLpNorm (AddCircle.liftIoc T a f) p = eLpNorm f p (volume.restrict (Set.Ioc a' (a' + T))) := by
-  rw [eLpNorm_liftIoc_of_periodic T a a' hf hfT,
+  rw [eLpNorm_liftIoc_of_periodic T a a' hfT,
     eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ioc]
 
 /-- The norm of the lift of a periodic function `f` is equal to the norm of `f` on any period. -/
 theorem eLpNorm_liftIco_of_periodic (hfT : Periodic f T) (p : ℝ≥0∞) :
     eLpNorm (AddCircle.liftIco T a f) p = eLpNorm ((Set.Ico a' (a' + T)).indicator f) p := by
-  rw [liftIco_eq_liftIco a a' hfT, eLpNorm_liftIco T a' hf p]
+  rw [liftIco_eq_liftIco a a' hfT, eLpNorm_liftIco T a' p]
 
 /-- The norm of the lift of a periodic function `f` is equal to the norm of `f` on any period. -/
 theorem eLpNorm_liftIco_of_periodic' (hfT : Periodic f T) (p : ℝ≥0∞) :
     eLpNorm (AddCircle.liftIco T a f) p = eLpNorm f p (volume.restrict (Set.Ico a' (a' + T))) := by
-  rw [eLpNorm_liftIco_of_periodic T a a' hf hfT,
+  rw [eLpNorm_liftIco_of_periodic T a a' hfT,
     eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ico]
 
 end eLpNorm

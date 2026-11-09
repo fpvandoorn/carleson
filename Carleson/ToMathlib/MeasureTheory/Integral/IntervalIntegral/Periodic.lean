@@ -69,9 +69,7 @@ theorem eLpNorm {T : ℝ} {s t : ℝ} {f : ℝ → ℂ} (periodic_f : f.Periodic
   wlog! hT : 0 < T
   · rw [Ioc_eq_empty (by simpa), Ioc_eq_empty (by simpa)]
   have : Fact (0 < T) := ⟨hT⟩
-  by_cases hf : AEStronglyMeasurable f
-  · rw [← AddCircle.eLpNorm_liftIoc' T t hf, AddCircle.eLpNorm_liftIoc_of_periodic' T t s hf periodic_f]
-  · simp [eLpNorm_of_not_aestronglyMeasurable, ← aestronglyMeasurable_iff periodic_f, hf]
+  rw [← AddCircle.eLpNorm_liftIoc' T t, AddCircle.eLpNorm_liftIoc_of_periodic' T t s periodic_f]
 
 /-
 theorem locallyIntegrable_of {T : ℝ} [hT : Fact (0 < T)] {f : ℝ → ℂ}
@@ -120,19 +118,15 @@ open Set ENNReal
 
 -- Analogous to `MeasureTheory.MemLp.memLp_liftIoc`
 theorem MeasureTheory.eLpNorm_eq_eLpNorm_liftIoc {T : ℝ} [hT : Fact (0 < T)] {t : ℝ} {f : ℝ → ℂ}
-  (hf : AEStronglyMeasurable f (volume.restrict (Ioc t (t + T)))) {p : ℝ≥0∞} :
-    eLpNorm f p (volume.restrict (Ioc t (t + T))) = eLpNorm (AddCircle.liftIoc T t f) p volume := by
-  simp only [AddCircle.liftIoc, Set.domRestrict_def, Function.comp_def]
-  rw [← Function.comp_def, eLpNorm_comp_measurePreserving (g := f) (p := p) hf]
-  refine .comp (measurePreserving_subtype_coe measurableSet_Ioc) ?_
-  exact AddCircle.measurePreserving_equivIoc T
+  {p : ℝ≥0∞} :
+    eLpNorm f p (volume.restrict (Ioc t (t + T))) = eLpNorm (AddCircle.liftIoc T t f) p volume :=
+  (AddCircle.eLpNorm_liftIoc' T t p).symm
 
 --TODO: find better name
 theorem MeasureTheory.eLpNorm_eq_eLpNorm_liftIoc' {T : ℝ} [hT : Fact (0 < T)] {t : ℝ}
-  {f : (AddCircle T) → ℂ} (hf : AEStronglyMeasurable f volume) {p : ℝ≥0∞} :
+  {f : (AddCircle T) → ℂ} {p : ℝ≥0∞} :
     eLpNorm (fun (x : ℝ) ↦ f x) p (volume.restrict (Ioc t (t + T))) = eLpNorm f p volume := by
   rw [eLpNorm_eq_eLpNorm_liftIoc]
-  · congr with x
-    unfold AddCircle.liftIoc
-    simp
-  apply hf.comp_measurePreserving (AddCircle.measurePreserving_mk T t)
+  congr with x
+  unfold AddCircle.liftIoc
+  simp

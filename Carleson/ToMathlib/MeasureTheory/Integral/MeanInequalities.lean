@@ -465,7 +465,6 @@ open Set AddCircle in
 lemma eLpNorm_Ioc_convolution_le_of_norm_le_mul_aux (a : ℝ) {T : ℝ} [hT : Fact (0 < T)]
     {p q r : ℝ≥0∞} (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
     {f : ℝ → E} {g : ℝ → E'} (hfT : f.Periodic T) (hgT : g.Periodic T)
-    (hf : AEStronglyMeasurable f) (hg : AEStronglyMeasurable g)
     (c : ℝ) (hL : ∀ (x y : ℝ), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (fun x ↦ ∫ y in a..a+T, L (f y) (g (x - y))) r (volume.restrict (Ioc a (a + T))) ≤
     .ofReal c * eLpNorm f p (volume.restrict (Ioc a (a + T))) *
@@ -473,19 +472,13 @@ lemma eLpNorm_Ioc_convolution_le_of_norm_le_mul_aux (a : ℝ) {T : ℝ} [hT : Fa
   calc
     _ = eLpNorm (liftIoc T a fun x ↦ ∫ (y : ℝ) in a..a + T, (L (f y)) (g (x - y))) r := by
       rw [← eLpNorm_liftIoc' T a]
-      · apply AEStronglyMeasurable.sub
-        · apply AEStronglyMeasurable.integral_prod_right' (f := fun z ↦ L (f z.2) (g (z.1 - z.2)))
-          apply L.aestronglyMeasurable_comp₂ hf.restrict.comp_snd
-          exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub _ _)
-        · have empty_interval := Set.Ioc_eq_empty_of_le ((le_add_iff_nonneg_right a).mpr hT.out.le)
-          simpa [empty_interval] using aestronglyMeasurable_const
     _ = eLpNorm (liftIoc T a f ⋆[L] liftIoc T a g) r := by
       rw [← liftIoc_convolution_liftIoc L a hfT hgT]
     _ ≤ .ofReal c * eLpNorm (liftIoc T a f) p * eLpNorm (liftIoc T a g) q := by
       exact eLpNorm_convolution_le_of_norm_le_mul L hp hq hr hpqr
         c (by intros; apply hL)
     _ = _ := by
-      rw [← eLpNorm_liftIoc' T a hf, ← eLpNorm_liftIoc' T a hg]
+      rw [← eLpNorm_liftIoc' T a, ← eLpNorm_liftIoc' T a]
 
 open Set AddCircle in
 /-- **Young's convolution inequality** on (a, a + T]: the `L^r` seminorm of the convolution
@@ -496,7 +489,6 @@ is replaced with a bound for `L` restricted to the ranges of `f` and `g`; see
 theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact (0 < T)]
     {p q r : ℝ≥0∞} (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
     {f : ℝ → E} {g : ℝ → E'} (hgT : g.Periodic T)
-    (hf : AEStronglyMeasurable f) (hg : AEStronglyMeasurable g)
     (c : ℝ) (hL : ∀ (x y : ℝ), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (fun x ↦ ∫ y in a..a+T, L (f y) (g (x - y))) r (volume.restrict (Ioc a (a + T))) ≤
     .ofReal c * eLpNorm f p (volume.restrict (Ioc a (a + T))) *
@@ -508,15 +500,10 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
         (volume.restrict (Ioc a (a + T))) ≤
       .ofReal c * eLpNorm f'' p (volume.restrict (Ioc a (a + T))) *
       eLpNorm g q (volume.restrict (Ioc a (a + T))) := by
-    apply eLpNorm_Ioc_convolution_le_of_norm_le_mul_aux L a hp hq hr hpqr hfT hgT _ hg
-    · intro x y
-      simp only [liftIoc, Function.comp_apply, domRestrict_apply, f'', f']
-      apply hL
-    have A : AEStronglyMeasurable f'
-        (Measure.map (fun (x : ℝ) ↦ (x : AddCircle T)) (volume : Measure ℝ)) :=
-      AEStronglyMeasurable.mono_ac (quasiMeasurePreserving_coe_addCircle T).absolutelyContinuous
-        (by fun_prop)
-    exact A.comp_measurable (by fun_prop)
+    apply eLpNorm_Ioc_convolution_le_of_norm_le_mul_aux L a hp hq hr hpqr hfT hgT
+    intro x y
+    simp only [liftIoc, Function.comp_apply, domRestrict_apply, f'', f']
+    apply hL
   convert this using 3 with x
   · rw [intervalIntegral.integral_of_le (by linarith [hT.out]),
       intervalIntegral.integral_of_le (by linarith [hT.out])]
@@ -533,13 +520,12 @@ of `T`-periodic functions over (a, a + T] is bounded by `‖L‖ₑ` times the p
 the `L^p` and `L^q` seminorms on that interval, where `1 / p + 1 / q = 1 / r + 1`. -/
 theorem eLpNorm_Ioc_convolution_le_enorm_mul (a : ℝ) {T : ℝ} [hT : Fact (0 < T)]
     {p q r : ℝ≥0∞} (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : ℝ → E} {g : ℝ → E'} (hgT : g.Periodic T)
-    (hf : AEStronglyMeasurable f) (hg : AEStronglyMeasurable g) :
+    {f : ℝ → E} {g : ℝ → E'} (hgT : g.Periodic T) :
     eLpNorm (fun x ↦ ∫ y in a..a+T, L (f y) (g (x - y))) r (volume.restrict (Ioc a (a + T))) ≤
     ‖L‖ₑ * eLpNorm f p (volume.restrict (Ioc a (a + T)))
       * eLpNorm g q (volume.restrict (Ioc a (a + T))) := by
   rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg L)]
-  exact eLpNorm_Ioc_convolution_le_of_norm_le_mul L a hp hq hr hpqr hgT hf hg ‖L‖ <| fun x y ↦
+  exact eLpNorm_Ioc_convolution_le_of_norm_le_mul L a hp hq hr hpqr hgT ‖L‖ <| fun x y ↦
     ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
 end ENNReal

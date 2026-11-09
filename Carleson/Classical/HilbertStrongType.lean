@@ -206,7 +206,7 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
   have lift_MemLp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
     rw [memLp_iff, haarAddCircle_eq_smul_volume,
       eLpNorm_smul_measure_of_ne_top (by trivial) _ _ (hmf.aestronglyMeasurable.liftIoc _ _),
-      eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
+      eLpNorm_liftIoc, smul_eq_mul, zero_add]
     apply ENNReal.mul_lt_top _ hf_L2
     rw [← ENNReal.ofReal_inv_of_pos Real.two_pi_pos]
     apply ENNReal.rpow_lt_top_of_nonneg ENNReal.toReal_nonneg ENNReal.ofReal_ne_top
@@ -220,9 +220,8 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
       AEStronglyMeasurable (liftIoc (2 * π) 0 g) haarAddCircle := by
     rw [haarAddCircle_eq_smul_volume]
     exact (hg.liftIoc _ _).smul_measure _
-  rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable,
-    ← eLpNorm_liftIoc _ _ partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable,
-    volume_eq_smul_haarAddCircle,
+  rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ (f := f),
+    ← eLpNorm_liftIoc _ _ (f := partialFourierSum n f), volume_eq_smul_haarAddCircle,
     eLpNorm_smul_measure_of_ne_top (by trivial) _ _ (haar_aesm hmf.aestronglyMeasurable),
     eLpNorm_smul_measure_of_ne_top (by trivial) _ _
       (haar_aesm partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable),
@@ -295,22 +294,21 @@ local instance : Fact (0 < 2 * π) where
 
 /-- Lemma 11.3.3.
 -/
-lemma young_convolution {f g : ℝ → ℝ} (hmf : AEMeasurable f)
-    (hmg : AEMeasurable g) (periodic_g : g.Periodic (2 * π)) :
+lemma young_convolution {f g : ℝ → ℝ} (periodic_g : g.Periodic (2 * π)) :
     eLpNorm (fun x ↦ ∫ y in (0)..2 * π, f y * g (x - y)) 2 (volume.restrict (Ioc 0 (2 * π))) ≤
       eLpNorm f 2 (volume.restrict (Ioc 0 (2 * π)))
       * eLpNorm g 1 (volume.restrict (Ioc 0 (2 * π))) := by
   have h2 : (1 : ℝ≥0∞) ≤ 2 := by exact one_le_two
   simpa [zero_add] using ENNReal.eLpNorm_Ioc_convolution_le_of_norm_le_mul
     (ContinuousLinearMap.mul ℝ ℝ) 0 h2 (le_refl 1) h2 (by rw [inv_one])
-    periodic_g hmf.aestronglyMeasurable hmg.aestronglyMeasurable 1 (by simp)
+    periodic_g 1 (by simp)
 
 end TwoPiPos
 
 /-- Lemma 11.3.4.
 -/
 lemma integrable_bump_convolution {f g : ℝ → ℝ}
-    (hf : MemLp f ∞ volume) (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π))
+    (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π))
     {r : ℝ} (hr : r ∈ Ioo 0 π) (hle : ∀ x, |g x| ≤ niceKernel r x) :
     eLpNorm (fun x ↦ ∫ y in (0)..2 * π, f y * g (x - y)) 2 (volume.restrict (Ioc 0 (2 * π))) ≤
     17 * eLpNorm f 2 (volume.restrict (Ioc 0 (2 * π))) := by
@@ -325,8 +323,7 @@ lemma integrable_bump_convolution {f g : ℝ → ℝ}
     apply ContinuousOn.intervalIntegrable_of_Icc hrπ.le
     have (x) (hx : x ∈ Icc r π) : x ^ 2 ≠ 0 := pow_ne_zero 2 (by linarith [mem_Icc.mp hx])
     fun_prop (disch := assumption)
-  grw [young_convolution hf.aestronglyMeasurable.aemeasurable hg.aestronglyMeasurable.aemeasurable
-    periodic_g, mul_comm]
+  grw [young_convolution periodic_g, mul_comm]
   gcongr
   have: eLpNorm g 1 (volume.restrict (Ioc 0 (2 * π))) ≠ ⊤ := by
     grw [← lt_top_iff_ne_top,
@@ -820,7 +817,7 @@ lemma eLpNorm_czOperator_restrict_two_three_of_support_subset {g : ℝ → ℂ} 
     gcongr
     · simp [enorm]
     have W := integrable_bump_convolution (f := fun x ↦ ‖g x‖) (g := fun x ↦ niceKernel r x)
-      hg.norm ?_ ?_ ?_ (r := r) ?_
+      ?_ ?_ ?_ (r := r) ?_
     · simpa [intervalIntegral.integral_of_le I,
         eLpNorm_norm _ hg.aestronglyMeasurable.restrict] using W
     · apply memLp_top_of_bound (by fun_prop) (r⁻¹) (Eventually.of_forall (fun y ↦ ?_))
