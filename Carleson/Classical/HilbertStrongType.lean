@@ -195,18 +195,21 @@ open AddCircle in
 /-- Lemma 11.1.10.
 -/
 -- todo: add lemma that relates `eLpNorm ((Ioc a b).indicator f)` to `∫ x in a..b, _`
-lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable f) :
+lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} :
     eLpNorm ((Ioc 0 (2 * π)).indicator (partialFourierSum n f)) 2 ≤
     eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 := by
   -- Proof by massaging the statement of `spectral_projection_bound_lp` into this.
   by_cases! hf_L2 : eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 = ⊤
   · rw [hf_L2]
     exact OrderTop.le_top _
+  have hlift : AEStronglyMeasurable (liftIoc (2 * π) 0 f) := by
+    apply aestronglyMeasurable_of_eLpNorm_ne_top (p := 2)
+    rwa [eLpNorm_liftIoc, zero_add]
   rw [← lt_top_iff_ne_top] at hf_L2
   have lift_MemLp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
     rw [memLp_iff, haarAddCircle_eq_smul_volume,
-      eLpNorm_smul_measure_of_ne_top (by trivial) _ _ (hmf.aestronglyMeasurable.liftIoc _ _),
-      eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
+      eLpNorm_smul_measure_of_ne_top (by trivial) _ _ hlift, eLpNorm_liftIoc, smul_eq_mul,
+      zero_add]
     apply ENNReal.mul_lt_top _ hf_L2
     rw [← ENNReal.ofReal_inv_of_pos Real.two_pi_pos]
     apply ENNReal.rpow_lt_top_of_nonneg ENNReal.toReal_nonneg ENNReal.ofReal_ne_top
@@ -216,16 +219,15 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : AEMeasurable 
   rw [Lp.norm_def, Lp.norm_def,
     ENNReal.toReal_le_toReal (Lp.eLpNorm_ne_top (partialFourierSumLp 2 n F)) (Lp.eLpNorm_ne_top F)]
     at lp_version
-  have haar_aesm {g : ℝ → ℂ} (hg : AEStronglyMeasurable g) :
-      AEStronglyMeasurable (liftIoc (2 * π) 0 g) haarAddCircle := by
+  have haar_aesm {g : AddCircle (2 * π) → ℂ} (hg : AEStronglyMeasurable g) :
+      AEStronglyMeasurable g haarAddCircle := by
     rw [haarAddCircle_eq_smul_volume]
-    exact (hg.liftIoc _ _).smul_measure _
-  rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable,
-    ← eLpNorm_liftIoc _ _ partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable,
-    volume_eq_smul_haarAddCircle,
-    eLpNorm_smul_measure_of_ne_top (by trivial) _ _ (haar_aesm hmf.aestronglyMeasurable),
+    exact hg.smul_measure _
+  rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ (f := f),
+    ← eLpNorm_liftIoc _ _ (f := partialFourierSum n f), volume_eq_smul_haarAddCircle,
+    eLpNorm_smul_measure_of_ne_top (by trivial) _ _ (haar_aesm hlift),
     eLpNorm_smul_measure_of_ne_top (by trivial) _ _
-      (haar_aesm partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable),
+      (haar_aesm (partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable.liftIoc _ _)),
     smul_eq_mul, smul_eq_mul, ENNReal.mul_le_mul_iff_right (by simp [Real.pi_pos]) (by finiteness)]
   have ae_eq_right : F =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 f := MemLp.coeFn_toLp _
   have ae_eq_left : partialFourierSumLp 2 n F =ᶠ[ae haarAddCircle]
@@ -262,7 +264,7 @@ private lemma eLpNorm_indicator_modulationOperator (g : ℝ → ℂ) (n : ℤ) (
 
 /-- Lemma 11.3.1.
 -/
-lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} (hmg : AEMeasurable g) :
+lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} :
     eLpNorm ((Ioc 0 (2 * π)).indicator (approxHilbertTransform n g)) 2 ≤
     eLpNorm ((Ioc 0 (2 * π)).indicator g) 2 := by
   unfold approxHilbertTransform
@@ -278,12 +280,12 @@ lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} (hmg : AEMeasura
   · simp [← ofReal_norm, Nat.sub_eq_of_eq_add (two_mul n)]
   refine Finset.sum_le_sum (fun i _ ↦ ?_)
   rw [eLpNorm_indicator_modulationOperator, ← eLpNorm_indicator_modulationOperator g (-i)]
-  exact spectral_projection_bound (hmg.modulationOperator (-i))
+  exact spectral_projection_bound
 
-lemma modulated_averaged_projection' {g : ℝ → ℂ} {n : ℕ} (hmg : AEMeasurable g) :
+lemma modulated_averaged_projection' {g : ℝ → ℂ} {n : ℕ} :
     eLpNorm (approxHilbertTransform n g) 2 (volume.restrict (Ioc 0 (2 * π))) ≤
     eLpNorm g 2 (volume.restrict (Ioc 0 (2 * π))) := by
-  convert modulated_averaged_projection (n := n) hmg using 1 <;>
+  convert modulated_averaged_projection (n := n) using 1 <;>
   exact (eLpNorm_indicator_eq_eLpNorm_restrict nullMeasurableSet_Ioc).symm
 
 /- Lemma 11.3.2 `periodic-domain-shift` is in Mathlib. -/
@@ -295,22 +297,21 @@ local instance : Fact (0 < 2 * π) where
 
 /-- Lemma 11.3.3.
 -/
-lemma young_convolution {f g : ℝ → ℝ} (hmf : AEMeasurable f)
-    (hmg : AEMeasurable g) (periodic_g : g.Periodic (2 * π)) :
+lemma young_convolution {f g : ℝ → ℝ} (periodic_g : g.Periodic (2 * π)) :
     eLpNorm (fun x ↦ ∫ y in (0)..2 * π, f y * g (x - y)) 2 (volume.restrict (Ioc 0 (2 * π))) ≤
       eLpNorm f 2 (volume.restrict (Ioc 0 (2 * π)))
       * eLpNorm g 1 (volume.restrict (Ioc 0 (2 * π))) := by
   have h2 : (1 : ℝ≥0∞) ≤ 2 := by exact one_le_two
   simpa [zero_add] using ENNReal.eLpNorm_Ioc_convolution_le_of_norm_le_mul
     (ContinuousLinearMap.mul ℝ ℝ) 0 h2 (le_refl 1) h2 (by rw [inv_one])
-    periodic_g hmf.aestronglyMeasurable hmg.aestronglyMeasurable 1 (by simp)
+    periodic_g 1 (by simp)
 
 end TwoPiPos
 
 /-- Lemma 11.3.4.
 -/
 lemma integrable_bump_convolution {f g : ℝ → ℝ}
-    (hf : MemLp f ∞ volume) (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π))
+    (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π))
     {r : ℝ} (hr : r ∈ Ioo 0 π) (hle : ∀ x, |g x| ≤ niceKernel r x) :
     eLpNorm (fun x ↦ ∫ y in (0)..2 * π, f y * g (x - y)) 2 (volume.restrict (Ioc 0 (2 * π))) ≤
     17 * eLpNorm f 2 (volume.restrict (Ioc 0 (2 * π))) := by
@@ -325,8 +326,7 @@ lemma integrable_bump_convolution {f g : ℝ → ℝ}
     apply ContinuousOn.intervalIntegrable_of_Icc hrπ.le
     have (x) (hx : x ∈ Icc r π) : x ^ 2 ≠ 0 := pow_ne_zero 2 (by linarith [mem_Icc.mp hx])
     fun_prop (disch := assumption)
-  grw [young_convolution hf.aestronglyMeasurable.aemeasurable hg.aestronglyMeasurable.aemeasurable
-    periodic_g, mul_comm]
+  grw [young_convolution periodic_g, mul_comm]
   gcongr
   have: eLpNorm g 1 (volume.restrict (Ioc 0 (2 * π))) ≠ ⊤ := by
     grw [← lt_top_iff_ne_top,
@@ -490,7 +490,7 @@ lemma eLpNorm_convolution_dirichletApprox {g : ℝ → ℂ} {n : ℕ} (hg : MemL
     apply ENNReal.ofReal_le_of_le_toReal
     simp only [ENNReal.toReal_ofNat]
     linarith [Real.pi_lt_d2]
-  · apply modulated_averaged_projection' hg.aestronglyMeasurable.aemeasurable
+  · apply modulated_averaged_projection'
 
 /- To proceed, we will rewrite `dirichletApprox` as the sum of two terms: one is the kernel
 of the Hilbert transform, and the other one will be uniformly bounded in `L^1` (and therefore
@@ -820,7 +820,7 @@ lemma eLpNorm_czOperator_restrict_two_three_of_support_subset {g : ℝ → ℂ} 
     gcongr
     · simp [enorm]
     have W := integrable_bump_convolution (f := fun x ↦ ‖g x‖) (g := fun x ↦ niceKernel r x)
-      hg.norm ?_ ?_ ?_ (r := r) ?_
+      ?_ ?_ ?_ (r := r) ?_
     · simpa [intervalIntegral.integral_of_le I,
         eLpNorm_norm _ hg.aestronglyMeasurable.restrict] using W
     · apply memLp_top_of_bound (by fun_prop) (r⁻¹) (Eventually.of_forall (fun y ↦ ?_))

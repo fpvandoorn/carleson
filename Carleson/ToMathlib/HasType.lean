@@ -145,7 +145,7 @@ lemma HasStrongType.memLp (h : HasStrongType T p p' μ ν c) (hf₁ : MemLp f₁
 
 lemma HasStrongType.hasWeakType (hp' : 0 < p')
     (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
-  fun f hf ↦ ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
+  fun f hf ↦ ⟨(h f hf).1, wnorm_le_eLpNorm hp' |>.trans (h f hf).2⟩
 
 lemma HasStrongType.toReal {T : (α → ε₁) → (α' → ℝ≥0∞)} (h : HasStrongType T p p' μ ν c) :
     HasStrongType (T · · |>.toReal) p p' μ ν c :=
@@ -200,7 +200,7 @@ lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 0 < p')
     (h : HasBoundedStrongType T p p' μ ν c) :
     HasBoundedWeakType T p p' μ ν c :=
   fun f hf ↦
-    ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
+    ⟨(h f hf).1, wnorm_le_eLpNorm hp' |>.trans (h f hf).2⟩
 
 set_option backward.isDefEq.respectTransparency false in
 lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞}
@@ -226,10 +226,10 @@ lemma hasStrongType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormed
   · intro h f hf
     have hf' := MemLorentz_iff_MemLp.mp hf
     have := h f hf'
-    rwa [eLorentzNorm_eq_eLpNorm this.1, eLorentzNorm_eq_eLpNorm hf'.aestronglyMeasurable]
+    rwa [eLorentzNorm_eq_eLpNorm, eLorentzNorm_eq_eLpNorm]
   · intro h f hf
     have := h f (MemLorentz_iff_MemLp.mpr hf)
-    rwa [← eLorentzNorm_eq_eLpNorm this.1, ← eLorentzNorm_eq_eLpNorm hf.aestronglyMeasurable]
+    rwa [← eLorentzNorm_eq_eLpNorm, ← eLorentzNorm_eq_eLpNorm]
 
 lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂]
   {T : (α → ε₁) → (α' → ε₂)} {c : ℝ≥0∞} :
@@ -237,10 +237,10 @@ lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAd
   constructor
   · intro h f hf
     have hf' := MemLorentz_iff_MemLp.mp hf
-    rw [eLorentzNorm_eq_eLpNorm hf'.aestronglyMeasurable]
+    rw [eLorentzNorm_eq_eLpNorm]
     exact h f hf'
   · intro h f hf
-    rw [← eLorentzNorm_eq_eLpNorm hf.aestronglyMeasurable]
+    rw [← eLorentzNorm_eq_eLpNorm]
     exact h f (MemLorentz_iff_MemLp.mpr hf)
 
 end HasLorentzType
@@ -296,7 +296,7 @@ lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
   intro f hf
   refine ⟨(h f hf).1.const_smul k, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' (h f hf).1 _ (ε' := ε')
+    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' _ (ε' := ε')
     _ ≤ k * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2
@@ -310,7 +310,7 @@ lemma HasWeakType.const_smul' [IsBoundedSMul 𝕜 E'] {T : (α → ε) → (α' 
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le' hp' (h f hf).1]
+    _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le' hp']
     _ ≤ ‖k‖ₑ * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2

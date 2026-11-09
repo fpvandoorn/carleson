@@ -213,8 +213,10 @@ lemma iSup_mul_distribution_rpow_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p
   gcongr
   exact fun x ↦ le_of_lt x
 
-lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0 < p) :
+lemma wnorm_le_eLpNorm {p : ℝ≥0∞} (hp : 0 < p) :
     wnorm f p μ ≤ eLpNorm f p μ := by
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · simp [eLpNorm_of_not_aestronglyMeasurable hf]
   by_cases h : p = ⊤
   · simp [h, wnorm_top hf, eLpNorm_exponent_top hf]
   · rw [wnorm_eq_iSup_mul_distribution_rpow hf hp.ne' h, eLpNorm_eq_eLpNorm' hp.ne' h hf]
@@ -235,8 +237,12 @@ variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [NormSMulClass 𝕜 E
 
 variable {ε' : Type*} [TopologicalSpace ε'] [ESeminormedAddCommMonoid ε']
   [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε'] [ContinuousConstSMul ℝ≥0 ε'] in
-lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (hf : AEStronglyMeasurable f μ) (k : ℝ≥0) :
+lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
     wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · by_cases k_zero : k = 0
+    · simp [k_zero, wnorm]
+    · simp [wnorm_of_not_aestronglyMeasurable hf, k_zero]
   by_cases ptop : p = ⊤
   · simpa [ptop, wnorm_top hf, wnorm_top (hf.const_smul k)] using eLpNormEssSup_const_nnreal_smul_le
   simp only [wnorm_eq_iSup_mul_distribution_rpow (hf.const_smul k) hp ptop,
@@ -257,9 +263,12 @@ lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (hf : AEStronglyMeasur
   apply le_of_eq
   congr <;> exact (coe_div k_zero).symm
 
-lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E}
-    (hf : AEStronglyMeasurable f μ) (k : 𝕜) :
+lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E} (k : 𝕜) :
     wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · by_cases k_zero : k = 0
+    · simp [k_zero, wnorm]
+    · simp [wnorm_of_not_aestronglyMeasurable hf, k_zero]
   have hkf : AEStronglyMeasurable (k • f) μ := aestronglyMeasurable_const.smul hf
   by_cases ptop : p = ⊤
   · simpa [ptop, wnorm_top hf, wnorm_top hkf] using eLpNormEssSup_const_smul_le

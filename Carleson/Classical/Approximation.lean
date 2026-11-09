@@ -78,7 +78,7 @@ lemma close_smooth_approx_periodic_Lp {T : ℝ} [hT : Fact (0 < T)] {f : ℝ →
       · calc _
           _ = eLpNorm (f' - ⇑g) p volume := by
             nth_rw 1 [← zero_add T]
-            rw [eLpNorm_eq_eLpNorm_liftIoc (by rw [zero_add]; exact hf.aestronglyMeasurable.sub meas_h)]
+            rw [eLpNorm_eq_eLpNorm_liftIoc]
             congr with x
             unfold f' h
             rw [AddCircle.liftIoc, AddCircle.liftIoc]

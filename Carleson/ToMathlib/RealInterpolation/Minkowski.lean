@@ -695,8 +695,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hpq : sel j p₀ p₁ ≤ sel j q₀ q₁)
     (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤) (hp₀p₁ : p₀ < p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
-    (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
-    (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (fun x ↦ ‖f x‖ₑ).support))
+    (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hf₂ : SigmaFinite (μ.restrict (fun x ↦ ‖f x‖ₑ).support))
     (hspf : spf.σ = ζ p₀ q₀ p₁ q₁ t.toReal) :
     ∫⁻ s : ℝ in Ioi 0,
     eLpNorm (trnc j f ((spf_to_tc spf).ton (ENNReal.ofReal s))) (sel j p₀ p₁) μ ^ (sel j q₀ q₁).toReal *
@@ -726,6 +725,26 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     rcases j
     · exact hp₀.ne'
     · exact hp₁.ne'
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · have hq_ne : q ≠ sel j q₀ q₁ := by
+      rcases lt_or_gt_of_ne hq₀q₁ with hq₀q₁' | hq₁q₀
+      · have hq_mem := interp_exp_between hq₀ hq₁ hq₀q₁' ht hq
+        cases j
+        · exact hq_mem.1.ne'
+        · exact hq_mem.2.ne
+      · have hq_mem := interp_exp_between hq₁ hq₀ hq₁q₀ (mem_sub_Ioo one_ne_top ht)
+          (switch_exponents ht hq)
+        cases j
+        · exact hq_mem.2.ne
+        · exact hq_mem.1.ne'
+    have hq_toReal_ne : q.toReal - (sel j q₀ q₁).toReal ≠ 0 := by
+      rw [sub_ne_zero, ne_eq, toReal_eq_toReal_iff' (interp_exp_ne_top hq₀q₁ ht hq) hq']
+      exact hq_ne
+    rw [eLpNorm_of_not_aestronglyMeasurable hf, top_rpow_of_pos p_toReal_pos,
+      top_rpow_of_pos (by positivity), mul_top]
+    · exact le_top
+    exact mul_ne_zero (ENNReal.rpow_pos spf.hd spf.hd').ne'
+      (ofReal_pos.mpr (inv_pos.mpr (abs_pos.mpr hq_toReal_ne))).ne'
   calc
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
@@ -845,21 +864,24 @@ section
 
 variable [TopologicalSpace E₁] [ContinuousENorm E₁] {f : α → E₁}
 
-lemma eLpNorm_eq_zero_of_eLpNorm_eq_zero (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
+lemma eLpNorm_eq_zero_of_eLpNorm_eq_zero (hp : p ≠ 0) :
     eLpNorm f p μ = 0 → eLpNorm f q μ = 0 := by
   intro h
+  have hf : AEStronglyMeasurable f μ := aestronglyMeasurable_of_eLpNorm_ne_top (h ▸ zero_ne_top)
   by_cases hq : q = 0; · rw [hq, eLpNorm_exponent_zero hf]
   rwa [← eLpNorm_enorm _ hf, eLpNorm_eq_zero_iff hq, ← eLpNorm_eq_zero_iff hp, eLpNorm_enorm _ hf]
 
-lemma eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
+lemma eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero (hp : p ≠ 0) :
   eLpNorm f p μ = 0 → eLpNormEssSup f μ = 0 := by
+  intro h
+  have hf : AEStronglyMeasurable f μ := aestronglyMeasurable_of_eLpNorm_ne_top (h ▸ zero_ne_top)
   rw [← eLpNorm_exponent_top hf]
-  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hf hp a
+  exact eLpNorm_eq_zero_of_eLpNorm_eq_zero hp h
 
 lemma eLpNorm_eq_zero_of_eLpNormEssSup_eq_zero (hf : AEStronglyMeasurable f μ) :
   eLpNormEssSup f μ = 0 → eLpNorm f p μ = 0 := by
   rw [← eLpNorm_exponent_top hf]
-  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hf top_ne_zero a
+  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero top_ne_zero a
 
 end
 
@@ -870,13 +892,13 @@ lemma eLpNorm_trnc_est {f : α → E₁} {j : Bool} :
   j.rec eLpNorm_truncCompl_le_self eLpNorm_trunc_le_self
 
 variable [ESeminormedAddMonoid ε₁] [ContinuousENorm ε₂] in
-/-- If `T` has weaktype `p₀`-`p₁`, `f` is `AEStronglyMeasurable` and the `p`-norm of `f`
+/-- If `T` has weaktype `p₀`-`p₁` and the `p`-norm of `f`
 vanishes, then the `q`-norm of `T f` vanishes. -/
 lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)}
     {q₀ p : ℝ≥0∞} (p₀ q : ℝ≥0∞) (hq₀ : 0 < q₀) (hp : 0 < p)
     {C₀ : ℝ≥0} (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
-    (hf : AEStronglyMeasurable f μ) (hF : eLpNorm f p μ = 0) : eLpNorm (T f) q ν = 0 := by
-  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hf hp.ne' hF
+    (hF : eLpNorm f p μ = 0) : eLpNorm (T f) q ν = 0 := by
+  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hp.ne' hF
   have hf₁ : MemLp f p₀ μ := by simp [memLp_iff, hf₂]
   obtain ⟨hTf, this⟩ := h₀T f hf₁
   rw [hf₂, mul_zero] at this
@@ -945,7 +967,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
       rw [← snorm_zero]
       exact eLpNorm_trnc_est.trans_eq (eLpNorm_exponent_top hf.aestronglyMeasurable)
     have obs : eLpNorm (T' (trnc ⊥ f a)) ⊤ ν = 0 :=
-      weaktype_aux₀ p₀ ⊤ (hq₀ ▸ zero_lt_top) zero_lt_top h₀T hf.aestronglyMeasurable.truncCompl this
+      weaktype_aux₀ p₀ ⊤ (hq₀ ▸ zero_lt_top) zero_lt_top h₀T this
     exact nonpos_iff_eq_zero.mp ((distribution_mono_right
       ((eLpNormEssSup_le_eLpNorm_top.trans_eq obs).trans zero_le)).trans_eq meas_eLpNormEssSup_lt)
   · have p_pos : 0 < p := hp₀.trans hp₀p
@@ -953,7 +975,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
       intro snorm_0
       have : eLpNormEssSup f μ = 0 := by
         rw [← eLpNorm_exponent_top hf.aestronglyMeasurable]
-        exact eLpNorm_eq_zero_of_eLpNorm_eq_zero hf.aestronglyMeasurable p_pos.ne' snorm_0
+        exact eLpNorm_eq_zero_of_eLpNorm_eq_zero p_pos.ne' snorm_0
       exact snorm_pos.ne' this
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
       apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
@@ -1026,7 +1048,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
     · have snorm_p_pos : eLpNorm f p μ ≠ 0 := by
         by_contra snorm_0
         exact snorm_pos.ne' <|
-            eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero hf.aestronglyMeasurable hp.ne' snorm_0
+            eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero hp.ne' snorm_0
       -- XXX: these lines are the same as in the lemma above
       have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
         apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'

@@ -424,15 +424,35 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E} [TopologicalSpace E] [Continuo
     filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with a ha
     rw [ENNReal.ofReal_rpow_of_pos ha, ENNReal.ofReal_mul (by positivity)]
 
+lemma rewrite_norm_func_le {q : ℝ} {g : α' → E} [TopologicalSpace E] [ContinuousENorm E]
+    (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A) :
+    ∫⁻ x, ‖g x‖ₑ ^ q ∂ν ≤
+    ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s,
+    distribution g (ENNReal.ofReal (2 * A) * s) ν * s ^ (q - 1) := by
+  obtain ⟨h, hh, hhg, hh_eq⟩ :=
+    exists_measurable_le_lintegral_eq (μ := ν) fun x ↦ ‖g x‖ₑ ^ q
+  have h_eq (x : α') : ‖h x ^ q⁻¹‖ₑ ^ q = h x := by
+    rw [enorm_eq_self, ← ENNReal.rpow_mul, inv_mul_cancel₀ hq.ne', ENNReal.rpow_one]
+  have h_le (x : α') : ‖h x ^ q⁻¹‖ₑ ≤ ‖g x‖ₑ := by
+    calc
+    _ = h x ^ q⁻¹ := enorm_eq_self _
+    _ ≤ (‖g x‖ₑ ^ q) ^ q⁻¹ := by gcongr; exact hhg x
+    _ = ‖g x‖ₑ := by rw [← ENNReal.rpow_mul, mul_inv_cancel₀ hq.ne', ENNReal.rpow_one]
+  calc
+  _ = ∫⁻ x, ‖h x ^ q⁻¹‖ₑ ^ q ∂ν := by simp_rw [hh_eq, h_eq]
+  _ = _ := rewrite_norm_func hq hA (hh.pow_const _).aestronglyMeasurable
+  _ ≤ _ := by
+    gcongr
+    exact ae_of_all _ h_le
+
 lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
     [TopologicalSpace E₁] [ESeminormedAddMonoid E₁] [TopologicalSpace E₂] [ContinuousENorm E₂]
     (hq : 0 < q) (tc : StrictRangeToneCouple) {A : ℝ≥0} (hA : 0 < A)
-    (ht : SubadditiveTrunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
+    (ht : SubadditiveTrunc T A f ν) :
   ∫⁻ x : α', ‖T f x‖ₑ ^ q ∂ν ≤
   ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s, distribution (T (trunc f (tc.ton s))) s ν * s^(q - 1) +
   distribution (T (truncCompl f (tc.ton s))) s ν * s ^ (q - 1) := by
-  rw [rewrite_norm_func hq hA hTf]
-  refine mul_le_mul' (le_refl _) (lintegral_mono_ae ?_)
+  refine (rewrite_norm_func_le hq hA).trans (mul_le_mul' (le_refl _) (lintegral_mono_ae ?_))
   filter_upwards [ae_in_Ioo_zero_top] with a ha
   rw [ENNReal.ofReal_mul (by simp), ← add_mul]
   gcongr ?_ * _
@@ -719,8 +739,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   (hspf : spf = spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
       (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF)
   (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
-  (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
-  (h₂T : PreservesAEStrongMeasurability T p (ν := ν) (μ := μ)) :
+  (h₀T : HasWeakType T p₀ q₀ μ ν C₀) :
     ∫⁻ x , ‖T f x‖ₑ ^ q.toReal ∂ν ≤
     ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) *
     ((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
@@ -744,7 +763,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
       distribution (T (truncCompl f (tc.ton s))) s ν *
       s^(q.toReal - 1) :=
     estimate_norm_rpow_range_operator
-      (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁ hq) _ hA hT (h₂T hf)
+      (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁ hq) _ hA hT
   _ ≤ ENNReal.ofReal ((2 * A)^q.toReal * q.toReal) *
       ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s,
         eLpNorm (trunc f (tc.ton s)) p₁ μ ^ q₁.toReal *
@@ -806,7 +825,6 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           · exact hp₁.2
           · exact ne_top_of_Ioc hp₁ is_q₁top
           · exact is_q₁top.ne_top
-          · exact hf.aestronglyMeasurable
           · rw [hspf]; rfl
         · simp
       · split_ifs with is_q₀top
@@ -816,7 +834,6 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           · exact hp₀.2
           · exact ne_top_of_Ioc hp₀ is_q₀top
           · exact is_q₀top.ne_top
-          · exact hf.aestronglyMeasurable
           · rw [hspf]; rfl
         · simp
   _ = (if q₁ < ⊤ then 1 else 0) *
@@ -970,21 +987,19 @@ lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : 
     {C₀ : ℝ≥0}
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
     (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
-    (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
-    (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : MemLp f p μ)
-    (hF : eLpNorm f p μ = 0) :
+    (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (hF : eLpNorm f p μ = 0) :
     eLpNorm (T f) q ν = 0 := by
   have p_pos : 0 < p := interpolated_pos' hp₀.1 hp₁.1 (ne_top_of_Ioo ht) hp
   have q₀pos : 0 < q₀ := pos_of_rb_Ioc hp₀
   have q₁pos : 0 < q₁ := pos_of_rb_Ioc hp₁
   have q_pos : 0 < q := interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq
-  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hf.aestronglyMeasurable p_pos.ne' hF
+  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero p_pos.ne' hF
   have hf₁ : MemLp f p₀ μ := by rw [memLp_iff, hf₂]; exact zero_lt_top
   have := (h₀T f hf₁).2
   rw [hf₂, mul_zero] at this
   have wnorm_0 : wnorm (T f) q₀ ν = 0 := nonpos_iff_eq_zero.mp this
   have : (fun y ↦ ‖(T f) y‖ₑ) =ᵐ[ν] 0 := (wnorm_eq_zero_iff (h₀T f hf₁).1 q₀pos.ne').mp wnorm_0
-  rwa [← eLpNorm_enorm _ (h₂T hf), eLpNorm_eq_zero_iff q_pos.ne']
+  rwa [← eLpNorm_enorm _ (h₀T f hf₁).1, eLpNorm_eq_zero_iff q_pos.ne']
 
 /-- The estimate for the real interpolation theorem in case `p₀ < p₁`. -/
 lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0}
@@ -1101,7 +1116,6 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
     (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
-    (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p)
     (hf : MemLp f p μ) :
     eLpNorm (T f) q ν ≤
     q ^ q.toReal⁻¹ * (ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ * (if q₀ = ⊤ then 0 else 1) +
@@ -1122,7 +1136,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
     have coe_q : ENNReal.ofReal q.toReal = q :=
     ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
     nth_rw 1 [← coe_q]
-    rw [eLpNorm_eq_distribution (h₂T hf)
+    rw [eLpNorm_eq_distribution (h₀T f (p_eq_p₀ ▸ hf)).1
         (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁.ne hq)]
     calc
     (ENNReal.ofReal q.toReal *
@@ -1230,7 +1244,6 @@ lemma exists_hasStrongType_real_interpolation_aux₃ {p₀ p₁ q₀ q₁ p q : 
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
     (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
-    (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p)
     (hf : MemLp f p μ) :
     eLpNorm (T f) q ν ≤
     q ^ q.toReal⁻¹ * (ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ * (if q₀ = ⊤ then 0 else 1) +

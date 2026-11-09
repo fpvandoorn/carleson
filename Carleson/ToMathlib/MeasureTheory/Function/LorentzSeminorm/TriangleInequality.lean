@@ -69,8 +69,8 @@ theorem eLorentzNorm_add_le'' [ContinuousAdd ε] :
         + eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement g t μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))) := by
       rw [mul_assoc]
       congr
-      rw [← eLpNorm_withDensity_scale_constant' (a := 2) (by fun_prop) (by norm_num)]
-      nth_rw 2 [← eLpNorm_withDensity_scale_constant' (a := 2) (by fun_prop) (by norm_num)]
+      rw [← eLpNorm_withDensity_scale_constant' (a := 2) (by norm_num)]
+      nth_rw 2 [← eLpNorm_withDensity_scale_constant' (a := 2) (by norm_num)]
       simp only [coe_mul, coe_ofNat]
       conv in (2 * _) ^ p⁻¹.toReal => rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp)]
       conv in (2 * _) ^ p⁻¹.toReal => rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp)]
@@ -228,9 +228,12 @@ lemma eLorentzNorm'_eq_lintegral_lorentz_helper_mul (p_ne_zero : p ≠ 0) (p_ne_
   simp
 
 open ENNReal in
-theorem eLorentzNorm_add_le [SigmaFinite μ] [ContinuousAdd ε] (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
-     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
+theorem eLorentzNorm_add_le [SigmaFinite μ] [ContinuousAdd ε] (one_le_q : 1 ≤ q) (q_le_p : q ≤ p) :
       eLorentzNorm (f + g) p q μ ≤ eLorentzNorm f p q μ + eLorentzNorm g p q μ := by
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · simp [eLorentzNorm_of_not_aestronglyMeasurable hf]
+  by_cases hg : AEStronglyMeasurable g μ; swap
+  · simp [eLorentzNorm_of_not_aestronglyMeasurable hg]
   simp only [eLorentzNorm, hf, hg, hf.add hg, ↓reduceIte]
   split_ifs with p_zero p_top q_zero q_top
   · simp
@@ -311,15 +314,18 @@ theorem LorentzAddConst_lt_top : LorentzAddConst p q < ∞ := by
   · apply ENNReal.mul_lt_top _ (LpAddConst_lt_top _)
     exact ENNReal.rpow_lt_top_of_nonneg (by simp) (by norm_num)
 
-lemma eLorentzNorm_add_le' [SigmaFinite μ] [ContinuousAdd ε] (hf : AEStronglyMeasurable f μ)
-  (hg : AEStronglyMeasurable g μ) :
+lemma eLorentzNorm_add_le' [SigmaFinite μ] [ContinuousAdd ε] :
     eLorentzNorm (f + g) p q μ ≤ LorentzAddConst p q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
   unfold LorentzAddConst
   split_ifs with h
   · rcases h with p_zero | hr
-    · simp [p_zero, hf.add hg]
+    · by_cases hf : AEStronglyMeasurable f μ; swap
+      · simp [eLorentzNorm_of_not_aestronglyMeasurable hf]
+      by_cases hg : AEStronglyMeasurable g μ; swap
+      · simp [eLorentzNorm_of_not_aestronglyMeasurable hg]
+      simp [p_zero, hf.add hg]
     rw [one_mul]
-    exact eLorentzNorm_add_le hr.1 hr.2 hf hg
+    exact eLorentzNorm_add_le hr.1 hr.2
   · apply eLorentzNorm_add_le''
 
 lemma eLorentzNorm_add_lt_top [SigmaFinite μ] [ContinuousAdd ε] (hf : MemLorentz f p q μ)
@@ -327,7 +333,7 @@ lemma eLorentzNorm_add_lt_top [SigmaFinite μ] [ContinuousAdd ε] (hf : MemLoren
     eLorentzNorm (f + g) p q μ < ⊤ := by
   calc
     eLorentzNorm (f + g) p q μ ≤ LorentzAddConst p q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) :=
-      eLorentzNorm_add_le' hf.aestronglyMeasurable hg.aestronglyMeasurable
+      eLorentzNorm_add_le'
     _ < ∞ := by
       apply ENNReal.mul_lt_top LorentzAddConst_lt_top
       exact ENNReal.add_lt_top.2 ⟨hf, hg⟩
@@ -339,10 +345,16 @@ lemma MemLorentz.add [SigmaFinite μ] [ContinuousAdd ε] (hf : MemLorentz f p q 
 --currently unused
 open ENNReal in
 theorem eLorentzNorm_add_le_of_disjoint_support [ContinuousAdd ε]
-  (h : Disjoint f.support g.support) (hf : AEStronglyMeasurable f μ)
-  (hg : AEStronglyMeasurable g μ) :
+  (h : Disjoint f.support g.support) :
     eLorentzNorm (f + g) p q μ
       ≤ (LpAddConst p) * (LpAddConst q) * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
+  have hC : LpAddConst p * LpAddConst q ≠ 0 :=
+    mul_ne_zero (zero_lt_one.trans_le one_le_LpAddConst).ne'
+      (zero_lt_one.trans_le one_le_LpAddConst).ne'
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · simp [eLorentzNorm_of_not_aestronglyMeasurable hf, mul_top hC]
+  by_cases hg : AEStronglyMeasurable g μ; swap
+  · simp [eLorentzNorm_of_not_aestronglyMeasurable hg, mul_top hC]
   simp only [eLorentzNorm, hf, hg, hf.add hg, ↓reduceIte]
   have : eLpNormEssSup (f + g) μ ≤ LpAddConst p * LpAddConst q * (eLpNormEssSup f μ + eLpNormEssSup g μ) := by
     apply eLpNormEssSup_add_le.trans
