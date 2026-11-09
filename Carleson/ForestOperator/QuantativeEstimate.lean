@@ -400,7 +400,8 @@ private lemma density_tree_bound_aux (hf : BoundedCompactSupport f)
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * c * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   let ℰ := ⋃ p ∈ t u, E p
   have hgℰ : BoundedCompactSupport (ℰ.indicator g) :=
-    hg.indicator ((t u).toFinite.measurableSet_biUnion (fun _ _ ↦ measurableSet_E))
+    hg.indicator
+      ((t u).toFinite.measurableSet_biUnion (fun _ _ ↦ measurableSet_E)).nullMeasurableSet
   calc
     _ = ‖∫ x, conj (ℰ.indicator g x) * carlesonSum (t u) f x‖ₑ := by
       classical

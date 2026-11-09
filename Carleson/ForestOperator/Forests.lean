@@ -367,7 +367,8 @@ lemma adjointCarlesonRowSum_adjoint
     _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
 
 /-- Common proof structure for the two parts of Lemma 7.7.2. -/
-lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : MeasurableSet A) {C : ℝ≥0∞}
+lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : NullMeasurableSet A)
+    {C : ℝ≥0∞}
     (hC : ∀ u ∈ t.rowDecomp j,
       eLpNorm (A.indicator (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator g))) 2 ≤
       C * eLpNorm ((𝓘 u : Set X).indicator g) 2) :
@@ -376,10 +377,10 @@ lemma row_bound_common (hg : BoundedCompactSupport g) {A : Set X} (mA : Measurab
     ENNReal.rpow_natCast, ENNReal.rpow_natCast]
   let T (u : 𝔓 X) := adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator g)
   have bcsT (u : 𝔓 X) : BoundedCompactSupport (T u) :=
-    (hg.indicator coeGrid_measurable).adjointCarlesonSum
+    (hg.indicator coeGrid_measurable.nullMeasurableSet).adjointCarlesonSum
   let AT (u : 𝔓 X) := (𝓘 u : Set X).indicator (A.indicator (T u))
   have bcsAT (u : 𝔓 X) : BoundedCompactSupport (AT u) :=
-    ((bcsT u).indicator mA).indicator coeGrid_measurable
+    ((bcsT u).indicator mA).indicator coeGrid_measurable.nullMeasurableSet
   classical
   calc
     _ = eLpNorm (A.indicator (fun x ↦ ∑ u with u ∈ t.rowDecomp j,
@@ -465,11 +466,11 @@ lemma le_C7_7_2_2 (a4 : 4 ≤ a) :
 lemma row_bound (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) :
     eLpNorm (adjointCarlesonRowSum t j g) 2 volume ≤ C7_7_2_1 a n * eLpNorm g 2 volume := by
   rw [← indicator_univ (t.adjointCarlesonRowSum j g)]
-  refine row_bound_common hg MeasurableSet.univ fun u mu ↦ ?_
+  refine row_bound_common hg nullMeasurableSet_univ fun u mu ↦ ?_
   rw [indicator_univ]
   calc
     _ ≤ C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm ((𝓘 u : Set X).indicator g) 2 := by
-      apply adjoint_tree_estimate (hg.indicator coeGrid_measurable)
+      apply adjoint_tree_estimate (hg.indicator coeGrid_measurable.nullMeasurableSet)
       · rw [support_indicator]; exact inter_subset_right.trans h2g
       · exact mem_forest_of_mem mu
     _ ≤ C7_3_1_1 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ *
@@ -484,11 +485,11 @@ lemma row_bound (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) :
 lemma indicator_row_bound (hg : BoundedCompactSupport g) (h2g : support g ⊆ G) :
     eLpNorm (F.indicator (adjointCarlesonRowSum t j g)) 2 volume ≤
     C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
-  refine row_bound_common hg measurableSet_F fun u mu ↦ ?_
+  refine row_bound_common hg measurableSet_F.nullMeasurableSet fun u mu ↦ ?_
   calc
     _ ≤ C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
         eLpNorm ((𝓘 u : Set X).indicator g) 2 := by
-      apply indicator_adjoint_tree_estimate (hg.indicator coeGrid_measurable)
+      apply indicator_adjoint_tree_estimate (hg.indicator coeGrid_measurable.nullMeasurableSet)
       · rw [support_indicator]; exact inter_subset_right.trans h2g
       · exact mem_forest_of_mem mu
     _ ≤ C7_3_1_2 a * (2 ^ (4 * (a : ℝ) - n + 1)) ^ (2 : ℝ)⁻¹ * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ *
@@ -512,7 +513,7 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
   set U' : Finset (𝔓 X) := {u' | u' ∈ t.rowDecomp j'}
   have hm (u : 𝔓 X) :
       AEStronglyMeasurable (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f)) := by
-    have hf' := hf.indicator (coeGrid_measurable (i := 𝓘 u))
+    have hf' := hf.indicator (coeGrid_measurable (i := 𝓘 u)).nullMeasurableSet
     exact ((hf'.aestronglyMeasurable.adjointCarlesonSum.enorm.add
       measurable_maximalFunction.aemeasurable).add hf'.aestronglyMeasurable.enorm).aestronglyMeasurable
   calc
@@ -540,7 +541,8 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : f.support ⊆ G) 
     _ ≤ (∑ u ∈ U, (C7_4_3 a * eLpNorm ((𝓘 u : Set X).indicator f) 2 volume) ^ 2) ^ (2 : ℝ)⁻¹ := by
       gcongr with u mu
       rw [Finset.mem_filter_univ] at mu
-      apply adjoint_tree_control (mem_forest_of_mem mu) (hf.indicator coeGrid_measurable)
+      apply adjoint_tree_control (mem_forest_of_mem mu)
+        (hf.indicator coeGrid_measurable.nullMeasurableSet)
       rw [Set.support_indicator]
       exact inter_subset_right.trans nf
     _ ≤ C7_4_3 a * (eLpNorm f 2 volume ^ 2) ^ (2 : ℝ)⁻¹ := by
@@ -615,7 +617,8 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
       gcongr with u mu u' mu'
       rw [Finset.mem_filter_univ] at mu mu'
       refine correlation_separated_trees (mem_forest_of_mem mu) (mem_forest_of_mem mu') ?_
-        (hf₁.indicator coeGrid_measurable) (hf₂.indicator coeGrid_measurable)
+        (hf₁.indicator coeGrid_measurable.nullMeasurableSet)
+        (hf₂.indicator coeGrid_measurable.nullMeasurableSet)
       exact (pairwiseDisjoint_rowDecomp lj lj' hn).ne_of_mem mu mu'
     _ = C7_4_4 a n * ∑ w ∈ W, N₁ w * N₂ w := by
       rw [← Finset.sum_product', Finset.mul_sum]; congr! 1 with w mw; rw [mul_assoc]
@@ -759,7 +762,7 @@ lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.i
   have bg := bcs_of_measurable_of_le_indicator_g hg h2g
   let TR (j : ℕ) (x : X) := adjointCarlesonRowSum t j ((rowSupport t j).indicator g) x
   have bcsrsi (j : ℕ) : BoundedCompactSupport ((t.rowSupport j).indicator g) volume :=
-    bg.indicator measurableSet_rowSupport
+    bg.indicator measurableSet_rowSupport.nullMeasurableSet
   have bcsTR (j : ℕ) : BoundedCompactSupport (TR j) := by unfold TR adjointCarlesonRowSum; fun_prop
   calc
     _ = eLpNorm (∑ j ∈ Finset.range (2 ^ n), adjointCarlesonRowSum t j g ·) 2 ^ 2 := by
@@ -867,7 +870,8 @@ lemma forest_operator_f_prelude
         rw [h2g, zero_mul]
     _ ≤ _ := by
       have hm : BoundedCompactSupport (G.indicator (∑ u with u ∈ t, carlesonSum (t u) f ·)) :=
-        (BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator measurableSet_G
+        (BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator
+          measurableSet_G.nullMeasurableSet
       rw [← eLpNorm_enorm _ hg.aestronglyMeasurable, ← eLpNorm_enorm _ hm.aestronglyMeasurable]
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance (by fun_prop)
         hm.aestronglyMeasurable.enorm
@@ -879,7 +883,8 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
   set IGTf := G.indicator (carlesonRowSum t j f)
   have bIGTf : BoundedCompactSupport IGTf :=
-    (BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator measurableSet_G
+    (BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator
+      measurableSet_G.nullMeasurableSet
   suffices eLpNorm IGTf 2 ^ 2 ≤
       C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm IGTf 2 * eLpNorm f 2 by
     rcases eq_or_ne (eLpNorm IGTf 2) 0 with he | he
@@ -909,7 +914,7 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
     _ ≤ eLpNorm (F.indicator (adjointCarlesonRowSum t j IGTf)) 2 * eLpNorm f 2 := by
       have hm : BoundedCompactSupport (F.indicator (adjointCarlesonRowSum t j IGTf)) :=
         (BoundedCompactSupport.finset_sum fun _ _ ↦ bIGTf.adjointCarlesonSum).indicator
-          measurableSet_F
+          measurableSet_F.nullMeasurableSet
       rw [← eLpNorm_enorm _ hm.aestronglyMeasurable, ← eLpNorm_enorm _ bf.aestronglyMeasurable]
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
         hm.aestronglyMeasurable.enorm (by fun_prop)
@@ -928,7 +933,7 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
   let TR (j : ℕ) (x : X) := G.indicator ((rowSupport t j).indicator (carlesonRowSum t j f)) x
   have bcsTR (j : ℕ) : BoundedCompactSupport (TR j) :=
     ((BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator
-      measurableSet_rowSupport).indicator measurableSet_G
+      measurableSet_rowSupport.nullMeasurableSet).indicator measurableSet_G.nullMeasurableSet
   calc
     _ = eLpNorm (fun x ↦ G.indicator 1 x *
         ∑ u with u ∈ t, carlesonSum (t u) f x) 2 volume ^ 2 := by
