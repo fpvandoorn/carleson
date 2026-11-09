@@ -871,10 +871,12 @@ lemma eLpNorm_eq_zero_of_eLpNorm_eq_zero (hp : p ≠ 0) :
   by_cases hq : q = 0; · rw [hq, eLpNorm_exponent_zero hf]
   rwa [← eLpNorm_enorm _ hf, eLpNorm_eq_zero_iff hq, ← eLpNorm_eq_zero_iff hp, eLpNorm_enorm _ hf]
 
-lemma eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
+lemma eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero (hp : p ≠ 0) :
   eLpNorm f p μ = 0 → eLpNormEssSup f μ = 0 := by
+  intro h
+  have hf : AEStronglyMeasurable f μ := aestronglyMeasurable_of_eLpNorm_ne_top (h ▸ zero_ne_top)
   rw [← eLpNorm_exponent_top hf]
-  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hp a
+  exact eLpNorm_eq_zero_of_eLpNorm_eq_zero hp h
 
 lemma eLpNorm_eq_zero_of_eLpNormEssSup_eq_zero (hf : AEStronglyMeasurable f μ) :
   eLpNormEssSup f μ = 0 → eLpNorm f p μ = 0 := by
@@ -1046,7 +1048,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
     · have snorm_p_pos : eLpNorm f p μ ≠ 0 := by
         by_contra snorm_0
         exact snorm_pos.ne' <|
-            eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero hf.aestronglyMeasurable hp.ne' snorm_0
+            eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero hp.ne' snorm_0
       -- XXX: these lines are the same as in the lemma above
       have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
         apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
