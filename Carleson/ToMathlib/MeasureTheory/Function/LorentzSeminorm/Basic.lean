@@ -142,8 +142,10 @@ theorem eLorentzNorm_eq_zero_iff {f : α → ε}
 end ENormedAddMonoid
 
 variable {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] in
-lemma eLorentzNorm_eq_eLpNorm {f : α → ε} (hf : AEStronglyMeasurable f μ) :
+lemma eLorentzNorm_eq_eLpNorm {f : α → ε} :
     eLorentzNorm f p p μ = eLpNorm f p μ := by
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · rw [eLorentzNorm_of_not_aestronglyMeasurable hf, eLpNorm_of_not_aestronglyMeasurable hf]
   by_cases p_zero : p = 0
   · simp [p_zero, hf]
   by_cases p_eq_top : p = ∞
@@ -352,9 +354,8 @@ lemma eLorentzNorm_eq [TopologicalSpace ε] (p_nonzero : p ≠ 0) (p_ne_top : p 
   exact eLorentzNorm'_eq p_nonzero p_ne_top
 
 variable {ε' : Type*} [TopologicalSpace ε'] [ContinuousENorm ε'] in
-lemma MemLorentz_iff_MemLp {f : α → ε'} : MemLorentz f p p μ ↔ MemLp f p μ :=
-    ⟨fun h ↦ (eLorentzNorm_eq_eLpNorm h.aestronglyMeasurable).symm.trans_lt h,
-    fun h ↦ (eLorentzNorm_eq_eLpNorm h.aestronglyMeasurable).trans_lt h⟩
+lemma MemLorentz_iff_MemLp {f : α → ε'} : MemLorentz f p p μ ↔ MemLp f p μ := by
+  rw [memLorentz_iff, memLp_iff, eLorentzNorm_eq_eLpNorm]
 
 -- TODO: could maybe be strengthened to ↔
 lemma MemLorentz_of_MemLorentz_ge [TopologicalSpace ε]

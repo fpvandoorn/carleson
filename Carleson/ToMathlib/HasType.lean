@@ -226,10 +226,10 @@ lemma hasStrongType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormed
   · intro h f hf
     have hf' := MemLorentz_iff_MemLp.mp hf
     have := h f hf'
-    rwa [eLorentzNorm_eq_eLpNorm this.1, eLorentzNorm_eq_eLpNorm hf'.aestronglyMeasurable]
+    rwa [eLorentzNorm_eq_eLpNorm, eLorentzNorm_eq_eLpNorm]
   · intro h f hf
     have := h f (MemLorentz_iff_MemLp.mpr hf)
-    rwa [← eLorentzNorm_eq_eLpNorm this.1, ← eLorentzNorm_eq_eLpNorm hf.aestronglyMeasurable]
+    rwa [← eLorentzNorm_eq_eLpNorm, ← eLorentzNorm_eq_eLpNorm]
 
 lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAddMonoid ε₂]
   {T : (α → ε₁) → (α' → ε₂)} {c : ℝ≥0∞} :
@@ -237,10 +237,10 @@ lemma hasWeakType_iff_hasLorentzType [ESeminormedAddMonoid ε₁] [ESeminormedAd
   constructor
   · intro h f hf
     have hf' := MemLorentz_iff_MemLp.mp hf
-    rw [eLorentzNorm_eq_eLpNorm hf'.aestronglyMeasurable]
+    rw [eLorentzNorm_eq_eLpNorm]
     exact h f hf'
   · intro h f hf
-    rw [← eLorentzNorm_eq_eLpNorm hf.aestronglyMeasurable]
+    rw [← eLorentzNorm_eq_eLpNorm]
     exact h f (MemLorentz_iff_MemLp.mpr hf)
 
 end HasLorentzType
