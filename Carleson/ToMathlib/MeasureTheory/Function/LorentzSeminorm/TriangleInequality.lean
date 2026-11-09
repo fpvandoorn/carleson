@@ -345,10 +345,16 @@ lemma MemLorentz.add [SigmaFinite μ] [ContinuousAdd ε] (hf : MemLorentz f p q 
 --currently unused
 open ENNReal in
 theorem eLorentzNorm_add_le_of_disjoint_support [ContinuousAdd ε]
-  (h : Disjoint f.support g.support) (hf : AEStronglyMeasurable f μ)
-  (hg : AEStronglyMeasurable g μ) :
+  (h : Disjoint f.support g.support) :
     eLorentzNorm (f + g) p q μ
       ≤ (LpAddConst p) * (LpAddConst q) * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
+  have hC : LpAddConst p * LpAddConst q ≠ 0 :=
+    mul_ne_zero (zero_lt_one.trans_le one_le_LpAddConst).ne'
+      (zero_lt_one.trans_le one_le_LpAddConst).ne'
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · simp [eLorentzNorm_of_not_aestronglyMeasurable hf, mul_top hC]
+  by_cases hg : AEStronglyMeasurable g μ; swap
+  · simp [eLorentzNorm_of_not_aestronglyMeasurable hg, mul_top hC]
   simp only [eLorentzNorm, hf, hg, hf.add hg, ↓reduceIte]
   have : eLpNormEssSup (f + g) μ ≤ LpAddConst p * LpAddConst q * (eLpNormEssSup f μ + eLpNormEssSup g μ) := by
     apply eLpNormEssSup_add_le.trans
