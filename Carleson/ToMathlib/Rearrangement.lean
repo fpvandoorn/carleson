@@ -421,52 +421,25 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem' {ε} [TopologicalSpace ε] 
     exact min_lt_of_left_lt hT'
 
 lemma measure_enorm_eq_eq_volume_rearrangement_eq {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
-  {f : α → ε} (hf : AEStronglyMeasurable f μ) {a : ℝ≥0∞}
-  (ha : distribution f a μ ≠ ∞) (h : μ {x | ‖f x‖ₑ = a} = ⊤) :
+  {f : α → ε} {a : ℝ≥0∞} (ha : distribution f a μ ≠ ∞) (h : μ {x | ‖f x‖ₑ = a} = ⊤) :
     volume {x | rearrangement f x μ = a} = ⊤ := by
-  rw [← top_le_iff]
-  calc _
-    _ ≤ volume {x | rearrangement f (x + distribution f a μ) μ = a} := by
-      simp_rw [← rearrangement_indicator_superlevelSet_compl hf ha]
-      rw [← ENNReal.volume_Iio (a := ∞)]
-      gcongr
-      intro x hx
-      simp only [Set.mem_Iio, Set.mem_ofPred_eq] at *
-      apply le_antisymm
-      · rw [rearrangement_le_iff_distribution_le]
-        have :  distribution ((superlevelSet f a)ᶜ.indicator f) a μ = 0 := by
-          unfold distribution superlevelSet Set.indicator
-          rw [← measure_empty (μ := μ)]
-          congr 1
-          ext x
-          simp only [Set.mem_compl_iff, Set.mem_ofPred_eq, not_lt, Set.mem_empty_iff_false,
-            iff_false]
-          split_ifs
-          · assumption
-          · simp
-        rw [this]
-        simp
-      · unfold rearrangement
-        apply le_sInf
-        intro b
-        simp only [Set.mem_ofPred_eq]
-        contrapose!
-        intro hb
-        unfold distribution
-        apply hx.trans_le
-        rw [← h]
-        gcongr with x
-        intro hfa
-        unfold Set.indicator superlevelSet
-        split_ifs with h
-        · rwa [hfa]
-        · simp at h
-          order
-    _ = Measure.map (· + distribution f a μ) volume {x | rearrangement f x μ = a} := by
-      rw [Measure.map_apply (by measurability) (by measurability)]
-      congr
-    _ ≤ volume {x | rearrangement f x μ = a} := by
-      apply ENNReal.volume_map_add_right_le_self ha (by measurability)
+  rw [← top_le_iff, ← ENNReal.top_sub ha, ← ENNReal.volume_Ioo]
+  gcongr
+  intro x ⟨hx, hx'⟩
+  apply le_antisymm
+  · rw [rearrangement_le_iff_distribution_le]
+    exact hx.le
+  · apply le_sInf
+    intro b
+    simp only [Set.mem_ofPred_eq]
+    contrapose!
+    intro hb
+    apply hx'.trans_le
+    rw [← h]
+    unfold distribution
+    gcongr with y
+    intro hfa
+    rwa [hfa]
 
 lemma measure_enorm_mem_eq_volume_rearrangement_mem {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   {f : α → ε} (hf : AEStronglyMeasurable f μ) {s : Set ℝ≥0∞}
