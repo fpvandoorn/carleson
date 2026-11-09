@@ -228,9 +228,12 @@ lemma eLorentzNorm'_eq_lintegral_lorentz_helper_mul (p_ne_zero : p ≠ 0) (p_ne_
   simp
 
 open ENNReal in
-theorem eLorentzNorm_add_le [SigmaFinite μ] [ContinuousAdd ε] (one_le_q : 1 ≤ q) (q_le_p : q ≤ p)
-     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
+theorem eLorentzNorm_add_le [SigmaFinite μ] [ContinuousAdd ε] (one_le_q : 1 ≤ q) (q_le_p : q ≤ p) :
       eLorentzNorm (f + g) p q μ ≤ eLorentzNorm f p q μ + eLorentzNorm g p q μ := by
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · simp [eLorentzNorm_of_not_aestronglyMeasurable hf]
+  by_cases hg : AEStronglyMeasurable g μ; swap
+  · simp [eLorentzNorm_of_not_aestronglyMeasurable hg]
   simp only [eLorentzNorm, hf, hg, hf.add hg, ↓reduceIte]
   split_ifs with p_zero p_top q_zero q_top
   · simp
@@ -319,7 +322,7 @@ lemma eLorentzNorm_add_le' [SigmaFinite μ] [ContinuousAdd ε] (hf : AEStronglyM
   · rcases h with p_zero | hr
     · simp [p_zero, hf.add hg]
     rw [one_mul]
-    exact eLorentzNorm_add_le hr.1 hr.2 hf hg
+    exact eLorentzNorm_add_le hr.1 hr.2
   · apply eLorentzNorm_add_le''
 
 lemma eLorentzNorm_add_lt_top [SigmaFinite μ] [ContinuousAdd ε] (hf : MemLorentz f p q μ)
