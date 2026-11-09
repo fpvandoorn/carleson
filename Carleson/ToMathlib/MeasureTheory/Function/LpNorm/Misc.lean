@@ -42,11 +42,10 @@ lemma eLpNormEssSup_nnreal_scale_constant' {f : ℝ≥0 → ℝ≥0∞} {a : ℝ
   rw [NNReal.map_volume_mul_left h]
   apply Measure.ae_ennreal_smul_measure_eq (by simpa)
 
-lemma eLpNorm_withDensity_scale_constant' {f : ℝ≥0 → ℝ≥0∞} (hf : AEStronglyMeasurable f) {p : ℝ≥0∞}
-    {a : ℝ≥0} (h : a ≠ 0) :
+lemma eLpNorm_withDensity_scale_constant' {f : ℝ≥0 → ℝ≥0∞} {p : ℝ≥0∞} {a : ℝ≥0} (h : a ≠ 0) :
     eLpNorm (fun t ↦ f (a * t)) p (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) =
-      eLpNorm f p (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) :=
-  eLpNorm_comp_measurePreserving (hf.mono_ac (withDensity_absolutelyContinuous _ _))
-    (NNReal.measurePreserving_mul_left_withDensity_inv h)
+      eLpNorm f p (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := by
+  conv_rhs => rw [← (NNReal.measurePreserving_mul_left_withDensity_inv h).map_eq]
+  exact ((Homeomorph.mulLeft₀ a h).measurableEmbedding.eLpNorm_map_measure).symm
 
 end MeasureTheory

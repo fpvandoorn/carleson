@@ -69,8 +69,8 @@ theorem eLorentzNorm_add_le'' [ContinuousAdd ε] :
         + eLpNorm (fun (t : ℝ≥0) ↦ ↑t ^ p⁻¹.toReal * rearrangement g t μ) q (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))) := by
       rw [mul_assoc]
       congr
-      rw [← eLpNorm_withDensity_scale_constant' (a := 2) (by fun_prop) (by norm_num)]
-      nth_rw 2 [← eLpNorm_withDensity_scale_constant' (a := 2) (by fun_prop) (by norm_num)]
+      rw [← eLpNorm_withDensity_scale_constant' (a := 2) (by norm_num)]
+      nth_rw 2 [← eLpNorm_withDensity_scale_constant' (a := 2) (by norm_num)]
       simp only [coe_mul, coe_ofNat]
       conv in (2 * _) ^ p⁻¹.toReal => rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp)]
       conv in (2 * _) ^ p⁻¹.toReal => rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp)]
