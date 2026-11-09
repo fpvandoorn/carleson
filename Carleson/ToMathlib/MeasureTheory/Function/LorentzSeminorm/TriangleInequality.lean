@@ -1,9 +1,10 @@
 module
 
-public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Function.LorentzSeminorm.Rearrangement
 public import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 public import Carleson.ToMathlib.MeasureTheory.Integral.Misc
+public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 
 /-!
 # Triangle inequality for `Lorentz`-seminorm

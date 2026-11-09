@@ -971,7 +971,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
           eLpNorm f p μ ^ p.toReal) := by
         rw [ENNReal.mul_rpow_of_nonneg _ _ toReal_nonneg]
         gcongr
-        exact estimate_eLpNorm_truncCompl hp ⟨hp₀, hp₀p.le⟩ hf.aestronglyMeasurable a_pos
+        exact rpow_eLpNorm_truncCompl_le hp ⟨hp₀, hp₀p.le⟩ a_pos
       _ = (↑C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal * (d ^ p₀.toReal)⁻¹ * (t ^ p₀.toReal) := by
         rw [ha, ← ENNReal.rpow_mul, div_mul_cancel₀]
         · -- FIXME: can/should this be shared with the lemma below?

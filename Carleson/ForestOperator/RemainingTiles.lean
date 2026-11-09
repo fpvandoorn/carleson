@@ -839,19 +839,22 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
         mul_assoc, ← indicator_eq_indicator_one_mul]
     _ = ‖∫ x, conj (U.indicator f₁ x) *
         carlesonSum (t u₁) (U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂)) x‖ₑ := by
-      rw [← adjointCarlesonSum_adjoint (hf₂.adjointCarlesonSum.indicator coeGrid_measurable)
-        (hf₁.indicator coeGrid_measurable)]
+      rw [← adjointCarlesonSum_adjoint
+        (hf₂.adjointCarlesonSum.indicator coeGrid_measurable.nullMeasurableSet)
+        (hf₁.indicator coeGrid_measurable.nullMeasurableSet)]
     _ ≤ C7_2_1 a * eLpNorm (approxOnCube (𝓙 (t u₁))
           (‖U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂) ·‖)) 2 volume *
         eLpNorm (approxOnCube (𝓛 (t u₁)) (‖U.indicator f₁ ·‖)) 2 volume :=
-      tree_projection_estimate (hf₂.adjointCarlesonSum.indicator coeGrid_measurable)
-        (hf₁.indicator coeGrid_measurable) hu₁
+      tree_projection_estimate
+        (hf₂.adjointCarlesonSum.indicator coeGrid_measurable.nullMeasurableSet)
+        (hf₁.indicator coeGrid_measurable.nullMeasurableSet) hu₁
     _ ≤ C7_2_1 a *
         (C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ ·)) 2 volume) *
         eLpNorm (U.indicator f₁ ·) 2 volume := by
       rw [cntp_approxOnCube_eq hu₁]; gcongr
       · exact bound_for_tree_projection hu₁ hu₂ hu h2u hf₂
-      · exact eLpNorm_approxOnCube_two_le_self (hf₁.indicator coeGrid_measurable) pairwiseDisjoint_𝓛
+      · exact eLpNorm_approxOnCube_two_le_self
+          (hf₁.indicator coeGrid_measurable.nullMeasurableSet) pairwiseDisjoint_𝓛
     _ ≤ _ := by
       conv_rhs => rw [mul_comm (C7_4_6 a n : ℝ≥0∞), mul_rotate]
       rw [C7_4_6, ENNReal.coe_mul, ← mul_assoc]; gcongr
@@ -860,7 +863,8 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
         simp only [enorm_eq_self, enorm_indicator_eq_indicator_enorm, adjointBoundaryOperator]
         apply indicator_le_indicator
         rw [← add_rotate]; exact le_add_self
-      · refine eLpNorm_mono_enorm (hf₁.indicator coeGrid_measurable).aestronglyMeasurable fun x ↦ ?_
+      · refine eLpNorm_mono_enorm
+          (hf₁.indicator coeGrid_measurable.nullMeasurableSet).aestronglyMeasurable fun x ↦ ?_
         simp only [enorm_eq_self, enorm_indicator_eq_indicator_enorm, adjointBoundaryOperator]
         apply indicator_le_indicator
         exact le_add_self
