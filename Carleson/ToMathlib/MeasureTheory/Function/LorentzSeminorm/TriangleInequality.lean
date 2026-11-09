@@ -314,13 +314,16 @@ theorem LorentzAddConst_lt_top : LorentzAddConst p q < ∞ := by
   · apply ENNReal.mul_lt_top _ (LpAddConst_lt_top _)
     exact ENNReal.rpow_lt_top_of_nonneg (by simp) (by norm_num)
 
-lemma eLorentzNorm_add_le' [SigmaFinite μ] [ContinuousAdd ε] (hf : AEStronglyMeasurable f μ)
-  (hg : AEStronglyMeasurable g μ) :
+lemma eLorentzNorm_add_le' [SigmaFinite μ] [ContinuousAdd ε] :
     eLorentzNorm (f + g) p q μ ≤ LorentzAddConst p q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) := by
   unfold LorentzAddConst
   split_ifs with h
   · rcases h with p_zero | hr
-    · simp [p_zero, hf.add hg]
+    · by_cases hf : AEStronglyMeasurable f μ; swap
+      · simp [eLorentzNorm_of_not_aestronglyMeasurable hf]
+      by_cases hg : AEStronglyMeasurable g μ; swap
+      · simp [eLorentzNorm_of_not_aestronglyMeasurable hg]
+      simp [p_zero, hf.add hg]
     rw [one_mul]
     exact eLorentzNorm_add_le hr.1 hr.2
   · apply eLorentzNorm_add_le''
@@ -330,7 +333,7 @@ lemma eLorentzNorm_add_lt_top [SigmaFinite μ] [ContinuousAdd ε] (hf : MemLoren
     eLorentzNorm (f + g) p q μ < ⊤ := by
   calc
     eLorentzNorm (f + g) p q μ ≤ LorentzAddConst p q * (eLorentzNorm f p q μ + eLorentzNorm g p q μ) :=
-      eLorentzNorm_add_le' hf.aestronglyMeasurable hg.aestronglyMeasurable
+      eLorentzNorm_add_le'
     _ < ∞ := by
       apply ENNReal.mul_lt_top LorentzAddConst_lt_top
       exact ENNReal.add_lt_top.2 ⟨hf, hg⟩
