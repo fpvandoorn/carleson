@@ -263,9 +263,12 @@ lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
   apply le_of_eq
   congr <;> exact (coe_div k_zero).symm
 
-lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E}
-    (hf : AEStronglyMeasurable f μ) (k : 𝕜) :
+lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E} (k : 𝕜) :
     wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · by_cases k_zero : k = 0
+    · simp [k_zero, wnorm]
+    · simp [wnorm_of_not_aestronglyMeasurable hf, k_zero]
   have hkf : AEStronglyMeasurable (k • f) μ := aestronglyMeasurable_const.smul hf
   by_cases ptop : p = ⊤
   · simpa [ptop, wnorm_top hf, wnorm_top hkf] using eLpNormEssSup_const_smul_le
