@@ -987,9 +987,7 @@ lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : 
     {C₀ : ℝ≥0}
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
     (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
-    (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
-    (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : MemLp f p μ)
-    (hF : eLpNorm f p μ = 0) :
+    (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (hF : eLpNorm f p μ = 0) :
     eLpNorm (T f) q ν = 0 := by
   have p_pos : 0 < p := interpolated_pos' hp₀.1 hp₁.1 (ne_top_of_Ioo ht) hp
   have q₀pos : 0 < q₀ := pos_of_rb_Ioc hp₀
@@ -1001,7 +999,7 @@ lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : 
   rw [hf₂, mul_zero] at this
   have wnorm_0 : wnorm (T f) q₀ ν = 0 := nonpos_iff_eq_zero.mp this
   have : (fun y ↦ ‖(T f) y‖ₑ) =ᵐ[ν] 0 := (wnorm_eq_zero_iff (h₀T f hf₁).1 q₀pos.ne').mp wnorm_0
-  rwa [← eLpNorm_enorm _ (h₂T hf), eLpNorm_eq_zero_iff q_pos.ne']
+  rwa [← eLpNorm_enorm _ (h₀T f hf₁).1, eLpNorm_eq_zero_iff q_pos.ne']
 
 /-- The estimate for the real interpolation theorem in case `p₀ < p₁`. -/
 lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0}
