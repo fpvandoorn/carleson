@@ -959,8 +959,9 @@ lemma lintegral_rearrangement_eq_and {ε} [TopologicalSpace ε] [ContinuousENorm
   rw [iSup_and']
 
 lemma Antitone.lintegral_withDensity_le {f d : ℝ≥0∞ → ℝ≥0∞} (hf : Antitone f)
-  (hf' : AEMeasurable f) (hd : d ≤ 1) (hd' : AEMeasurable d) :
+  (hd : d ≤ 1) (hd' : AEMeasurable d) :
     ∫⁻ t, f t ∂volume.withDensity d ≤ ∫⁻ t in Set.Iio (∫⁻ t, d t), f t := by
+  have hf' : AEMeasurable f := hf.measurable.aemeasurable
   set T := ∫⁻ t, d t with T_def
   by_cases d_int : T = ⊤
   · rw [d_int, lintegral_withDensity_eq_lintegral_mul₀' hd' (by fun_prop)]
@@ -1097,7 +1098,7 @@ lemma lintegral_rearrangement_eq''' {ε} [TopologicalSpace ε] [ContinuousENorm 
   · simp only [iSup_le_iff]
     intro d d_le_one d_int
     apply (lintegral_withDensity_le_lintegral_rearrangement_withDensity hf sorry).trans --TODO: assume measurability for d?
-    apply (Antitone.lintegral_withDensity_le rearrangement_antitone (by fun_prop) _ (by fun_prop)).trans_eq
+    apply (Antitone.lintegral_withDensity_le rearrangement_antitone _ (by fun_prop)).trans_eq
     · congr
       rw [← d_int, lintegral_rearrangement sorry] --TODO: assume measurability for d?
       simp
