@@ -237,8 +237,12 @@ variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [NormSMulClass 𝕜 E
 
 variable {ε' : Type*} [TopologicalSpace ε'] [ESeminormedAddCommMonoid ε']
   [Module ℝ≥0 ε'] [ENormSMulClass ℝ≥0 ε'] [ContinuousConstSMul ℝ≥0 ε'] in
-lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (hf : AEStronglyMeasurable f μ) (k : ℝ≥0) :
+lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
     wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · by_cases k_zero : k = 0
+    · simp [k_zero, wnorm]
+    · simp [wnorm_of_not_aestronglyMeasurable hf, k_zero]
   by_cases ptop : p = ⊤
   · simpa [ptop, wnorm_top hf, wnorm_top (hf.const_smul k)] using eLpNormEssSup_const_nnreal_smul_le
   simp only [wnorm_eq_iSup_mul_distribution_rpow (hf.const_smul k) hp ptop,

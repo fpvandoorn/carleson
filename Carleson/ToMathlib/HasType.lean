@@ -296,7 +296,7 @@ lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
   intro f hf
   refine ⟨(h f hf).1.const_smul k, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' (h f hf).1 _ (ε' := ε')
+    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' _ (ε' := ε')
     _ ≤ k * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2
