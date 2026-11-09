@@ -892,12 +892,12 @@ lemma eLpNorm_trnc_est {f : α → E₁} {j : Bool} :
   j.rec eLpNorm_truncCompl_le_self eLpNorm_trunc_le_self
 
 variable [ESeminormedAddMonoid ε₁] [ContinuousENorm ε₂] in
-/-- If `T` has weaktype `p₀`-`p₁`, `f` is `AEStronglyMeasurable` and the `p`-norm of `f`
+/-- If `T` has weaktype `p₀`-`p₁` and the `p`-norm of `f`
 vanishes, then the `q`-norm of `T f` vanishes. -/
 lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)}
     {q₀ p : ℝ≥0∞} (p₀ q : ℝ≥0∞) (hq₀ : 0 < q₀) (hp : 0 < p)
     {C₀ : ℝ≥0} (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
-    (hf : AEStronglyMeasurable f μ) (hF : eLpNorm f p μ = 0) : eLpNorm (T f) q ν = 0 := by
+    (hF : eLpNorm f p μ = 0) : eLpNorm (T f) q ν = 0 := by
   have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hp.ne' hF
   have hf₁ : MemLp f p₀ μ := by simp [memLp_iff, hf₂]
   obtain ⟨hTf, this⟩ := h₀T f hf₁
@@ -967,7 +967,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
       rw [← snorm_zero]
       exact eLpNorm_trnc_est.trans_eq (eLpNorm_exponent_top hf.aestronglyMeasurable)
     have obs : eLpNorm (T' (trnc ⊥ f a)) ⊤ ν = 0 :=
-      weaktype_aux₀ p₀ ⊤ (hq₀ ▸ zero_lt_top) zero_lt_top h₀T hf.aestronglyMeasurable.truncCompl this
+      weaktype_aux₀ p₀ ⊤ (hq₀ ▸ zero_lt_top) zero_lt_top h₀T this
     exact nonpos_iff_eq_zero.mp ((distribution_mono_right
       ((eLpNormEssSup_le_eLpNorm_top.trans_eq obs).trans zero_le)).trans_eq meas_eLpNormEssSup_lt)
   · have p_pos : 0 < p := hp₀.trans hp₀p
