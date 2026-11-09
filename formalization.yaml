@@ -48,8 +48,9 @@ classification:
 # project status
 status:
   scope: "A general Carleson theorem for doubling measure metric spaces and Carleson's classical theorem for continuous periodic functions on the real line."
-  sorry_count: 2               # Note: these are only for the declaration carleson_hunt, not for the main theorems we prove
-  sorry_in_definitions: 1      # A constant of the Lorentz interpolation theorem.
+  sorry_count: 3
+  sorry_in_definitions: 1
+  known_gaps: "The only sorries outside the Comparator challenge files are three in Carleson/ToMathlib/RealInterpolation/LorentzInterpolation.lean: the definition C_LorentzInterpolation and the proofs of C_LorentzInterpolation_pos and exists_hasLorentzType_real_interpolation. Of the declarations in main_results, only carleson_hunt depends on them; the three theorems checked by Comparator do not."
   axioms: [propext, Classical.choice, Quot.sound]
   main_results:                # list the main results of the project
   - declaration: "metric_carleson"            # declaration proving this main result
