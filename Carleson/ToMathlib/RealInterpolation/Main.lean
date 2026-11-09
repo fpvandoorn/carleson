@@ -976,7 +976,7 @@ lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : 
   have q₀pos : 0 < q₀ := pos_of_rb_Ioc hp₀
   have q₁pos : 0 < q₁ := pos_of_rb_Ioc hp₁
   have q_pos : 0 < q := interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq
-  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hf.aestronglyMeasurable p_pos.ne' hF
+  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero p_pos.ne' hF
   have hf₁ : MemLp f p₀ μ := by rw [memLp_iff, hf₂]; exact zero_lt_top
   have := (h₀T f hf₁).2
   rw [hf₂, mul_zero] at this

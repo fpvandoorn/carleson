@@ -864,21 +864,22 @@ section
 
 variable [TopologicalSpace E₁] [ContinuousENorm E₁] {f : α → E₁}
 
-lemma eLpNorm_eq_zero_of_eLpNorm_eq_zero (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
+lemma eLpNorm_eq_zero_of_eLpNorm_eq_zero (hp : p ≠ 0) :
     eLpNorm f p μ = 0 → eLpNorm f q μ = 0 := by
   intro h
+  have hf : AEStronglyMeasurable f μ := aestronglyMeasurable_of_eLpNorm_ne_top (h ▸ zero_ne_top)
   by_cases hq : q = 0; · rw [hq, eLpNorm_exponent_zero hf]
   rwa [← eLpNorm_enorm _ hf, eLpNorm_eq_zero_iff hq, ← eLpNorm_eq_zero_iff hp, eLpNorm_enorm _ hf]
 
 lemma eLpNormEssSup_eq_zero_of_eLpNorm_eq_zero (hf : AEStronglyMeasurable f μ) (hp : p ≠ 0) :
   eLpNorm f p μ = 0 → eLpNormEssSup f μ = 0 := by
   rw [← eLpNorm_exponent_top hf]
-  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hf hp a
+  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hp a
 
 lemma eLpNorm_eq_zero_of_eLpNormEssSup_eq_zero (hf : AEStronglyMeasurable f μ) :
   eLpNormEssSup f μ = 0 → eLpNorm f p μ = 0 := by
   rw [← eLpNorm_exponent_top hf]
-  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero hf top_ne_zero a
+  exact fun a ↦ eLpNorm_eq_zero_of_eLpNorm_eq_zero top_ne_zero a
 
 end
 
@@ -895,7 +896,7 @@ lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)
     {q₀ p : ℝ≥0∞} (p₀ q : ℝ≥0∞) (hq₀ : 0 < q₀) (hp : 0 < p)
     {C₀ : ℝ≥0} (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (hf : AEStronglyMeasurable f μ) (hF : eLpNorm f p μ = 0) : eLpNorm (T f) q ν = 0 := by
-  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hf hp.ne' hF
+  have hf₂ : eLpNorm f p₀ μ = 0 := eLpNorm_eq_zero_of_eLpNorm_eq_zero hp.ne' hF
   have hf₁ : MemLp f p₀ μ := by simp [memLp_iff, hf₂]
   obtain ⟨hTf, this⟩ := h₀T f hf₁
   rw [hf₂, mul_zero] at this
@@ -972,7 +973,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
       intro snorm_0
       have : eLpNormEssSup f μ = 0 := by
         rw [← eLpNorm_exponent_top hf.aestronglyMeasurable]
-        exact eLpNorm_eq_zero_of_eLpNorm_eq_zero hf.aestronglyMeasurable p_pos.ne' snorm_0
+        exact eLpNorm_eq_zero_of_eLpNorm_eq_zero p_pos.ne' snorm_0
       exact snorm_pos.ne' this
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
       apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
