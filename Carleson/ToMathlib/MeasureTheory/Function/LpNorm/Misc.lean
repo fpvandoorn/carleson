@@ -31,17 +31,16 @@ lemma eLpNormEssSup_withDensity {μ : Measure α} {d : α → ℝ≥0∞} (hd : 
   · rw [Measure.ae_le_iff_absolutelyContinuous]
     apply withDensity_absolutelyContinuous' hd  hd'
 
-lemma eLpNormEssSup_nnreal_scale_constant' {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} (h : a ≠ 0)
-  (hf : AEStronglyMeasurable f) :
+lemma eLpNormEssSup_nnreal_scale_constant' {f : ℝ≥0 → ℝ≥0∞} {a : ℝ≥0} (h : a ≠ 0) :
     eLpNormEssSup (fun x ↦ f (a * x)) volume = eLpNormEssSup f volume := by
   calc _
     _ = eLpNormEssSup (f ∘ fun x ↦ a * x) volume := by congr
-  rw [← eLpNormEssSup_map_measure _ (by fun_prop)]
-  · apply eLpNormEssSup_congr_measure
-    rw [NNReal.map_volume_mul_left h]
-    apply Measure.ae_ennreal_smul_measure_eq (by simpa)
-  · rw [NNReal.map_volume_mul_left h]
-    apply AEStronglyMeasurable.smul_measure hf
+  have hφ : MeasurableEmbedding (fun x : ℝ≥0 ↦ a * x) :=
+    (Homeomorph.mulLeft₀ a h).measurableEmbedding
+  rw [← hφ.eLpNormEssSup_map_measure]
+  apply eLpNormEssSup_congr_measure
+  rw [NNReal.map_volume_mul_left h]
+  apply Measure.ae_ennreal_smul_measure_eq (by simpa)
 
 lemma eLpNorm_withDensity_scale_constant' {f : ℝ≥0 → ℝ≥0∞} (hf : AEStronglyMeasurable f) {p : ℝ≥0∞}
     {a : ℝ≥0} (h : a ≠ 0) :
