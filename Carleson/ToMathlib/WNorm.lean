@@ -213,8 +213,10 @@ lemma iSup_mul_distribution_rpow_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p
   gcongr
   exact fun x ↦ le_of_lt x
 
-lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0 < p) :
+lemma wnorm_le_eLpNorm {p : ℝ≥0∞} (hp : 0 < p) :
     wnorm f p μ ≤ eLpNorm f p μ := by
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · simp [eLpNorm_of_not_aestronglyMeasurable hf]
   by_cases h : p = ⊤
   · simp [h, wnorm_top hf, eLpNorm_exponent_top hf]
   · rw [wnorm_eq_iSup_mul_distribution_rpow hf hp.ne' h, eLpNorm_eq_eLpNorm' hp.ne' h hf]

@@ -145,7 +145,7 @@ lemma HasStrongType.memLp (h : HasStrongType T p p' μ ν c) (hf₁ : MemLp f₁
 
 lemma HasStrongType.hasWeakType (hp' : 0 < p')
     (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
-  fun f hf ↦ ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
+  fun f hf ↦ ⟨(h f hf).1, wnorm_le_eLpNorm hp' |>.trans (h f hf).2⟩
 
 lemma HasStrongType.toReal {T : (α → ε₁) → (α' → ℝ≥0∞)} (h : HasStrongType T p p' μ ν c) :
     HasStrongType (T · · |>.toReal) p p' μ ν c :=
@@ -200,7 +200,7 @@ lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 0 < p')
     (h : HasBoundedStrongType T p p' μ ν c) :
     HasBoundedWeakType T p p' μ ν c :=
   fun f hf ↦
-    ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
+    ⟨(h f hf).1, wnorm_le_eLpNorm hp' |>.trans (h f hf).2⟩
 
 set_option backward.isDefEq.respectTransparency false in
 lemma HasBoundedStrongType.const_smul {T : (α → ε₁) → α' → ℝ≥0∞}
