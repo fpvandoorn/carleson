@@ -15,10 +15,6 @@ import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
 open Finset Real ENNReal MeasureTheory AddCircle
 noncomputable section
 
-theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : ℤ} {f g : AddCircle T → ℂ}
-    (h : f =ᵐ[haarAddCircle] g) : fourierCoeff f n = fourierCoeff g n :=
-  congrFun (fourierCoeff_congr_ae h) n
-
 def partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) : C(AddCircle T, ℂ) :=
     ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourier n
 
@@ -84,15 +80,6 @@ lemma partialFourierSum'_eq_partialFourierSum_apply (N : ℕ) (f : AddCircle (2 
     simp
   rw [this, ← partialFourierSum_eq_partialFourierSum' N _, liftIoc_coe_apply (by simpa)]
 
-lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {p : ℝ≥0∞} [Fact (1 ≤ p)] {N : ℕ} {f g : AddCircle T → ℂ}
-    (h : f =ᶠ[ae haarAddCircle] g) : partialFourierSumLp p N f = partialFourierSumLp p N g := by
-  unfold partialFourierSumLp
-  congr
-  ext n : 1
-  congr 1
-  exact fourierCoeff_eq_fourierCoeff_of_aeeq h
-
-
 lemma partialFourierSum'_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ℝ≥0∞) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) :
     partialFourierSumLp p N f = MemLp.toLp (partialFourierSum' N f) ((partialFourierSum' N f).memLp haarAddCircle ℂ)  := by
   unfold partialFourierSumLp partialFourierSum'
@@ -105,10 +92,9 @@ lemma partialFourierSum'_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p
 
 lemma partialFourierSum_aeeq_partialFourierSumLp (p : ℝ≥0∞) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_Lp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle) :
     liftIoc (2 * π) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (MemLp.toLp (liftIoc (2 * π) 0 f) h_mem_Lp)) := by
-  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (MemLp.coeFn_toLp h_mem_Lp),
-    partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
-  symm
-  apply MemLp.coeFn_toLp
+  rw [partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
+  simp_rw [partialFourierSum', fourierCoeff_congr_ae (MemLp.coeFn_toLp h_mem_Lp)]
+  exact (MemLp.coeFn_toLp _).symm
 
 end TwoPiPos
 
