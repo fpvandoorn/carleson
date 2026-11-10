@@ -94,21 +94,18 @@ variable {𝕜 : Type u𝕜} {G : Type uG} [MeasurableSpace G] {μ : Measure G}
 variable [NormedAddCommGroup E] [NormedAddCommGroup E'] [NormedAddCommGroup F]
   {f : G → E} {g : G → E'}
 
--- Used in the proof of `enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm`
-open ENNReal in
-private lemma eLpNorm_eq_eLpNorm_rpow (h : G → E) (hh : AEStronglyMeasurable h μ) {r e : ℝ}
-    (r0 : 0 < r) (e0 : 0 < e) (re0 : 0 ≤ r - e) (μ0 : μ ≠ 0) :
-    eLpNorm (‖h ·‖ₑ ^ ((r - e) / r)) (ENNReal.ofReal (e * r) / ENNReal.ofReal (r - e)) μ =
-    eLpNorm h (ENNReal.ofReal e) μ ^ ((r - e) / r) := by
-  have er_pos : 0 < e * r := _root_.mul_pos e0 r0
-  by_cases exp_zero : 0 = r - e
-  · simp [eLpNorm, eLpNorm', ← exp_zero, er_pos.not_ge, eLpNormEssSup_const _ μ0,
-      aestronglyMeasurable_const]
-  have r_sub_e_pos : 0 < r - e := lt_of_le_of_ne re0 exp_zero
-  rw [eLpNorm_enorm_rpow h hh (div_pos r_sub_e_pos r0), ← ofReal_div_of_pos r_sub_e_pos,
-    ← ofReal_mul (by positivity)]
-  congr
-  field_simp
+private lemma eLpNorm_enorm_rpow_le (h : G → E) {r e : ℝ} (e0 : 0 < e) (re0 : 0 ≤ r - e) :
+    eLpNorm (‖h ·‖ₑ ^ ((r - e) / r)) (.ofReal (e⁻¹ - r⁻¹))⁻¹ μ ≤
+    eLpNorm h (.ofReal e) μ ^ ((r - e) / r) := by
+  rcases (sub_nonneg.mp re0).eq_or_lt with rfl | er
+  · simp [eLpNorm_exponent_top aestronglyMeasurable_const, eLpNormEssSup_le_of_ae_enorm_bound]
+  have r0 : 0 < r := e0.trans er
+  have hexp : 0 < (r - e) / r := div_pos (sub_pos.mpr er) r0
+  by_cases hh : AEStronglyMeasurable h μ; swap
+  · simp [eLpNorm_of_not_aestronglyMeasurable hh, top_rpow_of_pos hexp]
+  have : (r - e) / r / (e⁻¹ - r⁻¹) = e := by field_simp
+  rw [eLpNorm_enorm_rpow h hh hexp, ← ENNReal.div_eq_inv_mul,
+    ← ofReal_div_of_pos (sub_pos.mpr (inv_strictAnti₀ e0 er)), this]
 
 variable [NontriviallyNormedField 𝕜]
 
@@ -156,92 +153,73 @@ theorem eLpNorm_top_convolution_le [μ.IsNegInvariant] {p q : ℝ≥0∞} (hpq :
       simpa [eLpNorm_enorm _ hf, eLpNorm_enorm _ (hgx x), hg'] using
         mul_right_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf.enorm (hgx x).enorm)
 
-open ENNReal in
+omit [LocallyCompactSpace G] [SecondCountableTopology G] in
 /-- This inequality is used in the proof of Young's convolution inequality
 `eLpNorm_convolution_le_ofReal`. -/
 theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm
     [μ.IsNegInvariant] {p q r : ℝ}
-    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
+    (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1) {f : G → E} {g : G → E'}
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) (x : G) :
     ‖(f ⋆[L, μ] g) x‖ₑ ≤
       .ofReal c * eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (.ofReal r) μ *
       ((eLpNorm f (.ofReal p) μ) ^ ((r - p) / r) *
       (eLpNorm g (.ofReal q) μ) ^ ((r - q) / r)) := by
-  have hgx : AEStronglyMeasurable (g <| x - ·) μ :=
-    hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
-  by_cases! hc : c ≤ 0
-  · simp [convolution_zero_of_c_nonpos hL hc]
-  by_cases! μ0 : μ = 0
-  · simp [μ0, convolution]
-  let F (i : Fin 3) : G → ℝ≥0∞ :=
-    match i with
-    | 0 => fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)
-    | 1 => fun y ↦ ‖f y‖ₑ ^ ((r - p) / r)
-    | 2 => fun y ↦ ‖g (x - y)‖ₑ ^ ((r - q) / r)
-  let P : Fin 3 → ℝ≥0∞ :=
-    ![.ofReal r, .ofReal (p * r) / .ofReal (r - p), .ofReal (q * r) / .ofReal (r - q)]
-  have p0 : 0 < p := lt_of_lt_of_le one_pos hp
-  have q0 : 0 < q := lt_of_lt_of_le one_pos hq
-  have r0 : 0 < r := lt_of_lt_of_le one_pos hr
+  have p0 : 0 < p := one_pos.trans_le hp
+  have q0 : 0 < q := one_pos.trans_le hq
+  have r0 : 0 < r := one_pos.trans_le hr
   have rp0 : 0 ≤ r - p := r_sub_p_nonneg p0 hq r0 hpqr
-  have rq0 : 0 ≤ r - q := r_sub_p_nonneg q0 hp r0 <| add_comm p⁻¹ q⁻¹ ▸ hpqr
-  calc
-    _ ≤ ∫⁻ y, ‖L (f y) (g (x - y))‖ₑ ∂μ := by
-      exact enorm_integral_le_lintegral_enorm (fun y ↦ L (f y) (g (x - y)))
-    _ ≤ ∫⁻ y, .ofReal c * ‖f y‖ₑ * ‖g (x - y)‖ₑ ∂μ := by
-      refine lintegral_mono (fun y ↦ ?_)
-      rw [← enorm_norm, ← enorm_norm (f y), ← enorm_norm (g (x - y)), mul_assoc, ← enorm_mul]
-      rw [Real.enorm_of_nonneg (norm_nonneg _)]
-      rw [Real.enorm_of_nonneg (mul_nonneg (norm_nonneg _) (norm_nonneg _))]
-      rw [← ENNReal.ofReal_mul hc.le]
-      exact ENNReal.ofReal_le_ofReal <| le_of_le_of_eq (hL y (x - y)) (mul_assoc _ _ _)
-    _ = ∫⁻ y, ENNReal.ofReal c * ‖f y‖ₑ ^ (p / r + (r - p) / r) *
-                           ‖g (x - y)‖ₑ ^ (q / r + (r - q) / r) ∂μ := by
-      refine lintegral_congr (fun y ↦ ?_)
-      suffices p / r + (r - p) / r = 1 ∧ q / r + (r - q) / r = 1 by simp [this]
-      rw [← add_div, ← add_div, add_sub_cancel, add_sub_cancel, and_self, div_self r0.ne.symm]
-    _ = ∫⁻ y, ENNReal.ofReal c * (F 0) y * ((F 1) y * (F 2) y) ∂μ := by
-      refine lintegral_congr (fun y ↦ ?_)
-      simp_rw [F, mul_rpow_of_nonneg _ _ (one_div_nonneg.mpr (one_pos.le.trans hr))]
-      repeat rw [← ENNReal.rpow_mul, ENNReal.rpow_add_of_nonneg]
-      · ring_nf
-      all_goals positivity
-    _ = ∫⁻ y, ENNReal.ofReal c * ∏ i ∈ Finset.univ, (F i) y ∂μ := by
-      simp [mul_assoc, Fin.prod_univ_succ]
-    _ ≤ ENNReal.ofReal c * eLpNorm (F 0) (P 0) μ *
-          (eLpNorm (F 1) (P 1) μ * eLpNorm (F 2) (P 2) μ) := by
-      rw [lintegral_const_mul' _ _ ofReal_ne_top, mul_assoc]
+  have rq0 : 0 ≤ r - q := r_sub_p_nonneg q0 hp r0 (add_comm p⁻¹ q⁻¹ ▸ hpqr)
+  let F : Fin 3 → G → ℝ≥0∞ := ![fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r),
+    fun y ↦ ‖f y‖ₑ ^ ((r - p) / r), fun y ↦ ‖g (x - y)‖ₑ ^ ((r - q) / r)]
+  let P : Fin 3 → ℝ≥0∞ := ![.ofReal r, (.ofReal (p⁻¹ - r⁻¹))⁻¹, (.ofReal (q⁻¹ - r⁻¹))⁻¹]
+  have hP : ∑ i, (P i)⁻¹ = 1 := by
+    have hq' := inv_le_one_of_one_le₀ hq
+    have hp' := inv_le_one_of_one_le₀ hp
+    simp only [P, Fin.sum_univ_three, Matrix.cons_val, inv_inv]
+    rw [← ofReal_inv_of_pos r0, ← ofReal_add (inv_pos.mpr r0).le (by linarith),
+      ← ofReal_add (by linarith [inv_pos.mpr p0]) (by linarith), ← ofReal_one]
+    congr 1
+    linarith
+  have hgx : eLpNorm (g <| x - ·) (.ofReal q) μ = eLpNorm g (.ofReal q) μ := by
+    have := (measurableEmbedding_subLeft x).eLpNorm_map_measure (g := g) (p := .ofReal q) (μ := μ)
+    rw [(μ.measurePreserving_sub_left x).map_eq] at this
+    exact this.symm
+  calc ‖(f ⋆[L, μ] g) x‖ₑ
+    _ ≤ ∫⁻ y, ‖L (f y) (g (x - y))‖ₑ ∂μ := enorm_integral_le_lintegral_enorm _
+    _ ≤ ∫⁻ y, .ofReal c * (‖f y‖ₑ * ‖g (x - y)‖ₑ) ∂μ := by
+      refine lintegral_mono fun y ↦ ?_
+      calc ‖L (f y) (g (x - y))‖ₑ
+        _ ≤ .ofReal (c * (‖f y‖ * ‖g (x - y)‖)) := by
+          rw [← ofReal_norm, ← mul_assoc]
+          exact ofReal_le_ofReal (hL y (x - y))
+        _ = _ := by
+          rw [ofReal_mul' (mul_nonneg (norm_nonneg _) (norm_nonneg _)), ofReal_mul (norm_nonneg _),
+            ofReal_norm, ofReal_norm]
+    _ = ∫⁻ y, .ofReal c * ∏ i, F i y ∂μ := by
+      refine lintegral_congr fun y ↦ ?_
+      have r0' : 0 ≤ 1 / r := one_div_nonneg.mpr r0.le
+      have split (a : ℝ≥0∞) {e : ℝ} (e0 : 0 < e) (re0 : 0 ≤ r - e) :
+          a ^ (e * (1 / r)) * a ^ ((r - e) / r) = a := by
+        rw [← rpow_add_of_nonneg _ _ (mul_nonneg e0.le r0') (div_nonneg re0 r0.le), mul_one_div,
+          ← add_div, add_sub_cancel, div_self r0.ne', rpow_one]
+      calc .ofReal c * (‖f y‖ₑ * ‖g (x - y)‖ₑ)
+        _ = .ofReal c * ((‖f y‖ₑ ^ (p * (1 / r)) * ‖f y‖ₑ ^ ((r - p) / r)) *
+            (‖g (x - y)‖ₑ ^ (q * (1 / r)) * ‖g (x - y)‖ₑ ^ ((r - q) / r))) := by
+          rw [split _ p0 rp0, split _ q0 rq0]
+        _ = _ := by
+          simp only [F, Fin.prod_univ_three, Matrix.cons_val]
+          rw [mul_rpow_of_nonneg _ _ r0', ← rpow_mul, ← rpow_mul]
+          ring
+    _ ≤ .ofReal c * ∏ i, eLpNorm (F i) (P i) μ := by
+      rw [lintegral_const_mul' _ _ ofReal_ne_top]
       gcongr
-      suffices ∑ i, (P i)⁻¹ = 1 by
-        simpa [Fin.prod_univ_succ] using lintegral_prod_norm_pow_le' this
-      -- It remains to check ∑ (P i)⁻¹ = 1, which is trivial, aside from technicalities in `ℝ≥0∞`
-      simp_rw [Fin.sum_univ_succ, Fin.succ_zero_eq_one, Fin.succ_one_eq_two,
-        Finset.univ_eq_empty, Finset.sum_empty, add_zero, P, Matrix.cons_val_zero,
-        Matrix.cons_val_one, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons,
-        Matrix.cons_val_zero]
-      repeat rw [ENNReal.inv_div]
-      · rw [ofReal_sub r p0.le, ofReal_sub r q0.le, ofReal_mul p0.le, ofReal_mul q0.le]
-        repeat rw [ENNReal.sub_div (by simp [p0, q0, r0])]
-        nth_rewrite 2 5 [← one_mul (ENNReal.ofReal r)]
-        nth_rewrite 2 [← mul_one (ENNReal.ofReal p), ← mul_one (ENNReal.ofReal q)]
-        repeat rw [ENNReal.mul_div_mul_right _ _ (by simp [r0]) (by simp), one_div]
-        repeat rw [ENNReal.mul_div_mul_left _ _ (by simp [p0, q0]) (by simp), one_div]
-        rw [← ENNReal.ofReal_one, ← congr_arg ENNReal.ofReal (sub_eq_iff_eq_add'.mpr hpqr)]
-        rw [ofReal_sub _ (inv_pos.mpr r0).le, ← add_assoc]
-        rw [ofReal_add (inv_pos.mpr p0).le (inv_pos.mpr q0).le]
-        have : AddLECancellable (ENNReal.ofReal r)⁻¹ := ENNReal.cancel_of_ne (by simp [r0])
-        rw [← this.add_tsub_assoc_of_le, ← this.add_tsub_assoc_of_le, this.add_tsub_cancel_left]
-        · rw [ofReal_inv_of_pos p0, ofReal_inv_of_pos q0, ofReal_inv_of_pos r0]
-        all_goals exact ENNReal.inv_le_inv.mpr <| ofReal_le_ofReal (sub_nonneg.mp (by assumption))
-      all_goals simp [p0, q0, r0]
-    _ = _ := by
-      congr
-      · exact eLpNorm_eq_eLpNorm_rpow f hf r0 p0 rp0 μ0
-      · simp_rw [P, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons]
-        rw [eLpNorm_eq_eLpNorm_rpow (g <| x - ·) hgx r0 q0 rq0 μ0]
-        simp [eLpNorm, eLpNorm', hg, hgx,
-          lintegral_sub_left_eq_self (‖g ·‖ₑ ^ (ENNReal.ofReal q).toReal) x]
+      exact lintegral_prod_norm_pow_le' hP
+    _ ≤ _ := by
+      simp only [F, P, Fin.prod_univ_three, Matrix.cons_val, ← mul_assoc]
+      gcongr
+      · exact eLpNorm_enorm_rpow_le f p0 rp0
+      · rw [← hgx]
+        exact eLpNorm_enorm_rpow_le _ q0 rq0
 
 theorem eLpNorm_convolution_le_ofReal
     [μ.IsAddRightInvariant] {p q r : ℝ}
@@ -270,7 +248,7 @@ theorem eLpNorm_convolution_le_ofReal
       simp [eLpNorm, eLpNorm', hconv, r0, r0.le, r0.ne.symm]
     _ ≤ _ :=
       lintegral_mono <| fun x ↦ ENNReal.rpow_le_rpow (h₂ := r0.le) <|
-        enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm hp hq hr hpqr hf hg c hL x
+        enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm hp hq hr hpqr c hL x
     _ = (ENNReal.ofReal c) ^ r *
         (∫⁻ x, (eLpNorm (fun y ↦ (‖f y‖ₑ^p * ‖g (x-y)‖ₑ^q) ^ (1/r)) (ENNReal.ofReal r) μ) ^ r ∂μ) *
         (eLpNorm f (ENNReal.ofReal p) μ ^ (r - p) * eLpNorm g (ENNReal.ofReal q) μ ^ (r - q)) := by
