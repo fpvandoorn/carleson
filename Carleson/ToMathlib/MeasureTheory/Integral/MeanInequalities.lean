@@ -1,6 +1,7 @@
 module
 
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 public import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 
@@ -35,45 +36,12 @@ theorem Lp_add_le_sum
 -- Add after `lintegral_prod_norm_pow_le`
 /-- A version of Hölder with multiple arguments, allowing `∞` as an exponent. -/
 theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : Measure α}
-    {s : Finset ι} {f : ι → α → ℝ≥0∞} (hf : ∀ i ∈ s, AEMeasurable (f i) μ)
-    {p : ι → ℝ≥0∞} (hp : ∑ i ∈ s, (p i)⁻¹ = 1) :
+    {s : Finset ι} {f : ι → α → ℝ≥0∞} {p : ι → ℝ≥0∞} (hp : ∑ i ∈ s, (p i)⁻¹ = 1) :
     ∫⁻ (a : α), ∏ i ∈ s, f i a ∂μ ≤ ∏ i ∈ s, eLpNorm (f i) (p i) μ := by
-  classical
-  revert hp hf
-  refine Finset.strongInduction (fun s hs hf hp ↦ ?_) s (p := fun s ↦
-    (∀ i ∈ s, AEMeasurable (f i) μ) → (∑ i ∈ s, (p i)⁻¹ = 1) →
-    ∫⁻ (a : α), ∏ i ∈ s, f i a ∂μ ≤ ∏ i ∈ s, eLpNorm (f i) (p i) μ)
-  by_cases exists_top : ∃ i₀ ∈ s, p i₀ = ∞    -- If one of the exponents is `∞`, we reduce to the
-  · obtain ⟨i₀, hi₀, pi₀_eq_top⟩ := exists_top -- case without it and use the inductive hypothesis
-    calc ∫⁻ (a : α), ∏ i ∈ s, f i a ∂μ
-      _ = ∫⁻ (a : α), f i₀ a * ∏ i ∈ s.erase i₀, f i a ∂μ :=
-        lintegral_congr (fun a ↦ (Finset.mul_prod_erase s (f · a) hi₀).symm)
-      _ ≤ eLpNorm (f i₀) (p i₀) μ * ∫⁻ (a : α), ∏ i ∈ s.erase i₀, f i a ∂μ := by
-        rw [← lintegral_const_mul'', pi₀_eq_top,
-          eLpNorm_exponent_top (hf i₀ hi₀).aestronglyMeasurable]
-        · exact lintegral_mono_ae <| (ae_le_essSup (f i₀)).mono (fun a ha ↦ mul_le_mul_left ha _)
-        · exact Finset.aemeasurable_fun_prod _ (fun i hi ↦ hf i (Finset.mem_of_mem_erase hi))
-      _ ≤ eLpNorm (f i₀) (p i₀) μ * ∏ i ∈ s.erase i₀, eLpNorm (f i) (p i) μ := by
-        apply mul_right_mono
-        apply hs (s.erase i₀) (s.erase_ssubset hi₀) (fun i hi ↦ hf i (s.erase_subset i₀ hi))
-        simpa [← Finset.add_sum_erase s _ hi₀, pi₀_eq_top] using hp
-      _ = _ := Finset.mul_prod_erase s (fun i ↦ eLpNorm (f i) (p i) μ) hi₀
-  -- If all exponents are finite, we're in the case covered by `ENNReal.lintegral_prod_norm_pow_le`
-  have hf' : ∀ i ∈ s, AEMeasurable (fun a ↦ ((f i a) ^ (p i).toReal)) μ :=
-    fun i hi ↦ (hf i hi).pow_const (p i).toReal
-  have hp₁ : ∑ i ∈ s, (p i).toReal⁻¹ = 1 := by
-    simp_rw [← (ENNReal.toReal_eq_one_iff 1).mpr rfl, ← ENNReal.toReal_inv]
-    suffices (∑ x ∈ s, (p x)⁻¹).toReal = ∑ x ∈ s, (p x)⁻¹.toReal by rw [← this, hp]
-    refine ENNReal.toReal_sum (fun i hi eq_top ↦ ?_)
-    exact ENNReal.one_ne_top <| hp ▸ ENNReal.sum_eq_top.mpr ⟨i, hi, eq_top⟩
-  have hp₂ : ∀ i ∈ s, 0 ≤ (p i).toReal⁻¹ := by intros; positivity
-  have p_ne_0 : ∀ i ∈ s, p i ≠ 0 :=
-    fun i hi eq0 ↦ one_ne_top <| hp.symm.trans <| ENNReal.sum_eq_top.mpr ⟨i, hi, by simp [eq0]⟩
-  have p_ne_top : ∀ i ∈ s, p i ≠ ∞ := fun i hi h ↦ exists_top ⟨i, hi, h⟩
-  convert ENNReal.lintegral_prod_norm_pow_le s hf' hp₁ hp₂ with a i₀ hi₀ i hi
-  · rw [← ENNReal.rpow_mul, mul_inv_cancel₀, rpow_one]
-    exact ENNReal.toReal_ne_zero.mpr ⟨p_ne_0 i₀ hi₀, (exists_top ⟨i₀, hi₀, ·⟩)⟩
-  · simp [eLpNorm, eLpNorm', p_ne_0 i hi, p_ne_top i hi, (hf i hi).aestronglyMeasurable]
+  calc ∫⁻ a, ∏ i ∈ s, f i a ∂μ
+    _ ≤ eLpNorm (∏ i ∈ s, f i) 1 μ := by
+      simpa [Finset.prod_apply] using lintegral_enorm_le_eLpNorm_one (f := ∏ i ∈ s, f i) (μ := μ)
+    _ ≤ _ := eLpNorm_prod_le_ennreal (by rw [hp, inv_one]) one_pos
 
 /-- **Hölder's inequality** for functions `α → ℝ≥0∞`, using exponents in `ℝ≥0∞` -/
 theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderConjugate q)
@@ -245,14 +213,8 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm
           (eLpNorm (F 1) (P 1) μ * eLpNorm (F 2) (P 2) μ) := by
       rw [lintegral_const_mul' _ _ ofReal_ne_top, mul_assoc]
       gcongr
-      -- Check that the assumptions of `lintegral_prod_norm_pow_le'` apply
-      have ae_meas_f := hf.enorm
-      have ae_meas_g := hgx.enorm
-      have := (ae_meas_f.pow_const p).mul (ae_meas_g.pow_const q)
-      have ae_meas : ∀ i ∈ Finset.univ, AEMeasurable (F i) μ :=
-        fun ⟨v, _⟩ _ ↦ by interval_cases v <;> exact AEMeasurable.pow_const (by assumption) _
       suffices ∑ i, (P i)⁻¹ = 1 by
-        simpa [Fin.prod_univ_succ] using lintegral_prod_norm_pow_le' ae_meas this
+        simpa [Fin.prod_univ_succ] using lintegral_prod_norm_pow_le' this
       -- It remains to check ∑ (P i)⁻¹ = 1, which is trivial, aside from technicalities in `ℝ≥0∞`
       simp_rw [Fin.sum_univ_succ, Fin.succ_zero_eq_one, Fin.succ_one_eq_two,
         Finset.univ_eq_empty, Finset.sum_empty, add_zero, P, Matrix.cons_val_zero,
