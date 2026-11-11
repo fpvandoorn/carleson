@@ -42,9 +42,7 @@ theorem eLpNorm_prod_le_ennreal {r : ℝ≥0∞} (hpr : ∑ i ∈ s, (p i)⁻¹ 
     eLpNorm (∏ i ∈ s, f i) r μ ≤ ∏ i ∈ s, eLpNorm (f i) (p i) μ := by
   induction s using cons_induction generalizing r with
   | empty =>
-    rw [sum_empty, eq_comm, ENNReal.inv_eq_zero] at hpr
-    rw [prod_empty, hpr, eLpNorm_exponent_top aestronglyMeasurable_one]
-    exact eLpNormEssSup_le_of_ae_enorm_bound (by simp)
+    simp [ENNReal.inv_eq_zero.mp hpr.symm, aestronglyMeasurable_one, eLpNormEssSup_le_of_ae_enorm_bound]
   | cons i s hi ih =>
     rw [sum_cons] at hpr
     have hs : ∑ j ∈ s, (p j)⁻¹ ≠ ∞ :=
