@@ -188,13 +188,9 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm
     _ ≤ ∫⁻ y, ‖L (f y) (g (x - y))‖ₑ ∂μ := enorm_integral_le_lintegral_enorm _
     _ ≤ ∫⁻ y, .ofReal c * (‖f y‖ₑ * ‖g (x - y)‖ₑ) ∂μ := by
       refine lintegral_mono fun y ↦ ?_
-      calc ‖L (f y) (g (x - y))‖ₑ
-        _ ≤ .ofReal (c * (‖f y‖ * ‖g (x - y)‖)) := by
-          rw [← ofReal_norm, ← mul_assoc]
-          exact ofReal_le_ofReal (hL y (x - y))
-        _ = _ := by
-          rw [ofReal_mul' (mul_nonneg (norm_nonneg _) (norm_nonneg _)), ofReal_mul (norm_nonneg _),
-            ofReal_norm, ofReal_norm]
+      rw [← ofReal_norm, ← ofReal_norm, ← ofReal_norm, ← ofReal_mul (by positivity),
+        ← ofReal_mul' (by positivity), ← mul_assoc]
+      exact ofReal_le_ofReal (hL y (x - y))
     _ = ∫⁻ y, .ofReal c * ∏ i, F i y ∂μ := by
       refine lintegral_congr fun y ↦ ?_
       have r0' : 0 ≤ 1 / r := one_div_nonneg.mpr r0.le
