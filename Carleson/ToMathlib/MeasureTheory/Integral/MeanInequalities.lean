@@ -193,19 +193,14 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm
       exact ofReal_le_ofReal (hL y (x - y))
     _ = ∫⁻ y, .ofReal c * ∏ i, F i y ∂μ := by
       refine lintegral_congr fun y ↦ ?_
-      have r0' : 0 ≤ 1 / r := one_div_nonneg.mpr r0.le
       have split (a : ℝ≥0∞) {e : ℝ} (e0 : 0 < e) (re0 : 0 ≤ r - e) :
           a ^ (e * (1 / r)) * a ^ ((r - e) / r) = a := by
-        rw [← rpow_add_of_nonneg _ _ (mul_nonneg e0.le r0') (div_nonneg re0 r0.le), mul_one_div,
-          ← add_div, add_sub_cancel, div_self r0.ne', rpow_one]
-      calc .ofReal c * (‖f y‖ₑ * ‖g (x - y)‖ₑ)
-        _ = .ofReal c * ((‖f y‖ₑ ^ (p * (1 / r)) * ‖f y‖ₑ ^ ((r - p) / r)) *
-            (‖g (x - y)‖ₑ ^ (q * (1 / r)) * ‖g (x - y)‖ₑ ^ ((r - q) / r))) := by
-          rw [split _ p0 rp0, split _ q0 rq0]
-        _ = _ := by
-          simp only [F, Fin.prod_univ_three, Matrix.cons_val]
-          rw [mul_rpow_of_nonneg _ _ r0', ← rpow_mul, ← rpow_mul]
-          ring
+        rw [← rpow_add_of_nonneg _ _ (by positivity) (by positivity), mul_one_div, ← add_div,
+          add_sub_cancel, div_self r0.ne', rpow_one]
+      simp only [F, Fin.prod_univ_three, Matrix.cons_val]
+      rw [mul_rpow_of_nonneg _ _ (by positivity), ← rpow_mul, ← rpow_mul]
+      conv_lhs => rw [← split ‖f y‖ₑ p0 rp0, ← split ‖g (x - y)‖ₑ q0 rq0]
+      ring
     _ ≤ .ofReal c * ∏ i, eLpNorm (F i) (P i) μ := by
       rw [lintegral_const_mul' _ _ ofReal_ne_top]
       gcongr
