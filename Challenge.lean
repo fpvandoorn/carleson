@@ -103,8 +103,8 @@ finite measure and `f` is bounded and measurable.
 
 ## Differences from the blueprint
 
-These are formal details. Only the third one makes a hypothesis formally stronger than in the
-blueprint.
+These are formal details. The second and third ones make a hypothesis formally stronger than in
+the blueprint.
 * The distances `dist_{x, r}` on `Θ X` are indexed by pairs `(x, r)` instead of by balls, they
   are only required to be pseudometrics, and the axioms are also imposed for radii `r ≤ 0`.
   A compatible collection in the sense of the blueprint gives one in this sense: take the
