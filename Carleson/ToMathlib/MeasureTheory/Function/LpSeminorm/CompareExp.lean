@@ -44,16 +44,10 @@ theorem eLpNorm_prod_le_ennreal {r : ℝ≥0∞} (hpr : ∑ i ∈ s, (p i)⁻¹ 
   | empty =>
     simp [ENNReal.inv_eq_zero.mp hpr.symm, aestronglyMeasurable_one, eLpNormEssSup_le_of_ae_enorm_bound]
   | cons i s hi ih =>
-    rw [sum_cons] at hpr
-    have hs : ∑ j ∈ s, (p j)⁻¹ ≠ ∞ :=
-      ne_top_of_le_ne_top (inv_ne_top.mpr hr.ne') (hpr ▸ le_add_self)
-    rw [prod_cons, prod_cons]
-    calc
-      _ ≤ eLpNorm (f i) (p i) μ * eLpNorm (∏ j ∈ s, f j) (∑ j ∈ s, (p j)⁻¹)⁻¹ μ :=
-        eLpNorm_le_eLpNorm_mul_eLpNorm_ennreal_of_pos hr (hpqr := ⟨by simp [hpr]⟩)
-      _ ≤ _ := by
-        gcongr
-        exact ih (inv_inv _).symm (ENNReal.inv_pos.mpr hs)
+    simp only [sum_cons, prod_cons] at hpr ⊢
+    have : HolderTriple (p i) (∑ j ∈ s, (p j)⁻¹)⁻¹ r := ⟨by simp [hpr]⟩
+    grw [← ih (inv_inv _).symm (hr.trans_le (HolderTriple.le _ (p i) r))]
+    exact eLpNorm_le_eLpNorm_mul_eLpNorm_ennreal_of_pos hr
 
 end Prod
 
