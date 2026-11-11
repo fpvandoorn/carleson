@@ -35,7 +35,6 @@ lemma ordConnected_tilesAt : OrdConnected (TilesAt k : Set (𝔓 X)) := by
 /-- Lemma 5.3.5 -/
 lemma ordConnected_C : OrdConnected (ℭ k n : Set (𝔓 X)) := by
   rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
-  rw [ℭ, mem_ofPred] at mp mp'' ⊢
   have z := mem_of_mem_of_subset mp' (ordConnected_tilesAt.out mp.1 mp''.1)
   refine ⟨z, ?_⟩
   have hk : ∀ q' ∈ TilesAt (X := X) k, ∀ q ≤ q', dens' k {q'} ≤ dens' k {q} := fun q' _ q hq ↦ by
@@ -75,7 +74,7 @@ lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
   by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
   rw [minLayer, mem_ofPred, minimal_iff] at p'm
   have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
-    replace mp := mp.2; contrapose! mp
+    replace mp := mp.2; contrapose mp
     exact mem_of_mem_of_subset mp
       (iUnion_mono'' fun i ↦ iUnion_subset_iUnion_const fun hi ↦ (hi.trans_le bl').le)
   exact absurd (p'm.2 ⟨mp.1, pnm⟩ mp'.1).symm e
@@ -103,7 +102,7 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
   rw [maxLayer_def, mem_ofPred, maximal_iff] at p'm
   simp_rw [mem_sdiff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
-    replace mp'' := mp''.2; contrapose! mp''
+    replace mp'' := mp''.2; contrapose mp''
     refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩
   exact absurd (p'm.2 ⟨mp''₁, p''nm⟩ mp'.2) e
 
@@ -115,7 +114,7 @@ lemma ordConnected_C5 : OrdConnected (ℭ₅ k n j : Set (𝔓 X)) := by
     (ordConnected_C4.out mp₁ (mem_of_mem_of_subset mp'' ℭ₅_subset_ℭ₄))
   simp_rw [ℭ₅, mem_sdiff, mp₁, mp'₁, true_and, 𝔏₄, mem_ofPred,
     mp₁, mp'₁, true_and] at mp ⊢
-  contrapose! mp; obtain ⟨u, mu, s𝓘u⟩ := mp; use u, mu, mp'.1.1.1.trans s𝓘u
+  contrapose mp; obtain ⟨u, mu, s𝓘u⟩ := mp; use u, mu, mp'.1.1.1.trans s𝓘u
 
 /-! ## Section 5.4 and Lemma 5.1.2 -/
 
@@ -131,8 +130,7 @@ In lemmas, we will assume `u ∈ 𝔘₁ k n l` -/
 def 𝔗₁ (k n j : ℕ) (u : 𝔓 X) : Set (𝔓 X) :=
   { p ∈ ℭ₁ k n j | 𝓘 p ≠ 𝓘 u ∧ smul 2 p ≤ smul 1 u }
 
-lemma 𝓘_lt_of_mem_𝔗₁ (h : p ∈ 𝔗₁ k n j p') : 𝓘 p < 𝓘 p' := by
-  rw [𝔗₁, mem_ofPred] at h; exact lt_of_le_of_ne h.2.2.1 h.2.1
+lemma 𝓘_lt_of_mem_𝔗₁ (h : p ∈ 𝔗₁ k n j p') : 𝓘 p < 𝓘 p' := lt_of_le_of_ne h.2.2.1 h.2.1
 
 /-- The subset `𝔘₂(k, n, j)` of `𝔘₁(k, n, j)`, given in (5.4.2). -/
 def 𝔘₂ (k n j : ℕ) : Set (𝔓 X) :=
@@ -174,11 +172,8 @@ lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) 
     simp_rw [TileLike.le_def, smul_fst, smul_snd, not_and_or] at sl ⊢; right
     have := disjoint_left.mp (h.mono_left sl.2) (mem_ball_self zero_lt_one)
     rw [not_subset]; use 𝒬 q, mem_ball_self zero_lt_one
-  have usp : 𝔅 k n u ⊆ 𝔅 k n p := fun q mq ↦ by
-    rw [𝔅, mem_ofPred] at mq ⊢; exact ⟨mq.1, plu.trans mq.2⟩
-  have u'sp : 𝔅 k n u' ⊆ 𝔅 k n p := fun q mq ↦ by
-    rw [𝔅, mem_ofPred] at mq ⊢; exact ⟨mq.1, plu'.trans mq.2⟩
-  rw [𝔘₂, mem_ofPred, 𝔘₁, mem_ofPred] at hu hu'
+  have usp : 𝔅 k n u ⊆ 𝔅 k n p := fun q mq ↦ ⟨mq.1, plu.trans mq.2⟩
+  have u'sp : 𝔅 k n u' ⊆ 𝔅 k n p := fun q mq ↦ ⟨mq.1, plu'.trans mq.2⟩
   apply absurd (card_𝔅_of_mem_ℭ₁ mp).2; rw [not_lt]
   calc
     _ = 2 ^ j + 2 ^ j := Nat.two_pow_succ j
@@ -298,14 +293,12 @@ lemma 𝔗₂_subset_ℭ₆ : 𝔗₂ k n j u ⊆ ℭ₆ k n j := inter_subset_l
 lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j u := by
   ext p; constructor <;> intro h
   · have hp : p ∈ ℭ₃ k n j := (ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃) h
-    rw [ℭ₃, mem_sdiff, 𝔏₂, mem_ofPred] at hp
+    rw [ℭ₃, mem_sdiff, 𝔏₂, mem_sep_iff] at hp
     have mp := hp.1
     simp_rw [hp.1, true_and, not_not] at hp
     obtain ⟨u, mu, np, sl⟩ := hp
-    have mp' : p ∈ 𝔗₁ k n j u := by
-      rw [𝔗₁, mem_ofPred]; exact ⟨ℭ₂_subset_ℭ₁ mp, np, sl⟩
-    have mu' : u ∈ 𝔘₂ k n j := by
-      rw [𝔘₂, mem_ofPred]; exact ⟨mu, not_disjoint_iff.mpr ⟨_, mp', h⟩⟩
+    have mp' : p ∈ 𝔗₁ k n j u := ⟨ℭ₂_subset_ℭ₁ mp, np, sl⟩
+    have mu' : u ∈ 𝔘₂ k n j := ⟨mu, not_disjoint_iff.mpr ⟨_, mp', h⟩⟩
     let rr := equivalenceOn_urel (X := X) (k := k) (n := n) (j := j)
     rw [mem_iUnion₂]; use rr.out u, (rr.out_mem_reprs mu')
     refine ⟨h, ?_⟩; rw [mem_iUnion₂]; use u, mu'; rw [mem_iUnion]; use rr.out_rel mu'
@@ -334,7 +327,7 @@ set_option backward.isDefEq.respectTransparency.types false in
 lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : smul 4 p ≤ smul 1 u := by
   rw [𝔗₂, mem_inter_iff, mem_iUnion₂] at hp
   obtain ⟨_, u', mu', w⟩ := hp; rw [mem_iUnion] at w; obtain ⟨ru, mp'⟩ := w
-  rw [𝔗₁, mem_ofPred] at mp'; obtain ⟨_, np, sl⟩ := mp'
+  obtain ⟨_, np, sl⟩ := mp'
   have xye := URel.eq (EquivalenceOn.reprs_subset hu) mu' ru
   have huu' := URel.not_disjoint (EquivalenceOn.reprs_subset hu) mu' ru
   rw [not_disjoint_iff] at huu'
@@ -363,13 +356,13 @@ lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
     (ordConnected_C5.out ((𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅) mp)
       ((𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅) mp'')) mp'
   have mp'₆ : p' ∈ ℭ₆ k n j := by
-    have hp := 𝔗₂_subset_ℭ₆ mp; rw [ℭ₆, mem_ofPred] at hp ⊢
-    refine ⟨mp'₅, ?_⟩; have hpG := hp.2; contrapose! hpG
+    have hp := 𝔗₂_subset_ℭ₆ mp
+    refine ⟨mp'₅, ?_⟩; have hpG := hp.2; contrapose hpG
     exact mp'.1.1.1.trans hpG
   simp_rw [𝔗₂, mem_inter_iff, mp'₆, true_and, mem_iUnion₂, mem_iUnion] at mp'' ⊢
   obtain ⟨u', mu', ru, _, np'', sl⟩ := mp''.2
   have pnu : 𝓘 p' < 𝓘 u' := (mp'.2.1).trans_lt (lt_of_le_of_ne sl.1 np'')
-  use u', mu', ru; rw [𝔗₁, mem_ofPred]
+  use u', mu', ru
   use (ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁) mp'₅, pnu.ne
   exact (wiggle_order_11_10 mp'.2 (C5_3_3_le (X := X).trans (by norm_num))).trans sl
 
@@ -513,9 +506,9 @@ lemma mf_injOn : InjOn (mf k n j) {u | x ∈ 𝓘 u.1} := fun u mu u' mu' e ↦ 
     rw [not_disjoint_iff]
     use 𝒬 m.1, su (mem_ball_self zero_lt_one), su' (mem_ball_self zero_lt_one)
   by_contra! h; rw [← Subtype.coe_ne_coe] at h; apply absurd _ nd
-  have nr : ¬URel k n j u.1 u'.1 := by contrapose! h; exact EquivalenceOn.reprs_inj u.2 u'.2 h
+  have nr : ¬URel k n j u.1 u'.1 := by contrapose h; exact EquivalenceOn.reprs_inj u.2 u'.2 h
   have n𝓘 : 𝓘 u.1 ≠ 𝓘 u'.1 := by
-    contrapose! nr; rw [disjoint_comm] at nd
+    contrapose nr; rw [disjoint_comm] at nd
     exact urel_of_not_disjoint (𝔘₃_subset_𝔘₂ u.2) nr.symm nd
   rcases le_or_gt (s (𝓘 u.1)) (s (𝓘 u'.1)) with hs | hs
   · have hu := lt_of_le_of_ne ((le_or_disjoint hs).resolve_right
@@ -597,7 +590,7 @@ lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X :=
     apply Subset.antisymm
     · simp only [mem_Iio, 𝔘₄, mem_Ico, biUnion_and', iUnion_subset_iff]
       intro l i hi hl h'i
-      apply subset_biUnion_of_mem
+      apply subset_iUnion₂ (s := fun i _ ↦ iteratedMaximalSubfamily (𝔘₃ k n j) i) i
       change i + 1 ≤ (4 * n + 12) * 2 ^ n
       suffices i < (4 * n + 12) * 2 ^ n by lia
       exact h'i.trans_le (mul_le_mul' (by lia) le_rfl)
@@ -790,7 +783,7 @@ lemma lintegral_carlesonSum_forest
     replace hp : p ∈ ℭ₆ k n j := 𝔗₂_subset_ℭ₆ hp
     have : ¬ (𝓘 p : Set X) ⊆ G₁ := by
       have W := hp.2
-      contrapose! W
+      contrapose W
       exact W.trans (subset_union_left.trans subset_union_left)
     contrapose! this
     change p ∈ highDensityTiles at this

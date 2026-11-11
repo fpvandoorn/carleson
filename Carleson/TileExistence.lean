@@ -1518,7 +1518,7 @@ lemma boundary_measure' {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht
         rw [ENNReal.toReal_le_toReal]
         · exact boundary_measure hk y ht htD
         · apply ne_of_lt
-          apply volume.mono inter_subset_left |>.trans_lt
+          apply volume.mono (sep_subset _ _) |>.trans_lt
           apply volume.mono (I3_prop_3_2 hk y) |>.trans_lt
           simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
           finiteness
@@ -1642,7 +1642,7 @@ def grid_existence : GridStructure X D κ S o where
       apply LT.lt.ne'
       exact realD_pos a
     · trans volume.real i.coe
-      · apply measureReal_mono (fun x hx => hx.left) <|
+      · apply measureReal_mono (sep_subset _ _) <|
           volume.mono (I3_prop_3_2 i.hk i.y) |>.trans_lt _ |>.ne
         simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
         exact measure_ball_lt_top
@@ -1736,7 +1736,7 @@ def Ω₁_aux (I : Grid X) (k : ℕ) : Set (Θ X) :=
 lemma Ω₁_aux_disjoint (I : Grid X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
   wlog h : k < l generalizing k l
   · exact (this hn.symm (hn.symm.lt_of_le (Nat.le_of_not_lt h))).symm
-  have : Ω₁_aux I k ⊆ ⋃ i < l, Ω₁_aux I i := subset_biUnion_of_mem h
+  have : Ω₁_aux I k ⊆ ⋃ i < l, Ω₁_aux I i := subset_iUnion₂ (s := fun i _ ↦ Ω₁_aux I i) k h
   apply disjoint_of_subset_left this
   rw [Ω₁_aux]
   split_ifs
@@ -1759,7 +1759,7 @@ lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ �
   simp_rw [← not_disjoint_iff_nonempty_inter, Ω₁] at h
   contrapose! h
   apply Ω₁_aux_disjoint
-  contrapose! h
+  contrapose h
   rwa [Fin.val_eq_val, Equiv.apply_eq_iff_eq] at h
 
 set_option backward.isDefEq.respectTransparency false in
@@ -1857,7 +1857,7 @@ lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
         gcongr; simpa using! (Ω₁_subset_ball ⟨I, ⟨y, my⟩⟩) mz₂
       _ ≤ C2_1_2 a * dist_{J} ϑ z + C4_2_1 := by
         gcongr; refine Grid.dist_strictMono (lt_of_le_of_ne Grid.le_succ ?_)
-        contrapose! nmaxI; exact Grid.max_of_le_succ nmaxI.symm.le
+        contrapose nmaxI; exact Grid.max_of_le_succ nmaxI.symm.le
       _ < C2_1_2 a * 1 + C4_2_1 := by
         gcongr
         · rw [C2_1_2]; positivity
@@ -1881,7 +1881,7 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
       (⋃ z', ⋃ (x : z' ∈ SetLike.coe (𝓩 I.succ) ∩ Ω₁ ⟨I, z⟩), Ω ⟨I.succ, ⟨z', x.1⟩⟩) := by
   have dj := (disjoint_frequency_cubes (f := y) (g := z)).mt hn
   rw [← not_disjoint_iff_nonempty_inter, not_not] at dj
-  contrapose! hn; rw [not_disjoint_iff] at hn
+  contrapose hn; rw [not_disjoint_iff] at hn
   obtain ⟨(ϑ : Θ X), mϑ, mϑ'⟩ := hn
   rw [mem_iUnion₂] at mϑ'; obtain ⟨x, ⟨mx₁, mx₂⟩, mϑ₂⟩ := mϑ'
   have u : x ∈ ball_{I} y.1 C𝓩 := by
@@ -1891,7 +1891,7 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
     _ < CΩ + dist_{I} ϑ x := by gcongr; simpa [mem_ball] using mϑ
     _ ≤ CΩ + C2_1_2 a * dist_{I.succ} ϑ x := by
       gcongr; refine Grid.dist_strictMono (lt_of_le_of_ne Grid.le_succ ?_)
-      contrapose! nmaxI; exact Grid.max_of_le_succ nmaxI.symm.le
+      contrapose nmaxI; exact Grid.max_of_le_succ nmaxI.symm.le
     _ < CΩ + C2_1_2 a * 1 := by
       gcongr
       · rw [C2_1_2]; positivity
@@ -1919,7 +1919,7 @@ lemma Ω_disjoint {p p' : 𝔓 X} (hn : p ≠ p') (h𝓘 : 𝓘 p = 𝓘 p') : D
   induction I using Grid.induction with
   | base I maxI =>
     unfold Ω; simp only [maxI, dite_true]
-    contrapose! hn; rw [not_disjoint_iff_nonempty_inter] at hn
+    contrapose hn; rw [not_disjoint_iff_nonempty_inter] at hn
     exact disjoint_frequency_cubes hn
   | ind I nmaxI ih =>
     unfold Ω; simp only [nmaxI, dite_false]

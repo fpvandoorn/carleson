@@ -373,17 +373,17 @@ theorem prod_mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g
 
 variable [R1Space X] in
 theorem indicator_of_isCompact_closure {f : X → E} (hf : MemLp f ∞ μ)
-    {s : Set X} (h's : IsCompact (closure s)) (hs : MeasurableSet s) :
+    {s : Set X} (h's : IsCompact (closure s)) (hs : NullMeasurableSet s μ) :
     BoundedCompactSupport (s.indicator f) μ where
-  memLp_top := hf.indicator hs.nullMeasurableSet
+  memLp_top := hf.indicator hs
   hasCompactSupport := by
     apply HasCompactSupport.intro h's
     exact fun x hx ↦ by simp [notMem_of_notMem_closure hx]
 
 @[fun_prop]
 protected theorem indicator {f : X → E} (hf : BoundedCompactSupport f μ) {s : Set X}
-    (hs : MeasurableSet s) : BoundedCompactSupport (s.indicator f) μ where
-  memLp_top := hf.memLp_top.indicator hs.nullMeasurableSet
+    (hs : NullMeasurableSet s μ) : BoundedCompactSupport (s.indicator f) μ where
+  memLp_top := hf.memLp_top.indicator hs
   hasCompactSupport := hf.hasCompactSupport.mono (by simp)
 
 variable {F : X × Y → E}

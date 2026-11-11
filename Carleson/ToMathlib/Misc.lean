@@ -238,10 +238,8 @@ attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided
 attribute [fun_prop] AEStronglyMeasurable.comp_measurable
 attribute [fun_prop] StronglyMeasurable.measurable
 
-lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
-  apply measure_mono_ae
-  change μ {x | ¬ B x ≤ A x} = 0
-  simpa only [le_Prop_eq, Classical.not_imp]
+lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A :=
+  measure_mono_ae (ae_le_set.mpr h)
 
 @[fun_prop]
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
@@ -445,7 +443,7 @@ lemma out_inj' (hx : x ∈ s) (hy : y ∈ s) (h : r (hr.out x) (hr.out y)) : hr.
 
 variable (hr) in
 /-- The set of representatives of an equivalence relation on a set. -/
-def reprs : Set α := hr.out '' s
+noncomputable def reprs : Set α := hr.out '' s
 
 lemma out_mem_reprs (hx : x ∈ s) : hr.out x ∈ hr.reprs := ⟨x, hx, rfl⟩
 
@@ -799,16 +797,5 @@ lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint
   conv_lhs => enter [2, i]; rw [lintegral_indicator (meast i)]
   rw [← lintegral_biUnion_finset hpd fun _ _ ↦ meast _]
   exact setLIntegral_le_lintegral _ _
-
-theorem measurable_measure_ball {α : Type*} [PseudoMetricSpace α] [SecondCountableTopology α]
-    [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [SFinite μ] :
-    Measurable fun (a, r) ↦ μ (Metric.ball a r) := by
-  let s : Set (α × α × ℝ) := ofPred fun (b, a, r) ↦ b ∈ Metric.ball a r
-  apply measurable_measure_prodMk_right (s := s)
-  unfold s Metric.ball
-  simp_rw [mem_ofPred]
-  apply measurableSet_lt
-  · fun_prop
-  · fun_prop
 
 end MeasureTheory

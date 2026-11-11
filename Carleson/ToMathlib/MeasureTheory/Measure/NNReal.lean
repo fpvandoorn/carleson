@@ -92,7 +92,7 @@ instance : NullSingletonClass (@volume ℝ≥0∞ _) where
 -- TODO: move this general result to an appropriate place
 -- TODO: maybe generalize further to general measures restricted to a subtype
 lemma Measure.Subtype.noAtoms {δ : Type*} [MeasureSpace δ] [NullSingletonClass (volume : Measure δ)]
-    {p : δ → Prop} (hp : MeasurableSet p) :
+    {p : δ → Prop} (hp : MeasurableSet (ofPred p)) :
     NullSingletonClass (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
   measure_singleton := by
     intro x
@@ -106,7 +106,7 @@ instance : NullSingletonClass (@volume ℝ≥0 _) := Measure.Subtype.noAtoms mea
 
 --TODO: move this general result to an appropriate place
 --TODO: maybe generalize further to general measures restricted to a subtype
-lemma Measure.Subtype.sigmaFinite {δ : Type*} [MeasureSpace δ] [sf : SigmaFinite (@volume δ _)] {p : δ → Prop} (hp : MeasurableSet p) :
+lemma Measure.Subtype.sigmaFinite {δ : Type*} [MeasureSpace δ] [sf : SigmaFinite (@volume δ _)] {p : δ → Prop} (hp : MeasurableSet (ofPred p)) :
     SigmaFinite (Measure.Subtype.measureSpace.volume : Measure (Subtype p)) where
   out' := by
     refine Nonempty.intro ?_
@@ -561,7 +561,7 @@ lemma ENNReal.volume_map_add_left_le_self {g : ℝ≥0∞} (hg : g ≠ ⊤) {s :
       simp only [mem_image, mem_preimage, forall_exists_index, and_imp]
       intro x hx hxy
       use g + x, hx
-      rw [← hxy, toReal_add hg (by contrapose! hs'; rwa [hs', add_top] at hx)]
+      rw [← hxy, toReal_add hg (by contrapose hs'; rwa [hs', add_top] at hx)]
     _ ≤ (Measure.map (fun x ↦ g.toReal + x) volume) (ENNReal.toReal '' s) := by
       apply Measure.le_map_apply (by measurability)
     _ = volume s := by

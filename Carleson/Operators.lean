@@ -23,14 +23,14 @@ lemma bcs_of_measurable_of_le_indicator_f {f : X → ℂ}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) : BoundedCompactSupport f := by
   have : BoundedCompactSupport (F.indicator 1 : X → ℝ) :=
     BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
-      isBounded_F.isCompact_closure measurableSet_F
+      isBounded_F.isCompact_closure measurableSet_F.nullMeasurableSet
   exact this.mono_norm hf.aestronglyMeasurable h2f
 
 lemma bcs_of_measurable_of_le_indicator_g {g : X → ℂ}
     (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) : BoundedCompactSupport g := by
   have : BoundedCompactSupport (G.indicator 1 : X → ℝ) :=
     BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
-      isBounded_G.isCompact_closure measurableSet_G
+      isBounded_G.isCompact_closure measurableSet_G.nullMeasurableSet
   exact this.mono_norm hg.aestronglyMeasurable h2g
 
 variable [TileStructure Q D κ S o] {p p' : 𝔓 X}
@@ -82,7 +82,7 @@ lemma support_carlesonSum_subset {ℭ : Set (𝔓 X)} {f : X → ℂ} :
     support (carlesonSum ℭ f) ⊆ (⋃ p ∈ ℭ, 𝓘 p) := by
   intro x hx
   rw [mem_support] at hx
-  contrapose! hx
+  contrapose hx
   refine Finset.sum_eq_zero <| fun p hp ↦ notMem_support.mp (fun hxp ↦ hx ?_)
   simp only [Finset.mem_filter] at hp
   exact Set.mem_biUnion hp.2 <| E_subset_𝓘 <| support_carlesonOn_subset_E hxp

@@ -40,8 +40,7 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) : ⋃ J ∈ 𝓙₆ t u₁, (J : Set X)
     rcases existsCube with ⟨cube, cube_in_𝓙, xInCube⟩
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
-    have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t u₁) := mem_of_mem_inter_left cube_in_𝓙
-    cases cubeIn𝓙₀ with
+    cases cube_in_𝓙.1 with
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
       unfold 𝓙₆
@@ -355,7 +354,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   rw [laverage_eq, ENNReal.div_le_iff (NeZero.ne _) (by finiteness)]
   refine (lintegral_indicator_const_le _ _).trans ?_
   rw [Measure.restrict_apply' coeGrid_measurable, Measure.restrict_apply_univ,
-    Set.inter_eq_left.mpr (fun x hx ↦ hx.1)]
+    inter_eq_left.mpr hsupp]
   refine ((ENNReal.mul_le_mul_iff_right (by simp) (ne_of_beq_false rfl).symm).mpr vsupp).trans ?_
   rw [← mul_assoc, ENNReal.ofReal, ← ENNReal.coe_natCast, ← ENNReal.coe_pow, ← ENNReal.coe_mul]
   gcongr
@@ -455,7 +454,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
       refine (Finset.sum_fiberwise_of_maps_to (fun p mp ↦ ?_) _).symm
       rw [Finset.mem_filter] at mp; rw [mem_toFinset] at mp mJ; obtain ⟨mp, dp⟩ := mp
       have dpJ : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)) := by
-        contrapose! dp; refine dp.symm.mono_left (Grid_subset_ball.trans (ball_subset_ball ?_))
+        contrapose dp; refine dp.symm.mono_left (Grid_subset_ball.trans (ball_subset_ball ?_))
         change (4 : ℝ) * D ^ s J ≤ _; gcongr; norm_num
       rw [Finset.mem_Icc]
       constructor
@@ -598,7 +597,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
       simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and] at hr ⊢
       obtain ⟨mp, h₁, h₂, h₃⟩ := hr; dsimp only [𝔠, 𝔰] at h₁ h₂ h₃ ⊢; rw [h₃] at h₁ h₂ ⊢
       refine ⟨mp, ⟨h₂, ?_, h₁⟩, ⟨h₁, rfl⟩⟩
-      rw [mem_toFinset, Set.mem_sdiff] at mp; obtain ⟨mp₁, mp₂⟩ := mp; contrapose! mp₂
+      rw [mem_toFinset, Set.mem_sdiff] at mp; obtain ⟨mp₁, mp₂⟩ := mp; contrapose mp₂
       exact overlap_implies_distance hu₁ hu₂ hu h2u (.inr mp₁) (h₃.symm ▸ mp₂)
     _ = ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
@@ -800,13 +799,11 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
         -- Obviously `I ≠ p`
         have nIp : I ≠ p := ne_of_mem_of_not_mem mI np
         -- If `U` intersected `p`, `U ≤ p` since `p ∉ 𝓙₆`
-        by_contra! h
+        by_contra h
         rw [𝓙₆, mem_inter_iff, not_and, mem_Iic] at np; specialize np mp
         have Ulp := le_or_ge_or_disjoint.resolve_left np |>.resolve_right h
         -- `I`, being in `𝓙₆`, should be a maximal cube in `𝓙₀ 𝔖`,
         -- but `p` is above it and also in `𝓙₀ 𝔖`; contradiction
-        rw [𝓙₆, mem_inter_iff, mem_Iic] at mI
-        rw [𝓙, mem_ofPred] at mp mI
         exact nIp <| le_antisymm (mI.2.trans Ulp) (mI.1.2 mp.1 (mI.2.trans Ulp))
     _ = _ := by
       congr! 3 with p mp
@@ -842,19 +839,22 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
         mul_assoc, ← indicator_eq_indicator_one_mul]
     _ = ‖∫ x, conj (U.indicator f₁ x) *
         carlesonSum (t u₁) (U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂)) x‖ₑ := by
-      rw [← adjointCarlesonSum_adjoint (hf₂.adjointCarlesonSum.indicator coeGrid_measurable)
-        (hf₁.indicator coeGrid_measurable)]
+      rw [← adjointCarlesonSum_adjoint
+        (hf₂.adjointCarlesonSum.indicator coeGrid_measurable.nullMeasurableSet)
+        (hf₁.indicator coeGrid_measurable.nullMeasurableSet)]
     _ ≤ C7_2_1 a * eLpNorm (approxOnCube (𝓙 (t u₁))
           (‖U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂) ·‖)) 2 volume *
         eLpNorm (approxOnCube (𝓛 (t u₁)) (‖U.indicator f₁ ·‖)) 2 volume :=
-      tree_projection_estimate (hf₂.adjointCarlesonSum.indicator coeGrid_measurable)
-        (hf₁.indicator coeGrid_measurable) hu₁
+      tree_projection_estimate
+        (hf₂.adjointCarlesonSum.indicator coeGrid_measurable.nullMeasurableSet)
+        (hf₁.indicator coeGrid_measurable.nullMeasurableSet) hu₁
     _ ≤ C7_2_1 a *
         (C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (maximalFunction volume 𝓑 c𝓑 r𝓑 1 f₂ ·)) 2 volume) *
         eLpNorm (U.indicator f₁ ·) 2 volume := by
       rw [cntp_approxOnCube_eq hu₁]; gcongr
       · exact bound_for_tree_projection hu₁ hu₂ hu h2u hf₂
-      · exact eLpNorm_approxOnCube_two_le_self (hf₁.indicator coeGrid_measurable) pairwiseDisjoint_𝓛
+      · exact eLpNorm_approxOnCube_two_le_self
+          (hf₁.indicator coeGrid_measurable.nullMeasurableSet) pairwiseDisjoint_𝓛
     _ ≤ _ := by
       conv_rhs => rw [mul_comm (C7_4_6 a n : ℝ≥0∞), mul_rotate]
       rw [C7_4_6, ENNReal.coe_mul, ← mul_assoc]; gcongr
@@ -863,7 +863,8 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
         simp only [enorm_eq_self, enorm_indicator_eq_indicator_enorm, adjointBoundaryOperator]
         apply indicator_le_indicator
         rw [← add_rotate]; exact le_add_self
-      · refine eLpNorm_mono_enorm (hf₁.indicator coeGrid_measurable).aestronglyMeasurable fun x ↦ ?_
+      · refine eLpNorm_mono_enorm
+          (hf₁.indicator coeGrid_measurable.nullMeasurableSet).aestronglyMeasurable fun x ↦ ?_
         simp only [enorm_eq_self, enorm_indicator_eq_indicator_enorm, adjointBoundaryOperator]
         apply indicator_le_indicator
         exact le_add_self

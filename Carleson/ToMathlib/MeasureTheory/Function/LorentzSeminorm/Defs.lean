@@ -1,6 +1,6 @@
 module
 
-public import Carleson.ToMathlib.Rearrangement
+public import Carleson.ToMathlib.Distribution
 public import Carleson.ToMathlib.MeasureTheory.Function.LpNorm.Misc
 public import Carleson.ToMathlib.Topology.ContinuousOn
 
@@ -83,91 +83,6 @@ lemma eLorentzNorm'_exponent_top {f : α → ε} {μ : Measure α} :
   · right
     simp
 
-theorem iSup_mul_distribution_rpow_eq_iSup_rpow_mul_rearrangement {p : ℝ} (hp : 0 < p)
-    {f : α → ε} {μ : Measure α} :
-    ⨆ t : ℝ≥0, t * distribution f t μ ^ p⁻¹ = ⨆ t : ℝ≥0, t ^ p⁻¹ * rearrangement f t μ := by
-  have hp' : 0 < p⁻¹ := by simpa
-  calc _
-    _ = ⨆ t, t * distribution f t μ ^ p⁻¹ := by
-      rw [ENNReal.iSup_ennreal]
-      simp only [distibution_top, left_eq_sup]
-      rw [ENNReal.zero_rpow_of_pos hp', mul_zero]
-      exact zero_le
-  symm
-  calc _
-    _ = ⨆ t, t ^ p⁻¹ * rearrangement f t μ := by
-      rw [ENNReal.iSup_ennreal]
-      simp
-  symm
-  apply le_antisymm
-  · apply iSup_le
-    intro t
-    apply le_of_forall_lt
-    intro a ha
-    by_cases! a_ne_zero : a = 0
-    · rw [a_ne_zero]
-      rw [a_ne_zero] at ha
-      rw [lt_iSup_iff]
-      contrapose! ha
-      simp only [nonpos_iff_eq_zero, mul_eq_zero] at *
-      simp_rw [ENNReal.rpow_eq_zero_iff_of_pos hp'] at *
-      by_cases ht : t = 0
-      · left
-        assumption
-      · right
-        rw [← nonpos_iff_eq_zero]
-        apply _root_.le_of_forall_pos_le_add
-        intro ε hε
-        rw [zero_add, ← rearrangement_le_iff_distribution_le]
-        rcases ha ε with h | h
-        · order
-        rw [h]
-        exact zero_le
-    have a_ne_top : a ≠ ∞ := ha.ne_top
-    rw [lt_iSup_iff]
-    use (a / t) ^ p
-    rw [ENNReal.rpow_rpow_inv hp.ne']
-    rw [ENNReal.mul_comm_div]
-    nth_rw 1 [← mul_one a]
-    gcongr
-    rw [ENNReal.lt_div_iff_mul_lt (by simp) (by simp), one_mul,
-      lt_rearrangement_iff_lt_distribution]
-    apply (ENNReal.lt_rpow_inv_iff hp).mp
-    rwa [ENNReal.div_lt_iff (by right; assumption) (by right; assumption), mul_comm]
-  · apply iSup_le
-    intro t
-    apply le_of_forall_lt
-    intro a ha
-    by_cases! a_ne_zero : a = 0
-    · rw [a_ne_zero]
-      rw [a_ne_zero] at ha
-      rw [lt_iSup_iff]
-      contrapose! ha
-      simp only [nonpos_iff_eq_zero, mul_eq_zero] at *
-      simp_rw [ENNReal.rpow_eq_zero_iff_of_pos hp'] at *
-      by_cases ht : t = 0
-      · left
-        assumption
-      · right
-        rw [← nonpos_iff_eq_zero]
-        apply _root_.le_of_forall_pos_le_add
-        intro ε hε
-        rw [zero_add, rearrangement_le_iff_distribution_le]
-        rcases ha ε with h | h
-        · order
-        rw [h]
-        exact zero_le
-    have a_ne_top : a ≠ ∞ := ha.ne_top
-    rw [lt_iSup_iff]
-    use a / t ^ p⁻¹
-    rw [ENNReal.mul_comm_div]
-    nth_rw 1 [← mul_one a]
-    gcongr
-    rw [ENNReal.lt_div_iff_mul_lt (by simp) (by simp), one_mul]
-    gcongr
-    rw [← lt_rearrangement_iff_lt_distribution]
-    rwa [ENNReal.div_lt_iff (by right; assumption) (by right; assumption), mul_comm]
-
 lemma eLorentzNorm'_mono_enorm_ae {f : α → ε'} {g : α → ε} {μ : Measure α}
   (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     eLorentzNorm' f p q μ ≤ eLorentzNorm' g p q μ := by
@@ -228,7 +143,7 @@ lemma eLorentzNorm_exponent_top {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   (q_ne_zero : q ≠ 0) (q_ne_top : q ≠ ⊤) (hf : ¬ f =ᶠ[ae μ] 0) :
     eLorentzNorm f ∞ q μ = ∞ := by
   apply eLorentzNorm_exponent_top' q_ne_zero q_ne_top
-  contrapose! hf
+  contrapose hf
   exact eLpNormEssSup_eq_zero_iff.mp hf
 
 lemma eLorentzNorm_mono_enorm_ae [TopologicalSpace ε] [TopologicalSpace ε'] {f : α → ε} {g : α → ε'}

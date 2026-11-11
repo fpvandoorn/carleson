@@ -101,7 +101,7 @@ lemma dens1_antichain_dach (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.ind
       congr! 2 with p mp; nth_rw 2 [← Finset.filter_filter]
       refine (Finset.sum_filter_of_ne fun x mx nx ↦ ?_).symm
       rw [Finset.mem_filter_univ] at mx
-      contrapose! nx; exact Tile.correlation_zero_of_ne_subset mx.2 nx
+      contrapose nx; exact Tile.correlation_zero_of_ne_subset mx.2 nx
     _ ≤ 2 * ∑ p with p ∈ 𝔄,
         ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
         Tile.C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) /

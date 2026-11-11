@@ -384,7 +384,7 @@ theorem lintegral_comp_eq_lintegral_distribution_mul (μ : Measure α)
   · apply SimpleFunc.induction
     · intro c s hs
       simp only [SimpleFunc.const_zero, SimpleFunc.coe_piecewise, SimpleFunc.coe_const,
-        SimpleFunc.coe_zero, piecewise_eq_indicator]
+        FunLike.coe_zero, piecewise_eq_indicator]
       simp_rw [distribution_indicator_const, ← indicator_mul_left]
       rw [lintegral_indicator measurableSet_Iio, enorm_eq_self,
         lintegral_const_mul'' _ g_mble.restrict]
@@ -399,7 +399,7 @@ theorem lintegral_comp_eq_lintegral_distribution_mul (μ : Measure α)
       rw [lintegral_const, mul_comm]
       simp
     · intro f F disjoint hf hF
-      simp only [SimpleFunc.coe_add, Pi.add_apply]
+      simp only [FunLike.coe_add, Pi.add_apply]
       calc _
         _ = ∫⁻ (ω : α), (∫⁻ t in Iio (f ω), g t) + (∫⁻ t in Iio (F ω), g t) ∂μ := by
           congr with ω

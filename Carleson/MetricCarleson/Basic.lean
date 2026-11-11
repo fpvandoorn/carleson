@@ -157,9 +157,9 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       use wfT.min neT - 1
       have minT_mem := wfT.min_mem neT; simp_rw [T, mem_ofPred] at minT_mem
       have minT_pos : wfT.min neT ≠ 0 := by
-        by_contra! h'; rw [h'] at minT_mem; exact absurd h.2 (not_le.mpr minT_mem)
+        by_contra h'; rw [h'] at minT_mem; exact absurd h.2 (not_le.mpr minT_mem)
       nth_rw 1 [← Nat.add_sub_assoc (by lia), Nat.sub_add_cancel (by lia), ← not_lt]
-      refine ⟨minT_mem, ?_⟩; change wfT.min neT - 1 ∉ T; contrapose! minT_pos
+      refine ⟨minT_mem, ?_⟩; change wfT.min neT - 1 ∉ T; contrapose minT_pos
       replace minT_pos := wfT.min_le neT minT_pos; lia
   have ds (k : ℕ) : Pairwise (Function.onFun Disjoint fun n ↦ s (k + n)) := fun i j hn ↦ by
     change Disjoint (s (k + i)) (s (k + j))
@@ -240,9 +240,9 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       use wfT.min neT - 1
       have minT_mem := wfT.min_mem neT; simp_rw [T, mem_ofPred] at minT_mem
       have minT_pos : wfT.min neT ≠ 0 := by
-        by_contra! h'; rw [h'] at minT_mem; exact absurd h.1 (not_le.mpr minT_mem)
+        by_contra h'; rw [h'] at minT_mem; exact absurd h.1 (not_le.mpr minT_mem)
       nth_rw 2 [← Nat.add_sub_assoc (by lia)]; rw [Nat.sub_add_cancel (by lia), ← not_lt]
-      refine ⟨?_, minT_mem⟩; change wfT.min neT - 1 ∉ T; contrapose! minT_pos
+      refine ⟨?_, minT_mem⟩; change wfT.min neT - 1 ∉ T; contrapose minT_pos
       replace minT_pos := wfT.min_le neT minT_pos; lia
   have ds (k : ℕ) : Pairwise (Function.onFun Disjoint fun n ↦ s (k + n)) := fun i j hn ↦ by
     change Disjoint (s (k + i)) (s (k + j))

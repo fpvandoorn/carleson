@@ -174,7 +174,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
           rw [eLorentzNorm'_indicator_const (by simp) p_ne_zero p_ne_top]
           rw [← mul_assoc (c / p), ENNReal.div_mul_cancel p_ne_zero p_ne_top]
     · rename_i f a s hs hfs hf hg
-      rw [SimpleFunc.coe_add]
+      rw [FunLike.coe_add]
       set g := (SimpleFunc.const α a).restrict s with g_def
       intro hfg'
       have hf' : MemLorentz f p 1 μ :=
@@ -199,7 +199,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
             eLorentzNorm'_eq_integral_distribution_rpow, eLorentzNorm'_eq_integral_distribution_rpow]
           rw [← mul_add]
           congr 1
-          rw [SimpleFunc.coe_add, g_def, SimpleFunc.coe_restrict _ hs, SimpleFunc.coe_const]
+          rw [FunLike.coe_add, g_def, SimpleFunc.coe_restrict _ hs, SimpleFunc.coe_const]
           symm
           calc _
             _ = ∫⁻ (t : ℝ≥0), (if t < a then μ s else distribution f (t - a) μ) ^ p.toReal⁻¹ := by
@@ -237,7 +237,7 @@ theorem HasRestrictedWeakType.hasRestrictedWeakType'_nnreal
     · rw [hG', ENNReal.top_rpow_of_pos, ENNReal.mul_top]
       · exact le_top
       · apply mul_ne_zero hcp.ne'
-        contrapose! f_zero
+        contrapose f_zero
         rwa [eLorentzNorm'_eq_zero_iff p_ne_zero p_ne_top (by simp)] at f_zero
       · simp only [toReal_inv, inv_pos]
         exact ENNReal.toReal_pos hpq.symm.ne_zero q_ne_top
@@ -385,7 +385,7 @@ lemma HasRestrictedWeakType'.hasLorentzType [SigmaFinite ν]
         exact measure_congr G'G.symm
     _ = c * _  := by
       apply ENNReal.mul_div_cancel_right
-      · contrapose! G_zero
+      · contrapose G_zero
         rwa [ENNReal.rpow_eq_zero_iff_of_pos] at G_zero
         simp only [toReal_inv, inv_pos]
         apply toReal_pos hpq.symm.ne_zero hq

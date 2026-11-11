@@ -1,6 +1,7 @@
 module
 
 public import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
+public import Carleson.ToMathlib.Analysis.SpecialFunctions.Integrals.Basic
 public import Carleson.ToMathlib.Distribution
 public import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
@@ -365,19 +366,6 @@ lemma ofReal_rpow_rpow_aux {p : ℝ} :
   filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     with s (hs : 0 < s) using ofReal_rpow_of_pos hs
 
-lemma lintegral_rpow_of_gt {β γ : ℝ} (hβ : 0 ≤ β) (hγ : -1 < γ) :
-    ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
-    ENNReal.ofReal (β ^ (γ + 1) / (γ + 1)) := by
-  have hγ2 : 0 < γ + 1 := by linarith
-  rw [setLIntegral_congr Ioo_ae_eq_Ioc, ← ofReal_integral_eq_lintegral_ofReal]
-  · rw [← intervalIntegral.integral_of_le hβ, integral_rpow]
-    · rw [Real.zero_rpow hγ2.ne', sub_zero]
-    · exact Or.inl hγ
-  · apply (@intervalIntegral.intervalIntegrable_rpow' 0 β γ ?_).1
-    linarith
-  · filter_upwards [self_mem_ae_restrict measurableSet_Ioc]
-      with s hs using Real.rpow_nonneg hs.1.le γ
-
 end MeasureTheory
 
 end
@@ -688,7 +676,8 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
   have q_toReal_pos : 0 < q.toReal := toReal_pos q_ne_zero q_ne_top
   calc
   _ = ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖(truncCompl f t) x‖ₑ ^ q.toReal ∂μ := by
-    rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_ne_zero q_ne_top hf.truncCompl, one_div, ENNReal.rpow_inv_rpow]
+    rw [eLpNorm_eq_lintegral_rpow_enorm_toReal q_ne_zero q_ne_top hf.truncCompl,
+      one_div, ENNReal.rpow_inv_rpow]
     · apply (setLIntegral_eq_of_support_subset _).symm
       unfold Function.support
       intro x
@@ -702,13 +691,19 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
     gcongr with x
     exact trnc_le_func (j := ⊥)
 
--- TODO: better name!
-lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
-    (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (hf : AEStronglyMeasurable f μ) (ht : 0 < t) :
+lemma rpow_eLpNorm_truncCompl_le {p q : ℝ≥0∞}
+    (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (ht : 0 < t) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   have q_ne_top: q ≠ ⊤ := ne_top_of_le_ne_top p_ne_top hpq.2
   have p_ne_zero : p ≠ 0 := (hpq.1.trans_le hpq.2).ne'
+  by_cases hf : AEStronglyMeasurable f μ; swap
+  · by_cases! ht' : t = ∞
+    · simp [ht', zero_rpow_of_pos (exp_toReal_pos hpq.1 q_ne_top)]
+    rw [eLpNorm_of_not_aestronglyMeasurable hf,
+      top_rpow_of_pos (toReal_pos p_ne_zero p_ne_top), mul_top]
+    · simp
+    simp; grind
   apply le_trans (eLpNorm_truncCompl_le hpq.1.ne' (ne_top_of_le_ne_top p_ne_top hpq.2) hf)
   calc
     _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α in {x | t < ‖f x‖ₑ},
@@ -879,7 +874,7 @@ lemma truncCompl_Lp_Lq_lower
   · simp [trnc, ht']
   have : 0 < q.toReal := toReal_pos hpq.left.ne' q_ne_top
   refine (rpow_lt_top_iff_of_pos this).mp ?_
-  refine lt_of_le_of_lt (estimate_eLpNorm_truncCompl hp hpq hf.aestronglyMeasurable ht) ?_
+  refine lt_of_le_of_lt (rpow_eLpNorm_truncCompl_le hp hpq ht) ?_
   apply mul_lt_top
   · push Not at ht'
     finiteness
@@ -943,10 +938,7 @@ lemma res_subset_Ioi {j : Bool} {β : ℝ≥0∞} : res j β ⊆ Ioi 0 := by
   split_ifs
   · exact fun ⦃a⦄ a ↦ a
   · simp
-  · simp only [Ioi]
-    intro s hs
-    rw [mem_ofPred]
-    exact hs.1
+  · grind
   · exact Ioi_subset_Ioi toReal_nonneg
 
 instance decidableMemRes {t : ℝ} {j : Bool} {β : ℝ≥0∞} : Decidable (t ∈ res j β) := by
@@ -1137,18 +1129,6 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : 0 < β) (hσ : σ < -1) 
   · apply integrableOn_Ioi_rpow_of_lt hσ hβ
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     exact fun s hs ↦ Real.rpow_nonneg (lt_trans hβ hs).le σ
-
-lemma lintegral_rpow_Ioi_top {γ : ℝ} :
-    ∫⁻ s : ℝ in Ioi 0, .ofReal (s ^ γ) = ∞ := by
-  by_contra h
-  apply (not_integrableOn_Ioi_rpow γ)
-  refine ⟨by fun_prop, ?_⟩
-  calc
-  _ = ∫⁻ (a : ℝ) in Ioi 0, .ofReal (a ^ γ) ∂volume := by
-    apply lintegral_congr_ae
-    filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
-    exact fun _ ha ↦ enorm_of_nonneg (rpow_nonneg ha.le γ)
-  _ < ⊤ := Ne.lt_top' fun a ↦ h (Eq.symm a)
 
 lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j then γ > -1 else γ < -1) :
   ∫⁻ s : ℝ in res j β, ENNReal.ofReal (s ^ γ) = β ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by

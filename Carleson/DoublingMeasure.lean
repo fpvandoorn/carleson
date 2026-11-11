@@ -2,6 +2,7 @@ module
 
 public import Carleson.LipschitzNorm
 public import Carleson.ToMathlib.Annulus
+public import Carleson.ToMathlib.MeasureTheory.Constructions.BorelSpace.Metric
 public import Carleson.ToMathlib.MeasureTheory.Measure.IsDoubling
 
 @[expose] public section
@@ -275,7 +276,7 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
     rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
     have : φ y = 0 := by
       apply notMem_support.1
-      contrapose! hy
+      contrapose hy
       exact h2 hy
     simp [this]
   · rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_mul (by positivity),
@@ -296,7 +297,7 @@ def vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ≥0�
 
 @[fun_prop]
 lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
-    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] :
+    [MeasureSpace X] [OpensMeasurableSpace X] :
     Measurable (uncurry vol : X × X → ℝ≥0∞) := by
   let f : X × X → X × ℝ := fun (x, y) ↦ (x, dist x y)
   let g : X × ℝ → ℝ≥0∞ := fun (x, a) ↦ volume (ball x a)
@@ -306,7 +307,7 @@ lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology 
 
 @[fun_prop]
 lemma measurable_vol₁ {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
-    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] {y : X} :
+    [MeasureSpace X] [OpensMeasurableSpace X] {y : X} :
     Measurable (vol · y) := by
   change Measurable (uncurry vol ∘ fun x : X ↦ (x, y))
   apply Measurable.comp <;> fun_prop

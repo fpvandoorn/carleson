@@ -24,7 +24,7 @@ lemma integrableOn_K_mul_f {x' : X} (hf : BoundedCompactSupport f volume) {r : �
   have ⟨C, hC⟩ := Metric.isBounded_iff.mp hf.isBoundedSupport
   have : support (fun y ↦ f y * K x' y) ⊆ closedBall x' (dist x' x'' + C) := by
     intro y hy
-    have : y ∈ support f := by contrapose! hy; simp [hy]
+    have : y ∈ support f := by contrapose hy; simp [hy]
     exact mem_closedBall'.mp <| (dist_triangle x' x'' y).trans <| add_le_add_right (hC hx'' this) _
   simp_rw [mul_comm (K x' _), IntegrableOn, ← integrableOn_iff_integrable_of_support_subset this]
   apply hf.restrict.restrict.integrable_mul
@@ -113,7 +113,8 @@ private lemma annulus_integral_bound {x : X} {g : X → ℂ} {r₁ r₂ r₃ r�
     _ = ‖(∫ y in Annulus.cc x r₁ r₄ ∩ Annulus.oc x r₂ r₃, g y) +
         ∫ y in Annulus.cc x r₁ r₄ ∩ (Annulus.oc x r₂ r₃)ᶜ, g y‖ₑ := by
       congr 1
-      rw [← setIntegral_union (disjoint_left.mpr (fun _ h₁ h₂ ↦ h₂.2 h₁.2)) (by measurability),
+      rw [← setIntegral_union (disjoint_compl_right.mono inter_subset_right inter_subset_right)
+        (by measurability),
         inter_union_compl] <;> exact hg.mono_set inter_subset_left
   _ ≤ ‖∫ y in Annulus.cc x r₁ r₄ ∩ Annulus.oc x r₂ r₃, g y‖ₑ +
       ‖∫ y in Annulus.cc x r₁ r₄ ∩ (Annulus.oc x r₂ r₃)ᶜ, g y‖ₑ := enorm_add_le _ _
@@ -736,7 +737,8 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     simp_rw [e728_push_toReal hf]
     refine BoundedCompactSupport.finset_sum fun I _ ↦ ?_
     refine BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
-      (Metric.isBounded_ball.subset Grid_subset_ball).isCompact_closure coeGrid_measurable
+      (Metric.isBounded_ball.subset Grid_subset_ball).isCompact_closure
+      coeGrid_measurable.nullMeasurableSet
   have elpn_eq : eLpNorm (fun x ↦ (t.boundaryOperator u f x).toReal) 2 volume =
       eLpNorm (t.boundaryOperator u f) 2 volume :=
     eLpNorm_toReal_eq (Eventually.of_forall fun _ ↦ (boundaryOperator_lt_top hf).ne)

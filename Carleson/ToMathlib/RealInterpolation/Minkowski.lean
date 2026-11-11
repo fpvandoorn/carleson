@@ -555,7 +555,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h : α → ENNReal}
   rw [Measure.restrict_apply₀']
   · refine measure_mono_null (fun x h₀ ↦ ?_) measure_empty
     have : g x = h x := hgh _ (mem_of_mem_inter_right h₀)
-    have : x ∈ {a | ¬g a = h a} := mem_of_mem_sdiff h₀
+    have : x ∈ {a | ¬g a = h a} := mem_of_mem_inter_left h₀
     change ¬ (g x = h x) at this
     contradiction
   · exact (aestronglyMeasurable_iff_aemeasurable.mpr hf.enorm).nullMeasurableSet_support
@@ -971,7 +971,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
           eLpNorm f p μ ^ p.toReal) := by
         rw [ENNReal.mul_rpow_of_nonneg _ _ toReal_nonneg]
         gcongr
-        exact estimate_eLpNorm_truncCompl hp ⟨hp₀, hp₀p.le⟩ hf.aestronglyMeasurable a_pos
+        exact rpow_eLpNorm_truncCompl_le hp ⟨hp₀, hp₀p.le⟩ a_pos
       _ = (↑C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal * (d ^ p₀.toReal)⁻¹ * (t ^ p₀.toReal) := by
         rw [ha, ← ENNReal.rpow_mul, div_mul_cancel₀]
         · -- FIXME: can/should this be shared with the lemma below?
