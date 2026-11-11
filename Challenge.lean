@@ -9,7 +9,7 @@ This is the Challenge file (the statement file a reader should audit) for the Ca
 formalization project <https://github.com/fpvandoorn/carleson>. It imports only Mathlib. The
 definitions below are verbatim copies of the ones in `Carleson/Defs.lean` of the project (only
 the documentation has been expanded), so they are the exact definitions the proofs use.
-`PalomarSolution.lean` proves the three theorems at the end of this file.
+`Solution.lean` proves the three theorems at the end of this file.
 
 The mathematical source is the blueprint
 *A blueprint for the formalization of Carleson's theorem on convergence of Fourier series*
@@ -124,7 +124,7 @@ blueprint.
 * In the project the constant of Theorems 1.1.1 and 1.1.2 is `C1_0_2 a q`. It is defined in terms
   of a parameter `𝕔 = 100` (the blueprint takes `D = 2 ^ (100 a²)`) and equals
   `2 ^ (443 a³) / (q - 1) ^ 6`. Here we write this value explicitly, which is how the blueprint
-  states the theorems. `PalomarSolution.lean` does the conversion.
+  states the theorems. `Solution.lean` does the conversion.
 -/
 
 @[expose] public noncomputable section

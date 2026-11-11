@@ -7,10 +7,10 @@ public import Carleson.MetricCarleson.Main
 # Solution file for Carleson's theorem and the metric space Carleson theorems
 
 This is the Solution file for the Carleson formalization project
-<https://github.com/fpvandoorn/carleson>. `PalomarChallenge.lean` states three theorems, and this
+<https://github.com/fpvandoorn/carleson>. `Challenge.lean` states three theorems, and this
 file proves them using the rest of the project.
 
-The definitions used in `PalomarChallenge.lean` (`partialFourierSum`, `KernelProofData`,
+The definitions used in `Challenge.lean` (`partialFourierSum`, `KernelProofData`,
 `IsCancellative`, `carlesonOperator`, ...) are verbatim copies of the definitions in
 `Carleson/Defs.lean`. This file gets those definitions by importing the project (which imports
 `Carleson.Defs`), so the statements below are the same terms as in the Challenge. Each theorem
@@ -38,7 +38,7 @@ open MeasureTheory Set ENNReal
 open scoped NNReal
 
 /-- For `q > 1`, the constant `C1_0_2 a q` of the metric space Carleson theorems equals
-`2 ^ (443 * a ^ 3) / (q - 1) ^ 6`, the value used in the blueprint and in `PalomarChallenge`. -/
+`2 ^ (443 * a ^ 3) / (q - 1) ^ 6`, the value used in the blueprint and in `Challenge`. -/
 private lemma coe_C1_0_2 {a : ℕ} {q : ℝ≥0} (hq : q ∈ Ioc 1 2) :
     (C1_0_2 a q : ℝ≥0∞) = 2 ^ (443 * a ^ 3) / (q - 1) ^ 6 := by
   simp only [C1_0_2, 𝕔, Nat.reduceMul, Nat.reduceAdd, Nat.reduceDiv]

@@ -69,7 +69,7 @@ You can also check this formalization using Comparator, the gold standard for ch
   `sudo cp .lake/build/bin/comparator /usr/local/bin/` and `sudo cp .lake/build/bin/lean4export /usr/local/bin/` in the respective repositories
 * Run
 ```
-systemd-run --property=RestrictAddressFamilies=~AF_UNIX --user --pty -E PATH="$PATH" --working-directory "$(pwd)" -- bash -c 'lake env comparator comparator_config.json'
+systemd-run --property=RestrictAddressFamilies=~AF_UNIX --user --pty -E PATH="$PATH" --working-directory "$(pwd)" -- bash -c 'lake env comparator comparator_palomar.json'
 ```
 You will see a message like `Your solution is okay!`, indicating that comparator accepts your solution.
 
