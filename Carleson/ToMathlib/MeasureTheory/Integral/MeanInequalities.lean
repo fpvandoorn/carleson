@@ -1,11 +1,15 @@
 module
 
+public import Mathlib.Tactic.Basify
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 public import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 
 public section
+
+attribute [basify_op ←] ENNReal.ofNNReal_toNNReal
+attribute [basify_op] Real.coe_toNNReal'
 
 -- Upstreaming status: results seems useful; proofs may need polish
 -- Needs dependencies to be upstreamed first.
@@ -142,10 +146,8 @@ theorem eLpNorm_top_convolution_le [μ.IsNegInvariant] {p q : ℝ≥0∞} (hpq :
   apply le_trans <| enorm_integral_le_lintegral_enorm _
   calc ∫⁻ y, ‖(L (f y)) (g (x - y))‖ₑ ∂μ
     _ ≤ ∫⁻ y, ENNReal.ofReal c * ‖f y‖ₑ * ‖g (x - y)‖ₑ ∂μ := by
-      simp_rw [← ofReal_norm, ← ENNReal.ofReal_mul hc.le]
-      refine lintegral_mono (fun y ↦ ?_)
-      rw [← ENNReal.ofReal_mul <| mul_nonneg hc.le (norm_nonneg _)]
-      exact ENNReal.ofReal_le_ofReal <| hL y (x - y)
+      refine lintegral_mono fun y ↦ ?_
+      basify <;> grw [hL y (x - y), ← le_max_left c 0]
     _ ≤ _ := by
       simp_rw [mul_assoc, lintegral_const_mul' _ _ ofReal_ne_top]
       have hg' : eLpNorm (g <| x - ·) q μ = eLpNorm g q μ :=
@@ -186,11 +188,9 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm
     exact this.symm
   calc ‖(f ⋆[L, μ] g) x‖ₑ
     _ ≤ ∫⁻ y, ‖L (f y) (g (x - y))‖ₑ ∂μ := enorm_integral_le_lintegral_enorm _
-    _ ≤ ∫⁻ y, .ofReal c * (‖f y‖ₑ * ‖g (x - y)‖ₑ) ∂μ := by
+    _ ≤ ∫⁻ y, .ofReal c * ‖f y‖ₑ * ‖g (x - y)‖ₑ ∂μ := by
       refine lintegral_mono fun y ↦ ?_
-      rw [← ofReal_norm, ← ofReal_norm, ← ofReal_norm, ← ofReal_mul (by positivity),
-        ← ofReal_mul' (by positivity), ← mul_assoc]
-      exact ofReal_le_ofReal (hL y (x - y))
+      basify <;> grw [hL y (x - y), ← le_max_left c 0]
     _ = ∫⁻ y, .ofReal c * ∏ i, F i y ∂μ := by
       refine lintegral_congr fun y ↦ ?_
       have split (a : ℝ≥0∞) {e : ℝ} (e0 : 0 < e) (re0 : 0 ≤ r - e) :
