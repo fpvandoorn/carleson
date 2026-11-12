@@ -105,7 +105,7 @@ private lemma eLpNorm_enorm_rpow_le (h : G → E) {r e : ℝ} (e0 : 0 < e) (re0 
   rcases (sub_nonneg.mp re0).eq_or_lt with rfl | er
   · simp [eLpNorm_exponent_top aestronglyMeasurable_const, eLpNormEssSup_le_of_ae_enorm_bound]
   have r0 : 0 < r := e0.trans er
-  have hexp : 0 < (r - e) / r := div_pos (sub_pos.mpr er) r0
+  have hexp : 0 < (r - e) / r := by positivity
   by_cases hh : AEStronglyMeasurable h μ; swap
   · simp [eLpNorm_of_not_aestronglyMeasurable hh, top_rpow_of_pos hexp]
   have : (r - e) / r / (e⁻¹ - r⁻¹) = e := by field_simp
