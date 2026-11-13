@@ -21,27 +21,43 @@ sources:
   - title: "A blueprint for the formalization of Carleson’s theorem on convergence of Fourier series"
     authors: [Lars Becker, María Inés de Frutos-Fernández, Leo Diedering, Floris van Doorn, Sébastien Gouëzel, Asgar Jamneshan, Evgenia Karunus, Edward van de Meent, Pietro Monticone, Jasper Mulder-Sohn, Jim Portegies, Joris Roos, Michael Rothgang, Rajula Srivastava, James Sundstrom, Jeremy Tan, Christoph Thiele]
     id: "https://florisvandoorn.com/carleson/blueprint/"
-    type: "blueprint"                   # kind of source (textbook, preprint, blueprint, ...)
+    type: "paper"                   # kind of source (textbook, preprint, blueprint, ...)
     relationship: "formalizes"
     license: "Apache-2.0"
     author_endorsement: "participated"
+  - title: "Carleson operators on doubling metric measure spaces"
+    authors: [Lars Becker, Floris van Doorn, Asgar Jamneshan, Rajula Srivastava, Christoph Thiele]
+    id: "arXiv:2508.05563"
+    type: "paper"
+    location: "Theorem 1.1 (metric space Carleson) and Theorem 1.2 (linearised metric Carleson)"
+    relationship: "formalizes"
+    note: "The source of the metric space Carleson theorem and its linearised version (Theorems 1.1.1 and 1.1.2 of the blueprint). The blueprint contains a more detailed version of the proof in this paper, and the formalization follows the blueprint."
+    author_endorsement: "participated"
+  - title: "On convergence and growth of partial sums of Fourier series"
+    authors: [Lennart Carleson]
+    id: "https://doi.org/10.1007/BF02392815"
+    type: "paper"
+    relationship: "other"
+    note: "Acta Mathematica 116 (1966). The original source of Carleson's theorem, proved there for L² functions. The formalization proves the special case of continuous functions, with the proof from the blueprint, which differs from Carleson's proof."
+    author_endorsement: "n/a"
 
 classification:
-  arXiv: ["math.CA"]
-  msc: ["42B20"]
+  arxiv: ["math.CA"]
+  msc2020: ["42B20"]
 
 # project status
 status:
   scope: "A general Carleson theorem for doubling measure metric spaces and Carleson's classical theorem for continuous periodic functions on the real line."
-  sorry_count: 2               # Note: these are only for the declaration carleson_hunt, not for the main theorems we prove
-  sorry_in_definitions: 1      # A constant of the Lorentz interpolation theorem.
+  sorry_count: 3
+  sorry_in_definitions: 1
+  known_gaps: "The only sorries outside the Comparator challenge files are three in Carleson/ToMathlib/RealInterpolation/LorentzInterpolation.lean: the definition C_LorentzInterpolation and the proofs of C_LorentzInterpolation_pos and exists_hasLorentzType_real_interpolation. Of the declarations in main_results, only carleson_hunt depends on them; the three theorems checked by Comparator do not."
   axioms: [propext, Classical.choice, Quot.sound]
   main_results:                # list the main results of the project
   - declaration: "metric_carleson"            # declaration proving this main result
     file: "Carleson/MetricCarleson/Main.lean"                   # file containing the declaration
     sorry_count: 0             # number of sorries used for this declaration
     axioms: [propext, Classical.choice, Quot.sound]                 # axioms used for this result
-    comparator_config: "comparator_config.json"      # path to the comparator (leanprover/comparator) JSON config that verifies this result
+    comparator_config: "comparator_palomar.json"      # path to the comparator (leanprover/comparator) JSON config that verifies this result
     literature_dependencies:   # results this result relies on but does not prove, assumed from the literature
     - statement: ""            # the result being relied on
       source: ""               # the specific source it comes from (reference a `sources` entry)
@@ -49,7 +65,7 @@ status:
     file: "Carleson/Classical/ClassicalCarleson.lean"                   # file containing the declaration
     sorry_count: 0             # number of sorries used for this declaration
     axioms: [propext, Classical.choice, Quot.sound]                 # axioms used for this result
-    comparator_config: "comparator_config.json"      # path to the comparator (leanprover/comparator) JSON config that verifies this result
+    comparator_config: "comparator_palomar.json"      # path to the comparator (leanprover/comparator) JSON config that verifies this result
   - declaration: "carleson_hunt"            # declaration proving this main result
     file: "Carleson/Classical/CarlesonHunt.lean"                   # file containing the declaration
     sorry_count: 3             # number of sorries used for this declaration
@@ -60,12 +76,21 @@ status:
 automation:                    # [required]
   methods:                     # [required] one entry per distinct phase/run/tool
     - method: "manual"               # [required] manual | copilot | agent | autonomous | other
+    - method: "agent"
+      models: ["claude-opus-5-5"]
+      framework: "Claude Code"
+      tool_setup: "Claude Code in VS Code."
+      cost:
+        wall_time: "about 0.5 hours"
+        hardware: "API-only"
+      prompting_notes: >-
+        Used only to generate the Palomar wrapper files
   spend_usd: "0 (roughly)"
-  notes: "no AI usage, except perhaps the occasional mathematical question"
+  notes: "no AI usage, except perhaps the occasional mathematical question and wrapper files"
 
 # fidelity
 fidelity:
-  divergences: "The classical Carleson theorem is only proven for continuous functions. Compared to the blueprint proof, we proved a general version of the Marcinkiewicz interpolation theorem, and there were minor divergences related to the Hardy--Littlewood's maximal function"              # places the formalization deviates from sources: generalizations, weakened hypotheses, renamed lemmas, etc.
+  divergences: "The classical Carleson theorem is only proven for continuous functions. Compared to the blueprint proof, we proved a general version of the Marcinkiewicz interpolation theorem, and there were minor divergences related to the Hardy--Littlewood's maximal function. In the statements of the metric space Carleson theorems, the cancellativity hypothesis (IsCancellative, condition (1.1.9) of the blueprint) is at least as strong as in the blueprint: its test functions are the functions supported in the ball B with finite Lipschitz norm on B, and such a function need not be continuous on the whole space (for example the indicator function of B), whereas the blueprint only requires the condition for Lipschitz functions on the whole space supported in B. The formal hypothesis holds in the classical case of the real line, as the project proves. The other differences between the formal statements and the blueprint are formal details; Challenge.lean lists them and explains why each one is harmless."              # places the formalization deviates from sources: generalizations, weakened hypotheses, renamed lemmas, etc.
 
 # review status
 review:
