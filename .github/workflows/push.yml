@@ -20,7 +20,9 @@ jobs:
           ! (find Carleson -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
 
   build_project:
-    runs-on: ubuntu-latest
+    # Used to be "runs-on: ubuntu-latest", we switched it to "runs-on: ubuntu-24.04" to fix the build error.
+    # Can be switched back to "runs-on: ubuntu-latest" once this issue is solved: https://github.com/leanprover/doc-gen4/issues/434.
+    runs-on: ubuntu-24.04
     name: Build project
     steps:
       - name: Cleanup to free disk space
