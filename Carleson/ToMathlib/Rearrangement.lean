@@ -808,18 +808,6 @@ lemma lintegral_withDensity_le_lintegral_rearrangement_withDensity {ε} [Topolog
         simp
 -/
 
--- Lemma 1.1.24 of [Ian Tice]
-lemma setLIntegral_enorm_le_lintegral_rearrangement {X : Set α} (hX : NullMeasurableSet X μ) :
-    ∫⁻ x in X, ‖f x‖ₑ ∂μ ≤ ∫⁻ t in Set.Iio (μ X), rearrangement f t μ := by
-  obtain ⟨g, hg, g_le, hfg⟩ := exists_measurable_le_lintegral_eq (μ := μ.restrict X) (‖f ·‖ₑ)
-  rw [hfg, ← lintegral_indicator₀ hX, ← lintegral_indicator measurableSet_Iio]
-  have := lintegral_rearrangement (μ := μ) (hg.aemeasurable.indicator₀ hX).aestronglyMeasurable
-  simp only [enorm_eq_self] at this
-  rw [← this]
-  gcongr with t
-  refine rearrangement_indicator_le.trans (Set.indicator_le_indicator ?_)
-  exact rearrangement_mono_fun (.of_forall fun x ↦ by simpa using g_le x)
-
 lemma setLIntegral_enorm_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : NullMeasurableSet X μ) :
     ∫⁻ x in X, ‖f x‖ₑ ∂μ =
@@ -849,6 +837,14 @@ lemma lintegral_rearrangement_eq' {f : α → ε} {t : ℝ≥0∞} :
   simp_rw [lt_rearrangement_iff_lt_distribution, Set.Iio_def, Set.Iio_inter_Iio]
   rw [ENNReal.volume_Iio]
   rfl
+
+-- Lemma 1.1.24 of [Ian Tice]
+lemma setLIntegral_enorm_le_lintegral_rearrangement {X : Set α} (hX : NullMeasurableSet X μ) :
+    ∫⁻ x in X, ‖f x‖ₑ ∂μ ≤ ∫⁻ t in Set.Iio (μ X), rearrangement f t μ := by
+  obtain ⟨g, hg, g_le, hfg⟩ := exists_measurable_le_lintegral_eq (μ := μ.restrict X) (‖f ·‖ₑ)
+  rw [hfg, setLIntegral_eq hg.aemeasurable hX, lintegral_rearrangement_eq']
+  gcongr with t
+  exact le_min (measure_mono fun x hx ↦ hx.2.trans_le (g_le x)) (measure_mono Set.inter_subset_left)
 
 lemma lintegral_rearrangement_eq'' {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} :
