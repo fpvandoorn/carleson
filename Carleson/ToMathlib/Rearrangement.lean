@@ -809,8 +809,7 @@ lemma lintegral_withDensity_le_lintegral_rearrangement_withDensity {ε} [Topolog
 -/
 
 -- Lemma 1.1.24 of [Ian Tice]
-lemma setLIntegral_enorm_le_lintegral_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
-    {f : α → ε} {X : Set α} (hX : NullMeasurableSet X μ) :
+lemma setLIntegral_enorm_le_lintegral_rearrangement {X : Set α} (hX : NullMeasurableSet X μ) :
     ∫⁻ x in X, ‖f x‖ₑ ∂μ ≤ ∫⁻ t in Set.Iio (μ X), rearrangement f t μ := by
   obtain ⟨g, hg, g_le, hfg⟩ := exists_measurable_le_lintegral_eq (μ := μ.restrict X) (‖f ·‖ₑ)
   rw [hfg, ← lintegral_indicator₀ hX, ← lintegral_indicator measurableSet_Iio]
