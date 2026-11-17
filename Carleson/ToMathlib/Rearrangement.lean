@@ -420,53 +420,14 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem' {ε} [TopologicalSpace ε] 
   · rw [← distribution_zero_eq_measure_support, distribution_indicator_superlevelSet]
     exact min_lt_of_left_lt hT'
 
-lemma measure_enorm_eq_eq_volume_rearrangement_eq {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
-  {f : α → ε} (hf : AEStronglyMeasurable f μ) {a : ℝ≥0∞}
-  (ha : distribution f a μ ≠ ∞) (h : μ {x | ‖f x‖ₑ = a} = ⊤) :
-    volume {x | rearrangement f x μ = a} = ⊤ := by
-  rw [← top_le_iff]
-  calc _
-    _ ≤ volume {x | rearrangement f (x + distribution f a μ) μ = a} := by
-      simp_rw [← rearrangement_indicator_superlevelSet_compl hf ha]
-      rw [← ENNReal.volume_Iio (a := ∞)]
-      gcongr
-      intro x hx
-      simp only [Set.mem_Iio, Set.mem_ofPred_eq] at *
-      apply le_antisymm
-      · rw [rearrangement_le_iff_distribution_le]
-        have :  distribution ((superlevelSet f a)ᶜ.indicator f) a μ = 0 := by
-          unfold distribution superlevelSet Set.indicator
-          rw [← measure_empty (μ := μ)]
-          congr 1
-          ext x
-          simp only [Set.mem_compl_iff, Set.mem_ofPred_eq, not_lt, Set.mem_empty_iff_false,
-            iff_false]
-          split_ifs
-          · assumption
-          · simp
-        rw [this]
-        simp
-      · unfold rearrangement
-        apply le_sInf
-        intro b
-        simp only [Set.mem_ofPred_eq]
-        contrapose!
-        intro hb
-        unfold distribution
-        apply hx.trans_le
-        rw [← h]
-        gcongr with x
-        intro hfa
-        unfold Set.indicator superlevelSet
-        split_ifs with h
-        · rwa [hfa]
-        · simp at h
-          order
-    _ = Measure.map (· + distribution f a μ) volume {x | rearrangement f x μ = a} := by
-      rw [Measure.map_apply (by measurability) (by measurability)]
-      congr
-    _ ≤ volume {x | rearrangement f x μ = a} := by
-      apply ENNReal.volume_map_add_right_le_self ha (by measurability)
+lemma measure_enorm_eq_eq_volume_rearrangement_eq {a : ℝ≥0∞} (ha : distribution f a μ ≠ ∞)
+    (h : μ {x | ‖f x‖ₑ = a} = ⊤) : volume {x | rearrangement f x μ = a} = ⊤ := by
+  rw [← top_le_iff, ← ENNReal.top_sub ha, ← ENNReal.volume_Ioo]
+  gcongr
+  intro x ⟨hx, hx'⟩
+  refine le_antisymm (rearrangement_le_iff_distribution_le.2 hx.le) (le_sInf fun b hb ↦ ?_)
+  by_contra hba
+  grind [show μ {y | ‖f y‖ₑ = a} ≤ distribution f b μ from measure_mono fun y hy ↦ by simp_all]
 
 lemma measure_enorm_mem_eq_volume_rearrangement_mem {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   {f : α → ε} (hf : AEStronglyMeasurable f μ) {s : Set ℝ≥0∞}
@@ -808,21 +769,6 @@ lemma lintegral_withDensity_le_lintegral_rearrangement_withDensity {ε} [Topolog
         simp
 -/
 
--- Lemma 1.1.24 of [Ian Tice]
-lemma setLIntegral_enorm_le_lintegral_rearrangement {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε}
-  (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : MeasurableSet X) :
-    ∫⁻ x in X, ‖f x‖ₑ ∂μ ≤
-      ∫⁻ t in (Set.Iio (μ X)), rearrangement f t μ := by
-  rw [← lintegral_indicator hX, ← lintegral_indicator measurableSet_Iio]
-  have : (fun x ↦ ‖f x‖ₑ) = enorm ∘ f := by
-    ext x
-    simp only [Function.comp_apply]
-  rw [this, Set.indicator_comp_of_zero enorm_zero]
-  simp only [Function.comp_apply]
-  rw [← lintegral_rearrangement (by measurability)]
-  gcongr with t
-  exact rearrangement_indicator_le
-
 lemma setLIntegral_enorm_eq {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {X : Set α} (hX : NullMeasurableSet X μ) :
     ∫⁻ x in X, ‖f x‖ₑ ∂μ =
@@ -852,6 +798,14 @@ lemma lintegral_rearrangement_eq' {f : α → ε} {t : ℝ≥0∞} :
   simp_rw [lt_rearrangement_iff_lt_distribution, Set.Iio_def, Set.Iio_inter_Iio]
   rw [ENNReal.volume_Iio]
   rfl
+
+-- Lemma 1.1.24 of [Ian Tice]
+lemma setLIntegral_enorm_le_lintegral_rearrangement {X : Set α} (hX : NullMeasurableSet X μ) :
+    ∫⁻ x in X, ‖f x‖ₑ ∂μ ≤ ∫⁻ t in Set.Iio (μ X), rearrangement f t μ := by
+  obtain ⟨g, hg, g_le, hfg⟩ := exists_measurable_le_lintegral_eq (μ := μ.restrict X) (‖f ·‖ₑ)
+  rw [hfg, setLIntegral_eq hg.aemeasurable hX, lintegral_rearrangement_eq']
+  gcongr with t
+  exact le_min (measure_mono fun x hx ↦ hx.2.trans_le (g_le x)) (measure_mono Set.inter_subset_left)
 
 lemma lintegral_rearrangement_eq'' {ε} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
   (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} :
@@ -987,8 +941,9 @@ lemma lintegral_rearrangement_eq_and {ε} [TopologicalSpace ε] [ContinuousENorm
   rw [iSup_and']
 
 lemma Antitone.lintegral_withDensity_le {f d : ℝ≥0∞ → ℝ≥0∞} (hf : Antitone f)
-  (hf' : AEMeasurable f) (hd : d ≤ 1) (hd' : AEMeasurable d) :
+    (hd : d ≤ 1) (hd' : AEMeasurable d) :
     ∫⁻ t, f t ∂volume.withDensity d ≤ ∫⁻ t in Set.Iio (∫⁻ t, d t), f t := by
+  have hf' : AEMeasurable f := hf.measurable.aemeasurable
   set T := ∫⁻ t, d t with T_def
   by_cases d_int : T = ⊤
   · rw [d_int, lintegral_withDensity_eq_lintegral_mul₀' hd' (by fun_prop)]
@@ -1125,7 +1080,7 @@ lemma lintegral_rearrangement_eq''' {ε} [TopologicalSpace ε] [ContinuousENorm 
   · simp only [iSup_le_iff]
     intro d d_le_one d_int
     apply (lintegral_withDensity_le_lintegral_rearrangement_withDensity hf sorry).trans --TODO: assume measurability for d?
-    apply (Antitone.lintegral_withDensity_le rearrangement_antitone (by fun_prop) _ (by fun_prop)).trans_eq
+    apply (Antitone.lintegral_withDensity_le rearrangement_antitone _ (by fun_prop)).trans_eq
     · congr
       rw [← d_int, lintegral_rearrangement sorry] --TODO: assume measurability for d?
       simp
