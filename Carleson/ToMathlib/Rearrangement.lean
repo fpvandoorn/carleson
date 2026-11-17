@@ -420,26 +420,14 @@ lemma measure_enorm_mem_eq_volume_rearrangement_mem' {ε} [TopologicalSpace ε] 
   · rw [← distribution_zero_eq_measure_support, distribution_indicator_superlevelSet]
     exact min_lt_of_left_lt hT'
 
-lemma measure_enorm_eq_eq_volume_rearrangement_eq {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
-  {f : α → ε} {a : ℝ≥0∞} (ha : distribution f a μ ≠ ∞) (h : μ {x | ‖f x‖ₑ = a} = ⊤) :
-    volume {x | rearrangement f x μ = a} = ⊤ := by
+lemma measure_enorm_eq_eq_volume_rearrangement_eq {a : ℝ≥0∞} (ha : distribution f a μ ≠ ∞)
+    (h : μ {x | ‖f x‖ₑ = a} = ⊤) : volume {x | rearrangement f x μ = a} = ⊤ := by
   rw [← top_le_iff, ← ENNReal.top_sub ha, ← ENNReal.volume_Ioo]
   gcongr
   intro x ⟨hx, hx'⟩
-  apply le_antisymm
-  · rw [rearrangement_le_iff_distribution_le]
-    exact hx.le
-  · apply le_sInf
-    intro b
-    simp only [Set.mem_ofPred_eq]
-    contrapose!
-    intro hb
-    apply hx'.trans_le
-    rw [← h]
-    unfold distribution
-    gcongr with y
-    intro hfa
-    rwa [hfa]
+  refine le_antisymm (rearrangement_le_iff_distribution_le.2 hx.le) (le_sInf fun b hb ↦ ?_)
+  by_contra hba
+  grind [show μ {y | ‖f y‖ₑ = a} ≤ distribution f b μ from measure_mono fun y hy ↦ by simp_all]
 
 lemma measure_enorm_mem_eq_volume_rearrangement_mem {ε} [TopologicalSpace ε] [ENormedAddMonoid ε]
   {f : α → ε} (hf : AEStronglyMeasurable f μ) {s : Set ℝ≥0∞}
