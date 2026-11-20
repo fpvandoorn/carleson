@@ -211,14 +211,10 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm
       basify <;> grw [hL y (x - y), ← le_max_left c 0]
     _ = ∫⁻ y, .ofReal c * ∏ i, F i y ∂μ := by
       refine lintegral_congr fun y ↦ ?_
-      have split (a : ℝ≥0∞) {e : ℝ} (e0 : 0 < e) (re0 : 0 ≤ r - e) :
-          a ^ (e * (1 / r)) * a ^ ((r - e) / r) = a := by
-        rw [← rpow_add_of_nonneg _ _ (by positivity) (by positivity), mul_one_div, ← add_div,
-          add_sub_cancel, div_self r0.ne', rpow_one]
-      simp only [F, Fin.prod_univ_three, Matrix.cons_val]
-      rw [mul_rpow_of_nonneg _ _ (by positivity), ← rpow_mul, ← rpow_mul]
-      conv_lhs => rw [← split ‖f y‖ₑ p0 rp0, ← split ‖g (x - y)‖ₑ q0 rq0]
-      ring
+      simp (disch := positivity) only [F, Fin.prod_univ_three, Matrix.cons_val, mul_rpow_of_nonneg,
+        ← rpow_mul, mul_assoc (_ * _), mul_mul_mul_comm, ← rpow_add_of_nonneg]
+      field_simp
+      simp [r0.ne', mul_assoc]
     _ ≤ .ofReal c * ∏ i, eLpNorm (F i) (P i) μ := by
       rw [lintegral_const_mul' _ _ ofReal_ne_top]
       gcongr
