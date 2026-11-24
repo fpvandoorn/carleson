@@ -32,4 +32,23 @@ theorem MemLp.of_bilin' {p q r : ℝ≥0∞} {f : α → E} {g : α → F} (b : 
 
 end Bilinear
 
+section Prod
+
+variable {ι α : Type*} {_ : MeasurableSpace α} {μ : Measure α} {f : ι → α → ℝ≥0∞}
+  {p : ι → ℝ≥0∞} {s : Finset ι}
+
+open Finset in
+theorem eLpNorm_prod_le_ennreal {r : ℝ≥0∞} (hpr : ∑ i ∈ s, (p i)⁻¹ = r⁻¹) (hr : 0 < r) :
+    eLpNorm (∏ i ∈ s, f i) r μ ≤ ∏ i ∈ s, eLpNorm (f i) (p i) μ := by
+  induction s using cons_induction generalizing r with
+  | empty =>
+    simp [ENNReal.inv_eq_zero.mp hpr.symm, aestronglyMeasurable_one, eLpNormEssSup_le_of_ae_enorm_bound]
+  | cons i s hi ih =>
+    simp only [sum_cons, prod_cons] at hpr ⊢
+    have : HolderTriple (p i) (∑ j ∈ s, (p j)⁻¹)⁻¹ r := ⟨by simp [hpr]⟩
+    grw [← ih (inv_inv _).symm (hr.trans_le (HolderTriple.le _ (p i) r))]
+    exact eLpNorm_le_eLpNorm_mul_eLpNorm_ennreal_of_pos hr
+
+end Prod
+
 end MeasureTheory
