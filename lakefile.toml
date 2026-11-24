@@ -19,8 +19,8 @@ git = "https://github.com/leanprover-community/mathlib4.git"
 
 [[require]]
 name = "checkdecls"
-git = "https://github.com/PatrickMassot/checkdecls.git"
-rev = "master"
+git = "https://github.com/lakesare/checkdecls.git"
+rev = "comparator"
 
 [[lean_lib]]
 name = "Carleson"
